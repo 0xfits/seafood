@@ -1,0 +1,385 @@
+{
+ "probe": "recon-probe",
+ "backend_root": "/Users/kevin/bistro/seafood/backend-ts",
+ "secret_source": "env(.env.local)",
+ "secret_len": 64,
+ "stub_sql_calls": 18,
+ "stub_calls_for_C1": 3,
+ "assertions": {
+  "A1_503": true,
+  "B1_401": true,
+  "B2_401": true,
+  "B3_401": true,
+  "C1_200_ok_true": true,
+  "C1_three_checks": true,
+  "C1_sql_really_ran": true,
+  "C2_200": true,
+  "S1_flips_to_false": true,
+  "S2_baseline_enforced": true,
+  "S3_account_drift_fail": true,
+  "S4_batt_drift_fail": true,
+  "E1_404": true,
+  "E2_post_not_200": true,
+  "no_secret_echo": true
+ },
+ "readings": [
+  {
+   "id": "A1_no_secret_configured",
+   "method": "GET",
+   "url": "/api/ops/recon/ledger",
+   "auth": "none",
+   "mode": "clean",
+   "status": 503,
+   "body_keys": [
+    "success",
+    "message",
+    "error"
+   ],
+   "data_keys": [],
+   "check_ids": [],
+   "check_status": [],
+   "rows": [],
+   "error_code": null,
+   "message": "CRON_SECRET not configured",
+   "secret_echoed": false,
+   "note": "CRON_SECRET 未配 ⇒ 期望 503"
+  },
+  {
+   "id": "B1_no_header",
+   "method": "GET",
+   "url": "/api/ops/recon/ledger",
+   "auth": "none",
+   "mode": "clean",
+   "status": 401,
+   "body_keys": [
+    "error"
+   ],
+   "data_keys": [],
+   "check_ids": [],
+   "check_status": [],
+   "rows": [],
+   "error_code": "AUTH_UNAUTHORIZED",
+   "secret_echoed": false,
+   "note": "secret 已配、无头 ⇒ 期望 401"
+  },
+  {
+   "id": "B2_wrong_bearer",
+   "method": "GET",
+   "url": "/api/ops/recon/ledger",
+   "auth": "bearer(wrong)",
+   "mode": "clean",
+   "status": 401,
+   "body_keys": [
+    "error"
+   ],
+   "data_keys": [],
+   "check_ids": [],
+   "check_status": [],
+   "rows": [],
+   "error_code": "AUTH_UNAUTHORIZED",
+   "secret_echoed": false,
+   "note": "错 Bearer ⇒ 期望 401"
+  },
+  {
+   "id": "B3_wrong_header_secret",
+   "method": "GET",
+   "url": "/api/ops/recon/ledger",
+   "auth": "x-cron-secret(wrong)",
+   "mode": "clean",
+   "status": 401,
+   "body_keys": [
+    "error"
+   ],
+   "data_keys": [],
+   "check_ids": [],
+   "check_status": [],
+   "rows": [],
+   "error_code": "AUTH_UNAUTHORIZED",
+   "secret_echoed": false,
+   "note": "错 x-cron-secret ⇒ 期望 401"
+  },
+  {
+   "id": "C1_correct_bearer_clean",
+   "method": "GET",
+   "url": "/api/ops/recon/ledger",
+   "auth": "bearer(correct · 值不打印)",
+   "mode": "clean",
+   "status": 200,
+   "body_keys": [
+    "success",
+    "message",
+    "data"
+   ],
+   "data_keys": [
+    "ok",
+    "checks",
+    "checked_at",
+    "duration_ms"
+   ],
+   "ok": true,
+   "check_ids": [
+    "supply_vs_ledger",
+    "account_vs_ledger",
+    "batt_account_vs_batt_entry"
+   ],
+   "check_status": [
+    "PASS",
+    "PASS",
+    "PASS"
+   ],
+   "rows": [
+    1,
+    0,
+    0
+   ],
+   "error_code": null,
+   "message": "Ledger recon completed",
+   "secret_echoed": false,
+   "note": "干净夹具 ⇒ 200 + ok:true + 三条 PASS"
+  },
+  {
+   "id": "C2_correct_header_secret_clean",
+   "method": "GET",
+   "url": "/api/ops/recon/ledger",
+   "auth": "x-cron-secret(correct)",
+   "mode": "clean",
+   "status": 200,
+   "body_keys": [
+    "success",
+    "message",
+    "data"
+   ],
+   "data_keys": [
+    "ok",
+    "checks",
+    "checked_at",
+    "duration_ms"
+   ],
+   "ok": true,
+   "check_ids": [
+    "supply_vs_ledger",
+    "account_vs_ledger",
+    "batt_account_vs_batt_entry"
+   ],
+   "check_status": [
+    "PASS",
+    "PASS",
+    "PASS"
+   ],
+   "rows": [
+    1,
+    0,
+    0
+   ],
+   "error_code": null,
+   "message": "Ledger recon completed",
+   "secret_echoed": false,
+   "note": "备用头同样放行 ⇒ 200"
+  },
+  {
+   "id": "S1_supply_drift_should_fail",
+   "method": "GET",
+   "url": "/api/ops/recon/ledger",
+   "auth": "bearer(correct)",
+   "mode": "supply_drift",
+   "status": 200,
+   "body_keys": [
+    "success",
+    "message",
+    "data"
+   ],
+   "data_keys": [
+    "ok",
+    "checks",
+    "checked_at",
+    "duration_ms"
+   ],
+   "ok": false,
+   "check_ids": [
+    "supply_vs_ledger",
+    "account_vs_ledger",
+    "batt_account_vs_batt_entry"
+   ],
+   "check_status": [
+    "FAIL",
+    "PASS",
+    "PASS"
+   ],
+   "rows": [
+    1,
+    0,
+    0
+   ],
+   "diff": [
+    "2000001"
+   ],
+   "error_code": null,
+   "message": "Ledger recon detected drift",
+   "secret_echoed": false,
+   "note": "反向臂①：diff 2000000→2000001 ⇒ 期望 ok:false + supply_vs_ledger FAIL"
+  },
+  {
+   "id": "S2_baseline_table_enforced",
+   "method": "GET",
+   "url": "/api/ops/recon/ledger",
+   "auth": "bearer(correct)",
+   "mode": "unregistered_cid_baseline",
+   "status": 200,
+   "body_keys": [
+    "success",
+    "message",
+    "data"
+   ],
+   "data_keys": [
+    "ok",
+    "checks",
+    "checked_at",
+    "duration_ms"
+   ],
+   "ok": false,
+   "check_ids": [
+    "supply_vs_ledger",
+    "account_vs_ledger",
+    "batt_account_vs_batt_entry"
+   ],
+   "check_status": [
+    "FAIL",
+    "PASS",
+    "PASS"
+   ],
+   "rows": [
+    2,
+    0,
+    0
+   ],
+   "diff": [
+    "0"
+   ],
+   "error_code": null,
+   "message": "Ledger recon detected drift",
+   "secret_echoed": false,
+   "note": "反向臂②：cid=21 基线 1、喂 diff=0 ⇒ 期望 FAIL"
+  },
+  {
+   "id": "S3_account_drift_should_fail",
+   "method": "GET",
+   "url": "/api/ops/recon/ledger",
+   "auth": "bearer(correct)",
+   "mode": "account_drift",
+   "status": 200,
+   "body_keys": [
+    "success",
+    "message",
+    "data"
+   ],
+   "data_keys": [
+    "ok",
+    "checks",
+    "checked_at",
+    "duration_ms"
+   ],
+   "ok": false,
+   "check_ids": [
+    "supply_vs_ledger",
+    "account_vs_ledger",
+    "batt_account_vs_batt_entry"
+   ],
+   "check_status": [
+    "PASS",
+    "FAIL",
+    "PASS"
+   ],
+   "rows": [
+    1,
+    1,
+    0
+   ],
+   "diff": [
+    null
+   ],
+   "error_code": null,
+   "message": "Ledger recon detected drift",
+   "secret_echoed": false,
+   "note": "反向臂③：account 漂移 1 行 ⇒ 期望 account_vs_ledger FAIL"
+  },
+  {
+   "id": "S4_batt_drift_should_fail",
+   "method": "GET",
+   "url": "/api/ops/recon/ledger",
+   "auth": "bearer(correct)",
+   "mode": "batt_drift",
+   "status": 200,
+   "body_keys": [
+    "success",
+    "message",
+    "data"
+   ],
+   "data_keys": [
+    "ok",
+    "checks",
+    "checked_at",
+    "duration_ms"
+   ],
+   "ok": false,
+   "check_ids": [
+    "supply_vs_ledger",
+    "account_vs_ledger",
+    "batt_account_vs_batt_entry"
+   ],
+   "check_status": [
+    "PASS",
+    "PASS",
+    "FAIL"
+   ],
+   "rows": [
+    1,
+    0,
+    1
+   ],
+   "diff": [
+    null
+   ],
+   "error_code": null,
+   "message": "Ledger recon detected drift",
+   "secret_echoed": false,
+   "note": "反向臂④：batt 漂移 1 行 ⇒ 期望 batt_account_vs_batt_entry FAIL"
+  },
+  {
+   "id": "E1_unregistered_path",
+   "method": "GET",
+   "url": "/api/ops/recon/ledger-not-a-route",
+   "auth": "none",
+   "mode": "clean",
+   "status": 404,
+   "body_keys": [
+    "error"
+   ],
+   "data_keys": [],
+   "check_ids": [],
+   "check_status": [],
+   "rows": [],
+   "error_code": "LEDGER_REF_NOT_FOUND",
+   "secret_echoed": false,
+   "note": "对照：未注册路径 ⇒ 404 route_not_found"
+  },
+  {
+   "id": "E2_post_not_registered",
+   "method": "POST",
+   "url": "/api/ops/recon/ledger",
+   "auth": "bearer(correct)",
+   "mode": "clean",
+   "status": 404,
+   "body_keys": [
+    "error"
+   ],
+   "data_keys": [],
+   "check_ids": [],
+   "check_status": [],
+   "rows": [],
+   "error_code": "LEDGER_REF_NOT_FOUND",
+   "secret_echoed": false,
+   "note": "本单只注册 GET ⇒ POST 落 catch-all（非 200）"
+  }
+ ],
+ "all_assertions_pass": true
+}

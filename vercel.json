@@ -35,6 +35,10 @@
     {
       "path": "/api/translate/backfill",
       "schedule": "0 18 * * *"
+    },
+    {
+      "path": "/api/ops/recon/ledger",
+      "schedule": "30 18 * * *"
     }
   ]
 }

@@ -1,0 +1,202 @@
+{
+ "probe": "recon-real-read",
+ "target": "dev (DATABASE_URL from backend-ts/.env.local)",
+ "identity": {
+  "project_id": "quiet-math-65207667",
+  "branch_id": "br-soft-lake-b3iv9tli",
+  "db": "neondb"
+ },
+ "schema_top": "0048",
+ "report": {
+  "ok": false,
+  "checks": [
+   {
+    "id": "supply_vs_ledger",
+    "status": "FAIL",
+    "rows": 15,
+    "diff": "0",
+    "sample": [
+     {
+      "cid": "1",
+      "symbol": "$",
+      "total_supply": "2010200",
+      "sum_mint": "2210276",
+      "sum_burn": "-200076",
+      "ledger_derived": "2010200",
+      "diff": "0",
+      "baseline": "2000000",
+      "ok": false
+     },
+     {
+      "cid": "4",
+      "symbol": "P4B3A013122",
+      "total_supply": "10000",
+      "sum_mint": "10000",
+      "sum_burn": "0",
+      "ledger_derived": "10000",
+      "diff": "0",
+      "baseline": "0",
+      "ok": true
+     },
+     {
+      "cid": "9",
+      "symbol": "P4B3A013122X",
+      "total_supply": "0",
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "ledger_derived": "0",
+      "diff": "0",
+      "baseline": "0",
+      "ok": true
+     },
+     {
+      "cid": "10",
+      "symbol": "P4B3A013647",
+      "total_supply": "0",
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "ledger_derived": "0",
+      "diff": "0",
+      "baseline": "0",
+      "ok": true
+     },
+     {
+      "cid": "15",
+      "symbol": "P4B3A013647X",
+      "total_supply": "0",
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "ledger_derived": "0",
+      "diff": "0",
+      "baseline": "0",
+      "ok": true
+     },
+     {
+      "cid": "16",
+      "symbol": "P4B3B590800",
+      "total_supply": "10000",
+      "sum_mint": "10000",
+      "sum_burn": "0",
+      "ledger_derived": "10000",
+      "diff": "0",
+      "baseline": "0",
+      "ok": true
+     },
+     {
+      "cid": "21",
+      "symbol": "P4B3B590800X",
+      "total_supply": "100",
+      "sum_mint": "100",
+      "sum_burn": "0",
+      "ledger_derived": "100",
+      "diff": "0",
+      "baseline": "1",
+      "ok": false
+     },
+     {
+      "cid": "22",
+      "symbol": "QAB30929T185356Z",
+      "total_supply": "0",
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "ledger_derived": "0",
+      "diff": "0",
+      "baseline": "0",
+      "ok": true
+     },
+     {
+      "cid": "27",
+      "symbol": "QAB4",
+      "total_supply": "0",
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "ledger_derived": "0",
+      "diff": "0",
+      "baseline": "0",
+      "ok": true
+     },
+     {
+      "cid": "28",
+      "symbol": "N1A0T203917",
+      "total_supply": "0",
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "ledger_derived": "0",
+      "diff": "0",
+      "baseline": "0",
+      "ok": true
+     },
+     {
+      "cid": "29",
+      "symbol": "N1B0T203917",
+      "total_supply": "0",
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "ledger_derived": "0",
+      "diff": "0",
+      "baseline": "0",
+      "ok": true
+     },
+     {
+      "cid": "31",
+      "symbol": "N1A0T204732",
+      "total_supply": "0",
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "ledger_derived": "0",
+      "diff": "0",
+      "baseline": "0",
+      "ok": true
+     },
+     {
+      "cid": "32",
+      "symbol": "N1B0T204732",
+      "total_supply": "0",
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "ledger_derived": "0",
+      "diff": "0",
+      "baseline": "0",
+      "ok": true
+     },
+     {
+      "cid": "35",
+      "symbol": "qap7a31l3k6",
+      "total_supply": "10000",
+      "sum_mint": "10000",
+      "sum_burn": "0",
+      "ledger_derived": "10000",
+      "diff": "0",
+      "baseline": "0",
+      "ok": true
+     },
+     {
+      "cid": "36",
+      "symbol": "qap7b1wtoqc",
+      "total_supply": "30",
+      "sum_mint": "30",
+      "sum_burn": "0",
+      "ledger_derived": "30",
+      "diff": "0",
+      "baseline": "0",
+      "ok": true
+     }
+    ]
+   },
+   {
+    "id": "account_vs_ledger",
+    "status": "PASS",
+    "rows": 0,
+    "sample": []
+   },
+   {
+    "id": "batt_account_vs_batt_entry",
+    "status": "PASS",
+    "rows": 0,
+    "sample": []
+   }
+  ],
+  "checked_at": "2026-10-17T02:52:35.501Z",
+  "duration_ms": 551
+ }
+}

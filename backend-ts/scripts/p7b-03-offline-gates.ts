@@ -143,9 +143,11 @@ const base: RefundActorInput = { actorUid: 500, sellerUid: 7, buyerUid: 8, canAc
   //     → 105 6714401（telegram/bind/confirm POST 口 +1；本地入库待推送）。
   //     → 106 P6-TR-1c-FIX-CRON（`/api/translate/backfill` 补注册 **GET** +1；同 handler 双注册，
   //       POST 口原值不变 ⇒ 逐 verb 分解 get 45→46、post 56、delete 3、patch 1）。
-  //     净 +21 ⇒ 68 + 21 = 89；A5 再 +10 ⇒ 99；sf14 再 +5 ⇒ 104；6714401 再 +1 ⇒ 105；FIX-CRON GET 再 +1 ⇒ 106。
+  //     → 107 ops-recon（GET /api/ops/recon/ledger +1；方案 A 对账定时化，逐 verb 分解 get 46→47、
+  //       post 56、delete 3、patch 1 —— 方法只用 GET）。
+  //     净 +21 ⇒ 68 + 21 = 89；A5 再 +10 ⇒ 99；sf14 再 +5 ⇒ 104；6714401 再 +1 ⇒ 105；FIX-CRON GET 再 +1 ⇒ 106；ops-recon GET 再 +1 ⇒ 107。
   //     `da65f13`/`9bd1df0` 无路由增改（S6b/S16）。
-  ck.t('AC10-2', '注册点 = 106（自 S10 冻结面 68 前推 +21 · A5 收口 +10 · sf14 +5 · 6714401 telegram/bind/confirm +1 · FIX-CRON translate/backfill GET +1 = 106；逐 rev 出处见上方注释）', regs === 106, `registration_points=${regs}`);
+  ck.t('AC10-2', '注册点 = 107（自 S10 冻结面 68 前推 +21 · A5 收口 +10 · sf14 +5 · 6714401 telegram/bind/confirm +1 · FIX-CRON translate/backfill GET +1 · ops-recon GET +1 = 107；逐 rev 出处见上方注释）', regs === 107, `registration_points=${regs}`);
   ck.t('AC10-3', '退款路由仍**复用同路径**（无 `/api/admin/listing-orders`）', !/\/api\/admin\/listing-orders/.test(INDEX_TS) && /app\.post\('\/api\/listing-orders\/:orderId\/refund'/.test(INDEX_TS), 'ok');
   ck.t('AC10-4', '对外出口 = 既有 `sendSuccess` + `sendVerbError`（R107；无新增顶层响应键）',
     INDEX_TS.indexOf("sendSuccess(res, result.view, result.replay ? 'Listing order refunded") !== -1 &&

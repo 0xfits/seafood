@@ -27,6 +27,8 @@ import {
   SYSTEM_SETTINGS_KEY,
 } from './database';
 import { healthCheck } from './db';
+// 方案 A · 对账定时化：三条**纯只读**对账（供应量/账本、account/ledger、batt_account/batt_entry）
+import { runLedgerRecon } from './ops-recon';
 // P4-SEC（缺陷 B）：基础设施异常走**既有** §14 分类器与 R107 错误体（不新增错误码）
 import { errorMessageOf, ledgerErrorDiagnostics, normalizeLedgerError, toErrorResponse } from './ledger-errors';
 // P7-A：账本流水读口的 `kind` 过滤取值 = **冻结关闭集**（`ledger.spec` §5.1/R40，20 个；不复制/不自造）
@@ -3195,6 +3197,49 @@ const translateBackfillHandler: RequestHandler = async (req, res) => {
 
 app.post('/api/translate/backfill', translateBackfillHandler);
 app.get('/api/translate/backfill', translateBackfillHandler);
+
+// ============================================================================
+// ★ 方案 A · 对账定时化（`ops/bttc-recon-cadence/REPORT.md` §7；Kevin 2026-10-17 批）
+//   注册点 +1（`GET /api/ops/recon/ledger`）；门 `p7b-03` 的 AC10-2 同批前推 106 → 107。
+//   鉴权体例 = **逐行照搬** `translateBackfillHandler`（唯一真源）：
+//     CRON_SECRET 未配 ⇒ 503 fail-loud（绝不默认放行）/ Bearer 或 `x-cron-secret` 不符 ⇒ 401 /
+//     通过 ⇒ 干活。密钥只做等值比较，**绝不回显、绝不进日志**。
+//   方法只用 GET（Vercel cron 发的是 GET；既有 `translate/backfill` 的 POST/GET 错配已另单修好）。
+//   零新错误码（503/401 均为既有形态）；零写库、零迁移、零前端、零 i18n 键。
+// ============================================================================
+const opsReconHandler: RequestHandler = async (req, res) => {
+  const secret = String(process.env.CRON_SECRET || '').trim();
+  if (!secret) {
+    return sendError(res, 503, 'CRON_SECRET not configured');
+  }
+  const authHeader = String(req.headers.authorization || '');
+  const bearer = authHeader.toLowerCase().startsWith('bearer ') ? authHeader.slice(7).trim() : '';
+  const headerSecret = String(req.headers['x-cron-secret'] || '').trim();
+  if (bearer !== secret && headerSecret !== secret) {
+    return sendAuthError(res, 401);
+  }
+
+  try {
+    const report = await runLedgerRecon();
+    // 告警面 v1 = 「结构化回执 + console.error 一条」（不接外部服务，见 REPORT §4）。
+    // 只打 id / 状态 / 行数 / 差额，**不打 SQL 参数、不打密钥**，便于 Vercel 日志按 `[recon]` 检索。
+    if (!report.ok) {
+      console.error('[recon] ledger drift detected', JSON.stringify({
+        checked_at: report.checked_at,
+        duration_ms: report.duration_ms,
+        failed: report.checks
+          .filter((c) => c.status === 'FAIL')
+          .map((c) => ({ id: c.id, rows: c.rows, diff: c.diff ?? null })),
+      }));
+    }
+    return sendSuccess(res, report, report.ok ? 'Ledger recon completed' : 'Ledger recon detected drift');
+  } catch (error) {
+    // 基础设施异常交**既有** §14 分类器（DB/传输类 ⇒ 503 + 机读 reason），与 backfill 同体例。
+    return sendInfraMapped(res, 'ops.recon.ledger', error);
+  }
+};
+
+app.get('/api/ops/recon/ledger', opsReconHandler);
 
 // ============================================================================
 // ★ A5 收口（route 册 v2.31 §41 / data 册 v0.32 §38）· 站内信 + Telegram 绑定
