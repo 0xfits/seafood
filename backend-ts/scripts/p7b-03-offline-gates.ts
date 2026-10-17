@@ -132,7 +132,7 @@ const base: RefundActorInput = { actorUid: 500, sellerUid: 7, buyerUid: 8, canAc
   ck.t('AC10-1', '错误码闭集 33 不动', LEDGER_ERROR_CODES.length === 33, `codes=${LEDGER_ERROR_CODES.length}`);
   const regs = (INDEX_TS.match(/^app\.(get|post|put|delete|patch)\(/gm) ?? []).length;
   // ★ S20 常红门前推（沿 S10/S11「冻结面前推」同族；只前推数值，判据形态/其它 AC 一字未改）：
-  //   旧值 = 68（写死于 9805876「退款实现」，**当时**确为零新注册点：68 不变）；现取真值 = 105。
+  //   旧值 = 68（写死于 9805876「退款实现」，**当时**确为零新注册点：68 不变）；现取真值 = 106。
   //   出处 = 逐 commit 现取 `git show <rev>:backend-ts/src/index.ts | grep -cE '^app\.(get|post|put|delete|patch)\('`：
   //     68 9805876（退款单；写死值）→ 69 b082a81（b8-2 GET /api/admin/commission_policy +1）
   //     → 71 0d86ce5（b8-4 currency 两读写口 +2）→ 75 3a36ba5（b8-5 listing/arbitration 四口 +4）
@@ -141,8 +141,11 @@ const base: RefundActorInput = { actorUid: 500, sellerUid: 7, buyerUid: 8, canAc
   //     → 88 614ae53（p8-6 审计台读口 +1）→ 89 692f622（S6 GET /api/job/:jobId/submissions +1）
   //     → 99 A5 收口（站内信 /api/messages 族 6 + Telegram /api/telegram 族 4 = +10）→ 104 sf14 批（收藏 GET/POST/DELETE 三口 + 卖家轴 listing/mine、listing-orders/sold 两口 = +5）
   //     → 105 6714401（telegram/bind/confirm POST 口 +1；本地入库待推送）。
-  //     净 +21 ⇒ 68 + 21 = 89；A5 再 +10 ⇒ 99；sf14 再 +5 ⇒ 104；6714401 再 +1 ⇒ 105。`da65f13`/`9bd1df0` 无路由增改（S6b/S16）。
-  ck.t('AC10-2', '注册点 = 105（自 S10 冻结面 68 前推 +21 · A5 收口 +10 · sf14 +5 · 6714401 telegram/bind/confirm +1 = 105；逐 rev 出处见上方注释）', regs === 105, `registration_points=${regs}`);
+  //     → 106 P6-TR-1c-FIX-CRON（`/api/translate/backfill` 补注册 **GET** +1；同 handler 双注册，
+  //       POST 口原值不变 ⇒ 逐 verb 分解 get 45→46、post 56、delete 3、patch 1）。
+  //     净 +21 ⇒ 68 + 21 = 89；A5 再 +10 ⇒ 99；sf14 再 +5 ⇒ 104；6714401 再 +1 ⇒ 105；FIX-CRON GET 再 +1 ⇒ 106。
+  //     `da65f13`/`9bd1df0` 无路由增改（S6b/S16）。
+  ck.t('AC10-2', '注册点 = 106（自 S10 冻结面 68 前推 +21 · A5 收口 +10 · sf14 +5 · 6714401 telegram/bind/confirm +1 · FIX-CRON translate/backfill GET +1 = 106；逐 rev 出处见上方注释）', regs === 106, `registration_points=${regs}`);
   ck.t('AC10-3', '退款路由仍**复用同路径**（无 `/api/admin/listing-orders`）', !/\/api\/admin\/listing-orders/.test(INDEX_TS) && /app\.post\('\/api\/listing-orders\/:orderId\/refund'/.test(INDEX_TS), 'ok');
   ck.t('AC10-4', '对外出口 = 既有 `sendSuccess` + `sendVerbError`（R107；无新增顶层响应键）',
     INDEX_TS.indexOf("sendSuccess(res, result.view, result.replay ? 'Listing order refunded") !== -1 &&

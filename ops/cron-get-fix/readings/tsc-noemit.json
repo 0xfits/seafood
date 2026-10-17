@@ -1,0 +1,6 @@
+{
+ "cmd": "cd backend-ts && npx tsc --noEmit",
+ "exit_code": 0,
+ "log": "logs/tsc-noemit.log",
+ "stdout_bytes": 0
+}

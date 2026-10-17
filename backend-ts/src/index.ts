@@ -2,7 +2,7 @@
 // 把 <repo>/.env.local、<repo>/.env 注入。修前 `./auth`（第 4 行 import）被求值**早于**
 // `./database` 顶部的 dotenv ⇒ `SECRET_KEY` 恒 undefined ⇒ 落到硬编码兜底常量。
 import './env';
-import express, { Request, Response } from 'express';
+import express, { Request, RequestHandler, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 // P4-A1-LEDGER-IMPL（Zang §5.99 / DL96）：路由层计算 `request_fingerprint`（business 字段集合）
@@ -3130,7 +3130,13 @@ app.get('/api/admin/audit/:table', async (req, res) => {
 //   · `mode=scan`  ⇒ **只扫存量登记**（零翻译、零 API 调用）；
 //   · `mode=translate` ⇒ 只翻译（**旧行为**，不扫）。
 //   扫描**幂等**：`ON CONFLICT DO NOTHING` ⇒ 连跑两次 `scan_registered=0`、行数不增、不重复付费。
-app.post('/api/translate/backfill', async (req, res) => {
+// ---- P6-TR-1c-FIX-CRON · 注册面修复（**只加 GET，不改语义**）------------------
+// Vercel Cron **发 GET**（平台无 body，自带 Bearer 授权头，值取 env CRON_SECRET）；本路由此前只注册
+//   `app.post` ⇒ 日级 cron 自上线以来**从未进入 handler**（落到文件末 catch-all ⇒ `route_not_found`）。
+//   · **GET = Vercel cron 入口**（无 body ⇒ 走 `req.query.limit/mode/scan` 分支）；
+//   · **POST = 人工/旧调用**（p4z-tr1c-01/07、d1p-04 等脚本仍用 POST）；
+//   · 两者**同一 handler**（`translateBackfillHandler`）：鉴权闸、参数解析、幂等与回执**一字未改**。
+const translateBackfillHandler: RequestHandler = async (req, res) => {
   const secret = String(process.env.CRON_SECRET || '').trim();
   if (!secret) {
     return sendError(res, 503, 'CRON_SECRET not configured');
@@ -3185,7 +3191,10 @@ app.post('/api/translate/backfill', async (req, res) => {
     // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
     return sendInfraMapped(res, 'translate.backfill', error);
   }
-});
+};
+
+app.post('/api/translate/backfill', translateBackfillHandler);
+app.get('/api/translate/backfill', translateBackfillHandler);
 
 // ============================================================================
 // ★ A5 收口（route 册 v2.31 §41 / data 册 v0.32 §38）· 站内信 + Telegram 绑定

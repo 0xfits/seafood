@@ -1,0 +1,168 @@
+{
+ "probe": "get-probe",
+ "backend_root": "/Users/kevin/bistro/seafood/backend-ts",
+ "label": "fixed",
+ "svc_stub_calls": 4,
+ "cron_secret_configured": true,
+ "cron_secret_len": 64,
+ "readings": [
+  {
+   "id": "fixed-A1_GET_no_secret_unset",
+   "method": "GET",
+   "url": "/api/translate/backfill",
+   "auth": "none",
+   "status": 503,
+   "body_keys": [
+    "success",
+    "message",
+    "error"
+   ],
+   "message": "CRON_SECRET not configured",
+   "note": "CRON_SECRET 未配 ⇒ 期望 503（fail-loud）"
+  },
+  {
+   "id": "fixed-B1_GET_no_header",
+   "method": "GET",
+   "url": "/api/translate/backfill",
+   "auth": "none",
+   "status": 401,
+   "body_keys": [
+    "error"
+   ],
+   "code": "AUTH_UNAUTHORIZED",
+   "note": "secret 已配、无头 ⇒ 期望 401"
+  },
+  {
+   "id": "fixed-B2_GET_wrong_bearer",
+   "method": "GET",
+   "url": "/api/translate/backfill",
+   "auth": "bearer(wrong)",
+   "status": 401,
+   "body_keys": [
+    "error"
+   ],
+   "code": "AUTH_UNAUTHORIZED",
+   "note": "错密钥 ⇒ 期望 401"
+  },
+  {
+   "id": "fixed-C1_GET_correct_bearer",
+   "method": "GET",
+   "url": "/api/translate/backfill",
+   "auth": "bearer(correct · 值不打印)",
+   "status": 200,
+   "body_keys": [
+    "success",
+    "message",
+    "data"
+   ],
+   "data_keys": [
+    "ok",
+    "mode",
+    "scan_scanned",
+    "scan_registered",
+    "scan_existing",
+    "scan_by_entity",
+    "processed",
+    "ready",
+    "failed",
+    "skipped",
+    "deferred",
+    "reason",
+    "scanned",
+    "retried",
+    "engine"
+   ],
+   "ok": true,
+   "mode": "scan_translate",
+   "note": "期望 200 + data.ok:true + data.mode=scan_translate（GET 默认档）"
+  },
+  {
+   "id": "fixed-C2_GET_query_mode_scan",
+   "method": "GET",
+   "url": "/api/translate/backfill?mode=scan&limit=5",
+   "auth": "x-cron-secret(correct)",
+   "status": 200,
+   "body_keys": [
+    "success",
+    "message",
+    "data"
+   ],
+   "data_keys": [
+    "ok",
+    "mode",
+    "scan_scanned",
+    "scan_registered",
+    "scan_existing",
+    "scan_by_entity",
+    "processed",
+    "ready",
+    "failed",
+    "skipped",
+    "deferred",
+    "reason",
+    "scanned",
+    "retried",
+    "engine"
+   ],
+   "ok": true,
+   "mode": "scan",
+   "note": "期望 200 + data.mode=scan（无 body ⇒ req.query 分支真可用）"
+  },
+  {
+   "id": "fixed-D1_POST_correct_bearer",
+   "method": "POST",
+   "url": "/api/translate/backfill",
+   "auth": "bearer(correct)",
+   "status": 200,
+   "body_keys": [
+    "success",
+    "message",
+    "data"
+   ],
+   "data_keys": [
+    "ok",
+    "mode",
+    "scan_scanned",
+    "scan_registered",
+    "scan_existing",
+    "scan_by_entity",
+    "processed",
+    "ready",
+    "failed",
+    "skipped",
+    "deferred",
+    "reason",
+    "scanned",
+    "retried",
+    "engine"
+   ],
+   "ok": true,
+   "mode": "translate",
+   "note": "POST 旧调用面不得回归（body.mode=translate）"
+  },
+  {
+   "id": "fixed-D2_POST_wrong_none",
+   "method": "POST",
+   "url": "/api/translate/backfill",
+   "auth": "none",
+   "status": 401,
+   "body_keys": [
+    "error"
+   ],
+   "code": "AUTH_UNAUTHORIZED",
+   "note": "POST 鉴权闸不变 ⇒ 401"
+  },
+  {
+   "id": "fixed-E1_GET_unregistered_path",
+   "method": "GET",
+   "url": "/api/translate/backfill-not-a-route",
+   "auth": "none",
+   "status": 404,
+   "body_keys": [
+    "error"
+   ],
+   "code": "LEDGER_REF_NOT_FOUND",
+   "note": "对照：未注册路径 ⇒ catch-all route_not_found"
+  }
+ ]
+}
