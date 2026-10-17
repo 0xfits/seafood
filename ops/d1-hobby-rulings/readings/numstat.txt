@@ -1,0 +1,38 @@
+# numstat / 锚点现取 · 2026-10-17 12:09:58 CST · 基线 HEAD 67488c2
+
+$ git status --porcelain
+ M docs/OPEN-ITEMS.md
+ M docs/route-layer.spec.md
+?? ops/d1-hobby-rulings/
+
+$ git diff --numstat   (删除列必须 = 0)
+3	0	docs/OPEN-ITEMS.md
+2	0	docs/route-layer.spec.md
+
+$ git diff --numstat | awk 删除列合计
+deletions_total = 0
+
+$ grep -c "^> \*\*★ v2.38" docs/OPEN-ITEMS.md   (新裁定块)
+1
+$ grep -c "^> \*\*★ v2.37" docs/OPEN-ITEMS.md   (旧块仍在)
+1
+
+$ grep -n "| \*\*B32\*\*" docs/OPEN-ITEMS.md | cut -c1-52
+72:| **B32** | **对账告警：Telegram 推送 + heartbeat（覆盖「漂移 
+
+$ B 段表格形状（应 4/4）
+| **B31** 4
+| **B32** 4
+
+$ grep -n "★ 补注（2026-10-17 · Kevin 裁定落册）" docs/route-layer.spec.md | cut -c1-52
+8755:> **★ 补注（2026-10-17 · Kevin 裁定落册）：`D1` 已裁 = 保持 
+
+$ grep -c "^### 46\." docs/route-layer.spec.md   (小节数：改前=改后=8)
+8
+$ grep -c "^## §46 " docs/route-layer.spec.md   (顶节仍 1)
+1
+
+$ 旧字面留痕核查（保留不删）
+  v2.36 块「待裁定风险」命中: 2
+  §46.4 标题「D1 待裁」命中: 1
+  §46.7「D1 未裁（待 Kevin）」命中: 2
