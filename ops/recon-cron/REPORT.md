@@ -18,7 +18,7 @@
 | cron | `vercel.json` 追加第二条日级：`{"path":"/api/ops/recon/ledger","schedule":"30 18 * * *"}`（既有 `0 18 * * *` 一字未改） |
 | 门常量 | `p7b-03` 的 AC10-2 **106 → 107**（逐 verb：get 46→47、post 56、put 0、delete 3、patch 1）⇒ **37/37 全绿** |
 | `tsc --noEmit` | **exit 0** |
-| 行为探针 | **15/15 断言 true**（503/401×3/200×2/FAIL×4/404×2/无密钥回显），退出码 0 |
+| 行为探针 | **23/23 断言 true**（503/401×3/200×2/FAIL×4/回归×2（8 断言）/404×2/无密钥回显），退出码 0 |
 | 反向灵敏度 | 桩侧 4 臂 + 真库侧 1 臂（dev）全部把 `ok` 翻成 false |
 | 新错误码 | **0 个**（只用既有 503 / `AUTH_UNAUTHORIZED` / `LEDGER_REF_NOT_FOUND` / §14 分类器） |
 
@@ -36,6 +36,8 @@
 `git diff --stat`：`3 files changed, 53 insertions(+), 2 deletions(-)`（第 1 个文件是新建，不在 diffstat 里）。
 
 **明确没动的**：迁移目录、任何 `INSERT/UPDATE/DELETE`、`ledger_post_event`、`frontend/`、`frontend/src/locales/**`、`docs/seafood.master-plan.md`（本单未要求落账）、既有 `translate/backfill` 路由与它的 cron。
+
+**后续一轮（2026-10-17 · Zang 审阅修复）**：只碰 `backend-ts/src/ops-recon.ts` 的 `judgeSupply` **样本采集策略** + `ops/recon-cron/probe/recon-probe.ts` 两个回归模式；三条 SQL、基线表、判定表达式、路由注册、`vercel.json`、门常量**全部未动**（详见 §11）。
 
 ---
 
@@ -153,7 +155,7 @@ catch (e) { sendInfraMapped(res, 'ops.recon.ledger', e) }                 // 既
 | 1 | 类型 | `cd backend-ts && npx tsc --noEmit` | **exit 0**（`TSC_EXIT=0`） | `logs/tsc.log` |
 | 2 | 离线门 | `cd backend-ts && npx ts-node --transpile-only scripts/p7b-03-offline-gates.ts` | **exit 0 · 37/37 · red=[]**，`AC10-2 registration_points=107` | `logs/p7b-03-gate.log`、`readings/gate-p7b-03.json` |
 | 3 | 注册点现取 | `grep -cE '^app\.(get\|post\|put\|delete\|patch)\(' …` | **107**（get 47 / post 56 / put 0 / delete 3 / patch 1） | `logs/counts.log` |
-| 4 | 行为探针（桩 db） | 见 §6.1 | **15/15 断言 true**，exit 0 | `readings/probe-recon-auth.json`、`logs/probe-auth.log` |
+| 4 | 行为探针（桩 db） | 见 §6.1 | **23/23 断言 true**（含回归两例 8 断言），exit 0 | `readings/probe-recon-auth.json`、`logs/probe-auth.log`、`logs/probe-auth-old-impl-negative-control.log` |
 | 5 | 真库只读读数（dev） | 见 §6.2 | SQL 真跑通；**dev 判 FAIL（预期，见 §7）** | `readings/recon-real-dev.json`、`logs/recon-real-read.log` |
 | 6 | `vercel.json` 合法性 | `node -e "JSON.parse(...)"` | `vercel.json JSON OK` | `logs/counts.log` |
 
@@ -175,6 +177,8 @@ catch (e) { sendInfraMapped(res, 'ops.recon.ledger', e) }                 // 既
 | `S4_batt_drift_should_fail` | batt 漂移 1 行 | 200 | **`ok=false`**，`batt_account_vs_batt_entry=FAIL` |
 | `E1_unregistered_path` | 错路径 | **404** `LEDGER_REF_NOT_FOUND` | 200 是「进 handler」而非兜底 |
 | `E2_post_not_registered` | `POST` 同路径 | **404** | 本单只注册 GET（Vercel cron 发 GET） |
+| `R1_supply_drift_after_20_pass` | 25 行：前 21 行 PASS、第 22 行（cid 9021）`diff=1`（基线 0） | 200 | **`ok=false`**、`supply_vs_ledger=FAIL`、`rows=25`；`sample_len=20`、**`sample[0].cid=9021`**、`sample_failed_cids=["9021"]` ⇒ 失败行**没被 slice 切掉**（见 §11） |
+| `R2_supply_25_all_pass` | 同形状 25 行但全 PASS | 200 | `supply_vs_ledger=**PASS**`、`diff='0'`、`rows=25`、`sample_len=20`、`sample_failed_cids=[]` ⇒ 两阶段采集不会把绿的判红 |
 
 密钥面：`secret_source=env(.env.local)`、`secret_len=64`、**所有读数 `secret_echoed=false`**（对每次回执原文做「是否包含密钥字面」检查）；日志与读数文件里**没有任何密钥值**。
 
@@ -293,11 +297,59 @@ diff 摘要（`readings/config-and-gate.diff` 摘录）：
 
 ---
 
+## 11. Zang 审阅修复：sample 两阶段采集（2026-10-17）
+
+审阅结论：`judgeSupply` 的**判定没错**，`status` / `rows` / `diff` 三条取值一律正确；错在**取证样本采集** ——
+原写法 `if (!pass || sample.length < SAMPLE_LIMIT) sample.push(…)` 后接 `sample.slice(0, SAMPLE_LIMIT)`，
+在「前 20 行全 PASS、第 21 行起才 FAIL」时，失败行虽被推进数组，**输出时被 `slice(0,20)` 切掉** ⇒
+回执给出 `FAIL` 却**看不到是哪一行漂了**，值班人无法定位。属样本丢失，不是判据缺陷。
+
+### 11.1 修法（判据语义一字未改）
+
+| 项 | 旧 | 新 |
+|---|---|---|
+| 采集 | 单桶，先到先占，`!pass` 时也能再推 | **两阶段**：全表扫描时 FAIL / PASS **分桶**，各桶自封顶 20 |
+| 输出顺序 | 行序（PASS 在前时失败行被挤出） | **FAIL 行恒在前**，余位（`20 − 失败数`）由 PASS 行补齐 |
+| `SAMPLE_LIMIT` | 20 | 20（不变） |
+| `status` | `parsed.exact && parsed.big === baseline` ⇒ PASS | **同一表达式，未改** |
+| `rows` | `rows.length` | **未改** |
+| `diff` | 首个失败行的 `diff` 原值；PASS 时 `'0'` | **未改**（`firstUnexpected` 仍在全表按行序取首个） |
+| `sample` 上限 | ≤ 20 | **≤ 20**（仍是 20，`failedSample` 也自封顶 ⇒ 内存有界） |
+
+`judgeZeroRows` **复核确认无需改**：判据是「行数 > 0 即 FAIL」，没有 PASS 行概念 ⇒ `sample` 天然只由失败行组成，
+`slice(0, 20)` 只截数量，不会出现「唯一的失败类型被绿的挤掉」这类洞。已在代码处留一行注释说明。
+
+### 11.2 回归两例（`probe/recon-probe.ts` 新增两个 stub 模式，无新测试框架）
+
+夹具 `supplyBulkRows(failAt)`：25 行 —— cid=1（`diff=2000000` = 已登记基线）PASS，cid 9001–9024（未登记基线 0）`diff=0` PASS；
+`failAt=21` 时把第 22 行（cid **9021**）的 `diff` 改成 `1`。
+
+| 例 | 夹具 | 断言 |
+|---|---|---|
+| `R1_supply_drift_after_20_pass` | 前 21 行 PASS、第 22 行 FAIL | ① `status=FAIL` ② `rows=25` ③ `sample_failed_cids` 含 `9021`（**没被切掉**）④ `sample[0].cid='9021'`（失败行在前）⑤ `sample_len=20`（仍 ≤ 上限） |
+| `R2_supply_25_all_pass` | 同形状 25 行全 PASS | `status=PASS`、`diff='0'`、`rows=25` |
+
+**反向对照（证明用例非空转）**：`git stash push -- backend-ts/src/ops-recon.ts` 临时退回旧实现后重跑同一探针 ⇒
+`R1_status_fail=true` 但 `R1_sample_has_drift_cid=false` / `R1_fail_row_first=false`、`sample_failed_cids=[]`、
+`sample_first_cid='1'`、`all_assertions_pass=false`、退出码 **1**（现场落盘 `logs/probe-auth-old-impl-negative-control.log`）。
+恢复实现后重跑 ⇒ **23/23 断言 true**、退出码 0（`readings/probe-recon-auth.json`）。
+
+### 11.3 重跑读数
+
+| 门 | 结果 |
+|---|---|
+| `cd backend-ts && npx tsc --noEmit` | **exit 0**（`logs/tsc.log`：空输出 + `TSC_EXIT=0`） |
+| `npx ts-node --transpile-only scripts/p7b-03-offline-gates.ts` | **exit 0 · 37/37 · red=[]**；`AC10-2 registration_points=107`（本单不增删路由） |
+| 注册点现取 | **107**（get 47 / post 56 / put 0 / delete 3 / patch 1） |
+| 行为探针 | **23/23 断言 true**，exit 0 |
+
+---
+
 ## 附录 A · 证据清单（可复核）
 
 | 文件 | 内容 |
 |---|---|
-| `readings/probe-recon-auth.json` | 12 条行为读数 + 15 条断言 + `all_assertions_pass:true` |
+| `readings/probe-recon-auth.json` | 14 条行为读数 + 23 条断言 + `all_assertions_pass:true` |
 | `readings/recon-real-dev.json` | dev 真库三条对账读数（identity / schema_top / report 明细含 sample） |
 | `readings/gate-p7b-03.json` | 离线门 artifact（`summary {total:37, passed:37, failed:0, red:[]}`，AC10-2 `registration_points=107`） |
 | `readings/config-and-gate.diff` | `vercel.json` + 门脚本的 `git diff` 原文 |
@@ -306,6 +358,7 @@ diff 摘要（`readings/config-and-gate.diff` 摘录）：
 | `logs/tsc.log` | `npx tsc --noEmit` 输出（空输出 + `TSC_EXIT=0`） |
 | `logs/p7b-03-gate.log` | 门套完整输出（含 ac13 cases / ac14 classifier） |
 | `logs/probe-auth.log` | 探针逐条 JSON + 结论行 |
+| `logs/probe-auth-old-impl-negative-control.log` | **反向对照**：把 `judgeSupply` 暂时换回旧实现（单桶 + `slice`）重跑同一探针 ⇒ `all_assertions_pass:false`、退出码 1、`R1.sample_failed_cids=[]`（证回归用例非空转，见 §11） |
 | `logs/recon-real-read.log` | 真库读数结论行 |
 | `logs/counts.log` | 注册点逐 verb 现取 + `vercel.json` JSON 校验 |
 
@@ -315,7 +368,7 @@ diff 摘要（`readings/config-and-gate.diff` 摘录）：
 cd /Users/kevin/bistro/seafood/backend-ts
 npx tsc --noEmit                                                        # exit 0
 npx ts-node --transpile-only scripts/p7b-03-offline-gates.ts              # 37/37, AC10-2 = 107
-TS_NODE_PROJECT=$PWD/tsconfig.json npx ts-node --transpile-only ../ops/recon-cron/probe/recon-probe.ts      # 15/15 断言
+TS_NODE_PROJECT=$PWD/tsconfig.json npx ts-node --transpile-only ../ops/recon-cron/probe/recon-probe.ts      # 23/23 断言（含回归 R1/R2）
 TS_NODE_PROJECT=$PWD/tsconfig.json npx ts-node --transpile-only ../ops/recon-cron/probe/recon-real-read.ts  # dev 真库只读
 
 cd ..
@@ -325,3 +378,13 @@ node -e "JSON.parse(require('fs').readFileSync('vercel.json','utf8'));console.lo
 ```
 
 ★ 探针必须带 `TS_NODE_PROJECT=$PWD/tsconfig.json`（同 `ops/cron-get-fix` 的既有体例）：不带时 ts-node 从探针所在目录向上找配置，会撞 `TS5109 moduleResolution must be NodeNext`。
+
+**反向对照（可选 · 复核回归用例确实能抓到旧缺陷）**：
+
+```bash
+cd /Users/kevin/bistro/seafood
+git stash push -- backend-ts/src/ops-recon.ts        # 退回旧实现（单桶 + slice）
+cd backend-ts && TS_NODE_PROJECT=$PWD/tsconfig.json npx ts-node --transpile-only \
+  ../ops/recon-cron/probe/recon-probe.ts; echo "EXIT=$?"   # 期望 EXIT=1，R1_sample_has_drift_cid=false
+cd .. && git stash pop                                # 恢复修复版
+```

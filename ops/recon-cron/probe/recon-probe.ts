@@ -27,7 +27,14 @@ const OUT_DIR = process.env.PROBE_OUT_DIR
 const db = require(path.join(BACKEND_ROOT, 'src/db'));
 
 type Row = Record<string, unknown>;
-type StubMode = 'clean' | 'supply_drift' | 'unregistered_cid_baseline' | 'account_drift' | 'batt_drift';
+type StubMode =
+  | 'clean'
+  | 'supply_drift'
+  | 'unregistered_cid_baseline'
+  | 'account_drift'
+  | 'batt_drift'
+  | 'supply_drift_late'
+  | 'supply_all_pass_25';
 
 let mode: StubMode = 'clean';
 const calls: Array<{ sql: string; rows: number }> = [];
@@ -46,6 +53,29 @@ const supplyRows = (diff: string, extra?: Row[]): Row[] => ([
   ...(extra ?? []),
 ]);
 
+/**
+ * 回归夹具（Zang 审阅修复 · 25 行）：cid=1 的 diff = 已登记基线 2000000（PASS），
+ * 另 24 行 cid 9001..9024 的未登记基线 = 0、diff = 0（PASS）。
+ * `failAt=21` ⇒ 第 22 行（cid 9021）diff 改成 1（≠ 基线 0）⇒ **前 21 行全 PASS、第 22 行 FAIL**。
+ * 旧实现会把该失败行推进 `sample` 后又被 `slice(0,20)` 切掉（定位样本丢失）；
+ * 两阶段采集后它必须出现在 `sample` 首位。
+ */
+const supplyBulkRows = (failAt: number | null): Row[] => {
+  const rows: Row[] = [{
+    cid: 1, symbol: '$', total_supply: '2010200', sum_mint: '210274', sum_burn: '-200074',
+    ledger_derived: '10200', diff: '2000000',
+  }];
+  for (let i = 1; i <= 24; i += 1) {
+    const drift = failAt !== null && i === failAt;
+    rows.push({
+      cid: 9000 + i, symbol: 'PROBE',
+      total_supply: drift ? '1' : '0', sum_mint: drift ? '1' : '0', sum_burn: '0',
+      ledger_derived: drift ? '1' : '0', diff: drift ? '1' : '0',
+    });
+  }
+  return rows;
+};
+
 db.readQuery = async (text: string): Promise<Row[]> => {
   const sql = String(text);
   let rows: Row[] = [];
@@ -55,7 +85,12 @@ db.readQuery = async (text: string): Promise<Row[]> => {
     else if (mode === 'unregistered_cid_baseline') {
       // cid=21 已登记基线 = 1 ⇒ 喂 diff=0 必须判 FAIL（证明基线表真生效，不是恒绿）。
       rows = supplyRows('2000000', [{ cid: 21, symbol: 'BTTC', total_supply: '5', sum_mint: '5', sum_burn: '0', ledger_derived: '5', diff: '0' }]);
-    } else rows = supplyRows('2000000');
+    }
+    // 回归①：25 行，前 21 行 PASS、第 22 行（cid 9021）FAIL ⇒ 失败行必须进 sample。
+    else if (mode === 'supply_drift_late') rows = supplyBulkRows(21);
+    // 回归②：同 25 行形状但全 PASS ⇒ PASS + diff='0'（证明两阶段采集不会把绿的判红）。
+    else if (mode === 'supply_all_pass_25') rows = supplyBulkRows(null);
+    else rows = supplyRows('2000000');
   } else if (sql.includes('FROM public.account')) {
     rows = mode === 'account_drift'
       ? [{ uid: '970001', cid: '1', balance: '10', sum_delta: '9', diff_balance: '1', frozen: '0', sum_frozen_delta: '0', diff_frozen: '0' }]
@@ -90,6 +125,12 @@ type Reading = {
   check_status?: string[];
   rows?: number[];
   diff?: unknown;
+  /** 供应量检查的 sample 形状（回归用：长度 / 首个 cid / 其中 ok=false 的 cid 集） */
+  sample_len?: number;
+  sample_first_cid?: string | null;
+  sample_failed_cids?: string[];
+  /** 三条检查的 diff 原值（PASS 时为 '0'，②③ 无该键 ⇒ null） */
+  check_diff?: Array<string | null>;
   error_code?: string | null;
   message?: unknown;
   secret_echoed?: boolean;
@@ -134,6 +175,8 @@ const errCodeOf = (json: Row): string | null => {
     const { status, text, json } = await call('GET', url, headers);
     const d = dataOf(json);
     const checks = Array.isArray(d.checks) ? (d.checks as Row[]) : [];
+    const supplyCheck = checks.find((c) => String(c.id) === 'supply_vs_ledger');
+    const supplySample: Row[] = supplyCheck && Array.isArray(supplyCheck.sample) ? (supplyCheck.sample as Row[]) : [];
     const r: Reading = {
       id, method: 'GET', url, auth, mode, status,
       body_keys: Object.keys(json),
@@ -143,6 +186,10 @@ const errCodeOf = (json: Row): string | null => {
       check_status: checks.map((c) => String(c.status)),
       rows: checks.map((c) => Number(c.rows)),
       diff: d.ok === false ? checks.filter((c) => String(c.status) === 'FAIL').map((c) => c.diff ?? null) : undefined,
+      sample_len: supplySample.length,
+      sample_first_cid: supplySample.length > 0 ? String(supplySample[0].cid) : null,
+      sample_failed_cids: supplySample.filter((s) => s.ok === false).map((s) => String(s.cid)),
+      check_diff: checks.map((c) => (c.diff === undefined || c.diff === null ? null : String(c.diff))),
       error_code: errCodeOf(json),
       message: json.message,
       // 密钥回显自检：只有「非空且出现在回执原文里」才算回显（空串恒命中，须排除）
@@ -181,6 +228,15 @@ const errCodeOf = (json: Row): string | null => {
   await probe('S2_baseline_table_enforced', URL_OK, { authorization: `Bearer ${SECRET}` }, 'bearer(correct)', '反向臂②：cid=21 基线 1、喂 diff=0 ⇒ 期望 FAIL');
 
   // ④″ 反向灵敏度：逐户 0 行闸 —— 各喂一行漂移
+  // ④‴ 回归（Zang 审阅修复）：25 行、前 21 行 PASS、第 22 行 FAIL ⇒ 失败行不得被 slice(0,20) 切掉。
+  //   鉴权走 x-cron-secret（C2 已证同权），与 Bearer 臂解耦，回归只关心 sample 采集形状。
+  mode = 'supply_drift_late';
+  await probe('R1_supply_drift_after_20_pass', URL_OK, { 'x-cron-secret': SECRET }, 'x-cron-secret(correct)', '回归①：25 行、前 21 PASS、第 22 行 cid=9021 diff=1 ⇒ 期望 FAIL 且 sample 含 cid 9021（不被切掉）');
+
+  // ④‴′ 回归：同 25 行形状全 PASS ⇒ PASS + diff=0 + rows=25（两阶段采集不得把绿的判红）
+  mode = 'supply_all_pass_25';
+  await probe('R2_supply_25_all_pass', URL_OK, { 'x-cron-secret': SECRET }, 'x-cron-secret(correct)', '回归②：25 行全 PASS ⇒ 期望 PASS + diff=0');
+
   mode = 'account_drift';
   await probe('S3_account_drift_should_fail', URL_OK, { authorization: `Bearer ${SECRET}` }, 'bearer(correct)', '反向臂③：account 漂移 1 行 ⇒ 期望 account_vs_ledger FAIL');
   mode = 'batt_drift';
@@ -220,6 +276,17 @@ const errCodeOf = (json: Row): string | null => {
       C2_200: byId('C2_correct_header_secret_clean')?.status === 200,
       S1_flips_to_false: byId('S1_supply_drift_should_fail')?.ok === false,
       S2_baseline_enforced: byId('S2_baseline_table_enforced')?.ok === false,
+      // ---- 回归两例（Zang 审阅修复：sample 两阶段采集）----
+      // ① 25 行 / 前 21 PASS / 第 22 行 FAIL ⇒ 必须 FAIL 且失败行在 sample 内、不被 slice 切掉
+      R1_status_fail: (byId('R1_supply_drift_after_20_pass')?.check_status ?? [])[0] === 'FAIL',
+      R1_rows_25: (byId('R1_supply_drift_after_20_pass')?.rows ?? [])[0] === 25,
+      R1_sample_has_drift_cid: (byId('R1_supply_drift_after_20_pass')?.sample_failed_cids ?? []).includes('9021'),
+      R1_fail_row_first: byId('R1_supply_drift_after_20_pass')?.sample_first_cid === '9021',
+      R1_sample_len_capped: byId('R1_supply_drift_after_20_pass')?.sample_len === 20,
+      // ② 同形状 25 行全 PASS ⇒ PASS + diff='0' + rows=25
+      R2_status_pass: (byId('R2_supply_25_all_pass')?.check_status ?? [])[0] === 'PASS',
+      R2_diff_zero: (byId('R2_supply_25_all_pass')?.check_diff ?? [])[0] === '0',
+      R2_rows_25: (byId('R2_supply_25_all_pass')?.rows ?? [])[0] === 25,
       S3_account_drift_fail: byId('S3_account_drift_should_fail')?.ok === false,
       S4_batt_drift_fail: byId('S4_batt_drift_should_fail')?.ok === false,
       E1_404: byId('E1_unregistered_path')?.status === 404,

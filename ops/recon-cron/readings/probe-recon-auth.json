@@ -3,7 +3,7 @@
  "backend_root": "/Users/kevin/bistro/seafood/backend-ts",
  "secret_source": "env(.env.local)",
  "secret_len": 64,
- "stub_sql_calls": 18,
+ "stub_sql_calls": 24,
  "stub_calls_for_C1": 3,
  "assertions": {
   "A1_503": true,
@@ -16,6 +16,14 @@
   "C2_200": true,
   "S1_flips_to_false": true,
   "S2_baseline_enforced": true,
+  "R1_status_fail": true,
+  "R1_rows_25": true,
+  "R1_sample_has_drift_cid": true,
+  "R1_fail_row_first": true,
+  "R1_sample_len_capped": true,
+  "R2_status_pass": true,
+  "R2_diff_zero": true,
+  "R2_rows_25": true,
   "S3_account_drift_fail": true,
   "S4_batt_drift_fail": true,
   "E1_404": true,
@@ -39,6 +47,10 @@
    "check_ids": [],
    "check_status": [],
    "rows": [],
+   "sample_len": 0,
+   "sample_first_cid": null,
+   "sample_failed_cids": [],
+   "check_diff": [],
    "error_code": null,
    "message": "CRON_SECRET not configured",
    "secret_echoed": false,
@@ -58,6 +70,10 @@
    "check_ids": [],
    "check_status": [],
    "rows": [],
+   "sample_len": 0,
+   "sample_first_cid": null,
+   "sample_failed_cids": [],
+   "check_diff": [],
    "error_code": "AUTH_UNAUTHORIZED",
    "secret_echoed": false,
    "note": "secret 已配、无头 ⇒ 期望 401"
@@ -76,6 +92,10 @@
    "check_ids": [],
    "check_status": [],
    "rows": [],
+   "sample_len": 0,
+   "sample_first_cid": null,
+   "sample_failed_cids": [],
+   "check_diff": [],
    "error_code": "AUTH_UNAUTHORIZED",
    "secret_echoed": false,
    "note": "错 Bearer ⇒ 期望 401"
@@ -94,6 +114,10 @@
    "check_ids": [],
    "check_status": [],
    "rows": [],
+   "sample_len": 0,
+   "sample_first_cid": null,
+   "sample_failed_cids": [],
+   "check_diff": [],
    "error_code": "AUTH_UNAUTHORIZED",
    "secret_echoed": false,
    "note": "错 x-cron-secret ⇒ 期望 401"
@@ -131,6 +155,14 @@
     1,
     0,
     0
+   ],
+   "sample_len": 1,
+   "sample_first_cid": "1",
+   "sample_failed_cids": [],
+   "check_diff": [
+    "0",
+    null,
+    null
    ],
    "error_code": null,
    "message": "Ledger recon completed",
@@ -170,6 +202,14 @@
     1,
     0,
     0
+   ],
+   "sample_len": 1,
+   "sample_first_cid": "1",
+   "sample_failed_cids": [],
+   "check_diff": [
+    "0",
+    null,
+    null
    ],
    "error_code": null,
    "message": "Ledger recon completed",
@@ -213,6 +253,16 @@
    "diff": [
     "2000001"
    ],
+   "sample_len": 1,
+   "sample_first_cid": "1",
+   "sample_failed_cids": [
+    "1"
+   ],
+   "check_diff": [
+    "2000001",
+    null,
+    null
+   ],
    "error_code": null,
    "message": "Ledger recon detected drift",
    "secret_echoed": false,
@@ -255,10 +305,119 @@
    "diff": [
     "0"
    ],
+   "sample_len": 2,
+   "sample_first_cid": "21",
+   "sample_failed_cids": [
+    "21"
+   ],
+   "check_diff": [
+    "0",
+    null,
+    null
+   ],
    "error_code": null,
    "message": "Ledger recon detected drift",
    "secret_echoed": false,
    "note": "反向臂②：cid=21 基线 1、喂 diff=0 ⇒ 期望 FAIL"
+  },
+  {
+   "id": "R1_supply_drift_after_20_pass",
+   "method": "GET",
+   "url": "/api/ops/recon/ledger",
+   "auth": "x-cron-secret(correct)",
+   "mode": "supply_drift_late",
+   "status": 200,
+   "body_keys": [
+    "success",
+    "message",
+    "data"
+   ],
+   "data_keys": [
+    "ok",
+    "checks",
+    "checked_at",
+    "duration_ms"
+   ],
+   "ok": false,
+   "check_ids": [
+    "supply_vs_ledger",
+    "account_vs_ledger",
+    "batt_account_vs_batt_entry"
+   ],
+   "check_status": [
+    "FAIL",
+    "PASS",
+    "PASS"
+   ],
+   "rows": [
+    25,
+    0,
+    0
+   ],
+   "diff": [
+    "1"
+   ],
+   "sample_len": 20,
+   "sample_first_cid": "9021",
+   "sample_failed_cids": [
+    "9021"
+   ],
+   "check_diff": [
+    "1",
+    null,
+    null
+   ],
+   "error_code": null,
+   "message": "Ledger recon detected drift",
+   "secret_echoed": false,
+   "note": "回归①：25 行、前 21 PASS、第 22 行 cid=9021 diff=1 ⇒ 期望 FAIL 且 sample 含 cid 9021（不被切掉）"
+  },
+  {
+   "id": "R2_supply_25_all_pass",
+   "method": "GET",
+   "url": "/api/ops/recon/ledger",
+   "auth": "x-cron-secret(correct)",
+   "mode": "supply_all_pass_25",
+   "status": 200,
+   "body_keys": [
+    "success",
+    "message",
+    "data"
+   ],
+   "data_keys": [
+    "ok",
+    "checks",
+    "checked_at",
+    "duration_ms"
+   ],
+   "ok": true,
+   "check_ids": [
+    "supply_vs_ledger",
+    "account_vs_ledger",
+    "batt_account_vs_batt_entry"
+   ],
+   "check_status": [
+    "PASS",
+    "PASS",
+    "PASS"
+   ],
+   "rows": [
+    25,
+    0,
+    0
+   ],
+   "sample_len": 20,
+   "sample_first_cid": "1",
+   "sample_failed_cids": [],
+   "check_diff": [
+    "0",
+    null,
+    null
+   ],
+   "error_code": null,
+   "message": "Ledger recon completed",
+   "secret_echoed": false,
+   "note": "回归②：25 行全 PASS ⇒ 期望 PASS + diff=0"
   },
   {
    "id": "S3_account_drift_should_fail",
@@ -295,6 +454,14 @@
     0
    ],
    "diff": [
+    null
+   ],
+   "sample_len": 1,
+   "sample_first_cid": "1",
+   "sample_failed_cids": [],
+   "check_diff": [
+    "0",
+    null,
     null
    ],
    "error_code": null,
@@ -339,6 +506,14 @@
    "diff": [
     null
    ],
+   "sample_len": 1,
+   "sample_first_cid": "1",
+   "sample_failed_cids": [],
+   "check_diff": [
+    "0",
+    null,
+    null
+   ],
    "error_code": null,
    "message": "Ledger recon detected drift",
    "secret_echoed": false,
@@ -358,6 +533,10 @@
    "check_ids": [],
    "check_status": [],
    "rows": [],
+   "sample_len": 0,
+   "sample_first_cid": null,
+   "sample_failed_cids": [],
+   "check_diff": [],
    "error_code": "LEDGER_REF_NOT_FOUND",
    "secret_echoed": false,
    "note": "对照：未注册路径 ⇒ 404 route_not_found"

@@ -141,7 +141,13 @@ interface SupplyRow {
  * ⇒ 不得写成 `WHERE symbol='BTTC'`，否则今天 0 行、明天 1 行 = 「有行才检查」的假绿）。
  */
 const judgeSupply = (rows: SupplyRow[]): ReconCheck => {
-  const sample: Array<Record<string, unknown>> = [];
+  // ★ 两阶段采集（Zang 审阅修复）：先扫全部行，失败行与通过行**分桶**收集 ——
+  //   只按 `!pass || sample.length < 上限` 顺序推送再 `slice(0, 上限)` 的写法，
+  //   会让「前 20 行全 PASS、后面才 FAIL」的行虽被推进数组却被切掉 ⇒
+  //   值班人拿到 FAIL 却看不到是哪一行漂了（定位样本丢失，非判定错）。
+  //   ⇒ 失败行恒占据输出前段（各自封顶 20），余位再用 PASS 行填满。
+  const failedSample: Array<Record<string, unknown>> = [];
+  const passedSample: Array<Record<string, unknown>> = [];
   let firstUnexpected: string | null = null;
 
   for (const row of rows) {
@@ -150,8 +156,9 @@ const judgeSupply = (rows: SupplyRow[]): ReconCheck => {
     const parsed = integerOf(row.diff);
     const pass = parsed.exact && parsed.big === baseline;
     if (!pass && firstUnexpected === null) firstUnexpected = str(row.diff);
-    if (!pass || sample.length < SAMPLE_LIMIT) {
-      sample.push({
+    // 每桶各自封顶 SAMPLE_LIMIT ⇒ 内存有界，且失败桶永远不会被通过行挤掉。
+    if (pass) {
+      if (passedSample.length < SAMPLE_LIMIT) passedSample.push({
         cid,
         symbol: str(row.symbol),
         total_supply: str(row.total_supply),
@@ -160,18 +167,34 @@ const judgeSupply = (rows: SupplyRow[]): ReconCheck => {
         ledger_derived: str(row.ledger_derived),
         diff: str(row.diff),
         baseline: baseline.toString(),
-        ok: pass,
+        ok: true,
+      });
+    } else if (failedSample.length < SAMPLE_LIMIT) {
+      failedSample.push({
+        cid,
+        symbol: str(row.symbol),
+        total_supply: str(row.total_supply),
+        sum_mint: str(row.sum_mint),
+        sum_burn: str(row.sum_burn),
+        ledger_derived: str(row.ledger_derived),
+        diff: str(row.diff),
+        baseline: baseline.toString(),
+        ok: false,
       });
     }
   }
 
-  const failed = sample.some((s) => s.ok === false);
+  /** 输出顺序固定 = 失败行在前，余位（上限 − 失败数）由 PASS 行补齐 */
+  const room = SAMPLE_LIMIT - failedSample.length;
+  const sample = failedSample.concat(room > 0 ? passedSample.slice(0, room) : []);
+
+  const failed = failedSample.length > 0;
   return {
     id: 'supply_vs_ledger',
     status: failed ? 'FAIL' : 'PASS',
     rows: rows.length,
     diff: failed ? String(firstUnexpected ?? '') : '0',
-    sample: sample.slice(0, SAMPLE_LIMIT),
+    sample,
   };
 };
 
@@ -179,6 +202,9 @@ const judgeZeroRows = (
   id: ReconCheckId,
   rows: Array<Record<string, unknown>>,
 ): ReconCheck => ({
+  // 复核（Zang 审阅轮）：本函数**无需改** —— 判据是「行数 > 0 即 FAIL」，无 PASS 行概念，
+  //   `sample` 天然只由失败行组成，`slice(0, SAMPLE_LIMIT)` 只截数量、不会把「唯一的失败类型」
+  //   挤出去（与 judgeSupply 的洞不是同一类问题）。
   id,
   status: rows.length > 0 ? 'FAIL' : 'PASS',
   rows: rows.length,
