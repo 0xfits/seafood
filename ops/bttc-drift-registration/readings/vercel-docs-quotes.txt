@@ -1,0 +1,74 @@
+# Vercel 官方页现取引文（2026-10-17 · 逐字，来源 URL + 页脚更新日）
+
+## A. https://vercel.com/docs/cron-jobs/usage-and-pricing
+页脚：`Last updated July 15, 2026`
+
+表（逐字排版）：
+```
+	Number of cron jobs per project	Minimum interval	Scheduling precision
+Hobby	100 cron jobs	Once per day	Per-hour (±59 min)
+Pro	100 cron jobs	Once per minute	Per-minute
+Enterprise	100 cron jobs	Once per minute	Per-minute
+```
+
+Hobby scheduling limits（逐字）：
+```
+Hobby accounts are limited to cron jobs that run once per day. Cron expressions that would run more
+frequently will fail during deployment.
+
+Hobby plans have two restrictions on cron jobs:
+
+Daily execution limit: Cron jobs can only run once per day. Expressions like 0 * * * * (per-hour) or
+*/30 * * * * (every 30 minutes) will fail deployment with the error: Hobby accounts are limited to
+daily cron jobs. This cron expression would run more than once per day.
+
+Timing precision: Vercel cannot assure a timely cron job invocation. For example, a cron job
+configured as 0 1 * * * (every day at 1 am) will trigger anywhere between 1:00 am and 1:59 am.
+```
+
+★ 与本仓台账旧记（「Hobby cron 最多 2 条/项目」）的差异：官方现页为 **100 条/项目**。旧值可追溯至
+`https://vercel.com/blog/cron-jobs`（beta 期逐字「Hobby: 2 cron jobs total, each triggered once per day」）
+与第三方转述（steadycron / runhooks 等 2026 年文章仍写 2 条）。**本仓以官方 docs 表为准**，旧值留痕不改。
+
+## B. https://vercel.com/docs/functions/limitations
+```
+Maximum duration	Hobby: 300s default and maximum. Pro and Enterprise: 300s default, 800s maximum,
+and 1800s extended maximum Beta.
+```
+```
+Node.js, Bun, and Python runtimes	Default	Maximum	Extended maximum
+Hobby	300s (5 minutes)	300s (5 minutes)	-
+Pro	300s (5 minutes)	800s	1800s (30 minutes) Beta
+Enterprise	300s (5 minutes)	800s	1800s (30 minutes) Beta
+```
+（表头前提逐字：`The table below outlines the limits and restrictions of using Vercel Functions with Fluid compute`）
+
+## C. https://vercel.com/docs/limits/fair-use-guidelines
+```
+Commercial usage
+Hobby teams are restricted to non-commercial personal use only. All commercial usage of the platform
+requires either a Pro or Enterprise plan. Commercial usage is defined as any Deployment that is used
+for the purpose of financial gain of anyone involved in any part of the production of the project,
+including a paid employee or consultant writing the code. Examples of this include, but are not
+limited to, the following:
+
+- Any method of requesting or processing payment from visitors of the site
+- Advertising the sale of a product or service
+- Receiving payment to create, update, or host the site
+- Affiliate linking is the primary purpose of the site
+- The inclusion of advertisements, including but not limited to online advertising platforms like Google AdSense
+```
+（同页附注逐字：`Asking for Donations does not fall under commercial usage.` —— 本站**不是**捐赠形态，见下。）
+
+## D. https://vercel.com/legal/terms（ToS · Hobby 相关段落摘录）
+```
+You shall only use the Services under a Hobby plan for your personal or non-commercial use. We may
+change the features, limitations, or other conditions applicable to the Hobby plan or discontinue
+offering the Hobby plan at any time. We reserve the right to disable or remove any Project or website
+deployment on the Hobby plan with or without notice at our sole discretion. We may shut down and
+terminate projects or deployments using the Hobby plan without notice for any reason or no reason.
+```
+
+## 检索方式（可复跑）
+- `web_search`：`Vercel Hobby cron jobs limit 2 per project once per day not exact time docs` / `Vercel Fair Use Guidelines Hobby non-commercial personal use commercial requires Pro`
+- 直读：真实浏览器打开 `vercel.com/docs/cron-jobs/usage-and-pricing` 与 `vercel.com/docs/functions/limitations`，取 `document.body.innerText`（`web_extract` 对该域返回 `Blocked: URL targets a private or internal network address`，改用浏览器读取）。
