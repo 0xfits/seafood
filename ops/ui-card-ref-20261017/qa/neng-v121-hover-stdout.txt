@@ -1,0 +1,83 @@
+[leg2] 3.9s L logo(20px/700 大字) base rgb(10, 10, 10) hover null hoverMatched null bgPixel rgb(253, 232, 21) ratioBase 15.773 ratioHover null
+[leg2] 4.1s L nav-link base base rgb(75, 85, 99) hover rgb(10, 10, 10) hoverMatched true bgPixel rgb(253, 232, 21) ratioBase 6.021 ratioHover 15.773
+[leg2] 4.2s L register btn base/hover base rgb(75, 85, 99) hover rgb(10, 10, 10) hoverMatched true bgPixel rgb(253, 232, 21) ratioBase 6.021 ratioHover 15.773
+[leg2] 4.4s L login btn base/hover base rgb(75, 85, 99) hover rgb(10, 10, 10) hoverMatched true bgPixel rgb(253, 232, 21) ratioBase 6.021 ratioHover 15.773
+[leg2] 4.5s L theme btn (nav-link · 图标) base rgb(75, 85, 99) hover rgb(10, 10, 10) hoverMatched true bgPixel rgb(253, 232, 21) ratioBase 6.021 ratioHover 15.773
+[leg2] 8.6s L hamburger (390 才可见 · 桌面档记录) base rgb(75, 85, 99) hover null hoverMatched null bgPixel rgb(253, 232, 21) ratioBase 6.021 ratioHover null
+[leg2] 8.9s L active {"name":"nav-link.active (/task)","found":true,"base":{"color":"rgb(10, 10, 10)","backgroundColor":"rgb(243, 244, 246)","cls":"nav-link active ","rect":{"x":822,"y":13.5,"w":80,"h":37},"text":"社区任务"},"bgComposite":{"box":[825,17,899,48],"pixels":2294,"top":[{"rgba":"243,244,246,255","rgb":"rgb(243, 244, 246)","a":1,"count":1869,"frac":0.815},{"rgba":"10,10,10,255","rgb":"rgb(10, 10, 10)","a":1,"count":49,"frac":0.021},{"rgba":"41,41,41,255","rgb":"rgb(41, 41, 41)","a":1,"count":12,"frac":0.005},{"rgba":"36,36,36,255","rgb":"rgb(36, 36, 36)","a":1,"count":11,"frac":0.005}]},"contrast":{"fg":"rg
+[leg2] 9.4s LP logo [ 'rgb(202, 138, 4)', null, 'rgb(255, 254, 243)', 2.899, null ]
+[leg2] 9.6s LP nav-link base [
+  'rgb(75, 85, 99)',
+  'rgb(217, 119, 6)',
+  'rgb(255, 254, 243)',
+  7.458,
+  3.144
+]
+[leg2] 9.6s LP register btn NOT_FOUND
+[leg2] 9.7s LP theme btn (nav-link · 图标) [
+  'rgb(75, 85, 99)',
+  'rgb(217, 119, 6)',
+  'rgb(255, 254, 243)',
+  7.458,
+  3.144
+]
+[leg2] 10.2s D logo [
+  'rgba(255, 255, 255, 0.92)',
+  'rgba(0, 0, 0, 0)',
+  'rgb(31, 41, 55)',
+  12.628,
+  null
+]
+[leg2] 10.3s D nav-link base [
+  'rgba(255, 255, 255, 0.92)',
+  'rgba(0, 0, 0, 0)',
+  'rgb(31, 41, 55)',
+  12.628,
+  [ 'rgba(255, 255, 255, 0.92)', true, 12.628 ]
+]
+[leg2] 10.3s D orders nav-link [
+  'rgba(255, 255, 255, 0.92)',
+  'rgba(0, 0, 0, 0)',
+  'rgb(31, 41, 55)',
+  12.628,
+  null
+]
+[leg2] 10.5s D register btn [
+  'rgba(255, 255, 255, 0.92)',
+  'rgba(0, 0, 0, 0)',
+  'rgb(31, 41, 55)',
+  12.628,
+  [ 'rgba(255, 255, 255, 0.92)', true, 12.628 ]
+]
+[leg2] 10.7s D login btn [
+  'rgba(255, 255, 255, 0.92)',
+  'rgba(0, 0, 0, 0)',
+  'rgb(31, 41, 55)',
+  12.628,
+  [ 'rgba(255, 255, 255, 0.92)', true, 12.628 ]
+]
+[leg2] 10.8s D theme btn (nav-link · 图标) [
+  'rgba(255, 255, 255, 0.92)',
+  'rgba(0, 0, 0, 0)',
+  'rgb(31, 41, 55)',
+  12.628,
+  [ 'rgba(255, 255, 255, 0.92)', true, 12.628 ]
+]
+[leg2] 11.2s DP logo [ 'rgba(255, 255, 255, 0.92)', 'rgb(31, 41, 55)', 12.628, null ]
+[leg2] 11.3s DP nav-link base [
+  'rgba(255, 255, 255, 0.92)',
+  'rgb(31, 41, 55)',
+  12.628,
+  [ 'rgba(255, 255, 255, 0.92)', 12.628 ]
+]
+[leg2] 11.3s DP register btn NOT_FOUND
+[leg2] 11.5s DP theme btn (nav-link · 图标) [
+  'rgba(255, 255, 255, 0.92)',
+  'rgb(31, 41, 55)',
+  12.628,
+  [ 'rgba(255, 255, 255, 0.92)', 12.628 ]
+]
+[leg2] 12.2s mobile pill cur {"panel":{"panelFound":true,"panelBg":"rgba(255, 255, 255, 0.95)","panelOpacity":"1"},"reg":{"whiteTextOnOwnBg":{"fg":"rgb(255, 255, 255)","bgPixel":"rgb(48, 107, 235)","ratio":4.742},"uncompositedPath":{"declaredBg":"rgba(37, 99, 235, 0.95)","ratioIfPureWhite":5.169}},"login":{"whiteTextOnOwnBg":{"fg":"rgb(255, 255, 255)","bgPixel":"rgb(205, 144, 16)","ratio":2.766},"uncompositedPath":{"declaredBg":"rgba(202, 138, 4, 0.95)","ratioIfPureWhite":2.938}}}
+[leg2] 12.7s mobile pill parent {"panel":{"panelFound":true,"panelBg":"rgba(255, 255, 255, 0.95)","panelOpacity":"1"},"reg":{"whiteTextOnOwnBg":{"fg":"rgb(255, 255, 255)","bgPixel":"rgb(48, 107, 236)","ratio":4.73},"uncompositedPath":{"declaredBg":"rgba(37, 99, 235, 0.95)","ratioIfPureWhite":5.169}},"login":{"whiteTextOnOwnBg":{"fg":"rgb(255, 255, 255)","bgPixel":"rgb(205, 144, 17)","ratio":2.766},"uncompositedPath":{"declaredBg":"rgba(202, 138, 4, 0.95)","ratioIfPureWhite":2.938}}}
+[leg2] 12.8s WROTE /Users/kevin/bistro/seafood/ops/ui-card-ref-20261017/qa/neng-v121-hover-contrast.json
+EXIT=0

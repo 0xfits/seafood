@@ -1,6 +1,6 @@
 {
   "probe": "neng-probe-ac5.mjs（Neng 质检员 · 自写自跑 · 归因式不动面）",
-  "startedAt": "2026-10-17T00:34:10.181Z",
+  "startedAt": "2026-10-17T00:37:42.291Z",
   "parentDist": "/Users/kevin/.hermes/profiles/zang/cache/scratch/neng-ac5/parent/frontend/dist",
   "currentDist": "/Users/kevin/bistro/seafood/frontend/dist",
   "noiseSource": "frontend/src/components/Footer.jsx:12 —— 模块加载期 Math.random() 选 CAT_SLOGAN ⇒ <a title>/<img alt> 每次加载都变",
@@ -16,7 +16,7 @@
       "visibleCurrent": 124,
       "noiseBaselineParent": true,
       "noiseBaselineCurrent": true,
-      "rawDiffCount": 5,
+      "rawDiffCount": 3,
       "rawDiffSample": [
         {
           "key": "DIV#sf-shell~0",
@@ -34,18 +34,6 @@
           "key": "DIV#sf-item-actionbar~0",
           "fields": [
             "style.backgroundColor"
-          ]
-        },
-        {
-          "key": "A#group block rounded-lg overflow-hidden relative~0",
-          "fields": [
-            "attrs"
-          ]
-        },
-        {
-          "key": "IMG#h-[50px] w-auto object-contain~0",
-          "fields": [
-            "attrs"
           ]
         }
       ],
@@ -85,7 +73,7 @@
       "structureDiffs": [],
       "textDiffs": [],
       "counterfactual": {
-        "css": ":root,[data-theme=\"light\"]{--sf-page-bg:#FDE815 !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
+        "css": ":root{--sf-page-bg:#FDE815 !important;--sf-surface-bg:#FFFFFF !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
         "diffCount": 0,
         "details": []
       },
@@ -182,7 +170,7 @@
       "structureDiffs": [],
       "textDiffs": [],
       "counterfactual": {
-        "css": ":root,[data-theme=\"light\"]{--sf-page-bg:#FDE815 !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
+        "css": ":root{--sf-page-bg:#FDE815 !important;--sf-surface-bg:#FFFFFF !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
         "diffCount": 0,
         "details": []
       },
@@ -210,7 +198,7 @@
       "visibleCurrent": 132,
       "noiseBaselineParent": true,
       "noiseBaselineCurrent": true,
-      "rawDiffCount": 2,
+      "rawDiffCount": 4,
       "rawDiffSample": [
         {
           "key": "MAIN#sf-route-container~0",
@@ -222,6 +210,18 @@
           "key": "DIV#sf-item-actionbar~0",
           "fields": [
             "style.backgroundColor"
+          ]
+        },
+        {
+          "key": "A#group block rounded-lg overflow-hidden relative~0",
+          "fields": [
+            "attrs"
+          ]
+        },
+        {
+          "key": "IMG#h-[50px] w-auto object-contain~0",
+          "fields": [
+            "attrs"
           ]
         }
       ],
@@ -253,22 +253,9 @@
       "structureDiffs": [],
       "textDiffs": [],
       "counterfactual": {
-        "css": ":root,[data-theme=\"light\"]{--sf-page-bg:#FDE815 !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
-        "diffCount": 2,
-        "details": [
-          {
-            "key": "DIV#sf-shell~0",
-            "fields": [
-              "style.backgroundColor"
-            ]
-          },
-          {
-            "key": "DIV#sf-item-actionbar~0",
-            "fields": [
-              "style.backgroundColor"
-            ]
-          }
-        ]
+        "css": ":root{--sf-page-bg:#0B0C0E !important;--sf-surface-bg:#101114 !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
+        "diffCount": 0,
+        "details": []
       },
       "sensitivity": {
         "colorPerturb": {
@@ -292,6 +279,77 @@
       "containsHome": false,
       "visibleParent": 146,
       "visibleCurrent": 146,
+      "noiseBaselineParent": true,
+      "noiseBaselineCurrent": true,
+      "rawDiffCount": 2,
+      "rawDiffSample": [
+        {
+          "key": "DIV#sf-shell~0",
+          "fields": [
+            "style.backgroundColor"
+          ]
+        },
+        {
+          "key": "MAIN#sf-route-container~0",
+          "fields": [
+            "style.backgroundColor"
+          ]
+        }
+      ],
+      "normalizedDiffCount": 2,
+      "attributableChanges": [
+        {
+          "key": "DIV#sf-shell~0",
+          "fields": [
+            "style.backgroundColor"
+          ],
+          "from": "rgb(10, 10, 10)|rgb(253, 232, 21)",
+          "to": "rgb(10, 10, 10)|rgb(245, 247, 249)"
+        },
+        {
+          "key": "MAIN#sf-route-container~0",
+          "fields": [
+            "style.backgroundColor"
+          ],
+          "from": "rgb(10, 10, 10)|rgba(0, 0, 0, 0)",
+          "to": "rgb(10, 10, 10)|rgb(255, 255, 255)"
+        }
+      ],
+      "nonAttributable": [],
+      "structuralOnlyInParent": [],
+      "structuralOnlyInCurrent": [],
+      "structuralApprovedMarkerHits": 0,
+      "structuralUnapproved": [],
+      "geometryDiffs": [],
+      "structureDiffs": [],
+      "textDiffs": [],
+      "counterfactual": {
+        "css": ":root{--sf-page-bg:#FDE815 !important;--sf-surface-bg:#FFFFFF !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
+        "diffCount": 0,
+        "details": []
+      },
+      "sensitivity": {
+        "colorPerturb": {
+          "css": ".sf-region-top{background:#00ff00 !important}",
+          "diffCount": 1,
+          "sensitive": true
+        },
+        "geomPerturb": {
+          "css": ".sf-region-top{padding-top:5px !important}",
+          "diffCount": 116,
+          "geometryFieldDiffs": 116,
+          "sensitive": true
+        }
+      }
+    },
+    {
+      "id": "task1440",
+      "route": "/task",
+      "vw": 1440,
+      "theme": "light",
+      "containsHome": false,
+      "visibleParent": 187,
+      "visibleCurrent": 187,
       "noiseBaselineParent": true,
       "noiseBaselineCurrent": true,
       "rawDiffCount": 4,
@@ -349,78 +407,7 @@
       "structureDiffs": [],
       "textDiffs": [],
       "counterfactual": {
-        "css": ":root,[data-theme=\"light\"]{--sf-page-bg:#FDE815 !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
-        "diffCount": 0,
-        "details": []
-      },
-      "sensitivity": {
-        "colorPerturb": {
-          "css": ".sf-region-top{background:#00ff00 !important}",
-          "diffCount": 1,
-          "sensitive": true
-        },
-        "geomPerturb": {
-          "css": ".sf-region-top{padding-top:5px !important}",
-          "diffCount": 116,
-          "geometryFieldDiffs": 116,
-          "sensitive": true
-        }
-      }
-    },
-    {
-      "id": "task1440",
-      "route": "/task",
-      "vw": 1440,
-      "theme": "light",
-      "containsHome": false,
-      "visibleParent": 187,
-      "visibleCurrent": 187,
-      "noiseBaselineParent": true,
-      "noiseBaselineCurrent": true,
-      "rawDiffCount": 2,
-      "rawDiffSample": [
-        {
-          "key": "DIV#sf-shell~0",
-          "fields": [
-            "style.backgroundColor"
-          ]
-        },
-        {
-          "key": "MAIN#sf-route-container~0",
-          "fields": [
-            "style.backgroundColor"
-          ]
-        }
-      ],
-      "normalizedDiffCount": 2,
-      "attributableChanges": [
-        {
-          "key": "DIV#sf-shell~0",
-          "fields": [
-            "style.backgroundColor"
-          ],
-          "from": "rgb(10, 10, 10)|rgb(253, 232, 21)",
-          "to": "rgb(10, 10, 10)|rgb(245, 247, 249)"
-        },
-        {
-          "key": "MAIN#sf-route-container~0",
-          "fields": [
-            "style.backgroundColor"
-          ],
-          "from": "rgb(10, 10, 10)|rgba(0, 0, 0, 0)",
-          "to": "rgb(10, 10, 10)|rgb(255, 255, 255)"
-        }
-      ],
-      "nonAttributable": [],
-      "structuralOnlyInParent": [],
-      "structuralOnlyInCurrent": [],
-      "structuralApprovedMarkerHits": 0,
-      "structuralUnapproved": [],
-      "geometryDiffs": [],
-      "structureDiffs": [],
-      "textDiffs": [],
-      "counterfactual": {
-        "css": ":root,[data-theme=\"light\"]{--sf-page-bg:#FDE815 !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
+        "css": ":root{--sf-page-bg:#FDE815 !important;--sf-surface-bg:#FFFFFF !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
         "diffCount": 0,
         "details": []
       },
@@ -503,7 +490,7 @@
       "structureDiffs": [],
       "textDiffs": [],
       "counterfactual": {
-        "css": ":root,[data-theme=\"light\"]{--sf-page-bg:#FDE815 !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
+        "css": ":root{--sf-page-bg:#FDE815 !important;--sf-surface-bg:#FFFFFF !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
         "diffCount": 0,
         "details": []
       },
@@ -586,7 +573,7 @@
       "structureDiffs": [],
       "textDiffs": [],
       "counterfactual": {
-        "css": ":root,[data-theme=\"light\"]{--sf-page-bg:#FDE815 !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
+        "css": ":root{--sf-page-bg:#FDE815 !important;--sf-surface-bg:#FFFFFF !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
         "diffCount": 0,
         "details": []
       },
@@ -669,7 +656,7 @@
       "structureDiffs": [],
       "textDiffs": [],
       "counterfactual": {
-        "css": ":root,[data-theme=\"light\"]{--sf-page-bg:#FDE815 !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
+        "css": ":root{--sf-page-bg:#FDE815 !important;--sf-surface-bg:#FFFFFF !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
         "diffCount": 0,
         "details": []
       },
@@ -820,7 +807,7 @@
       "structureDiffs": [],
       "textDiffs": [],
       "counterfactual": {
-        "css": ":root,[data-theme=\"light\"]{--sf-page-bg:#FDE815 !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
+        "css": ":root{--sf-page-bg:#FDE815 !important;--sf-surface-bg:#FFFFFF !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
         "diffCount": 66,
         "details": []
       },
@@ -855,9 +842,9 @@
         ],
         "noiseBaselineAllIdentical": true,
         "normalizedDiffFullyAttributable": true,
-        "counterfactualEmptyAllCases": false,
+        "counterfactualEmptyAllCases": true,
         "rulerSensitivityAllNonEmpty": true,
-        "ok": false
+        "ok": true
       },
       "homeBearingRoutes": [
         {
@@ -874,7 +861,7 @@
       "rawDiffCounts": [
         {
           "id": "item1440",
-          "raw": 5
+          "raw": 3
         },
         {
           "id": "item390",
@@ -882,15 +869,15 @@
         },
         {
           "id": "item1440_night",
-          "raw": 2
-        },
-        {
-          "id": "exchange1440",
           "raw": 4
         },
         {
-          "id": "task1440",
+          "id": "exchange1440",
           "raw": 2
+        },
+        {
+          "id": "task1440",
+          "raw": 4
         },
         {
           "id": "profile1440",
@@ -910,7 +897,7 @@
         }
       ],
       "rawJudgement": "raw 差异集 ≠ 0 为预期（Footer.jsx:12 模块加载期 Math.random() ⇒ <a title>/<img alt> 每载随机）⇒ 该判据**原样保留为 ENV_LIMITED**，不改写成 PASS",
-      "ok": false
+      "ok": true
     }
   }
 }

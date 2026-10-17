@@ -1,10 +1,10 @@
 {
-  "out": "ops/ui-card-ref-20261017/qa/neng-readings-ac5.json",
+  "out": "/Users/kevin/bistro/seafood/ops/ui-card-ref-20261017/qa/neng-readings-ac5.json",
   "perCase": [
     {
       "id": "item1440",
       "noise": true,
-      "raw": 5,
+      "raw": 3,
       "norm": 3,
       "attributable": 3,
       "nonAttributable": 0,
@@ -32,21 +32,21 @@
     {
       "id": "item1440_night",
       "noise": true,
-      "raw": 2,
+      "raw": 4,
       "norm": 2,
       "attributable": 2,
       "nonAttributable": 0,
       "structural": 0,
       "geom": 0,
       "text": 0,
-      "cf": 2,
+      "cf": 0,
       "sensColor": 1,
       "sensGeom": 102
     },
     {
       "id": "exchange1440",
       "noise": true,
-      "raw": 4,
+      "raw": 2,
       "norm": 2,
       "attributable": 2,
       "nonAttributable": 0,
@@ -60,7 +60,7 @@
     {
       "id": "task1440",
       "noise": true,
-      "raw": 2,
+      "raw": 4,
       "norm": 2,
       "attributable": 2,
       "nonAttributable": 0,
@@ -143,9 +143,9 @@
       ],
       "noiseBaselineAllIdentical": true,
       "normalizedDiffFullyAttributable": true,
-      "counterfactualEmptyAllCases": false,
+      "counterfactualEmptyAllCases": true,
       "rulerSensitivityAllNonEmpty": true,
-      "ok": false
+      "ok": true
     },
     "homeBearingRoutes": [
       {
@@ -162,7 +162,7 @@
     "rawDiffCounts": [
       {
         "id": "item1440",
-        "raw": 5
+        "raw": 3
       },
       {
         "id": "item390",
@@ -170,15 +170,15 @@
       },
       {
         "id": "item1440_night",
-        "raw": 2
-      },
-      {
-        "id": "exchange1440",
         "raw": 4
       },
       {
-        "id": "task1440",
+        "id": "exchange1440",
         "raw": 2
+      },
+      {
+        "id": "task1440",
+        "raw": 4
       },
       {
         "id": "profile1440",
@@ -198,7 +198,6 @@
       }
     ],
     "rawJudgement": "raw 差异集 ≠ 0 为预期（Footer.jsx:12 模块加载期 Math.random() ⇒ <a title>/<img alt> 每载随机）⇒ 该判据**原样保留为 ENV_LIMITED**，不改写成 PASS",
-    "ok": false
+    "ok": true
   }
 }
-EXIT=0

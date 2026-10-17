@@ -1,0 +1,7 @@
+[leg5] 390 light scrollY 0 header [0,0,390,65] cards 0/0 | 1st: undefined
+[leg5] 390 dark scrollY 0 header [0,0,390,65] cards 0/0 | 1st: undefined
+[leg5] 1600 light scrollY 0 header [0,0,1600,65] cards 0/0 | 1st: undefined
+[leg5] 1600 dark scrollY 0 header [0,0,1600,65] cards 0/0 | 1st: undefined
+[leg5] hover shot {"color":"rgb(10, 10, 10)","hover":true,"r":[1030,14,80,37],"text":"社区任务"}
+[leg5] WROTE shots + sha256
+EXIT=0

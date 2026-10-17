@@ -1,0 +1,16 @@
+
+ RUN  v0.34.6 /Users/kevin/bistro/seafood/frontend
+
+stderr | src/test/unit/r9-93-points-symbol.test.jsx > ③ 渲染面：含 `$` 且不再含旧 DashJ 符号 > Header：用户菜单积分块含 `$`，无旧符号
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ✓ src/test/unit/r9-93-points-symbol.test.jsx  (9 tests) 93ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  08:39:03
+   Duration  841ms (transform 201ms, setup 93ms, collect 292ms, tests 93ms, environment 195ms, prepare 44ms)
+
+B10_EXIT=0

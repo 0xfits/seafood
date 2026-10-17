@@ -1,0 +1,156 @@
+{
+  "out": "/Users/kevin/bistro/seafood/ops/ui-card-ref-20261017/qa/neng-readings-shots-obs.json",
+  "shots": [
+    "neng-390-日档-top.png",
+    "neng-390-日档-2cards.png",
+    "neng-1600-日档.png",
+    "neng-1600-夜档.png",
+    "neng-hover-日档.png"
+  ],
+  "obs4": {
+    "390_light": {
+      "overlap": 1792,
+      "diff": {
+        "gt6": 7020,
+        "max": 38,
+        "mean": 9.39,
+        "meanA": [
+          241.4,
+          236.5,
+          245.6
+        ],
+        "meanB": [
+          244.4,
+          244.5,
+          244.5
+        ]
+      },
+      "restored": true
+    },
+    "390_dark": {
+      "overlap": 1792,
+      "diff": {
+        "gt6": 7020,
+        "max": 38,
+        "mean": 9.39,
+        "meanA": [
+          215.8,
+          211,
+          220.5
+        ],
+        "meanB": [
+          218.8,
+          219,
+          219.3
+        ]
+      },
+      "restored": true
+    },
+    "1600_light": {
+      "overlap": 1792,
+      "diff": {
+        "gt6": 7003,
+        "max": 38,
+        "mean": 9.39,
+        "meanA": [
+          241.4,
+          236.5,
+          245.6
+        ],
+        "meanB": [
+          244.4,
+          244.5,
+          244.5
+        ]
+      },
+      "restored": true
+    },
+    "1600_dark": {
+      "overlap": 1792,
+      "diff": {
+        "gt6": 7003,
+        "max": 38,
+        "mean": 9.39,
+        "meanA": [
+          215.8,
+          211,
+          220.5
+        ],
+        "meanB": [
+          218.8,
+          219,
+          219.3
+        ]
+      },
+      "restored": true
+    },
+    "legendary_injected_390_light": {
+      "overlap": 1792,
+      "diff": {
+        "gt6": 8689,
+        "max": 38,
+        "mean": 17.17,
+        "meanA": [
+          245.6,
+          241.8,
+          228.1
+        ],
+        "meanB": [
+          244.4,
+          244.5,
+          244.5
+        ]
+      }
+    }
+  },
+  "hover": {
+    "shadowAppeared": true,
+    "displaced": false,
+    "yellowRing": false,
+    "shadows": [
+      "none",
+      "rgba(0, 0, 0, 0.1) 0px 10px 15px 0px, rgba(0, 0, 0, 0.05) 0px 4px 6px 0px"
+    ]
+  },
+  "obs5": {
+    "cta": {
+      "present": true,
+      "tag": "SPAN",
+      "role": null,
+      "tabIndexAttr": null,
+      "tabIndexProp": -1,
+      "text": "查看详情",
+      "isFocusableNow": false,
+      "hasKeydownListenerHint": "DOM 不可读（onKeyDown/onClick 由 React 合成事件挂载）",
+      "parentAnchor": {
+        "tag": "A",
+        "href": "/item/1"
+      }
+    },
+    "ctaEverFocusedByTab": false,
+    "cardAnchorFocusedByTab": true,
+    "keyboard": {
+      "focusedCard": {
+        "tag": "A",
+        "href": "/item/1",
+        "sf": "reward-card"
+      },
+      "pathnameBefore": "/",
+      "pathnameAfterEnter": "/item/1",
+      "navigated": true
+    },
+    "anchors": {
+      "cards": 6,
+      "withHref": 6,
+      "roots": [
+        "A",
+        "A",
+        "A",
+        "A",
+        "A",
+        "A"
+      ]
+    }
+  }
+}
+SHOTSPROBE_EXIT=0

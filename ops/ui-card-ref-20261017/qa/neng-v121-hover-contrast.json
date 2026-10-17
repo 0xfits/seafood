@@ -1,0 +1,2376 @@
+{
+  "meta": {
+    "curDist": "/Users/kevin/bistro/seafood/frontend/dist",
+    "parentDist": "/Users/kevin/.hermes/profiles/zang/cache/scratch/neng-v121/parent/frontend/dist"
+  },
+  "light": {
+    "logo(20px/700 大字)": {
+      "name": "logo(20px/700 大字)",
+      "sel": "#header a.sf-topbar-brand",
+      "found": true,
+      "note": "",
+      "base": {
+        "color": "rgb(10, 10, 10)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fontSize": "20px",
+        "fontWeight": "700",
+        "cls": "sf-tap-inline sf-topbar-brand text-xl font-bold",
+        "rect": {
+          "x": 96,
+          "y": 18,
+          "w": 163.09375,
+          "h": 28
+        },
+        "isHoverMatched": false,
+        "text": "Seafood 海鲜市场"
+      },
+      "hoverState": null,
+      "bgComposite": {
+        "box": [
+          99,
+          21,
+          256,
+          43
+        ],
+        "pixels": 3454,
+        "top": [
+          {
+            "rgba": "253,232,21,255",
+            "rgb": "rgb(253, 232, 21)",
+            "a": 1,
+            "count": 1603,
+            "frac": 0.464
+          },
+          {
+            "rgba": "10,10,10,255",
+            "rgb": "rgb(10, 10, 10)",
+            "a": 1,
+            "count": 406,
+            "frac": 0.118
+          },
+          {
+            "rgba": "252,231,21,255",
+            "rgb": "rgb(252, 231, 21)",
+            "a": 1,
+            "count": 42,
+            "frac": 0.012
+          },
+          {
+            "rgba": "251,230,21,255",
+            "rgb": "rgb(251, 230, 21)",
+            "a": 1,
+            "count": 33,
+            "frac": 0.01
+          }
+        ]
+      },
+      "contrastBase": {
+        "fgDeclared": {
+          "r": 10,
+          "g": 10,
+          "b": 10,
+          "a": 1
+        },
+        "fgComposited": {
+          "r": 10,
+          "g": 10,
+          "b": 10,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 253,
+          "g": 232,
+          "b": 21,
+          "a": 1
+        },
+        "ratio": 15.773,
+        "threshold": 3,
+        "pass": true
+      },
+      "contrastHover": null,
+      "hoverShotSha": null
+    },
+    "nav-link base": {
+      "name": "nav-link base",
+      "sel": "#header nav a.nav-link:nth-of-type(1)",
+      "found": true,
+      "note": "",
+      "base": {
+        "color": "rgb(75, 85, 99)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "cls": "nav-link  ",
+        "rect": {
+          "x": 822,
+          "y": 13.5,
+          "w": 80,
+          "h": 37
+        },
+        "isHoverMatched": false,
+        "text": "社区任务"
+      },
+      "hoverState": {
+        "color": "rgb(10, 10, 10)",
+        "isHoverMatched": true,
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "hoverError": null,
+        "changedFromBase": true
+      },
+      "bgComposite": {
+        "box": [
+          825,
+          17,
+          899,
+          48
+        ],
+        "pixels": 2294,
+        "top": [
+          {
+            "rgba": "253,232,21,255",
+            "rgb": "rgb(253, 232, 21)",
+            "a": 1,
+            "count": 1869,
+            "frac": 0.815
+          },
+          {
+            "rgba": "10,10,10,255",
+            "rgb": "rgb(10, 10, 10)",
+            "a": 1,
+            "count": 49,
+            "frac": 0.021
+          },
+          {
+            "rgba": "42,40,11,255",
+            "rgb": "rgb(42, 40, 11)",
+            "a": 1,
+            "count": 12,
+            "frac": 0.005
+          },
+          {
+            "rgba": "37,34,11,255",
+            "rgb": "rgb(37, 34, 11)",
+            "a": 1,
+            "count": 11,
+            "frac": 0.005
+          }
+        ]
+      },
+      "contrastBase": {
+        "fgDeclared": {
+          "r": 75,
+          "g": 85,
+          "b": 99,
+          "a": 1
+        },
+        "fgComposited": {
+          "r": 75,
+          "g": 85,
+          "b": 99,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 253,
+          "g": 232,
+          "b": 21,
+          "a": 1
+        },
+        "ratio": 6.021,
+        "threshold": 4.5,
+        "pass": true
+      },
+      "contrastHover": {
+        "fgDeclared": {
+          "r": 10,
+          "g": 10,
+          "b": 10,
+          "a": 1
+        },
+        "fgComposited": {
+          "r": 10,
+          "g": 10,
+          "b": 10,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 253,
+          "g": 232,
+          "b": 21,
+          "a": 1
+        },
+        "ratio": 15.773,
+        "threshold": 4.5,
+        "pass": true
+      },
+      "hoverShotSha": "3360207f261c0883fc3c6f64cb532f206652fce5dc86e14d13a84b3d1860932c"
+    },
+    "register btn base/hover": {
+      "name": "register btn base/hover",
+      "sel": "#header button.sf-topbar-hover-brand-fg:nth-of-type(1)",
+      "found": true,
+      "note": "",
+      "base": {
+        "color": "rgb(75, 85, 99)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "cls": "flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium",
+        "rect": {
+          "x": 1228,
+          "y": 22,
+          "w": 52,
+          "h": 20
+        },
+        "isHoverMatched": false,
+        "text": "注册"
+      },
+      "hoverState": {
+        "color": "rgb(10, 10, 10)",
+        "isHoverMatched": true,
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "hoverError": null,
+        "changedFromBase": true
+      },
+      "bgComposite": {
+        "box": [
+          1231,
+          25,
+          1277,
+          39
+        ],
+        "pixels": 644,
+        "top": [
+          {
+            "rgba": "253,232,21,255",
+            "rgb": "rgb(253, 232, 21)",
+            "a": 1,
+            "count": 331,
+            "frac": 0.514
+          },
+          {
+            "rgba": "10,10,10,255",
+            "rgb": "rgb(10, 10, 10)",
+            "a": 1,
+            "count": 55,
+            "frac": 0.085
+          },
+          {
+            "rgba": "132,121,16,255",
+            "rgb": "rgb(132, 121, 16)",
+            "a": 1,
+            "count": 11,
+            "frac": 0.017
+          },
+          {
+            "rgba": "22,21,11,255",
+            "rgb": "rgb(22, 21, 11)",
+            "a": 1,
+            "count": 7,
+            "frac": 0.011
+          }
+        ]
+      },
+      "contrastBase": {
+        "fgDeclared": {
+          "r": 75,
+          "g": 85,
+          "b": 99,
+          "a": 1
+        },
+        "fgComposited": {
+          "r": 75,
+          "g": 85,
+          "b": 99,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 253,
+          "g": 232,
+          "b": 21,
+          "a": 1
+        },
+        "ratio": 6.021,
+        "threshold": 4.5,
+        "pass": true
+      },
+      "contrastHover": {
+        "fgDeclared": {
+          "r": 10,
+          "g": 10,
+          "b": 10,
+          "a": 1
+        },
+        "fgComposited": {
+          "r": 10,
+          "g": 10,
+          "b": 10,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 253,
+          "g": 232,
+          "b": 21,
+          "a": 1
+        },
+        "ratio": 15.773,
+        "threshold": 4.5,
+        "pass": true
+      },
+      "hoverShotSha": "e9174cc59563d012b3325a034c3eaf43e4756c9aaa8285b0a4a09ed57e527e6a"
+    },
+    "login btn base/hover": {
+      "name": "login btn base/hover",
+      "sel": "#header button.sf-topbar-hover-brand-fg:nth-of-type(2)",
+      "found": true,
+      "note": "",
+      "base": {
+        "color": "rgb(75, 85, 99)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "cls": "flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium",
+        "rect": {
+          "x": 1292,
+          "y": 22,
+          "w": 52,
+          "h": 20
+        },
+        "isHoverMatched": false,
+        "text": "登录"
+      },
+      "hoverState": {
+        "color": "rgb(10, 10, 10)",
+        "isHoverMatched": true,
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "hoverError": null,
+        "changedFromBase": true
+      },
+      "bgComposite": {
+        "box": [
+          1295,
+          25,
+          1341,
+          39
+        ],
+        "pixels": 644,
+        "top": [
+          {
+            "rgba": "253,232,21,255",
+            "rgb": "rgb(253, 232, 21)",
+            "a": 1,
+            "count": 347,
+            "frac": 0.539
+          },
+          {
+            "rgba": "10,10,10,255",
+            "rgb": "rgb(10, 10, 10)",
+            "a": 1,
+            "count": 67,
+            "frac": 0.104
+          },
+          {
+            "rgba": "132,121,16,255",
+            "rgb": "rgb(132, 121, 16)",
+            "a": 1,
+            "count": 16,
+            "frac": 0.025
+          },
+          {
+            "rgba": "86,80,14,255",
+            "rgb": "rgb(86, 80, 14)",
+            "a": 1,
+            "count": 10,
+            "frac": 0.016
+          }
+        ]
+      },
+      "contrastBase": {
+        "fgDeclared": {
+          "r": 75,
+          "g": 85,
+          "b": 99,
+          "a": 1
+        },
+        "fgComposited": {
+          "r": 75,
+          "g": 85,
+          "b": 99,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 253,
+          "g": 232,
+          "b": 21,
+          "a": 1
+        },
+        "ratio": 6.021,
+        "threshold": 4.5,
+        "pass": true
+      },
+      "contrastHover": {
+        "fgDeclared": {
+          "r": 10,
+          "g": 10,
+          "b": 10,
+          "a": 1
+        },
+        "fgComposited": {
+          "r": 10,
+          "g": 10,
+          "b": 10,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 253,
+          "g": 232,
+          "b": 21,
+          "a": 1
+        },
+        "ratio": 15.773,
+        "threshold": 4.5,
+        "pass": true
+      },
+      "hoverShotSha": "f13b707f0dc81fb3468a7dd10694a8831ec7af84ee5799620ceb6c9c0d6c2eb0"
+    },
+    "theme btn (nav-link · 图标)": {
+      "name": "theme btn (nav-link · 图标)",
+      "sel": "#header button.nav-link[title]",
+      "found": true,
+      "note": "册 §23.3 第 8 行把它记作汉堡族（自带 hover:bg-gray-100）—— 实为 nav-link 类",
+      "base": {
+        "color": "rgb(75, 85, 99)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "cls": "nav-link",
+        "rect": {
+          "x": 1170,
+          "y": 15,
+          "w": 42,
+          "h": 34
+        },
+        "isHoverMatched": false,
+        "text": ""
+      },
+      "hoverState": {
+        "color": "rgb(10, 10, 10)",
+        "isHoverMatched": true,
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "hoverError": null,
+        "changedFromBase": true
+      },
+      "bgComposite": {
+        "box": [
+          1173,
+          18,
+          1209,
+          46
+        ],
+        "pixels": 1008,
+        "top": [
+          {
+            "rgba": "253,232,21,255",
+            "rgb": "rgb(253, 232, 21)",
+            "a": 1,
+            "count": 909,
+            "frac": 0.902
+          },
+          {
+            "rgba": "10,10,10,255",
+            "rgb": "rgb(10, 10, 10)",
+            "a": 1,
+            "count": 38,
+            "frac": 0.038
+          },
+          {
+            "rgba": "192,177,18,255",
+            "rgb": "rgb(192, 177, 18)",
+            "a": 1,
+            "count": 28,
+            "frac": 0.028
+          },
+          {
+            "rgba": "132,121,16,255",
+            "rgb": "rgb(132, 121, 16)",
+            "a": 1,
+            "count": 21,
+            "frac": 0.021
+          }
+        ]
+      },
+      "contrastBase": {
+        "fgDeclared": {
+          "r": 75,
+          "g": 85,
+          "b": 99,
+          "a": 1
+        },
+        "fgComposited": {
+          "r": 75,
+          "g": 85,
+          "b": 99,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 253,
+          "g": 232,
+          "b": 21,
+          "a": 1
+        },
+        "ratio": 6.021,
+        "threshold": 4.5,
+        "pass": true
+      },
+      "contrastHover": {
+        "fgDeclared": {
+          "r": 10,
+          "g": 10,
+          "b": 10,
+          "a": 1
+        },
+        "fgComposited": {
+          "r": 10,
+          "g": 10,
+          "b": 10,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 253,
+          "g": 232,
+          "b": 21,
+          "a": 1
+        },
+        "ratio": 15.773,
+        "threshold": 4.5,
+        "pass": true
+      },
+      "hoverShotSha": "838931364d5da017504de8e67066f50fff3e4dbf69670cd7ceaa233ad16eb12f"
+    },
+    "hamburger (390 才可见 · 桌面档记录)": {
+      "name": "hamburger (390 才可见 · 桌面档记录)",
+      "sel": "[data-sf-m=\"header-mobile-menu\"]",
+      "found": true,
+      "note": "",
+      "base": {
+        "color": "rgb(75, 85, 99)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "cls": "sf-tap-sq p-2 rounded-md text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        "isHoverMatched": false,
+        "text": ""
+      },
+      "hoverState": {
+        "color": null,
+        "isHoverMatched": null,
+        "backgroundColor": null,
+        "hoverError": "TimeoutError: page.hover: Timeout 4000ms exceeded.\nCall log:\n  - waiting for locator('[data-sf-m=\"header-mobile-menu\"]')\n    - locator resolved to <button data-sf-m=\"header-mobile-menu\" class=\"sf-tap-",
+        "changedFromBase": false
+      },
+      "bgComposite": {
+        "box": [
+          3,
+          3,
+          5,
+          5
+        ],
+        "pixels": 4,
+        "top": [
+          {
+            "rgba": "253,232,21,255",
+            "rgb": "rgb(253, 232, 21)",
+            "a": 1,
+            "count": 4,
+            "frac": 1
+          }
+        ]
+      },
+      "contrastBase": {
+        "fgDeclared": {
+          "r": 75,
+          "g": 85,
+          "b": 99,
+          "a": 1
+        },
+        "fgComposited": {
+          "r": 75,
+          "g": 85,
+          "b": 99,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 253,
+          "g": 232,
+          "b": 21,
+          "a": 1
+        },
+        "ratio": 6.021,
+        "threshold": 4.5,
+        "pass": true
+      },
+      "contrastHover": null,
+      "hoverShotSha": null
+    }
+  },
+  "lightParent": {
+    "logo": {
+      "name": "logo",
+      "sel": "#header a.sf-tap-inline",
+      "found": true,
+      "note": "",
+      "base": {
+        "color": "rgb(202, 138, 4)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fontSize": "20px",
+        "fontWeight": "700",
+        "cls": "sf-tap-inline text-xl font-bold text-yellow-600 dark:text-yellow-400",
+        "rect": {
+          "x": 96,
+          "y": 18,
+          "w": 163.09375,
+          "h": 28
+        },
+        "isHoverMatched": false,
+        "text": "Seafood 海鲜市场"
+      },
+      "hoverState": null,
+      "bgComposite": {
+        "box": [
+          99,
+          21,
+          256,
+          43
+        ],
+        "pixels": 3454,
+        "top": [
+          {
+            "rgba": "255,254,243,255",
+            "rgb": "rgb(255, 254, 243)",
+            "a": 1,
+            "count": 1421,
+            "frac": 0.411
+          },
+          {
+            "rgba": "202,138,4,255",
+            "rgb": "rgb(202, 138, 4)",
+            "a": 1,
+            "count": 406,
+            "frac": 0.118
+          },
+          {
+            "rgba": "254,253,243,255",
+            "rgb": "rgb(254, 253, 243)",
+            "a": 1,
+            "count": 130,
+            "frac": 0.038
+          },
+          {
+            "rgba": "255,254,242,255",
+            "rgb": "rgb(255, 254, 242)",
+            "a": 1,
+            "count": 70,
+            "frac": 0.02
+          }
+        ]
+      },
+      "contrastBase": {
+        "fgDeclared": {
+          "r": 202,
+          "g": 138,
+          "b": 4,
+          "a": 1
+        },
+        "fgComposited": {
+          "r": 202,
+          "g": 138,
+          "b": 4,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 255,
+          "g": 254,
+          "b": 243,
+          "a": 1
+        },
+        "ratio": 2.899,
+        "threshold": 3,
+        "pass": false
+      },
+      "contrastHover": null,
+      "hoverShotSha": null
+    },
+    "nav-link base": {
+      "name": "nav-link base",
+      "sel": "#header nav a.nav-link:nth-of-type(1)",
+      "found": true,
+      "note": "",
+      "base": {
+        "color": "rgb(75, 85, 99)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "cls": "nav-link  ",
+        "rect": {
+          "x": 822,
+          "y": 13.5,
+          "w": 80,
+          "h": 37
+        },
+        "isHoverMatched": false,
+        "text": "社区任务"
+      },
+      "hoverState": {
+        "color": "rgb(217, 119, 6)",
+        "isHoverMatched": true,
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "hoverError": null,
+        "changedFromBase": true
+      },
+      "bgComposite": {
+        "box": [
+          825,
+          17,
+          899,
+          48
+        ],
+        "pixels": 2294,
+        "top": [
+          {
+            "rgba": "255,254,243,255",
+            "rgb": "rgb(255, 254, 243)",
+            "a": 1,
+            "count": 1869,
+            "frac": 0.815
+          },
+          {
+            "rgba": "217,119,6,255",
+            "rgb": "rgb(217, 119, 6)",
+            "a": 1,
+            "count": 49,
+            "frac": 0.021
+          },
+          {
+            "rgba": "219,127,20,255",
+            "rgb": "rgb(219, 127, 20)",
+            "a": 1,
+            "count": 12,
+            "frac": 0.005
+          },
+          {
+            "rgba": "219,126,17,255",
+            "rgb": "rgb(219, 126, 17)",
+            "a": 1,
+            "count": 11,
+            "frac": 0.005
+          }
+        ]
+      },
+      "contrastBase": {
+        "fgDeclared": {
+          "r": 75,
+          "g": 85,
+          "b": 99,
+          "a": 1
+        },
+        "fgComposited": {
+          "r": 75,
+          "g": 85,
+          "b": 99,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 255,
+          "g": 254,
+          "b": 243,
+          "a": 1
+        },
+        "ratio": 7.458,
+        "threshold": 4.5,
+        "pass": true
+      },
+      "contrastHover": {
+        "fgDeclared": {
+          "r": 217,
+          "g": 119,
+          "b": 6,
+          "a": 1
+        },
+        "fgComposited": {
+          "r": 217,
+          "g": 119,
+          "b": 6,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 255,
+          "g": 254,
+          "b": 243,
+          "a": 1
+        },
+        "ratio": 3.144,
+        "threshold": 4.5,
+        "pass": false
+      },
+      "hoverShotSha": "50dda88e3ba09a19416932ec44d4b6deff6bf9d5531c97efb4f3ddd46b41423e"
+    },
+    "register btn": {
+      "name": "register btn",
+      "sel": "#header button[class*=\"hover\\\\:text-yellow-600\"]",
+      "found": false,
+      "note": ""
+    },
+    "theme btn (nav-link · 图标)": {
+      "name": "theme btn (nav-link · 图标)",
+      "sel": "#header button.nav-link[title]",
+      "found": true,
+      "note": "",
+      "base": {
+        "color": "rgb(75, 85, 99)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "cls": "nav-link",
+        "rect": {
+          "x": 1170,
+          "y": 15,
+          "w": 42,
+          "h": 34
+        },
+        "isHoverMatched": false,
+        "text": ""
+      },
+      "hoverState": {
+        "color": "rgb(217, 119, 6)",
+        "isHoverMatched": true,
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "hoverError": null,
+        "changedFromBase": true
+      },
+      "bgComposite": {
+        "box": [
+          1173,
+          18,
+          1209,
+          46
+        ],
+        "pixels": 1008,
+        "top": [
+          {
+            "rgba": "255,254,243,255",
+            "rgb": "rgb(255, 254, 243)",
+            "a": 1,
+            "count": 909,
+            "frac": 0.902
+          },
+          {
+            "rgba": "217,119,6,255",
+            "rgb": "rgb(217, 119, 6)",
+            "a": 1,
+            "count": 38,
+            "frac": 0.038
+          },
+          {
+            "rgba": "246,220,184,255",
+            "rgb": "rgb(246, 220, 184)",
+            "a": 1,
+            "count": 28,
+            "frac": 0.028
+          },
+          {
+            "rgba": "236,186,124,255",
+            "rgb": "rgb(236, 186, 124)",
+            "a": 1,
+            "count": 21,
+            "frac": 0.021
+          }
+        ]
+      },
+      "contrastBase": {
+        "fgDeclared": {
+          "r": 75,
+          "g": 85,
+          "b": 99,
+          "a": 1
+        },
+        "fgComposited": {
+          "r": 75,
+          "g": 85,
+          "b": 99,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 255,
+          "g": 254,
+          "b": 243,
+          "a": 1
+        },
+        "ratio": 7.458,
+        "threshold": 4.5,
+        "pass": true
+      },
+      "contrastHover": {
+        "fgDeclared": {
+          "r": 217,
+          "g": 119,
+          "b": 6,
+          "a": 1
+        },
+        "fgComposited": {
+          "r": 217,
+          "g": 119,
+          "b": 6,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 255,
+          "g": 254,
+          "b": 243,
+          "a": 1
+        },
+        "ratio": 3.144,
+        "threshold": 4.5,
+        "pass": false
+      },
+      "hoverShotSha": "37074faf2976e48b7c646c0f4e0a54df2f2e0780f95a8aad288b07fc74bd41aa"
+    }
+  },
+  "dark": {
+    "logo": {
+      "name": "logo",
+      "sel": "#header a.sf-topbar-brand",
+      "found": true,
+      "note": "",
+      "base": {
+        "color": "rgba(255, 255, 255, 0.92)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fontSize": "20px",
+        "fontWeight": "700",
+        "cls": "sf-tap-inline sf-topbar-brand text-xl font-bold",
+        "rect": {
+          "x": 96,
+          "y": 18,
+          "w": 163.09375,
+          "h": 28
+        },
+        "isHoverMatched": false,
+        "text": "Seafood 海鲜市场"
+      },
+      "hoverState": null,
+      "bgComposite": {
+        "box": [
+          99,
+          21,
+          256,
+          43
+        ],
+        "pixels": 3454,
+        "top": [
+          {
+            "rgba": "31,41,55,255",
+            "rgb": "rgb(31, 41, 55)",
+            "a": 1,
+            "count": 1551,
+            "frac": 0.449
+          },
+          {
+            "rgba": "237,238,239,255",
+            "rgb": "rgb(237, 238, 239)",
+            "a": 1,
+            "count": 406,
+            "frac": 0.118
+          },
+          {
+            "rgba": "32,42,56,255",
+            "rgb": "rgb(32, 42, 56)",
+            "a": 1,
+            "count": 52,
+            "frac": 0.015
+          },
+          {
+            "rgba": "33,43,57,255",
+            "rgb": "rgb(33, 43, 57)",
+            "a": 1,
+            "count": 46,
+            "frac": 0.013
+          }
+        ]
+      },
+      "contrastBase": {
+        "fgDeclared": {
+          "r": 255,
+          "g": 255,
+          "b": 255,
+          "a": 0.92
+        },
+        "fgComposited": {
+          "r": 237.08,
+          "g": 237.88000000000002,
+          "b": 239.00000000000003,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 31,
+          "g": 41,
+          "b": 55,
+          "a": 1
+        },
+        "ratio": 12.628,
+        "threshold": 3,
+        "pass": true
+      },
+      "contrastHover": null,
+      "hoverShotSha": null
+    },
+    "nav-link base": {
+      "name": "nav-link base",
+      "sel": "#header nav a.nav-link:nth-of-type(1)",
+      "found": true,
+      "note": "",
+      "base": {
+        "color": "rgba(255, 255, 255, 0.92)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "cls": "nav-link  ",
+        "rect": {
+          "x": 822,
+          "y": 13.5,
+          "w": 80,
+          "h": 37
+        },
+        "isHoverMatched": false,
+        "text": "社区任务"
+      },
+      "hoverState": {
+        "color": "rgba(255, 255, 255, 0.92)",
+        "isHoverMatched": true,
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "hoverError": null,
+        "changedFromBase": false
+      },
+      "bgComposite": {
+        "box": [
+          825,
+          17,
+          899,
+          48
+        ],
+        "pixels": 2294,
+        "top": [
+          {
+            "rgba": "31,41,55,255",
+            "rgb": "rgb(31, 41, 55)",
+            "a": 1,
+            "count": 1869,
+            "frac": 0.815
+          },
+          {
+            "rgba": "237,238,239,255",
+            "rgb": "rgb(237, 238, 239)",
+            "a": 1,
+            "count": 49,
+            "frac": 0.021
+          },
+          {
+            "rgba": "233,234,236,255",
+            "rgb": "rgb(233, 234, 236)",
+            "a": 1,
+            "count": 12,
+            "frac": 0.005
+          },
+          {
+            "rgba": "234,235,236,255",
+            "rgb": "rgb(234, 235, 236)",
+            "a": 1,
+            "count": 11,
+            "frac": 0.005
+          }
+        ]
+      },
+      "contrastBase": {
+        "fgDeclared": {
+          "r": 255,
+          "g": 255,
+          "b": 255,
+          "a": 0.92
+        },
+        "fgComposited": {
+          "r": 237.08,
+          "g": 237.88000000000002,
+          "b": 239.00000000000003,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 31,
+          "g": 41,
+          "b": 55,
+          "a": 1
+        },
+        "ratio": 12.628,
+        "threshold": 4.5,
+        "pass": true
+      },
+      "contrastHover": {
+        "fgDeclared": {
+          "r": 255,
+          "g": 255,
+          "b": 255,
+          "a": 0.92
+        },
+        "fgComposited": {
+          "r": 237.08,
+          "g": 237.88000000000002,
+          "b": 239.00000000000003,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 31,
+          "g": 41,
+          "b": 55,
+          "a": 1
+        },
+        "ratio": 12.628,
+        "threshold": 4.5,
+        "pass": true
+      },
+      "hoverShotSha": "5086a4742cae83a88609a08bd75cb06ae493516622bee6252a80e2efe9b2aaad"
+    },
+    "orders nav-link": {
+      "name": "orders nav-link",
+      "sel": "#header a[data-sf-m=\"header-orders\"]",
+      "found": true,
+      "note": "",
+      "base": {
+        "color": "rgba(255, 255, 255, 0.92)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "cls": "nav-link",
+        "rect": {
+          "x": 974,
+          "y": 13.5,
+          "w": 68,
+          "h": 37
+        },
+        "isHoverMatched": false,
+        "text": "订单"
+      },
+      "hoverState": null,
+      "bgComposite": {
+        "box": [
+          977,
+          17,
+          1039,
+          48
+        ],
+        "pixels": 1922,
+        "top": [
+          {
+            "rgba": "31,41,55,255",
+            "rgb": "rgb(31, 41, 55)",
+            "a": 1,
+            "count": 1653,
+            "frac": 0.86
+          },
+          {
+            "rgba": "23,31,41,255",
+            "rgb": "rgb(23, 31, 41)",
+            "a": 1,
+            "count": 31,
+            "frac": 0.016
+          },
+          {
+            "rgba": "8,10,14,255",
+            "rgb": "rgb(8, 10, 14)",
+            "a": 1,
+            "count": 30,
+            "frac": 0.016
+          },
+          {
+            "rgba": "16,21,28,255",
+            "rgb": "rgb(16, 21, 28)",
+            "a": 1,
+            "count": 19,
+            "frac": 0.01
+          }
+        ]
+      },
+      "contrastBase": {
+        "fgDeclared": {
+          "r": 255,
+          "g": 255,
+          "b": 255,
+          "a": 0.92
+        },
+        "fgComposited": {
+          "r": 237.08,
+          "g": 237.88000000000002,
+          "b": 239.00000000000003,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 31,
+          "g": 41,
+          "b": 55,
+          "a": 1
+        },
+        "ratio": 12.628,
+        "threshold": 4.5,
+        "pass": true
+      },
+      "contrastHover": null,
+      "hoverShotSha": null
+    },
+    "register btn": {
+      "name": "register btn",
+      "sel": "#header button.sf-topbar-hover-brand-fg:nth-of-type(1)",
+      "found": true,
+      "note": "",
+      "base": {
+        "color": "rgba(255, 255, 255, 0.92)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "cls": "flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium",
+        "rect": {
+          "x": 1228,
+          "y": 22,
+          "w": 52,
+          "h": 20
+        },
+        "isHoverMatched": false,
+        "text": "注册"
+      },
+      "hoverState": {
+        "color": "rgba(255, 255, 255, 0.92)",
+        "isHoverMatched": true,
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "hoverError": null,
+        "changedFromBase": false
+      },
+      "bgComposite": {
+        "box": [
+          1231,
+          25,
+          1277,
+          39
+        ],
+        "pixels": 644,
+        "top": [
+          {
+            "rgba": "31,41,55,255",
+            "rgb": "rgb(31, 41, 55)",
+            "a": 1,
+            "count": 331,
+            "frac": 0.514
+          },
+          {
+            "rgba": "237,238,239,255",
+            "rgb": "rgb(237, 238, 239)",
+            "a": 1,
+            "count": 52,
+            "frac": 0.081
+          },
+          {
+            "rgba": "134,140,147,255",
+            "rgb": "rgb(134, 140, 147)",
+            "a": 1,
+            "count": 14,
+            "frac": 0.022
+          },
+          {
+            "rgba": "237,237,239,255",
+            "rgb": "rgb(237, 237, 239)",
+            "a": 1,
+            "count": 7,
+            "frac": 0.011
+          }
+        ]
+      },
+      "contrastBase": {
+        "fgDeclared": {
+          "r": 255,
+          "g": 255,
+          "b": 255,
+          "a": 0.92
+        },
+        "fgComposited": {
+          "r": 237.08,
+          "g": 237.88000000000002,
+          "b": 239.00000000000003,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 31,
+          "g": 41,
+          "b": 55,
+          "a": 1
+        },
+        "ratio": 12.628,
+        "threshold": 4.5,
+        "pass": true
+      },
+      "contrastHover": {
+        "fgDeclared": {
+          "r": 255,
+          "g": 255,
+          "b": 255,
+          "a": 0.92
+        },
+        "fgComposited": {
+          "r": 237.08,
+          "g": 237.88000000000002,
+          "b": 239.00000000000003,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 31,
+          "g": 41,
+          "b": 55,
+          "a": 1
+        },
+        "ratio": 12.628,
+        "threshold": 4.5,
+        "pass": true
+      },
+      "hoverShotSha": "aeed3721bfefaac86a671af7f375d6bbf2ab7846eac0110903afdd5c72c7be9c"
+    },
+    "login btn": {
+      "name": "login btn",
+      "sel": "#header button.sf-topbar-hover-brand-fg:nth-of-type(2)",
+      "found": true,
+      "note": "",
+      "base": {
+        "color": "rgba(255, 255, 255, 0.92)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "cls": "flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium",
+        "rect": {
+          "x": 1292,
+          "y": 22,
+          "w": 52,
+          "h": 20
+        },
+        "isHoverMatched": false,
+        "text": "登录"
+      },
+      "hoverState": {
+        "color": "rgba(255, 255, 255, 0.92)",
+        "isHoverMatched": true,
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "hoverError": null,
+        "changedFromBase": false
+      },
+      "bgComposite": {
+        "box": [
+          1295,
+          25,
+          1341,
+          39
+        ],
+        "pixels": 644,
+        "top": [
+          {
+            "rgba": "31,41,55,255",
+            "rgb": "rgb(31, 41, 55)",
+            "a": 1,
+            "count": 347,
+            "frac": 0.539
+          },
+          {
+            "rgba": "237,238,239,255",
+            "rgb": "rgb(237, 238, 239)",
+            "a": 1,
+            "count": 65,
+            "frac": 0.101
+          },
+          {
+            "rgba": "134,140,147,255",
+            "rgb": "rgb(134, 140, 147)",
+            "a": 1,
+            "count": 16,
+            "frac": 0.025
+          },
+          {
+            "rgba": "173,177,182,255",
+            "rgb": "rgb(173, 177, 182)",
+            "a": 1,
+            "count": 12,
+            "frac": 0.019
+          }
+        ]
+      },
+      "contrastBase": {
+        "fgDeclared": {
+          "r": 255,
+          "g": 255,
+          "b": 255,
+          "a": 0.92
+        },
+        "fgComposited": {
+          "r": 237.08,
+          "g": 237.88000000000002,
+          "b": 239.00000000000003,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 31,
+          "g": 41,
+          "b": 55,
+          "a": 1
+        },
+        "ratio": 12.628,
+        "threshold": 4.5,
+        "pass": true
+      },
+      "contrastHover": {
+        "fgDeclared": {
+          "r": 255,
+          "g": 255,
+          "b": 255,
+          "a": 0.92
+        },
+        "fgComposited": {
+          "r": 237.08,
+          "g": 237.88000000000002,
+          "b": 239.00000000000003,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 31,
+          "g": 41,
+          "b": 55,
+          "a": 1
+        },
+        "ratio": 12.628,
+        "threshold": 4.5,
+        "pass": true
+      },
+      "hoverShotSha": "30329fd249e64a4a7a98f45a3b9b3db6af2a58c23f72278fe953f36e3d494bef"
+    },
+    "theme btn (nav-link · 图标)": {
+      "name": "theme btn (nav-link · 图标)",
+      "sel": "#header button.nav-link[title]",
+      "found": true,
+      "note": "",
+      "base": {
+        "color": "rgba(255, 255, 255, 0.92)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "cls": "nav-link",
+        "rect": {
+          "x": 1170,
+          "y": 15,
+          "w": 42,
+          "h": 34
+        },
+        "isHoverMatched": false,
+        "text": ""
+      },
+      "hoverState": {
+        "color": "rgba(255, 255, 255, 0.92)",
+        "isHoverMatched": true,
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "hoverError": null,
+        "changedFromBase": false
+      },
+      "bgComposite": {
+        "box": [
+          1173,
+          18,
+          1209,
+          46
+        ],
+        "pixels": 1008,
+        "top": [
+          {
+            "rgba": "31,41,55,255",
+            "rgb": "rgb(31, 41, 55)",
+            "a": 1,
+            "count": 900,
+            "frac": 0.893
+          },
+          {
+            "rgba": "173,177,182,255",
+            "rgb": "rgb(173, 177, 182)",
+            "a": 1,
+            "count": 16,
+            "frac": 0.016
+          },
+          {
+            "rgba": "237,238,239,255",
+            "rgb": "rgb(237, 238, 239)",
+            "a": 1,
+            "count": 12,
+            "frac": 0.012
+          },
+          {
+            "rgba": "139,144,151,255",
+            "rgb": "rgb(139, 144, 151)",
+            "a": 1,
+            "count": 8,
+            "frac": 0.008
+          }
+        ]
+      },
+      "contrastBase": {
+        "fgDeclared": {
+          "r": 255,
+          "g": 255,
+          "b": 255,
+          "a": 0.92
+        },
+        "fgComposited": {
+          "r": 237.08,
+          "g": 237.88000000000002,
+          "b": 239.00000000000003,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 31,
+          "g": 41,
+          "b": 55,
+          "a": 1
+        },
+        "ratio": 12.628,
+        "threshold": 4.5,
+        "pass": true
+      },
+      "contrastHover": {
+        "fgDeclared": {
+          "r": 255,
+          "g": 255,
+          "b": 255,
+          "a": 0.92
+        },
+        "fgComposited": {
+          "r": 237.08,
+          "g": 237.88000000000002,
+          "b": 239.00000000000003,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 31,
+          "g": 41,
+          "b": 55,
+          "a": 1
+        },
+        "ratio": 12.628,
+        "threshold": 4.5,
+        "pass": true
+      },
+      "hoverShotSha": "41538608f9e9ad10e58c18e69462302b5ce7b377ead49f16311e60a99636c661"
+    }
+  },
+  "darkParent": {
+    "logo": {
+      "name": "logo",
+      "sel": "#header a.sf-tap-inline",
+      "found": true,
+      "note": "",
+      "base": {
+        "color": "rgba(255, 255, 255, 0.92)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fontSize": "20px",
+        "fontWeight": "700",
+        "cls": "sf-tap-inline text-xl font-bold text-yellow-600 dark:text-yellow-400",
+        "rect": {
+          "x": 96,
+          "y": 18,
+          "w": 163.09375,
+          "h": 28
+        },
+        "isHoverMatched": false,
+        "text": "Seafood 海鲜市场"
+      },
+      "hoverState": null,
+      "bgComposite": {
+        "box": [
+          99,
+          21,
+          256,
+          43
+        ],
+        "pixels": 3454,
+        "top": [
+          {
+            "rgba": "31,41,55,255",
+            "rgb": "rgb(31, 41, 55)",
+            "a": 1,
+            "count": 1551,
+            "frac": 0.449
+          },
+          {
+            "rgba": "237,238,239,255",
+            "rgb": "rgb(237, 238, 239)",
+            "a": 1,
+            "count": 406,
+            "frac": 0.118
+          },
+          {
+            "rgba": "32,42,56,255",
+            "rgb": "rgb(32, 42, 56)",
+            "a": 1,
+            "count": 52,
+            "frac": 0.015
+          },
+          {
+            "rgba": "33,43,57,255",
+            "rgb": "rgb(33, 43, 57)",
+            "a": 1,
+            "count": 46,
+            "frac": 0.013
+          }
+        ]
+      },
+      "contrastBase": {
+        "fgDeclared": {
+          "r": 255,
+          "g": 255,
+          "b": 255,
+          "a": 0.92
+        },
+        "fgComposited": {
+          "r": 237.08,
+          "g": 237.88000000000002,
+          "b": 239.00000000000003,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 31,
+          "g": 41,
+          "b": 55,
+          "a": 1
+        },
+        "ratio": 12.628,
+        "threshold": 3,
+        "pass": true
+      },
+      "contrastHover": null,
+      "hoverShotSha": null
+    },
+    "nav-link base": {
+      "name": "nav-link base",
+      "sel": "#header nav a.nav-link:nth-of-type(1)",
+      "found": true,
+      "note": "",
+      "base": {
+        "color": "rgba(255, 255, 255, 0.92)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "cls": "nav-link  ",
+        "rect": {
+          "x": 822,
+          "y": 13.5,
+          "w": 80,
+          "h": 37
+        },
+        "isHoverMatched": false,
+        "text": "社区任务"
+      },
+      "hoverState": {
+        "color": "rgba(255, 255, 255, 0.92)",
+        "isHoverMatched": true,
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "hoverError": null,
+        "changedFromBase": false
+      },
+      "bgComposite": {
+        "box": [
+          825,
+          17,
+          899,
+          48
+        ],
+        "pixels": 2294,
+        "top": [
+          {
+            "rgba": "31,41,55,255",
+            "rgb": "rgb(31, 41, 55)",
+            "a": 1,
+            "count": 1869,
+            "frac": 0.815
+          },
+          {
+            "rgba": "237,238,239,255",
+            "rgb": "rgb(237, 238, 239)",
+            "a": 1,
+            "count": 49,
+            "frac": 0.021
+          },
+          {
+            "rgba": "233,234,236,255",
+            "rgb": "rgb(233, 234, 236)",
+            "a": 1,
+            "count": 12,
+            "frac": 0.005
+          },
+          {
+            "rgba": "234,235,236,255",
+            "rgb": "rgb(234, 235, 236)",
+            "a": 1,
+            "count": 11,
+            "frac": 0.005
+          }
+        ]
+      },
+      "contrastBase": {
+        "fgDeclared": {
+          "r": 255,
+          "g": 255,
+          "b": 255,
+          "a": 0.92
+        },
+        "fgComposited": {
+          "r": 237.08,
+          "g": 237.88000000000002,
+          "b": 239.00000000000003,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 31,
+          "g": 41,
+          "b": 55,
+          "a": 1
+        },
+        "ratio": 12.628,
+        "threshold": 4.5,
+        "pass": true
+      },
+      "contrastHover": {
+        "fgDeclared": {
+          "r": 255,
+          "g": 255,
+          "b": 255,
+          "a": 0.92
+        },
+        "fgComposited": {
+          "r": 237.08,
+          "g": 237.88000000000002,
+          "b": 239.00000000000003,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 31,
+          "g": 41,
+          "b": 55,
+          "a": 1
+        },
+        "ratio": 12.628,
+        "threshold": 4.5,
+        "pass": true
+      },
+      "hoverShotSha": "5086a4742cae83a88609a08bd75cb06ae493516622bee6252a80e2efe9b2aaad"
+    },
+    "register btn": {
+      "name": "register btn",
+      "sel": "#header button[class*=\"hover\\\\:text-yellow-600\"]",
+      "found": false,
+      "note": ""
+    },
+    "theme btn (nav-link · 图标)": {
+      "name": "theme btn (nav-link · 图标)",
+      "sel": "#header button.nav-link[title]",
+      "found": true,
+      "note": "",
+      "base": {
+        "color": "rgba(255, 255, 255, 0.92)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "cls": "nav-link",
+        "rect": {
+          "x": 1170,
+          "y": 15,
+          "w": 42,
+          "h": 34
+        },
+        "isHoverMatched": false,
+        "text": ""
+      },
+      "hoverState": {
+        "color": "rgba(255, 255, 255, 0.92)",
+        "isHoverMatched": true,
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "hoverError": null,
+        "changedFromBase": false
+      },
+      "bgComposite": {
+        "box": [
+          1173,
+          18,
+          1209,
+          46
+        ],
+        "pixels": 1008,
+        "top": [
+          {
+            "rgba": "31,41,55,255",
+            "rgb": "rgb(31, 41, 55)",
+            "a": 1,
+            "count": 900,
+            "frac": 0.893
+          },
+          {
+            "rgba": "173,177,182,255",
+            "rgb": "rgb(173, 177, 182)",
+            "a": 1,
+            "count": 16,
+            "frac": 0.016
+          },
+          {
+            "rgba": "237,238,239,255",
+            "rgb": "rgb(237, 238, 239)",
+            "a": 1,
+            "count": 12,
+            "frac": 0.012
+          },
+          {
+            "rgba": "139,144,151,255",
+            "rgb": "rgb(139, 144, 151)",
+            "a": 1,
+            "count": 8,
+            "frac": 0.008
+          }
+        ]
+      },
+      "contrastBase": {
+        "fgDeclared": {
+          "r": 255,
+          "g": 255,
+          "b": 255,
+          "a": 0.92
+        },
+        "fgComposited": {
+          "r": 237.08,
+          "g": 237.88000000000002,
+          "b": 239.00000000000003,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 31,
+          "g": 41,
+          "b": 55,
+          "a": 1
+        },
+        "ratio": 12.628,
+        "threshold": 4.5,
+        "pass": true
+      },
+      "contrastHover": {
+        "fgDeclared": {
+          "r": 255,
+          "g": 255,
+          "b": 255,
+          "a": 0.92
+        },
+        "fgComposited": {
+          "r": 237.08,
+          "g": 237.88000000000002,
+          "b": 239.00000000000003,
+          "a": 1
+        },
+        "bgPixel": {
+          "r": 31,
+          "g": 41,
+          "b": 55,
+          "a": 1
+        },
+        "ratio": 12.628,
+        "threshold": 4.5,
+        "pass": true
+      },
+      "hoverShotSha": "a0ec120cb7a9436447e77e3a29181252a88c01f8b55fa60ed5f825b7bb1f61cf"
+    }
+  },
+  "darkParentNav": {},
+  "specialThemeButton": {},
+  "specialLoginPill": {},
+  "mobilePanel": {
+    "panel": {
+      "panelFound": true,
+      "panelBg": "rgba(255, 255, 255, 0.95)",
+      "panelOpacity": "1"
+    },
+    "pills": {
+      "register": {
+        "name": "mobile-register",
+        "sel": "#header button.bg-blue-600",
+        "found": true,
+        "note": "",
+        "base": {
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(37, 99, 235, 0.95)",
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "cls": "sf-tap block w-full text-center px-3 py-2 my-2 rounded-md text-base font-medium bg-blue-600 text-white hover:bg-blue-700",
+          "rect": {
+            "x": 8,
+            "y": 165,
+            "w": 374,
+            "h": 44
+          },
+          "isHoverMatched": false,
+          "text": "注册"
+        },
+        "hoverState": null,
+        "bgComposite": {
+          "box": [
+            11,
+            168,
+            379,
+            206
+          ],
+          "pixels": 13984,
+          "top": [
+            {
+              "rgba": "48,107,235,255",
+              "rgb": "rgb(48, 107, 235)",
+              "a": 1,
+              "count": 13672,
+              "frac": 0.978
+            },
+            {
+              "rgba": "255,255,255,255",
+              "rgb": "rgb(255, 255, 255)",
+              "a": 1,
+              "count": 67,
+              "frac": 0.005
+            },
+            {
+              "rgba": "253,254,255,255",
+              "rgb": "rgb(253, 254, 255)",
+              "a": 1,
+              "count": 11,
+              "frac": 0.001
+            },
+            {
+              "rgba": "254,254,255,255",
+              "rgb": "rgb(254, 254, 255)",
+              "a": 1,
+              "count": 6,
+              "frac": 0
+            }
+          ]
+        },
+        "contrastBase": {
+          "fgDeclared": {
+            "r": 255,
+            "g": 255,
+            "b": 255,
+            "a": 1
+          },
+          "fgComposited": {
+            "r": 255,
+            "g": 255,
+            "b": 255,
+            "a": 1
+          },
+          "bgPixel": {
+            "r": 48,
+            "g": 107,
+            "b": 235,
+            "a": 1
+          },
+          "ratio": 4.742,
+          "threshold": 4.5,
+          "pass": true
+        },
+        "contrastHover": null,
+        "hoverShotSha": null,
+        "pill": {
+          "whiteTextOnOwnBg": {
+            "fg": "rgb(255, 255, 255)",
+            "bgPixel": "rgb(48, 107, 235)",
+            "ratio": 4.742
+          },
+          "uncompositedPath": {
+            "declaredBg": "rgba(37, 99, 235, 0.95)",
+            "ratioIfPureWhite": 5.169
+          }
+        }
+      },
+      "login": {
+        "name": "mobile-login",
+        "sel": "#header button.bg-yellow-600",
+        "found": true,
+        "note": "",
+        "base": {
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(202, 138, 4, 0.95)",
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "cls": "sf-tap block w-full text-center px-3 py-2 my-2 rounded-md text-base font-medium bg-yellow-600 text-white hover:bg-yellow-700",
+          "rect": {
+            "x": 8,
+            "y": 217,
+            "w": 374,
+            "h": 44
+          },
+          "isHoverMatched": false,
+          "text": "登录"
+        },
+        "hoverState": null,
+        "bgComposite": {
+          "box": [
+            11,
+            220,
+            379,
+            258
+          ],
+          "pixels": 13984,
+          "top": [
+            {
+              "rgba": "205,144,16,255",
+              "rgb": "rgb(205, 144, 16)",
+              "a": 1,
+              "count": 13668,
+              "frac": 0.977
+            },
+            {
+              "rgba": "255,255,255,255",
+              "rgb": "rgb(255, 255, 255)",
+              "a": 1,
+              "count": 64,
+              "frac": 0.005
+            },
+            {
+              "rgba": "255,255,254,255",
+              "rgb": "rgb(255, 255, 254)",
+              "a": 1,
+              "count": 12,
+              "frac": 0.001
+            },
+            {
+              "rgba": "254,253,251,255",
+              "rgb": "rgb(254, 253, 251)",
+              "a": 1,
+              "count": 8,
+              "frac": 0.001
+            }
+          ]
+        },
+        "contrastBase": {
+          "fgDeclared": {
+            "r": 255,
+            "g": 255,
+            "b": 255,
+            "a": 1
+          },
+          "fgComposited": {
+            "r": 255,
+            "g": 255,
+            "b": 255,
+            "a": 1
+          },
+          "bgPixel": {
+            "r": 205,
+            "g": 144,
+            "b": 16,
+            "a": 1
+          },
+          "ratio": 2.766,
+          "threshold": 4.5,
+          "pass": false
+        },
+        "contrastHover": null,
+        "hoverShotSha": null,
+        "pill": {
+          "whiteTextOnOwnBg": {
+            "fg": "rgb(255, 255, 255)",
+            "bgPixel": "rgb(205, 144, 16)",
+            "ratio": 2.766
+          },
+          "uncompositedPath": {
+            "declaredBg": "rgba(202, 138, 4, 0.95)",
+            "ratioIfPureWhite": 2.938
+          }
+        }
+      }
+    }
+  },
+  "mobilePanelParent": {
+    "panel": {
+      "panelFound": true,
+      "panelBg": "rgba(255, 255, 255, 0.95)",
+      "panelOpacity": "1"
+    },
+    "pills": {
+      "register": {
+        "name": "mobile-register",
+        "sel": "#header button.bg-blue-600",
+        "found": true,
+        "note": "",
+        "base": {
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(37, 99, 235, 0.95)",
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "cls": "sf-tap block w-full text-center px-3 py-2 my-2 rounded-md text-base font-medium bg-blue-600 text-white hover:bg-blue-700",
+          "rect": {
+            "x": 8,
+            "y": 165,
+            "w": 374,
+            "h": 44
+          },
+          "isHoverMatched": false,
+          "text": "注册"
+        },
+        "hoverState": null,
+        "bgComposite": {
+          "box": [
+            11,
+            168,
+            379,
+            206
+          ],
+          "pixels": 13984,
+          "top": [
+            {
+              "rgba": "48,107,236,255",
+              "rgb": "rgb(48, 107, 236)",
+              "a": 1,
+              "count": 13672,
+              "frac": 0.978
+            },
+            {
+              "rgba": "255,255,255,255",
+              "rgb": "rgb(255, 255, 255)",
+              "a": 1,
+              "count": 67,
+              "frac": 0.005
+            },
+            {
+              "rgba": "253,254,255,255",
+              "rgb": "rgb(253, 254, 255)",
+              "a": 1,
+              "count": 11,
+              "frac": 0.001
+            },
+            {
+              "rgba": "254,254,255,255",
+              "rgb": "rgb(254, 254, 255)",
+              "a": 1,
+              "count": 6,
+              "frac": 0
+            }
+          ]
+        },
+        "contrastBase": {
+          "fgDeclared": {
+            "r": 255,
+            "g": 255,
+            "b": 255,
+            "a": 1
+          },
+          "fgComposited": {
+            "r": 255,
+            "g": 255,
+            "b": 255,
+            "a": 1
+          },
+          "bgPixel": {
+            "r": 48,
+            "g": 107,
+            "b": 236,
+            "a": 1
+          },
+          "ratio": 4.73,
+          "threshold": 4.5,
+          "pass": true
+        },
+        "contrastHover": null,
+        "hoverShotSha": null,
+        "pill": {
+          "whiteTextOnOwnBg": {
+            "fg": "rgb(255, 255, 255)",
+            "bgPixel": "rgb(48, 107, 236)",
+            "ratio": 4.73
+          },
+          "uncompositedPath": {
+            "declaredBg": "rgba(37, 99, 235, 0.95)",
+            "ratioIfPureWhite": 5.169
+          }
+        }
+      },
+      "login": {
+        "name": "mobile-login",
+        "sel": "#header button.bg-yellow-600",
+        "found": true,
+        "note": "",
+        "base": {
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(202, 138, 4, 0.95)",
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "cls": "sf-tap block w-full text-center px-3 py-2 my-2 rounded-md text-base font-medium bg-yellow-600 text-white hover:bg-yellow-700",
+          "rect": {
+            "x": 8,
+            "y": 217,
+            "w": 374,
+            "h": 44
+          },
+          "isHoverMatched": false,
+          "text": "登录"
+        },
+        "hoverState": null,
+        "bgComposite": {
+          "box": [
+            11,
+            220,
+            379,
+            258
+          ],
+          "pixels": 13984,
+          "top": [
+            {
+              "rgba": "205,144,17,255",
+              "rgb": "rgb(205, 144, 17)",
+              "a": 1,
+              "count": 13668,
+              "frac": 0.977
+            },
+            {
+              "rgba": "255,255,255,255",
+              "rgb": "rgb(255, 255, 255)",
+              "a": 1,
+              "count": 64,
+              "frac": 0.005
+            },
+            {
+              "rgba": "255,255,254,255",
+              "rgb": "rgb(255, 255, 254)",
+              "a": 1,
+              "count": 12,
+              "frac": 0.001
+            },
+            {
+              "rgba": "254,253,251,255",
+              "rgb": "rgb(254, 253, 251)",
+              "a": 1,
+              "count": 8,
+              "frac": 0.001
+            }
+          ]
+        },
+        "contrastBase": {
+          "fgDeclared": {
+            "r": 255,
+            "g": 255,
+            "b": 255,
+            "a": 1
+          },
+          "fgComposited": {
+            "r": 255,
+            "g": 255,
+            "b": 255,
+            "a": 1
+          },
+          "bgPixel": {
+            "r": 205,
+            "g": 144,
+            "b": 17,
+            "a": 1
+          },
+          "ratio": 2.766,
+          "threshold": 4.5,
+          "pass": false
+        },
+        "contrastHover": null,
+        "hoverShotSha": null,
+        "pill": {
+          "whiteTextOnOwnBg": {
+            "fg": "rgb(255, 255, 255)",
+            "bgPixel": "rgb(205, 144, 17)",
+            "ratio": 2.766
+          },
+          "uncompositedPath": {
+            "declaredBg": "rgba(202, 138, 4, 0.95)",
+            "ratioIfPureWhite": 2.938
+          }
+        }
+      }
+    }
+  },
+  "lightActive": {
+    "name": "nav-link.active (/task)",
+    "found": true,
+    "base": {
+      "color": "rgb(10, 10, 10)",
+      "backgroundColor": "rgb(243, 244, 246)",
+      "cls": "nav-link active ",
+      "rect": {
+        "x": 822,
+        "y": 13.5,
+        "w": 80,
+        "h": 37
+      },
+      "text": "社区任务"
+    },
+    "bgComposite": {
+      "box": [
+        825,
+        17,
+        899,
+        48
+      ],
+      "pixels": 2294,
+      "top": [
+        {
+          "rgba": "243,244,246,255",
+          "rgb": "rgb(243, 244, 246)",
+          "a": 1,
+          "count": 1869,
+          "frac": 0.815
+        },
+        {
+          "rgba": "10,10,10,255",
+          "rgb": "rgb(10, 10, 10)",
+          "a": 1,
+          "count": 49,
+          "frac": 0.021
+        },
+        {
+          "rgba": "41,41,41,255",
+          "rgb": "rgb(41, 41, 41)",
+          "a": 1,
+          "count": 12,
+          "frac": 0.005
+        },
+        {
+          "rgba": "36,36,36,255",
+          "rgb": "rgb(36, 36, 36)",
+          "a": 1,
+          "count": 11,
+          "frac": 0.005
+        }
+      ]
+    },
+    "contrast": {
+      "fg": "rgb(10, 10, 10)",
+      "bgPixel": "rgb(243, 244, 246)",
+      "ratio": 17.99,
+      "threshold": 4.5,
+      "pass": true
+    },
+    "hoverOnActive": {
+      "color": "rgb(10, 10, 10)",
+      "isHoverMatched": true,
+      "bg": "rgb(243, 244, 246)"
+    }
+  },
+  "lightParentHeader": {
+    "backgroundColor": "rgba(255, 255, 255, 0.95)",
+    "borderBottom": "undefined undefined",
+    "opacity": "1"
+  }
+}

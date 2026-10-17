@@ -1,0 +1,5236 @@
+{
+ "probe": "ops/ui-card-ref-20261017/qa/kong-v121-ac-check.mjs",
+ "cur": "ops/ui-card-ref-20261017/readings/kong-v121-readings-current.json",
+ "parent": "ops/ui-card-ref-20261017/readings/kong-v121-readings-parent.json",
+ "at": "2026-10-17T01:15:39.543Z",
+ "ac": {
+  "AC-1": {
+   "judge": "日档三档 bg=rgb(253,232,21) ∧ alpha=1 ∧ backdrop=none ∧ 边框 rgb(3,4,2) ∧ opacity=1",
+   "pass": true,
+   "detail": {
+    "390_day": {
+     "bgEquals": true,
+     "alpha1": true,
+     "backdropNone": true,
+     "borderEquals": true,
+     "opacity1": true
+    },
+    "1440_day": {
+     "bgEquals": true,
+     "alpha1": true,
+     "backdropNone": true,
+     "borderEquals": true,
+     "opacity1": true
+    },
+    "1600_day": {
+     "bgEquals": true,
+     "alpha1": true,
+     "backdropNone": true,
+     "borderEquals": true,
+     "opacity1": true
+    },
+    "375_day": {
+     "bgEquals": true,
+     "alpha1": true,
+     "backdropNone": true,
+     "borderEquals": true,
+     "opacity1": true
+    },
+    "320_day": {
+     "bgEquals": true,
+     "alpha1": true,
+     "backdropNone": true,
+     "borderEquals": true,
+     "opacity1": true
+    }
+   }
+  },
+  "AC-2": {
+   "judge": "夜档 bg=rgb(31,41,55) ∧ 边框 1px solid rgb(55,65,81) ∧ backdrop=blur(4px) ∧ rect=父版逐值相同",
+   "pass": true,
+   "detail": {
+    "390_night": {
+     "bgEquals": true,
+     "borderEquals": true,
+     "backdropBlur4": true
+    },
+    "1440_night": {
+     "bgEquals": true,
+     "borderEquals": true,
+     "backdropBlur4": true
+    },
+    "1600_night": {
+     "bgEquals": true,
+     "borderEquals": true,
+     "backdropBlur4": true
+    }
+   },
+   "rectVsParent": null
+  },
+  "AC-3": {
+   "judge": "由顶栏底色承载的前景全部 ≥ 阈值（其余行维持现状）",
+   "pass": true,
+   "detail": {
+    "390_day": {
+     "carried": 2,
+     "fail": [],
+     "selfCarriedFail": []
+    },
+    "390_night": {
+     "carried": 2,
+     "fail": [],
+     "selfCarriedFail": []
+    },
+    "1440_day": {
+     "carried": 11,
+     "fail": [],
+     "selfCarriedFail": []
+    },
+    "1440_night": {
+     "carried": 11,
+     "fail": [],
+     "selfCarriedFail": []
+    },
+    "1600_day": {
+     "carried": 11,
+     "fail": [],
+     "selfCarriedFail": []
+    },
+    "1600_night": {
+     "carried": 11,
+     "fail": [],
+     "selfCarriedFail": []
+    },
+    "375_day": {
+     "carried": 2,
+     "fail": [],
+     "selfCarriedFail": []
+    },
+    "320_day": {
+     "carried": 2,
+     "fail": [],
+     "selfCarriedFail": []
+    }
+   }
+  },
+  "AC-4": {
+   "judge": "三档 alpha=1 ∧ backdrop=none ∧ 滚动后仍 alpha=1 ∧ elementFromPoint 全中 #header 子树",
+   "pass": true,
+   "detail": {
+    "390_day": {
+     "alpha1": true,
+     "backdropNone": true,
+     "scrolledAlpha1": true,
+     "hitsAllInHeader": true
+    },
+    "390_night": {
+     "alpha1": true,
+     "backdropNone": null,
+     "scrolledAlpha1": true,
+     "hitsAllInHeader": true
+    },
+    "1440_day": {
+     "alpha1": true,
+     "backdropNone": true,
+     "scrolledAlpha1": true,
+     "hitsAllInHeader": true
+    },
+    "1440_night": {
+     "alpha1": true,
+     "backdropNone": null,
+     "scrolledAlpha1": true,
+     "hitsAllInHeader": true
+    },
+    "1600_day": {
+     "alpha1": true,
+     "backdropNone": true,
+     "scrolledAlpha1": true,
+     "hitsAllInHeader": true
+    },
+    "1600_night": {
+     "alpha1": true,
+     "backdropNone": null,
+     "scrolledAlpha1": true,
+     "hitsAllInHeader": true
+    },
+    "375_day": {
+     "alpha1": true,
+     "backdropNone": true,
+     "scrolledAlpha1": true,
+     "hitsAllInHeader": true
+    },
+    "320_day": {
+     "alpha1": true,
+     "backdropNone": true,
+     "scrolledAlpha1": true,
+     "hitsAllInHeader": true
+    }
+   }
+  },
+  "AC-9": {
+   "judge": "三档 × 日/夜：#header / .sf-region-top / .sf-route-container rect 与父版逐值相同 ∧ 逐元素 dump 无 rect 差异",
+   "pass": true,
+   "detail": {
+    "390_day": {
+     "headerRect": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 390
+     },
+     "parentHeaderRect": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 390
+     },
+     "regionRect": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 390
+     },
+     "parentRegionRect": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 390
+     },
+     "maxWidth": "1440px",
+     "parentMaxWidth": "1440px",
+     "padding": [
+      "10px",
+      "10px"
+     ],
+     "parentPadding": [
+      "10px",
+      "10px"
+     ],
+     "routeContainerRect": {
+      "x": 0,
+      "y": 65,
+      "w": 390,
+      "h": 2360,
+      "top": 65,
+      "bottom": 2425,
+      "left": 0,
+      "right": 390
+     },
+     "parentRouteContainerRect": {
+      "x": 0,
+      "y": 65,
+      "w": 390,
+      "h": 2360,
+      "top": 65,
+      "bottom": 2425,
+      "left": 0,
+      "right": 390
+     }
+    },
+    "390_night": {
+     "headerRect": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 390
+     },
+     "parentHeaderRect": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 390
+     },
+     "regionRect": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 390
+     },
+     "parentRegionRect": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 390
+     },
+     "maxWidth": "1440px",
+     "parentMaxWidth": "1440px",
+     "padding": [
+      "10px",
+      "10px"
+     ],
+     "parentPadding": [
+      "10px",
+      "10px"
+     ],
+     "routeContainerRect": {
+      "x": 0,
+      "y": 65,
+      "w": 390,
+      "h": 2360,
+      "top": 65,
+      "bottom": 2425,
+      "left": 0,
+      "right": 390
+     },
+     "parentRouteContainerRect": {
+      "x": 0,
+      "y": 65,
+      "w": 390,
+      "h": 2360,
+      "top": 65,
+      "bottom": 2425,
+      "left": 0,
+      "right": 390
+     }
+    },
+    "1440_day": {
+     "headerRect": {
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 1440
+     },
+     "parentHeaderRect": {
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 1440
+     },
+     "regionRect": {
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 1440
+     },
+     "parentRegionRect": {
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 1440
+     },
+     "maxWidth": "1440px",
+     "parentMaxWidth": "1440px",
+     "padding": [
+      "20px",
+      "20px"
+     ],
+     "parentPadding": [
+      "20px",
+      "20px"
+     ],
+     "routeContainerRect": {
+      "x": 0,
+      "y": 65,
+      "w": 1440,
+      "h": 1046,
+      "top": 65,
+      "bottom": 1111,
+      "left": 0,
+      "right": 1440
+     },
+     "parentRouteContainerRect": {
+      "x": 0,
+      "y": 65,
+      "w": 1440,
+      "h": 1046,
+      "top": 65,
+      "bottom": 1111,
+      "left": 0,
+      "right": 1440
+     }
+    },
+    "1440_night": {
+     "headerRect": {
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 1440
+     },
+     "parentHeaderRect": {
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 1440
+     },
+     "regionRect": {
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 1440
+     },
+     "parentRegionRect": {
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 1440
+     },
+     "maxWidth": "1440px",
+     "parentMaxWidth": "1440px",
+     "padding": [
+      "20px",
+      "20px"
+     ],
+     "parentPadding": [
+      "20px",
+      "20px"
+     ],
+     "routeContainerRect": {
+      "x": 0,
+      "y": 65,
+      "w": 1440,
+      "h": 1046,
+      "top": 65,
+      "bottom": 1111,
+      "left": 0,
+      "right": 1440
+     },
+     "parentRouteContainerRect": {
+      "x": 0,
+      "y": 65,
+      "w": 1440,
+      "h": 1046,
+      "top": 65,
+      "bottom": 1111,
+      "left": 0,
+      "right": 1440
+     }
+    },
+    "1600_day": {
+     "headerRect": {
+      "x": 0,
+      "y": 0,
+      "w": 1600,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 1600
+     },
+     "parentHeaderRect": {
+      "x": 0,
+      "y": 0,
+      "w": 1600,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 1600
+     },
+     "regionRect": {
+      "x": 0,
+      "y": 0,
+      "w": 1600,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 1600
+     },
+     "parentRegionRect": {
+      "x": 0,
+      "y": 0,
+      "w": 1600,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 1600
+     },
+     "maxWidth": "1440px",
+     "parentMaxWidth": "1440px",
+     "padding": [
+      "20px",
+      "20px"
+     ],
+     "parentPadding": [
+      "20px",
+      "20px"
+     ],
+     "routeContainerRect": {
+      "x": 80,
+      "y": 65,
+      "w": 1440,
+      "h": 1046,
+      "top": 65,
+      "bottom": 1111,
+      "left": 80,
+      "right": 1520
+     },
+     "parentRouteContainerRect": {
+      "x": 80,
+      "y": 65,
+      "w": 1440,
+      "h": 1046,
+      "top": 65,
+      "bottom": 1111,
+      "left": 80,
+      "right": 1520
+     }
+    },
+    "1600_night": {
+     "headerRect": {
+      "x": 0,
+      "y": 0,
+      "w": 1600,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 1600
+     },
+     "parentHeaderRect": {
+      "x": 0,
+      "y": 0,
+      "w": 1600,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 1600
+     },
+     "regionRect": {
+      "x": 0,
+      "y": 0,
+      "w": 1600,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 1600
+     },
+     "parentRegionRect": {
+      "x": 0,
+      "y": 0,
+      "w": 1600,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 1600
+     },
+     "maxWidth": "1440px",
+     "parentMaxWidth": "1440px",
+     "padding": [
+      "20px",
+      "20px"
+     ],
+     "parentPadding": [
+      "20px",
+      "20px"
+     ],
+     "routeContainerRect": {
+      "x": 80,
+      "y": 65,
+      "w": 1440,
+      "h": 1046,
+      "top": 65,
+      "bottom": 1111,
+      "left": 80,
+      "right": 1520
+     },
+     "parentRouteContainerRect": {
+      "x": 80,
+      "y": 65,
+      "w": 1440,
+      "h": 1046,
+      "top": 65,
+      "bottom": 1111,
+      "left": 80,
+      "right": 1520
+     }
+    },
+    "375_day": {
+     "headerRect": {
+      "x": 0,
+      "y": 0,
+      "w": 375,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 375
+     },
+     "parentHeaderRect": {
+      "x": 0,
+      "y": 0,
+      "w": 375,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 375
+     },
+     "regionRect": {
+      "x": 0,
+      "y": 0,
+      "w": 375,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 375
+     },
+     "parentRegionRect": {
+      "x": 0,
+      "y": 0,
+      "w": 375,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 375
+     },
+     "maxWidth": "1440px",
+     "parentMaxWidth": "1440px",
+     "padding": [
+      "10px",
+      "10px"
+     ],
+     "parentPadding": [
+      "10px",
+      "10px"
+     ],
+     "routeContainerRect": {
+      "x": 0,
+      "y": 65,
+      "w": 375,
+      "h": 2396,
+      "top": 65,
+      "bottom": 2461,
+      "left": 0,
+      "right": 375
+     },
+     "parentRouteContainerRect": {
+      "x": 0,
+      "y": 65,
+      "w": 375,
+      "h": 2396,
+      "top": 65,
+      "bottom": 2461,
+      "left": 0,
+      "right": 375
+     }
+    },
+    "320_day": {
+     "headerRect": {
+      "x": 0,
+      "y": 0,
+      "w": 320,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 320
+     },
+     "parentHeaderRect": {
+      "x": 0,
+      "y": 0,
+      "w": 320,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 320
+     },
+     "regionRect": {
+      "x": 0,
+      "y": 0,
+      "w": 320,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 320
+     },
+     "parentRegionRect": {
+      "x": 0,
+      "y": 0,
+      "w": 320,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "left": 0,
+      "right": 320
+     },
+     "maxWidth": "1440px",
+     "parentMaxWidth": "1440px",
+     "padding": [
+      "10px",
+      "10px"
+     ],
+     "parentPadding": [
+      "10px",
+      "10px"
+     ],
+     "routeContainerRect": {
+      "x": 0,
+      "y": 65,
+      "w": 320,
+      "h": 2554,
+      "top": 65,
+      "bottom": 2619,
+      "left": 0,
+      "right": 320
+     },
+     "parentRouteContainerRect": {
+      "x": 0,
+      "y": 65,
+      "w": 320,
+      "h": 2554,
+      "top": 65,
+      "bottom": 2619,
+      "left": 0,
+      "right": 320
+     }
+    }
+   }
+  },
+  "AC-5": {
+   "judge": "逐元素差异集 100% 归因于允许变更集（① #header 底色/边框/backdrop ② 三处前景色及其类钩）",
+   "pass": true,
+   "unattributableCount": 0,
+   "detail": {
+    "390_day": {
+     "elements": {
+      "parent": 232,
+      "current": 232
+     },
+     "onlyParent": 1,
+     "onlyCurrent": 1,
+     "keyDiff": {
+      "onlyParent": [
+       "a.sf-tap-inline.text-xl.font-bold.text-yellow-600.dark:text-yellow-400#1"
+      ],
+      "onlyCurrent": [
+       "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1"
+      ],
+      "onlyCurrentWithT117Hook": [
+       "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1"
+      ],
+      "onlyCurrentWithoutHook": 0,
+      "onlyParentSample": [],
+      "keyDiffAttributable": true
+     },
+     "rectDiffs": 0,
+     "rectDiffSample": [],
+     "attrDiffs": 1,
+     "allowedAttrDiffs": 1,
+     "allowedSample": [
+      {
+       "key": "header.bg-white.dark:bg-gray-800.border-b.border-gray-200.dark:border-gray-700.sticky.top-0.z-50.shadow-md.backdrop-blur-sm.bg-opacity-95#1",
+       "region": "header",
+       "changed": [
+        {
+         "f": "backgroundColor",
+         "before": "rgba(255, 255, 255, 0.95)",
+         "after": "rgb(253, 232, 21)"
+        },
+        {
+         "f": "backdropFilter",
+         "before": "blur(4px)",
+         "after": "none"
+        }
+       ],
+       "allowed": true
+      }
+     ],
+     "unattributable": 0,
+     "unattributableSample": []
+    },
+    "390_night": {
+     "elements": {
+      "parent": 232,
+      "current": 232
+     },
+     "onlyParent": 1,
+     "onlyCurrent": 1,
+     "keyDiff": {
+      "onlyParent": [
+       "a.sf-tap-inline.text-xl.font-bold.text-yellow-600.dark:text-yellow-400#1"
+      ],
+      "onlyCurrent": [
+       "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1"
+      ],
+      "onlyCurrentWithT117Hook": [
+       "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1"
+      ],
+      "onlyCurrentWithoutHook": 0,
+      "onlyParentSample": [],
+      "keyDiffAttributable": true
+     },
+     "rectDiffs": 0,
+     "rectDiffSample": [],
+     "attrDiffs": 0,
+     "allowedAttrDiffs": 0,
+     "allowedSample": [],
+     "unattributable": 0,
+     "unattributableSample": []
+    },
+    "1440_day": {
+     "elements": {
+      "parent": 263,
+      "current": 263
+     },
+     "onlyParent": 3,
+     "onlyCurrent": 3,
+     "keyDiff": {
+      "onlyParent": [
+       "a.sf-tap-inline.text-xl.font-bold.text-yellow-600.dark:text-yellow-400#1",
+       "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.hover:text-yellow-600.dark:hover:text-yellow-400.transition-colors.text-sm.font-medium#1",
+       "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.hover:text-yellow-600.dark:hover:text-yellow-400.transition-colors.text-sm.font-medium#2"
+      ],
+      "onlyCurrent": [
+       "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1",
+       "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#1",
+       "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#2"
+      ],
+      "onlyCurrentWithT117Hook": [
+       "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1",
+       "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#1",
+       "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#2"
+      ],
+      "onlyCurrentWithoutHook": 0,
+      "onlyParentSample": [],
+      "keyDiffAttributable": true
+     },
+     "rectDiffs": 0,
+     "rectDiffSample": [],
+     "attrDiffs": 1,
+     "allowedAttrDiffs": 1,
+     "allowedSample": [
+      {
+       "key": "header.bg-white.dark:bg-gray-800.border-b.border-gray-200.dark:border-gray-700.sticky.top-0.z-50.shadow-md.backdrop-blur-sm.bg-opacity-95#1",
+       "region": "header",
+       "changed": [
+        {
+         "f": "backgroundColor",
+         "before": "rgba(255, 255, 255, 0.95)",
+         "after": "rgb(253, 232, 21)"
+        },
+        {
+         "f": "backdropFilter",
+         "before": "blur(4px)",
+         "after": "none"
+        }
+       ],
+       "allowed": true
+      }
+     ],
+     "unattributable": 0,
+     "unattributableSample": []
+    },
+    "1440_night": {
+     "elements": {
+      "parent": 271,
+      "current": 271
+     },
+     "onlyParent": 3,
+     "onlyCurrent": 3,
+     "keyDiff": {
+      "onlyParent": [
+       "a.sf-tap-inline.text-xl.font-bold.text-yellow-600.dark:text-yellow-400#1",
+       "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.hover:text-yellow-600.dark:hover:text-yellow-400.transition-colors.text-sm.font-medium#1",
+       "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.hover:text-yellow-600.dark:hover:text-yellow-400.transition-colors.text-sm.font-medium#2"
+      ],
+      "onlyCurrent": [
+       "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1",
+       "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#1",
+       "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#2"
+      ],
+      "onlyCurrentWithT117Hook": [
+       "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1",
+       "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#1",
+       "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#2"
+      ],
+      "onlyCurrentWithoutHook": 0,
+      "onlyParentSample": [],
+      "keyDiffAttributable": true
+     },
+     "rectDiffs": 0,
+     "rectDiffSample": [],
+     "attrDiffs": 0,
+     "allowedAttrDiffs": 0,
+     "allowedSample": [],
+     "unattributable": 0,
+     "unattributableSample": []
+    },
+    "1600_day": {
+     "elements": {
+      "parent": 263,
+      "current": 263
+     },
+     "onlyParent": 3,
+     "onlyCurrent": 3,
+     "keyDiff": {
+      "onlyParent": [
+       "a.sf-tap-inline.text-xl.font-bold.text-yellow-600.dark:text-yellow-400#1",
+       "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.hover:text-yellow-600.dark:hover:text-yellow-400.transition-colors.text-sm.font-medium#1",
+       "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.hover:text-yellow-600.dark:hover:text-yellow-400.transition-colors.text-sm.font-medium#2"
+      ],
+      "onlyCurrent": [
+       "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1",
+       "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#1",
+       "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#2"
+      ],
+      "onlyCurrentWithT117Hook": [
+       "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1",
+       "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#1",
+       "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#2"
+      ],
+      "onlyCurrentWithoutHook": 0,
+      "onlyParentSample": [],
+      "keyDiffAttributable": true
+     },
+     "rectDiffs": 0,
+     "rectDiffSample": [],
+     "attrDiffs": 1,
+     "allowedAttrDiffs": 1,
+     "allowedSample": [
+      {
+       "key": "header.bg-white.dark:bg-gray-800.border-b.border-gray-200.dark:border-gray-700.sticky.top-0.z-50.shadow-md.backdrop-blur-sm.bg-opacity-95#1",
+       "region": "header",
+       "changed": [
+        {
+         "f": "backgroundColor",
+         "before": "rgba(255, 255, 255, 0.95)",
+         "after": "rgb(253, 232, 21)"
+        },
+        {
+         "f": "backdropFilter",
+         "before": "blur(4px)",
+         "after": "none"
+        }
+       ],
+       "allowed": true
+      }
+     ],
+     "unattributable": 0,
+     "unattributableSample": []
+    },
+    "1600_night": {
+     "elements": {
+      "parent": 271,
+      "current": 271
+     },
+     "onlyParent": 3,
+     "onlyCurrent": 3,
+     "keyDiff": {
+      "onlyParent": [
+       "a.sf-tap-inline.text-xl.font-bold.text-yellow-600.dark:text-yellow-400#1",
+       "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.hover:text-yellow-600.dark:hover:text-yellow-400.transition-colors.text-sm.font-medium#1",
+       "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.hover:text-yellow-600.dark:hover:text-yellow-400.transition-colors.text-sm.font-medium#2"
+      ],
+      "onlyCurrent": [
+       "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1",
+       "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#1",
+       "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#2"
+      ],
+      "onlyCurrentWithT117Hook": [
+       "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1",
+       "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#1",
+       "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#2"
+      ],
+      "onlyCurrentWithoutHook": 0,
+      "onlyParentSample": [],
+      "keyDiffAttributable": true
+     },
+     "rectDiffs": 0,
+     "rectDiffSample": [],
+     "attrDiffs": 0,
+     "allowedAttrDiffs": 0,
+     "allowedSample": [],
+     "unattributable": 0,
+     "unattributableSample": []
+    },
+    "375_day": {
+     "elements": {
+      "parent": 232,
+      "current": 232
+     },
+     "onlyParent": 1,
+     "onlyCurrent": 1,
+     "keyDiff": {
+      "onlyParent": [
+       "a.sf-tap-inline.text-xl.font-bold.text-yellow-600.dark:text-yellow-400#1"
+      ],
+      "onlyCurrent": [
+       "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1"
+      ],
+      "onlyCurrentWithT117Hook": [
+       "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1"
+      ],
+      "onlyCurrentWithoutHook": 0,
+      "onlyParentSample": [],
+      "keyDiffAttributable": true
+     },
+     "rectDiffs": 0,
+     "rectDiffSample": [],
+     "attrDiffs": 1,
+     "allowedAttrDiffs": 1,
+     "allowedSample": [
+      {
+       "key": "header.bg-white.dark:bg-gray-800.border-b.border-gray-200.dark:border-gray-700.sticky.top-0.z-50.shadow-md.backdrop-blur-sm.bg-opacity-95#1",
+       "region": "header",
+       "changed": [
+        {
+         "f": "backgroundColor",
+         "before": "rgba(255, 255, 255, 0.95)",
+         "after": "rgb(253, 232, 21)"
+        },
+        {
+         "f": "backdropFilter",
+         "before": "blur(4px)",
+         "after": "none"
+        }
+       ],
+       "allowed": true
+      }
+     ],
+     "unattributable": 0,
+     "unattributableSample": []
+    },
+    "320_day": {
+     "elements": {
+      "parent": 232,
+      "current": 232
+     },
+     "onlyParent": 1,
+     "onlyCurrent": 1,
+     "keyDiff": {
+      "onlyParent": [
+       "a.sf-tap-inline.text-xl.font-bold.text-yellow-600.dark:text-yellow-400#1"
+      ],
+      "onlyCurrent": [
+       "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1"
+      ],
+      "onlyCurrentWithT117Hook": [
+       "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1"
+      ],
+      "onlyCurrentWithoutHook": 0,
+      "onlyParentSample": [],
+      "keyDiffAttributable": true
+     },
+     "rectDiffs": 0,
+     "rectDiffSample": [],
+     "attrDiffs": 1,
+     "allowedAttrDiffs": 1,
+     "allowedSample": [
+      {
+       "key": "header.bg-white.dark:bg-gray-800.border-b.border-gray-200.dark:border-gray-700.sticky.top-0.z-50.shadow-md.backdrop-blur-sm.bg-opacity-95#1",
+       "region": "header",
+       "changed": [
+        {
+         "f": "backgroundColor",
+         "before": "rgba(255, 255, 255, 0.95)",
+         "after": "rgb(253, 232, 21)"
+        },
+        {
+         "f": "backdropFilter",
+         "before": "blur(4px)",
+         "after": "none"
+        }
+       ],
+       "allowed": true
+      }
+     ],
+     "unattributable": 0,
+     "unattributableSample": []
+    }
+   }
+  },
+  "AC-8": {
+   "judge": "负控臂（⇒ #FFFFFF）必须变红；复原臂（⇒ 改前 95% 白 + blur) 必须回改前值；夜档反向臂（去日档限定）必须变 rgb(11,12,14)",
+   "detail": {
+    "light": {
+     "baseline": {
+      "bg": "rgb(253, 232, 21)",
+      "backdrop": "none",
+      "border": "rgb(3, 4, 2)",
+      "navHoverInjected": null
+     },
+     "negControlWhite": {
+      "bg": "rgb(255, 255, 255)",
+      "backdrop": "none",
+      "border": "rgb(3, 4, 2)",
+      "navHoverInjected": null
+     },
+     "revertToPreRule": {
+      "bg": "rgba(255, 255, 255, 0.95)",
+      "backdrop": "blur(4px)",
+      "border": "rgb(229, 231, 235)",
+      "navHoverInjected": null
+     },
+     "afterRevertRemoval": {
+      "bg": "rgb(253, 232, 21)",
+      "backdrop": "none",
+      "border": "rgb(3, 4, 2)",
+      "navHoverInjected": null
+     },
+     "noThemeGuard": {
+      "bg": "rgb(253, 232, 21)",
+      "backdrop": "none",
+      "border": "rgb(3, 4, 2)",
+      "navHoverInjected": null
+     },
+     "finalAfterAll": {
+      "bg": "rgb(253, 232, 21)",
+      "backdrop": "none",
+      "border": "rgb(3, 4, 2)",
+      "navHoverInjected": null
+     }
+    },
+    "dark": {
+     "baseline": {
+      "bg": "rgb(31, 41, 55)",
+      "backdrop": "blur(4px)",
+      "border": "rgb(55, 65, 81)",
+      "navHoverInjected": null
+     },
+     "negControlWhite": {
+      "bg": "rgb(31, 41, 55)",
+      "backdrop": "blur(4px)",
+      "border": "rgb(55, 65, 81)",
+      "navHoverInjected": null
+     },
+     "revertToPreRule": {
+      "bg": "rgb(31, 41, 55)",
+      "backdrop": "blur(4px)",
+      "border": "rgb(55, 65, 81)",
+      "navHoverInjected": null
+     },
+     "afterRevertRemoval": {
+      "bg": "rgb(31, 41, 55)",
+      "backdrop": "blur(4px)",
+      "border": "rgb(55, 65, 81)",
+      "navHoverInjected": null
+     },
+     "noThemeGuard": {
+      "bg": "rgb(11, 12, 14)",
+      "backdrop": "blur(4px)",
+      "border": "rgb(55, 65, 81)",
+      "navHoverInjected": null
+     },
+     "finalAfterAll": {
+      "bg": "rgb(31, 41, 55)",
+      "backdrop": "blur(4px)",
+      "border": "rgb(55, 65, 81)",
+      "navHoverInjected": null
+     }
+    }
+   },
+   "pass": true
+  },
+  "AC-10": {
+   "judge": "390/375/320 日档顶栏 = rgb(253,232,21) ∧ alpha=1；汉堡面板展开态自带底按 §23.3 11–14 行评；面板展开不破色；夜档移动档（390_night）= 冻结值",
+   "pass": true,
+   "detail": {
+    "day": {
+     "390_day": {
+      "bg": "rgb(253, 232, 21)",
+      "alpha1": true,
+      "backdrop": "none",
+      "rect": {
+       "x": 0,
+       "y": 0,
+       "w": 390,
+       "h": 65,
+       "top": 0,
+       "bottom": 65,
+       "left": 0,
+       "right": 390
+      },
+      "panel": {
+       "headerRect": {
+        "x": 0,
+        "y": 0,
+        "w": 390,
+        "h": 500
+       },
+       "headerBg": "rgb(253, 232, 21)",
+       "items": []
+      }
+     },
+     "375_day": {
+      "bg": "rgb(253, 232, 21)",
+      "alpha1": true,
+      "backdrop": "none",
+      "rect": {
+       "x": 0,
+       "y": 0,
+       "w": 375,
+       "h": 65,
+       "top": 0,
+       "bottom": 65,
+       "left": 0,
+       "right": 375
+      },
+      "panel": {
+       "headerRect": {
+        "x": 0,
+        "y": 0,
+        "w": 375,
+        "h": 500
+       },
+       "headerBg": "rgb(253, 232, 21)",
+       "items": []
+      }
+     },
+     "320_day": {
+      "bg": "rgb(253, 232, 21)",
+      "alpha1": true,
+      "backdrop": "none",
+      "rect": {
+       "x": 0,
+       "y": 0,
+       "w": 320,
+       "h": 65,
+       "top": 0,
+       "bottom": 65,
+       "left": 0,
+       "right": 320
+      },
+      "panel": {
+       "headerRect": {
+        "x": 0,
+        "y": 0,
+        "w": 320,
+        "h": 500
+       },
+       "headerBg": "rgb(253, 232, 21)",
+       "items": []
+      }
+     }
+    },
+    "night": {
+     "390_night": {
+      "bg": "rgb(31, 41, 55)",
+      "backdrop": "blur(4px)",
+      "rect": {
+       "x": 0,
+       "y": 0,
+       "w": 390,
+       "h": 65,
+       "top": 0,
+       "bottom": 65,
+       "left": 0,
+       "right": 390
+      }
+     }
+    }
+   }
+  }
+ },
+ "states": {
+  "390_day": {
+   "label": "390_day",
+   "theme": "light",
+   "colorScheme": "light",
+   "viewport": {
+    "w": 390,
+    "h": 844
+   },
+   "header": {
+    "bg": "rgb(253, 232, 21)",
+    "backdropFilter": "none",
+    "border": "1px solid rgb(3, 4, 2)",
+    "rect": {
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 65,
+     "top": 0,
+     "bottom": 65,
+     "left": 0,
+     "right": 390
+    },
+    "opacity": "1",
+    "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.1) 0px 2px 4px -2px"
+   },
+   "regionTop": {
+    "bg": "rgb(253, 232, 21)",
+    "rect": {
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 65,
+     "top": 0,
+     "bottom": 65,
+     "left": 0,
+     "right": 390
+    },
+    "opacity": "1"
+   },
+   "routeContainer": {
+    "bg": "rgb(255, 255, 255)",
+    "rect": {
+     "x": 0,
+     "y": 65,
+     "w": 390,
+     "h": 2360,
+     "top": 65,
+     "bottom": 2425,
+     "left": 0,
+     "right": 390
+    },
+    "maxWidth": "1440px",
+    "paddingL": "10px",
+    "paddingR": "10px",
+    "marginL": "0px"
+   },
+   "shell": {
+    "bg": "rgb(245, 247, 249)",
+    "rect": {
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 2838,
+     "top": 0,
+     "bottom": 2838,
+     "left": 0,
+     "right": 390
+    }
+   },
+   "tokens": {
+    "topbarBg": "#fde815",
+    "topbarBorder": "#030402",
+    "brandFg": "#0a0a0a",
+    "atHeaderBrandFg": "#0a0a0a"
+   },
+   "composedPixels": {
+    "samples": [
+     {
+      "point": [
+       4,
+       4
+      ],
+      "rgb": "rgb(253,232,21)",
+      "a": 255
+     },
+     {
+      "point": [
+       195,
+       3
+      ],
+      "rgb": "rgb(253,232,21)",
+      "a": 255
+     },
+     {
+      "point": [
+       384,
+       4
+      ],
+      "rgb": "rgb(253,232,21)",
+      "a": 255
+     },
+     {
+      "point": [
+       6,
+       33
+      ],
+      "rgb": "rgb(253,232,21)",
+      "a": 255
+     },
+     {
+      "point": [
+       117,
+       8
+      ],
+      "rgb": "rgb(253,232,21)",
+      "a": 255
+     }
+    ],
+    "histograms": [
+     {
+      "row": 1,
+      "width": 390,
+      "topColors": [
+       {
+        "rgb": "rgb(253,232,21)",
+        "px": 390
+       }
+      ]
+     },
+     {
+      "row": 33,
+      "width": 390,
+      "topColors": [
+       {
+        "rgb": "rgb(253,232,21)",
+        "px": 265
+       },
+       {
+        "rgb": "rgb(10,10,10)",
+        "px": 16
+       },
+       {
+        "rgb": "rgb(251,230,21)",
+        "px": 4
+       },
+       {
+        "rgb": "rgb(162,148,17)",
+        "px": 3
+       }
+      ]
+     },
+     {
+      "row": 62,
+      "width": 390,
+      "topColors": [
+       {
+        "rgb": "rgb(253,232,21)",
+        "px": 390
+       }
+      ]
+     }
+    ]
+   },
+   "hits": [
+    {
+     "point": [
+      4,
+      4
+     ],
+     "tag": "div",
+     "cls": "container mx-auto px-4",
+     "inHeader": true,
+     "isHeaderItself": false
+    },
+    {
+     "point": [
+      195,
+      3
+     ],
+     "tag": "div",
+     "cls": "flex justify-between items-center h-16",
+     "inHeader": true,
+     "isHeaderItself": false
+    },
+    {
+     "point": [
+      384,
+      4
+     ],
+     "tag": "div",
+     "cls": "container mx-auto px-4",
+     "inHeader": true,
+     "isHeaderItself": false
+    },
+    {
+     "point": [
+      6,
+      33
+     ],
+     "tag": "div",
+     "cls": "container mx-auto px-4",
+     "inHeader": true,
+     "isHeaderItself": false
+    },
+    {
+     "point": [
+      117,
+      8
+     ],
+     "tag": "div",
+     "cls": "flex justify-between items-center h-16",
+     "inHeader": true,
+     "isHeaderItself": false
+    }
+   ],
+   "scrolled": {
+    "header": {
+     "bg": "rgb(253, 232, 21)",
+     "backdropFilter": "none",
+     "rect": {
+      "x": 0,
+      "y": -400,
+      "w": 390,
+      "h": 65,
+      "top": -400,
+      "bottom": -335,
+      "left": 0,
+      "right": 390
+     }
+    },
+    "elementAt44": {
+     "tag": "main",
+     "cls": "sf-route-container",
+     "inHeader": false
+    }
+   },
+   "active": null,
+   "panel": {
+    "headerRect": {
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 500
+    },
+    "headerBg": "rgb(253, 232, 21)",
+    "itemCount": 9
+   },
+   "fgRows": [
+    {
+     "kind": "text",
+     "tag": "a",
+     "hooks": [
+      "sf-topbar-brand"
+     ],
+     "text": "Seafood 海鲜市场",
+     "color": "rgb(10, 10, 10)",
+     "compositedColor": "rgb(10, 10, 10)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 15.773,
+     "min": 3,
+     "large": true,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 16,
+      "y": 10,
+      "w": 163.09,
+      "h": 44,
+      "top": 10,
+      "bottom": 54,
+      "left": 16,
+      "right": 179.09
+     },
+     "cls": "sf-tap-inline sf-topbar-brand text-xl font-bold"
+    },
+    {
+     "kind": "icon",
+     "tag": "svg",
+     "hooks": [],
+     "text": "",
+     "color": "rgb(75, 85, 99)",
+     "compositedColor": "rgb(75, 85, 99)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 6.021,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 338,
+      "y": 20,
+      "w": 24,
+      "h": 24,
+      "top": 20,
+      "bottom": 44,
+      "left": 338,
+      "right": 362
+     },
+     "cls": "lucide lucide-menu h-6 w-6"
+    }
+   ],
+   "carriedCount": 2,
+   "topbarCarriedFail": [],
+   "selfCarriedFail": [],
+   "checks": {
+    "ac1_day": {
+     "bgEquals": true,
+     "alpha1": true,
+     "backdropNone": true,
+     "borderEquals": true,
+     "opacity1": true
+    },
+    "ac2_night": null,
+    "ac4": {
+     "alpha1": true,
+     "backdropNone": true,
+     "scrolledAlpha1": true,
+     "hitsAllInHeader": true
+    }
+   }
+  },
+  "390_night": {
+   "label": "390_night",
+   "theme": "dark",
+   "colorScheme": "dark",
+   "viewport": {
+    "w": 390,
+    "h": 844
+   },
+   "header": {
+    "bg": "rgb(31, 41, 55)",
+    "backdropFilter": "blur(4px)",
+    "border": "1px solid rgb(55, 65, 81)",
+    "rect": {
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 65,
+     "top": 0,
+     "bottom": 65,
+     "left": 0,
+     "right": 390
+    },
+    "opacity": "1",
+    "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.1) 0px 2px 4px -2px"
+   },
+   "regionTop": {
+    "bg": "rgb(11, 12, 14)",
+    "rect": {
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 65,
+     "top": 0,
+     "bottom": 65,
+     "left": 0,
+     "right": 390
+    },
+    "opacity": "1"
+   },
+   "routeContainer": {
+    "bg": "rgb(16, 17, 20)",
+    "rect": {
+     "x": 0,
+     "y": 65,
+     "w": 390,
+     "h": 2360,
+     "top": 65,
+     "bottom": 2425,
+     "left": 0,
+     "right": 390
+    },
+    "maxWidth": "1440px",
+    "paddingL": "10px",
+    "paddingR": "10px",
+    "marginL": "0px"
+   },
+   "shell": {
+    "bg": "rgb(11, 12, 14)",
+    "rect": {
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 2838,
+     "top": 0,
+     "bottom": 2838,
+     "left": 0,
+     "right": 390
+    }
+   },
+   "tokens": {
+    "topbarBg": "#0b0c0e",
+    "topbarBorder": "#fde815",
+    "brandFg": "#f5f6f7",
+    "atHeaderBrandFg": "#f5f6f7"
+   },
+   "composedPixels": {
+    "samples": [
+     {
+      "point": [
+       4,
+       4
+      ],
+      "rgb": "rgb(31,41,55)",
+      "a": 255
+     },
+     {
+      "point": [
+       195,
+       3
+      ],
+      "rgb": "rgb(31,41,55)",
+      "a": 255
+     },
+     {
+      "point": [
+       384,
+       4
+      ],
+      "rgb": "rgb(31,41,55)",
+      "a": 255
+     },
+     {
+      "point": [
+       6,
+       33
+      ],
+      "rgb": "rgb(31,41,55)",
+      "a": 255
+     },
+     {
+      "point": [
+       117,
+       8
+      ],
+      "rgb": "rgb(31,41,55)",
+      "a": 255
+     }
+    ],
+    "histograms": [
+     {
+      "row": 1,
+      "width": 390,
+      "topColors": [
+       {
+        "rgb": "rgb(31,41,55)",
+        "px": 390
+       }
+      ]
+     },
+     {
+      "row": 33,
+      "width": 390,
+      "topColors": [
+       {
+        "rgb": "rgb(31,41,55)",
+        "px": 261
+       },
+       {
+        "rgb": "rgb(237,238,239)",
+        "px": 16
+       },
+       {
+        "rgb": "rgb(32,42,56)",
+        "px": 4
+       },
+       {
+        "rgb": "rgb(156,161,167)",
+        "px": 3
+       }
+      ]
+     },
+     {
+      "row": 62,
+      "width": 390,
+      "topColors": [
+       {
+        "rgb": "rgb(31,41,55)",
+        "px": 390
+       }
+      ]
+     }
+    ]
+   },
+   "hits": [
+    {
+     "point": [
+      4,
+      4
+     ],
+     "tag": "div",
+     "cls": "container mx-auto px-4",
+     "inHeader": true,
+     "isHeaderItself": false
+    },
+    {
+     "point": [
+      195,
+      3
+     ],
+     "tag": "div",
+     "cls": "flex justify-between items-center h-16",
+     "inHeader": true,
+     "isHeaderItself": false
+    },
+    {
+     "point": [
+      384,
+      4
+     ],
+     "tag": "div",
+     "cls": "container mx-auto px-4",
+     "inHeader": true,
+     "isHeaderItself": false
+    },
+    {
+     "point": [
+      6,
+      33
+     ],
+     "tag": "div",
+     "cls": "container mx-auto px-4",
+     "inHeader": true,
+     "isHeaderItself": false
+    },
+    {
+     "point": [
+      117,
+      8
+     ],
+     "tag": "div",
+     "cls": "flex justify-between items-center h-16",
+     "inHeader": true,
+     "isHeaderItself": false
+    }
+   ],
+   "scrolled": {
+    "header": {
+     "bg": "rgb(31, 41, 55)",
+     "backdropFilter": "blur(4px)",
+     "rect": {
+      "x": 0,
+      "y": -400,
+      "w": 390,
+      "h": 65,
+      "top": -400,
+      "bottom": -335,
+      "left": 0,
+      "right": 390
+     }
+    },
+    "elementAt44": {
+     "tag": "main",
+     "cls": "sf-route-container",
+     "inHeader": false
+    }
+   },
+   "active": null,
+   "panel": {
+    "headerRect": {
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 500
+    },
+    "headerBg": "rgb(31, 41, 55)",
+    "itemCount": 9
+   },
+   "fgRows": [
+    {
+     "kind": "text",
+     "tag": "a",
+     "hooks": [
+      "sf-topbar-brand"
+     ],
+     "text": "Seafood 海鲜市场",
+     "color": "rgba(255, 255, 255, 0.92)",
+     "compositedColor": "rgba(237,238,239,1)",
+     "effBg": "rgb(31,41,55)",
+     "ratio": 12.628,
+     "min": 3,
+     "large": true,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 16,
+      "y": 10,
+      "w": 163.09,
+      "h": 44,
+      "top": 10,
+      "bottom": 54,
+      "left": 16,
+      "right": 179.09
+     },
+     "cls": "sf-tap-inline sf-topbar-brand text-xl font-bold"
+    },
+    {
+     "kind": "icon",
+     "tag": "svg",
+     "hooks": [],
+     "text": "",
+     "color": "rgba(255, 255, 255, 0.92)",
+     "compositedColor": "rgba(237,238,239,1)",
+     "effBg": "rgb(31,41,55)",
+     "ratio": 12.628,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 338,
+      "y": 20,
+      "w": 24,
+      "h": 24,
+      "top": 20,
+      "bottom": 44,
+      "left": 338,
+      "right": 362
+     },
+     "cls": "lucide lucide-menu h-6 w-6"
+    }
+   ],
+   "carriedCount": 2,
+   "topbarCarriedFail": [],
+   "selfCarriedFail": [],
+   "checks": {
+    "ac1_day": null,
+    "ac2_night": {
+     "bgEquals": true,
+     "borderEquals": true,
+     "backdropBlur4": true
+    },
+    "ac4": {
+     "alpha1": true,
+     "backdropNone": null,
+     "scrolledAlpha1": true,
+     "hitsAllInHeader": true
+    }
+   }
+  },
+  "1440_day": {
+   "label": "1440_day",
+   "theme": "light",
+   "colorScheme": "light",
+   "viewport": {
+    "w": 1440,
+    "h": 900
+   },
+   "header": {
+    "bg": "rgb(253, 232, 21)",
+    "backdropFilter": "none",
+    "border": "1px solid rgb(3, 4, 2)",
+    "rect": {
+     "x": 0,
+     "y": 0,
+     "w": 1440,
+     "h": 65,
+     "top": 0,
+     "bottom": 65,
+     "left": 0,
+     "right": 1440
+    },
+    "opacity": "1",
+    "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.1) 0px 2px 4px -2px"
+   },
+   "regionTop": {
+    "bg": "rgb(253, 232, 21)",
+    "rect": {
+     "x": 0,
+     "y": 0,
+     "w": 1440,
+     "h": 65,
+     "top": 0,
+     "bottom": 65,
+     "left": 0,
+     "right": 1440
+    },
+    "opacity": "1"
+   },
+   "routeContainer": {
+    "bg": "rgb(255, 255, 255)",
+    "rect": {
+     "x": 0,
+     "y": 65,
+     "w": 1440,
+     "h": 1046,
+     "top": 65,
+     "bottom": 1111,
+     "left": 0,
+     "right": 1440
+    },
+    "maxWidth": "1440px",
+    "paddingL": "20px",
+    "paddingR": "20px",
+    "marginL": "0px"
+   },
+   "shell": {
+    "bg": "rgb(245, 247, 249)",
+    "rect": {
+     "x": 0,
+     "y": 0,
+     "w": 1440,
+     "h": 1416,
+     "top": 0,
+     "bottom": 1416,
+     "left": 0,
+     "right": 1440
+    }
+   },
+   "tokens": {
+    "topbarBg": "#fde815",
+    "topbarBorder": "#030402",
+    "brandFg": "#0a0a0a",
+    "atHeaderBrandFg": "#0a0a0a"
+   },
+   "composedPixels": {
+    "samples": [
+     {
+      "point": [
+       4,
+       4
+      ],
+      "rgb": "rgb(253,232,21)",
+      "a": 255
+     },
+     {
+      "point": [
+       720,
+       3
+      ],
+      "rgb": "rgb(253,232,21)",
+      "a": 255
+     },
+     {
+      "point": [
+       1434,
+       4
+      ],
+      "rgb": "rgb(253,232,21)",
+      "a": 255
+     },
+     {
+      "point": [
+       6,
+       33
+      ],
+      "rgb": "rgb(253,232,21)",
+      "a": 255
+     },
+     {
+      "point": [
+       432,
+       8
+      ],
+      "rgb": "rgb(253,232,21)",
+      "a": 255
+     }
+    ],
+    "histograms": [
+     {
+      "row": 1,
+      "width": 1440,
+      "topColors": [
+       {
+        "rgb": "rgb(253,232,21)",
+        "px": 1440
+       }
+      ]
+     },
+     {
+      "row": 33,
+      "width": 1440,
+      "topColors": [
+       {
+        "rgb": "rgb(253,232,21)",
+        "px": 1155
+       },
+       {
+        "rgb": "rgb(75,85,99)",
+        "px": 23
+       },
+       {
+        "rgb": "rgb(10,10,10)",
+        "px": 16
+       },
+       {
+        "rgb": "rgb(164,159,60)",
+        "px": 14
+       }
+      ]
+     },
+     {
+      "row": 62,
+      "width": 1440,
+      "topColors": [
+       {
+        "rgb": "rgb(253,232,21)",
+        "px": 1440
+       }
+      ]
+     }
+    ]
+   },
+   "hits": [
+    {
+     "point": [
+      4,
+      4
+     ],
+     "tag": "header",
+     "cls": "bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95",
+     "inHeader": true,
+     "isHeaderItself": true
+    },
+    {
+     "point": [
+      720,
+      3
+     ],
+     "tag": "div",
+     "cls": "flex justify-between items-center h-16",
+     "inHeader": true,
+     "isHeaderItself": false
+    },
+    {
+     "point": [
+      1434,
+      4
+     ],
+     "tag": "header",
+     "cls": "bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95",
+     "inHeader": true,
+     "isHeaderItself": true
+    },
+    {
+     "point": [
+      6,
+      33
+     ],
+     "tag": "header",
+     "cls": "bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95",
+     "inHeader": true,
+     "isHeaderItself": true
+    },
+    {
+     "point": [
+      432,
+      8
+     ],
+     "tag": "div",
+     "cls": "flex justify-between items-center h-16",
+     "inHeader": true,
+     "isHeaderItself": false
+    }
+   ],
+   "scrolled": {
+    "header": {
+     "bg": "rgb(253, 232, 21)",
+     "backdropFilter": "none",
+     "rect": {
+      "x": 0,
+      "y": -400,
+      "w": 1440,
+      "h": 65,
+      "top": -400,
+      "bottom": -335,
+      "left": 0,
+      "right": 1440
+     }
+    },
+    "elementAt44": {
+     "tag": "main",
+     "cls": "sf-route-container",
+     "inHeader": false
+    }
+   },
+   "active": {
+    "count": 1,
+    "text": "社区任务",
+    "color": "rgb(10, 10, 10)",
+    "bg": "rgb(243, 244, 246)",
+    "fontSize": "14px",
+    "fontWeight": "500"
+   },
+   "panel": null,
+   "fgRows": [
+    {
+     "kind": "text",
+     "tag": "a",
+     "hooks": [
+      "sf-topbar-brand"
+     ],
+     "text": "Seafood 海鲜市场",
+     "color": "rgb(10, 10, 10)",
+     "compositedColor": "rgb(10, 10, 10)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 15.773,
+     "min": 3,
+     "large": true,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 96,
+      "y": 18,
+      "w": 163.09,
+      "h": 28,
+      "top": 18,
+      "bottom": 46,
+      "left": 96,
+      "right": 259.09
+     },
+     "cls": "sf-tap-inline sf-topbar-brand text-xl font-bold"
+    },
+    {
+     "kind": "text",
+     "tag": "a",
+     "hooks": [
+      "nav-link"
+     ],
+     "text": "社区任务",
+     "color": "rgb(75, 85, 99)",
+     "compositedColor": "rgb(75, 85, 99)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 6.021,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 822,
+      "y": 13.5,
+      "w": 80,
+      "h": 37,
+      "top": 13.5,
+      "bottom": 50.5,
+      "left": 822,
+      "right": 902
+     },
+     "cls": "nav-link  "
+    },
+    {
+     "kind": "text",
+     "tag": "a",
+     "hooks": [
+      "nav-link"
+     ],
+     "text": "市场",
+     "color": "rgb(75, 85, 99)",
+     "compositedColor": "rgb(75, 85, 99)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 6.021,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 906,
+      "y": 13.5,
+      "w": 52,
+      "h": 37,
+      "top": 13.5,
+      "bottom": 50.5,
+      "left": 906,
+      "right": 958
+     },
+     "cls": "nav-link  "
+    },
+    {
+     "kind": "text",
+     "tag": "span",
+     "hooks": [],
+     "text": "订单",
+     "color": "rgb(75, 85, 99)",
+     "compositedColor": "rgb(75, 85, 99)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 6.021,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1002,
+      "y": 23.5,
+      "w": 28,
+      "h": 17,
+      "top": 23.5,
+      "bottom": 40.5,
+      "left": 1002,
+      "right": 1030
+     },
+     "cls": ""
+    },
+    {
+     "kind": "text",
+     "tag": "span",
+     "hooks": [],
+     "text": "语言",
+     "color": "rgb(75, 85, 99)",
+     "compositedColor": "rgb(75, 85, 99)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 6.021,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1094,
+      "y": 21.5,
+      "w": 28,
+      "h": 21,
+      "top": 21.5,
+      "bottom": 42.5,
+      "left": 1094,
+      "right": 1122
+     },
+     "cls": ""
+    },
+    {
+     "kind": "icon",
+     "tag": "svg",
+     "hooks": [],
+     "text": "",
+     "color": "rgb(75, 85, 99)",
+     "compositedColor": "rgb(75, 85, 99)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 6.021,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1126,
+      "y": 24,
+      "w": 16,
+      "h": 16,
+      "top": 24,
+      "bottom": 40,
+      "left": 1126,
+      "right": 1142
+     },
+     "cls": "lucide lucide-chevron-down"
+    },
+    {
+     "kind": "icon",
+     "tag": "svg",
+     "hooks": [],
+     "text": "",
+     "color": "rgb(75, 85, 99)",
+     "compositedColor": "rgb(75, 85, 99)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 6.021,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1182,
+      "y": 23,
+      "w": 18,
+      "h": 18,
+      "top": 23,
+      "bottom": 41,
+      "left": 1182,
+      "right": 1200
+     },
+     "cls": "lucide lucide-moon"
+    },
+    {
+     "kind": "icon",
+     "tag": "svg",
+     "hooks": [],
+     "text": "",
+     "color": "rgb(75, 85, 99)",
+     "compositedColor": "rgb(75, 85, 99)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 6.021,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1228,
+      "y": 23,
+      "w": 18,
+      "h": 18,
+      "top": 23,
+      "bottom": 41,
+      "left": 1228,
+      "right": 1246
+     },
+     "cls": "lucide lucide-user-plus"
+    },
+    {
+     "kind": "text",
+     "tag": "span",
+     "hooks": [],
+     "text": "注册",
+     "color": "rgb(75, 85, 99)",
+     "compositedColor": "rgb(75, 85, 99)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 6.021,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1252,
+      "y": 22,
+      "w": 28,
+      "h": 20,
+      "top": 22,
+      "bottom": 42,
+      "left": 1252,
+      "right": 1280
+     },
+     "cls": ""
+    },
+    {
+     "kind": "icon",
+     "tag": "svg",
+     "hooks": [],
+     "text": "",
+     "color": "rgb(75, 85, 99)",
+     "compositedColor": "rgb(75, 85, 99)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 6.021,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1292,
+      "y": 23,
+      "w": 18,
+      "h": 18,
+      "top": 23,
+      "bottom": 41,
+      "left": 1292,
+      "right": 1310
+     },
+     "cls": "lucide lucide-log-in"
+    },
+    {
+     "kind": "text",
+     "tag": "span",
+     "hooks": [],
+     "text": "登录",
+     "color": "rgb(75, 85, 99)",
+     "compositedColor": "rgb(75, 85, 99)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 6.021,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1316,
+      "y": 22,
+      "w": 28,
+      "h": 20,
+      "top": 22,
+      "bottom": 42,
+      "left": 1316,
+      "right": 1344
+     },
+     "cls": ""
+    }
+   ],
+   "carriedCount": 11,
+   "topbarCarriedFail": [],
+   "selfCarriedFail": [],
+   "checks": {
+    "ac1_day": {
+     "bgEquals": true,
+     "alpha1": true,
+     "backdropNone": true,
+     "borderEquals": true,
+     "opacity1": true
+    },
+    "ac2_night": null,
+    "ac4": {
+     "alpha1": true,
+     "backdropNone": true,
+     "scrolledAlpha1": true,
+     "hitsAllInHeader": true
+    }
+   }
+  },
+  "1440_night": {
+   "label": "1440_night",
+   "theme": "dark",
+   "colorScheme": "dark",
+   "viewport": {
+    "w": 1440,
+    "h": 900
+   },
+   "header": {
+    "bg": "rgb(31, 41, 55)",
+    "backdropFilter": "blur(4px)",
+    "border": "1px solid rgb(55, 65, 81)",
+    "rect": {
+     "x": 0,
+     "y": 0,
+     "w": 1440,
+     "h": 65,
+     "top": 0,
+     "bottom": 65,
+     "left": 0,
+     "right": 1440
+    },
+    "opacity": "1",
+    "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.1) 0px 2px 4px -2px"
+   },
+   "regionTop": {
+    "bg": "rgb(11, 12, 14)",
+    "rect": {
+     "x": 0,
+     "y": 0,
+     "w": 1440,
+     "h": 65,
+     "top": 0,
+     "bottom": 65,
+     "left": 0,
+     "right": 1440
+    },
+    "opacity": "1"
+   },
+   "routeContainer": {
+    "bg": "rgb(16, 17, 20)",
+    "rect": {
+     "x": 0,
+     "y": 65,
+     "w": 1440,
+     "h": 1046,
+     "top": 65,
+     "bottom": 1111,
+     "left": 0,
+     "right": 1440
+    },
+    "maxWidth": "1440px",
+    "paddingL": "20px",
+    "paddingR": "20px",
+    "marginL": "0px"
+   },
+   "shell": {
+    "bg": "rgb(11, 12, 14)",
+    "rect": {
+     "x": 0,
+     "y": 0,
+     "w": 1440,
+     "h": 1416,
+     "top": 0,
+     "bottom": 1416,
+     "left": 0,
+     "right": 1440
+    }
+   },
+   "tokens": {
+    "topbarBg": "#0b0c0e",
+    "topbarBorder": "#fde815",
+    "brandFg": "#f5f6f7",
+    "atHeaderBrandFg": "#f5f6f7"
+   },
+   "composedPixels": {
+    "samples": [
+     {
+      "point": [
+       4,
+       4
+      ],
+      "rgb": "rgb(31,41,55)",
+      "a": 255
+     },
+     {
+      "point": [
+       720,
+       3
+      ],
+      "rgb": "rgb(31,41,55)",
+      "a": 255
+     },
+     {
+      "point": [
+       1434,
+       4
+      ],
+      "rgb": "rgb(31,41,55)",
+      "a": 255
+     },
+     {
+      "point": [
+       6,
+       33
+      ],
+      "rgb": "rgb(31,41,55)",
+      "a": 255
+     },
+     {
+      "point": [
+       432,
+       8
+      ],
+      "rgb": "rgb(31,41,55)",
+      "a": 255
+     }
+    ],
+    "histograms": [
+     {
+      "row": 1,
+      "width": 1440,
+      "topColors": [
+       {
+        "rgb": "rgb(31,41,55)",
+        "px": 1440
+       }
+      ]
+     },
+     {
+      "row": 33,
+      "width": 1440,
+      "topColors": [
+       {
+        "rgb": "rgb(31,41,55)",
+        "px": 1156
+       },
+       {
+        "rgb": "rgb(237,238,239)",
+        "px": 39
+       },
+       {
+        "rgb": "rgb(215,22,24)",
+        "px": 12
+       },
+       {
+        "rgb": "rgb(134,140,147)",
+        "px": 11
+       }
+      ]
+     },
+     {
+      "row": 62,
+      "width": 1440,
+      "topColors": [
+       {
+        "rgb": "rgb(31,41,55)",
+        "px": 1440
+       }
+      ]
+     }
+    ]
+   },
+   "hits": [
+    {
+     "point": [
+      4,
+      4
+     ],
+     "tag": "header",
+     "cls": "bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95",
+     "inHeader": true,
+     "isHeaderItself": true
+    },
+    {
+     "point": [
+      720,
+      3
+     ],
+     "tag": "div",
+     "cls": "flex justify-between items-center h-16",
+     "inHeader": true,
+     "isHeaderItself": false
+    },
+    {
+     "point": [
+      1434,
+      4
+     ],
+     "tag": "header",
+     "cls": "bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95",
+     "inHeader": true,
+     "isHeaderItself": true
+    },
+    {
+     "point": [
+      6,
+      33
+     ],
+     "tag": "header",
+     "cls": "bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95",
+     "inHeader": true,
+     "isHeaderItself": true
+    },
+    {
+     "point": [
+      432,
+      8
+     ],
+     "tag": "div",
+     "cls": "flex justify-between items-center h-16",
+     "inHeader": true,
+     "isHeaderItself": false
+    }
+   ],
+   "scrolled": {
+    "header": {
+     "bg": "rgb(31, 41, 55)",
+     "backdropFilter": "blur(4px)",
+     "rect": {
+      "x": 0,
+      "y": -400,
+      "w": 1440,
+      "h": 65,
+      "top": -400,
+      "bottom": -335,
+      "left": 0,
+      "right": 1440
+     }
+    },
+    "elementAt44": {
+     "tag": "main",
+     "cls": "sf-route-container",
+     "inHeader": false
+    }
+   },
+   "active": {
+    "count": 1,
+    "text": "社区任务",
+    "color": "rgba(255, 255, 255, 0.92)",
+    "bg": "rgb(243, 244, 246)",
+    "fontSize": "14px",
+    "fontWeight": "500"
+   },
+   "panel": null,
+   "fgRows": [
+    {
+     "kind": "text",
+     "tag": "a",
+     "hooks": [
+      "sf-topbar-brand"
+     ],
+     "text": "Seafood 海鲜市场",
+     "color": "rgba(255, 255, 255, 0.92)",
+     "compositedColor": "rgba(237,238,239,1)",
+     "effBg": "rgb(31,41,55)",
+     "ratio": 12.628,
+     "min": 3,
+     "large": true,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 96,
+      "y": 18,
+      "w": 163.09,
+      "h": 28,
+      "top": 18,
+      "bottom": 46,
+      "left": 96,
+      "right": 259.09
+     },
+     "cls": "sf-tap-inline sf-topbar-brand text-xl font-bold"
+    },
+    {
+     "kind": "text",
+     "tag": "a",
+     "hooks": [
+      "nav-link"
+     ],
+     "text": "社区任务",
+     "color": "rgba(255, 255, 255, 0.92)",
+     "compositedColor": "rgba(237,238,239,1)",
+     "effBg": "rgb(31,41,55)",
+     "ratio": 12.628,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 822,
+      "y": 13.5,
+      "w": 80,
+      "h": 37,
+      "top": 13.5,
+      "bottom": 50.5,
+      "left": 822,
+      "right": 902
+     },
+     "cls": "nav-link  "
+    },
+    {
+     "kind": "text",
+     "tag": "a",
+     "hooks": [
+      "nav-link"
+     ],
+     "text": "市场",
+     "color": "rgba(255, 255, 255, 0.92)",
+     "compositedColor": "rgba(237,238,239,1)",
+     "effBg": "rgb(31,41,55)",
+     "ratio": 12.628,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 906,
+      "y": 13.5,
+      "w": 52,
+      "h": 37,
+      "top": 13.5,
+      "bottom": 50.5,
+      "left": 906,
+      "right": 958
+     },
+     "cls": "nav-link  "
+    },
+    {
+     "kind": "text",
+     "tag": "span",
+     "hooks": [],
+     "text": "订单",
+     "color": "rgba(255, 255, 255, 0.92)",
+     "compositedColor": "rgba(237,238,239,1)",
+     "effBg": "rgb(31,41,55)",
+     "ratio": 12.628,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1002,
+      "y": 23.5,
+      "w": 28,
+      "h": 17,
+      "top": 23.5,
+      "bottom": 40.5,
+      "left": 1002,
+      "right": 1030
+     },
+     "cls": ""
+    },
+    {
+     "kind": "text",
+     "tag": "span",
+     "hooks": [],
+     "text": "语言",
+     "color": "rgba(255, 255, 255, 0.92)",
+     "compositedColor": "rgba(237,238,239,1)",
+     "effBg": "rgb(31,41,55)",
+     "ratio": 12.628,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1094,
+      "y": 21.5,
+      "w": 28,
+      "h": 21,
+      "top": 21.5,
+      "bottom": 42.5,
+      "left": 1094,
+      "right": 1122
+     },
+     "cls": ""
+    },
+    {
+     "kind": "icon",
+     "tag": "svg",
+     "hooks": [],
+     "text": "",
+     "color": "rgba(255, 255, 255, 0.92)",
+     "compositedColor": "rgba(237,238,239,1)",
+     "effBg": "rgb(31,41,55)",
+     "ratio": 12.628,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1126,
+      "y": 24,
+      "w": 16,
+      "h": 16,
+      "top": 24,
+      "bottom": 40,
+      "left": 1126,
+      "right": 1142
+     },
+     "cls": "lucide lucide-chevron-down"
+    },
+    {
+     "kind": "icon",
+     "tag": "svg",
+     "hooks": [],
+     "text": "",
+     "color": "rgba(255, 255, 255, 0.92)",
+     "compositedColor": "rgba(237,238,239,1)",
+     "effBg": "rgb(31,41,55)",
+     "ratio": 12.628,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1182,
+      "y": 23,
+      "w": 18,
+      "h": 18,
+      "top": 23,
+      "bottom": 41,
+      "left": 1182,
+      "right": 1200
+     },
+     "cls": "lucide lucide-sun"
+    },
+    {
+     "kind": "icon",
+     "tag": "svg",
+     "hooks": [],
+     "text": "",
+     "color": "rgba(255, 255, 255, 0.92)",
+     "compositedColor": "rgba(237,238,239,1)",
+     "effBg": "rgb(31,41,55)",
+     "ratio": 12.628,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1228,
+      "y": 23,
+      "w": 18,
+      "h": 18,
+      "top": 23,
+      "bottom": 41,
+      "left": 1228,
+      "right": 1246
+     },
+     "cls": "lucide lucide-user-plus"
+    },
+    {
+     "kind": "text",
+     "tag": "span",
+     "hooks": [],
+     "text": "注册",
+     "color": "rgba(255, 255, 255, 0.92)",
+     "compositedColor": "rgba(237,238,239,1)",
+     "effBg": "rgb(31,41,55)",
+     "ratio": 12.628,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1252,
+      "y": 22,
+      "w": 28,
+      "h": 20,
+      "top": 22,
+      "bottom": 42,
+      "left": 1252,
+      "right": 1280
+     },
+     "cls": ""
+    },
+    {
+     "kind": "icon",
+     "tag": "svg",
+     "hooks": [],
+     "text": "",
+     "color": "rgba(255, 255, 255, 0.92)",
+     "compositedColor": "rgba(237,238,239,1)",
+     "effBg": "rgb(31,41,55)",
+     "ratio": 12.628,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1292,
+      "y": 23,
+      "w": 18,
+      "h": 18,
+      "top": 23,
+      "bottom": 41,
+      "left": 1292,
+      "right": 1310
+     },
+     "cls": "lucide lucide-log-in"
+    },
+    {
+     "kind": "text",
+     "tag": "span",
+     "hooks": [],
+     "text": "登录",
+     "color": "rgba(255, 255, 255, 0.92)",
+     "compositedColor": "rgba(237,238,239,1)",
+     "effBg": "rgb(31,41,55)",
+     "ratio": 12.628,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1316,
+      "y": 22,
+      "w": 28,
+      "h": 20,
+      "top": 22,
+      "bottom": 42,
+      "left": 1316,
+      "right": 1344
+     },
+     "cls": ""
+    }
+   ],
+   "carriedCount": 11,
+   "topbarCarriedFail": [],
+   "selfCarriedFail": [],
+   "checks": {
+    "ac1_day": null,
+    "ac2_night": {
+     "bgEquals": true,
+     "borderEquals": true,
+     "backdropBlur4": true
+    },
+    "ac4": {
+     "alpha1": true,
+     "backdropNone": null,
+     "scrolledAlpha1": true,
+     "hitsAllInHeader": true
+    }
+   }
+  },
+  "1600_day": {
+   "label": "1600_day",
+   "theme": "light",
+   "colorScheme": "light",
+   "viewport": {
+    "w": 1600,
+    "h": 900
+   },
+   "header": {
+    "bg": "rgb(253, 232, 21)",
+    "backdropFilter": "none",
+    "border": "1px solid rgb(3, 4, 2)",
+    "rect": {
+     "x": 0,
+     "y": 0,
+     "w": 1600,
+     "h": 65,
+     "top": 0,
+     "bottom": 65,
+     "left": 0,
+     "right": 1600
+    },
+    "opacity": "1",
+    "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.1) 0px 2px 4px -2px"
+   },
+   "regionTop": {
+    "bg": "rgb(253, 232, 21)",
+    "rect": {
+     "x": 0,
+     "y": 0,
+     "w": 1600,
+     "h": 65,
+     "top": 0,
+     "bottom": 65,
+     "left": 0,
+     "right": 1600
+    },
+    "opacity": "1"
+   },
+   "routeContainer": {
+    "bg": "rgb(255, 255, 255)",
+    "rect": {
+     "x": 80,
+     "y": 65,
+     "w": 1440,
+     "h": 1046,
+     "top": 65,
+     "bottom": 1111,
+     "left": 80,
+     "right": 1520
+    },
+    "maxWidth": "1440px",
+    "paddingL": "20px",
+    "paddingR": "20px",
+    "marginL": "80px"
+   },
+   "shell": {
+    "bg": "rgb(245, 247, 249)",
+    "rect": {
+     "x": 0,
+     "y": 0,
+     "w": 1600,
+     "h": 1416,
+     "top": 0,
+     "bottom": 1416,
+     "left": 0,
+     "right": 1600
+    }
+   },
+   "tokens": {
+    "topbarBg": "#fde815",
+    "topbarBorder": "#030402",
+    "brandFg": "#0a0a0a",
+    "atHeaderBrandFg": "#0a0a0a"
+   },
+   "composedPixels": {
+    "samples": [
+     {
+      "point": [
+       4,
+       4
+      ],
+      "rgb": "rgb(253,232,21)",
+      "a": 255
+     },
+     {
+      "point": [
+       800,
+       3
+      ],
+      "rgb": "rgb(253,232,21)",
+      "a": 255
+     },
+     {
+      "point": [
+       1594,
+       4
+      ],
+      "rgb": "rgb(253,232,21)",
+      "a": 255
+     },
+     {
+      "point": [
+       6,
+       33
+      ],
+      "rgb": "rgb(253,232,21)",
+      "a": 255
+     },
+     {
+      "point": [
+       480,
+       8
+      ],
+      "rgb": "rgb(253,232,21)",
+      "a": 255
+     }
+    ],
+    "histograms": [
+     {
+      "row": 1,
+      "width": 1600,
+      "topColors": [
+       {
+        "rgb": "rgb(253,232,21)",
+        "px": 1600
+       }
+      ]
+     },
+     {
+      "row": 33,
+      "width": 1600,
+      "topColors": [
+       {
+        "rgb": "rgb(253,232,21)",
+        "px": 1315
+       },
+       {
+        "rgb": "rgb(75,85,99)",
+        "px": 23
+       },
+       {
+        "rgb": "rgb(10,10,10)",
+        "px": 16
+       },
+       {
+        "rgb": "rgb(164,159,60)",
+        "px": 13
+       }
+      ]
+     },
+     {
+      "row": 62,
+      "width": 1600,
+      "topColors": [
+       {
+        "rgb": "rgb(253,232,21)",
+        "px": 1600
+       }
+      ]
+     }
+    ]
+   },
+   "hits": [
+    {
+     "point": [
+      4,
+      4
+     ],
+     "tag": "header",
+     "cls": "bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95",
+     "inHeader": true,
+     "isHeaderItself": true
+    },
+    {
+     "point": [
+      800,
+      3
+     ],
+     "tag": "div",
+     "cls": "flex justify-between items-center h-16",
+     "inHeader": true,
+     "isHeaderItself": false
+    },
+    {
+     "point": [
+      1594,
+      4
+     ],
+     "tag": "header",
+     "cls": "bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95",
+     "inHeader": true,
+     "isHeaderItself": true
+    },
+    {
+     "point": [
+      6,
+      33
+     ],
+     "tag": "header",
+     "cls": "bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95",
+     "inHeader": true,
+     "isHeaderItself": true
+    },
+    {
+     "point": [
+      480,
+      8
+     ],
+     "tag": "div",
+     "cls": "flex justify-between items-center h-16",
+     "inHeader": true,
+     "isHeaderItself": false
+    }
+   ],
+   "scrolled": {
+    "header": {
+     "bg": "rgb(253, 232, 21)",
+     "backdropFilter": "none",
+     "rect": {
+      "x": 0,
+      "y": -400,
+      "w": 1600,
+      "h": 65,
+      "top": -400,
+      "bottom": -335,
+      "left": 0,
+      "right": 1600
+     }
+    },
+    "elementAt44": {
+     "tag": "div",
+     "cls": "sf-shell",
+     "inHeader": false
+    }
+   },
+   "active": {
+    "count": 1,
+    "text": "社区任务",
+    "color": "rgb(10, 10, 10)",
+    "bg": "rgb(243, 244, 246)",
+    "fontSize": "14px",
+    "fontWeight": "500"
+   },
+   "panel": null,
+   "fgRows": [
+    {
+     "kind": "text",
+     "tag": "a",
+     "hooks": [
+      "sf-topbar-brand"
+     ],
+     "text": "Seafood 海鲜市场",
+     "color": "rgb(10, 10, 10)",
+     "compositedColor": "rgb(10, 10, 10)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 15.773,
+     "min": 3,
+     "large": true,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 48,
+      "y": 18,
+      "w": 163.09,
+      "h": 28,
+      "top": 18,
+      "bottom": 46,
+      "left": 48,
+      "right": 211.09
+     },
+     "cls": "sf-tap-inline sf-topbar-brand text-xl font-bold"
+    },
+    {
+     "kind": "text",
+     "tag": "a",
+     "hooks": [
+      "nav-link"
+     ],
+     "text": "社区任务",
+     "color": "rgb(75, 85, 99)",
+     "compositedColor": "rgb(75, 85, 99)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 6.021,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1030,
+      "y": 13.5,
+      "w": 80,
+      "h": 37,
+      "top": 13.5,
+      "bottom": 50.5,
+      "left": 1030,
+      "right": 1110
+     },
+     "cls": "nav-link  "
+    },
+    {
+     "kind": "text",
+     "tag": "a",
+     "hooks": [
+      "nav-link"
+     ],
+     "text": "市场",
+     "color": "rgb(75, 85, 99)",
+     "compositedColor": "rgb(75, 85, 99)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 6.021,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1114,
+      "y": 13.5,
+      "w": 52,
+      "h": 37,
+      "top": 13.5,
+      "bottom": 50.5,
+      "left": 1114,
+      "right": 1166
+     },
+     "cls": "nav-link  "
+    },
+    {
+     "kind": "text",
+     "tag": "span",
+     "hooks": [],
+     "text": "订单",
+     "color": "rgb(75, 85, 99)",
+     "compositedColor": "rgb(75, 85, 99)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 6.021,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1210,
+      "y": 23.5,
+      "w": 28,
+      "h": 17,
+      "top": 23.5,
+      "bottom": 40.5,
+      "left": 1210,
+      "right": 1238
+     },
+     "cls": ""
+    },
+    {
+     "kind": "text",
+     "tag": "span",
+     "hooks": [],
+     "text": "语言",
+     "color": "rgb(75, 85, 99)",
+     "compositedColor": "rgb(75, 85, 99)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 6.021,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1302,
+      "y": 21.5,
+      "w": 28,
+      "h": 21,
+      "top": 21.5,
+      "bottom": 42.5,
+      "left": 1302,
+      "right": 1330
+     },
+     "cls": ""
+    },
+    {
+     "kind": "icon",
+     "tag": "svg",
+     "hooks": [],
+     "text": "",
+     "color": "rgb(75, 85, 99)",
+     "compositedColor": "rgb(75, 85, 99)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 6.021,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1334,
+      "y": 24,
+      "w": 16,
+      "h": 16,
+      "top": 24,
+      "bottom": 40,
+      "left": 1334,
+      "right": 1350
+     },
+     "cls": "lucide lucide-chevron-down"
+    },
+    {
+     "kind": "icon",
+     "tag": "svg",
+     "hooks": [],
+     "text": "",
+     "color": "rgb(75, 85, 99)",
+     "compositedColor": "rgb(75, 85, 99)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 6.021,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1390,
+      "y": 23,
+      "w": 18,
+      "h": 18,
+      "top": 23,
+      "bottom": 41,
+      "left": 1390,
+      "right": 1408
+     },
+     "cls": "lucide lucide-moon"
+    },
+    {
+     "kind": "icon",
+     "tag": "svg",
+     "hooks": [],
+     "text": "",
+     "color": "rgb(75, 85, 99)",
+     "compositedColor": "rgb(75, 85, 99)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 6.021,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1436,
+      "y": 23,
+      "w": 18,
+      "h": 18,
+      "top": 23,
+      "bottom": 41,
+      "left": 1436,
+      "right": 1454
+     },
+     "cls": "lucide lucide-user-plus"
+    },
+    {
+     "kind": "text",
+     "tag": "span",
+     "hooks": [],
+     "text": "注册",
+     "color": "rgb(75, 85, 99)",
+     "compositedColor": "rgb(75, 85, 99)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 6.021,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1460,
+      "y": 22,
+      "w": 28,
+      "h": 20,
+      "top": 22,
+      "bottom": 42,
+      "left": 1460,
+      "right": 1488
+     },
+     "cls": ""
+    },
+    {
+     "kind": "icon",
+     "tag": "svg",
+     "hooks": [],
+     "text": "",
+     "color": "rgb(75, 85, 99)",
+     "compositedColor": "rgb(75, 85, 99)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 6.021,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1500,
+      "y": 23,
+      "w": 18,
+      "h": 18,
+      "top": 23,
+      "bottom": 41,
+      "left": 1500,
+      "right": 1518
+     },
+     "cls": "lucide lucide-log-in"
+    },
+    {
+     "kind": "text",
+     "tag": "span",
+     "hooks": [],
+     "text": "登录",
+     "color": "rgb(75, 85, 99)",
+     "compositedColor": "rgb(75, 85, 99)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 6.021,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1524,
+      "y": 22,
+      "w": 28,
+      "h": 20,
+      "top": 22,
+      "bottom": 42,
+      "left": 1524,
+      "right": 1552
+     },
+     "cls": ""
+    }
+   ],
+   "carriedCount": 11,
+   "topbarCarriedFail": [],
+   "selfCarriedFail": [],
+   "checks": {
+    "ac1_day": {
+     "bgEquals": true,
+     "alpha1": true,
+     "backdropNone": true,
+     "borderEquals": true,
+     "opacity1": true
+    },
+    "ac2_night": null,
+    "ac4": {
+     "alpha1": true,
+     "backdropNone": true,
+     "scrolledAlpha1": true,
+     "hitsAllInHeader": true
+    }
+   }
+  },
+  "1600_night": {
+   "label": "1600_night",
+   "theme": "dark",
+   "colorScheme": "dark",
+   "viewport": {
+    "w": 1600,
+    "h": 900
+   },
+   "header": {
+    "bg": "rgb(31, 41, 55)",
+    "backdropFilter": "blur(4px)",
+    "border": "1px solid rgb(55, 65, 81)",
+    "rect": {
+     "x": 0,
+     "y": 0,
+     "w": 1600,
+     "h": 65,
+     "top": 0,
+     "bottom": 65,
+     "left": 0,
+     "right": 1600
+    },
+    "opacity": "1",
+    "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.1) 0px 2px 4px -2px"
+   },
+   "regionTop": {
+    "bg": "rgb(11, 12, 14)",
+    "rect": {
+     "x": 0,
+     "y": 0,
+     "w": 1600,
+     "h": 65,
+     "top": 0,
+     "bottom": 65,
+     "left": 0,
+     "right": 1600
+    },
+    "opacity": "1"
+   },
+   "routeContainer": {
+    "bg": "rgb(16, 17, 20)",
+    "rect": {
+     "x": 80,
+     "y": 65,
+     "w": 1440,
+     "h": 1046,
+     "top": 65,
+     "bottom": 1111,
+     "left": 80,
+     "right": 1520
+    },
+    "maxWidth": "1440px",
+    "paddingL": "20px",
+    "paddingR": "20px",
+    "marginL": "80px"
+   },
+   "shell": {
+    "bg": "rgb(11, 12, 14)",
+    "rect": {
+     "x": 0,
+     "y": 0,
+     "w": 1600,
+     "h": 1416,
+     "top": 0,
+     "bottom": 1416,
+     "left": 0,
+     "right": 1600
+    }
+   },
+   "tokens": {
+    "topbarBg": "#0b0c0e",
+    "topbarBorder": "#fde815",
+    "brandFg": "#f5f6f7",
+    "atHeaderBrandFg": "#f5f6f7"
+   },
+   "composedPixels": {
+    "samples": [
+     {
+      "point": [
+       4,
+       4
+      ],
+      "rgb": "rgb(31,41,55)",
+      "a": 255
+     },
+     {
+      "point": [
+       800,
+       3
+      ],
+      "rgb": "rgb(31,41,55)",
+      "a": 255
+     },
+     {
+      "point": [
+       1594,
+       4
+      ],
+      "rgb": "rgb(31,41,55)",
+      "a": 255
+     },
+     {
+      "point": [
+       6,
+       33
+      ],
+      "rgb": "rgb(31,41,55)",
+      "a": 255
+     },
+     {
+      "point": [
+       480,
+       8
+      ],
+      "rgb": "rgb(31,41,55)",
+      "a": 255
+     }
+    ],
+    "histograms": [
+     {
+      "row": 1,
+      "width": 1600,
+      "topColors": [
+       {
+        "rgb": "rgb(31,41,55)",
+        "px": 1600
+       }
+      ]
+     },
+     {
+      "row": 33,
+      "width": 1600,
+      "topColors": [
+       {
+        "rgb": "rgb(31,41,55)",
+        "px": 1316
+       },
+       {
+        "rgb": "rgb(237,238,239)",
+        "px": 39
+       },
+       {
+        "rgb": "rgb(215,22,24)",
+        "px": 12
+       },
+       {
+        "rgb": "rgb(134,140,147)",
+        "px": 11
+       }
+      ]
+     },
+     {
+      "row": 62,
+      "width": 1600,
+      "topColors": [
+       {
+        "rgb": "rgb(31,41,55)",
+        "px": 1600
+       }
+      ]
+     }
+    ]
+   },
+   "hits": [
+    {
+     "point": [
+      4,
+      4
+     ],
+     "tag": "header",
+     "cls": "bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95",
+     "inHeader": true,
+     "isHeaderItself": true
+    },
+    {
+     "point": [
+      800,
+      3
+     ],
+     "tag": "div",
+     "cls": "flex justify-between items-center h-16",
+     "inHeader": true,
+     "isHeaderItself": false
+    },
+    {
+     "point": [
+      1594,
+      4
+     ],
+     "tag": "header",
+     "cls": "bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95",
+     "inHeader": true,
+     "isHeaderItself": true
+    },
+    {
+     "point": [
+      6,
+      33
+     ],
+     "tag": "header",
+     "cls": "bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95",
+     "inHeader": true,
+     "isHeaderItself": true
+    },
+    {
+     "point": [
+      480,
+      8
+     ],
+     "tag": "div",
+     "cls": "flex justify-between items-center h-16",
+     "inHeader": true,
+     "isHeaderItself": false
+    }
+   ],
+   "scrolled": {
+    "header": {
+     "bg": "rgb(31, 41, 55)",
+     "backdropFilter": "blur(4px)",
+     "rect": {
+      "x": 0,
+      "y": -400,
+      "w": 1600,
+      "h": 65,
+      "top": -400,
+      "bottom": -335,
+      "left": 0,
+      "right": 1600
+     }
+    },
+    "elementAt44": {
+     "tag": "div",
+     "cls": "sf-shell",
+     "inHeader": false
+    }
+   },
+   "active": {
+    "count": 1,
+    "text": "社区任务",
+    "color": "rgba(255, 255, 255, 0.92)",
+    "bg": "rgb(243, 244, 246)",
+    "fontSize": "14px",
+    "fontWeight": "500"
+   },
+   "panel": null,
+   "fgRows": [
+    {
+     "kind": "text",
+     "tag": "a",
+     "hooks": [
+      "sf-topbar-brand"
+     ],
+     "text": "Seafood 海鲜市场",
+     "color": "rgba(255, 255, 255, 0.92)",
+     "compositedColor": "rgba(237,238,239,1)",
+     "effBg": "rgb(31,41,55)",
+     "ratio": 12.628,
+     "min": 3,
+     "large": true,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 48,
+      "y": 18,
+      "w": 163.09,
+      "h": 28,
+      "top": 18,
+      "bottom": 46,
+      "left": 48,
+      "right": 211.09
+     },
+     "cls": "sf-tap-inline sf-topbar-brand text-xl font-bold"
+    },
+    {
+     "kind": "text",
+     "tag": "a",
+     "hooks": [
+      "nav-link"
+     ],
+     "text": "社区任务",
+     "color": "rgba(255, 255, 255, 0.92)",
+     "compositedColor": "rgba(237,238,239,1)",
+     "effBg": "rgb(31,41,55)",
+     "ratio": 12.628,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1030,
+      "y": 13.5,
+      "w": 80,
+      "h": 37,
+      "top": 13.5,
+      "bottom": 50.5,
+      "left": 1030,
+      "right": 1110
+     },
+     "cls": "nav-link  "
+    },
+    {
+     "kind": "text",
+     "tag": "a",
+     "hooks": [
+      "nav-link"
+     ],
+     "text": "市场",
+     "color": "rgba(255, 255, 255, 0.92)",
+     "compositedColor": "rgba(237,238,239,1)",
+     "effBg": "rgb(31,41,55)",
+     "ratio": 12.628,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1114,
+      "y": 13.5,
+      "w": 52,
+      "h": 37,
+      "top": 13.5,
+      "bottom": 50.5,
+      "left": 1114,
+      "right": 1166
+     },
+     "cls": "nav-link  "
+    },
+    {
+     "kind": "text",
+     "tag": "span",
+     "hooks": [],
+     "text": "订单",
+     "color": "rgba(255, 255, 255, 0.92)",
+     "compositedColor": "rgba(237,238,239,1)",
+     "effBg": "rgb(31,41,55)",
+     "ratio": 12.628,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1210,
+      "y": 23.5,
+      "w": 28,
+      "h": 17,
+      "top": 23.5,
+      "bottom": 40.5,
+      "left": 1210,
+      "right": 1238
+     },
+     "cls": ""
+    },
+    {
+     "kind": "text",
+     "tag": "span",
+     "hooks": [],
+     "text": "语言",
+     "color": "rgba(255, 255, 255, 0.92)",
+     "compositedColor": "rgba(237,238,239,1)",
+     "effBg": "rgb(31,41,55)",
+     "ratio": 12.628,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1302,
+      "y": 21.5,
+      "w": 28,
+      "h": 21,
+      "top": 21.5,
+      "bottom": 42.5,
+      "left": 1302,
+      "right": 1330
+     },
+     "cls": ""
+    },
+    {
+     "kind": "icon",
+     "tag": "svg",
+     "hooks": [],
+     "text": "",
+     "color": "rgba(255, 255, 255, 0.92)",
+     "compositedColor": "rgba(237,238,239,1)",
+     "effBg": "rgb(31,41,55)",
+     "ratio": 12.628,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1334,
+      "y": 24,
+      "w": 16,
+      "h": 16,
+      "top": 24,
+      "bottom": 40,
+      "left": 1334,
+      "right": 1350
+     },
+     "cls": "lucide lucide-chevron-down"
+    },
+    {
+     "kind": "icon",
+     "tag": "svg",
+     "hooks": [],
+     "text": "",
+     "color": "rgba(255, 255, 255, 0.92)",
+     "compositedColor": "rgba(237,238,239,1)",
+     "effBg": "rgb(31,41,55)",
+     "ratio": 12.628,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1390,
+      "y": 23,
+      "w": 18,
+      "h": 18,
+      "top": 23,
+      "bottom": 41,
+      "left": 1390,
+      "right": 1408
+     },
+     "cls": "lucide lucide-sun"
+    },
+    {
+     "kind": "icon",
+     "tag": "svg",
+     "hooks": [],
+     "text": "",
+     "color": "rgba(255, 255, 255, 0.92)",
+     "compositedColor": "rgba(237,238,239,1)",
+     "effBg": "rgb(31,41,55)",
+     "ratio": 12.628,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1436,
+      "y": 23,
+      "w": 18,
+      "h": 18,
+      "top": 23,
+      "bottom": 41,
+      "left": 1436,
+      "right": 1454
+     },
+     "cls": "lucide lucide-user-plus"
+    },
+    {
+     "kind": "text",
+     "tag": "span",
+     "hooks": [],
+     "text": "注册",
+     "color": "rgba(255, 255, 255, 0.92)",
+     "compositedColor": "rgba(237,238,239,1)",
+     "effBg": "rgb(31,41,55)",
+     "ratio": 12.628,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1460,
+      "y": 22,
+      "w": 28,
+      "h": 20,
+      "top": 22,
+      "bottom": 42,
+      "left": 1460,
+      "right": 1488
+     },
+     "cls": ""
+    },
+    {
+     "kind": "icon",
+     "tag": "svg",
+     "hooks": [],
+     "text": "",
+     "color": "rgba(255, 255, 255, 0.92)",
+     "compositedColor": "rgba(237,238,239,1)",
+     "effBg": "rgb(31,41,55)",
+     "ratio": 12.628,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1500,
+      "y": 23,
+      "w": 18,
+      "h": 18,
+      "top": 23,
+      "bottom": 41,
+      "left": 1500,
+      "right": 1518
+     },
+     "cls": "lucide lucide-log-in"
+    },
+    {
+     "kind": "text",
+     "tag": "span",
+     "hooks": [],
+     "text": "登录",
+     "color": "rgba(255, 255, 255, 0.92)",
+     "compositedColor": "rgba(237,238,239,1)",
+     "effBg": "rgb(31,41,55)",
+     "ratio": 12.628,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 1524,
+      "y": 22,
+      "w": 28,
+      "h": 20,
+      "top": 22,
+      "bottom": 42,
+      "left": 1524,
+      "right": 1552
+     },
+     "cls": ""
+    }
+   ],
+   "carriedCount": 11,
+   "topbarCarriedFail": [],
+   "selfCarriedFail": [],
+   "checks": {
+    "ac1_day": null,
+    "ac2_night": {
+     "bgEquals": true,
+     "borderEquals": true,
+     "backdropBlur4": true
+    },
+    "ac4": {
+     "alpha1": true,
+     "backdropNone": null,
+     "scrolledAlpha1": true,
+     "hitsAllInHeader": true
+    }
+   }
+  },
+  "375_day": {
+   "label": "375_day",
+   "theme": "light",
+   "colorScheme": "light",
+   "viewport": {
+    "w": 375,
+    "h": 812
+   },
+   "header": {
+    "bg": "rgb(253, 232, 21)",
+    "backdropFilter": "none",
+    "border": "1px solid rgb(3, 4, 2)",
+    "rect": {
+     "x": 0,
+     "y": 0,
+     "w": 375,
+     "h": 65,
+     "top": 0,
+     "bottom": 65,
+     "left": 0,
+     "right": 375
+    },
+    "opacity": "1",
+    "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.1) 0px 2px 4px -2px"
+   },
+   "regionTop": {
+    "bg": "rgb(253, 232, 21)",
+    "rect": {
+     "x": 0,
+     "y": 0,
+     "w": 375,
+     "h": 65,
+     "top": 0,
+     "bottom": 65,
+     "left": 0,
+     "right": 375
+    },
+    "opacity": "1"
+   },
+   "routeContainer": {
+    "bg": "rgb(255, 255, 255)",
+    "rect": {
+     "x": 0,
+     "y": 65,
+     "w": 375,
+     "h": 2396,
+     "top": 65,
+     "bottom": 2461,
+     "left": 0,
+     "right": 375
+    },
+    "maxWidth": "1440px",
+    "paddingL": "10px",
+    "paddingR": "10px",
+    "marginL": "0px"
+   },
+   "shell": {
+    "bg": "rgb(245, 247, 249)",
+    "rect": {
+     "x": 0,
+     "y": 0,
+     "w": 375,
+     "h": 2950,
+     "top": 0,
+     "bottom": 2950,
+     "left": 0,
+     "right": 375
+    }
+   },
+   "tokens": {
+    "topbarBg": "#fde815",
+    "topbarBorder": "#030402",
+    "brandFg": "#0a0a0a",
+    "atHeaderBrandFg": "#0a0a0a"
+   },
+   "composedPixels": {
+    "samples": [
+     {
+      "point": [
+       4,
+       4
+      ],
+      "rgb": "rgb(253,232,21)",
+      "a": 255
+     },
+     {
+      "point": [
+       188,
+       3
+      ],
+      "rgb": "rgb(253,232,21)",
+      "a": 255
+     },
+     {
+      "point": [
+       369,
+       4
+      ],
+      "rgb": "rgb(253,232,21)",
+      "a": 255
+     },
+     {
+      "point": [
+       6,
+       33
+      ],
+      "rgb": "rgb(253,232,21)",
+      "a": 255
+     },
+     {
+      "point": [
+       113,
+       8
+      ],
+      "rgb": "rgb(253,232,21)",
+      "a": 255
+     }
+    ],
+    "histograms": [
+     {
+      "row": 1,
+      "width": 375,
+      "topColors": [
+       {
+        "rgb": "rgb(253,232,21)",
+        "px": 375
+       }
+      ]
+     },
+     {
+      "row": 33,
+      "width": 375,
+      "topColors": [
+       {
+        "rgb": "rgb(253,232,21)",
+        "px": 250
+       },
+       {
+        "rgb": "rgb(10,10,10)",
+        "px": 16
+       },
+       {
+        "rgb": "rgb(251,230,21)",
+        "px": 4
+       },
+       {
+        "rgb": "rgb(162,148,17)",
+        "px": 3
+       }
+      ]
+     },
+     {
+      "row": 62,
+      "width": 375,
+      "topColors": [
+       {
+        "rgb": "rgb(253,232,21)",
+        "px": 375
+       }
+      ]
+     }
+    ]
+   },
+   "hits": [
+    {
+     "point": [
+      4,
+      4
+     ],
+     "tag": "div",
+     "cls": "container mx-auto px-4",
+     "inHeader": true,
+     "isHeaderItself": false
+    },
+    {
+     "point": [
+      188,
+      3
+     ],
+     "tag": "div",
+     "cls": "flex justify-between items-center h-16",
+     "inHeader": true,
+     "isHeaderItself": false
+    },
+    {
+     "point": [
+      369,
+      4
+     ],
+     "tag": "div",
+     "cls": "container mx-auto px-4",
+     "inHeader": true,
+     "isHeaderItself": false
+    },
+    {
+     "point": [
+      6,
+      33
+     ],
+     "tag": "div",
+     "cls": "container mx-auto px-4",
+     "inHeader": true,
+     "isHeaderItself": false
+    },
+    {
+     "point": [
+      113,
+      8
+     ],
+     "tag": "div",
+     "cls": "flex justify-between items-center h-16",
+     "inHeader": true,
+     "isHeaderItself": false
+    }
+   ],
+   "scrolled": {
+    "header": {
+     "bg": "rgb(253, 232, 21)",
+     "backdropFilter": "none",
+     "rect": {
+      "x": 0,
+      "y": -400,
+      "w": 375,
+      "h": 65,
+      "top": -400,
+      "bottom": -335,
+      "left": 0,
+      "right": 375
+     }
+    },
+    "elementAt44": {
+     "tag": "main",
+     "cls": "sf-route-container",
+     "inHeader": false
+    }
+   },
+   "active": null,
+   "panel": {
+    "headerRect": {
+     "x": 0,
+     "y": 0,
+     "w": 375,
+     "h": 500
+    },
+    "headerBg": "rgb(253, 232, 21)",
+    "itemCount": 9
+   },
+   "fgRows": [
+    {
+     "kind": "text",
+     "tag": "a",
+     "hooks": [
+      "sf-topbar-brand"
+     ],
+     "text": "Seafood 海鲜市场",
+     "color": "rgb(10, 10, 10)",
+     "compositedColor": "rgb(10, 10, 10)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 15.773,
+     "min": 3,
+     "large": true,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 16,
+      "y": 10,
+      "w": 163.09,
+      "h": 44,
+      "top": 10,
+      "bottom": 54,
+      "left": 16,
+      "right": 179.09
+     },
+     "cls": "sf-tap-inline sf-topbar-brand text-xl font-bold"
+    },
+    {
+     "kind": "icon",
+     "tag": "svg",
+     "hooks": [],
+     "text": "",
+     "color": "rgb(75, 85, 99)",
+     "compositedColor": "rgb(75, 85, 99)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 6.021,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 323,
+      "y": 20,
+      "w": 24,
+      "h": 24,
+      "top": 20,
+      "bottom": 44,
+      "left": 323,
+      "right": 347
+     },
+     "cls": "lucide lucide-menu h-6 w-6"
+    }
+   ],
+   "carriedCount": 2,
+   "topbarCarriedFail": [],
+   "selfCarriedFail": [],
+   "checks": {
+    "ac1_day": {
+     "bgEquals": true,
+     "alpha1": true,
+     "backdropNone": true,
+     "borderEquals": true,
+     "opacity1": true
+    },
+    "ac2_night": null,
+    "ac4": {
+     "alpha1": true,
+     "backdropNone": true,
+     "scrolledAlpha1": true,
+     "hitsAllInHeader": true
+    }
+   }
+  },
+  "320_day": {
+   "label": "320_day",
+   "theme": "light",
+   "colorScheme": "light",
+   "viewport": {
+    "w": 320,
+    "h": 640
+   },
+   "header": {
+    "bg": "rgb(253, 232, 21)",
+    "backdropFilter": "none",
+    "border": "1px solid rgb(3, 4, 2)",
+    "rect": {
+     "x": 0,
+     "y": 0,
+     "w": 320,
+     "h": 65,
+     "top": 0,
+     "bottom": 65,
+     "left": 0,
+     "right": 320
+    },
+    "opacity": "1",
+    "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.1) 0px 2px 4px -2px"
+   },
+   "regionTop": {
+    "bg": "rgb(253, 232, 21)",
+    "rect": {
+     "x": 0,
+     "y": 0,
+     "w": 320,
+     "h": 65,
+     "top": 0,
+     "bottom": 65,
+     "left": 0,
+     "right": 320
+    },
+    "opacity": "1"
+   },
+   "routeContainer": {
+    "bg": "rgb(255, 255, 255)",
+    "rect": {
+     "x": 0,
+     "y": 65,
+     "w": 320,
+     "h": 2554,
+     "top": 65,
+     "bottom": 2619,
+     "left": 0,
+     "right": 320
+    },
+    "maxWidth": "1440px",
+    "paddingL": "10px",
+    "paddingR": "10px",
+    "marginL": "0px"
+   },
+   "shell": {
+    "bg": "rgb(245, 247, 249)",
+    "rect": {
+     "x": 0,
+     "y": 0,
+     "w": 320,
+     "h": 3108,
+     "top": 0,
+     "bottom": 3108,
+     "left": 0,
+     "right": 320
+    }
+   },
+   "tokens": {
+    "topbarBg": "#fde815",
+    "topbarBorder": "#030402",
+    "brandFg": "#0a0a0a",
+    "atHeaderBrandFg": "#0a0a0a"
+   },
+   "composedPixels": {
+    "samples": [
+     {
+      "point": [
+       4,
+       4
+      ],
+      "rgb": "rgb(253,232,21)",
+      "a": 255
+     },
+     {
+      "point": [
+       160,
+       3
+      ],
+      "rgb": "rgb(253,232,21)",
+      "a": 255
+     },
+     {
+      "point": [
+       314,
+       4
+      ],
+      "rgb": "rgb(253,232,21)",
+      "a": 255
+     },
+     {
+      "point": [
+       6,
+       33
+      ],
+      "rgb": "rgb(253,232,21)",
+      "a": 255
+     },
+     {
+      "point": [
+       96,
+       8
+      ],
+      "rgb": "rgb(253,232,21)",
+      "a": 255
+     }
+    ],
+    "histograms": [
+     {
+      "row": 1,
+      "width": 320,
+      "topColors": [
+       {
+        "rgb": "rgb(253,232,21)",
+        "px": 320
+       }
+      ]
+     },
+     {
+      "row": 33,
+      "width": 320,
+      "topColors": [
+       {
+        "rgb": "rgb(253,232,21)",
+        "px": 195
+       },
+       {
+        "rgb": "rgb(10,10,10)",
+        "px": 16
+       },
+       {
+        "rgb": "rgb(251,230,21)",
+        "px": 4
+       },
+       {
+        "rgb": "rgb(162,148,17)",
+        "px": 3
+       }
+      ]
+     },
+     {
+      "row": 62,
+      "width": 320,
+      "topColors": [
+       {
+        "rgb": "rgb(253,232,21)",
+        "px": 320
+       }
+      ]
+     }
+    ]
+   },
+   "hits": [
+    {
+     "point": [
+      4,
+      4
+     ],
+     "tag": "div",
+     "cls": "container mx-auto px-4",
+     "inHeader": true,
+     "isHeaderItself": false
+    },
+    {
+     "point": [
+      160,
+      3
+     ],
+     "tag": "div",
+     "cls": "flex justify-between items-center h-16",
+     "inHeader": true,
+     "isHeaderItself": false
+    },
+    {
+     "point": [
+      314,
+      4
+     ],
+     "tag": "div",
+     "cls": "container mx-auto px-4",
+     "inHeader": true,
+     "isHeaderItself": false
+    },
+    {
+     "point": [
+      6,
+      33
+     ],
+     "tag": "div",
+     "cls": "container mx-auto px-4",
+     "inHeader": true,
+     "isHeaderItself": false
+    },
+    {
+     "point": [
+      96,
+      8
+     ],
+     "tag": "div",
+     "cls": "flex justify-between items-center h-16",
+     "inHeader": true,
+     "isHeaderItself": false
+    }
+   ],
+   "scrolled": {
+    "header": {
+     "bg": "rgb(253, 232, 21)",
+     "backdropFilter": "none",
+     "rect": {
+      "x": 0,
+      "y": -400,
+      "w": 320,
+      "h": 65,
+      "top": -400,
+      "bottom": -335,
+      "left": 0,
+      "right": 320
+     }
+    },
+    "elementAt44": {
+     "tag": "main",
+     "cls": "sf-route-container",
+     "inHeader": false
+    }
+   },
+   "active": null,
+   "panel": {
+    "headerRect": {
+     "x": 0,
+     "y": 0,
+     "w": 320,
+     "h": 500
+    },
+    "headerBg": "rgb(253, 232, 21)",
+    "itemCount": 9
+   },
+   "fgRows": [
+    {
+     "kind": "text",
+     "tag": "a",
+     "hooks": [
+      "sf-topbar-brand"
+     ],
+     "text": "Seafood 海鲜市场",
+     "color": "rgb(10, 10, 10)",
+     "compositedColor": "rgb(10, 10, 10)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 15.773,
+     "min": 3,
+     "large": true,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 16,
+      "y": 10,
+      "w": 163.09,
+      "h": 44,
+      "top": 10,
+      "bottom": 54,
+      "left": 16,
+      "right": 179.09
+     },
+     "cls": "sf-tap-inline sf-topbar-brand text-xl font-bold"
+    },
+    {
+     "kind": "icon",
+     "tag": "svg",
+     "hooks": [],
+     "text": "",
+     "color": "rgb(75, 85, 99)",
+     "compositedColor": "rgb(75, 85, 99)",
+     "effBg": "rgb(253,232,21)",
+     "ratio": 6.021,
+     "min": 4.5,
+     "large": false,
+     "carried": true,
+     "pass": true,
+     "rect": {
+      "x": 268,
+      "y": 20,
+      "w": 24,
+      "h": 24,
+      "top": 20,
+      "bottom": 44,
+      "left": 268,
+      "right": 292
+     },
+     "cls": "lucide lucide-menu h-6 w-6"
+    }
+   ],
+   "carriedCount": 2,
+   "topbarCarriedFail": [],
+   "selfCarriedFail": [],
+   "checks": {
+    "ac1_day": {
+     "bgEquals": true,
+     "alpha1": true,
+     "backdropNone": true,
+     "borderEquals": true,
+     "opacity1": true
+    },
+    "ac2_night": null,
+    "ac4": {
+     "alpha1": true,
+     "backdropNone": true,
+     "scrolledAlpha1": true,
+     "hitsAllInHeader": true
+    }
+   }
+  }
+ },
+ "violations": [],
+ "attribution": {
+  "390_day": {
+   "elements": {
+    "parent": 232,
+    "current": 232
+   },
+   "onlyParent": 1,
+   "onlyCurrent": 1,
+   "keyDiff": {
+    "onlyParent": [
+     "a.sf-tap-inline.text-xl.font-bold.text-yellow-600.dark:text-yellow-400#1"
+    ],
+    "onlyCurrent": [
+     "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1"
+    ],
+    "onlyCurrentWithT117Hook": [
+     "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1"
+    ],
+    "onlyCurrentWithoutHook": 0,
+    "onlyParentSample": [],
+    "keyDiffAttributable": true
+   },
+   "rectDiffs": 0,
+   "rectDiffSample": [],
+   "attrDiffs": 1,
+   "allowedAttrDiffs": 1,
+   "allowedSample": [
+    {
+     "key": "header.bg-white.dark:bg-gray-800.border-b.border-gray-200.dark:border-gray-700.sticky.top-0.z-50.shadow-md.backdrop-blur-sm.bg-opacity-95#1",
+     "region": "header",
+     "changed": [
+      {
+       "f": "backgroundColor",
+       "before": "rgba(255, 255, 255, 0.95)",
+       "after": "rgb(253, 232, 21)"
+      },
+      {
+       "f": "backdropFilter",
+       "before": "blur(4px)",
+       "after": "none"
+      }
+     ],
+     "allowed": true
+    }
+   ],
+   "unattributable": 0,
+   "unattributableSample": []
+  },
+  "390_night": {
+   "elements": {
+    "parent": 232,
+    "current": 232
+   },
+   "onlyParent": 1,
+   "onlyCurrent": 1,
+   "keyDiff": {
+    "onlyParent": [
+     "a.sf-tap-inline.text-xl.font-bold.text-yellow-600.dark:text-yellow-400#1"
+    ],
+    "onlyCurrent": [
+     "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1"
+    ],
+    "onlyCurrentWithT117Hook": [
+     "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1"
+    ],
+    "onlyCurrentWithoutHook": 0,
+    "onlyParentSample": [],
+    "keyDiffAttributable": true
+   },
+   "rectDiffs": 0,
+   "rectDiffSample": [],
+   "attrDiffs": 0,
+   "allowedAttrDiffs": 0,
+   "allowedSample": [],
+   "unattributable": 0,
+   "unattributableSample": []
+  },
+  "1440_day": {
+   "elements": {
+    "parent": 263,
+    "current": 263
+   },
+   "onlyParent": 3,
+   "onlyCurrent": 3,
+   "keyDiff": {
+    "onlyParent": [
+     "a.sf-tap-inline.text-xl.font-bold.text-yellow-600.dark:text-yellow-400#1",
+     "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.hover:text-yellow-600.dark:hover:text-yellow-400.transition-colors.text-sm.font-medium#1",
+     "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.hover:text-yellow-600.dark:hover:text-yellow-400.transition-colors.text-sm.font-medium#2"
+    ],
+    "onlyCurrent": [
+     "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1",
+     "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#1",
+     "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#2"
+    ],
+    "onlyCurrentWithT117Hook": [
+     "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1",
+     "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#1",
+     "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#2"
+    ],
+    "onlyCurrentWithoutHook": 0,
+    "onlyParentSample": [],
+    "keyDiffAttributable": true
+   },
+   "rectDiffs": 0,
+   "rectDiffSample": [],
+   "attrDiffs": 1,
+   "allowedAttrDiffs": 1,
+   "allowedSample": [
+    {
+     "key": "header.bg-white.dark:bg-gray-800.border-b.border-gray-200.dark:border-gray-700.sticky.top-0.z-50.shadow-md.backdrop-blur-sm.bg-opacity-95#1",
+     "region": "header",
+     "changed": [
+      {
+       "f": "backgroundColor",
+       "before": "rgba(255, 255, 255, 0.95)",
+       "after": "rgb(253, 232, 21)"
+      },
+      {
+       "f": "backdropFilter",
+       "before": "blur(4px)",
+       "after": "none"
+      }
+     ],
+     "allowed": true
+    }
+   ],
+   "unattributable": 0,
+   "unattributableSample": []
+  },
+  "1440_night": {
+   "elements": {
+    "parent": 271,
+    "current": 271
+   },
+   "onlyParent": 3,
+   "onlyCurrent": 3,
+   "keyDiff": {
+    "onlyParent": [
+     "a.sf-tap-inline.text-xl.font-bold.text-yellow-600.dark:text-yellow-400#1",
+     "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.hover:text-yellow-600.dark:hover:text-yellow-400.transition-colors.text-sm.font-medium#1",
+     "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.hover:text-yellow-600.dark:hover:text-yellow-400.transition-colors.text-sm.font-medium#2"
+    ],
+    "onlyCurrent": [
+     "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1",
+     "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#1",
+     "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#2"
+    ],
+    "onlyCurrentWithT117Hook": [
+     "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1",
+     "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#1",
+     "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#2"
+    ],
+    "onlyCurrentWithoutHook": 0,
+    "onlyParentSample": [],
+    "keyDiffAttributable": true
+   },
+   "rectDiffs": 0,
+   "rectDiffSample": [],
+   "attrDiffs": 0,
+   "allowedAttrDiffs": 0,
+   "allowedSample": [],
+   "unattributable": 0,
+   "unattributableSample": []
+  },
+  "1600_day": {
+   "elements": {
+    "parent": 263,
+    "current": 263
+   },
+   "onlyParent": 3,
+   "onlyCurrent": 3,
+   "keyDiff": {
+    "onlyParent": [
+     "a.sf-tap-inline.text-xl.font-bold.text-yellow-600.dark:text-yellow-400#1",
+     "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.hover:text-yellow-600.dark:hover:text-yellow-400.transition-colors.text-sm.font-medium#1",
+     "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.hover:text-yellow-600.dark:hover:text-yellow-400.transition-colors.text-sm.font-medium#2"
+    ],
+    "onlyCurrent": [
+     "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1",
+     "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#1",
+     "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#2"
+    ],
+    "onlyCurrentWithT117Hook": [
+     "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1",
+     "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#1",
+     "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#2"
+    ],
+    "onlyCurrentWithoutHook": 0,
+    "onlyParentSample": [],
+    "keyDiffAttributable": true
+   },
+   "rectDiffs": 0,
+   "rectDiffSample": [],
+   "attrDiffs": 1,
+   "allowedAttrDiffs": 1,
+   "allowedSample": [
+    {
+     "key": "header.bg-white.dark:bg-gray-800.border-b.border-gray-200.dark:border-gray-700.sticky.top-0.z-50.shadow-md.backdrop-blur-sm.bg-opacity-95#1",
+     "region": "header",
+     "changed": [
+      {
+       "f": "backgroundColor",
+       "before": "rgba(255, 255, 255, 0.95)",
+       "after": "rgb(253, 232, 21)"
+      },
+      {
+       "f": "backdropFilter",
+       "before": "blur(4px)",
+       "after": "none"
+      }
+     ],
+     "allowed": true
+    }
+   ],
+   "unattributable": 0,
+   "unattributableSample": []
+  },
+  "1600_night": {
+   "elements": {
+    "parent": 271,
+    "current": 271
+   },
+   "onlyParent": 3,
+   "onlyCurrent": 3,
+   "keyDiff": {
+    "onlyParent": [
+     "a.sf-tap-inline.text-xl.font-bold.text-yellow-600.dark:text-yellow-400#1",
+     "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.hover:text-yellow-600.dark:hover:text-yellow-400.transition-colors.text-sm.font-medium#1",
+     "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.hover:text-yellow-600.dark:hover:text-yellow-400.transition-colors.text-sm.font-medium#2"
+    ],
+    "onlyCurrent": [
+     "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1",
+     "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#1",
+     "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#2"
+    ],
+    "onlyCurrentWithT117Hook": [
+     "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1",
+     "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#1",
+     "button.flex.items-center.gap-1.5.text-gray-600.dark:text-gray-300.sf-topbar-hover-brand-fg.transition-colors.text-sm.font-medium#2"
+    ],
+    "onlyCurrentWithoutHook": 0,
+    "onlyParentSample": [],
+    "keyDiffAttributable": true
+   },
+   "rectDiffs": 0,
+   "rectDiffSample": [],
+   "attrDiffs": 0,
+   "allowedAttrDiffs": 0,
+   "allowedSample": [],
+   "unattributable": 0,
+   "unattributableSample": []
+  },
+  "375_day": {
+   "elements": {
+    "parent": 232,
+    "current": 232
+   },
+   "onlyParent": 1,
+   "onlyCurrent": 1,
+   "keyDiff": {
+    "onlyParent": [
+     "a.sf-tap-inline.text-xl.font-bold.text-yellow-600.dark:text-yellow-400#1"
+    ],
+    "onlyCurrent": [
+     "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1"
+    ],
+    "onlyCurrentWithT117Hook": [
+     "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1"
+    ],
+    "onlyCurrentWithoutHook": 0,
+    "onlyParentSample": [],
+    "keyDiffAttributable": true
+   },
+   "rectDiffs": 0,
+   "rectDiffSample": [],
+   "attrDiffs": 1,
+   "allowedAttrDiffs": 1,
+   "allowedSample": [
+    {
+     "key": "header.bg-white.dark:bg-gray-800.border-b.border-gray-200.dark:border-gray-700.sticky.top-0.z-50.shadow-md.backdrop-blur-sm.bg-opacity-95#1",
+     "region": "header",
+     "changed": [
+      {
+       "f": "backgroundColor",
+       "before": "rgba(255, 255, 255, 0.95)",
+       "after": "rgb(253, 232, 21)"
+      },
+      {
+       "f": "backdropFilter",
+       "before": "blur(4px)",
+       "after": "none"
+      }
+     ],
+     "allowed": true
+    }
+   ],
+   "unattributable": 0,
+   "unattributableSample": []
+  },
+  "320_day": {
+   "elements": {
+    "parent": 232,
+    "current": 232
+   },
+   "onlyParent": 1,
+   "onlyCurrent": 1,
+   "keyDiff": {
+    "onlyParent": [
+     "a.sf-tap-inline.text-xl.font-bold.text-yellow-600.dark:text-yellow-400#1"
+    ],
+    "onlyCurrent": [
+     "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1"
+    ],
+    "onlyCurrentWithT117Hook": [
+     "a.sf-tap-inline.sf-topbar-brand.text-xl.font-bold#1"
+    ],
+    "onlyCurrentWithoutHook": 0,
+    "onlyParentSample": [],
+    "keyDiffAttributable": true
+   },
+   "rectDiffs": 0,
+   "rectDiffSample": [],
+   "attrDiffs": 1,
+   "allowedAttrDiffs": 1,
+   "allowedSample": [
+    {
+     "key": "header.bg-white.dark:bg-gray-800.border-b.border-gray-200.dark:border-gray-700.sticky.top-0.z-50.shadow-md.backdrop-blur-sm.bg-opacity-95#1",
+     "region": "header",
+     "changed": [
+      {
+       "f": "backgroundColor",
+       "before": "rgba(255, 255, 255, 0.95)",
+       "after": "rgb(253, 232, 21)"
+      },
+      {
+       "f": "backdropFilter",
+       "before": "blur(4px)",
+       "after": "none"
+      }
+     ],
+     "allowed": true
+    }
+   ],
+   "unattributable": 0,
+   "unattributableSample": []
+  }
+ },
+ "log": [
+  "\n## 390_day  theme=light colorScheme=light viewport=390x844",
+  "   #header bg=rgb(253, 232, 21) backdrop=none border=1px solid rgb(3, 4, 2) opacity=1 rect={\"x\":0,\"y\":0,\"w\":390,\"h\":65,\"top\":0,\"bottom\":65,\"left\":0,\"right\":390}",
+  "   .sf-region-top bg=rgb(253, 232, 21) rect={\"x\":0,\"y\":0,\"w\":390,\"h\":65,\"top\":0,\"bottom\":65,\"left\":0,\"right\":390} | routeContainer maxWidth=1440px pad=10px/10px rect={\"x\":0,\"y\":65,\"w\":390,\"h\":2360,\"top\":65,\"bottom\":2425,\"left\":0,\"right\":390}",
+  "   合成像素（PNG 回读）samples=4x4=rgb(253,232,21) 195x3=rgb(253,232,21) 384x4=rgb(253,232,21) 6x33=rgb(253,232,21) 117x8=rgb(253,232,21)",
+  "   合成像素行直方图: y=1 首色 rgb(253,232,21)×390/390 | y=33 首色 rgb(253,232,21)×265/390 | y=62 首色 rgb(253,232,21)×390/390",
+  "   elementFromPoint: (4,4)=div.container mx-auto px-4→inHeader=true (195,3)=div.flex justify-between ite→inHeader=true (384,4)=div.container mx-auto px-4→inHeader=true (6,33)=div.container mx-auto px-4→inHeader=true (117,8)=div.flex justify-between ite→inHeader=true",
+  "   滚动后(400): header.bg=rgb(253, 232, 21) backdrop=none rect.y=-400 | (4,4)={\"tag\":\"main\",\"cls\":\"sf-route-container\",\"inHeader\":false}",
+  "   顶栏内前景 2 处 · 由顶栏底色承载 2 处",
+  "     [顶栏底] a \"Seafood 海鲜市场\" hooks=[\"sf-topbar-brand\"] color=rgb(10, 10, 10) effBg=rgb(253,232,21) → 15.773:1 (阈值 3 大字) ✓",
+  "     [顶栏底] svg \"\" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓",
+  "\n## 390_night  theme=dark colorScheme=dark viewport=390x844",
+  "   #header bg=rgb(31, 41, 55) backdrop=blur(4px) border=1px solid rgb(55, 65, 81) opacity=1 rect={\"x\":0,\"y\":0,\"w\":390,\"h\":65,\"top\":0,\"bottom\":65,\"left\":0,\"right\":390}",
+  "   .sf-region-top bg=rgb(11, 12, 14) rect={\"x\":0,\"y\":0,\"w\":390,\"h\":65,\"top\":0,\"bottom\":65,\"left\":0,\"right\":390} | routeContainer maxWidth=1440px pad=10px/10px rect={\"x\":0,\"y\":65,\"w\":390,\"h\":2360,\"top\":65,\"bottom\":2425,\"left\":0,\"right\":390}",
+  "   合成像素（PNG 回读）samples=4x4=rgb(31,41,55) 195x3=rgb(31,41,55) 384x4=rgb(31,41,55) 6x33=rgb(31,41,55) 117x8=rgb(31,41,55)",
+  "   合成像素行直方图: y=1 首色 rgb(31,41,55)×390/390 | y=33 首色 rgb(31,41,55)×261/390 | y=62 首色 rgb(31,41,55)×390/390",
+  "   elementFromPoint: (4,4)=div.container mx-auto px-4→inHeader=true (195,3)=div.flex justify-between ite→inHeader=true (384,4)=div.container mx-auto px-4→inHeader=true (6,33)=div.container mx-auto px-4→inHeader=true (117,8)=div.flex justify-between ite→inHeader=true",
+  "   滚动后(400): header.bg=rgb(31, 41, 55) backdrop=blur(4px) rect.y=-400 | (4,4)={\"tag\":\"main\",\"cls\":\"sf-route-container\",\"inHeader\":false}",
+  "   顶栏内前景 2 处 · 由顶栏底色承载 2 处",
+  "     [顶栏底] a \"Seafood 海鲜市场\" hooks=[\"sf-topbar-brand\"] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 3 大字) ✓",
+  "     [顶栏底] svg \"\" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓",
+  "\n## 1440_day  theme=light colorScheme=light viewport=1440x900",
+  "   #header bg=rgb(253, 232, 21) backdrop=none border=1px solid rgb(3, 4, 2) opacity=1 rect={\"x\":0,\"y\":0,\"w\":1440,\"h\":65,\"top\":0,\"bottom\":65,\"left\":0,\"right\":1440}",
+  "   .sf-region-top bg=rgb(253, 232, 21) rect={\"x\":0,\"y\":0,\"w\":1440,\"h\":65,\"top\":0,\"bottom\":65,\"left\":0,\"right\":1440} | routeContainer maxWidth=1440px pad=20px/20px rect={\"x\":0,\"y\":65,\"w\":1440,\"h\":1046,\"top\":65,\"bottom\":1111,\"left\":0,\"right\":1440}",
+  "   合成像素（PNG 回读）samples=4x4=rgb(253,232,21) 720x3=rgb(253,232,21) 1434x4=rgb(253,232,21) 6x33=rgb(253,232,21) 432x8=rgb(253,232,21)",
+  "   合成像素行直方图: y=1 首色 rgb(253,232,21)×1440/1440 | y=33 首色 rgb(253,232,21)×1155/1440 | y=62 首色 rgb(253,232,21)×1440/1440",
+  "   elementFromPoint: (4,4)=header.bg-white dark:bg-gray-80→inHeader=true (720,3)=div.flex justify-between ite→inHeader=true (1434,4)=header.bg-white dark:bg-gray-80→inHeader=true (6,33)=header.bg-white dark:bg-gray-80→inHeader=true (432,8)=div.flex justify-between ite→inHeader=true",
+  "   滚动后(400): header.bg=rgb(253, 232, 21) backdrop=none rect.y=-400 | (4,4)={\"tag\":\"main\",\"cls\":\"sf-route-container\",\"inHeader\":false}",
+  "   顶栏内前景 11 处 · 由顶栏底色承载 11 处",
+  "     [顶栏底] a \"Seafood 海鲜市场\" hooks=[\"sf-topbar-brand\"] color=rgb(10, 10, 10) effBg=rgb(253,232,21) → 15.773:1 (阈值 3 大字) ✓",
+  "     [顶栏底] a \"社区任务\" hooks=[\"nav-link\"] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓",
+  "     [顶栏底] a \"市场\" hooks=[\"nav-link\"] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓",
+  "     [顶栏底] span \"订单\" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓",
+  "     [顶栏底] span \"语言\" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓",
+  "     [顶栏底] svg \"\" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓",
+  "     [顶栏底] svg \"\" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓",
+  "     [顶栏底] svg \"\" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓",
+  "     [顶栏底] span \"注册\" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓",
+  "     [顶栏底] svg \"\" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓",
+  "     [顶栏底] span \"登录\" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓",
+  "\n## 1440_night  theme=dark colorScheme=dark viewport=1440x900",
+  "   #header bg=rgb(31, 41, 55) backdrop=blur(4px) border=1px solid rgb(55, 65, 81) opacity=1 rect={\"x\":0,\"y\":0,\"w\":1440,\"h\":65,\"top\":0,\"bottom\":65,\"left\":0,\"right\":1440}",
+  "   .sf-region-top bg=rgb(11, 12, 14) rect={\"x\":0,\"y\":0,\"w\":1440,\"h\":65,\"top\":0,\"bottom\":65,\"left\":0,\"right\":1440} | routeContainer maxWidth=1440px pad=20px/20px rect={\"x\":0,\"y\":65,\"w\":1440,\"h\":1046,\"top\":65,\"bottom\":1111,\"left\":0,\"right\":1440}",
+  "   合成像素（PNG 回读）samples=4x4=rgb(31,41,55) 720x3=rgb(31,41,55) 1434x4=rgb(31,41,55) 6x33=rgb(31,41,55) 432x8=rgb(31,41,55)",
+  "   合成像素行直方图: y=1 首色 rgb(31,41,55)×1440/1440 | y=33 首色 rgb(31,41,55)×1156/1440 | y=62 首色 rgb(31,41,55)×1440/1440",
+  "   elementFromPoint: (4,4)=header.bg-white dark:bg-gray-80→inHeader=true (720,3)=div.flex justify-between ite→inHeader=true (1434,4)=header.bg-white dark:bg-gray-80→inHeader=true (6,33)=header.bg-white dark:bg-gray-80→inHeader=true (432,8)=div.flex justify-between ite→inHeader=true",
+  "   滚动后(400): header.bg=rgb(31, 41, 55) backdrop=blur(4px) rect.y=-400 | (4,4)={\"tag\":\"main\",\"cls\":\"sf-route-container\",\"inHeader\":false}",
+  "   顶栏内前景 11 处 · 由顶栏底色承载 11 处",
+  "     [顶栏底] a \"Seafood 海鲜市场\" hooks=[\"sf-topbar-brand\"] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 3 大字) ✓",
+  "     [顶栏底] a \"社区任务\" hooks=[\"nav-link\"] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓",
+  "     [顶栏底] a \"市场\" hooks=[\"nav-link\"] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓",
+  "     [顶栏底] span \"订单\" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓",
+  "     [顶栏底] span \"语言\" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓",
+  "     [顶栏底] svg \"\" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓",
+  "     [顶栏底] svg \"\" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓",
+  "     [顶栏底] svg \"\" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓",
+  "     [顶栏底] span \"注册\" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓",
+  "     [顶栏底] svg \"\" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓",
+  "     [顶栏底] span \"登录\" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓",
+  "\n## 1600_day  theme=light colorScheme=light viewport=1600x900",
+  "   #header bg=rgb(253, 232, 21) backdrop=none border=1px solid rgb(3, 4, 2) opacity=1 rect={\"x\":0,\"y\":0,\"w\":1600,\"h\":65,\"top\":0,\"bottom\":65,\"left\":0,\"right\":1600}",
+  "   .sf-region-top bg=rgb(253, 232, 21) rect={\"x\":0,\"y\":0,\"w\":1600,\"h\":65,\"top\":0,\"bottom\":65,\"left\":0,\"right\":1600} | routeContainer maxWidth=1440px pad=20px/20px rect={\"x\":80,\"y\":65,\"w\":1440,\"h\":1046,\"top\":65,\"bottom\":1111,\"left\":80,\"right\":1520}",
+  "   合成像素（PNG 回读）samples=4x4=rgb(253,232,21) 800x3=rgb(253,232,21) 1594x4=rgb(253,232,21) 6x33=rgb(253,232,21) 480x8=rgb(253,232,21)",
+  "   合成像素行直方图: y=1 首色 rgb(253,232,21)×1600/1600 | y=33 首色 rgb(253,232,21)×1315/1600 | y=62 首色 rgb(253,232,21)×1600/1600",
+  "   elementFromPoint: (4,4)=header.bg-white dark:bg-gray-80→inHeader=true (800,3)=div.flex justify-between ite→inHeader=true (1594,4)=header.bg-white dark:bg-gray-80→inHeader=true (6,33)=header.bg-white dark:bg-gray-80→inHeader=true (480,8)=div.flex justify-between ite→inHeader=true",
+  "   滚动后(400): header.bg=rgb(253, 232, 21) backdrop=none rect.y=-400 | (4,4)={\"tag\":\"div\",\"cls\":\"sf-shell\",\"inHeader\":false}",
+  "   顶栏内前景 11 处 · 由顶栏底色承载 11 处",
+  "     [顶栏底] a \"Seafood 海鲜市场\" hooks=[\"sf-topbar-brand\"] color=rgb(10, 10, 10) effBg=rgb(253,232,21) → 15.773:1 (阈值 3 大字) ✓",
+  "     [顶栏底] a \"社区任务\" hooks=[\"nav-link\"] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓",
+  "     [顶栏底] a \"市场\" hooks=[\"nav-link\"] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓",
+  "     [顶栏底] span \"订单\" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓",
+  "     [顶栏底] span \"语言\" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓",
+  "     [顶栏底] svg \"\" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓",
+  "     [顶栏底] svg \"\" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓",
+  "     [顶栏底] svg \"\" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓",
+  "     [顶栏底] span \"注册\" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓",
+  "     [顶栏底] svg \"\" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓",
+  "     [顶栏底] span \"登录\" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓",
+  "\n## 1600_night  theme=dark colorScheme=dark viewport=1600x900",
+  "   #header bg=rgb(31, 41, 55) backdrop=blur(4px) border=1px solid rgb(55, 65, 81) opacity=1 rect={\"x\":0,\"y\":0,\"w\":1600,\"h\":65,\"top\":0,\"bottom\":65,\"left\":0,\"right\":1600}",
+  "   .sf-region-top bg=rgb(11, 12, 14) rect={\"x\":0,\"y\":0,\"w\":1600,\"h\":65,\"top\":0,\"bottom\":65,\"left\":0,\"right\":1600} | routeContainer maxWidth=1440px pad=20px/20px rect={\"x\":80,\"y\":65,\"w\":1440,\"h\":1046,\"top\":65,\"bottom\":1111,\"left\":80,\"right\":1520}",
+  "   合成像素（PNG 回读）samples=4x4=rgb(31,41,55) 800x3=rgb(31,41,55) 1594x4=rgb(31,41,55) 6x33=rgb(31,41,55) 480x8=rgb(31,41,55)",
+  "   合成像素行直方图: y=1 首色 rgb(31,41,55)×1600/1600 | y=33 首色 rgb(31,41,55)×1316/1600 | y=62 首色 rgb(31,41,55)×1600/1600",
+  "   elementFromPoint: (4,4)=header.bg-white dark:bg-gray-80→inHeader=true (800,3)=div.flex justify-between ite→inHeader=true (1594,4)=header.bg-white dark:bg-gray-80→inHeader=true (6,33)=header.bg-white dark:bg-gray-80→inHeader=true (480,8)=div.flex justify-between ite→inHeader=true",
+  "   滚动后(400): header.bg=rgb(31, 41, 55) backdrop=blur(4px) rect.y=-400 | (4,4)={\"tag\":\"div\",\"cls\":\"sf-shell\",\"inHeader\":false}",
+  "   顶栏内前景 11 处 · 由顶栏底色承载 11 处",
+  "     [顶栏底] a \"Seafood 海鲜市场\" hooks=[\"sf-topbar-brand\"] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 3 大字) ✓",
+  "     [顶栏底] a \"社区任务\" hooks=[\"nav-link\"] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓",
+  "     [顶栏底] a \"市场\" hooks=[\"nav-link\"] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓",
+  "     [顶栏底] span \"订单\" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓",
+  "     [顶栏底] span \"语言\" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓",
+  "     [顶栏底] svg \"\" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓",
+  "     [顶栏底] svg \"\" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓",
+  "     [顶栏底] svg \"\" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓",
+  "     [顶栏底] span \"注册\" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓",
+  "     [顶栏底] svg \"\" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓",
+  "     [顶栏底] span \"登录\" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓",
+  "\n## 375_day  theme=light colorScheme=light viewport=375x812",
+  "   #header bg=rgb(253, 232, 21) backdrop=none border=1px solid rgb(3, 4, 2) opacity=1 rect={\"x\":0,\"y\":0,\"w\":375,\"h\":65,\"top\":0,\"bottom\":65,\"left\":0,\"right\":375}",
+  "   .sf-region-top bg=rgb(253, 232, 21) rect={\"x\":0,\"y\":0,\"w\":375,\"h\":65,\"top\":0,\"bottom\":65,\"left\":0,\"right\":375} | routeContainer maxWidth=1440px pad=10px/10px rect={\"x\":0,\"y\":65,\"w\":375,\"h\":2396,\"top\":65,\"bottom\":2461,\"left\":0,\"right\":375}",
+  "   合成像素（PNG 回读）samples=4x4=rgb(253,232,21) 188x3=rgb(253,232,21) 369x4=rgb(253,232,21) 6x33=rgb(253,232,21) 113x8=rgb(253,232,21)",
+  "   合成像素行直方图: y=1 首色 rgb(253,232,21)×375/375 | y=33 首色 rgb(253,232,21)×250/375 | y=62 首色 rgb(253,232,21)×375/375",
+  "   elementFromPoint: (4,4)=div.container mx-auto px-4→inHeader=true (188,3)=div.flex justify-between ite→inHeader=true (369,4)=div.container mx-auto px-4→inHeader=true (6,33)=div.container mx-auto px-4→inHeader=true (113,8)=div.flex justify-between ite→inHeader=true",
+  "   滚动后(400): header.bg=rgb(253, 232, 21) backdrop=none rect.y=-400 | (4,4)={\"tag\":\"main\",\"cls\":\"sf-route-container\",\"inHeader\":false}",
+  "   顶栏内前景 2 处 · 由顶栏底色承载 2 处",
+  "     [顶栏底] a \"Seafood 海鲜市场\" hooks=[\"sf-topbar-brand\"] color=rgb(10, 10, 10) effBg=rgb(253,232,21) → 15.773:1 (阈值 3 大字) ✓",
+  "     [顶栏底] svg \"\" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓",
+  "\n## 320_day  theme=light colorScheme=light viewport=320x640",
+  "   #header bg=rgb(253, 232, 21) backdrop=none border=1px solid rgb(3, 4, 2) opacity=1 rect={\"x\":0,\"y\":0,\"w\":320,\"h\":65,\"top\":0,\"bottom\":65,\"left\":0,\"right\":320}",
+  "   .sf-region-top bg=rgb(253, 232, 21) rect={\"x\":0,\"y\":0,\"w\":320,\"h\":65,\"top\":0,\"bottom\":65,\"left\":0,\"right\":320} | routeContainer maxWidth=1440px pad=10px/10px rect={\"x\":0,\"y\":65,\"w\":320,\"h\":2554,\"top\":65,\"bottom\":2619,\"left\":0,\"right\":320}",
+  "   合成像素（PNG 回读）samples=4x4=rgb(253,232,21) 160x3=rgb(253,232,21) 314x4=rgb(253,232,21) 6x33=rgb(253,232,21) 96x8=rgb(253,232,21)",
+  "   合成像素行直方图: y=1 首色 rgb(253,232,21)×320/320 | y=33 首色 rgb(253,232,21)×195/320 | y=62 首色 rgb(253,232,21)×320/320",
+  "   elementFromPoint: (4,4)=div.container mx-auto px-4→inHeader=true (160,3)=div.flex justify-between ite→inHeader=true (314,4)=div.container mx-auto px-4→inHeader=true (6,33)=div.container mx-auto px-4→inHeader=true (96,8)=div.flex justify-between ite→inHeader=true",
+  "   滚动后(400): header.bg=rgb(253, 232, 21) backdrop=none rect.y=-400 | (4,4)={\"tag\":\"main\",\"cls\":\"sf-route-container\",\"inHeader\":false}",
+  "   顶栏内前景 2 处 · 由顶栏底色承载 2 处",
+  "     [顶栏底] a \"Seafood 海鲜市场\" hooks=[\"sf-topbar-brand\"] color=rgb(10, 10, 10) effBg=rgb(253,232,21) → 15.773:1 (阈值 3 大字) ✓",
+  "     [顶栏底] svg \"\" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓",
+  "\n\n================ AC 判定 ================",
+  "PASS  AC-1  日档三档 bg=rgb(253,232,21) ∧ alpha=1 ∧ backdrop=none ∧ 边框 rgb(3,4,2) ∧ opacity=1",
+  "PASS  AC-2  夜档 bg=rgb(31,41,55) ∧ 边框 1px solid rgb(55,65,81) ∧ backdrop=blur(4px) ∧ rect=父版逐值相同",
+  "PASS  AC-3  由顶栏底色承载的前景全部 ≥ 阈值（其余行维持现状）",
+  "PASS  AC-4  三档 alpha=1 ∧ backdrop=none ∧ 滚动后仍 alpha=1 ∧ elementFromPoint 全中 #header 子树",
+  "PASS  AC-9  三档 × 日/夜：#header / .sf-region-top / .sf-route-container rect 与父版逐值相同 ∧ 逐元素 dump 无 rect 差异",
+  "PASS  AC-5  逐元素差异集 100% 归因于允许变更集（① #header 底色/边框/backdrop ② 三处前景色及其类钩）",
+  "PASS  AC-8  负控臂（⇒ #FFFFFF）必须变红；复原臂（⇒ 改前 95% 白 + blur) 必须回改前值；夜档反向臂（去日档限定）必须变 rgb(11,12,14)",
+  "PASS  AC-10  390/375/320 日档顶栏 = rgb(253,232,21) ∧ alpha=1；汉堡面板展开态自带底按 §23.3 11–14 行评；面板展开不破色；夜档移动档（390_night）= 冻结值",
+  "\n归因违规项总数 = 0"
+ ]
+}

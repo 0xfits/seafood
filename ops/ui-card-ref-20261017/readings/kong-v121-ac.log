@@ -1,0 +1,137 @@
+
+## 390_day  theme=light colorScheme=light viewport=390x844
+   #header bg=rgb(253, 232, 21) backdrop=none border=1px solid rgb(3, 4, 2) opacity=1 rect={"x":0,"y":0,"w":390,"h":65,"top":0,"bottom":65,"left":0,"right":390}
+   .sf-region-top bg=rgb(253, 232, 21) rect={"x":0,"y":0,"w":390,"h":65,"top":0,"bottom":65,"left":0,"right":390} | routeContainer maxWidth=1440px pad=10px/10px rect={"x":0,"y":65,"w":390,"h":2360,"top":65,"bottom":2425,"left":0,"right":390}
+   合成像素（PNG 回读）samples=4x4=rgb(253,232,21) 195x3=rgb(253,232,21) 384x4=rgb(253,232,21) 6x33=rgb(253,232,21) 117x8=rgb(253,232,21)
+   合成像素行直方图: y=1 首色 rgb(253,232,21)×390/390 | y=33 首色 rgb(253,232,21)×265/390 | y=62 首色 rgb(253,232,21)×390/390
+   elementFromPoint: (4,4)=div.container mx-auto px-4→inHeader=true (195,3)=div.flex justify-between ite→inHeader=true (384,4)=div.container mx-auto px-4→inHeader=true (6,33)=div.container mx-auto px-4→inHeader=true (117,8)=div.flex justify-between ite→inHeader=true
+   滚动后(400): header.bg=rgb(253, 232, 21) backdrop=none rect.y=-400 | (4,4)={"tag":"main","cls":"sf-route-container","inHeader":false}
+   顶栏内前景 2 处 · 由顶栏底色承载 2 处
+     [顶栏底] a "Seafood 海鲜市场" hooks=["sf-topbar-brand"] color=rgb(10, 10, 10) effBg=rgb(253,232,21) → 15.773:1 (阈值 3 大字) ✓
+     [顶栏底] svg "" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓
+
+## 390_night  theme=dark colorScheme=dark viewport=390x844
+   #header bg=rgb(31, 41, 55) backdrop=blur(4px) border=1px solid rgb(55, 65, 81) opacity=1 rect={"x":0,"y":0,"w":390,"h":65,"top":0,"bottom":65,"left":0,"right":390}
+   .sf-region-top bg=rgb(11, 12, 14) rect={"x":0,"y":0,"w":390,"h":65,"top":0,"bottom":65,"left":0,"right":390} | routeContainer maxWidth=1440px pad=10px/10px rect={"x":0,"y":65,"w":390,"h":2360,"top":65,"bottom":2425,"left":0,"right":390}
+   合成像素（PNG 回读）samples=4x4=rgb(31,41,55) 195x3=rgb(31,41,55) 384x4=rgb(31,41,55) 6x33=rgb(31,41,55) 117x8=rgb(31,41,55)
+   合成像素行直方图: y=1 首色 rgb(31,41,55)×390/390 | y=33 首色 rgb(31,41,55)×261/390 | y=62 首色 rgb(31,41,55)×390/390
+   elementFromPoint: (4,4)=div.container mx-auto px-4→inHeader=true (195,3)=div.flex justify-between ite→inHeader=true (384,4)=div.container mx-auto px-4→inHeader=true (6,33)=div.container mx-auto px-4→inHeader=true (117,8)=div.flex justify-between ite→inHeader=true
+   滚动后(400): header.bg=rgb(31, 41, 55) backdrop=blur(4px) rect.y=-400 | (4,4)={"tag":"main","cls":"sf-route-container","inHeader":false}
+   顶栏内前景 2 处 · 由顶栏底色承载 2 处
+     [顶栏底] a "Seafood 海鲜市场" hooks=["sf-topbar-brand"] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 3 大字) ✓
+     [顶栏底] svg "" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓
+
+## 1440_day  theme=light colorScheme=light viewport=1440x900
+   #header bg=rgb(253, 232, 21) backdrop=none border=1px solid rgb(3, 4, 2) opacity=1 rect={"x":0,"y":0,"w":1440,"h":65,"top":0,"bottom":65,"left":0,"right":1440}
+   .sf-region-top bg=rgb(253, 232, 21) rect={"x":0,"y":0,"w":1440,"h":65,"top":0,"bottom":65,"left":0,"right":1440} | routeContainer maxWidth=1440px pad=20px/20px rect={"x":0,"y":65,"w":1440,"h":1046,"top":65,"bottom":1111,"left":0,"right":1440}
+   合成像素（PNG 回读）samples=4x4=rgb(253,232,21) 720x3=rgb(253,232,21) 1434x4=rgb(253,232,21) 6x33=rgb(253,232,21) 432x8=rgb(253,232,21)
+   合成像素行直方图: y=1 首色 rgb(253,232,21)×1440/1440 | y=33 首色 rgb(253,232,21)×1155/1440 | y=62 首色 rgb(253,232,21)×1440/1440
+   elementFromPoint: (4,4)=header.bg-white dark:bg-gray-80→inHeader=true (720,3)=div.flex justify-between ite→inHeader=true (1434,4)=header.bg-white dark:bg-gray-80→inHeader=true (6,33)=header.bg-white dark:bg-gray-80→inHeader=true (432,8)=div.flex justify-between ite→inHeader=true
+   滚动后(400): header.bg=rgb(253, 232, 21) backdrop=none rect.y=-400 | (4,4)={"tag":"main","cls":"sf-route-container","inHeader":false}
+   顶栏内前景 11 处 · 由顶栏底色承载 11 处
+     [顶栏底] a "Seafood 海鲜市场" hooks=["sf-topbar-brand"] color=rgb(10, 10, 10) effBg=rgb(253,232,21) → 15.773:1 (阈值 3 大字) ✓
+     [顶栏底] a "社区任务" hooks=["nav-link"] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓
+     [顶栏底] a "市场" hooks=["nav-link"] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓
+     [顶栏底] span "订单" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓
+     [顶栏底] span "语言" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓
+     [顶栏底] svg "" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓
+     [顶栏底] svg "" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓
+     [顶栏底] svg "" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓
+     [顶栏底] span "注册" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓
+     [顶栏底] svg "" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓
+     [顶栏底] span "登录" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓
+
+## 1440_night  theme=dark colorScheme=dark viewport=1440x900
+   #header bg=rgb(31, 41, 55) backdrop=blur(4px) border=1px solid rgb(55, 65, 81) opacity=1 rect={"x":0,"y":0,"w":1440,"h":65,"top":0,"bottom":65,"left":0,"right":1440}
+   .sf-region-top bg=rgb(11, 12, 14) rect={"x":0,"y":0,"w":1440,"h":65,"top":0,"bottom":65,"left":0,"right":1440} | routeContainer maxWidth=1440px pad=20px/20px rect={"x":0,"y":65,"w":1440,"h":1046,"top":65,"bottom":1111,"left":0,"right":1440}
+   合成像素（PNG 回读）samples=4x4=rgb(31,41,55) 720x3=rgb(31,41,55) 1434x4=rgb(31,41,55) 6x33=rgb(31,41,55) 432x8=rgb(31,41,55)
+   合成像素行直方图: y=1 首色 rgb(31,41,55)×1440/1440 | y=33 首色 rgb(31,41,55)×1156/1440 | y=62 首色 rgb(31,41,55)×1440/1440
+   elementFromPoint: (4,4)=header.bg-white dark:bg-gray-80→inHeader=true (720,3)=div.flex justify-between ite→inHeader=true (1434,4)=header.bg-white dark:bg-gray-80→inHeader=true (6,33)=header.bg-white dark:bg-gray-80→inHeader=true (432,8)=div.flex justify-between ite→inHeader=true
+   滚动后(400): header.bg=rgb(31, 41, 55) backdrop=blur(4px) rect.y=-400 | (4,4)={"tag":"main","cls":"sf-route-container","inHeader":false}
+   顶栏内前景 11 处 · 由顶栏底色承载 11 处
+     [顶栏底] a "Seafood 海鲜市场" hooks=["sf-topbar-brand"] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 3 大字) ✓
+     [顶栏底] a "社区任务" hooks=["nav-link"] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓
+     [顶栏底] a "市场" hooks=["nav-link"] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓
+     [顶栏底] span "订单" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓
+     [顶栏底] span "语言" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓
+     [顶栏底] svg "" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓
+     [顶栏底] svg "" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓
+     [顶栏底] svg "" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓
+     [顶栏底] span "注册" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓
+     [顶栏底] svg "" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓
+     [顶栏底] span "登录" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓
+
+## 1600_day  theme=light colorScheme=light viewport=1600x900
+   #header bg=rgb(253, 232, 21) backdrop=none border=1px solid rgb(3, 4, 2) opacity=1 rect={"x":0,"y":0,"w":1600,"h":65,"top":0,"bottom":65,"left":0,"right":1600}
+   .sf-region-top bg=rgb(253, 232, 21) rect={"x":0,"y":0,"w":1600,"h":65,"top":0,"bottom":65,"left":0,"right":1600} | routeContainer maxWidth=1440px pad=20px/20px rect={"x":80,"y":65,"w":1440,"h":1046,"top":65,"bottom":1111,"left":80,"right":1520}
+   合成像素（PNG 回读）samples=4x4=rgb(253,232,21) 800x3=rgb(253,232,21) 1594x4=rgb(253,232,21) 6x33=rgb(253,232,21) 480x8=rgb(253,232,21)
+   合成像素行直方图: y=1 首色 rgb(253,232,21)×1600/1600 | y=33 首色 rgb(253,232,21)×1315/1600 | y=62 首色 rgb(253,232,21)×1600/1600
+   elementFromPoint: (4,4)=header.bg-white dark:bg-gray-80→inHeader=true (800,3)=div.flex justify-between ite→inHeader=true (1594,4)=header.bg-white dark:bg-gray-80→inHeader=true (6,33)=header.bg-white dark:bg-gray-80→inHeader=true (480,8)=div.flex justify-between ite→inHeader=true
+   滚动后(400): header.bg=rgb(253, 232, 21) backdrop=none rect.y=-400 | (4,4)={"tag":"div","cls":"sf-shell","inHeader":false}
+   顶栏内前景 11 处 · 由顶栏底色承载 11 处
+     [顶栏底] a "Seafood 海鲜市场" hooks=["sf-topbar-brand"] color=rgb(10, 10, 10) effBg=rgb(253,232,21) → 15.773:1 (阈值 3 大字) ✓
+     [顶栏底] a "社区任务" hooks=["nav-link"] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓
+     [顶栏底] a "市场" hooks=["nav-link"] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓
+     [顶栏底] span "订单" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓
+     [顶栏底] span "语言" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓
+     [顶栏底] svg "" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓
+     [顶栏底] svg "" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓
+     [顶栏底] svg "" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓
+     [顶栏底] span "注册" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓
+     [顶栏底] svg "" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓
+     [顶栏底] span "登录" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓
+
+## 1600_night  theme=dark colorScheme=dark viewport=1600x900
+   #header bg=rgb(31, 41, 55) backdrop=blur(4px) border=1px solid rgb(55, 65, 81) opacity=1 rect={"x":0,"y":0,"w":1600,"h":65,"top":0,"bottom":65,"left":0,"right":1600}
+   .sf-region-top bg=rgb(11, 12, 14) rect={"x":0,"y":0,"w":1600,"h":65,"top":0,"bottom":65,"left":0,"right":1600} | routeContainer maxWidth=1440px pad=20px/20px rect={"x":80,"y":65,"w":1440,"h":1046,"top":65,"bottom":1111,"left":80,"right":1520}
+   合成像素（PNG 回读）samples=4x4=rgb(31,41,55) 800x3=rgb(31,41,55) 1594x4=rgb(31,41,55) 6x33=rgb(31,41,55) 480x8=rgb(31,41,55)
+   合成像素行直方图: y=1 首色 rgb(31,41,55)×1600/1600 | y=33 首色 rgb(31,41,55)×1316/1600 | y=62 首色 rgb(31,41,55)×1600/1600
+   elementFromPoint: (4,4)=header.bg-white dark:bg-gray-80→inHeader=true (800,3)=div.flex justify-between ite→inHeader=true (1594,4)=header.bg-white dark:bg-gray-80→inHeader=true (6,33)=header.bg-white dark:bg-gray-80→inHeader=true (480,8)=div.flex justify-between ite→inHeader=true
+   滚动后(400): header.bg=rgb(31, 41, 55) backdrop=blur(4px) rect.y=-400 | (4,4)={"tag":"div","cls":"sf-shell","inHeader":false}
+   顶栏内前景 11 处 · 由顶栏底色承载 11 处
+     [顶栏底] a "Seafood 海鲜市场" hooks=["sf-topbar-brand"] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 3 大字) ✓
+     [顶栏底] a "社区任务" hooks=["nav-link"] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓
+     [顶栏底] a "市场" hooks=["nav-link"] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓
+     [顶栏底] span "订单" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓
+     [顶栏底] span "语言" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓
+     [顶栏底] svg "" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓
+     [顶栏底] svg "" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓
+     [顶栏底] svg "" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓
+     [顶栏底] span "注册" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓
+     [顶栏底] svg "" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓
+     [顶栏底] span "登录" hooks=[] color=rgba(255, 255, 255, 0.92) effBg=rgb(31,41,55) → 12.628:1 (阈值 4.5) ✓
+
+## 375_day  theme=light colorScheme=light viewport=375x812
+   #header bg=rgb(253, 232, 21) backdrop=none border=1px solid rgb(3, 4, 2) opacity=1 rect={"x":0,"y":0,"w":375,"h":65,"top":0,"bottom":65,"left":0,"right":375}
+   .sf-region-top bg=rgb(253, 232, 21) rect={"x":0,"y":0,"w":375,"h":65,"top":0,"bottom":65,"left":0,"right":375} | routeContainer maxWidth=1440px pad=10px/10px rect={"x":0,"y":65,"w":375,"h":2396,"top":65,"bottom":2461,"left":0,"right":375}
+   合成像素（PNG 回读）samples=4x4=rgb(253,232,21) 188x3=rgb(253,232,21) 369x4=rgb(253,232,21) 6x33=rgb(253,232,21) 113x8=rgb(253,232,21)
+   合成像素行直方图: y=1 首色 rgb(253,232,21)×375/375 | y=33 首色 rgb(253,232,21)×250/375 | y=62 首色 rgb(253,232,21)×375/375
+   elementFromPoint: (4,4)=div.container mx-auto px-4→inHeader=true (188,3)=div.flex justify-between ite→inHeader=true (369,4)=div.container mx-auto px-4→inHeader=true (6,33)=div.container mx-auto px-4→inHeader=true (113,8)=div.flex justify-between ite→inHeader=true
+   滚动后(400): header.bg=rgb(253, 232, 21) backdrop=none rect.y=-400 | (4,4)={"tag":"main","cls":"sf-route-container","inHeader":false}
+   顶栏内前景 2 处 · 由顶栏底色承载 2 处
+     [顶栏底] a "Seafood 海鲜市场" hooks=["sf-topbar-brand"] color=rgb(10, 10, 10) effBg=rgb(253,232,21) → 15.773:1 (阈值 3 大字) ✓
+     [顶栏底] svg "" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓
+
+## 320_day  theme=light colorScheme=light viewport=320x640
+   #header bg=rgb(253, 232, 21) backdrop=none border=1px solid rgb(3, 4, 2) opacity=1 rect={"x":0,"y":0,"w":320,"h":65,"top":0,"bottom":65,"left":0,"right":320}
+   .sf-region-top bg=rgb(253, 232, 21) rect={"x":0,"y":0,"w":320,"h":65,"top":0,"bottom":65,"left":0,"right":320} | routeContainer maxWidth=1440px pad=10px/10px rect={"x":0,"y":65,"w":320,"h":2554,"top":65,"bottom":2619,"left":0,"right":320}
+   合成像素（PNG 回读）samples=4x4=rgb(253,232,21) 160x3=rgb(253,232,21) 314x4=rgb(253,232,21) 6x33=rgb(253,232,21) 96x8=rgb(253,232,21)
+   合成像素行直方图: y=1 首色 rgb(253,232,21)×320/320 | y=33 首色 rgb(253,232,21)×195/320 | y=62 首色 rgb(253,232,21)×320/320
+   elementFromPoint: (4,4)=div.container mx-auto px-4→inHeader=true (160,3)=div.flex justify-between ite→inHeader=true (314,4)=div.container mx-auto px-4→inHeader=true (6,33)=div.container mx-auto px-4→inHeader=true (96,8)=div.flex justify-between ite→inHeader=true
+   滚动后(400): header.bg=rgb(253, 232, 21) backdrop=none rect.y=-400 | (4,4)={"tag":"main","cls":"sf-route-container","inHeader":false}
+   顶栏内前景 2 处 · 由顶栏底色承载 2 处
+     [顶栏底] a "Seafood 海鲜市场" hooks=["sf-topbar-brand"] color=rgb(10, 10, 10) effBg=rgb(253,232,21) → 15.773:1 (阈值 3 大字) ✓
+     [顶栏底] svg "" hooks=[] color=rgb(75, 85, 99) effBg=rgb(253,232,21) → 6.021:1 (阈值 4.5) ✓
+
+
+================ AC 判定 ================
+PASS  AC-1  日档三档 bg=rgb(253,232,21) ∧ alpha=1 ∧ backdrop=none ∧ 边框 rgb(3,4,2) ∧ opacity=1
+PASS  AC-2  夜档 bg=rgb(31,41,55) ∧ 边框 1px solid rgb(55,65,81) ∧ backdrop=blur(4px) ∧ rect=父版逐值相同
+PASS  AC-3  由顶栏底色承载的前景全部 ≥ 阈值（其余行维持现状）
+PASS  AC-4  三档 alpha=1 ∧ backdrop=none ∧ 滚动后仍 alpha=1 ∧ elementFromPoint 全中 #header 子树
+PASS  AC-9  三档 × 日/夜：#header / .sf-region-top / .sf-route-container rect 与父版逐值相同 ∧ 逐元素 dump 无 rect 差异
+PASS  AC-5  逐元素差异集 100% 归因于允许变更集（① #header 底色/边框/backdrop ② 三处前景色及其类钩）
+PASS  AC-8  负控臂（⇒ #FFFFFF）必须变红；复原臂（⇒ 改前 95% 白 + blur) 必须回改前值；夜档反向臂（去日档限定）必须变 rgb(11,12,14)
+PASS  AC-10  390/375/320 日档顶栏 = rgb(253,232,21) ∧ alpha=1；汉堡面板展开态自带底按 §23.3 11–14 行评；面板展开不破色；夜档移动档（390_night）= 冻结值
+
+归因违规项总数 = 0

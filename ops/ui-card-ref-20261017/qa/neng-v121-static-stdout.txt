@@ -1,0 +1,54 @@
+[leg4] static checks written
+{
+  "ac6": {
+    "shell": {
+      "mediaCount": 1,
+      "dataThemeCount": 0,
+      "themeDayNight": 0,
+      "cssSha256": "737bb3ac9b7f92b601557614ed79ebff1f288287389704633deba64d76f0644b"
+    },
+    "shellVsParent": {
+      "parentSha256": "737bb3ac9b7f92b601557614ed79ebff1f288287389704633deba64d76f0644b",
+      "identical": true
+    }
+  },
+  "frozenBrief": {
+    "frontend/src/shell/shell.css": "(empty)",
+    "frontend/src/theme/tokens.js": "(empty)",
+    "frontend/src/theme/theme-tokens.css": "(empty)",
+    "frontend/src/theme/ThemeProvider.jsx": "(empty)",
+    "docs/design/design-system.spec.md": "(empty)",
+    "docs/design/style-preview.html": "(empty)"
+  },
+  "statusByArea": {
+    "frontend/src/pages/item": "(empty)",
+    "frontend/src/pages/theme-preview.jsx": "(empty)",
+    "frontend/src/pages/theme-preview-demo.js": "(empty)",
+    "backend-ts": "(empty)",
+    "docs": "(empty)",
+    "tools": "(empty)",
+    "ctrl": "(empty)"
+  },
+  "i18n": {
+    "top": 128,
+    "flat": 1104,
+    "nodes": 4416,
+    "keySetEqual": true
+  },
+  "browser": {
+    "regionSet": [
+      "content",
+      "footer",
+      "shell",
+      "tabbar",
+      "topnav"
+    ],
+    "navLinkHrefs": [
+      "/exchange",
+      "/profile",
+      "/task"
+    ],
+    "headerClass": "bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95"
+  }
+}
+EXIT=0

@@ -1,0 +1,204 @@
+{
+  "out": "ops/ui-card-ref-20261017/qa/neng-readings-ac5.json",
+  "perCase": [
+    {
+      "id": "item1440",
+      "noise": true,
+      "raw": 5,
+      "norm": 3,
+      "attributable": 3,
+      "nonAttributable": 0,
+      "structural": 0,
+      "geom": 0,
+      "text": 0,
+      "cf": 0,
+      "sensColor": 1,
+      "sensGeom": 94
+    },
+    {
+      "id": "item390",
+      "noise": true,
+      "raw": 5,
+      "norm": 3,
+      "attributable": 3,
+      "nonAttributable": 0,
+      "structural": 0,
+      "geom": 0,
+      "text": 0,
+      "cf": 0,
+      "sensColor": 1,
+      "sensGeom": 65
+    },
+    {
+      "id": "item1440_night",
+      "noise": true,
+      "raw": 2,
+      "norm": 2,
+      "attributable": 2,
+      "nonAttributable": 0,
+      "structural": 0,
+      "geom": 0,
+      "text": 0,
+      "cf": 2,
+      "sensColor": 1,
+      "sensGeom": 102
+    },
+    {
+      "id": "exchange1440",
+      "noise": true,
+      "raw": 4,
+      "norm": 2,
+      "attributable": 2,
+      "nonAttributable": 0,
+      "structural": 0,
+      "geom": 0,
+      "text": 0,
+      "cf": 0,
+      "sensColor": 1,
+      "sensGeom": 116
+    },
+    {
+      "id": "task1440",
+      "noise": true,
+      "raw": 2,
+      "norm": 2,
+      "attributable": 2,
+      "nonAttributable": 0,
+      "structural": 0,
+      "geom": 0,
+      "text": 0,
+      "cf": 0,
+      "sensColor": 1,
+      "sensGeom": 157
+    },
+    {
+      "id": "profile1440",
+      "noise": true,
+      "raw": 4,
+      "norm": 2,
+      "attributable": 2,
+      "nonAttributable": 0,
+      "structural": 0,
+      "geom": 0,
+      "text": 0,
+      "cf": 0,
+      "sensColor": 1,
+      "sensGeom": 114
+    },
+    {
+      "id": "exchange390",
+      "noise": true,
+      "raw": 4,
+      "norm": 2,
+      "attributable": 2,
+      "nonAttributable": 0,
+      "structural": 0,
+      "geom": 0,
+      "text": 0,
+      "cf": 0,
+      "sensColor": 1,
+      "sensGeom": 92
+    },
+    {
+      "id": "task390",
+      "noise": true,
+      "raw": 4,
+      "norm": 2,
+      "attributable": 2,
+      "nonAttributable": 0,
+      "structural": 0,
+      "geom": 0,
+      "text": 0,
+      "cf": 0,
+      "sensColor": 1,
+      "sensGeom": 133
+    },
+    {
+      "id": "messages1440",
+      "noise": true,
+      "raw": 70,
+      "norm": 68,
+      "attributable": 2,
+      "nonAttributable": 0,
+      "structural": 66,
+      "geom": 0,
+      "text": 0,
+      "cf": 66,
+      "sensColor": 1,
+      "sensGeom": 352
+    }
+  ],
+  "AC5": {
+    "scope": "真·非首页路由（/item/:id · /exchange · /task · /profile × 1440/390 × 日/夜）＝「不动面」承重面；/messages 单列（其渲染树含首页）",
+    "nonHomeRoutes": {
+      "cases": [
+        "item1440",
+        "item390",
+        "item1440_night",
+        "exchange1440",
+        "task1440",
+        "profile1440",
+        "exchange390",
+        "task390"
+      ],
+      "noiseBaselineAllIdentical": true,
+      "normalizedDiffFullyAttributable": true,
+      "counterfactualEmptyAllCases": false,
+      "rulerSensitivityAllNonEmpty": true,
+      "ok": false
+    },
+    "homeBearingRoutes": [
+      {
+        "id": "messages1440",
+        "route": "/messages",
+        "note": "/messages 的渲染树 = 首页 + 面板（pages/MessagesPage.jsx:15 `const MessagesPage = () => <HomePage />`）⇒ 卡面改造在此生效属变更集之内；AC-5 的 T109-only 反事实**不覆盖**卡面（故不适用）",
+        "normalizedDiffCount": 68,
+        "approvedMarkerHits": 66,
+        "unapprovedRemainder": [],
+        "geometryDiffs": 0,
+        "attributionComplete": true
+      }
+    ],
+    "rawDiffCounts": [
+      {
+        "id": "item1440",
+        "raw": 5
+      },
+      {
+        "id": "item390",
+        "raw": 5
+      },
+      {
+        "id": "item1440_night",
+        "raw": 2
+      },
+      {
+        "id": "exchange1440",
+        "raw": 4
+      },
+      {
+        "id": "task1440",
+        "raw": 2
+      },
+      {
+        "id": "profile1440",
+        "raw": 4
+      },
+      {
+        "id": "exchange390",
+        "raw": 4
+      },
+      {
+        "id": "task390",
+        "raw": 4
+      },
+      {
+        "id": "messages1440",
+        "raw": 70
+      }
+    ],
+    "rawJudgement": "raw 差异集 ≠ 0 为预期（Footer.jsx:12 模块加载期 Math.random() ⇒ <a title>/<img alt> 每载随机）⇒ 该判据**原样保留为 ENV_LIMITED**，不改写成 PASS",
+    "ok": false
+  }
+}
+EXIT=0

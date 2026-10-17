@@ -1,0 +1,29 @@
+{
+  "probe": "ops/ui-card-ref-20261017/qa/kong-v121-noise-baseline.mjs",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "at": "2026-10-17T01:11:21.546Z",
+  "frozenRandom": {
+    "rounds": 2,
+    "elements": [
+      126,
+      126
+    ],
+    "sha": [
+      "0f71f0c25db36e45a7fa0d598631f1ccae9950274e7670eb04314e1a96107b87",
+      "0f71f0c25db36e45a7fa0d598631f1ccae9950274e7670eb04314e1a96107b87"
+    ],
+    "identical": true
+  },
+  "rawRandom": {
+    "rounds": 2,
+    "elements": [
+      126,
+      126
+    ],
+    "sha": [
+      "0f71f0c25db36e45a7fa0d598631f1ccae9950274e7670eb04314e1a96107b87",
+      "0f71f0c25db36e45a7fa0d598631f1ccae9950274e7670eb04314e1a96107b87"
+    ],
+    "identical": true
+  }
+}

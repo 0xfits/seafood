@@ -1,0 +1,538 @@
+OK 390_day
+OK 390_night
+OK 1440_day
+OK 1440_night
+OK 1600_day
+OK 1600_night
+OK 375_day
+OK 320_day
+{
+  "out": "ops/ui-card-ref-20261017/readings/kong-v121-readings-parent.json",
+  "dist": "/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-parent-4b388d0/frontend/dist",
+  "distAssets": [
+    "hk-DJjlsSdH.svg",
+    "index-B0eM_JXL.css",
+    "index-Dh7Gdrie.js",
+    "us-BUggRluv.svg",
+    "vendor-AmHF8z37.js",
+    "vendor-i18n-Dv2xmCnL.js",
+    "vendor-react-CZtNYldG.js",
+    "vendor-router-DiMdLYdS.js",
+    "vendor-ui-C62xpTZb.js"
+  ],
+  "states": {
+    "390_day": {
+      "theme": "light",
+      "hdr": {
+        "bg": "rgba(255, 255, 255, 0.95)",
+        "backdrop": "blur(4px)",
+        "border": "1px solid rgb(229, 231, 235)",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "w": 390,
+          "h": 65,
+          "top": 0,
+          "bottom": 65,
+          "left": 0,
+          "right": 390
+        }
+      },
+      "regionRect": {
+        "x": 0,
+        "y": 0,
+        "w": 390,
+        "h": 65,
+        "top": 0,
+        "bottom": 65,
+        "left": 0,
+        "right": 390
+      },
+      "fgCount": 2,
+      "dumpCount": 232,
+      "pixelRow1": {
+        "rgb": "rgb(255,254,243)",
+        "px": 390
+      },
+      "hover": {
+        "nav-link 社区任务": "NOT_VISIBLE_AT_THIS_VIEWPORT",
+        "主题钮": "NOT_VISIBLE_AT_THIS_VIEWPORT",
+        "注册/登录钮(src 类钩)": "NO_ELEMENT",
+        "汉堡钮": "rgb(75, 85, 99) -> rgb(17, 24, 39)"
+      },
+      "active": null,
+      "panelHeaderRect": {
+        "x": 0,
+        "y": 0,
+        "w": 390,
+        "h": 500
+      },
+      "scrolledHeaderBg": "rgba(255, 255, 255, 0.95)",
+      "scrolledHit44": {
+        "tag": "main",
+        "cls": "sf-route-container",
+        "inHeader": false
+      }
+    },
+    "390_night": {
+      "theme": "dark",
+      "hdr": {
+        "bg": "rgb(31, 41, 55)",
+        "backdrop": "blur(4px)",
+        "border": "1px solid rgb(55, 65, 81)",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "w": 390,
+          "h": 65,
+          "top": 0,
+          "bottom": 65,
+          "left": 0,
+          "right": 390
+        }
+      },
+      "regionRect": {
+        "x": 0,
+        "y": 0,
+        "w": 390,
+        "h": 65,
+        "top": 0,
+        "bottom": 65,
+        "left": 0,
+        "right": 390
+      },
+      "fgCount": 2,
+      "dumpCount": 232,
+      "pixelRow1": {
+        "rgb": "rgb(31,41,55)",
+        "px": 390
+      },
+      "hover": {
+        "nav-link 社区任务": "NOT_VISIBLE_AT_THIS_VIEWPORT",
+        "主题钮": "NOT_VISIBLE_AT_THIS_VIEWPORT",
+        "注册/登录钮(src 类钩)": "NO_ELEMENT",
+        "汉堡钮": "rgba(255, 255, 255, 0.92) -> rgba(255, 255, 255, 0.92)"
+      },
+      "active": null,
+      "panelHeaderRect": {
+        "x": 0,
+        "y": 0,
+        "w": 390,
+        "h": 500
+      },
+      "scrolledHeaderBg": "rgb(31, 41, 55)",
+      "scrolledHit44": {
+        "tag": "main",
+        "cls": "sf-route-container",
+        "inHeader": false
+      }
+    },
+    "1440_day": {
+      "theme": "light",
+      "hdr": {
+        "bg": "rgba(255, 255, 255, 0.95)",
+        "backdrop": "blur(4px)",
+        "border": "1px solid rgb(229, 231, 235)",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "w": 1440,
+          "h": 65,
+          "top": 0,
+          "bottom": 65,
+          "left": 0,
+          "right": 1440
+        }
+      },
+      "regionRect": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 65,
+        "top": 0,
+        "bottom": 65,
+        "left": 0,
+        "right": 1440
+      },
+      "fgCount": 11,
+      "dumpCount": 263,
+      "pixelRow1": {
+        "rgb": "rgb(255,254,243)",
+        "px": 1440
+      },
+      "hover": {
+        "nav-link 社区任务": "rgb(75, 85, 99) -> rgb(217, 119, 6)",
+        "主题钮": "rgb(75, 85, 99) -> rgb(217, 119, 6)",
+        "注册/登录钮(src 类钩)": "NO_ELEMENT",
+        "汉堡钮": "NOT_VISIBLE_AT_THIS_VIEWPORT（桌面档无汉堡）"
+      },
+      "active": {
+        "count": 1,
+        "text": "社区任务",
+        "color": "rgb(217, 119, 6)",
+        "bg": "rgb(243, 244, 246)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      "panelHeaderRect": null,
+      "scrolledHeaderBg": "rgba(255, 255, 255, 0.95)",
+      "scrolledHit44": {
+        "tag": "main",
+        "cls": "sf-route-container",
+        "inHeader": false
+      }
+    },
+    "1440_night": {
+      "theme": "dark",
+      "hdr": {
+        "bg": "rgb(31, 41, 55)",
+        "backdrop": "blur(4px)",
+        "border": "1px solid rgb(55, 65, 81)",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "w": 1440,
+          "h": 65,
+          "top": 0,
+          "bottom": 65,
+          "left": 0,
+          "right": 1440
+        }
+      },
+      "regionRect": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 65,
+        "top": 0,
+        "bottom": 65,
+        "left": 0,
+        "right": 1440
+      },
+      "fgCount": 11,
+      "dumpCount": 271,
+      "pixelRow1": {
+        "rgb": "rgb(31,41,55)",
+        "px": 1440
+      },
+      "hover": {
+        "nav-link 社区任务": "rgba(255, 255, 255, 0.92) -> rgba(255, 255, 255, 0.92)",
+        "主题钮": "rgba(255, 255, 255, 0.92) -> rgba(255, 255, 255, 0.92)",
+        "注册/登录钮(src 类钩)": "NO_ELEMENT",
+        "汉堡钮": "NOT_VISIBLE_AT_THIS_VIEWPORT（桌面档无汉堡）"
+      },
+      "active": {
+        "count": 1,
+        "text": "社区任务",
+        "color": "rgba(255, 255, 255, 0.92)",
+        "bg": "rgb(243, 244, 246)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      "panelHeaderRect": null,
+      "scrolledHeaderBg": "rgb(31, 41, 55)",
+      "scrolledHit44": {
+        "tag": "main",
+        "cls": "sf-route-container",
+        "inHeader": false
+      }
+    },
+    "1600_day": {
+      "theme": "light",
+      "hdr": {
+        "bg": "rgba(255, 255, 255, 0.95)",
+        "backdrop": "blur(4px)",
+        "border": "1px solid rgb(229, 231, 235)",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "w": 1600,
+          "h": 65,
+          "top": 0,
+          "bottom": 65,
+          "left": 0,
+          "right": 1600
+        }
+      },
+      "regionRect": {
+        "x": 0,
+        "y": 0,
+        "w": 1600,
+        "h": 65,
+        "top": 0,
+        "bottom": 65,
+        "left": 0,
+        "right": 1600
+      },
+      "fgCount": 11,
+      "dumpCount": 263,
+      "pixelRow1": {
+        "rgb": "rgb(255,254,243)",
+        "px": 1600
+      },
+      "hover": {
+        "nav-link 社区任务": "rgb(75, 85, 99) -> rgb(217, 119, 6)",
+        "主题钮": "rgb(75, 85, 99) -> rgb(217, 119, 6)",
+        "注册/登录钮(src 类钩)": "NO_ELEMENT",
+        "汉堡钮": "NOT_VISIBLE_AT_THIS_VIEWPORT（桌面档无汉堡）"
+      },
+      "active": {
+        "count": 1,
+        "text": "社区任务",
+        "color": "rgb(217, 119, 6)",
+        "bg": "rgb(243, 244, 246)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      "panelHeaderRect": null,
+      "scrolledHeaderBg": "rgba(255, 255, 255, 0.95)",
+      "scrolledHit44": {
+        "tag": "div",
+        "cls": "sf-shell",
+        "inHeader": false
+      }
+    },
+    "1600_night": {
+      "theme": "dark",
+      "hdr": {
+        "bg": "rgb(31, 41, 55)",
+        "backdrop": "blur(4px)",
+        "border": "1px solid rgb(55, 65, 81)",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "w": 1600,
+          "h": 65,
+          "top": 0,
+          "bottom": 65,
+          "left": 0,
+          "right": 1600
+        }
+      },
+      "regionRect": {
+        "x": 0,
+        "y": 0,
+        "w": 1600,
+        "h": 65,
+        "top": 0,
+        "bottom": 65,
+        "left": 0,
+        "right": 1600
+      },
+      "fgCount": 11,
+      "dumpCount": 271,
+      "pixelRow1": {
+        "rgb": "rgb(31,41,55)",
+        "px": 1600
+      },
+      "hover": {
+        "nav-link 社区任务": "rgba(255, 255, 255, 0.92) -> rgba(255, 255, 255, 0.92)",
+        "主题钮": "rgba(255, 255, 255, 0.92) -> rgba(255, 255, 255, 0.92)",
+        "注册/登录钮(src 类钩)": "NO_ELEMENT",
+        "汉堡钮": "NOT_VISIBLE_AT_THIS_VIEWPORT（桌面档无汉堡）"
+      },
+      "active": {
+        "count": 1,
+        "text": "社区任务",
+        "color": "rgba(255, 255, 255, 0.92)",
+        "bg": "rgb(243, 244, 246)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      "panelHeaderRect": null,
+      "scrolledHeaderBg": "rgb(31, 41, 55)",
+      "scrolledHit44": {
+        "tag": "div",
+        "cls": "sf-shell",
+        "inHeader": false
+      }
+    },
+    "375_day": {
+      "theme": "light",
+      "hdr": {
+        "bg": "rgba(255, 255, 255, 0.95)",
+        "backdrop": "blur(4px)",
+        "border": "1px solid rgb(229, 231, 235)",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "w": 375,
+          "h": 65,
+          "top": 0,
+          "bottom": 65,
+          "left": 0,
+          "right": 375
+        }
+      },
+      "regionRect": {
+        "x": 0,
+        "y": 0,
+        "w": 375,
+        "h": 65,
+        "top": 0,
+        "bottom": 65,
+        "left": 0,
+        "right": 375
+      },
+      "fgCount": 2,
+      "dumpCount": 232,
+      "pixelRow1": {
+        "rgb": "rgb(255,254,243)",
+        "px": 375
+      },
+      "hover": {
+        "nav-link 社区任务": "NOT_VISIBLE_AT_THIS_VIEWPORT",
+        "主题钮": "NOT_VISIBLE_AT_THIS_VIEWPORT",
+        "注册/登录钮(src 类钩)": "NO_ELEMENT",
+        "汉堡钮": "rgb(75, 85, 99) -> rgb(17, 24, 39)"
+      },
+      "active": null,
+      "panelHeaderRect": {
+        "x": 0,
+        "y": 0,
+        "w": 375,
+        "h": 500
+      },
+      "scrolledHeaderBg": "rgba(255, 255, 255, 0.95)",
+      "scrolledHit44": {
+        "tag": "main",
+        "cls": "sf-route-container",
+        "inHeader": false
+      }
+    },
+    "320_day": {
+      "theme": "light",
+      "hdr": {
+        "bg": "rgba(255, 255, 255, 0.95)",
+        "backdrop": "blur(4px)",
+        "border": "1px solid rgb(229, 231, 235)",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "w": 320,
+          "h": 65,
+          "top": 0,
+          "bottom": 65,
+          "left": 0,
+          "right": 320
+        }
+      },
+      "regionRect": {
+        "x": 0,
+        "y": 0,
+        "w": 320,
+        "h": 65,
+        "top": 0,
+        "bottom": 65,
+        "left": 0,
+        "right": 320
+      },
+      "fgCount": 2,
+      "dumpCount": 232,
+      "pixelRow1": {
+        "rgb": "rgb(255,254,243)",
+        "px": 320
+      },
+      "hover": {
+        "nav-link 社区任务": "NOT_VISIBLE_AT_THIS_VIEWPORT",
+        "主题钮": "NOT_VISIBLE_AT_THIS_VIEWPORT",
+        "注册/登录钮(src 类钩)": "NO_ELEMENT",
+        "汉堡钮": "rgb(75, 85, 99) -> rgb(17, 24, 39)"
+      },
+      "active": null,
+      "panelHeaderRect": {
+        "x": 0,
+        "y": 0,
+        "w": 320,
+        "h": 500
+      },
+      "scrolledHeaderBg": "rgba(255, 255, 255, 0.95)",
+      "scrolledHit44": {
+        "tag": "main",
+        "cls": "sf-route-container",
+        "inHeader": false
+      }
+    }
+  },
+  "selfproof": {
+    "light": {
+      "baseline": {
+        "bg": "rgba(255, 255, 255, 0.95)",
+        "backdrop": "blur(4px)",
+        "border": "rgb(229, 231, 235)",
+        "navHoverInjected": null
+      },
+      "negControlWhite": {
+        "bg": "rgb(255, 255, 255)",
+        "backdrop": "blur(4px)",
+        "border": "rgb(229, 231, 235)",
+        "navHoverInjected": null
+      },
+      "revertToPreRule": {
+        "bg": "rgba(255, 255, 255, 0.95)",
+        "backdrop": "blur(4px)",
+        "border": "rgb(229, 231, 235)",
+        "navHoverInjected": null
+      },
+      "afterRevertRemoval": {
+        "bg": "rgba(255, 255, 255, 0.95)",
+        "backdrop": "blur(4px)",
+        "border": "rgb(229, 231, 235)",
+        "navHoverInjected": null
+      },
+      "noThemeGuard": {
+        "bg": "rgb(253, 232, 21)",
+        "backdrop": "blur(4px)",
+        "border": "rgb(229, 231, 235)",
+        "navHoverInjected": null
+      },
+      "finalAfterAll": {
+        "bg": "rgba(255, 255, 255, 0.95)",
+        "backdrop": "blur(4px)",
+        "border": "rgb(229, 231, 235)",
+        "navHoverInjected": null
+      }
+    },
+    "dark": {
+      "baseline": {
+        "bg": "rgb(31, 41, 55)",
+        "backdrop": "blur(4px)",
+        "border": "rgb(55, 65, 81)",
+        "navHoverInjected": null
+      },
+      "negControlWhite": {
+        "bg": "rgb(31, 41, 55)",
+        "backdrop": "blur(4px)",
+        "border": "rgb(55, 65, 81)",
+        "navHoverInjected": null
+      },
+      "revertToPreRule": {
+        "bg": "rgb(31, 41, 55)",
+        "backdrop": "blur(4px)",
+        "border": "rgb(55, 65, 81)",
+        "navHoverInjected": null
+      },
+      "afterRevertRemoval": {
+        "bg": "rgb(31, 41, 55)",
+        "backdrop": "blur(4px)",
+        "border": "rgb(55, 65, 81)",
+        "navHoverInjected": null
+      },
+      "noThemeGuard": {
+        "bg": "rgb(11, 12, 14)",
+        "backdrop": "blur(4px)",
+        "border": "rgb(55, 65, 81)",
+        "navHoverInjected": null
+      },
+      "finalAfterAll": {
+        "bg": "rgb(31, 41, 55)",
+        "backdrop": "blur(4px)",
+        "border": "rgb(55, 65, 81)",
+        "navHoverInjected": null
+      }
+    }
+  },
+  "shots": [],
+  "errors": []
+}
+PARENT_PROBE_EXIT=0

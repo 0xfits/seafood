@@ -1,0 +1,284 @@
+{
+ "mobile_base": {
+  "theme": "light",
+  "vw": 390,
+  "colorScheme": "light",
+  "headerBg": "rgba(255, 255, 255, 0.95)",
+  "backdrop": "blur(4px)",
+  "bb": "1px rgb(229, 231, 235)",
+  "rect": [
+   0,
+   0,
+   390,
+   65
+  ],
+  "n": 1,
+  "rows": [
+   {
+    "tag": "A",
+    "sfm": "",
+    "cls": "sf-tap-inline text-xl font-bold text-yel",
+    "text": "Seafood 海鲜市场",
+    "color": "rgb(202, 138, 4)",
+    "fs": "20px",
+    "fw": "700",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgba(255, 255, 255, 0.95)"
+   }
+  ]
+ },
+ "mobile_panel_open": {
+  "theme": "light",
+  "vw": 390,
+  "colorScheme": "light",
+  "headerBg": "rgba(255, 255, 255, 0.95)",
+  "backdrop": "blur(4px)",
+  "bb": "1px rgb(229, 231, 235)",
+  "rect": [
+   0,
+   0,
+   390,
+   500
+  ],
+  "n": 10,
+  "rows": [
+   {
+    "tag": "A",
+    "sfm": "",
+    "cls": "sf-tap-inline text-xl font-bold text-yel",
+    "text": "Seafood 海鲜市场",
+    "color": "rgb(202, 138, 4)",
+    "fs": "20px",
+    "fw": "700",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgba(255, 255, 255, 0.95)"
+   },
+   {
+    "tag": "A",
+    "sfm": "",
+    "cls": "block px-3 py-2 rounded-md text-base fon",
+    "text": "社区任务",
+    "color": "rgb(75, 85, 99)",
+    "fs": "16px",
+    "fw": "500",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgba(255, 255, 255, 0.95)"
+   },
+   {
+    "tag": "A",
+    "sfm": "header-orders-mobile",
+    "cls": "flex items-center gap-2 px-3 py-2 rounde",
+    "text": "订单",
+    "color": "rgb(75, 85, 99)",
+    "fs": "16px",
+    "fw": "500",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgba(255, 255, 255, 0.95)"
+   },
+   {
+    "tag": "BUTTON",
+    "sfm": "",
+    "cls": "sf-tap block w-full text-center px-3 py-",
+    "text": "注册",
+    "color": "rgb(255, 255, 255)",
+    "fs": "16px",
+    "fw": "500",
+    "ownBg": "rgba(37, 99, 235, 0.95)",
+    "bg": "rgba(37, 99, 235, 0.95)"
+   },
+   {
+    "tag": "BUTTON",
+    "sfm": "",
+    "cls": "sf-tap block w-full text-center px-3 py-",
+    "text": "登录",
+    "color": "rgb(255, 255, 255)",
+    "fs": "16px",
+    "fw": "500",
+    "ownBg": "rgba(202, 138, 4, 0.95)",
+    "bg": "rgba(202, 138, 4, 0.95)"
+   },
+   {
+    "tag": "SPAN",
+    "sfm": "",
+    "cls": "text-sm font-medium text-gray-600 dark:t",
+    "text": "语言",
+    "color": "rgb(75, 85, 99)",
+    "fs": "14px",
+    "fw": "500",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgba(255, 255, 255, 0.95)"
+   },
+   {
+    "tag": "BUTTON",
+    "sfm": "",
+    "cls": "sf-tap px-3 py-2 rounded-md text-sm flex",
+    "text": "简体中文",
+    "color": "rgb(10, 10, 10)",
+    "fs": "14px",
+    "fw": "500",
+    "ownBg": "rgba(243, 244, 246, 0.95)",
+    "bg": "rgba(243, 244, 246, 0.95)"
+   },
+   {
+    "tag": "BUTTON",
+    "sfm": "",
+    "cls": "sf-tap px-3 py-2 rounded-md text-sm flex",
+    "text": "English",
+    "color": "rgb(75, 85, 99)",
+    "fs": "14px",
+    "fw": "400",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgba(255, 255, 255, 0.95)"
+   },
+   {
+    "tag": "BUTTON",
+    "sfm": "",
+    "cls": "sf-tap px-3 py-2 rounded-md text-sm flex",
+    "text": "粤语",
+    "color": "rgb(75, 85, 99)",
+    "fs": "14px",
+    "fw": "400",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgba(255, 255, 255, 0.95)"
+   },
+   {
+    "tag": "BUTTON",
+    "sfm": "",
+    "cls": "sf-tap px-3 py-2 rounded-md text-sm flex",
+    "text": "Tiếng Việt",
+    "color": "rgb(75, 85, 99)",
+    "fs": "14px",
+    "fw": "400",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgba(255, 255, 255, 0.95)"
+   }
+  ]
+ },
+ "mobile_panel_open_day_rule": {
+  "theme": "light",
+  "vw": 390,
+  "colorScheme": "light",
+  "headerBg": "rgb(253, 232, 21)",
+  "backdrop": "none",
+  "bb": "1px rgb(3, 4, 2)",
+  "rect": [
+   0,
+   0,
+   390,
+   500
+  ],
+  "n": 10,
+  "rows": [
+   {
+    "tag": "A",
+    "sfm": "",
+    "cls": "sf-tap-inline text-xl font-bold text-yel",
+    "text": "Seafood 海鲜市场",
+    "color": "rgb(10, 10, 10)",
+    "fs": "20px",
+    "fw": "700",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgb(253, 232, 21)"
+   },
+   {
+    "tag": "A",
+    "sfm": "",
+    "cls": "block px-3 py-2 rounded-md text-base fon",
+    "text": "社区任务",
+    "color": "rgb(75, 85, 99)",
+    "fs": "16px",
+    "fw": "500",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgba(255, 255, 255, 0.95)"
+   },
+   {
+    "tag": "A",
+    "sfm": "header-orders-mobile",
+    "cls": "flex items-center gap-2 px-3 py-2 rounde",
+    "text": "订单",
+    "color": "rgb(75, 85, 99)",
+    "fs": "16px",
+    "fw": "500",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgba(255, 255, 255, 0.95)"
+   },
+   {
+    "tag": "BUTTON",
+    "sfm": "",
+    "cls": "sf-tap block w-full text-center px-3 py-",
+    "text": "注册",
+    "color": "rgb(255, 255, 255)",
+    "fs": "16px",
+    "fw": "500",
+    "ownBg": "rgba(37, 99, 235, 0.95)",
+    "bg": "rgba(37, 99, 235, 0.95)"
+   },
+   {
+    "tag": "BUTTON",
+    "sfm": "",
+    "cls": "sf-tap block w-full text-center px-3 py-",
+    "text": "登录",
+    "color": "rgb(255, 255, 255)",
+    "fs": "16px",
+    "fw": "500",
+    "ownBg": "rgba(202, 138, 4, 0.95)",
+    "bg": "rgba(202, 138, 4, 0.95)"
+   },
+   {
+    "tag": "SPAN",
+    "sfm": "",
+    "cls": "text-sm font-medium text-gray-600 dark:t",
+    "text": "语言",
+    "color": "rgb(75, 85, 99)",
+    "fs": "14px",
+    "fw": "500",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgba(255, 255, 255, 0.95)"
+   },
+   {
+    "tag": "BUTTON",
+    "sfm": "",
+    "cls": "sf-tap px-3 py-2 rounded-md text-sm flex",
+    "text": "简体中文",
+    "color": "rgb(10, 10, 10)",
+    "fs": "14px",
+    "fw": "500",
+    "ownBg": "rgba(243, 244, 246, 0.95)",
+    "bg": "rgba(243, 244, 246, 0.95)"
+   },
+   {
+    "tag": "BUTTON",
+    "sfm": "",
+    "cls": "sf-tap px-3 py-2 rounded-md text-sm flex",
+    "text": "English",
+    "color": "rgb(75, 85, 99)",
+    "fs": "14px",
+    "fw": "400",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgba(255, 255, 255, 0.95)"
+   },
+   {
+    "tag": "BUTTON",
+    "sfm": "",
+    "cls": "sf-tap px-3 py-2 rounded-md text-sm flex",
+    "text": "粤语",
+    "color": "rgb(75, 85, 99)",
+    "fs": "14px",
+    "fw": "400",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgba(255, 255, 255, 0.95)"
+   },
+   {
+    "tag": "BUTTON",
+    "sfm": "",
+    "cls": "sf-tap px-3 py-2 rounded-md text-sm flex",
+    "text": "Tiếng Việt",
+    "color": "rgb(75, 85, 99)",
+    "fs": "14px",
+    "fw": "400",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgba(255, 255, 255, 0.95)"
+   }
+  ]
+ }
+}

@@ -1,0 +1,30 @@
+{
+ "1440": {
+  "before": [
+   0,
+   65
+  ],
+  "after_scroll": {
+   "y": -400,
+   "h": 65,
+   "bg": "rgb(253, 232, 21)",
+   "scrollY": 400,
+   "docH": 2126,
+   "hit": "DIV.rounded-lg border p-6 transition-all"
+  }
+ },
+ "390": {
+  "before": [
+   0,
+   500
+  ],
+  "after_scroll": {
+   "y": -400,
+   "h": 500,
+   "bg": "rgb(253, 232, 21)",
+   "scrollY": 400,
+   "docH": 6237,
+   "hit": "header-subtree"
+  }
+ }
+}

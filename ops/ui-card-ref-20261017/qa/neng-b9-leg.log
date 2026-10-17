@@ -1,0 +1,11 @@
+
+ RUN  v0.34.6 /Users/kevin/bistro/seafood/frontend
+
+ ✓ src/test/unit/p6-btn-impl2.test.js  (9 tests) 16ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  08:39:02
+   Duration  595ms (transform 38ms, setup 107ms, collect 50ms, tests 16ms, environment 226ms, prepare 53ms)
+
+B9_EXIT=0

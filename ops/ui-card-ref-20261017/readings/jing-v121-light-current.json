@@ -1,0 +1,111 @@
+{
+ "theme": "light",
+ "colorScheme": "light",
+ "vars": {
+  "topbar-bg": "#FDE815",
+  "topbar-border": "#030402",
+  "brand-fg": "#0A0A0A",
+  "page-bg": "#F5F7F9"
+ },
+ "header": {
+  "bg": "rgba(255, 255, 255, 0.95)",
+  "backdrop": "blur(4px)",
+  "opacity": "1",
+  "bb": "1px solid rgb(229, 231, 235)",
+  "pos": "sticky",
+  "rect": [
+   0,
+   0,
+   1280,
+   65
+  ]
+ },
+ "regionTop": {
+  "bg": "rgb(253, 232, 21)",
+  "rect": [
+   0,
+   0,
+   1280,
+   65
+  ]
+ },
+ "rows": [
+  {
+   "tag": "A",
+   "cls": "sf-tap-inline text-xl font-bold text-yellow-600 dark:text-ye",
+   "sfm": "",
+   "text": "Seafood 海鲜市场",
+   "color": "rgb(202, 138, 4)",
+   "fs": "20px",
+   "fw": "700",
+   "ownBg": "rgba(0, 0, 0, 0)",
+   "bg": "rgba(255, 255, 255, 0.95)"
+  },
+  {
+   "tag": "A",
+   "cls": "nav-link  ",
+   "sfm": "",
+   "text": "社区任务",
+   "color": "rgb(75, 85, 99)",
+   "fs": "14px",
+   "fw": "500",
+   "ownBg": "rgba(0, 0, 0, 0)",
+   "bg": "rgba(255, 255, 255, 0.95)"
+  },
+  {
+   "tag": "A",
+   "cls": "nav-link  ",
+   "sfm": "",
+   "text": "市场",
+   "color": "rgb(75, 85, 99)",
+   "fs": "14px",
+   "fw": "500",
+   "ownBg": "rgba(0, 0, 0, 0)",
+   "bg": "rgba(255, 255, 255, 0.95)"
+  },
+  {
+   "tag": "SPAN",
+   "cls": "",
+   "sfm": "",
+   "text": "订单",
+   "color": "rgb(75, 85, 99)",
+   "fs": "14px",
+   "fw": "500",
+   "ownBg": "rgba(0, 0, 0, 0)",
+   "bg": "rgba(255, 255, 255, 0.95)"
+  },
+  {
+   "tag": "SPAN",
+   "cls": "",
+   "sfm": "",
+   "text": "语言",
+   "color": "rgb(75, 85, 99)",
+   "fs": "14px",
+   "fw": "500",
+   "ownBg": "rgba(0, 0, 0, 0)",
+   "bg": "rgba(255, 255, 255, 0.95)"
+  },
+  {
+   "tag": "SPAN",
+   "cls": "",
+   "sfm": "",
+   "text": "注册",
+   "color": "rgb(75, 85, 99)",
+   "fs": "14px",
+   "fw": "500",
+   "ownBg": "rgba(0, 0, 0, 0)",
+   "bg": "rgba(255, 255, 255, 0.95)"
+  },
+  {
+   "tag": "SPAN",
+   "cls": "",
+   "sfm": "",
+   "text": "登录",
+   "color": "rgb(75, 85, 99)",
+   "fs": "14px",
+   "fw": "500",
+   "ownBg": "rgba(0, 0, 0, 0)",
+   "bg": "rgba(255, 255, 255, 0.95)"
+  }
+ ]
+}

@@ -1,0 +1,190 @@
+{
+ "dark_base": {
+  "theme": "dark",
+  "vw": 1280,
+  "colorScheme": "dark",
+  "headerBg": "rgb(31, 41, 55)",
+  "backdrop": "blur(4px)",
+  "bb": "1px rgb(55, 65, 81)",
+  "rect": [
+   0,
+   0,
+   1280,
+   65
+  ],
+  "n": 7,
+  "rows": [
+   {
+    "tag": "A",
+    "sfm": "",
+    "cls": "sf-tap-inline text-xl font-bold text-yel",
+    "text": "Seafood 海鲜市场",
+    "color": "rgba(255, 255, 255, 0.92)",
+    "fs": "20px",
+    "fw": "700",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgb(31, 41, 55)"
+   },
+   {
+    "tag": "A",
+    "sfm": "",
+    "cls": "nav-link  ",
+    "text": "社区任务",
+    "color": "rgba(255, 255, 255, 0.92)",
+    "fs": "14px",
+    "fw": "500",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgb(31, 41, 55)"
+   },
+   {
+    "tag": "A",
+    "sfm": "",
+    "cls": "nav-link  ",
+    "text": "市场",
+    "color": "rgba(255, 255, 255, 0.92)",
+    "fs": "14px",
+    "fw": "500",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgb(31, 41, 55)"
+   },
+   {
+    "tag": "SPAN",
+    "sfm": "",
+    "cls": "",
+    "text": "订单",
+    "color": "rgba(255, 255, 255, 0.92)",
+    "fs": "14px",
+    "fw": "500",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgb(31, 41, 55)"
+   },
+   {
+    "tag": "SPAN",
+    "sfm": "",
+    "cls": "",
+    "text": "语言",
+    "color": "rgba(255, 255, 255, 0.92)",
+    "fs": "14px",
+    "fw": "500",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgb(31, 41, 55)"
+   },
+   {
+    "tag": "SPAN",
+    "sfm": "",
+    "cls": "",
+    "text": "注册",
+    "color": "rgba(255, 255, 255, 0.92)",
+    "fs": "14px",
+    "fw": "500",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgb(31, 41, 55)"
+   },
+   {
+    "tag": "SPAN",
+    "sfm": "",
+    "cls": "",
+    "text": "登录",
+    "color": "rgba(255, 255, 255, 0.92)",
+    "fs": "14px",
+    "fw": "500",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgb(31, 41, 55)"
+   }
+  ]
+ },
+ "dark_with_day_rule": {
+  "theme": "dark",
+  "vw": 1280,
+  "colorScheme": "dark",
+  "headerBg": "rgb(31, 41, 55)",
+  "backdrop": "blur(4px)",
+  "bb": "1px rgb(55, 65, 81)",
+  "rect": [
+   0,
+   0,
+   1280,
+   65
+  ],
+  "n": 7,
+  "rows": [
+   {
+    "tag": "A",
+    "sfm": "",
+    "cls": "sf-tap-inline text-xl font-bold text-yel",
+    "text": "Seafood 海鲜市场",
+    "color": "rgba(255, 255, 255, 0.92)",
+    "fs": "20px",
+    "fw": "700",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgb(31, 41, 55)"
+   },
+   {
+    "tag": "A",
+    "sfm": "",
+    "cls": "nav-link  ",
+    "text": "社区任务",
+    "color": "rgba(255, 255, 255, 0.92)",
+    "fs": "14px",
+    "fw": "500",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgb(31, 41, 55)"
+   },
+   {
+    "tag": "A",
+    "sfm": "",
+    "cls": "nav-link  ",
+    "text": "市场",
+    "color": "rgba(255, 255, 255, 0.92)",
+    "fs": "14px",
+    "fw": "500",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgb(31, 41, 55)"
+   },
+   {
+    "tag": "SPAN",
+    "sfm": "",
+    "cls": "",
+    "text": "订单",
+    "color": "rgba(255, 255, 255, 0.92)",
+    "fs": "14px",
+    "fw": "500",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgb(31, 41, 55)"
+   },
+   {
+    "tag": "SPAN",
+    "sfm": "",
+    "cls": "",
+    "text": "语言",
+    "color": "rgba(255, 255, 255, 0.92)",
+    "fs": "14px",
+    "fw": "500",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgb(31, 41, 55)"
+   },
+   {
+    "tag": "SPAN",
+    "sfm": "",
+    "cls": "",
+    "text": "注册",
+    "color": "rgba(255, 255, 255, 0.92)",
+    "fs": "14px",
+    "fw": "500",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgb(31, 41, 55)"
+   },
+   {
+    "tag": "SPAN",
+    "sfm": "",
+    "cls": "",
+    "text": "登录",
+    "color": "rgba(255, 255, 255, 0.92)",
+    "fs": "14px",
+    "fw": "500",
+    "ownBg": "rgba(0, 0, 0, 0)",
+    "bg": "rgb(31, 41, 55)"
+   }
+  ]
+ }
+}

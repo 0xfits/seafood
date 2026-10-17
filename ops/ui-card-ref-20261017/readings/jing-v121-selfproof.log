@@ -1,0 +1,26 @@
+# jing-v121 · 自证复跑命令与输出（可复核）
+# 1) 现取基线
+cd /Users/kevin/bistro/seafood
+md5 -q docs/design/design-system.spec.md         # 6fa271687481dd69c70a5ce358b63dc5
+cmp docs/design/design-system.spec.md docs/versions/design-system.spec.v1.20.md   # exit 0
+wc -l -c docs/design/design-system.spec.md       # 2646  607188
+# 2) 真渲染读数（浏览器侧；本单用 browser tool 的 CDP/js 通道）
+#    goto http://localhost:5787/ · localStorage.theme=light|dark · reload
+#    js: getComputedStyle(document.querySelector('#header')).{backgroundColor,backdropFilter,borderBottomColor}
+#    js: document.querySelector('.sf-region-top') 回读 + getBoundingClientRect() 与 #header 对拍
+#    CDP: Emulation.setDeviceMetricsOverride{width:390|1280|1440|1600} → 复读
+# 3) 候选机制注入自证（不动仓）：document.head.appendChild(<style id="jing-can">…</style>) → 复读 → remove() → 复读
+# 4) 静态对照（现取消费者 / 值表 / 断言锚）
+grep -rn 'var(--sf-topbar-bg)'   frontend/src
+grep -rn 'topbar-border\|brand-fg' frontend/src            # 仅 tokens.js + theme-tokens.css（零选择器消费者）
+grep -o '\.nav-link[^{]*{[^}]*}' frontend/dist/assets/index-B0eM_JXL.css
+grep -rn 'id="header"' frontend/src/components/Header.jsx  # :166
+nl -ba frontend/src/styles.css | sed -n '146,147p'         # 夜档全局 !important 前景规则
+grep -rn 'bg-white\|bg-opacity\|backdrop' frontend/src/test # 仅 Card.test.jsx（与本单无关）⇒ 零断言锚
+# 5) 落笔后自证
+git diff --numstat docs/design/design-system.spec.md       # 删除列必须 = 0
+grep -n '^> \*\*★ 现行版 = v1.21' docs/design/design-system.spec.md   # 恰 1
+grep -n '^## §23 ' docs/design/design-system.spec.md                  # 恰 1
+grep -n '^| \*\*v1.21\*\* |' docs/design/design-system.spec.md         # 恰 1
+cmp docs/design/design-system.spec.md docs/versions/design-system.spec.v1.21.md  # exit 0
+git status --porcelain frontend backend-ts tools ctrl      # 必须为空

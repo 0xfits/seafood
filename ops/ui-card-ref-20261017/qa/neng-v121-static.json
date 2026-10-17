@@ -1,0 +1,272 @@
+{
+  "meta": {
+    "head": "ad52533 docs(seafood): design-system v1.20d 勘误 + §23（v1.21）顶栏实黄冻结\n4b388d0 feat(seafood): 首页商品卡片 UI 改造（底色分层 · 价格块照参考图 · 整卡可点击）· design-system v1.20",
+    "statusPorcelain": [
+      "M frontend/src/components/Header.jsx",
+      " M frontend/src/components/ui/HoverMenu.css",
+      " M frontend/src/styles.css",
+      " M ops/ui-card-ref-20261017/qa/neng-ac5-stdout.txt",
+      " M ops/ui-card-ref-20261017/qa/neng-probe-ac5.mjs",
+      " M ops/ui-card-ref-20261017/qa/neng-readings-ac5.json",
+      "?? ops/ui-card-ref-20261017/kong-v121-REPORT.md",
+      "?? ops/ui-card-ref-20261017/neng-REPORT.md",
+      "?? ops/ui-card-ref-20261017/neng-v121-REPORT.md",
+      "?? ops/ui-card-ref-20261017/qa/kong-probe-v121-topbar.mjs",
+      "?? ops/ui-card-ref-20261017/qa/kong-v121-ac-check.mjs",
+      "?? ops/ui-card-ref-20261017/qa/kong-v121-noise-baseline.mjs",
+      "?? ops/ui-card-ref-20261017/qa/kong-v121-static-checks.sh",
+      "?? ops/ui-card-ref-20261017/qa/neng-ac4-vitest.config.mjs",
+      "?? ops/ui-card-ref-20261017/qa/neng-ac4.test.jsx",
+      "?? ops/ui-card-ref-20261017/qa/neng-ac5-stdout-v1freshrun.txt",
+      "?? ops/ui-card-ref-20261017/qa/neng-probe-shots-obs.mjs",
+      "?? ops/ui-card-ref-20261017/qa/neng-readings-ac5-v1freshrun.json",
+      "?? ops/ui-card-ref-20261017/qa/neng-readings-shots-obs.json",
+      "?? ops/ui-card-ref-20261017/qa/neng-shots-obs-stdout.txt",
+      "?? ops/ui-card-ref-20261017/qa/neng-shots-sha256.txt",
+      "?? ops/ui-card-ref-20261017/qa/neng-v121-hover-b-stdout.txt",
+      "?? ops/ui-card-ref-20261017/qa/neng-v121-hover-contrast.json",
+      "?? ops/ui-card-ref-20261017/qa/neng-v121-hover-stdout.txt",
+      "?? ops/ui-card-ref-20261017/qa/neng-v121-pixels-stdout.txt",
+      "?? ops/ui-card-ref-20261017/qa/neng-v121-pixels.json",
+      "?? ops/ui-card-ref-20261017/qa/neng-v121-probe-geometry.mjs",
+      "?? ops/ui-card-ref-20261017/qa/neng-v121-probe-hover-b.mjs",
+      "?? ops/ui-card-ref-20261017/qa/neng-v121-probe-hover.mjs",
+      "?? ops/ui-card-ref-20261017/qa/neng-v121-probe-pixels.mjs",
+      "?? ops/ui-card-ref-20261017/qa/neng-v121-static-stdout.txt",
+      "?? ops/ui-card-ref-20261017/qa/neng-v121-static.mjs",
+      "?? ops/ui-card-ref-20261017/readings/jing-v120d-readings.txt",
+      "?? ops/ui-card-ref-20261017/readings/jing-v121-dark.json",
+      "?? ops/ui-card-ref-20261017/readings/jing-v121-light-current.json",
+      "?? ops/ui-card-ref-20261017/readings/jing-v121-mobile390.json",
+      "?? ops/ui-card-ref-20261017/readings/jing-v121-readings.json",
+      "?? ops/ui-card-ref-20261017/readings/jing-v121-readings.txt",
+      "?? ops/ui-card-ref-20261017/readings/jing-v121-sticky.json",
+      "?? ops/ui-card-ref-20261017/readings/kong-v121-ac.json",
+      "?? ops/ui-card-ref-20261017/readings/kong-v121-noise-baseline.json",
+      "?? ops/ui-card-ref-20261017/readings/kong-v121-probe-current-stdout.txt",
+      "?? ops/ui-card-ref-20261017/readings/kong-v121-probe-parent-stdout.txt",
+      "?? ops/ui-card-ref-20261017/readings/kong-v121-readings-current.json",
+      "?? ops/ui-card-ref-20261017/readings/kong-v121-readings-parent.json",
+      "?? ops/ui-card-ref-20261017/readings/kong-v121-static.txt",
+      "?? \"ops/ui-card-ref-20261017/shots/neng-1600-\\345\\244\\234\\346\\241\\243.png\"",
+      "?? \"ops/ui-card-ref-20261017/shots/neng-1600-\\346\\227\\245\\346\\241\\243.png\"",
+      "?? \"ops/ui-card-ref-20261017/shots/neng-390-\\346\\227\\245\\346\\241\\243-2cards.png\"",
+      "?? \"ops/ui-card-ref-20261017/shots/neng-390-\\346\\227\\245\\346\\241\\243-top.png\"",
+      "?? \"ops/ui-card-ref-20261017/shots/neng-hover-\\346\\227\\245\\346\\241\\243.png\"",
+      "?? ops/ui-card-ref-20261017/shots/neng-obs4-1600-dark-epic-noglow.png",
+      "?? ops/ui-card-ref-20261017/shots/neng-obs4-1600-dark-epic-withglow.png",
+      "?? ops/ui-card-ref-20261017/shots/neng-obs4-1600-light-epic-noglow.png",
+      "?? ops/ui-card-ref-20261017/shots/neng-obs4-1600-light-epic-withglow.png",
+      "?? ops/ui-card-ref-20261017/shots/neng-obs4-390-dark-epic-noglow.png",
+      "?? ops/ui-card-ref-20261017/shots/neng-obs4-390-dark-epic-withglow.png",
+      "?? ops/ui-card-ref-20261017/shots/neng-obs4-390-light-epic-noglow.png",
+      "?? ops/ui-card-ref-20261017/shots/neng-obs4-390-light-epic-withglow.png",
+      "?? ops/ui-card-ref-20261017/shots/neng-obs4-390-light-legendary-injected-noglow.png",
+      "?? ops/ui-card-ref-20261017/shots/neng-obs4-390-light-legendary-injected-withglow.png",
+      "?? \"ops/ui-card-ref-20261017/shots/preview-cards-1600-\\345\\244\\234\\346\\241\\243.png\"",
+      "?? \"ops/ui-card-ref-20261017/shots/preview-cards-1600-\\346\\227\\245\\346\\241\\243.png\"",
+      "?? \"ops/ui-card-ref-20261017/shots/preview-cards-390-\\345\\244\\234\\346\\241\\243.png\"",
+      "?? \"ops/ui-card-ref-20261017/shots/preview-cards-390-\\346\\227\\245\\346\\241\\243.png\"",
+      "?? \"ops/ui-card-ref-20261017/shots/preview-topbar-A-\\347\\216\\260\\347\\212\\266\\351\\241\\266\\346\\240\\217\\350\\277\\221\\347\\231\\275-1600-\\346\\227\\245\\346\\241\\243.png\"",
+      "?? \"ops/ui-card-ref-20261017/shots/preview-topbar-B-\\351\\241\\266\\346\\240\\217\\345\\256\\236\\351\\273\\204-1600-\\346\\227\\245\\346\\241\\243.png\"",
+      "?? \"ops/ui-card-ref-20261017/shots/preview-topbar-C-\\347\\231\\275\\351\\241\\266\\346\\240\\217\\345\\212\\240\\351\\273\\204\\344\\270\\213\\350\\276\\271\\347\\272\\277-1600-\\346\\227\\245\\346\\241\\243.png\"",
+      "?? \"ops/ui-card-ref-20261017/shots/v121-1440-\\345\\244\\234\\346\\241\\243.png\"",
+      "?? \"ops/ui-card-ref-20261017/shots/v121-1440-\\346\\227\\245\\346\\241\\243.png\"",
+      "?? \"ops/ui-card-ref-20261017/shots/v121-1600-\\345\\244\\234\\346\\241\\243.png\"",
+      "?? \"ops/ui-card-ref-20261017/shots/v121-1600-\\346\\227\\245\\346\\241\\243.png\"",
+      "?? \"ops/ui-card-ref-20261017/shots/v121-320-\\346\\227\\245\\346\\241\\243.png\"",
+      "?? \"ops/ui-card-ref-20261017/shots/v121-375-\\346\\227\\245\\346\\241\\243.png\"",
+      "?? \"ops/ui-card-ref-20261017/shots/v121-390-\\345\\244\\234\\346\\241\\243.png\"",
+      "?? \"ops/ui-card-ref-20261017/shots/v121-390-\\346\\227\\245\\346\\241\\243-\\346\\261\\211\\345\\240\\241\\351\\235\\242\\346\\235\\277\\345\\261\\225\\345\\274\\200.png\"",
+      "?? \"ops/ui-card-ref-20261017/shots/v121-390-\\346\\227\\245\\346\\241\\243.png\"",
+      "?? \"ops/ui-card-ref-20261017/shots/v121-hover-nav-link-\\346\\227\\245\\346\\241\\243.png\"",
+      "?? \"ops/ui-card-ref-20261017/shots/v121-hover-\\347\\231\\273\\345\\275\\225\\351\\222\\256-\\346\\227\\245\\346\\241\\243.png\""
+    ],
+    "numstat": "3\t3\tfrontend/src/components/Header.jsx\n15\t0\tfrontend/src/components/ui/HoverMenu.css\n48\t0\tfrontend/src/styles.css\n13\t14\tops/ui-card-ref-20261017/qa/neng-ac5-stdout.txt\n12\t4\tops/ui-card-ref-20261017/qa/neng-probe-ac5.mjs\n47\t60\tops/ui-card-ref-20261017/qa/neng-readings-ac5.json",
+    "refShots": {
+      "ref_xianyu": "c7a0aa9f11e9d8fdb83eadab16b95a0f6227ac389ebad19a3588d0e2054c9fa0  ops/ui-card-ref-20261017/shots/ref-xianyu.png",
+      "current_seafood": "be25f54209e928df68fd625dfa5ef0769383ca2ca61c72b5911b2e2a19401491  ops/ui-card-ref-20261017/shots/current-seafood.png"
+    }
+  },
+  "ac6": {
+    "shell": {
+      "mediaCount": 1,
+      "dataThemeCount": 0,
+      "themeDayNight": 0,
+      "cssSha256": "737bb3ac9b7f92b601557614ed79ebff1f288287389704633deba64d76f0644b"
+    },
+    "shellVsParent": {
+      "parentSha256": "737bb3ac9b7f92b601557614ed79ebff1f288287389704633deba64d76f0644b",
+      "identical": true
+    }
+  },
+  "frozen": {
+    "files": {
+      "frontend/src/shell/shell.css": {
+        "numstat": "(empty)",
+        "vsHeadNumstat": "(empty)",
+        "vsParentEqual": "SAME"
+      },
+      "frontend/src/theme/tokens.js": {
+        "numstat": "(empty)",
+        "vsHeadNumstat": "(empty)",
+        "vsParentEqual": "SAME"
+      },
+      "frontend/src/theme/theme-tokens.css": {
+        "numstat": "(empty)",
+        "vsHeadNumstat": "(empty)",
+        "vsParentEqual": "SAME"
+      },
+      "frontend/src/theme/ThemeProvider.jsx": {
+        "numstat": "(empty)",
+        "vsHeadNumstat": "(empty)",
+        "vsParentEqual": "SAME"
+      },
+      "docs/design/design-system.spec.md": {
+        "numstat": "(empty)",
+        "vsHeadNumstat": "(empty)",
+        "vsParentEqual": "SAME"
+      },
+      "docs/design/style-preview.html": {
+        "numstat": "(empty)",
+        "vsHeadNumstat": "(empty)",
+        "vsParentEqual": "SAME"
+      }
+    },
+    "statusByArea": {
+      "frontend/src/pages/item": "(empty)",
+      "frontend/src/pages/theme-preview.jsx": "(empty)",
+      "frontend/src/pages/theme-preview-demo.js": "(empty)",
+      "backend-ts": "(empty)",
+      "docs": "(empty)",
+      "tools": "(empty)",
+      "ctrl": "(empty)"
+    },
+    "themePreviewAny": "ERR:Command failed: git status --porcelain -- frontend/src/pages | grep theme-preview"
+  },
+  "i18n": {
+    "perLocale": {
+      "zh": {
+        "top": 128,
+        "flat": 1104,
+        "sortedSha": "5bb8082b4c1908fbad7a1446e9cee59f4acbc8d39048d85d12cd37e0c6e55ffb",
+        "keySetSha": "ok"
+      },
+      "en": {
+        "top": 128,
+        "flat": 1104,
+        "sortedSha": "4d28ca1487fd4fa08509c67abd808914d07c44cb70efadf1febe3305aab86ecc",
+        "keySetSha": "ok"
+      },
+      "hk": {
+        "top": 128,
+        "flat": 1104,
+        "sortedSha": "24035e4ae42e72317f2ae0aa9a951880da4faff06afe74f1ed61fa20dc631226",
+        "keySetSha": "ok"
+      },
+      "vn": {
+        "top": 128,
+        "flat": 1104,
+        "sortedSha": "1fcb952f3a15eb38810cdf6844d8e81e81a5f6e6c6bf7401b8dc751569b3f85e",
+        "keySetSha": "ok"
+      }
+    },
+    "keySetEqual": true,
+    "zhTop": 128,
+    "zhFlat": 1104,
+    "fourLocaleNodes": 4416,
+    "frozenAssertions": {
+      "expected": {
+        "top": 128,
+        "flat": 1104,
+        "nodes": 4416
+      }
+    },
+    "localeNumstat": "(empty)"
+  },
+  "browser": {
+    "regions": [
+      {
+        "region": "shell",
+        "tag": "DIV",
+        "id": "",
+        "cls": "sf-shell"
+      },
+      {
+        "region": "topnav",
+        "tag": "DIV",
+        "id": "",
+        "cls": "sf-region sf-region-top"
+      },
+      {
+        "region": "content",
+        "tag": "MAIN",
+        "id": "sf-route-container",
+        "cls": "sf-route-container"
+      },
+      {
+        "region": "footer",
+        "tag": "DIV",
+        "id": "",
+        "cls": "sf-region sf-region-foot"
+      },
+      {
+        "region": "tabbar",
+        "tag": "NAV",
+        "id": "",
+        "cls": "sf-tabbar"
+      }
+    ],
+    "regionSet": [
+      "content",
+      "footer",
+      "shell",
+      "tabbar",
+      "topnav"
+    ],
+    "navLinkHrefs": [
+      "/exchange",
+      "/profile",
+      "/task"
+    ],
+    "topnavBrand": true,
+    "topnavLangButtons": 5,
+    "headerInnerNavLinkCount": 5,
+    "headerInnerNavLinkClasses": [
+      {
+        "tag": "A",
+        "cls": "nav-link  ",
+        "text": "社区任务"
+      },
+      {
+        "tag": "A",
+        "cls": "nav-link  ",
+        "text": "市场"
+      },
+      {
+        "tag": "A",
+        "cls": "nav-link",
+        "text": "订单"
+      },
+      {
+        "tag": "BUTTON",
+        "cls": "flex items-center space-x-1 nav-link",
+        "text": "语言"
+      },
+      {
+        "tag": "BUTTON",
+        "cls": "nav-link",
+        "text": ""
+      }
+    ],
+    "tabbarLinks": [
+      "/",
+      "/exchange",
+      "/item/new",
+      "/messages"
+    ],
+    "headerClass": "bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95",
+    "headerChildCount": 40,
+    "rootInnerLen": 16684
+  }
+}

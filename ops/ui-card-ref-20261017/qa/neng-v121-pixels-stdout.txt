@@ -1,0 +1,14 @@
+[leg1] 2.4s assets ["index-UdAFWx1k.css","index-_MHXbVv1.js"] ["index-B0eM_JXL.css","index-Dh7Gdrie.js"]
+[leg1] 3.5s AC-1/4 w390 rgb(253, 232, 21) 1 none rgb(3, 4, 2) | composite rgb(253, 232, 21) a=1 | efp ok true
+[leg1] 4.4s AC-1/4 w1440 rgb(253, 232, 21) 1 none rgb(3, 4, 2) | composite rgb(253, 232, 21) a=1 | efp ok true
+[leg1] 5.1s AC-1/4 w1600 rgb(253, 232, 21) 1 none rgb(3, 4, 2) | composite rgb(253, 232, 21) a=1 | efp ok true
+[leg1] 5.9s AC-2 w390 rgb(31, 41, 55) blur(4px) 1px solid rgb(55, 65, 81) | reverse arm: rgb(31, 41, 55) => rgb(11, 12, 14) composite rgb(11, 12, 14) | restore rgb(31, 41, 55)
+[leg1] 7.0s AC-2 w1440 rgb(31, 41, 55) blur(4px) 1px solid rgb(55, 65, 81) | reverse arm: rgb(31, 41, 55) => rgb(11, 12, 14) composite rgb(11, 12, 14) | restore rgb(31, 41, 55)
+[leg1] 8.1s AC-2 w1600 rgb(31, 41, 55) blur(4px) 1px solid rgb(55, 65, 81) | reverse arm: rgb(31, 41, 55) => rgb(11, 12, 14) composite rgb(11, 12, 14) | restore rgb(31, 41, 55)
+[leg1] 9.3s AC-8 {"base":{"computed":"rgb(253, 232, 21)","composite":{"rgba":"253,232,21,255","rgb":"rgb(253, 232, 21)","a":1,"count":88072,"frac":0.941}},"negativeControl":{"rule":"#header{background-color:#FFFFFF !important}","computed":"rgb(255, 255, 255)","composite":{"rgba":"255,255,255,255","rgb":"rgb(255, 255, 255)","a":1,"count":88072,"frac":0.941},"turnedRed":true},"restore":{"computed":"rgb(253, 232, 21)","composite":{"rgba":"253,232,21,255","rgb":"rgb(253, 232, 21)","a":1,"count":88072,"frac":0.941},"backToBaseline":true},"pixelSensitivity":true}
+[leg1] 10.8s AC-10 390 panel {"headerRect":{"x":0,"y":0,"w":390,"h":500},"headerBg":"rgb(253, 232, 21)","panelWrap":{"found":true,"sel":"#header > div.md\\:hidden","color":"rgb(10, 10, 10)","backgroundColor":"rgba(255, 255, 255, 0.95)","fontSize":"16px","fontWeight":"400","rect":{"x":0,"y":64,"w":390,"h":435},"text":"社区任务订单注册登录语言简体中文English粤语Tiếng Việt","composite":{"rgba":"255,254,243,255","rgb":"rgb(255, 254, 243)","a":1,"count":118990,"frac":0.729}},"regPill":{"found":true,"sel":"#header button.bg-blue-600","color":"rgb(255, 255, 255)","backgroundColor":"rgba(37, 99, 235, 0.95)","fontSize":"16px","fontWeight":"500","rect":{"x":8,"y":165,"w":374,"h":44},"text":"注册","composite":{"rgba":"48,107,235,255","rgb":"rgb(48, 107, 235)","a":1,"count":12864,"frac":0.976}},"loginPill":{"found":true,"sel":"#header button.bg-yellow-600","color":"rgb(255, 255, 255)","backgroundColor":"rgba(202, 138, 4, 0.95)","fontSize":"16px","
+[leg1] 10.8s AC-10 w390 rgb(253, 232, 21) 1 composite rgb(253, 232, 21) a=1
+[leg1] 11.4s AC-10 w375 rgb(253, 232, 21) 1 composite rgb(253, 232, 21) a=1
+[leg1] 11.9s AC-10 w320 rgb(253, 232, 21) 1 composite rgb(253, 232, 21) a=1
+[leg1] 11.9s WROTE neng-v121-pixels.json
+EXIT=0

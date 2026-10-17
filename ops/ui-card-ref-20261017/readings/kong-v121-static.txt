@@ -1,0 +1,81 @@
+===== Kong 静态读数（v1.21 §23 · AC-6 + 断言锚）· 2026-10-17 09:11:02 CST =====
+--- ① shell.css 断点块计数（须 = 1）与主题分支（须 = 0）---
+@media 计数        = 1
+185:@media (max-width: 767px) {
+data-theme 计数    = 0
+theme-day/night    = 0
+
+--- ② 五 data-sf-region 恒等（产品面字面）---
+  frontend/src/test/unit/theme-shell-isomorphism.test.jsx:86:    const tabbar = container.querySelector('[data-sf-region="tabbar"]')
+  frontend/src/test/unit/theme-shell-isomorphism.test.jsx:96:    const tabHrefs = Array.from(container.querySelectorAll('[data-sf-region="tabbar"] a[data-sf-nav]')).map((a) => a.getAttribute('href'))
+  frontend/src/test/unit/theme-shell-isomorphism.test.jsx:103:    const brandHref = container.querySelector('[data-sf-region="topnav"] a[href="/"]')
+  frontend/src/test/unit/theme-shell-isomorphism.test.jsx:112:    const tabs = Array.from(container.querySelectorAll('[data-sf-region="tabbar"] a[data-sf-nav]')).map((a) => a.getAttribute('data-sf-nav'))
+  frontend/src/test/unit/theme-shell-isomorphism.test.jsx:118:    const top = container.querySelector('[data-sf-region="topnav"]')
+  frontend/src/test/unit/v15-nav-floatmenu.test.jsx:111:    const tabs = Array.from(container.querySelectorAll('[data-sf-region="tabbar"] a[data-sf-nav]'))
+  frontend/src/test/unit/v15-nav-floatmenu.test.jsx:301:    expect(opened.container.querySelector('[data-sf-region="shell"]').className).toContain('sf-shell--msg-open')
+  frontend/src/shell/BottomTabBar.jsx:61:    <nav className={`sf-tabbar${isDetail ? ' is-detail' : ''}`} data-sf-region="tabbar" aria-label={t('siteBrand')}>
+  frontend/src/shell/AppShell.jsx:31:        data-sf-region="shell"
+  frontend/src/shell/AppShell.jsx:33:        <div className="sf-region sf-region-top" data-sf-region="topnav">
+  frontend/src/shell/AppShell.jsx:36:        <main id="sf-route-container" className="sf-route-container" data-sf-region="content">
+  frontend/src/shell/AppShell.jsx:39:        <div className="sf-region sf-region-foot" data-sf-region="footer">
+  region 去重计数 = content footer shell tabbar topnav 
+
+--- ③ .nav-link[href] 集合（须恒等 ['/task','/exchange','/profile']）---
+  184:                  className={`nav-link ${location.pathname.includes(item.path) ? 'active' : ''} ${
+  194:                未登录同样可点 ⇒ 由既有 ProtectedRoute 出登录引导；复用既有头部控件类 nav-link（不动桌面按钮几何）。 */}
+  197:              className="nav-link"
+  209:                <button className="flex items-center space-x-1 nav-link">
+  253:              className="nav-link"
+  267:                    className="flex items-center space-x-1 nav-link"
+
+--- ④ token 面零 diff（tokens.js / theme-tokens.css / shell.css / theme-preview*）---
+  （以上应无输出 ⇒ 四处零 diff）
+  TOKEN_KEYS/STRUCT 计数（现盘）:
+node:internal/modules/cjs/loader:1411
+      throw err;
+      ^
+
+Error [ERR_REQUIRE_ESM]: require() of ES Module /Users/kevin/bistro/seafood/frontend/src/theme/tokens.js from /Users/kevin/bistro/seafood/[eval] not supported.
+Instead change the require of tokens.js in /Users/kevin/bistro/seafood/[eval] to a dynamic import() which is available in all CommonJS modules.
+    at [eval]:2:11
+    at Script.runInThisContext (node:vm:122:12)
+    at Object.runInThisContext (node:vm:298:38)
+    at [eval]-wrapper:6:24 {
+  code: 'ERR_REQUIRE_ESM'
+}
+
+Node.js v18.19.0
+
+--- ⑤ Header.jsx 不得引入 sf-btn 族（p6-btn-impl2 冻结清单）---
+  sf-btn 命中 = 0
+
+--- ⑥ 本单三处源码改动（git numstat）---
+  3	3	frontend/src/components/Header.jsx
+  15	0	frontend/src/components/ui/HoverMenu.css
+  48	0	frontend/src/styles.css
+
+--- ⑦ 落点自证：新增日档规则只在 styles.css / HoverMenu.css；shell.css 内零命中 ---
+  styles.css 'root:not(\[data-theme' 命中 = 4
+  HoverMenu.css 'root:not(\[data-theme' 命中 = 3
+  shell.css 'root:not(\[data-theme' 命中 = 0
+  theme-tokens.css 内本单痕迹命中 = 0
+
+--- ⑧ 产物面：新增日档规则进 dist（含 .backdrop-blur-sm 仍在、.bg-opacity-95 仍在 = 夜档冻结件保留）---
+  dist css = index-UdAFWx1k.css
+  日档限定规则命中 = 0
+  var(--sf-topbar-bg) 声明命中 = 3
+  var(--sf-topbar-border) 声明命中 = 1
+  var(--sf-brand-fg) 声明命中 = 2
+  .backdrop-blur-sm 仍在 = 1（夜档 backdropFilter=blur(4px) 承重件）
+  .bg-opacity-95 仍在   = 1
+  hover:text-yellow-600 剩余命中 = 0（应为 0：两处消费点已改）
+
+--- ⑨ 相关测试锚（Header 外观类零锚 = §23.4 B8）---
+  test 内 '#header|bg-white|bg-opacity|backdrop' 命中:
+  （Card.test.jsx 的 bg-white 属 Card 组件，与本单无关）
+
+--- ⑩ 夜档全局前景规则（styles.css 146-147 一带）逐字未动自证 ---
+  +     夜档对应前景**维持现状**：由本文件 `[data-theme="dark"] #header, … #header *` 的 `!important`
+  （以上应无输出 ⇒ 该两条未被删改；本单在 styles.css 只做尾部追加）
+
+===== END =====

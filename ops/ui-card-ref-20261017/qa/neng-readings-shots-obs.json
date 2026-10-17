@@ -1,0 +1,1090 @@
+{
+  "probe": "neng-probe-shots-obs.mjs（Neng 质检员 · 自写自跑 · 截图 + 观察 #4/#5）",
+  "startedAt": "2026-10-17T00:42:31.626Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "fixtures": [
+    {
+      "bID": 1,
+      "name": "九成新 iPhone 14 Pro 128G 深空黑 无拆无修",
+      "points": 6600
+    },
+    {
+      "bID": 2,
+      "name": "全新未拆封 罗技 MX Master 3S 无线鼠标",
+      "points": 890
+    },
+    {
+      "bID": 3,
+      "name": "自用一年 MacBook Air M2 13 英寸 星空色",
+      "points": 3200
+    },
+    {
+      "bID": 4,
+      "name": "宜家 BEKANT 电动升降桌 160x80 白面",
+      "points": 1200
+    },
+    {
+      "bID": 5,
+      "name": "索尼 WH-1000XM5 头戴式降噪耳机",
+      "points": 900
+    },
+    {
+      "bID": 6,
+      "name": "佳能 EOS R6 微单机身 全画幅",
+      "points": 7200
+    }
+  ],
+  "shots": {
+    "neng-390-日档-top.png": {
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scrolled": false,
+      "layerSamples": {
+        "shellBg": "rgb(245, 247, 249)",
+        "routeContainerBg": "rgb(255, 255, 255)",
+        "topbarBg": "rgb(253, 232, 21)",
+        "routeContainerRect": {
+          "x": 0,
+          "w": 390
+        },
+        "viewportW": 390,
+        "sideGutter": 0,
+        "scrollY": 0
+      },
+      "scrollInfo": null,
+      "pixelSamples": {
+        "size": [
+          390,
+          844
+        ],
+        "points": [
+          {
+            "x": 8,
+            "y": 422,
+            "rgb": [
+              255,
+              255,
+              255
+            ],
+            "a": 255
+          },
+          {
+            "x": 195,
+            "y": 422,
+            "rgb": [
+              255,
+              255,
+              255
+            ],
+            "a": 255
+          },
+          {
+            "x": 195,
+            "y": 12,
+            "rgb": [
+              255,
+              254,
+              243
+            ],
+            "a": 255
+          }
+        ]
+      }
+    },
+    "neng-390-日档-2cards.png": {
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scrolled": true,
+      "layerSamples": null,
+      "scrollInfo": {
+        "y": 1069,
+        "firstCardAbsTop": 1145,
+        "scrollY": 1069,
+        "wholeCardsVisible": 1,
+        "partialCardsVisible": 2,
+        "viewportH": 844
+      },
+      "pixelSamples": null
+    },
+    "neng-1600-日档.png": {
+      "theme": "light",
+      "viewport": {
+        "width": 1600,
+        "height": 900
+      },
+      "scrolled": false,
+      "layerSamples": {
+        "shellBg": "rgb(245, 247, 249)",
+        "routeContainerBg": "rgb(255, 255, 255)",
+        "topbarBg": "rgb(253, 232, 21)",
+        "routeContainerRect": {
+          "x": 80,
+          "w": 1440
+        },
+        "viewportW": 1600,
+        "sideGutter": 80,
+        "scrollY": 0
+      },
+      "scrollInfo": null,
+      "pixelSamples": {
+        "size": [
+          1600,
+          900
+        ],
+        "points": [
+          {
+            "x": 8,
+            "y": 450,
+            "rgb": [
+              245,
+              247,
+              249
+            ],
+            "a": 255
+          },
+          {
+            "x": 800,
+            "y": 450,
+            "rgb": [
+              255,
+              255,
+              255
+            ],
+            "a": 255
+          },
+          {
+            "x": 800,
+            "y": 12,
+            "rgb": [
+              255,
+              254,
+              243
+            ],
+            "a": 255
+          }
+        ]
+      }
+    },
+    "neng-1600-夜档.png": {
+      "theme": "dark",
+      "viewport": {
+        "width": 1600,
+        "height": 900
+      },
+      "scrolled": false,
+      "layerSamples": {
+        "shellBg": "rgb(11, 12, 14)",
+        "routeContainerBg": "rgb(16, 17, 20)",
+        "topbarBg": "rgb(11, 12, 14)",
+        "routeContainerRect": {
+          "x": 80,
+          "w": 1440
+        },
+        "viewportW": 1600,
+        "sideGutter": 80,
+        "scrollY": 0
+      },
+      "scrollInfo": null,
+      "pixelSamples": {
+        "size": [
+          1600,
+          900
+        ],
+        "points": [
+          {
+            "x": 8,
+            "y": 450,
+            "rgb": [
+              11,
+              12,
+              14
+            ],
+            "a": 255
+          },
+          {
+            "x": 800,
+            "y": 450,
+            "rgb": [
+              16,
+              17,
+              20
+            ],
+            "a": 255
+          },
+          {
+            "x": 800,
+            "y": 12,
+            "rgb": [
+              31,
+              41,
+              55
+            ],
+            "a": 255
+          }
+        ]
+      }
+    },
+    "neng-hover-日档.png": {
+      "theme": "light",
+      "viewport": {
+        "width": 1600,
+        "height": 900
+      },
+      "scrolled": false,
+      "hovered": true,
+      "hoverTarget": "+card center",
+      "boxShadowBefore": "none",
+      "boxShadowAfter": "rgba(0, 0, 0, 0.1) 0px 10px 15px 0px, rgba(0, 0, 0, 0.05) 0px 4px 6px 0px",
+      "shadowAppeared": true,
+      "rectBefore": {
+        "x": 132,
+        "y": 236,
+        "w": 316,
+        "h": 428
+      },
+      "rectAfter": {
+        "x": 132,
+        "y": 236,
+        "w": 316,
+        "h": 428
+      },
+      "displaced": false,
+      "borderTopColorBefore": "rgb(229, 231, 235)",
+      "borderTopColorAfter": "rgb(229, 231, 235)",
+      "outlineAfter": "rgb(10, 10, 10) none 3px",
+      "yellowRingInShadowAfter": false,
+      "priceOverlapPx2": 1792,
+      "elementAtPriceCenter": {
+        "tag": "DIV",
+        "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl bg-purple-400",
+        "isPriceOrChild": false
+      }
+    }
+  },
+  "obs4": {
+    "hover": {
+      "theme": "light",
+      "viewport": {
+        "width": 1600,
+        "height": 900
+      },
+      "scrolled": false,
+      "hovered": true,
+      "hoverTarget": "+card center",
+      "boxShadowBefore": "none",
+      "boxShadowAfter": "rgba(0, 0, 0, 0.1) 0px 10px 15px 0px, rgba(0, 0, 0, 0.05) 0px 4px 6px 0px",
+      "shadowAppeared": true,
+      "rectBefore": {
+        "x": 132,
+        "y": 236,
+        "w": 316,
+        "h": 428
+      },
+      "rectAfter": {
+        "x": 132,
+        "y": 236,
+        "w": 316,
+        "h": 428
+      },
+      "displaced": false,
+      "borderTopColorBefore": "rgb(229, 231, 235)",
+      "borderTopColorAfter": "rgb(229, 231, 235)",
+      "outlineAfter": "rgb(10, 10, 10) none 3px",
+      "yellowRingInShadowAfter": false,
+      "priceOverlapPx2": 1792,
+      "elementAtPriceCenter": {
+        "tag": "DIV",
+        "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl bg-purple-400",
+        "isPriceOrChild": false
+      }
+    },
+    "390_light": {
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "tag": "390"
+      },
+      "theme": "light",
+      "fixtureRarity": 1,
+      "measurement": {
+        "ok": true,
+        "cardRoot": {
+          "tag": "A",
+          "href": "/item/1",
+          "boxShadow": "none"
+        },
+        "cardCount": 6,
+        "boxRect": {
+          "x": 26,
+          "y": 208,
+          "w": 338,
+          "h": 428
+        },
+        "boxShadow": "none",
+        "boxOpacity": "1",
+        "boxVisibility": "visible",
+        "boxBorderTop": "rgb(229, 231, 235)",
+        "boxOutline": "rgb(10, 10, 10) none 3px",
+        "glow": {
+          "rect": {
+            "x": 283,
+            "y": 209,
+            "w": 80,
+            "h": 80
+          },
+          "opacity": "0.2",
+          "filter": "blur(24px)",
+          "bg": "oklch(0.714 0.203 305.504)",
+          "position": "absolute",
+          "zIndex": "auto",
+          "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl bg-purple-400",
+          "paintIndex": 0
+        },
+        "priceRect": {
+          "x": 270.578125,
+          "y": 233,
+          "w": 68.421875,
+          "h": 32
+        },
+        "numRect": {
+          "x": 281.390625,
+          "y": 233,
+          "w": 57.609375,
+          "h": 32
+        },
+        "numText": "6600",
+        "priceOverlapPx2": 1792,
+        "elementAtPriceCenter": {
+          "tag": "DIV",
+          "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl bg-purple-400",
+          "isPriceOrChild": false
+        }
+      },
+      "restored": true,
+      "clip": {
+        "x": 258.578125,
+        "y": 197,
+        "width": 105.421875,
+        "height": 104
+      },
+      "glowVisibleVsHidden": {
+        "w": 105,
+        "h": 104,
+        "px": 10920,
+        "pixelsDeltaGt6": 7020,
+        "pixelsDeltaGt16": 1424,
+        "maxChannelDelta": 38,
+        "meanChannelDelta": 9.39,
+        "meanRgbWithGlow": [
+          241.4,
+          236.5,
+          245.6
+        ],
+        "meanRgbWithoutGlow": [
+          244.4,
+          244.5,
+          244.5
+        ],
+        "bboxOfDeltaGt6": [
+          12,
+          12,
+          103,
+          101
+        ]
+      },
+      "priceRegion": {
+        "withGlowPng": "inline(base64 in this json, see diff mean)",
+        "sizePx": [
+          105,
+          104
+        ]
+      }
+    },
+    "390_dark": {
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "tag": "390"
+      },
+      "theme": "dark",
+      "fixtureRarity": 1,
+      "measurement": {
+        "ok": true,
+        "cardRoot": {
+          "tag": "A",
+          "href": "/item/1",
+          "boxShadow": "none"
+        },
+        "cardCount": 6,
+        "boxRect": {
+          "x": 26,
+          "y": 208,
+          "w": 338,
+          "h": 428
+        },
+        "boxShadow": "none",
+        "boxOpacity": "1",
+        "boxVisibility": "visible",
+        "boxBorderTop": "rgb(229, 231, 235)",
+        "boxOutline": "rgb(232, 234, 237) none 3px",
+        "glow": {
+          "rect": {
+            "x": 283,
+            "y": 209,
+            "w": 80,
+            "h": 80
+          },
+          "opacity": "0.2",
+          "filter": "blur(24px)",
+          "bg": "oklch(0.714 0.203 305.504)",
+          "position": "absolute",
+          "zIndex": "auto",
+          "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl bg-purple-400",
+          "paintIndex": 0
+        },
+        "priceRect": {
+          "x": 270.578125,
+          "y": 233,
+          "w": 68.421875,
+          "h": 32
+        },
+        "numRect": {
+          "x": 281.390625,
+          "y": 233,
+          "w": 57.609375,
+          "h": 32
+        },
+        "numText": "6600",
+        "priceOverlapPx2": 1792,
+        "elementAtPriceCenter": {
+          "tag": "DIV",
+          "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl bg-purple-400",
+          "isPriceOrChild": false
+        }
+      },
+      "restored": true,
+      "clip": {
+        "x": 258.578125,
+        "y": 197,
+        "width": 105.421875,
+        "height": 104
+      },
+      "glowVisibleVsHidden": {
+        "w": 105,
+        "h": 104,
+        "px": 10920,
+        "pixelsDeltaGt6": 7020,
+        "pixelsDeltaGt16": 1424,
+        "maxChannelDelta": 38,
+        "meanChannelDelta": 9.39,
+        "meanRgbWithGlow": [
+          215.8,
+          211,
+          220.5
+        ],
+        "meanRgbWithoutGlow": [
+          218.8,
+          219,
+          219.3
+        ],
+        "bboxOfDeltaGt6": [
+          12,
+          12,
+          103,
+          101
+        ]
+      },
+      "priceRegion": {
+        "withGlowPng": "inline(base64 in this json, see diff mean)",
+        "sizePx": [
+          105,
+          104
+        ]
+      }
+    },
+    "1600_light": {
+      "viewport": {
+        "width": 1600,
+        "height": 900,
+        "tag": "1600"
+      },
+      "theme": "light",
+      "fixtureRarity": 1,
+      "measurement": {
+        "ok": true,
+        "cardRoot": {
+          "tag": "A",
+          "href": "/item/1",
+          "boxShadow": "none"
+        },
+        "cardCount": 6,
+        "boxRect": {
+          "x": 132,
+          "y": 236,
+          "w": 316,
+          "h": 428
+        },
+        "boxShadow": "none",
+        "boxOpacity": "1",
+        "boxVisibility": "visible",
+        "boxBorderTop": "rgb(229, 231, 235)",
+        "boxOutline": "rgb(10, 10, 10) none 3px",
+        "glow": {
+          "rect": {
+            "x": 367,
+            "y": 237,
+            "w": 80,
+            "h": 80
+          },
+          "opacity": "0.2",
+          "filter": "blur(24px)",
+          "bg": "oklch(0.714 0.203 305.504)",
+          "position": "absolute",
+          "zIndex": "auto",
+          "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl bg-purple-400",
+          "paintIndex": 0
+        },
+        "priceRect": {
+          "x": 354.578125,
+          "y": 261,
+          "w": 68.421875,
+          "h": 32
+        },
+        "numRect": {
+          "x": 365.390625,
+          "y": 261,
+          "w": 57.609375,
+          "h": 32
+        },
+        "numText": "6600",
+        "priceOverlapPx2": 1792,
+        "elementAtPriceCenter": {
+          "tag": "DIV",
+          "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl bg-purple-400",
+          "isPriceOrChild": false
+        }
+      },
+      "restored": true,
+      "clip": {
+        "x": 342.578125,
+        "y": 225,
+        "width": 105.421875,
+        "height": 104
+      },
+      "glowVisibleVsHidden": {
+        "w": 105,
+        "h": 104,
+        "px": 10920,
+        "pixelsDeltaGt6": 7003,
+        "pixelsDeltaGt16": 1423,
+        "maxChannelDelta": 38,
+        "meanChannelDelta": 9.39,
+        "meanRgbWithGlow": [
+          241.4,
+          236.5,
+          245.6
+        ],
+        "meanRgbWithoutGlow": [
+          244.4,
+          244.5,
+          244.5
+        ],
+        "bboxOfDeltaGt6": [
+          12,
+          12,
+          103,
+          101
+        ]
+      },
+      "priceRegion": {
+        "withGlowPng": "inline(base64 in this json, see diff mean)",
+        "sizePx": [
+          105,
+          104
+        ]
+      }
+    },
+    "1600_dark": {
+      "viewport": {
+        "width": 1600,
+        "height": 900,
+        "tag": "1600"
+      },
+      "theme": "dark",
+      "fixtureRarity": 1,
+      "measurement": {
+        "ok": true,
+        "cardRoot": {
+          "tag": "A",
+          "href": "/item/1",
+          "boxShadow": "none"
+        },
+        "cardCount": 6,
+        "boxRect": {
+          "x": 132,
+          "y": 236,
+          "w": 316,
+          "h": 428
+        },
+        "boxShadow": "none",
+        "boxOpacity": "1",
+        "boxVisibility": "visible",
+        "boxBorderTop": "rgb(229, 231, 235)",
+        "boxOutline": "rgb(232, 234, 237) none 3px",
+        "glow": {
+          "rect": {
+            "x": 367,
+            "y": 237,
+            "w": 80,
+            "h": 80
+          },
+          "opacity": "0.2",
+          "filter": "blur(24px)",
+          "bg": "oklch(0.714 0.203 305.504)",
+          "position": "absolute",
+          "zIndex": "auto",
+          "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl bg-purple-400",
+          "paintIndex": 0
+        },
+        "priceRect": {
+          "x": 354.578125,
+          "y": 261,
+          "w": 68.421875,
+          "h": 32
+        },
+        "numRect": {
+          "x": 365.390625,
+          "y": 261,
+          "w": 57.609375,
+          "h": 32
+        },
+        "numText": "6600",
+        "priceOverlapPx2": 1792,
+        "elementAtPriceCenter": {
+          "tag": "DIV",
+          "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl bg-purple-400",
+          "isPriceOrChild": false
+        }
+      },
+      "restored": true,
+      "clip": {
+        "x": 342.578125,
+        "y": 225,
+        "width": 105.421875,
+        "height": 104
+      },
+      "glowVisibleVsHidden": {
+        "w": 105,
+        "h": 104,
+        "px": 10920,
+        "pixelsDeltaGt6": 7003,
+        "pixelsDeltaGt16": 1423,
+        "maxChannelDelta": 38,
+        "meanChannelDelta": 9.39,
+        "meanRgbWithGlow": [
+          215.8,
+          211,
+          220.5
+        ],
+        "meanRgbWithoutGlow": [
+          218.8,
+          219,
+          219.3
+        ],
+        "bboxOfDeltaGt6": [
+          12,
+          12,
+          103,
+          101
+        ]
+      },
+      "priceRegion": {
+        "withGlowPng": "inline(base64 in this json, see diff mean)",
+        "sizePx": [
+          105,
+          104
+        ]
+      }
+    },
+    "legendary_injected_390_light": {
+      "note": "★ 注入臂（真实首页不可达 `legendary`：HomePage.jsx:85 派生式无该分支）—— 探测期只替换 glow 类名 bg-purple-400 → bg-yellow-400（几何/模糊/透明度/位置未动）",
+      "fixtureRarity": "legendary(注入)",
+      "before": {
+        "glowCls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl bg-purple-400",
+        "glowBg": "oklch(0.714 0.203 305.504)",
+        "priceOverlapPx2": 1792
+      },
+      "after": {
+        "glowCls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl bg-yellow-400",
+        "glowBg": "oklch(0.852 0.199 91.936)",
+        "priceOverlapPx2": 1792,
+        "elementAtPriceCenter": {
+          "tag": "DIV",
+          "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl bg-yellow-400",
+          "isPriceOrChild": false
+        }
+      },
+      "glowVisibleVsHidden": {
+        "w": 105,
+        "h": 104,
+        "px": 10920,
+        "pixelsDeltaGt6": 8689,
+        "pixelsDeltaGt16": 5769,
+        "maxChannelDelta": 38,
+        "meanChannelDelta": 17.17,
+        "meanRgbWithGlow": [
+          245.6,
+          241.8,
+          228.1
+        ],
+        "meanRgbWithoutGlow": [
+          244.4,
+          244.5,
+          244.5
+        ],
+        "bboxOfDeltaGt6": [
+          2,
+          12,
+          103,
+          103
+        ]
+      }
+    }
+  },
+  "obs5": {
+    "viewport": {
+      "width": 1600,
+      "height": 900
+    },
+    "theme": "light",
+    "ctaInShippedPage": {
+      "present": true,
+      "tag": "SPAN",
+      "role": null,
+      "tabIndexAttr": null,
+      "tabIndexProp": -1,
+      "text": "查看详情",
+      "isFocusableNow": false,
+      "hasKeydownListenerHint": "DOM 不可读（onKeyDown/onClick 由 React 合成事件挂载）",
+      "parentAnchor": {
+        "tag": "A",
+        "href": "/item/1"
+      }
+    },
+    "tabSequence_first40": [
+      {
+        "tag": "A",
+        "sf": null,
+        "href": "/",
+        "cls": "sf-tap-inline text-xl font-bold text-yellow-600 dark:text-ye",
+        "text": "Seafood 海鲜市场"
+      },
+      {
+        "tag": "A",
+        "sf": null,
+        "href": "/task",
+        "cls": "nav-link  ",
+        "text": "社区任务"
+      },
+      {
+        "tag": "A",
+        "sf": null,
+        "href": "/exchange",
+        "cls": "nav-link  ",
+        "text": "市场"
+      },
+      {
+        "tag": "A",
+        "sf": "header-orders",
+        "href": "/profile",
+        "cls": "nav-link",
+        "text": "订单"
+      },
+      {
+        "tag": "BUTTON",
+        "sf": null,
+        "href": null,
+        "cls": "flex items-center space-x-1 nav-link",
+        "text": "语言"
+      },
+      {
+        "tag": "BUTTON",
+        "sf": null,
+        "href": null,
+        "cls": "nav-link",
+        "text": ""
+      },
+      {
+        "tag": "BUTTON",
+        "sf": null,
+        "href": null,
+        "cls": "flex items-center gap-1.5 text-gray-600 dark:text-gray-300 h",
+        "text": "注册"
+      },
+      {
+        "tag": "BUTTON",
+        "sf": null,
+        "href": null,
+        "cls": "flex items-center gap-1.5 text-gray-600 dark:text-gray-300 h",
+        "text": "登录"
+      },
+      {
+        "tag": "A",
+        "sf": null,
+        "href": "/register",
+        "cls": "",
+        "text": "立即注册"
+      },
+      {
+        "tag": "BUTTON",
+        "sf": null,
+        "href": null,
+        "cls": "btn btn-a btn-lg px-8 py-3 text-lg",
+        "text": "立即注册"
+      },
+      {
+        "tag": "A",
+        "sf": "home-publish-link",
+        "href": "/item/new",
+        "cls": "",
+        "text": "发布闲置"
+      },
+      {
+        "tag": "BUTTON",
+        "sf": null,
+        "href": null,
+        "cls": "btn btn-a-alt btn-lg px-8 py-3 text-lg",
+        "text": "发布闲置"
+      },
+      {
+        "tag": "A",
+        "sf": null,
+        "href": "/task",
+        "cls": "",
+        "text": "查看全部"
+      },
+      {
+        "tag": "BUTTON",
+        "sf": null,
+        "href": null,
+        "cls": "btn btn-proceed btn-md px-4 py-2 text-base",
+        "text": "查看全部"
+      },
+      {
+        "tag": "BUTTON",
+        "sf": "task-action",
+        "href": null,
+        "cls": "btn btn-a btn-md px-4 py-2 text-base",
+        "text": "立即参与"
+      },
+      {
+        "tag": "BUTTON",
+        "sf": "task-action",
+        "href": null,
+        "cls": "btn btn-a btn-md px-4 py-2 text-base",
+        "text": "立即参与"
+      },
+      {
+        "tag": "BUTTON",
+        "sf": null,
+        "href": null,
+        "cls": "px-3 py-1.5 rounded-md text-sm border bg-yellow-500 text-whi",
+        "text": "全部 (6)"
+      },
+      {
+        "tag": "BUTTON",
+        "sf": null,
+        "href": null,
+        "cls": "px-3 py-1.5 rounded-md text-sm border bg-white text-gray-600",
+        "text": "限量版 (0)"
+      },
+      {
+        "tag": "BUTTON",
+        "sf": null,
+        "href": null,
+        "cls": "px-3 py-1.5 rounded-md text-sm border bg-white text-gray-600",
+        "text": "高价值 (2)"
+      },
+      {
+        "tag": "BUTTON",
+        "sf": null,
+        "href": null,
+        "cls": "px-3 py-1.5 rounded-md text-sm border bg-white text-gray-600",
+        "text": "已兑换 (0)"
+      },
+      {
+        "tag": "A",
+        "sf": "reward-card",
+        "href": "/item/1",
+        "cls": "sf-reward-card block",
+        "text": "可兑换九成新 iPhone 14 Pro 128"
+      },
+      {
+        "tag": "A",
+        "sf": "reward-card",
+        "href": "/item/2",
+        "cls": "sf-reward-card block",
+        "text": "可兑换全新未拆封 罗技 MX Master 3S"
+      },
+      {
+        "tag": "A",
+        "sf": "reward-card",
+        "href": "/item/3",
+        "cls": "sf-reward-card block",
+        "text": "可兑换自用一年 MacBook Air M2 1"
+      },
+      {
+        "tag": "A",
+        "sf": "reward-card",
+        "href": "/item/4",
+        "cls": "sf-reward-card block",
+        "text": "库存不足宜家 BEKANT 电动升降桌 160x"
+      },
+      {
+        "tag": "A",
+        "sf": "reward-card",
+        "href": "/item/5",
+        "cls": "sf-reward-card block",
+        "text": "可兑换索尼 WH-1000XM5 头戴式降噪耳机"
+      },
+      {
+        "tag": "A",
+        "sf": "reward-card",
+        "href": "/item/6",
+        "cls": "sf-reward-card block",
+        "text": "可兑换佳能 EOS R6 微单机身 全画幅$72"
+      },
+      {
+        "tag": "A",
+        "sf": null,
+        "href": "https://catcat.meme",
+        "cls": "group block rounded-lg overflow-hidden relative",
+        "text": ""
+      },
+      {
+        "tag": "A",
+        "sf": null,
+        "href": "https://www.yunduojihua.com",
+        "cls": "group block rounded-lg overflow-hidden relative",
+        "text": ""
+      },
+      {
+        "tag": "A",
+        "sf": null,
+        "href": "/",
+        "cls": "sf-tap-inline text-sm text-primary font-medium",
+        "text": "简体中文"
+      },
+      {
+        "tag": "A",
+        "sf": null,
+        "href": "/en",
+        "cls": "sf-tap-inline text-sm text-text-secondary hover:text-text-pr",
+        "text": "English"
+      },
+      {
+        "tag": "A",
+        "sf": null,
+        "href": "/hk",
+        "cls": "sf-tap-inline text-sm text-text-secondary hover:text-text-pr",
+        "text": "粤语"
+      },
+      {
+        "tag": "A",
+        "sf": null,
+        "href": "/vn",
+        "cls": "sf-tap-inline text-sm text-text-secondary hover:text-text-pr",
+        "text": "Tiếng Việt"
+      },
+      {
+        "tag": "A",
+        "sf": "floatmenu-item",
+        "href": "/item/new",
+        "cls": "sf-fm-item",
+        "text": "卖闲置"
+      },
+      {
+        "tag": "A",
+        "sf": "floatmenu-item",
+        "href": "/messages",
+        "cls": "sf-fm-item",
+        "text": "消息"
+      },
+      {
+        "tag": "BUTTON",
+        "sf": "floatmenu-item",
+        "href": null,
+        "cls": "sf-fm-item",
+        "text": "APP"
+      },
+      {
+        "tag": "BUTTON",
+        "sf": "floatmenu-item",
+        "href": null,
+        "cls": "sf-fm-item",
+        "text": "反馈"
+      },
+      {
+        "tag": "BUTTON",
+        "sf": "floatmenu-item",
+        "href": null,
+        "cls": "sf-fm-item",
+        "text": "客服"
+      },
+      {
+        "tag": "BODY",
+        "sf": null,
+        "href": null,
+        "cls": "",
+        "text": "Seafood 海鲜市场社区任务市场订单语言注册"
+      },
+      {
+        "tag": "A",
+        "sf": null,
+        "href": "/",
+        "cls": "sf-tap-inline text-xl font-bold text-yellow-600 dark:text-ye",
+        "text": "Seafood 海鲜市场"
+      },
+      {
+        "tag": "A",
+        "sf": null,
+        "href": "/task",
+        "cls": "nav-link  ",
+        "text": "社区任务"
+      }
+    ],
+    "ctaEverFocusedByTab": false,
+    "cardAnchorFocusedByTab": true,
+    "cardAnchorTabIndex": 0,
+    "keyboardActivationAtCardLevel": {
+      "focusedCard": {
+        "tag": "A",
+        "href": "/item/1",
+        "sf": "reward-card"
+      },
+      "pathnameBefore": "/",
+      "pathnameAfterEnter": "/item/1",
+      "navigated": true
+    },
+    "productionReachability": null,
+    "anchorsOnHome": {
+      "cards": 6,
+      "withHref": 6,
+      "roots": [
+        "A",
+        "A",
+        "A",
+        "A",
+        "A",
+        "A"
+      ]
+    }
+  },
+  "notes": []
+}

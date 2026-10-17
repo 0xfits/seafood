@@ -26,8 +26,16 @@ import {
 const OUT = process.argv[2] || path.join(REPO, 'ops/ui-card-ref-20261017/qa/neng-readings-ac5.json')
 
 // 反事实（测量期 · 只注入探针页内 <style>）：把改动集的每一件都回退到改前形态
-const CF_CSS = [
-  ':root,[data-theme="light"]{--sf-page-bg:#FDE815 !important}',
+// ★ v2 修正（Neng 自曝 · harness 口径 bug · 第一轮读数被它污染）：v1 写作
+//   `:root,[data-theme="light"]{--sf-page-bg:#FDE815 !important}` —— `:root` 在**夜档**下同样命中 `html`
+//   ⇒ 夜档被强灌**日档旧值** `#FDE815` ⇒ 反事实臂在夜档恒非空（`DIV#sf-shell~0` / `DIV#sf-item-actionbar~0`
+//   两处 backgroundColor），看起来像「产品缺陷」，实为**尺子错**（回退的是错的那一档的值）。
+//   v2 = **按主题分别回退**（日 → `#FDE815` ＝改前真值；夜 → `#0B0C0E` ＝改前真值、与现值同 ⇒ 恒等），
+//   并显式一并回退 `--sf-surface-bg`（日 `#FFFFFF` / 夜 `#101114`）+ 把两处新增落点还原为改前形态。
+const CF_CSS = (theme) => [
+  theme === 'dark'
+    ? ':root{--sf-page-bg:#0B0C0E !important;--sf-surface-bg:#101114 !important}'
+    : ':root{--sf-page-bg:#FDE815 !important;--sf-surface-bg:#FFFFFF !important}',
   '.sf-route-container{background:transparent !important}',
   '.sf-item-actionbar{background:var(--sf-page-bg) !important}',
 ].join('\n')
@@ -102,7 +110,7 @@ async function main() {
     const pB = await snap(browser, PARENT_DIST, c.route, c.vw, c.theme)
     const cA = await snap(browser, CUR_DIST, c.route, c.vw, c.theme)
     const cB = await snap(browser, CUR_DIST, c.route, c.vw, c.theme)
-    const cf = await snap(browser, CUR_DIST, c.route, c.vw, c.theme, CF_CSS)
+    const cf = await snap(browser, CUR_DIST, c.route, c.vw, c.theme, CF_CSS(c.theme))
     const pc = await snap(browser, CUR_DIST, c.route, c.vw, c.theme, PERT_COLOR)
     const pg = await snap(browser, CUR_DIST, c.route, c.vw, c.theme, PERT_GEOM)
 
@@ -143,7 +151,7 @@ async function main() {
       structuralApprovedMarkerHits: approvedHits.length,
       structuralUnapproved: unapproved,
       geometryDiffs: norm.geometry, structureDiffs: norm.structure, textDiffs: norm.textDiff,
-      counterfactual: { css: CF_CSS, diffCount: cfDiff.diffCount, details: cfDiff.details.slice(0, 10).map((d) => ({ key: d.key, fields: d.fields })) },
+      counterfactual: { css: CF_CSS(c.theme), diffCount: cfDiff.diffCount, details: cfDiff.details.slice(0, 10).map((d) => ({ key: d.key, fields: d.fields })) },
       sensitivity: {
         colorPerturb: { css: PERT_COLOR, diffCount: pertColor.diffCount, sensitive: pertColor.diffCount > 0 },
         geomPerturb: { css: PERT_GEOM, diffCount: pertGeom.diffCount, geometryFieldDiffs: pertGeom.geometry.length, sensitive: pertGeom.diffCount > 0 && pertGeom.geometry.length > 0 },

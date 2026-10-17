@@ -1,0 +1,1814 @@
+{
+  "noise": {
+    "normEqual": true,
+    "normRound1": "2dafbc56c6c845b2da2dad31d74f9049da3a28214b98120c1a1a900c35900d78",
+    "normRound2": "2dafbc56c6c845b2da2dad31d74f9049da3a28214b98120c1a1a900c35900d78",
+    "rawEqual": false,
+    "rawRound1": "8e2c64a45d32be96f133bf035a2949a7f7d64c215416196098f0facd649eee33",
+    "rawRound2": "7556142b55ac2509dbd6da919108e79bf036834ea8c846628df29c7a2c3f3d65",
+    "normDiffCounts": {
+      "rect": 0,
+      "style": 0,
+      "attrs": 0,
+      "text": 0,
+      "onlyCur": 0,
+      "onlyPar": 0,
+      "paired": 0,
+      "unmatchedCur": 0,
+      "unmatchedPar": 0
+    },
+    "noiseSource": "frontend/src/components/Footer.jsx:12 模块加载期 Math.random() ⇒ <img alt>/<a title>"
+  },
+  "totals": {
+    "cases": 20,
+    "unexpectedRaw": 12,
+    "unexpectedAfterFix": 0,
+    "rectDiffTotal": 0,
+    "onlyCurTotal": 48,
+    "onlyParTotal": 48
+  },
+  "darkArm": {
+    "cases": 10,
+    "allRectEqual": true,
+    "rectDiffTotal": 0,
+    "styleDiffTotal": 0,
+    "onlyCounters": [
+      {
+        "key": "/|dark|390",
+        "onlyCur": 1,
+        "onlyPar": 1,
+        "paired": 1,
+        "attrsDiff": 0,
+        "styleDiff": 0,
+        "rectDiff": 0
+      },
+      {
+        "key": "/|dark|1440",
+        "onlyCur": 3,
+        "onlyPar": 3,
+        "paired": 3,
+        "attrsDiff": 0,
+        "styleDiff": 0,
+        "rectDiff": 0
+      },
+      {
+        "key": "/|dark|1600",
+        "onlyCur": 3,
+        "onlyPar": 3,
+        "paired": 3,
+        "attrsDiff": 0,
+        "styleDiff": 0,
+        "rectDiff": 0
+      },
+      {
+        "key": "/|dark|375",
+        "onlyCur": 1,
+        "onlyPar": 1,
+        "paired": 1,
+        "attrsDiff": 0,
+        "styleDiff": 0,
+        "rectDiff": 0
+      },
+      {
+        "key": "/|dark|320",
+        "onlyCur": 1,
+        "onlyPar": 1,
+        "paired": 1,
+        "attrsDiff": 0,
+        "styleDiff": 0,
+        "rectDiff": 0
+      },
+      {
+        "key": "/task|dark|1440",
+        "onlyCur": 3,
+        "onlyPar": 3,
+        "paired": 3,
+        "attrsDiff": 0,
+        "styleDiff": 0,
+        "rectDiff": 0
+      },
+      {
+        "key": "/exchange|dark|1440",
+        "onlyCur": 3,
+        "onlyPar": 3,
+        "paired": 3,
+        "attrsDiff": 0,
+        "styleDiff": 0,
+        "rectDiff": 0
+      },
+      {
+        "key": "/profile|dark|1440",
+        "onlyCur": 3,
+        "onlyPar": 3,
+        "paired": 3,
+        "attrsDiff": 0,
+        "styleDiff": 0,
+        "rectDiff": 0
+      },
+      {
+        "key": "/messages|dark|1440",
+        "onlyCur": 3,
+        "onlyPar": 3,
+        "paired": 3,
+        "attrsDiff": 0,
+        "styleDiff": 0,
+        "rectDiff": 0
+      },
+      {
+        "key": "/item/1|dark|1440",
+        "onlyCur": 3,
+        "onlyPar": 3,
+        "paired": 3,
+        "attrsDiff": 0,
+        "styleDiff": 0,
+        "rectDiff": 0
+      }
+    ]
+  },
+  "lightArm": {
+    "cases": 10,
+    "allRectEqual": true,
+    "rectDiffTotal": 0
+  },
+  "counterfactual": {
+    "light": {
+      "empty": true,
+      "counts": {
+        "rect": 0,
+        "style": 0,
+        "attrs": 0,
+        "text": 0,
+        "onlyCur": 0,
+        "onlyPar": 0,
+        "paired": 0,
+        "unmatchedCur": 0,
+        "unmatchedPar": 0
+      },
+      "headerAfterRevert": {
+        "bg": "rgba(255, 255, 255, 0.95)",
+        "bd": "rgb(229, 231, 235)",
+        "bf": "blur(4px)",
+        "op": "1"
+      },
+      "injectedCssPresent": true,
+      "classRestoredCount": 3,
+      "detail": {
+        "onlyCur": [],
+        "onlyPar": [],
+        "paired": []
+      }
+    },
+    "dark": {
+      "empty": true,
+      "counts": {
+        "rect": 0,
+        "style": 0,
+        "attrs": 0,
+        "text": 0,
+        "onlyCur": 0,
+        "onlyPar": 0,
+        "paired": 0,
+        "unmatchedCur": 0,
+        "unmatchedPar": 0
+      },
+      "headerAfterRevert": {
+        "bg": "rgb(31, 41, 55)",
+        "bd": "rgb(55, 65, 81)",
+        "bf": "blur(4px)",
+        "op": "1"
+      },
+      "injectedCssPresent": true,
+      "classRestoredCount": 3,
+      "detail": {
+        "onlyCur": [],
+        "onlyPar": [],
+        "paired": []
+      }
+    }
+  },
+  "rectTable": [
+    {
+      "key": "/|light|390",
+      "cur": {
+        "header": [
+          0,
+          0,
+          390,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          390,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          390,
+          2138
+        ],
+        "shell": [
+          0,
+          0,
+          390,
+          2616
+        ]
+      },
+      "par": {
+        "header": [
+          0,
+          0,
+          390,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          390,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          390,
+          2138
+        ],
+        "shell": [
+          0,
+          0,
+          390,
+          2616
+        ]
+      },
+      "equal": true
+    },
+    {
+      "key": "/|light|1440",
+      "cur": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          1172
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1542
+        ]
+      },
+      "par": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          1172
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1542
+        ]
+      },
+      "equal": true
+    },
+    {
+      "key": "/|light|1600",
+      "cur": {
+        "header": [
+          0,
+          0,
+          1600,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1600,
+          65
+        ],
+        "routeContainer": [
+          80,
+          65,
+          1440,
+          1172
+        ],
+        "shell": [
+          0,
+          0,
+          1600,
+          1542
+        ]
+      },
+      "par": {
+        "header": [
+          0,
+          0,
+          1600,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1600,
+          65
+        ],
+        "routeContainer": [
+          80,
+          65,
+          1440,
+          1172
+        ],
+        "shell": [
+          0,
+          0,
+          1600,
+          1542
+        ]
+      },
+      "equal": true
+    },
+    {
+      "key": "/|dark|390",
+      "cur": {
+        "header": [
+          0,
+          0,
+          390,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          390,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          390,
+          2138
+        ],
+        "shell": [
+          0,
+          0,
+          390,
+          2616
+        ]
+      },
+      "par": {
+        "header": [
+          0,
+          0,
+          390,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          390,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          390,
+          2138
+        ],
+        "shell": [
+          0,
+          0,
+          390,
+          2616
+        ]
+      },
+      "equal": true
+    },
+    {
+      "key": "/|dark|1440",
+      "cur": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          1172
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1542
+        ]
+      },
+      "par": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          1172
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1542
+        ]
+      },
+      "equal": true
+    },
+    {
+      "key": "/|dark|1600",
+      "cur": {
+        "header": [
+          0,
+          0,
+          1600,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1600,
+          65
+        ],
+        "routeContainer": [
+          80,
+          65,
+          1440,
+          1172
+        ],
+        "shell": [
+          0,
+          0,
+          1600,
+          1542
+        ]
+      },
+      "par": {
+        "header": [
+          0,
+          0,
+          1600,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1600,
+          65
+        ],
+        "routeContainer": [
+          80,
+          65,
+          1440,
+          1172
+        ],
+        "shell": [
+          0,
+          0,
+          1600,
+          1542
+        ]
+      },
+      "equal": true
+    },
+    {
+      "key": "/|light|375",
+      "cur": {
+        "header": [
+          0,
+          0,
+          375,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          375,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          375,
+          2138
+        ],
+        "shell": [
+          0,
+          0,
+          375,
+          2692
+        ]
+      },
+      "par": {
+        "header": [
+          0,
+          0,
+          375,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          375,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          375,
+          2138
+        ],
+        "shell": [
+          0,
+          0,
+          375,
+          2692
+        ]
+      },
+      "equal": true
+    },
+    {
+      "key": "/|light|320",
+      "cur": {
+        "header": [
+          0,
+          0,
+          320,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          320,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          320,
+          2288
+        ],
+        "shell": [
+          0,
+          0,
+          320,
+          2842
+        ]
+      },
+      "par": {
+        "header": [
+          0,
+          0,
+          320,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          320,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          320,
+          2288
+        ],
+        "shell": [
+          0,
+          0,
+          320,
+          2842
+        ]
+      },
+      "equal": true
+    },
+    {
+      "key": "/|dark|375",
+      "cur": {
+        "header": [
+          0,
+          0,
+          375,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          375,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          375,
+          2138
+        ],
+        "shell": [
+          0,
+          0,
+          375,
+          2692
+        ]
+      },
+      "par": {
+        "header": [
+          0,
+          0,
+          375,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          375,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          375,
+          2138
+        ],
+        "shell": [
+          0,
+          0,
+          375,
+          2692
+        ]
+      },
+      "equal": true
+    },
+    {
+      "key": "/|dark|320",
+      "cur": {
+        "header": [
+          0,
+          0,
+          320,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          320,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          320,
+          2288
+        ],
+        "shell": [
+          0,
+          0,
+          320,
+          2842
+        ]
+      },
+      "par": {
+        "header": [
+          0,
+          0,
+          320,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          320,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          320,
+          2288
+        ],
+        "shell": [
+          0,
+          0,
+          320,
+          2842
+        ]
+      },
+      "equal": true
+    },
+    {
+      "key": "/task|light|1440",
+      "cur": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          630
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1000
+        ]
+      },
+      "par": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          630
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1000
+        ]
+      },
+      "equal": true
+    },
+    {
+      "key": "/task|dark|1440",
+      "cur": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          630
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1000
+        ]
+      },
+      "par": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          630
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1000
+        ]
+      },
+      "equal": true
+    },
+    {
+      "key": "/exchange|light|1440",
+      "cur": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          630
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1000
+        ]
+      },
+      "par": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          630
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1000
+        ]
+      },
+      "equal": true
+    },
+    {
+      "key": "/exchange|dark|1440",
+      "cur": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          630
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1000
+        ]
+      },
+      "par": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          630
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1000
+        ]
+      },
+      "equal": true
+    },
+    {
+      "key": "/profile|light|1440",
+      "cur": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          984
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1354
+        ]
+      },
+      "par": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          984
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1354
+        ]
+      },
+      "equal": true
+    },
+    {
+      "key": "/profile|dark|1440",
+      "cur": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          984
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1354
+        ]
+      },
+      "par": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          984
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1354
+        ]
+      },
+      "equal": true
+    },
+    {
+      "key": "/messages|light|1440",
+      "cur": {
+        "header": [
+          0,
+          0,
+          736,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          736,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          736,
+          1460
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1830
+        ]
+      },
+      "par": {
+        "header": [
+          0,
+          0,
+          736,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          736,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          736,
+          1460
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1830
+        ]
+      },
+      "equal": true
+    },
+    {
+      "key": "/messages|dark|1440",
+      "cur": {
+        "header": [
+          0,
+          0,
+          736,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          736,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          736,
+          1460
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1830
+        ]
+      },
+      "par": {
+        "header": [
+          0,
+          0,
+          736,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          736,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          736,
+          1460
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1830
+        ]
+      },
+      "equal": true
+    },
+    {
+      "key": "/item/1|light|1440",
+      "cur": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          638.5
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1008.5
+        ]
+      },
+      "par": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          638.5
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1008.5
+        ]
+      },
+      "equal": true
+    },
+    {
+      "key": "/item/1|dark|1440",
+      "cur": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          638.5
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1008.5
+        ]
+      },
+      "par": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          638.5
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1008.5
+        ]
+      },
+      "equal": true
+    }
+  ],
+  "rows": [
+    {
+      "key": "/|light|390",
+      "url": "/",
+      "theme": "light",
+      "w": 390,
+      "rectEqual": true,
+      "rectDiff": 0,
+      "styleDiff": 1,
+      "attrsDiff": 0,
+      "textDiff": 0,
+      "onlyCur": 1,
+      "onlyPar": 1,
+      "paired": 1,
+      "unmatchedCur": 0,
+      "unmatchedPar": 0,
+      "unexpectedRaw": 1,
+      "unexpectedAfterFix": 0,
+      "allowedReasons": [
+        "T119① 顶栏底色/边框色（含 backdrop/opacity 接住）",
+        "T119② 顶栏底承载前景（class 互换落地 · color+outlineColor 联动）"
+      ],
+      "unexpectedKeysAfterFix": [],
+      "unexpectedDetailAfterFix": []
+    },
+    {
+      "key": "/|light|1440",
+      "url": "/",
+      "theme": "light",
+      "w": 1440,
+      "rectEqual": true,
+      "rectDiff": 0,
+      "styleDiff": 1,
+      "attrsDiff": 0,
+      "textDiff": 0,
+      "onlyCur": 3,
+      "onlyPar": 3,
+      "paired": 3,
+      "unmatchedCur": 0,
+      "unmatchedPar": 0,
+      "unexpectedRaw": 1,
+      "unexpectedAfterFix": 0,
+      "allowedReasons": [
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119① 顶栏底色/边框色（含 backdrop/opacity 接住）",
+        "T119② 顶栏底承载前景（class 互换落地 · color+outlineColor 联动）"
+      ],
+      "unexpectedKeysAfterFix": [],
+      "unexpectedDetailAfterFix": []
+    },
+    {
+      "key": "/|light|1600",
+      "url": "/",
+      "theme": "light",
+      "w": 1600,
+      "rectEqual": true,
+      "rectDiff": 0,
+      "styleDiff": 1,
+      "attrsDiff": 0,
+      "textDiff": 0,
+      "onlyCur": 3,
+      "onlyPar": 3,
+      "paired": 3,
+      "unmatchedCur": 0,
+      "unmatchedPar": 0,
+      "unexpectedRaw": 1,
+      "unexpectedAfterFix": 0,
+      "allowedReasons": [
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119① 顶栏底色/边框色（含 backdrop/opacity 接住）",
+        "T119② 顶栏底承载前景（class 互换落地 · color+outlineColor 联动）"
+      ],
+      "unexpectedKeysAfterFix": [],
+      "unexpectedDetailAfterFix": []
+    },
+    {
+      "key": "/|dark|390",
+      "url": "/",
+      "theme": "dark",
+      "w": 390,
+      "rectEqual": true,
+      "rectDiff": 0,
+      "styleDiff": 0,
+      "attrsDiff": 0,
+      "textDiff": 0,
+      "onlyCur": 1,
+      "onlyPar": 1,
+      "paired": 1,
+      "unmatchedCur": 0,
+      "unmatchedPar": 0,
+      "unexpectedRaw": 0,
+      "unexpectedAfterFix": 0,
+      "allowedReasons": [
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）"
+      ],
+      "unexpectedKeysAfterFix": [],
+      "unexpectedDetailAfterFix": []
+    },
+    {
+      "key": "/|dark|1440",
+      "url": "/",
+      "theme": "dark",
+      "w": 1440,
+      "rectEqual": true,
+      "rectDiff": 0,
+      "styleDiff": 0,
+      "attrsDiff": 0,
+      "textDiff": 0,
+      "onlyCur": 3,
+      "onlyPar": 3,
+      "paired": 3,
+      "unmatchedCur": 0,
+      "unmatchedPar": 0,
+      "unexpectedRaw": 0,
+      "unexpectedAfterFix": 0,
+      "allowedReasons": [
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）"
+      ],
+      "unexpectedKeysAfterFix": [],
+      "unexpectedDetailAfterFix": []
+    },
+    {
+      "key": "/|dark|1600",
+      "url": "/",
+      "theme": "dark",
+      "w": 1600,
+      "rectEqual": true,
+      "rectDiff": 0,
+      "styleDiff": 0,
+      "attrsDiff": 0,
+      "textDiff": 0,
+      "onlyCur": 3,
+      "onlyPar": 3,
+      "paired": 3,
+      "unmatchedCur": 0,
+      "unmatchedPar": 0,
+      "unexpectedRaw": 0,
+      "unexpectedAfterFix": 0,
+      "allowedReasons": [
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）"
+      ],
+      "unexpectedKeysAfterFix": [],
+      "unexpectedDetailAfterFix": []
+    },
+    {
+      "key": "/|light|375",
+      "url": "/",
+      "theme": "light",
+      "w": 375,
+      "rectEqual": true,
+      "rectDiff": 0,
+      "styleDiff": 1,
+      "attrsDiff": 0,
+      "textDiff": 0,
+      "onlyCur": 1,
+      "onlyPar": 1,
+      "paired": 1,
+      "unmatchedCur": 0,
+      "unmatchedPar": 0,
+      "unexpectedRaw": 1,
+      "unexpectedAfterFix": 0,
+      "allowedReasons": [
+        "T119① 顶栏底色/边框色（含 backdrop/opacity 接住）",
+        "T119② 顶栏底承载前景（class 互换落地 · color+outlineColor 联动）"
+      ],
+      "unexpectedKeysAfterFix": [],
+      "unexpectedDetailAfterFix": []
+    },
+    {
+      "key": "/|light|320",
+      "url": "/",
+      "theme": "light",
+      "w": 320,
+      "rectEqual": true,
+      "rectDiff": 0,
+      "styleDiff": 1,
+      "attrsDiff": 0,
+      "textDiff": 0,
+      "onlyCur": 1,
+      "onlyPar": 1,
+      "paired": 1,
+      "unmatchedCur": 0,
+      "unmatchedPar": 0,
+      "unexpectedRaw": 1,
+      "unexpectedAfterFix": 0,
+      "allowedReasons": [
+        "T119① 顶栏底色/边框色（含 backdrop/opacity 接住）",
+        "T119② 顶栏底承载前景（class 互换落地 · color+outlineColor 联动）"
+      ],
+      "unexpectedKeysAfterFix": [],
+      "unexpectedDetailAfterFix": []
+    },
+    {
+      "key": "/|dark|375",
+      "url": "/",
+      "theme": "dark",
+      "w": 375,
+      "rectEqual": true,
+      "rectDiff": 0,
+      "styleDiff": 0,
+      "attrsDiff": 0,
+      "textDiff": 0,
+      "onlyCur": 1,
+      "onlyPar": 1,
+      "paired": 1,
+      "unmatchedCur": 0,
+      "unmatchedPar": 0,
+      "unexpectedRaw": 0,
+      "unexpectedAfterFix": 0,
+      "allowedReasons": [
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）"
+      ],
+      "unexpectedKeysAfterFix": [],
+      "unexpectedDetailAfterFix": []
+    },
+    {
+      "key": "/|dark|320",
+      "url": "/",
+      "theme": "dark",
+      "w": 320,
+      "rectEqual": true,
+      "rectDiff": 0,
+      "styleDiff": 0,
+      "attrsDiff": 0,
+      "textDiff": 0,
+      "onlyCur": 1,
+      "onlyPar": 1,
+      "paired": 1,
+      "unmatchedCur": 0,
+      "unmatchedPar": 0,
+      "unexpectedRaw": 0,
+      "unexpectedAfterFix": 0,
+      "allowedReasons": [
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）"
+      ],
+      "unexpectedKeysAfterFix": [],
+      "unexpectedDetailAfterFix": []
+    },
+    {
+      "key": "/task|light|1440",
+      "url": "/task",
+      "theme": "light",
+      "w": 1440,
+      "rectEqual": true,
+      "rectDiff": 0,
+      "styleDiff": 2,
+      "attrsDiff": 0,
+      "textDiff": 0,
+      "onlyCur": 3,
+      "onlyPar": 3,
+      "paired": 3,
+      "unmatchedCur": 0,
+      "unmatchedPar": 0,
+      "unexpectedRaw": 2,
+      "unexpectedAfterFix": 0,
+      "allowedReasons": [
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119① 顶栏底色/边框色（含 backdrop/opacity 接住）",
+        "T119② 顶栏底承载前景（class 互换落地 · color+outlineColor 联动）",
+        "T119①/② 顶栏底色/边框/前景（在 #header 子树内）"
+      ],
+      "unexpectedKeysAfterFix": [],
+      "unexpectedDetailAfterFix": []
+    },
+    {
+      "key": "/task|dark|1440",
+      "url": "/task",
+      "theme": "dark",
+      "w": 1440,
+      "rectEqual": true,
+      "rectDiff": 0,
+      "styleDiff": 0,
+      "attrsDiff": 0,
+      "textDiff": 0,
+      "onlyCur": 3,
+      "onlyPar": 3,
+      "paired": 3,
+      "unmatchedCur": 0,
+      "unmatchedPar": 0,
+      "unexpectedRaw": 0,
+      "unexpectedAfterFix": 0,
+      "allowedReasons": [
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）"
+      ],
+      "unexpectedKeysAfterFix": [],
+      "unexpectedDetailAfterFix": []
+    },
+    {
+      "key": "/exchange|light|1440",
+      "url": "/exchange",
+      "theme": "light",
+      "w": 1440,
+      "rectEqual": true,
+      "rectDiff": 0,
+      "styleDiff": 2,
+      "attrsDiff": 0,
+      "textDiff": 0,
+      "onlyCur": 3,
+      "onlyPar": 3,
+      "paired": 3,
+      "unmatchedCur": 0,
+      "unmatchedPar": 0,
+      "unexpectedRaw": 2,
+      "unexpectedAfterFix": 0,
+      "allowedReasons": [
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119① 顶栏底色/边框色（含 backdrop/opacity 接住）",
+        "T119② 顶栏底承载前景（class 互换落地 · color+outlineColor 联动）",
+        "T119①/② 顶栏底色/边框/前景（在 #header 子树内）"
+      ],
+      "unexpectedKeysAfterFix": [],
+      "unexpectedDetailAfterFix": []
+    },
+    {
+      "key": "/exchange|dark|1440",
+      "url": "/exchange",
+      "theme": "dark",
+      "w": 1440,
+      "rectEqual": true,
+      "rectDiff": 0,
+      "styleDiff": 0,
+      "attrsDiff": 0,
+      "textDiff": 0,
+      "onlyCur": 3,
+      "onlyPar": 3,
+      "paired": 3,
+      "unmatchedCur": 0,
+      "unmatchedPar": 0,
+      "unexpectedRaw": 0,
+      "unexpectedAfterFix": 0,
+      "allowedReasons": [
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）"
+      ],
+      "unexpectedKeysAfterFix": [],
+      "unexpectedDetailAfterFix": []
+    },
+    {
+      "key": "/profile|light|1440",
+      "url": "/profile",
+      "theme": "light",
+      "w": 1440,
+      "rectEqual": true,
+      "rectDiff": 0,
+      "styleDiff": 1,
+      "attrsDiff": 0,
+      "textDiff": 0,
+      "onlyCur": 3,
+      "onlyPar": 3,
+      "paired": 3,
+      "unmatchedCur": 0,
+      "unmatchedPar": 0,
+      "unexpectedRaw": 1,
+      "unexpectedAfterFix": 0,
+      "allowedReasons": [
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119① 顶栏底色/边框色（含 backdrop/opacity 接住）",
+        "T119② 顶栏底承载前景（class 互换落地 · color+outlineColor 联动）"
+      ],
+      "unexpectedKeysAfterFix": [],
+      "unexpectedDetailAfterFix": []
+    },
+    {
+      "key": "/profile|dark|1440",
+      "url": "/profile",
+      "theme": "dark",
+      "w": 1440,
+      "rectEqual": true,
+      "rectDiff": 0,
+      "styleDiff": 0,
+      "attrsDiff": 0,
+      "textDiff": 0,
+      "onlyCur": 3,
+      "onlyPar": 3,
+      "paired": 3,
+      "unmatchedCur": 0,
+      "unmatchedPar": 0,
+      "unexpectedRaw": 0,
+      "unexpectedAfterFix": 0,
+      "allowedReasons": [
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）"
+      ],
+      "unexpectedKeysAfterFix": [],
+      "unexpectedDetailAfterFix": []
+    },
+    {
+      "key": "/messages|light|1440",
+      "url": "/messages",
+      "theme": "light",
+      "w": 1440,
+      "rectEqual": true,
+      "rectDiff": 0,
+      "styleDiff": 1,
+      "attrsDiff": 0,
+      "textDiff": 0,
+      "onlyCur": 3,
+      "onlyPar": 3,
+      "paired": 3,
+      "unmatchedCur": 0,
+      "unmatchedPar": 0,
+      "unexpectedRaw": 1,
+      "unexpectedAfterFix": 0,
+      "allowedReasons": [
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119① 顶栏底色/边框色（含 backdrop/opacity 接住）",
+        "T119② 顶栏底承载前景（class 互换落地 · color+outlineColor 联动）"
+      ],
+      "unexpectedKeysAfterFix": [],
+      "unexpectedDetailAfterFix": []
+    },
+    {
+      "key": "/messages|dark|1440",
+      "url": "/messages",
+      "theme": "dark",
+      "w": 1440,
+      "rectEqual": true,
+      "rectDiff": 0,
+      "styleDiff": 0,
+      "attrsDiff": 0,
+      "textDiff": 0,
+      "onlyCur": 3,
+      "onlyPar": 3,
+      "paired": 3,
+      "unmatchedCur": 0,
+      "unmatchedPar": 0,
+      "unexpectedRaw": 0,
+      "unexpectedAfterFix": 0,
+      "allowedReasons": [
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）"
+      ],
+      "unexpectedKeysAfterFix": [],
+      "unexpectedDetailAfterFix": []
+    },
+    {
+      "key": "/item/1|light|1440",
+      "url": "/item/1",
+      "theme": "light",
+      "w": 1440,
+      "rectEqual": true,
+      "rectDiff": 0,
+      "styleDiff": 1,
+      "attrsDiff": 0,
+      "textDiff": 0,
+      "onlyCur": 3,
+      "onlyPar": 3,
+      "paired": 3,
+      "unmatchedCur": 0,
+      "unmatchedPar": 0,
+      "unexpectedRaw": 1,
+      "unexpectedAfterFix": 0,
+      "allowedReasons": [
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119① 顶栏底色/边框色（含 backdrop/opacity 接住）",
+        "T119② 顶栏底承载前景（class 互换落地 · color+outlineColor 联动）"
+      ],
+      "unexpectedKeysAfterFix": [],
+      "unexpectedDetailAfterFix": []
+    },
+    {
+      "key": "/item/1|dark|1440",
+      "url": "/item/1",
+      "theme": "dark",
+      "w": 1440,
+      "rectEqual": true,
+      "rectDiff": 0,
+      "styleDiff": 0,
+      "attrsDiff": 0,
+      "textDiff": 0,
+      "onlyCur": 3,
+      "onlyPar": 3,
+      "paired": 3,
+      "unmatchedCur": 0,
+      "unmatchedPar": 0,
+      "unexpectedRaw": 0,
+      "unexpectedAfterFix": 0,
+      "allowedReasons": [
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+        "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）"
+      ],
+      "unexpectedKeysAfterFix": [],
+      "unexpectedDetailAfterFix": []
+    }
+  ],
+  "classificationRuleNote": "原分类器（leg3 内联）把「inHeader + 前景类元素」的 fields 限定为 {style.color, attrs}，而 Chrome 的 outlineColor 随 color 联动 ⇒ logo 的 {style.color, style.outlineColor} 被判 not-attributable（**判据过严 = 坏尺子**）。修正规则（本文件）：inHeader 且 fields ⊆ {style.color, style.outlineColor, attrs} ⇒ 归 T119②。原 unexpected 计数原样保留在 `unexpectedRaw`。"
+}

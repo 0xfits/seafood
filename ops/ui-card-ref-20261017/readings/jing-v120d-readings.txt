@@ -1,0 +1,109 @@
+【JING-SPEC-CARDUI-DS-D · design-system.spec v1.20d 二次勘误微回写单 · 本单读数】
+单号 = JING-SPEC-CARDUI-DS-D（承 -DS / -DS-B / -DS-C）· 角色 = Jing（Specifier · 制度员）· 日期 = 2026-10-17
+写面 = docs/** + 本单读数（ops/ui-card-ref-20261017/readings/jing-v120d-*）· 不碰 frontend/** · 不 commit / 不 push
+现取基线 = HEAD 4b388d0（开工 `git status --short` 空 ⇒ 工作区干净）· docs 面开工时干净
+
+────────────────────────────────────────────────────────────────────────
+【1】本单四件（逐条 · 与派单一致）
+────────────────────────────────────────────────────────────────────────
+① 值勘误：§22.12 第 13 项 `text-yellow-600` 渲染值 `#D08700` ⇒ 册面现行值 `#CA8A04`（两路独立浏览器 getComputedStyle 回读一致）；
+   结论不变（`#CA8A04` on `#FEFCE8` = 2.84:1 ≤ 改后 20.55:1）⇒ 属值勘误、非口径变更；补「回读才是证据」定式（入册 `N51`）。
+② `AC-5` 范围措辞补齐：点名 `/messages` 为例外（`pages/MessagesPage.jsx:15` = `const MessagesPage = () => <HomePage />` ⇒ 非独立页）。
+③ 质检方 harness 自修项登记（非产品缺陷）：反事实臂须「日 + 夜」两档同口径回退。
+④ 两条未测观察入册挂账：稀有度装饰光斑 ↔ 价格块同位重叠 / 非回落态 CTA 由 `<button>` 退化 `<span onClick>` ⇒ 键盘可达性缺失。
+
+────────────────────────────────────────────────────────────────────────
+【2】依据证据件（★ 先读再写 · 本单落笔前逐件现取）
+────────────────────────────────────────────────────────────────────────
+[2.1] `ops/ui-card-ref-20261017/readings/kong-night-contrast.json`（Kong）
+  · `browserReadback.light.probe.y600` = "rgb(202, 138, 4)"
+  · `browserReadback.dark.probe.y600`  = "rgb(202, 138, 4)"
+  · `nodeReadback.--color-yellow-600`  = [208, 135, 0]      ← ★ 上单误采的那一路（Node / oklch 自算）
+  · `crossCheck.maxChannelDiff`        = {'yellow-600': 6, 'yellow-50': 0, 'gray-800': 2}
+  · `before.numberFgHex` = #CA8A04 / `contrastRatio` = 2.84 ; `before.symbolFgHex` = #FACC15 / `symbolContrastRatio` = 1.48
+  · `after` = #030402 on #FFFFFF ⇒ 20.55 ; `paletteRaw.--color-yellow-600` = oklch(68.1% 0.162 75.834)
+  ⇒ 结论：**浏览器回读 = #CA8A04；Node 自算 = #D08700；最大通道差 6/255**。
+
+[2.2] `ops/ui-card-ref-20261017/qa/neng-readings-ac9.json`（Neng · 独立复现 · 第二路浏览器回读）
+  · 四臂（A 站点夜档+设备 light / B 站点日档+设备 dark / C 站点夜档+设备 dark / D 站点日档+设备 light）
+  · 每臂 `parent.num.color` = **rgb(202, 138, 4)**、`parent.contrast.num` = **2.84**（= 改前臂）
+  · 每臂 `current.num.color` = rgb(3, 4, 2)、`current.contrast.num` = **20.546**（= 改后臂、四臂同值）
+  ⇒ 两路独立回读一致 ⇒ §22.12 第 13 项的值勘误成立。
+
+[2.3] `ops/ui-card-ref-20261017/qa/neng-readings-ac5.json`（Neng · 归因式不动面 · 现取 = v2 复跑版）
+  · `startedAt` = 2026-10-17T00:37:42.291Z（mtime 08:38:04；本单 08:36 首读时为 v1 版 —— 见【5】事故/并行留痕）
+  · 8 个非首页档 norm/cf：item1440 3/0 · item390 3/0 · item1440_night 2/**0** · exchange1440 2/0 ·
+    task1440 2/0 · profile1440 2/0 · exchange390 2/0 · task390 2/0  ⇒ **cf 全 0**
+  · `ac['AC-5'].nonHomeRoutes`：`counterfactualEmptyAllCases = true` · `rulerSensitivityAllNonEmpty = true` · `ok = true`
+  · `/messages`（homeBearing）：`normalizedDiffCount = 68` = 结构项 66 + 颜色项 2；`approvedMarkerHits = 66`；
+    `unapprovedRemainder = []` · `geometryDiffs = 0` · `attributionComplete = true`
+  ⇒ `AC-5` 承重面 = 真·非首页路由（8 档）；`/messages` 单列（渲染树含首页）。
+
+[2.4] `frontend/src/pages/MessagesPage.jsx:15`（现取） = `const MessagesPage = () => <HomePage />`
+  · 同件 `:2` = `import HomePage from './HomePage'` · 注释冻结面 `:11-12`
+
+[2.5] 两条未测观察的现取锚（只读一次 · 本单未写 frontend/**）
+  · 稀有度光斑：`RewardCard.jsx:80-87`（`:82` = `'absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl'`）
+  · 价格块落点：`RewardCard.jsx:119-122`（`div.ml-4.sf-reward-price` 在 `CardHeader` 内 `flex items-start justify-between` 的右列）
+  · 回落态 CTA：`RewardCard.jsx:183-191`（`:190` = `onClick={clickable ? undefined : () => onClaim?.(reward)}`；无 `role` / `tabIndex` / 键处理）
+
+────────────────────────────────────────────────────────────────────────
+【3】册内「`#D08700` / `rgb(208,135,0)`」出现处现取（值勘误的作用面）
+────────────────────────────────────────────────────────────────────────
+· §22.9 `AC-9` 基行（`（解析 `rgb(208,135,0)` = `#D08700`）`）
+· §22.11 夜档另议边界表行 ③（`Tailwind 黄 `text-yellow-600`（`#D08700`）`）
+· §22.12 第 13 项（`改前 `#D08700` on `#FEFCE8` = 2.841:1` · `即 `rgb(208,135,0)``）
+⇒ 三处**旧字面逐字保留**（受「删除列 = 0」硬口径约束），**读表口径以本单新增的 `13-勘误（v1.20d）` 行为准**（该行已写明「凡出现 `#D08700` / `rgb(208,135,0)` 处均为已作废的自算值」）。
+
+────────────────────────────────────────────────────────────────────────
+【4】落点清单（逐处 · 全部为插入 · 无一行改写 · 共 8 行）
+────────────────────────────────────────────────────────────────────────
+① §22.9 AC 表 AC-5 行后插 `AC-5 · v1.20d 范围补注` 行（锚 = `| **AC-6** 结构不变式 |`）———————— 1 行
+② §22.10 末（N50 后）插 `N51` 一条（锚 = `### 22.11 待裁项（**不得自选 · 交 Kevin / Zang**）`）———— 2 行（含前置空行）
+③ §22.12 表内第 13 项后插 `13-勘误（v1.20d）` 行（锚 = `| 14 | **`dark:text-yellow-400` 在「OS 深色 × 站点日档」组合下会命中`）—— 1 行
+④ §22.12 表内第 16 项后插第 `17` / `18` / `19` 项（锚 = `｜16｜…归属 Kong / 收口方） |` + 逐字收尾）—— 3 行
+⑤ §22.14 末插 `★ v1.20d 二次勘误微回写单` 一条（锚 = 上单 v120c bullet 末句逐字收尾）———— 1 行
+合计 = **8 行**（`git diff --numstat` = `8 0` · 算术闭合）
+
+────────────────────────────────────────────────────────────────────────
+【5】★ 两次 patch 操作事故与复原（留痕 · 承上单同族教训）
+────────────────────────────────────────────────────────────────────────
+【事故 1 · 插入点落到表外】§22.12 第 17/18/19 项首版：`old_string` 取「表后 `★ v1.20 就地注` 块首句」⇒ 该句**上一行是断表的空行**，
+  替换后呈「`| 16 | … |` / **空行** / `| 17 |` / `| 18 |` / `| 19 |` / 空行 / `★ v1.20 …`」⇒ **三行脱离 markdown 表**（表被空行终止）。
+  **检出** = 落笔后立即 `awk` 打印邻行（本单纪律：每次 patch 后 `grep/awk` 复现邻行 + 复核插入点是否在表内）⇒ 当场发现。
+  **复原** = 就地 patch `归属 Kong / 收口方） |\n\n| 17 |` ⇒ `归属 Kong / 收口方） |\n| 17 |`（**只去断表空行、行内容不动**）⇒ 现取 `2603|15` `2604|16` `2605|17` `2606|18` `2607|19` `2608|空` **连续无断** ✓。
+  **终值自证** = `numstat` 删除列仍 = **0**（净效果 = 3 行插入；断表空行只是「从第 16 项之后移到第 19 项之后」）。
+【事故 2 · 本行自陈重复】无（本单仅一次事故）。
+【第二遍落笔（非事故 · 留痕）】首遍落笔后按现取把 `HomePage.jsx:318-320` + 两条测试件行号补进 §22.12 第 19 项（**本单自订新行**）⇒
+  终值字节 607,047 ⇒ **607,188**、md5 `296064f6…` ⇒ **`6fa27168…`**；**行数恒 2646 · `numstat` 恒 `8 0`**（见【6】）。
+【并行会话留痕（非事故）】本单 08:36 首读 `neng-readings-ac5.json` 时为 **v1 版**（`item1440_night` `cf = 2`、`ok = false`）；
+  08:38:04 质检方**并行**自修 harness 并复跑（同件 mtime = 08:38:04 + 探针注释新增 v2 段）⇒ 本单**据现取精修自订新行**
+  （行 17 + §22.9 补注 ① + §22.14 ③ —— **三处均属本单新增行、非改写 HEAD 既有行** ⇒ `numstat` 删除列仍 = 0）。
+  **口径**：本册 `AC-5` 判负一律以 v2 复跑读数为准；harness 首轮残差**不作缺陷立案**。
+
+────────────────────────────────────────────────────────────────────────
+【6】终值自证（本单 · live）
+────────────────────────────────────────────────────────────────────────
+spec `docs/design/design-system.spec.md`
+  改前 = 2638 行 / 594,700 B / md5 `bc279e8a7632b87144603755d0106712` / sha256 `05dbe3635cecf71b0a5a155353b7e87a088f513579fbc8b3342e100fc4d8a44c`
+  改后 = **2646 行 / 607,188 B / md5 `6fa271687481dd69c70a5ce358b63dc5` / sha256 `be6ceb2b9ef8bcc2a11dd1442297f39bdc16df6a44eee6aa186b00decefb046b`**
+  增量 = **+8 行 / +12,488 B**；`git diff --numstat` = **`8 0`** ⇒ **删除列 = 0 ✓ 纯追加 / 无一行改写**
+  ★ 终值为**第二遍落笔**值（首测 607,047 B / md5 `296064f670e90c59dcec71a6b68219c2`）：第二遍按现取把 `HomePage.jsx:318-320` +
+    两条测试件行号补进 §22.12 第 19 项（本单自订新行）⇒ 行数恒 2646、`numstat` 恒 `8 0`
+镜像 `docs/versions/design-system.spec.v1.20.md`（按本单终值重制）：`cmp` = **0 ✓**；md5/sha256 同上；`numstat` = `8 0`
+三处版本记录：`^> \*\*★ 现行版 = v1.20` = **1** · `^## §22 ` = **1** · `^| \*\*v1.20\*\* |` = **1**（**均一字未动**）
+节标题：`^### 22\.` = **15**（22.0–22.14 · 未新增）· `^## §` = **24**（未新增）· `^### 5\.` = **3**（与 HEAD 同）
+新落点在场：`AC-5 · v1.20d 范围补注` = 3 · `13-勘误（v1.20d）` = 3 · `` `N51` · 同一色 `` = 1 · `^| 17 | **质检方 harness` = 1 ·
+  `^| 18 | **稀有度` = 1 · `^| 19 | **非链接回落态` = 1 · `v1.20d 二次勘误微回写单` = 1 · `HARNESS_FIXED_BY_QA` = 1 · `CA8A04` = 6
+真源 `docs/design/style-preview.html`：**本单零改动**（`git diff --numstat` 无输出；本单不产生新真源值 ⇒ 不触发 `N46` 双件）
+
+────────────────────────────────────────────────────────────────────────
+【7】未动面 / 服务 / git 面
+────────────────────────────────────────────────────────────────────────
+· `git status --porcelain docs/` = 仅 `M docs/design/design-system.spec.md` + `M docs/versions/design-system.spec.v1.20.md`
+· 未动面 numstat：`frontend` = 0 · `backend-ts` = 0 · `tools` = 0 · `ctrl` = 0（本单**只读**现取 `frontend/**` 一次）
+· `ops/ui-card-ref-20261017/shots/**` 未触碰；`ops/ui-card-ref-20261017/qa/**` 的改动**全部归质检方并行会话**（非本单写面）
+· 服务：`localhost:5787/` = 200 · `localhost:5788/api/health` = 200（**本单未启停任何服务**）
+· 未 `git add -A` · 未 commit · 未 push
+· 本单新读数件：`jing-v120d-readings.txt`（NOT_IGNORED · 可直接 `git add`）；`jing-v120d-selfproof.log`
+  （**`.gitignore:244:*.log` 命中 ⇒ 入库须 `git add -f`**，承 `N42`）

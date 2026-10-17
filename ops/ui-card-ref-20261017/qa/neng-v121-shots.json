@@ -1,0 +1,96 @@
+{
+  "shots": [
+    {
+      "file": "ops/ui-card-ref-20261017/shots/neng-v121-390-日档.png",
+      "theme": "light",
+      "width": 390,
+      "height": 900,
+      "scrollY": 0,
+      "headerRect": [
+        0,
+        0,
+        390,
+        65
+      ],
+      "fullyVisibleCards": 0,
+      "totalCards": 0,
+      "firstCardText": null,
+      "sha256": "6aa05ec70688b9b724ac6e3831c044c821037bd61df0b43756f97e2028780de3",
+      "bytes": 92141
+    },
+    {
+      "file": "ops/ui-card-ref-20261017/shots/neng-v121-390-夜档.png",
+      "theme": "dark",
+      "width": 390,
+      "height": 900,
+      "scrollY": 0,
+      "headerRect": [
+        0,
+        0,
+        390,
+        65
+      ],
+      "fullyVisibleCards": 0,
+      "totalCards": 0,
+      "firstCardText": null,
+      "sha256": "a9fca51160e23d6290f8ae45a57941b1a798778a4d888d55a34a751a84472f10",
+      "bytes": 94427
+    },
+    {
+      "file": "ops/ui-card-ref-20261017/shots/neng-v121-1600-日档.png",
+      "theme": "light",
+      "width": 1600,
+      "height": 1000,
+      "scrollY": 0,
+      "headerRect": [
+        0,
+        0,
+        1600,
+        65
+      ],
+      "fullyVisibleCards": 0,
+      "totalCards": 0,
+      "firstCardText": null,
+      "sha256": "22e30ce767a6927284c8e088541a4f3f268fdaca5a4d3761d9f53cff2c9e8a33",
+      "bytes": 229541
+    },
+    {
+      "file": "ops/ui-card-ref-20261017/shots/neng-v121-1600-夜档.png",
+      "theme": "dark",
+      "width": 1600,
+      "height": 1000,
+      "scrollY": 0,
+      "headerRect": [
+        0,
+        0,
+        1600,
+        65
+      ],
+      "fullyVisibleCards": 0,
+      "totalCards": 0,
+      "firstCardText": null,
+      "sha256": "0ea92d03091dc30c76adafcbae72c045836ef24056e157d1dd59a2761773326a",
+      "bytes": 226324
+    },
+    {
+      "file": "ops/ui-card-ref-20261017/shots/neng-v121-hover-navlink-日档-1600.png",
+      "theme": "light",
+      "width": 1600,
+      "height": 140,
+      "kind": "hover-nav-link",
+      "hoverState": {
+        "color": "rgb(10, 10, 10)",
+        "hover": true,
+        "r": [
+          1030,
+          14,
+          80,
+          37
+        ],
+        "text": "社区任务"
+      },
+      "sha256": "3331ac8c2b892223b1fe502a324f1b8a81d0c1970061cddabd72969d12954ddc",
+      "bytes": 29545
+    }
+  ]
+}

@@ -1,0 +1,2525 @@
+{
+  "meta": {
+    "curDist": "/Users/kevin/bistro/seafood/frontend/dist",
+    "parentDist": "/Users/kevin/.hermes/profiles/zang/cache/scratch/neng-v121/parent/frontend/dist"
+  },
+  "noise": {
+    "normRound1": "2dafbc56c6c845b2da2dad31d74f9049da3a28214b98120c1a1a900c35900d78",
+    "normRound2": "2dafbc56c6c845b2da2dad31d74f9049da3a28214b98120c1a1a900c35900d78",
+    "normEqual": true,
+    "rawRound1": "8e2c64a45d32be96f133bf035a2949a7f7d64c215416196098f0facd649eee33",
+    "rawRound2": "7556142b55ac2509dbd6da919108e79bf036834ea8c846628df29c7a2c3f3d65",
+    "rawEqual": false,
+    "normDiff": {
+      "onlyCur": [],
+      "onlyPar": [],
+      "pairedMoved": [],
+      "unmatchedCur": [],
+      "unmatchedPar": [],
+      "details": [],
+      "counts": {
+        "rect": 0,
+        "style": 0,
+        "attrs": 0,
+        "text": 0,
+        "onlyCur": 0,
+        "onlyPar": 0,
+        "paired": 0,
+        "unmatchedCur": 0,
+        "unmatchedPar": 0
+      }
+    },
+    "noiseSource": "frontend/src/components/Footer.jsx:12 模块加载期 Math.random() ⇒ <img alt>/<a title>"
+  },
+  "geometry": {
+    "/|light|390": {
+      "key": "/|light|390",
+      "url": "/",
+      "theme": "light",
+      "w": 390,
+      "curRects": {
+        "header": [
+          0,
+          0,
+          390,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          390,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          390,
+          2138
+        ],
+        "shell": [
+          0,
+          0,
+          390,
+          2616
+        ]
+      },
+      "parRects": {
+        "header": [
+          0,
+          0,
+          390,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          390,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          390,
+          2138
+        ],
+        "shell": [
+          0,
+          0,
+          390,
+          2616
+        ]
+      },
+      "rectEqual": true,
+      "visibleCount": 224,
+      "visibleCountParent": 224,
+      "docOverflow": 0,
+      "pageHeight": 2616,
+      "pageHeightParent": 2616,
+      "diffCounts": {
+        "rect": 0,
+        "style": 1,
+        "attrs": 0,
+        "text": 0,
+        "onlyCur": 1,
+        "onlyPar": 1,
+        "paired": 1,
+        "unmatchedCur": 0,
+        "unmatchedPar": 0
+      },
+      "allowed": [
+        {
+          "key": "HEADER#bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95~0",
+          "why": "T119① 顶栏底色/边框色（含 backdrop/opacity 接住）",
+          "fields": [
+            "style.backgroundColor",
+            "style.borderBottomColor",
+            "style.backdropFilter"
+          ]
+        }
+      ],
+      "unexpected": [
+        {
+          "key": "A#sf-tap-inline sf-topbar-brand text-xl font-bold~0",
+          "why": "not-attributable",
+          "fields": [
+            "style.color",
+            "style.outlineColor"
+          ],
+          "inHeader": true,
+          "styleCur": {
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "color": "rgb(10, 10, 10)",
+            "borderTopColor": "rgb(229, 231, 235)",
+            "borderBottomColor": "rgb(229, 231, 235)",
+            "borderLeftColor": "rgb(229, 231, 235)",
+            "borderRightColor": "rgb(229, 231, 235)",
+            "borderTopWidth": "0px",
+            "borderBottomWidth": "0px",
+            "borderLeftWidth": "0px",
+            "boxShadow": "none",
+            "outlineColor": "rgb(10, 10, 10)",
+            "filter": "none",
+            "opacity": "1",
+            "backdropFilter": "none",
+            "fontSize": "20px",
+            "fontWeight": "700"
+          },
+          "stylePar": {
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "color": "rgb(202, 138, 4)",
+            "borderTopColor": "rgb(229, 231, 235)",
+            "borderBottomColor": "rgb(229, 231, 235)",
+            "borderLeftColor": "rgb(229, 231, 235)",
+            "borderRightColor": "rgb(229, 231, 235)",
+            "borderTopWidth": "0px",
+            "borderBottomWidth": "0px",
+            "borderLeftWidth": "0px",
+            "boxShadow": "none",
+            "outlineColor": "rgb(202, 138, 4)",
+            "filter": "none",
+            "opacity": "1",
+            "backdropFilter": "none",
+            "fontSize": "20px",
+            "fontWeight": "700"
+          }
+        }
+      ]
+    },
+    "/|light|1440": {
+      "key": "/|light|1440",
+      "url": "/",
+      "theme": "light",
+      "w": 1440,
+      "curRects": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          1172
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1542
+        ]
+      },
+      "parRects": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          1172
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1542
+        ]
+      },
+      "rectEqual": true,
+      "visibleCount": 255,
+      "visibleCountParent": 255,
+      "docOverflow": 0,
+      "pageHeight": 1542,
+      "pageHeightParent": 1542,
+      "diffCounts": {
+        "rect": 0,
+        "style": 1,
+        "attrs": 0,
+        "text": 0,
+        "onlyCur": 3,
+        "onlyPar": 3,
+        "paired": 3,
+        "unmatchedCur": 0,
+        "unmatchedPar": 0
+      },
+      "allowed": [
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~0",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~1",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "HEADER#bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95~0",
+          "why": "T119① 顶栏底色/边框色（含 backdrop/opacity 接住）",
+          "fields": [
+            "style.backgroundColor",
+            "style.borderBottomColor",
+            "style.backdropFilter"
+          ]
+        }
+      ],
+      "unexpected": [
+        {
+          "key": "A#sf-tap-inline sf-topbar-brand text-xl font-bold~0",
+          "why": "not-attributable",
+          "fields": [
+            "style.color",
+            "style.outlineColor"
+          ],
+          "inHeader": true,
+          "styleCur": {
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "color": "rgb(10, 10, 10)",
+            "borderTopColor": "rgb(229, 231, 235)",
+            "borderBottomColor": "rgb(229, 231, 235)",
+            "borderLeftColor": "rgb(229, 231, 235)",
+            "borderRightColor": "rgb(229, 231, 235)",
+            "borderTopWidth": "0px",
+            "borderBottomWidth": "0px",
+            "borderLeftWidth": "0px",
+            "boxShadow": "none",
+            "outlineColor": "rgb(10, 10, 10)",
+            "filter": "none",
+            "opacity": "1",
+            "backdropFilter": "none",
+            "fontSize": "20px",
+            "fontWeight": "700"
+          },
+          "stylePar": {
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "color": "rgb(202, 138, 4)",
+            "borderTopColor": "rgb(229, 231, 235)",
+            "borderBottomColor": "rgb(229, 231, 235)",
+            "borderLeftColor": "rgb(229, 231, 235)",
+            "borderRightColor": "rgb(229, 231, 235)",
+            "borderTopWidth": "0px",
+            "borderBottomWidth": "0px",
+            "borderLeftWidth": "0px",
+            "boxShadow": "none",
+            "outlineColor": "rgb(202, 138, 4)",
+            "filter": "none",
+            "opacity": "1",
+            "backdropFilter": "none",
+            "fontSize": "20px",
+            "fontWeight": "700"
+          }
+        }
+      ]
+    },
+    "/|light|1600": {
+      "key": "/|light|1600",
+      "url": "/",
+      "theme": "light",
+      "w": 1600,
+      "curRects": {
+        "header": [
+          0,
+          0,
+          1600,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1600,
+          65
+        ],
+        "routeContainer": [
+          80,
+          65,
+          1440,
+          1172
+        ],
+        "shell": [
+          0,
+          0,
+          1600,
+          1542
+        ]
+      },
+      "parRects": {
+        "header": [
+          0,
+          0,
+          1600,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1600,
+          65
+        ],
+        "routeContainer": [
+          80,
+          65,
+          1440,
+          1172
+        ],
+        "shell": [
+          0,
+          0,
+          1600,
+          1542
+        ]
+      },
+      "rectEqual": true,
+      "visibleCount": 255,
+      "visibleCountParent": 255,
+      "docOverflow": 0,
+      "pageHeight": 1542,
+      "pageHeightParent": 1542,
+      "diffCounts": {
+        "rect": 0,
+        "style": 1,
+        "attrs": 0,
+        "text": 0,
+        "onlyCur": 3,
+        "onlyPar": 3,
+        "paired": 3,
+        "unmatchedCur": 0,
+        "unmatchedPar": 0
+      },
+      "allowed": [
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~0",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~1",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "HEADER#bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95~0",
+          "why": "T119① 顶栏底色/边框色（含 backdrop/opacity 接住）",
+          "fields": [
+            "style.backgroundColor",
+            "style.borderBottomColor",
+            "style.backdropFilter"
+          ]
+        }
+      ],
+      "unexpected": [
+        {
+          "key": "A#sf-tap-inline sf-topbar-brand text-xl font-bold~0",
+          "why": "not-attributable",
+          "fields": [
+            "style.color",
+            "style.outlineColor"
+          ],
+          "inHeader": true,
+          "styleCur": {
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "color": "rgb(10, 10, 10)",
+            "borderTopColor": "rgb(229, 231, 235)",
+            "borderBottomColor": "rgb(229, 231, 235)",
+            "borderLeftColor": "rgb(229, 231, 235)",
+            "borderRightColor": "rgb(229, 231, 235)",
+            "borderTopWidth": "0px",
+            "borderBottomWidth": "0px",
+            "borderLeftWidth": "0px",
+            "boxShadow": "none",
+            "outlineColor": "rgb(10, 10, 10)",
+            "filter": "none",
+            "opacity": "1",
+            "backdropFilter": "none",
+            "fontSize": "20px",
+            "fontWeight": "700"
+          },
+          "stylePar": {
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "color": "rgb(202, 138, 4)",
+            "borderTopColor": "rgb(229, 231, 235)",
+            "borderBottomColor": "rgb(229, 231, 235)",
+            "borderLeftColor": "rgb(229, 231, 235)",
+            "borderRightColor": "rgb(229, 231, 235)",
+            "borderTopWidth": "0px",
+            "borderBottomWidth": "0px",
+            "borderLeftWidth": "0px",
+            "boxShadow": "none",
+            "outlineColor": "rgb(202, 138, 4)",
+            "filter": "none",
+            "opacity": "1",
+            "backdropFilter": "none",
+            "fontSize": "20px",
+            "fontWeight": "700"
+          }
+        }
+      ]
+    },
+    "/|dark|390": {
+      "key": "/|dark|390",
+      "url": "/",
+      "theme": "dark",
+      "w": 390,
+      "curRects": {
+        "header": [
+          0,
+          0,
+          390,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          390,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          390,
+          2138
+        ],
+        "shell": [
+          0,
+          0,
+          390,
+          2616
+        ]
+      },
+      "parRects": {
+        "header": [
+          0,
+          0,
+          390,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          390,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          390,
+          2138
+        ],
+        "shell": [
+          0,
+          0,
+          390,
+          2616
+        ]
+      },
+      "rectEqual": true,
+      "visibleCount": 224,
+      "visibleCountParent": 224,
+      "docOverflow": 0,
+      "pageHeight": 2616,
+      "pageHeightParent": 2616,
+      "diffCounts": {
+        "rect": 0,
+        "style": 0,
+        "attrs": 0,
+        "text": 0,
+        "onlyCur": 1,
+        "onlyPar": 1,
+        "paired": 1,
+        "unmatchedCur": 0,
+        "unmatchedPar": 0
+      },
+      "allowed": [
+        {
+          "key": "A#sf-tap-inline sf-topbar-brand text-xl font-bold~0",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        }
+      ],
+      "unexpected": []
+    },
+    "/|dark|1440": {
+      "key": "/|dark|1440",
+      "url": "/",
+      "theme": "dark",
+      "w": 1440,
+      "curRects": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          1172
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1542
+        ]
+      },
+      "parRects": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          1172
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1542
+        ]
+      },
+      "rectEqual": true,
+      "visibleCount": 263,
+      "visibleCountParent": 263,
+      "docOverflow": 0,
+      "pageHeight": 1542,
+      "pageHeightParent": 1542,
+      "diffCounts": {
+        "rect": 0,
+        "style": 0,
+        "attrs": 0,
+        "text": 0,
+        "onlyCur": 3,
+        "onlyPar": 3,
+        "paired": 3,
+        "unmatchedCur": 0,
+        "unmatchedPar": 0
+      },
+      "allowed": [
+        {
+          "key": "A#sf-tap-inline sf-topbar-brand text-xl font-bold~0",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~0",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~1",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        }
+      ],
+      "unexpected": []
+    },
+    "/|dark|1600": {
+      "key": "/|dark|1600",
+      "url": "/",
+      "theme": "dark",
+      "w": 1600,
+      "curRects": {
+        "header": [
+          0,
+          0,
+          1600,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1600,
+          65
+        ],
+        "routeContainer": [
+          80,
+          65,
+          1440,
+          1172
+        ],
+        "shell": [
+          0,
+          0,
+          1600,
+          1542
+        ]
+      },
+      "parRects": {
+        "header": [
+          0,
+          0,
+          1600,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1600,
+          65
+        ],
+        "routeContainer": [
+          80,
+          65,
+          1440,
+          1172
+        ],
+        "shell": [
+          0,
+          0,
+          1600,
+          1542
+        ]
+      },
+      "rectEqual": true,
+      "visibleCount": 263,
+      "visibleCountParent": 263,
+      "docOverflow": 0,
+      "pageHeight": 1542,
+      "pageHeightParent": 1542,
+      "diffCounts": {
+        "rect": 0,
+        "style": 0,
+        "attrs": 0,
+        "text": 0,
+        "onlyCur": 3,
+        "onlyPar": 3,
+        "paired": 3,
+        "unmatchedCur": 0,
+        "unmatchedPar": 0
+      },
+      "allowed": [
+        {
+          "key": "A#sf-tap-inline sf-topbar-brand text-xl font-bold~0",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~0",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~1",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        }
+      ],
+      "unexpected": []
+    },
+    "/|light|375": {
+      "key": "/|light|375",
+      "url": "/",
+      "theme": "light",
+      "w": 375,
+      "curRects": {
+        "header": [
+          0,
+          0,
+          375,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          375,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          375,
+          2138
+        ],
+        "shell": [
+          0,
+          0,
+          375,
+          2692
+        ]
+      },
+      "parRects": {
+        "header": [
+          0,
+          0,
+          375,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          375,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          375,
+          2138
+        ],
+        "shell": [
+          0,
+          0,
+          375,
+          2692
+        ]
+      },
+      "rectEqual": true,
+      "visibleCount": 224,
+      "visibleCountParent": 224,
+      "docOverflow": 0,
+      "pageHeight": 2692,
+      "pageHeightParent": 2692,
+      "diffCounts": {
+        "rect": 0,
+        "style": 1,
+        "attrs": 0,
+        "text": 0,
+        "onlyCur": 1,
+        "onlyPar": 1,
+        "paired": 1,
+        "unmatchedCur": 0,
+        "unmatchedPar": 0
+      },
+      "allowed": [
+        {
+          "key": "HEADER#bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95~0",
+          "why": "T119① 顶栏底色/边框色（含 backdrop/opacity 接住）",
+          "fields": [
+            "style.backgroundColor",
+            "style.borderBottomColor",
+            "style.backdropFilter"
+          ]
+        }
+      ],
+      "unexpected": [
+        {
+          "key": "A#sf-tap-inline sf-topbar-brand text-xl font-bold~0",
+          "why": "not-attributable",
+          "fields": [
+            "style.color",
+            "style.outlineColor"
+          ],
+          "inHeader": true,
+          "styleCur": {
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "color": "rgb(10, 10, 10)",
+            "borderTopColor": "rgb(229, 231, 235)",
+            "borderBottomColor": "rgb(229, 231, 235)",
+            "borderLeftColor": "rgb(229, 231, 235)",
+            "borderRightColor": "rgb(229, 231, 235)",
+            "borderTopWidth": "0px",
+            "borderBottomWidth": "0px",
+            "borderLeftWidth": "0px",
+            "boxShadow": "none",
+            "outlineColor": "rgb(10, 10, 10)",
+            "filter": "none",
+            "opacity": "1",
+            "backdropFilter": "none",
+            "fontSize": "20px",
+            "fontWeight": "700"
+          },
+          "stylePar": {
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "color": "rgb(202, 138, 4)",
+            "borderTopColor": "rgb(229, 231, 235)",
+            "borderBottomColor": "rgb(229, 231, 235)",
+            "borderLeftColor": "rgb(229, 231, 235)",
+            "borderRightColor": "rgb(229, 231, 235)",
+            "borderTopWidth": "0px",
+            "borderBottomWidth": "0px",
+            "borderLeftWidth": "0px",
+            "boxShadow": "none",
+            "outlineColor": "rgb(202, 138, 4)",
+            "filter": "none",
+            "opacity": "1",
+            "backdropFilter": "none",
+            "fontSize": "20px",
+            "fontWeight": "700"
+          }
+        }
+      ]
+    },
+    "/|light|320": {
+      "key": "/|light|320",
+      "url": "/",
+      "theme": "light",
+      "w": 320,
+      "curRects": {
+        "header": [
+          0,
+          0,
+          320,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          320,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          320,
+          2288
+        ],
+        "shell": [
+          0,
+          0,
+          320,
+          2842
+        ]
+      },
+      "parRects": {
+        "header": [
+          0,
+          0,
+          320,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          320,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          320,
+          2288
+        ],
+        "shell": [
+          0,
+          0,
+          320,
+          2842
+        ]
+      },
+      "rectEqual": true,
+      "visibleCount": 224,
+      "visibleCountParent": 224,
+      "docOverflow": 0,
+      "pageHeight": 2842,
+      "pageHeightParent": 2842,
+      "diffCounts": {
+        "rect": 0,
+        "style": 1,
+        "attrs": 0,
+        "text": 0,
+        "onlyCur": 1,
+        "onlyPar": 1,
+        "paired": 1,
+        "unmatchedCur": 0,
+        "unmatchedPar": 0
+      },
+      "allowed": [
+        {
+          "key": "HEADER#bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95~0",
+          "why": "T119① 顶栏底色/边框色（含 backdrop/opacity 接住）",
+          "fields": [
+            "style.backgroundColor",
+            "style.borderBottomColor",
+            "style.backdropFilter"
+          ]
+        }
+      ],
+      "unexpected": [
+        {
+          "key": "A#sf-tap-inline sf-topbar-brand text-xl font-bold~0",
+          "why": "not-attributable",
+          "fields": [
+            "style.color",
+            "style.outlineColor"
+          ],
+          "inHeader": true,
+          "styleCur": {
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "color": "rgb(10, 10, 10)",
+            "borderTopColor": "rgb(229, 231, 235)",
+            "borderBottomColor": "rgb(229, 231, 235)",
+            "borderLeftColor": "rgb(229, 231, 235)",
+            "borderRightColor": "rgb(229, 231, 235)",
+            "borderTopWidth": "0px",
+            "borderBottomWidth": "0px",
+            "borderLeftWidth": "0px",
+            "boxShadow": "none",
+            "outlineColor": "rgb(10, 10, 10)",
+            "filter": "none",
+            "opacity": "1",
+            "backdropFilter": "none",
+            "fontSize": "20px",
+            "fontWeight": "700"
+          },
+          "stylePar": {
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "color": "rgb(202, 138, 4)",
+            "borderTopColor": "rgb(229, 231, 235)",
+            "borderBottomColor": "rgb(229, 231, 235)",
+            "borderLeftColor": "rgb(229, 231, 235)",
+            "borderRightColor": "rgb(229, 231, 235)",
+            "borderTopWidth": "0px",
+            "borderBottomWidth": "0px",
+            "borderLeftWidth": "0px",
+            "boxShadow": "none",
+            "outlineColor": "rgb(202, 138, 4)",
+            "filter": "none",
+            "opacity": "1",
+            "backdropFilter": "none",
+            "fontSize": "20px",
+            "fontWeight": "700"
+          }
+        }
+      ]
+    },
+    "/|dark|375": {
+      "key": "/|dark|375",
+      "url": "/",
+      "theme": "dark",
+      "w": 375,
+      "curRects": {
+        "header": [
+          0,
+          0,
+          375,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          375,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          375,
+          2138
+        ],
+        "shell": [
+          0,
+          0,
+          375,
+          2692
+        ]
+      },
+      "parRects": {
+        "header": [
+          0,
+          0,
+          375,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          375,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          375,
+          2138
+        ],
+        "shell": [
+          0,
+          0,
+          375,
+          2692
+        ]
+      },
+      "rectEqual": true,
+      "visibleCount": 224,
+      "visibleCountParent": 224,
+      "docOverflow": 0,
+      "pageHeight": 2692,
+      "pageHeightParent": 2692,
+      "diffCounts": {
+        "rect": 0,
+        "style": 0,
+        "attrs": 0,
+        "text": 0,
+        "onlyCur": 1,
+        "onlyPar": 1,
+        "paired": 1,
+        "unmatchedCur": 0,
+        "unmatchedPar": 0
+      },
+      "allowed": [
+        {
+          "key": "A#sf-tap-inline sf-topbar-brand text-xl font-bold~0",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        }
+      ],
+      "unexpected": []
+    },
+    "/|dark|320": {
+      "key": "/|dark|320",
+      "url": "/",
+      "theme": "dark",
+      "w": 320,
+      "curRects": {
+        "header": [
+          0,
+          0,
+          320,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          320,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          320,
+          2288
+        ],
+        "shell": [
+          0,
+          0,
+          320,
+          2842
+        ]
+      },
+      "parRects": {
+        "header": [
+          0,
+          0,
+          320,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          320,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          320,
+          2288
+        ],
+        "shell": [
+          0,
+          0,
+          320,
+          2842
+        ]
+      },
+      "rectEqual": true,
+      "visibleCount": 224,
+      "visibleCountParent": 224,
+      "docOverflow": 0,
+      "pageHeight": 2842,
+      "pageHeightParent": 2842,
+      "diffCounts": {
+        "rect": 0,
+        "style": 0,
+        "attrs": 0,
+        "text": 0,
+        "onlyCur": 1,
+        "onlyPar": 1,
+        "paired": 1,
+        "unmatchedCur": 0,
+        "unmatchedPar": 0
+      },
+      "allowed": [
+        {
+          "key": "A#sf-tap-inline sf-topbar-brand text-xl font-bold~0",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        }
+      ],
+      "unexpected": []
+    },
+    "/task|light|1440": {
+      "key": "/task|light|1440",
+      "url": "/task",
+      "theme": "light",
+      "w": 1440,
+      "curRects": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          630
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1000
+        ]
+      },
+      "parRects": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          630
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1000
+        ]
+      },
+      "rectEqual": true,
+      "visibleCount": 159,
+      "visibleCountParent": 159,
+      "docOverflow": 0,
+      "pageHeight": 1000,
+      "pageHeightParent": 1000,
+      "diffCounts": {
+        "rect": 0,
+        "style": 2,
+        "attrs": 0,
+        "text": 0,
+        "onlyCur": 3,
+        "onlyPar": 3,
+        "paired": 3,
+        "unmatchedCur": 0,
+        "unmatchedPar": 0
+      },
+      "allowed": [
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~0",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~1",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "HEADER#bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95~0",
+          "why": "T119① 顶栏底色/边框色（含 backdrop/opacity 接住）",
+          "fields": [
+            "style.backgroundColor",
+            "style.borderBottomColor",
+            "style.backdropFilter"
+          ]
+        }
+      ],
+      "unexpected": [
+        {
+          "key": "A#sf-tap-inline sf-topbar-brand text-xl font-bold~0",
+          "why": "not-attributable",
+          "fields": [
+            "style.color",
+            "style.outlineColor"
+          ],
+          "inHeader": true,
+          "styleCur": {
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "color": "rgb(10, 10, 10)",
+            "borderTopColor": "rgb(229, 231, 235)",
+            "borderBottomColor": "rgb(229, 231, 235)",
+            "borderLeftColor": "rgb(229, 231, 235)",
+            "borderRightColor": "rgb(229, 231, 235)",
+            "borderTopWidth": "0px",
+            "borderBottomWidth": "0px",
+            "borderLeftWidth": "0px",
+            "boxShadow": "none",
+            "outlineColor": "rgb(10, 10, 10)",
+            "filter": "none",
+            "opacity": "1",
+            "backdropFilter": "none",
+            "fontSize": "20px",
+            "fontWeight": "700"
+          },
+          "stylePar": {
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "color": "rgb(202, 138, 4)",
+            "borderTopColor": "rgb(229, 231, 235)",
+            "borderBottomColor": "rgb(229, 231, 235)",
+            "borderLeftColor": "rgb(229, 231, 235)",
+            "borderRightColor": "rgb(229, 231, 235)",
+            "borderTopWidth": "0px",
+            "borderBottomWidth": "0px",
+            "borderLeftWidth": "0px",
+            "boxShadow": "none",
+            "outlineColor": "rgb(202, 138, 4)",
+            "filter": "none",
+            "opacity": "1",
+            "backdropFilter": "none",
+            "fontSize": "20px",
+            "fontWeight": "700"
+          }
+        },
+        {
+          "key": "A#nav-link active ~0",
+          "why": "not-attributable",
+          "fields": [
+            "style.color",
+            "style.outlineColor"
+          ],
+          "inHeader": true,
+          "styleCur": {
+            "backgroundColor": "rgb(243, 244, 246)",
+            "color": "rgb(10, 10, 10)",
+            "borderTopColor": "rgb(229, 231, 235)",
+            "borderBottomColor": "rgb(229, 231, 235)",
+            "borderLeftColor": "rgb(229, 231, 235)",
+            "borderRightColor": "rgb(229, 231, 235)",
+            "borderTopWidth": "0px",
+            "borderBottomWidth": "0px",
+            "borderLeftWidth": "0px",
+            "boxShadow": "none",
+            "outlineColor": "rgb(10, 10, 10)",
+            "filter": "none",
+            "opacity": "1",
+            "backdropFilter": "none",
+            "fontSize": "14px",
+            "fontWeight": "500"
+          },
+          "stylePar": {
+            "backgroundColor": "rgb(243, 244, 246)",
+            "color": "rgb(217, 119, 6)",
+            "borderTopColor": "rgb(229, 231, 235)",
+            "borderBottomColor": "rgb(229, 231, 235)",
+            "borderLeftColor": "rgb(229, 231, 235)",
+            "borderRightColor": "rgb(229, 231, 235)",
+            "borderTopWidth": "0px",
+            "borderBottomWidth": "0px",
+            "borderLeftWidth": "0px",
+            "boxShadow": "none",
+            "outlineColor": "rgb(217, 119, 6)",
+            "filter": "none",
+            "opacity": "1",
+            "backdropFilter": "none",
+            "fontSize": "14px",
+            "fontWeight": "500"
+          }
+        }
+      ]
+    },
+    "/task|dark|1440": {
+      "key": "/task|dark|1440",
+      "url": "/task",
+      "theme": "dark",
+      "w": 1440,
+      "curRects": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          630
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1000
+        ]
+      },
+      "parRects": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          630
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1000
+        ]
+      },
+      "rectEqual": true,
+      "visibleCount": 167,
+      "visibleCountParent": 167,
+      "docOverflow": 0,
+      "pageHeight": 1000,
+      "pageHeightParent": 1000,
+      "diffCounts": {
+        "rect": 0,
+        "style": 0,
+        "attrs": 0,
+        "text": 0,
+        "onlyCur": 3,
+        "onlyPar": 3,
+        "paired": 3,
+        "unmatchedCur": 0,
+        "unmatchedPar": 0
+      },
+      "allowed": [
+        {
+          "key": "A#sf-tap-inline sf-topbar-brand text-xl font-bold~0",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~0",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~1",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        }
+      ],
+      "unexpected": []
+    },
+    "/exchange|light|1440": {
+      "key": "/exchange|light|1440",
+      "url": "/exchange",
+      "theme": "light",
+      "w": 1440,
+      "curRects": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          630
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1000
+        ]
+      },
+      "parRects": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          630
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1000
+        ]
+      },
+      "rectEqual": true,
+      "visibleCount": 146,
+      "visibleCountParent": 146,
+      "docOverflow": 0,
+      "pageHeight": 1000,
+      "pageHeightParent": 1000,
+      "diffCounts": {
+        "rect": 0,
+        "style": 2,
+        "attrs": 0,
+        "text": 0,
+        "onlyCur": 3,
+        "onlyPar": 3,
+        "paired": 3,
+        "unmatchedCur": 0,
+        "unmatchedPar": 0
+      },
+      "allowed": [
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~0",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~1",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "HEADER#bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95~0",
+          "why": "T119① 顶栏底色/边框色（含 backdrop/opacity 接住）",
+          "fields": [
+            "style.backgroundColor",
+            "style.borderBottomColor",
+            "style.backdropFilter"
+          ]
+        }
+      ],
+      "unexpected": [
+        {
+          "key": "A#sf-tap-inline sf-topbar-brand text-xl font-bold~0",
+          "why": "not-attributable",
+          "fields": [
+            "style.color",
+            "style.outlineColor"
+          ],
+          "inHeader": true,
+          "styleCur": {
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "color": "rgb(10, 10, 10)",
+            "borderTopColor": "rgb(229, 231, 235)",
+            "borderBottomColor": "rgb(229, 231, 235)",
+            "borderLeftColor": "rgb(229, 231, 235)",
+            "borderRightColor": "rgb(229, 231, 235)",
+            "borderTopWidth": "0px",
+            "borderBottomWidth": "0px",
+            "borderLeftWidth": "0px",
+            "boxShadow": "none",
+            "outlineColor": "rgb(10, 10, 10)",
+            "filter": "none",
+            "opacity": "1",
+            "backdropFilter": "none",
+            "fontSize": "20px",
+            "fontWeight": "700"
+          },
+          "stylePar": {
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "color": "rgb(202, 138, 4)",
+            "borderTopColor": "rgb(229, 231, 235)",
+            "borderBottomColor": "rgb(229, 231, 235)",
+            "borderLeftColor": "rgb(229, 231, 235)",
+            "borderRightColor": "rgb(229, 231, 235)",
+            "borderTopWidth": "0px",
+            "borderBottomWidth": "0px",
+            "borderLeftWidth": "0px",
+            "boxShadow": "none",
+            "outlineColor": "rgb(202, 138, 4)",
+            "filter": "none",
+            "opacity": "1",
+            "backdropFilter": "none",
+            "fontSize": "20px",
+            "fontWeight": "700"
+          }
+        },
+        {
+          "key": "A#nav-link active ~0",
+          "why": "not-attributable",
+          "fields": [
+            "style.color",
+            "style.outlineColor"
+          ],
+          "inHeader": true,
+          "styleCur": {
+            "backgroundColor": "rgb(243, 244, 246)",
+            "color": "rgb(10, 10, 10)",
+            "borderTopColor": "rgb(229, 231, 235)",
+            "borderBottomColor": "rgb(229, 231, 235)",
+            "borderLeftColor": "rgb(229, 231, 235)",
+            "borderRightColor": "rgb(229, 231, 235)",
+            "borderTopWidth": "0px",
+            "borderBottomWidth": "0px",
+            "borderLeftWidth": "0px",
+            "boxShadow": "none",
+            "outlineColor": "rgb(10, 10, 10)",
+            "filter": "none",
+            "opacity": "1",
+            "backdropFilter": "none",
+            "fontSize": "14px",
+            "fontWeight": "500"
+          },
+          "stylePar": {
+            "backgroundColor": "rgb(243, 244, 246)",
+            "color": "rgb(217, 119, 6)",
+            "borderTopColor": "rgb(229, 231, 235)",
+            "borderBottomColor": "rgb(229, 231, 235)",
+            "borderLeftColor": "rgb(229, 231, 235)",
+            "borderRightColor": "rgb(229, 231, 235)",
+            "borderTopWidth": "0px",
+            "borderBottomWidth": "0px",
+            "borderLeftWidth": "0px",
+            "boxShadow": "none",
+            "outlineColor": "rgb(217, 119, 6)",
+            "filter": "none",
+            "opacity": "1",
+            "backdropFilter": "none",
+            "fontSize": "14px",
+            "fontWeight": "500"
+          }
+        }
+      ]
+    },
+    "/exchange|dark|1440": {
+      "key": "/exchange|dark|1440",
+      "url": "/exchange",
+      "theme": "dark",
+      "w": 1440,
+      "curRects": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          630
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1000
+        ]
+      },
+      "parRects": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          630
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1000
+        ]
+      },
+      "rectEqual": true,
+      "visibleCount": 154,
+      "visibleCountParent": 154,
+      "docOverflow": 0,
+      "pageHeight": 1000,
+      "pageHeightParent": 1000,
+      "diffCounts": {
+        "rect": 0,
+        "style": 0,
+        "attrs": 0,
+        "text": 0,
+        "onlyCur": 3,
+        "onlyPar": 3,
+        "paired": 3,
+        "unmatchedCur": 0,
+        "unmatchedPar": 0
+      },
+      "allowed": [
+        {
+          "key": "A#sf-tap-inline sf-topbar-brand text-xl font-bold~0",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~0",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~1",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        }
+      ],
+      "unexpected": []
+    },
+    "/profile|light|1440": {
+      "key": "/profile|light|1440",
+      "url": "/profile",
+      "theme": "light",
+      "w": 1440,
+      "curRects": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          984
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1354
+        ]
+      },
+      "parRects": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          984
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1354
+        ]
+      },
+      "rectEqual": true,
+      "visibleCount": 144,
+      "visibleCountParent": 144,
+      "docOverflow": 0,
+      "pageHeight": 1354,
+      "pageHeightParent": 1354,
+      "diffCounts": {
+        "rect": 0,
+        "style": 1,
+        "attrs": 0,
+        "text": 0,
+        "onlyCur": 3,
+        "onlyPar": 3,
+        "paired": 3,
+        "unmatchedCur": 0,
+        "unmatchedPar": 0
+      },
+      "allowed": [
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~0",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~1",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "HEADER#bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95~0",
+          "why": "T119① 顶栏底色/边框色（含 backdrop/opacity 接住）",
+          "fields": [
+            "style.backgroundColor",
+            "style.borderBottomColor",
+            "style.backdropFilter"
+          ]
+        }
+      ],
+      "unexpected": [
+        {
+          "key": "A#sf-tap-inline sf-topbar-brand text-xl font-bold~0",
+          "why": "not-attributable",
+          "fields": [
+            "style.color",
+            "style.outlineColor"
+          ],
+          "inHeader": true,
+          "styleCur": {
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "color": "rgb(10, 10, 10)",
+            "borderTopColor": "rgb(229, 231, 235)",
+            "borderBottomColor": "rgb(229, 231, 235)",
+            "borderLeftColor": "rgb(229, 231, 235)",
+            "borderRightColor": "rgb(229, 231, 235)",
+            "borderTopWidth": "0px",
+            "borderBottomWidth": "0px",
+            "borderLeftWidth": "0px",
+            "boxShadow": "none",
+            "outlineColor": "rgb(10, 10, 10)",
+            "filter": "none",
+            "opacity": "1",
+            "backdropFilter": "none",
+            "fontSize": "20px",
+            "fontWeight": "700"
+          },
+          "stylePar": {
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "color": "rgb(202, 138, 4)",
+            "borderTopColor": "rgb(229, 231, 235)",
+            "borderBottomColor": "rgb(229, 231, 235)",
+            "borderLeftColor": "rgb(229, 231, 235)",
+            "borderRightColor": "rgb(229, 231, 235)",
+            "borderTopWidth": "0px",
+            "borderBottomWidth": "0px",
+            "borderLeftWidth": "0px",
+            "boxShadow": "none",
+            "outlineColor": "rgb(202, 138, 4)",
+            "filter": "none",
+            "opacity": "1",
+            "backdropFilter": "none",
+            "fontSize": "20px",
+            "fontWeight": "700"
+          }
+        }
+      ]
+    },
+    "/profile|dark|1440": {
+      "key": "/profile|dark|1440",
+      "url": "/profile",
+      "theme": "dark",
+      "w": 1440,
+      "curRects": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          984
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1354
+        ]
+      },
+      "parRects": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          984
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1354
+        ]
+      },
+      "rectEqual": true,
+      "visibleCount": 152,
+      "visibleCountParent": 152,
+      "docOverflow": 0,
+      "pageHeight": 1354,
+      "pageHeightParent": 1354,
+      "diffCounts": {
+        "rect": 0,
+        "style": 0,
+        "attrs": 0,
+        "text": 0,
+        "onlyCur": 3,
+        "onlyPar": 3,
+        "paired": 3,
+        "unmatchedCur": 0,
+        "unmatchedPar": 0
+      },
+      "allowed": [
+        {
+          "key": "A#sf-tap-inline sf-topbar-brand text-xl font-bold~0",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~0",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~1",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        }
+      ],
+      "unexpected": []
+    },
+    "/messages|light|1440": {
+      "key": "/messages|light|1440",
+      "url": "/messages",
+      "theme": "light",
+      "w": 1440,
+      "curRects": {
+        "header": [
+          0,
+          0,
+          736,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          736,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          736,
+          1460
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1830
+        ]
+      },
+      "parRects": {
+        "header": [
+          0,
+          0,
+          736,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          736,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          736,
+          1460
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1830
+        ]
+      },
+      "rectEqual": true,
+      "visibleCount": 266,
+      "visibleCountParent": 266,
+      "docOverflow": 0,
+      "pageHeight": 1830,
+      "pageHeightParent": 1830,
+      "diffCounts": {
+        "rect": 0,
+        "style": 1,
+        "attrs": 0,
+        "text": 0,
+        "onlyCur": 3,
+        "onlyPar": 3,
+        "paired": 3,
+        "unmatchedCur": 0,
+        "unmatchedPar": 0
+      },
+      "allowed": [
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~0",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~1",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "HEADER#bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95~0",
+          "why": "T119① 顶栏底色/边框色（含 backdrop/opacity 接住）",
+          "fields": [
+            "style.backgroundColor",
+            "style.borderBottomColor",
+            "style.backdropFilter"
+          ]
+        }
+      ],
+      "unexpected": [
+        {
+          "key": "A#sf-tap-inline sf-topbar-brand text-xl font-bold~0",
+          "why": "not-attributable",
+          "fields": [
+            "style.color",
+            "style.outlineColor"
+          ],
+          "inHeader": true,
+          "styleCur": {
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "color": "rgb(10, 10, 10)",
+            "borderTopColor": "rgb(229, 231, 235)",
+            "borderBottomColor": "rgb(229, 231, 235)",
+            "borderLeftColor": "rgb(229, 231, 235)",
+            "borderRightColor": "rgb(229, 231, 235)",
+            "borderTopWidth": "0px",
+            "borderBottomWidth": "0px",
+            "borderLeftWidth": "0px",
+            "boxShadow": "none",
+            "outlineColor": "rgb(10, 10, 10)",
+            "filter": "none",
+            "opacity": "1",
+            "backdropFilter": "none",
+            "fontSize": "20px",
+            "fontWeight": "700"
+          },
+          "stylePar": {
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "color": "rgb(202, 138, 4)",
+            "borderTopColor": "rgb(229, 231, 235)",
+            "borderBottomColor": "rgb(229, 231, 235)",
+            "borderLeftColor": "rgb(229, 231, 235)",
+            "borderRightColor": "rgb(229, 231, 235)",
+            "borderTopWidth": "0px",
+            "borderBottomWidth": "0px",
+            "borderLeftWidth": "0px",
+            "boxShadow": "none",
+            "outlineColor": "rgb(202, 138, 4)",
+            "filter": "none",
+            "opacity": "1",
+            "backdropFilter": "none",
+            "fontSize": "20px",
+            "fontWeight": "700"
+          }
+        }
+      ]
+    },
+    "/messages|dark|1440": {
+      "key": "/messages|dark|1440",
+      "url": "/messages",
+      "theme": "dark",
+      "w": 1440,
+      "curRects": {
+        "header": [
+          0,
+          0,
+          736,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          736,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          736,
+          1460
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1830
+        ]
+      },
+      "parRects": {
+        "header": [
+          0,
+          0,
+          736,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          736,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          736,
+          1460
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1830
+        ]
+      },
+      "rectEqual": true,
+      "visibleCount": 274,
+      "visibleCountParent": 274,
+      "docOverflow": 0,
+      "pageHeight": 1830,
+      "pageHeightParent": 1830,
+      "diffCounts": {
+        "rect": 0,
+        "style": 0,
+        "attrs": 0,
+        "text": 0,
+        "onlyCur": 3,
+        "onlyPar": 3,
+        "paired": 3,
+        "unmatchedCur": 0,
+        "unmatchedPar": 0
+      },
+      "allowed": [
+        {
+          "key": "A#sf-tap-inline sf-topbar-brand text-xl font-bold~0",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~0",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~1",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        }
+      ],
+      "unexpected": []
+    },
+    "/item/1|light|1440": {
+      "key": "/item/1|light|1440",
+      "url": "/item/1",
+      "theme": "light",
+      "w": 1440,
+      "curRects": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          638.5
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1008.5
+        ]
+      },
+      "parRects": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          638.5
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1008.5
+        ]
+      },
+      "rectEqual": true,
+      "visibleCount": 124,
+      "visibleCountParent": 124,
+      "docOverflow": 0,
+      "pageHeight": 1009,
+      "pageHeightParent": 1009,
+      "diffCounts": {
+        "rect": 0,
+        "style": 1,
+        "attrs": 0,
+        "text": 0,
+        "onlyCur": 3,
+        "onlyPar": 3,
+        "paired": 3,
+        "unmatchedCur": 0,
+        "unmatchedPar": 0
+      },
+      "allowed": [
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~0",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~1",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "HEADER#bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95~0",
+          "why": "T119① 顶栏底色/边框色（含 backdrop/opacity 接住）",
+          "fields": [
+            "style.backgroundColor",
+            "style.borderBottomColor",
+            "style.backdropFilter"
+          ]
+        }
+      ],
+      "unexpected": [
+        {
+          "key": "A#sf-tap-inline sf-topbar-brand text-xl font-bold~0",
+          "why": "not-attributable",
+          "fields": [
+            "style.color",
+            "style.outlineColor"
+          ],
+          "inHeader": true,
+          "styleCur": {
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "color": "rgb(10, 10, 10)",
+            "borderTopColor": "rgb(229, 231, 235)",
+            "borderBottomColor": "rgb(229, 231, 235)",
+            "borderLeftColor": "rgb(229, 231, 235)",
+            "borderRightColor": "rgb(229, 231, 235)",
+            "borderTopWidth": "0px",
+            "borderBottomWidth": "0px",
+            "borderLeftWidth": "0px",
+            "boxShadow": "none",
+            "outlineColor": "rgb(10, 10, 10)",
+            "filter": "none",
+            "opacity": "1",
+            "backdropFilter": "none",
+            "fontSize": "20px",
+            "fontWeight": "700"
+          },
+          "stylePar": {
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "color": "rgb(202, 138, 4)",
+            "borderTopColor": "rgb(229, 231, 235)",
+            "borderBottomColor": "rgb(229, 231, 235)",
+            "borderLeftColor": "rgb(229, 231, 235)",
+            "borderRightColor": "rgb(229, 231, 235)",
+            "borderTopWidth": "0px",
+            "borderBottomWidth": "0px",
+            "borderLeftWidth": "0px",
+            "boxShadow": "none",
+            "outlineColor": "rgb(202, 138, 4)",
+            "filter": "none",
+            "opacity": "1",
+            "backdropFilter": "none",
+            "fontSize": "20px",
+            "fontWeight": "700"
+          }
+        }
+      ]
+    },
+    "/item/1|dark|1440": {
+      "key": "/item/1|dark|1440",
+      "url": "/item/1",
+      "theme": "dark",
+      "w": 1440,
+      "curRects": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          638.5
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1008.5
+        ]
+      },
+      "parRects": {
+        "header": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "topRegion": [
+          0,
+          0,
+          1440,
+          65
+        ],
+        "routeContainer": [
+          0,
+          65,
+          1440,
+          638.5
+        ],
+        "shell": [
+          0,
+          0,
+          1440,
+          1008.5
+        ]
+      },
+      "rectEqual": true,
+      "visibleCount": 132,
+      "visibleCountParent": 132,
+      "docOverflow": 0,
+      "pageHeight": 1009,
+      "pageHeightParent": 1009,
+      "diffCounts": {
+        "rect": 0,
+        "style": 0,
+        "attrs": 0,
+        "text": 0,
+        "onlyCur": 3,
+        "onlyPar": 3,
+        "paired": 3,
+        "unmatchedCur": 0,
+        "unmatchedPar": 0
+      },
+      "allowed": [
+        {
+          "key": "A#sf-tap-inline sf-topbar-brand text-xl font-bold~0",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~0",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        },
+        {
+          "key": "BUTTON#flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium~1",
+          "why": "T119② 由顶栏底色承载的前景（class 互换 = 落地实现）",
+          "fields": []
+        }
+      ],
+      "unexpected": []
+    }
+  },
+  "attrib": {},
+  "counterfactual": {
+    "light": {
+      "injected": {
+        "cssInjected": true,
+        "restored": [
+          {
+            "i": 0,
+            "next": "sf-tap-inline text-xl font-bold text-yellow-600 dark:text-yellow-400"
+          },
+          {
+            "i": 1,
+            "next": "flex items-center gap-1.5 text-gray-600 dark:text-gray-300 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors text-sm font-medium"
+          },
+          {
+            "i": 2,
+            "next": "flex items-center gap-1.5 text-gray-600 dark:text-gray-300 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors text-sm font-medium"
+          }
+        ]
+      },
+      "headerAfterRevert": {
+        "bg": "rgba(255, 255, 255, 0.95)",
+        "bd": "rgb(229, 231, 235)",
+        "bf": "blur(4px)",
+        "op": "1"
+      },
+      "headerBefore": {
+        "bg": "rgba(255, 255, 255, 0.95)"
+      },
+      "diffVsParent": {
+        "rect": 0,
+        "style": 0,
+        "attrs": 0,
+        "text": 0,
+        "onlyCur": 0,
+        "onlyPar": 0,
+        "paired": 0,
+        "unmatchedCur": 0,
+        "unmatchedPar": 0
+      },
+      "unexpected": 0,
+      "detail": {
+        "onlyCur": [],
+        "onlyPar": [],
+        "details": [],
+        "paired": []
+      },
+      "counterfactualEmpty": true,
+      "beforeCounts": 255
+    },
+    "dark": {
+      "injected": {
+        "cssInjected": true,
+        "restored": [
+          {
+            "i": 0,
+            "next": "sf-tap-inline text-xl font-bold text-yellow-600 dark:text-yellow-400"
+          },
+          {
+            "i": 1,
+            "next": "flex items-center gap-1.5 text-gray-600 dark:text-gray-300 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors text-sm font-medium"
+          },
+          {
+            "i": 2,
+            "next": "flex items-center gap-1.5 text-gray-600 dark:text-gray-300 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors text-sm font-medium"
+          }
+        ]
+      },
+      "headerAfterRevert": {
+        "bg": "rgb(31, 41, 55)",
+        "bd": "rgb(55, 65, 81)",
+        "bf": "blur(4px)",
+        "op": "1"
+      },
+      "headerBefore": {
+        "bg": "rgb(31, 41, 55)"
+      },
+      "diffVsParent": {
+        "rect": 0,
+        "style": 0,
+        "attrs": 0,
+        "text": 0,
+        "onlyCur": 0,
+        "onlyPar": 0,
+        "paired": 0,
+        "unmatchedCur": 0,
+        "unmatchedPar": 0
+      },
+      "unexpected": 0,
+      "detail": {
+        "onlyCur": [],
+        "onlyPar": [],
+        "details": [],
+        "paired": []
+      },
+      "counterfactualEmpty": true,
+      "beforeCounts": 263
+    }
+  }
+}

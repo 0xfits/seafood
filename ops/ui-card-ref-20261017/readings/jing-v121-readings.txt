@@ -1,0 +1,84 @@
+# jing-v121 · 顶栏实黄（v1.21 §23）· 现取读数（Jing / Specifier · 2026-10-17）
+仓 = /Users/kevin/bistro/seafood · 本单只写 docs/** + 本读数；未动 frontend/**；未启停任何服务。
+
+## 0. 本单开工基线（现取）
+docs/design/design-system.spec.md  : 2646 行 / 607,188 B / md5 6fa271687481dd69c70a5ce358b63dc5
+docs/versions/design-system.spec.v1.20.md : 与现盘 live cmp = 0（同 md5）⇒ 改前快照成立
+HEAD = 4b388d00ec15eb01cfe1eee82b6c2096fde35aaa（main；工作区另有 v1.20d 未提交改动，非本单写面）
+
+## 1. 现取（改前）真渲染读数 —— 取法 = 真浏览器 + 5787 dev 实例
+探针：goto http://localhost:5787/ → localStorage.theme 切档 → 重载 → getComputedStyle 回读 → WCAG 2.x 复算
+（CDP Emulation.setDeviceMetricsOverride 定档 390 / 1280 / 1440 / 1600）
+
+#header（Header.jsx:166）:
+  日档 backgroundColor        = rgba(255, 255, 255, 0.95)      ← 95% 白（半透明）
+  日档 backdropFilter         = blur(4px)
+  日档 border-bottom          = 1px solid rgb(229, 231, 235)    ← border-gray-200
+  日档 rect                   = (0,0,W,65)   W=390/1280/1440/1600 全档
+  夜档 backgroundColor        = rgb(31, 41, 55)                 ← #1F2937（dark:bg-gray-800，N50 机制）
+  夜档 border-bottom          = 1px solid rgb(55, 65, 81)       ← dark:border-gray-700
+  position/top/z-index        = sticky / 0px / 50
+.sf-region-top（shell.css:20-24 · AppShell.jsx:33）:
+  backgroundColor             = rgb(253, 232, 21)               ← --sf-topbar-bg 日档
+  rect                        = (0,0,W,65) = #header rect 逐值相同  ★ 底被上层 95% 白盖死
+合成像素（0.95 白 over 实黄，复算）= rgb(255, 254, 243) = #FFFEF3
+
+## 2. 现取（改前）顶栏内前景全集（真渲染回读 · 日档 1440）
+1) logo「Seafood 海鲜市场」  A.sf-tap-inline.text-xl.font-bold.text-yellow-600   color rgb(202,138,4)  20px/700
+2) 「社区任务」 A.nav-link                                                        color rgb(75,85,99)   14px/500
+3) 「市场」     A.nav-link                                                        color rgb(75,85,99)   14px/500
+4) 「订单」     SPAN                                                               color rgb(75,85,99)   14px/500
+5) 「语言」     SPAN                                                               color rgb(75,85,99)   14px/500
+6) 「注册」     SPAN（祖先 = BUTTON · 非 <a>）                                     color rgb(75,85,99)   14px/500
+7) 「登录」     SPAN（祖先 = BUTTON）                                              color rgb(75,85,99)   14px/500
+⇒ 常显前景共 7 处；图标类（汉堡 header-mobile-menu / 主题钮）无文本、同 gray-600 系。
+夜档同 7 处 color = rgba(255,255,255,0.92)（由 frontend/src/styles.css:146-147 的
+  `[data-theme="dark"] #header, [data-theme="dark"] #header * { color: rgba(255,255,255,0.92) !important }` 给到）
+
+## 3. 现取（改前）hover / active 声明值（dist 逐字 grep · 声明值路径）
+frontend/dist/assets/index-B0eM_JXL.css:
+  .nav-link{...;color:#4b5563}       .nav-link:hover{color:#d97706}     .nav-link.active{color:#d97706;background-color:#f3f4f6}
+  .hover\:text-yellow-600:hover{color:#ca8a04}      .dark\:hover\:text-yellow-400:hover{color:#facc15}
+真渲染 hover 回读 = NOT_MEASURED（环境限制，见 §6 诚实清单）：CDP Input.dispatchMouseEvent 恒 5s 超时；
+CSS.forcePseudoState 在本环境不生效（forcing 后读数不变，且注入 :hover 规则后仍不变 ⇒ 该态未被激活）。
+
+## 4. 候选机制自证（真页注入 <style>，未改 frontend/**）
+候选（= §23 条文 T114–T117 的落法）:
+  :root:not([data-theme="dark"]) .sf-region-top #header {
+    background-color: var(--sf-topbar-bg); background-image:none;
+    border-bottom-color: var(--sf-topbar-border); backdrop-filter:none; opacity:1; }
+  :root:not([data-theme="dark"]) .sf-region-top #header .nav-link:hover,
+  :root:not([data-theme="dark"]) .sf-region-top #header .nav-link.active { color: var(--sf-brand-fg) }
+  :root:not([data-theme="dark"]) .sf-region-top #header .sf-tap-inline { color: var(--sf-brand-fg) }
+注入后回读：
+  日档 1280/1440/1600/390: bg=rgb(253,232,21)（alpha=1）· backdropFilter=none · border-bottom-color=rgb(3,4,2)
+                            rect=(0,0,W,65) 逐档不变（★ 零几何改动）· logo rgb(10,10,10) · 其余 6 处 rgb(75,85,99)
+  夜档 1280:                bg=rgb(31,41,55) 不变 · border-bottom 1px rgb(55,65,81) 不变 · rect 不变 · backdrop 不变
+                            （★ 日档规则对夜档零命中 ⇒ 「日/夜分别落值」成立）
+  负控臂（灵敏度自证）: 把规则里 var(--sf-topbar-bg) 换成 #FFFFFF ⇒ 回读 rgb(255,255,255)（尺子有分辨力 ✓）
+  复原臂: 移除注入 <style> ⇒ 回读回到 rgba(255,255,255,0.95) ✓
+  移动档 390: 闭合态 rect=(0,0,390,65)；开汉堡面板后 rect=(0,0,390,500)，顶栏底仍 rgb(253,232,21)（面板自带底不受影响）
+
+## 5. WCAG 2.x 对比度表（合成后像素 · (L1+0.05)/(L2+0.05)）
+见 docs/design/design-system.spec.md §23.3（14 行逐元素 · 现状 vs 改后 · 阈值 · 判）。
+取数路径差登记（★ 与 Zang 报值并列）：
+  logo 现状：合成底 2.899:1（本册取） | 纯白底（未合成）2.938:1（Zang 报 2.94）
+  .nav-link base 现状：合成底 7.458 | 未合成 7.558（Zang 报 7.56）
+  夜档前景：合成后 12.636:1（本册取） | 纯白（忽略 .92 alpha）14.679:1（Zang 报 14.68）
+  .nav-link:hover on 实黄：2.538:1（与 Zang 报 2.54 复现一致 ✓）
+  ★ 差异 100% 归因于「是否把 alpha 与底合成」这一取数路径（N52）；两路方向一致、判负结论逐条不变。
+  Zang 报「.nav-link base 实黄底上 ≈5.66:1」本单未复现（复算 = 6.021:1；两者均 ≥4.5 ⇒ 不影响判）
+
+## 6. 顺带发现（本单新增 · 未改任何代码）
+(a) ★ 顶栏 `sticky` 声明**实际不生效**：含块 .sf-region-top（position:relative）高 = 65px = 顶栏高
+    ⇒ sticky 无可用粘贴空间 ⇒ 随页滚走（实测 scrollY=400 时 #header rect.y = −400，390/1440/1600 三档一致）
+    ⇒ 「滚动时内容穿透」在本仓现状下不构成现象；本单修好后 alpha=1 ⇒ 永不穿透。
+(b) 移动面板（Header.jsx:360-511）在 #header **子树内**；其自带底 `bg-white`（:361）实测 = rgba(255,255,255,0.95)
+    ⇒ 该 bg-white 子元素**继承了父级 bg-opacity-95 的 95% 语义**（CSS 自定义属性继承）⇒ 顶栏子树内所有白底均半透明。
+(c) ★ 既有不达标项（与顶栏底色**无关**）：移动面板「登录」胶囊 = 白字 on bg-yellow-600(α.95) = 2.80:1 ✗
+    （「注册」胶囊 = 4.94:1 ✓）⇒ 本单不批改、登记另立单。
+
+## 7. 未核实 / 环境限制
+- 真渲染 hover 回读：NOT_MEASURED（§3）。⇒ §23.5 AC 要求由实现/质检方用真 hover 回读补足。
+- 登录态（已认证）顶栏下拉菜单前景（data-sf-m=header-user-menu 族）= 未取（需登录）⇒ 源码类同 gray-600/300 系。
+- 真机 / UA 强制深色：承 §17.3 已定案（本站夜档 + 屏幕忠实），本单未复测。
