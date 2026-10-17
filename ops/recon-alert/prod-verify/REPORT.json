@@ -1,0 +1,32 @@
+{
+  "probe": "recon-alert-prod-verify",
+  "verified_at": "2026-10-17T14:16+08:00",
+  "commit_pushed": "53a8d1d",
+  "env_configured": {
+    "OPS_ALERT_UID": "100 (Production · Encrypted)",
+    "RECON_HEARTBEAT_URL": "hc-ping.com/<uuid> (Production · Encrypted · 值不落盘到仓内，仅存 ~/.config/seafood/recon-heartbeat.env 600)",
+    "existing": ["TELEGRAM_BOT_TOKEN (Production)", "CRON_SECRET (Production + Preview)"]
+  },
+  "deploy_check": { "schema_version": "0049", "note": "push 后 /api/health 现取" },
+  "cron_trigger": {
+    "command": "vercel crons run /api/ops/recon/ledger",
+    "invocation_utc": "2026-10-17T06:16:20.650Z",
+    "runtime_log": {
+      "requestMethod": "GET",
+      "requestPath": "/api/ops/recon/ledger",
+      "responseStatusCode": 200,
+      "logs": [],
+      "deploymentId": "dpl_GxmbKSbH1hNeoukyX7Mdcqr1Lmr1"
+    },
+    "interpretation": "200 + logs 为空 ⇒ handler 走完：① 无 `[recon] ledger drift detected`（ok=true）② 无 `[ops-alert] heartbeat ping failed` ⇒ 心跳成功送达 healthchecks；两个 warn 面均静默 = 预期"
+  },
+  "alert_drill": {
+    "fail_ping": { "http": 200, "body": "OK", "meaning": "healthchecks 接受失败信号 ⇒ 按其集成设置向 Email/Telegram 发告警（用户侧应收到一次 down 通知）" },
+    "recover_ping": { "http": 200, "body": "OK", "delay_s": 6, "meaning": "立即发成功信号恢复 up，避免告警挂起" }
+  },
+  "not_drilled": [
+    "站内 Telegram 推送（notifyOps）未做真实演练：触发它需要 ok=false（真漂移）或 handler 抛错，两者都会在生产制造假故障；建议留待首次真漂移自然验证，或另立受控演练单（临时把 KNOWN_SUPPLY_OFFSET 的 cid=1 改错 → 部署 → 触发 → 回滚，两次部署）",
+    "healthchecks 侧是否已启用 Telegram 集成：属用户侧配置，本机无法读取"
+  ],
+  "security_note": "RECON_HEARTBEAT_URL（含 UUID = 凭据）曾以明文出现在会话中一次 ⇒ 建议在 healthchecks 侧 Reset ping URL 轮换；轮换后只需更新 ~/.config/seafood/recon-heartbeat.env 并重配 Vercel env + 重新部署"
+}
