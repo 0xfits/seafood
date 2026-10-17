@@ -18,6 +18,9 @@ const RewardCard = ({
   // 2026-10-11 合并单：可选动作文案键。首页（= 唯一列表）传 `item.viewDetail` ⇒
   // 卡片动作语义由「领取」改为「查看闲置物品详情」（原 `/reward` 已硬删）；**不传则行为与旧版逐字不变**
   // （`r9-93` / `i18n-batch-b2` 等裸渲染用例不受影响）。
+  // ★ 2026-10-17 Kevin 指令：**首页卡片不再显示动作胶囊**（「查看详情」）—— 入口由**整卡链接**承载
+  //   （卡根本身已是单一 `<Link>` / `<a>` ⇒ 删胶囊不丢入口）⇒ 本参数**保留为语义标记**（HomePage 传参不动），
+  //   存在时动作胶囊**整块不渲染**；只有不传时那条 `reward-card-claim` 路径逐字照旧。
   actionLabelKey = null,
   // ★ v1.20 §22 `T112`（整卡可点击）：链接目标由调用方（首页）经**唯一构造器**
   //   `buildLocalizedPath(lang, '/item/' + id)` 传入（`utils.js:115`）。
@@ -176,28 +179,31 @@ const RewardCard = ({
               )}
             </div>
 
-            {/* ★ `T112`：CTA 由 `<Button>` 降级为**非交互视觉胶囊**（整卡已是单一 `<a>` ⇒ 卡内
-                `a|button|input|select|textarea` 计数必须 = 0）；文案键 `item.viewDetail` 与钩子
-                `reward-card-view` 保留（钩子挂点由 `<button>` 迁至非交互元素）。
-                仅在**非链接回落态**（无 `to` 且无 Router）才保留旧 `onClaim` 行为，链接态下不可加点击副作用。 */}
-            <span
-              className={cn(
-                'inline-flex items-center justify-center rounded-full font-semibold',
-                compact ? 'px-3 py-1.5 text-sm' : 'px-4 py-2 text-base',
-                canClaim ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
-              )}
-              data-sf-m={actionLabelKey ? 'reward-card-view' : 'reward-card-claim'}
-              onClick={clickable ? undefined : () => onClaim?.(reward)}
-            >
-              {actionLabelKey
-                ? t(actionLabelKey)
-                : !canClaim && userPoints < reward.points_required
-                ? t('rewardCard.insufficient')
-                : reward.status === 'claimed'
-                ? t('common.claimed')
-                : t('rewardCard.claimNow')
-              }
-            </span>
+            {/* ★ `T112`（v1.20）：CTA 由 `<Button>` 降级为**非交互视觉胶囊**（整卡已是单一 `<a>` ⇒ 卡内
+                `a|button|input|select|textarea` 计数必须 = 0）；仅在**非链接回落态**（无 `to` 且无 Router）
+                才保留旧 `onClaim` 行为，链接态下不可加点击副作用。
+                ★ 2026-10-17 Kevin 指令：**首页卡片不再显示该胶囊** ⇒ `actionLabelKey` 存在时整块不渲染
+                  （入口由整卡链接承载，见上方 prop 注释）；原钩子 `reward-card-view` 随胶囊一并下线
+                  （`design-system.spec` §22 的该条由 Jing 另单勘误 —— 规范面不在本单范围）。
+                  不传 `actionLabelKey` 的路径（`reward-card-claim` / `onClaim` / 三态文案）**逐字不变**。 */}
+            {!actionLabelKey && (
+              <span
+                className={cn(
+                  'inline-flex items-center justify-center rounded-full font-semibold',
+                  compact ? 'px-3 py-1.5 text-sm' : 'px-4 py-2 text-base',
+                  canClaim ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
+                )}
+                data-sf-m="reward-card-claim"
+                onClick={clickable ? undefined : () => onClaim?.(reward)}
+              >
+                {!canClaim && userPoints < reward.points_required
+                  ? t('rewardCard.insufficient')
+                  : reward.status === 'claimed'
+                  ? t('common.claimed')
+                  : t('rewardCard.claimNow')
+                }
+              </span>
+            )}
           </div>
         </CardContent>
       </Card>

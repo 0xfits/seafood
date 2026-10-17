@@ -52,7 +52,38 @@
   }
  },
  "known_gap": {
-  "frontend_reads_x_session_token": false,
-  "status": "已派单补接线（Kong），需再次 push 方可闭环"
- }
+  "status": "已闭环（b4e4271 + e8be9be 上线）",
+  "residual": "续期头时机待真实 1h 请求自然覆盖"
+ },
+ "deploy2": {
+  "commit": "e8be9be",
+  "at": "2026-10-17T09:05Z",
+  "online_js": "index-Dn7dGQcz.js",
+  "js_sha256": "8923a20dd894973d3e7dbe1c4380ab105dc8645af086b1895354994d77959389",
+  "js_match_local": true,
+  "online_css": "index-DnoMyxQu.css",
+  "css_sha256": "5eb062edac683032e6470d2faeec9cd3ea6071feb8765b66b16f5e8645d040cb",
+  "css_match_local": true,
+  "artifact_contains": {
+   "x_session_token_js": 1,
+   "sf_item_cta_group_css": 1
+  },
+  "browser_probe": {
+   "home": {
+    "http": 200,
+    "root_len": 34817,
+    "pageErrors": 0,
+    "windowErrors": 0
+   },
+   "item": {
+    "http": 200,
+    "root_len": 17001,
+    "barWidth": 1400,
+    "pageErrors": 0,
+    "windowErrors": 0
+   }
+  },
+  "known_gap": "续期头真实下发需 iat 满 1h 的真实请求；生产无法自签（无生产 SECRET_KEY），dev 侧已 13/13 验过"
+ },
+ "frontend_reads_x_session_token": true
 }

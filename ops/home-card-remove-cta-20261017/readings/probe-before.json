@@ -1,0 +1,272 @@
+{
+  "stage": "before",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "origin": "http://sf.local",
+  "ranAt": "2026-10-17T10:53:33.882Z",
+  "views": {
+    "390": {
+      "url": "http://sf.local/",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "cardCount": 4,
+      "viewCtaCount": 4,
+      "claimCtaCount": 0,
+      "cards": [
+        {
+          "tag": "a",
+          "href": "/item/3041",
+          "to": null,
+          "title": "九成新山地自行车 捷安特 ATX 720",
+          "interactiveCount": 0,
+          "interactiveTags": [],
+          "viewCtaInside": 1,
+          "lastRowChildCount": 2,
+          "lastRowText": "12 人已领取/ 15查看详情",
+          "rect": {
+            "x": 26,
+            "y": 823,
+            "w": 338,
+            "h": 440
+          },
+          "ctaBoxes": [
+            {
+              "tag": "span",
+              "rect": {
+                "x": 243,
+                "y": 1198,
+                "w": 96,
+                "h": 40
+              },
+              "text": "查看详情"
+            }
+          ]
+        },
+        {
+          "tag": "a",
+          "href": "/item/3042",
+          "to": null,
+          "title": "iPad Air 5 64G 深空灰（含原装保护壳）",
+          "interactiveCount": 0,
+          "interactiveTags": [],
+          "viewCtaInside": 1,
+          "lastRowChildCount": 2,
+          "lastRowText": "4 人已领取/ 5查看详情",
+          "rect": {
+            "x": 26,
+            "y": 1287,
+            "w": 338,
+            "h": 428
+          },
+          "ctaBoxes": [
+            {
+              "tag": "span",
+              "rect": {
+                "x": 243,
+                "y": 1650,
+                "w": 96,
+                "h": 40
+              },
+              "text": "查看详情"
+            }
+          ]
+        },
+        {
+          "tag": "a",
+          "href": "/item/3043",
+          "to": null,
+          "title": "北欧实木书桌 120cm 原木色",
+          "interactiveCount": 0,
+          "interactiveTags": [],
+          "viewCtaInside": 1,
+          "lastRowChildCount": 2,
+          "lastRowText": "7 人已领取/ 9查看详情",
+          "rect": {
+            "x": 26,
+            "y": 1739,
+            "w": 338,
+            "h": 390
+          },
+          "ctaBoxes": [
+            {
+              "tag": "span",
+              "rect": {
+                "x": 243,
+                "y": 2064,
+                "w": 96,
+                "h": 40
+              },
+              "text": "查看详情"
+            }
+          ]
+        },
+        {
+          "tag": "a",
+          "href": "/item/3044",
+          "to": null,
+          "title": "手冲咖啡套装 V60 滤杯 + 手摇磨豆机",
+          "interactiveCount": 0,
+          "interactiveTags": [],
+          "viewCtaInside": 1,
+          "lastRowChildCount": 2,
+          "lastRowText": "21 人已领取/ 26查看详情",
+          "rect": {
+            "x": 26,
+            "y": 2153,
+            "w": 338,
+            "h": 440
+          },
+          "ctaBoxes": [
+            {
+              "tag": "span",
+              "rect": {
+                "x": 243,
+                "y": 2528,
+                "w": 96,
+                "h": 40
+              },
+              "text": "查看详情"
+            }
+          ]
+        }
+      ],
+      "bodyText": "Seafood 海鲜市场\n欢迎来到 Jinli Club\n\n参与任务，赚取$，兑换精彩奖励\n\n立即注册\n发布闲置\n热门任务\n\n参与任务赚取$\n\n查看全部\n\n暂无可用任务\n\n精选奖励\n\n用$兑换精彩礼品\n\n全部 (4)\n限量版 (2)\n高价值 (0)\n已兑换 (0)\n可兑换\n限量\n九成新山地自行车 捷安特 ATX 720\n$\n3200\n\n骑行约 200 公里，链条已上油，车架无磕碰、变速顺畅。自提，地铁 5 号线杨美站 B 口。\n\n九成新山地自行车 捷安特 ATX 720\n剩余时间有限\n12 人已领取\n/ 15\n查看详情\n可兑换\niPad Air 5 64G 深空灰（含原装保护壳）\n$\n2680\n\n2024 年购于官网，日常追剧与记笔记使用，屏幕无划痕，电池健康 94%，附充电器与保护壳。\n\niPad Air 5 64G 深空灰（含原装保护壳）\n4 人已领取\n/ 5\n查看详情\n可兑换\n北欧实",
+      "shot": "ops/home-card-remove-cta-20261017/shots/before-home-390.png",
+      "cardFullyInViewport": true,
+      "pageErrors": []
+    },
+    "1440": {
+      "url": "http://sf.local/",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "cardCount": 4,
+      "viewCtaCount": 4,
+      "claimCtaCount": 0,
+      "cards": [
+        {
+          "tag": "a",
+          "href": "/item/3041",
+          "to": null,
+          "title": "九成新山地自行车 捷安特 ATX 720",
+          "interactiveCount": 0,
+          "interactiveTags": [],
+          "viewCtaInside": 1,
+          "lastRowChildCount": 2,
+          "lastRowText": "12 人已领取/ 15查看详情",
+          "rect": {
+            "x": 52,
+            "y": 691,
+            "w": 316,
+            "h": 460
+          },
+          "ctaBoxes": [
+            {
+              "tag": "span",
+              "rect": {
+                "x": 247,
+                "y": 1086,
+                "w": 96,
+                "h": 40
+              },
+              "text": "查看详情"
+            }
+          ]
+        },
+        {
+          "tag": "a",
+          "href": "/item/3042",
+          "to": null,
+          "title": "iPad Air 5 64G 深空灰（含原装保护壳）",
+          "interactiveCount": 0,
+          "interactiveTags": [],
+          "viewCtaInside": 1,
+          "lastRowChildCount": 2,
+          "lastRowText": "4 人已领取/ 5查看详情",
+          "rect": {
+            "x": 392,
+            "y": 691,
+            "w": 316,
+            "h": 428
+          },
+          "ctaBoxes": [
+            {
+              "tag": "span",
+              "rect": {
+                "x": 587,
+                "y": 1054,
+                "w": 96,
+                "h": 40
+              },
+              "text": "查看详情"
+            }
+          ]
+        },
+        {
+          "tag": "a",
+          "href": "/item/3043",
+          "to": null,
+          "title": "北欧实木书桌 120cm 原木色",
+          "interactiveCount": 0,
+          "interactiveTags": [],
+          "viewCtaInside": 1,
+          "lastRowChildCount": 2,
+          "lastRowText": "7 人已领取/ 9查看详情",
+          "rect": {
+            "x": 732,
+            "y": 691,
+            "w": 316,
+            "h": 390
+          },
+          "ctaBoxes": [
+            {
+              "tag": "span",
+              "rect": {
+                "x": 927,
+                "y": 1016,
+                "w": 96,
+                "h": 40
+              },
+              "text": "查看详情"
+            }
+          ]
+        },
+        {
+          "tag": "a",
+          "href": "/item/3044",
+          "to": null,
+          "title": "手冲咖啡套装 V60 滤杯 + 手摇磨豆机",
+          "interactiveCount": 0,
+          "interactiveTags": [],
+          "viewCtaInside": 1,
+          "lastRowChildCount": 2,
+          "lastRowText": "21 人已领取/ 26查看详情",
+          "rect": {
+            "x": 1072,
+            "y": 691,
+            "w": 316,
+            "h": 440
+          },
+          "ctaBoxes": [
+            {
+              "tag": "span",
+              "rect": {
+                "x": 1267,
+                "y": 1066,
+                "w": 96,
+                "h": 40
+              },
+              "text": "查看详情"
+            }
+          ]
+        }
+      ],
+      "bodyText": "Seafood 海鲜市场\n社区任务\n市场\n订单\n语言\n注册\n登录\n欢迎来到 Jinli Club\n\n参与任务，赚取$，兑换精彩奖励\n\n立即注册\n发布闲置\n热门任务\n\n参与任务赚取$\n\n查看全部\n\n暂无可用任务\n\n精选奖励\n\n用$兑换精彩礼品\n\n全部 (4)\n限量版 (2)\n高价值 (0)\n已兑换 (0)\n可兑换\n限量\n九成新山地自行车 捷安特 ATX 720\n$\n3200\n\n骑行约 200 公里，链条已上油，车架无磕碰、变速顺畅。自提，地铁 5 号线杨美站 B 口。\n\n九成新山地自行车 捷安特 ATX 720\n剩余时间有限\n12 人已领取\n/ 15\n查看详情\n可兑换\niPad Air 5 64G 深空灰（含原装保护壳）\n$\n2680\n\n2024 年购于官网，日常追剧与记笔记使用，屏幕无划痕，电池健康 94%，附充电器与保护壳。\n\niPad Air 5 64G 深空灰（含原装保护壳）\n4 人",
+      "shot": "ops/home-card-remove-cta-20261017/shots/before-home-1440.png",
+      "cardFullyInViewport": true,
+      "pageErrors": []
+    }
+  }
+}

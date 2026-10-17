@@ -1,0 +1,24 @@
+{
+  "claimPath": {
+    "rootTag": "div",
+    "rootHref": null,
+    "claimPill": 1,
+    "viewPill": 0,
+    "pillText": "rewardCard.claimNow",
+    "interactive": 0,
+    "onClaimCalls": 1
+  },
+  "claimPathStates": {
+    "insufficient": "rewardCard.insufficient",
+    "claimed": "common.claimed",
+    "claimNow": "rewardCard.claimNow"
+  },
+  "viewPath": {
+    "rootTag": "div",
+    "rootHref": null,
+    "claimPill": 0,
+    "viewPill": 0,
+    "pillText": null,
+    "interactive": 0
+  }
+}
