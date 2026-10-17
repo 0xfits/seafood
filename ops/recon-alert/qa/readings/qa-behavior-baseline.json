@@ -1,0 +1,1840 @@
+{
+ "probe": "qa-alert-behavior",
+ "mode": "baseline",
+ "tree": "/Users/kevin/bistro/seafood/backend-ts",
+ "at": "2026-10-17T05:16:03.238Z",
+ "negctl_applied": [],
+ "fixtures": {
+  "heartbeat_url_shape": "https://hc-ping.invalid/ping/<uuid>",
+  "token_shape": "<digits>:<35>",
+  "note": "全部为构造值"
+ },
+ "summary": {
+  "total": 54,
+  "passed": 54,
+  "failed": [],
+  "response_assertions": 5,
+  "response_failed": [],
+  "delivery_assertions": 11,
+  "delivery_failed": [],
+  "by_ac": [
+   {
+    "ac": "AC1",
+    "total": 15,
+    "failed": []
+   },
+   {
+    "ac": "AC3",
+    "total": 20,
+    "failed": []
+   },
+   {
+    "ac": "AC4",
+    "total": 6,
+    "failed": []
+   },
+   {
+    "ac": "AC5",
+    "total": 12,
+    "failed": []
+   },
+   {
+    "ac": "OBS",
+    "total": 1,
+    "failed": []
+   }
+  ]
+ },
+ "assertions": [
+  {
+   "id": "AC1-1a_ping_once_success_url",
+   "ac": "AC1",
+   "kind": "delivery",
+   "pass": true,
+   "detail": "ping=[\"https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555\"]"
+  },
+  {
+   "id": "AC1-1b_no_fail_suffix",
+   "ac": "AC1",
+   "kind": "delivery",
+   "pass": true,
+   "detail": "fail_calls=0"
+  },
+  {
+   "id": "AC1-1c_no_telegram",
+   "ac": "AC1",
+   "kind": "delivery",
+   "pass": true,
+   "detail": "tg=0"
+  },
+  {
+   "id": "AC1-1d_200_ok_true",
+   "ac": "AC1",
+   "kind": "response",
+   "pass": true,
+   "detail": "status=200 ok=true"
+  },
+  {
+   "id": "AC1-2a_ping_fail_once",
+   "ac": "AC1",
+   "kind": "delivery",
+   "pass": true,
+   "detail": "ping=[\"https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555/fail\"]"
+  },
+  {
+   "id": "AC1-2b_one_telegram",
+   "ac": "AC1",
+   "kind": "delivery",
+   "pass": true,
+   "detail": "tg=1"
+  },
+  {
+   "id": "AC1-2c_text_has_failed_check",
+   "ac": "AC1",
+   "kind": "delivery",
+   "pass": true,
+   "detail": "对账漂移 2026-10-17T05:15:54.164Z 用时0ms 失败1/3项: supply_vs_ledger rows=1 diff=2000001"
+  },
+  {
+   "id": "AC1-2d_200_ok_false",
+   "ac": "AC1",
+   "kind": "response",
+   "pass": true,
+   "detail": "status=200 ok=false"
+  },
+  {
+   "id": "AC1-3a_no_ping",
+   "ac": "AC1",
+   "kind": "delivery",
+   "pass": true,
+   "detail": "ping=[]"
+  },
+  {
+   "id": "AC1-3b_one_telegram",
+   "ac": "AC1",
+   "kind": "delivery",
+   "pass": true,
+   "detail": "tg=1"
+  },
+  {
+   "id": "AC1-3c_infra_mapping_unchanged",
+   "ac": "AC1",
+   "kind": "response",
+   "pass": true,
+   "detail": "status=503 code=LEDGER_TX_TIMEOUT"
+  },
+  {
+   "id": "AC1-3d_text_is_infra",
+   "ac": "AC1",
+   "kind": "delivery",
+   "pass": true,
+   "detail": "对账执行异常: connect ECONNREFUSED 127.0.0.1:5432"
+  },
+  {
+   "id": "AC1-3e_parent_infra_body_identical",
+   "ac": "AC1",
+   "kind": "response",
+   "pass": true,
+   "detail": "parent={\"status\":503,\"body\":{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"The system is busy, please try again later\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}} child={\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"The system is busy, please try again later\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}"
+  },
+  {
+   "id": "AC1-3f_parent_no_alert_side_effects",
+   "ac": "AC1",
+   "kind": "delivery",
+   "pass": true,
+   "detail": "parent_arms=P_clean,P_drift,P_db_error,P_db_error_dirty"
+  },
+  {
+   "id": "AC1-2e_drift_status_same_as_parent",
+   "ac": "AC1",
+   "kind": "response",
+   "pass": true,
+   "detail": "parent=200 child=200"
+  },
+  {
+   "id": "M1_uid_env_missing",
+   "ac": "AC3",
+   "kind": "degradation",
+   "pass": true,
+   "detail": "tg=0 status=200 ping=1"
+  },
+  {
+   "id": "M2_uid_not_numeric",
+   "ac": "AC3",
+   "kind": "degradation",
+   "pass": true,
+   "detail": "tg=0"
+  },
+  {
+   "id": "M3_uid_zero_out_of_range",
+   "ac": "AC3",
+   "kind": "degradation",
+   "pass": true,
+   "detail": "tg=0"
+  },
+  {
+   "id": "M4_uid_unsafe_integer",
+   "ac": "AC3",
+   "kind": "degradation",
+   "pass": true,
+   "detail": "tg=0"
+  },
+  {
+   "id": "M5_user_not_found",
+   "ac": "AC3",
+   "kind": "degradation",
+   "pass": true,
+   "detail": "tg=0"
+  },
+  {
+   "id": "M6_tg_user_id_null",
+   "ac": "AC3",
+   "kind": "degradation",
+   "pass": true,
+   "detail": "tg=0"
+  },
+  {
+   "id": "M7_no_bot_token_no_fetch",
+   "ac": "AC3",
+   "kind": "degradation",
+   "pass": true,
+   "detail": "tg=0"
+  },
+  {
+   "id": "M7_notify_reports_unsent",
+   "ac": "AC3",
+   "kind": "degradation",
+   "pass": true,
+   "detail": "{\"sent\":false,\"reason\":\"TELEGRAM_BOT_TOKEN not configured (telegram-service degraded to log-only)\"}"
+  },
+  {
+   "id": "M8_no_hb_url_no_ping",
+   "ac": "AC3",
+   "kind": "degradation",
+   "pass": true,
+   "detail": "ping=0"
+  },
+  {
+   "id": "M8_no_hb_url_no_warn",
+   "ac": "AC3",
+   "kind": "degradation",
+   "pass": true,
+   "detail": "warn=[]"
+  },
+  {
+   "id": "M8b_no_hb_url_drift_no_warn",
+   "ac": "AC3",
+   "kind": "degradation",
+   "pass": true,
+   "detail": "ping=0 warn=[] tg=1"
+  },
+  {
+   "id": "M9_hb_non2xx_no_effect",
+   "ac": "AC3",
+   "kind": "degradation",
+   "pass": true,
+   "detail": "status=200 ok=true"
+  },
+  {
+   "id": "M9_hb_non2xx_warn_status_only",
+   "ac": "AC3",
+   "kind": "degradation",
+   "pass": true,
+   "detail": "[\"[ops-alert] heartbeat ping non-2xx: 500\"]"
+  },
+  {
+   "id": "M10_hb_timeout_bounded",
+   "ac": "AC3",
+   "kind": "degradation",
+   "pass": true,
+   "detail": "elapsed=3009ms"
+  },
+  {
+   "id": "M11_hb_fetch_throw_no_effect",
+   "ac": "AC3",
+   "kind": "degradation",
+   "pass": true,
+   "detail": "status=200 warn=[\"[ops-alert] heartbeat ping failed: Error\"]"
+  },
+  {
+   "id": "M12_auth_503_no_alert",
+   "ac": "AC3",
+   "kind": "degradation",
+   "pass": true,
+   "detail": "status=503 tg=0 ping=0"
+  },
+  {
+   "id": "M13_auth_401_no_alert",
+   "ac": "AC3",
+   "kind": "degradation",
+   "pass": true,
+   "detail": "status=401 tg=0 ping=0"
+  },
+  {
+   "id": "M14_negative_chat_id_rejected",
+   "ac": "AC3",
+   "kind": "degradation",
+   "pass": true,
+   "detail": "tg=0"
+  },
+  {
+   "id": "M15_tg_nonnumeric_rejected",
+   "ac": "AC3",
+   "kind": "degradation",
+   "pass": true,
+   "detail": "tg=0"
+  },
+  {
+   "id": "M16_user_query_error_no_effect",
+   "ac": "AC3",
+   "kind": "degradation",
+   "pass": true,
+   "detail": "tg=0 warn=[\"[ops-alert] notifyOps degraded: connect ECONNREFUSED 127.0.0.1:5432\"]"
+  },
+  {
+   "id": "AC4-1_single_trailing_slash",
+   "ac": "AC4",
+   "kind": "unit",
+   "pass": true,
+   "detail": "[\"https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555/fail\"]"
+  },
+  {
+   "id": "AC4-2_multi_trailing_slash",
+   "ac": "AC4",
+   "kind": "unit",
+   "pass": true,
+   "detail": "[\"https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555/fail\"]"
+  },
+  {
+   "id": "AC4-3_no_trailing_slash",
+   "ac": "AC4",
+   "kind": "unit",
+   "pass": true,
+   "detail": "[\"https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555/fail\"]"
+  },
+  {
+   "id": "AC4-4_success_uses_base_asis",
+   "ac": "AC4",
+   "kind": "unit",
+   "pass": true,
+   "detail": "[\"https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555/\"]（成功位不带 /fail；尾斜杠原样保留 = 观察项，非判负）"
+  },
+  {
+   "id": "AC4-5_handler_url_no_double_slash",
+   "ac": "AC4",
+   "kind": "delivery",
+   "pass": true,
+   "detail": "[\"https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555/fail\"]"
+  },
+  {
+   "id": "AC4-6_empty_url_no_ping",
+   "ac": "AC4",
+   "kind": "unit",
+   "pass": true,
+   "detail": "calls=0"
+  },
+  {
+   "id": "AC5-1_telegram_text_redacted",
+   "ac": "AC5",
+   "kind": "unit",
+   "pass": true,
+   "detail": "对账执行异常: connect failed: postgresql://***:***@db.example.tech:5432/seafood bot *** jwt *** hash ***"
+  },
+  {
+   "id": "AC5-2_response_redacted",
+   "ac": "AC5",
+   "kind": "unit",
+   "pass": true,
+   "detail": "resp_fixture=false"
+  },
+  {
+   "id": "AC5-3_warn_lines_redacted",
+   "ac": "AC5",
+   "kind": "unit",
+   "pass": true,
+   "detail": "[]"
+  },
+  {
+   "id": "AC5-4_notify_redacts_direct",
+   "ac": "AC5",
+   "kind": "unit",
+   "pass": true,
+   "detail": "tg=1 text=对账漂移 postgresql://***:***@db.example.tech:5432/seafood token=*** jwt=*** h=*** 尾部"
+  },
+  {
+   "id": "AC5-5_notify_within_300",
+   "ac": "AC5",
+   "kind": "unit",
+   "pass": true,
+   "detail": "chars=81"
+  },
+  {
+   "id": "AC5-6_notify_sent_flag_honest",
+   "ac": "AC5",
+   "kind": "unit",
+   "pass": true,
+   "detail": "{\"sent\":true,\"reason\":\"handed to telegram-service\"}"
+  },
+  {
+   "id": "AC5-7_truncation_no_partial_secret",
+   "ac": "AC5",
+   "kind": "unit",
+   "pass": true,
+   "detail": "chars=300 text=postgresql://***:***@db.example.tech:5432/seafood 对账漂移细节 对账漂移细节 对账漂移细节 对账漂移细节 对账漂移细节 对账漂移细节 对账漂移细节 对账漂移细节 对账漂移细节 对账漂移细节 "
+  },
+  {
+   "id": "AC5-8_no_uuid_in_log_when_url_in_error",
+   "ac": "AC5",
+   "kind": "unit",
+   "pass": true,
+   "detail": "[\"[ops-alert] heartbeat ping failed: TypeError\"]"
+  },
+  {
+   "id": "AC5-9_no_heartbeat_url_in_any_log",
+   "ac": "AC5",
+   "kind": "unit",
+   "pass": true,
+   "detail": "7 warn lines scanned"
+  },
+  {
+   "id": "AC5-10_no_bot_token_in_alert_warn",
+   "ac": "AC5",
+   "kind": "unit",
+   "pass": true,
+   "detail": "warn=7 alert_error=13"
+  },
+  {
+   "id": "AC5-11_no_connstring_in_alert_warn",
+   "ac": "AC5",
+   "kind": "unit",
+   "pass": true,
+   "detail": "warn=7"
+  },
+  {
+   "id": "AC5-12_infra_diag_leak_same_as_parent",
+   "ac": "AC5",
+   "kind": "unit",
+   "pass": true,
+   "detail": "child_diag_leak_lines=1 parent_diag_leak_lines=1（既有面 sendInfraMapped/ledgerErrorDiagnostics，本单未改）"
+  },
+  {
+   "id": "OBS-latency-bounded",
+   "ac": "OBS",
+   "kind": "unit",
+   "pass": true,
+   "detail": "elapsed=6010ms"
+  }
+ ],
+ "arms": [
+  {
+   "id": "A1_ok_true",
+   "note": "全绿 ⇒ ping 成功位 1 次 / 无 /fail / Telegram 0 / 200 + ok:true",
+   "status": 200,
+   "ok": true,
+   "error_code": null,
+   "ping_calls": [
+    "https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555"
+   ],
+   "ping_fail_calls": 0,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 9,
+   "warn_lines": [],
+   "error_lines": [],
+   "resp_json": {
+    "success": true,
+    "message": "Ledger recon completed",
+    "data": {
+     "ok": true,
+     "checks": [
+      {
+       "id": "supply_vs_ledger",
+       "status": "PASS",
+       "rows": 1,
+       "diff": "0",
+       "sample": [
+        {
+         "cid": "1",
+         "symbol": "$",
+         "total_supply": "2010200",
+         "sum_mint": "210274",
+         "sum_burn": "-200074",
+         "ledger_derived": "10200",
+         "diff": "2000000",
+         "baseline": "2000000",
+         "ok": true
+        }
+       ]
+      },
+      {
+       "id": "account_vs_ledger",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      },
+      {
+       "id": "batt_account_vs_batt_entry",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      }
+     ],
+     "checked_at": "2026-10-17T05:15:54.159Z",
+     "duration_ms": 1
+    }
+   },
+   "resp_text_has_fixture": false,
+   "tg_text_has_fixture": false,
+   "warn_has_fixture": false,
+   "warn_has_heartbeat_url": false
+  },
+  {
+   "id": "A2_ok_false",
+   "note": "漂移 ⇒ ping 1 次含 /fail + Telegram 1 次（id/rows/diff）/ 200 + ok:false",
+   "status": 200,
+   "ok": false,
+   "error_code": null,
+   "ping_calls": [
+    "https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555/fail"
+   ],
+   "ping_fail_calls": 1,
+   "tg_calls": 1,
+   "tg_text": "对账漂移 2026-10-17T05:15:54.164Z 用时0ms 失败1/3项: supply_vs_ledger rows=1 diff=2000001",
+   "tg_chars": 80,
+   "elapsed_ms": 4,
+   "warn_lines": [],
+   "error_lines": [
+    "[recon] ledger drift detected {\"checked_at\":\"2026-10-17T05:15:54.164Z\",\"duration_ms\":0,\"failed\":[{\"id\":\"supply_vs_ledger\",\"rows\":1,\"diff\":\"2000001\"}]}"
+   ],
+   "resp_json": {
+    "success": true,
+    "message": "Ledger recon detected drift",
+    "data": {
+     "ok": false,
+     "checks": [
+      {
+       "id": "supply_vs_ledger",
+       "status": "FAIL",
+       "rows": 1,
+       "diff": "2000001",
+       "sample": [
+        {
+         "cid": "1",
+         "symbol": "$",
+         "total_supply": "2010200",
+         "sum_mint": "210274",
+         "sum_burn": "-200074",
+         "ledger_derived": "10199",
+         "diff": "2000001",
+         "baseline": "2000000",
+         "ok": false
+        }
+       ]
+      },
+      {
+       "id": "account_vs_ledger",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      },
+      {
+       "id": "batt_account_vs_batt_entry",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      }
+     ],
+     "checked_at": "2026-10-17T05:15:54.164Z",
+     "duration_ms": 0
+    }
+   },
+   "resp_text_has_fixture": false,
+   "tg_text_has_fixture": false,
+   "warn_has_fixture": false,
+   "warn_has_heartbeat_url": false
+  },
+  {
+   "id": "A3_infra_throw",
+   "note": "handler 抛错 ⇒ ping 0 + Telegram 1 + 既有 infra 映射（非 200）",
+   "status": 503,
+   "error_code": "LEDGER_TX_TIMEOUT",
+   "ping_calls": [],
+   "ping_fail_calls": 0,
+   "tg_calls": 1,
+   "tg_text": "对账执行异常: connect ECONNREFUSED 127.0.0.1:5432",
+   "tg_chars": 43,
+   "elapsed_ms": 19,
+   "warn_lines": [],
+   "error_lines": [
+    "[ops.recon.ledger] infra failure: {\"code\":\"LEDGER_TX_TIMEOUT\",\"http_status\":503,\"reason\":\"driver_connection_error\",\"non_pg_class\":\"driver_connection_error\",\"constructor_name\":\"Error\",\"error_name\":\"Error\",\"event_object_family\":false,\"message\":\"connect ECONNREFUSED 127.0.0.1:5432\",\"stack_head\":[\"Error: connect ECONNREFUSED 127.0.0.1:5432\",\"at infraErr (/Users/kevin/bistro/seafood/ops/recon-alert/qa/probe/qa-alert-behavior.ts:99:13)\",\"at db.readQuery (/Users/kevin/bistro/seafood/ops/recon-alert/qa/probe/qa-alert-behavior.ts:117:39)\",\"at runLedgerRecon (/Users/kevin/bistro/seafood/backend-ts/src/ops-recon.ts:231:37)\",\"at opsReconHandler (/Users/kevin/bistro/seafood/backend-ts/src/index.ts:3245:40)\"],\"cause_chain\":[]}"
+   ],
+   "resp_json": {
+    "error": {
+     "code": "LEDGER_TX_TIMEOUT",
+     "message": "The system is busy, please try again later",
+     "i18n_key": "ledger.err.LEDGER_TX_TIMEOUT",
+     "details": {
+      "reason": "driver_connection_error",
+      "error_code": "ECONNREFUSED"
+     }
+    }
+   },
+   "resp_text_has_fixture": false,
+   "tg_text_has_fixture": false,
+   "warn_has_fixture": false,
+   "warn_has_heartbeat_url": false
+  },
+  {
+   "id": "M1_no_uid_env",
+   "note": "缺 OPS_ALERT_UID ⇒ 不发、响应不变",
+   "status": 200,
+   "ok": false,
+   "error_code": null,
+   "ping_calls": [
+    "https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555/fail"
+   ],
+   "ping_fail_calls": 1,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 1,
+   "warn_lines": [],
+   "error_lines": [
+    "[recon] ledger drift detected {\"checked_at\":\"2026-10-17T05:15:54.187Z\",\"duration_ms\":0,\"failed\":[{\"id\":\"supply_vs_ledger\",\"rows\":1,\"diff\":\"2000001\"}]}"
+   ],
+   "resp_json": {
+    "success": true,
+    "message": "Ledger recon detected drift",
+    "data": {
+     "ok": false,
+     "checks": [
+      {
+       "id": "supply_vs_ledger",
+       "status": "FAIL",
+       "rows": 1,
+       "diff": "2000001",
+       "sample": [
+        {
+         "cid": "1",
+         "symbol": "$",
+         "total_supply": "2010200",
+         "sum_mint": "210274",
+         "sum_burn": "-200074",
+         "ledger_derived": "10199",
+         "diff": "2000001",
+         "baseline": "2000000",
+         "ok": false
+        }
+       ]
+      },
+      {
+       "id": "account_vs_ledger",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      },
+      {
+       "id": "batt_account_vs_batt_entry",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      }
+     ],
+     "checked_at": "2026-10-17T05:15:54.187Z",
+     "duration_ms": 0
+    }
+   },
+   "resp_text_has_fixture": false,
+   "tg_text_has_fixture": false,
+   "warn_has_fixture": false,
+   "warn_has_heartbeat_url": false
+  },
+  {
+   "id": "M2_uid_not_numeric",
+   "note": "OPS_ALERT_UID=abc ⇒ 不发",
+   "status": 200,
+   "ok": false,
+   "error_code": null,
+   "ping_calls": [
+    "https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555/fail"
+   ],
+   "ping_fail_calls": 1,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 1,
+   "warn_lines": [],
+   "error_lines": [
+    "[recon] ledger drift detected {\"checked_at\":\"2026-10-17T05:15:54.188Z\",\"duration_ms\":0,\"failed\":[{\"id\":\"supply_vs_ledger\",\"rows\":1,\"diff\":\"2000001\"}]}"
+   ],
+   "resp_json": {
+    "success": true,
+    "message": "Ledger recon detected drift",
+    "data": {
+     "ok": false,
+     "checks": [
+      {
+       "id": "supply_vs_ledger",
+       "status": "FAIL",
+       "rows": 1,
+       "diff": "2000001",
+       "sample": [
+        {
+         "cid": "1",
+         "symbol": "$",
+         "total_supply": "2010200",
+         "sum_mint": "210274",
+         "sum_burn": "-200074",
+         "ledger_derived": "10199",
+         "diff": "2000001",
+         "baseline": "2000000",
+         "ok": false
+        }
+       ]
+      },
+      {
+       "id": "account_vs_ledger",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      },
+      {
+       "id": "batt_account_vs_batt_entry",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      }
+     ],
+     "checked_at": "2026-10-17T05:15:54.188Z",
+     "duration_ms": 0
+    }
+   },
+   "resp_text_has_fixture": false,
+   "tg_text_has_fixture": false,
+   "warn_has_fixture": false,
+   "warn_has_heartbeat_url": false
+  },
+  {
+   "id": "M3_uid_zero",
+   "note": "OPS_ALERT_UID=0（越界下限）⇒ 不发",
+   "status": 200,
+   "ok": false,
+   "error_code": null,
+   "ping_calls": [
+    "https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555/fail"
+   ],
+   "ping_fail_calls": 1,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 1,
+   "warn_lines": [],
+   "error_lines": [
+    "[recon] ledger drift detected {\"checked_at\":\"2026-10-17T05:15:54.189Z\",\"duration_ms\":0,\"failed\":[{\"id\":\"supply_vs_ledger\",\"rows\":1,\"diff\":\"2000001\"}]}"
+   ],
+   "resp_json": {
+    "success": true,
+    "message": "Ledger recon detected drift",
+    "data": {
+     "ok": false,
+     "checks": [
+      {
+       "id": "supply_vs_ledger",
+       "status": "FAIL",
+       "rows": 1,
+       "diff": "2000001",
+       "sample": [
+        {
+         "cid": "1",
+         "symbol": "$",
+         "total_supply": "2010200",
+         "sum_mint": "210274",
+         "sum_burn": "-200074",
+         "ledger_derived": "10199",
+         "diff": "2000001",
+         "baseline": "2000000",
+         "ok": false
+        }
+       ]
+      },
+      {
+       "id": "account_vs_ledger",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      },
+      {
+       "id": "batt_account_vs_batt_entry",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      }
+     ],
+     "checked_at": "2026-10-17T05:15:54.189Z",
+     "duration_ms": 0
+    }
+   },
+   "resp_text_has_fixture": false,
+   "tg_text_has_fixture": false,
+   "warn_has_fixture": false,
+   "warn_has_heartbeat_url": false
+  },
+  {
+   "id": "M4_uid_unsafe_integer",
+   "note": "OPS_ALERT_UID=9007199254740993（非安全整数）⇒ 不发",
+   "status": 200,
+   "ok": false,
+   "error_code": null,
+   "ping_calls": [
+    "https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555/fail"
+   ],
+   "ping_fail_calls": 1,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 2,
+   "warn_lines": [],
+   "error_lines": [
+    "[recon] ledger drift detected {\"checked_at\":\"2026-10-17T05:15:54.190Z\",\"duration_ms\":0,\"failed\":[{\"id\":\"supply_vs_ledger\",\"rows\":1,\"diff\":\"2000001\"}]}"
+   ],
+   "resp_json": {
+    "success": true,
+    "message": "Ledger recon detected drift",
+    "data": {
+     "ok": false,
+     "checks": [
+      {
+       "id": "supply_vs_ledger",
+       "status": "FAIL",
+       "rows": 1,
+       "diff": "2000001",
+       "sample": [
+        {
+         "cid": "1",
+         "symbol": "$",
+         "total_supply": "2010200",
+         "sum_mint": "210274",
+         "sum_burn": "-200074",
+         "ledger_derived": "10199",
+         "diff": "2000001",
+         "baseline": "2000000",
+         "ok": false
+        }
+       ]
+      },
+      {
+       "id": "account_vs_ledger",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      },
+      {
+       "id": "batt_account_vs_batt_entry",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      }
+     ],
+     "checked_at": "2026-10-17T05:15:54.190Z",
+     "duration_ms": 0
+    }
+   },
+   "resp_text_has_fixture": false,
+   "tg_text_has_fixture": false,
+   "warn_has_fixture": false,
+   "warn_has_heartbeat_url": false
+  },
+  {
+   "id": "M5_user_missing",
+   "note": "uid 查无该行 ⇒ 不发",
+   "status": 200,
+   "ok": false,
+   "error_code": null,
+   "ping_calls": [
+    "https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555/fail"
+   ],
+   "ping_fail_calls": 1,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 0,
+   "warn_lines": [],
+   "error_lines": [
+    "[recon] ledger drift detected {\"checked_at\":\"2026-10-17T05:15:54.191Z\",\"duration_ms\":0,\"failed\":[{\"id\":\"supply_vs_ledger\",\"rows\":1,\"diff\":\"2000001\"}]}"
+   ],
+   "resp_json": {
+    "success": true,
+    "message": "Ledger recon detected drift",
+    "data": {
+     "ok": false,
+     "checks": [
+      {
+       "id": "supply_vs_ledger",
+       "status": "FAIL",
+       "rows": 1,
+       "diff": "2000001",
+       "sample": [
+        {
+         "cid": "1",
+         "symbol": "$",
+         "total_supply": "2010200",
+         "sum_mint": "210274",
+         "sum_burn": "-200074",
+         "ledger_derived": "10199",
+         "diff": "2000001",
+         "baseline": "2000000",
+         "ok": false
+        }
+       ]
+      },
+      {
+       "id": "account_vs_ledger",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      },
+      {
+       "id": "batt_account_vs_batt_entry",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      }
+     ],
+     "checked_at": "2026-10-17T05:15:54.191Z",
+     "duration_ms": 0
+    }
+   },
+   "resp_text_has_fixture": false,
+   "tg_text_has_fixture": false,
+   "warn_has_fixture": false,
+   "warn_has_heartbeat_url": false
+  },
+  {
+   "id": "M6_tg_null",
+   "note": "tg_user_id NULL（未绑）⇒ 不发",
+   "status": 200,
+   "ok": false,
+   "error_code": null,
+   "ping_calls": [
+    "https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555/fail"
+   ],
+   "ping_fail_calls": 1,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 2,
+   "warn_lines": [],
+   "error_lines": [
+    "[recon] ledger drift detected {\"checked_at\":\"2026-10-17T05:15:54.192Z\",\"duration_ms\":0,\"failed\":[{\"id\":\"supply_vs_ledger\",\"rows\":1,\"diff\":\"2000001\"}]}"
+   ],
+   "resp_json": {
+    "success": true,
+    "message": "Ledger recon detected drift",
+    "data": {
+     "ok": false,
+     "checks": [
+      {
+       "id": "supply_vs_ledger",
+       "status": "FAIL",
+       "rows": 1,
+       "diff": "2000001",
+       "sample": [
+        {
+         "cid": "1",
+         "symbol": "$",
+         "total_supply": "2010200",
+         "sum_mint": "210274",
+         "sum_burn": "-200074",
+         "ledger_derived": "10199",
+         "diff": "2000001",
+         "baseline": "2000000",
+         "ok": false
+        }
+       ]
+      },
+      {
+       "id": "account_vs_ledger",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      },
+      {
+       "id": "batt_account_vs_batt_entry",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      }
+     ],
+     "checked_at": "2026-10-17T05:15:54.192Z",
+     "duration_ms": 0
+    }
+   },
+   "resp_text_has_fixture": false,
+   "tg_text_has_fixture": false,
+   "warn_has_fixture": false,
+   "warn_has_heartbeat_url": false
+  },
+  {
+   "id": "M7_no_bot_token",
+   "note": "缺 TELEGRAM_BOT_TOKEN ⇒ 不发（不谎报 sent:true）、响应不变",
+   "status": 200,
+   "ok": false,
+   "error_code": null,
+   "ping_calls": [
+    "https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555/fail"
+   ],
+   "ping_fail_calls": 1,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 1,
+   "warn_lines": [
+    "[telegram.webhook] reply skipped: TELEGRAM_BOT_TOKEN not configured"
+   ],
+   "error_lines": [
+    "[recon] ledger drift detected {\"checked_at\":\"2026-10-17T05:15:54.193Z\",\"duration_ms\":0,\"failed\":[{\"id\":\"supply_vs_ledger\",\"rows\":1,\"diff\":\"2000001\"}]}"
+   ],
+   "resp_json": {
+    "success": true,
+    "message": "Ledger recon detected drift",
+    "data": {
+     "ok": false,
+     "checks": [
+      {
+       "id": "supply_vs_ledger",
+       "status": "FAIL",
+       "rows": 1,
+       "diff": "2000001",
+       "sample": [
+        {
+         "cid": "1",
+         "symbol": "$",
+         "total_supply": "2010200",
+         "sum_mint": "210274",
+         "sum_burn": "-200074",
+         "ledger_derived": "10199",
+         "diff": "2000001",
+         "baseline": "2000000",
+         "ok": false
+        }
+       ]
+      },
+      {
+       "id": "account_vs_ledger",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      },
+      {
+       "id": "batt_account_vs_batt_entry",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      }
+     ],
+     "checked_at": "2026-10-17T05:15:54.193Z",
+     "duration_ms": 0
+    }
+   },
+   "resp_text_has_fixture": false,
+   "tg_text_has_fixture": false,
+   "warn_has_fixture": false,
+   "warn_has_heartbeat_url": false
+  },
+  {
+   "id": "M8_no_heartbeat_url",
+   "note": "缺 RECON_HEARTBEAT_URL ⇒ ping 0 且不打 warn",
+   "status": 200,
+   "ok": true,
+   "error_code": null,
+   "ping_calls": [],
+   "ping_fail_calls": 0,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 1,
+   "warn_lines": [],
+   "error_lines": [],
+   "resp_json": {
+    "success": true,
+    "message": "Ledger recon completed",
+    "data": {
+     "ok": true,
+     "checks": [
+      {
+       "id": "supply_vs_ledger",
+       "status": "PASS",
+       "rows": 1,
+       "diff": "0",
+       "sample": [
+        {
+         "cid": "1",
+         "symbol": "$",
+         "total_supply": "2010200",
+         "sum_mint": "210274",
+         "sum_burn": "-200074",
+         "ledger_derived": "10200",
+         "diff": "2000000",
+         "baseline": "2000000",
+         "ok": true
+        }
+       ]
+      },
+      {
+       "id": "account_vs_ledger",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      },
+      {
+       "id": "batt_account_vs_batt_entry",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      }
+     ],
+     "checked_at": "2026-10-17T05:15:54.194Z",
+     "duration_ms": 0
+    }
+   },
+   "resp_text_has_fixture": false,
+   "tg_text_has_fixture": false,
+   "warn_has_fixture": false,
+   "warn_has_heartbeat_url": false
+  },
+  {
+   "id": "M8b_no_heartbeat_url_drift",
+   "note": "缺 RECON_HEARTBEAT_URL + 漂移 ⇒ 仍不发心跳、不得打 warn、Telegram 照发",
+   "status": 200,
+   "ok": false,
+   "error_code": null,
+   "ping_calls": [],
+   "ping_fail_calls": 0,
+   "tg_calls": 1,
+   "tg_text": "对账漂移 2026-10-17T05:15:54.195Z 用时0ms 失败1/3项: supply_vs_ledger rows=1 diff=2000001",
+   "tg_chars": 80,
+   "elapsed_ms": 1,
+   "warn_lines": [],
+   "error_lines": [
+    "[recon] ledger drift detected {\"checked_at\":\"2026-10-17T05:15:54.195Z\",\"duration_ms\":0,\"failed\":[{\"id\":\"supply_vs_ledger\",\"rows\":1,\"diff\":\"2000001\"}]}"
+   ],
+   "resp_json": {
+    "success": true,
+    "message": "Ledger recon detected drift",
+    "data": {
+     "ok": false,
+     "checks": [
+      {
+       "id": "supply_vs_ledger",
+       "status": "FAIL",
+       "rows": 1,
+       "diff": "2000001",
+       "sample": [
+        {
+         "cid": "1",
+         "symbol": "$",
+         "total_supply": "2010200",
+         "sum_mint": "210274",
+         "sum_burn": "-200074",
+         "ledger_derived": "10199",
+         "diff": "2000001",
+         "baseline": "2000000",
+         "ok": false
+        }
+       ]
+      },
+      {
+       "id": "account_vs_ledger",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      },
+      {
+       "id": "batt_account_vs_batt_entry",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      }
+     ],
+     "checked_at": "2026-10-17T05:15:54.195Z",
+     "duration_ms": 0
+    }
+   },
+   "resp_text_has_fixture": false,
+   "tg_text_has_fixture": false,
+   "warn_has_fixture": false,
+   "warn_has_heartbeat_url": false
+  },
+  {
+   "id": "M9_hb_non2xx",
+   "note": "心跳非 2xx ⇒ 响应不变 + warn 只含状态码",
+   "status": 200,
+   "ok": true,
+   "error_code": null,
+   "ping_calls": [
+    "https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555"
+   ],
+   "ping_fail_calls": 0,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 1,
+   "warn_lines": [
+    "[ops-alert] heartbeat ping non-2xx: 500"
+   ],
+   "error_lines": [],
+   "resp_json": {
+    "success": true,
+    "message": "Ledger recon completed",
+    "data": {
+     "ok": true,
+     "checks": [
+      {
+       "id": "supply_vs_ledger",
+       "status": "PASS",
+       "rows": 1,
+       "diff": "0",
+       "sample": [
+        {
+         "cid": "1",
+         "symbol": "$",
+         "total_supply": "2010200",
+         "sum_mint": "210274",
+         "sum_burn": "-200074",
+         "ledger_derived": "10200",
+         "diff": "2000000",
+         "baseline": "2000000",
+         "ok": true
+        }
+       ]
+      },
+      {
+       "id": "account_vs_ledger",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      },
+      {
+       "id": "batt_account_vs_batt_entry",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      }
+     ],
+     "checked_at": "2026-10-17T05:15:54.196Z",
+     "duration_ms": 0
+    }
+   },
+   "resp_text_has_fixture": false,
+   "tg_text_has_fixture": false,
+   "warn_has_fixture": false,
+   "warn_has_heartbeat_url": false
+  },
+  {
+   "id": "M10_hb_timeout",
+   "note": "心跳挂起 ⇒ 3s 界内返回、响应不变",
+   "status": 200,
+   "ok": true,
+   "error_code": null,
+   "ping_calls": [
+    "https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555"
+   ],
+   "ping_fail_calls": 0,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 3009,
+   "warn_lines": [
+    "[ops-alert] heartbeat ping failed: Error"
+   ],
+   "error_lines": [],
+   "resp_json": {
+    "success": true,
+    "message": "Ledger recon completed",
+    "data": {
+     "ok": true,
+     "checks": [
+      {
+       "id": "supply_vs_ledger",
+       "status": "PASS",
+       "rows": 1,
+       "diff": "0",
+       "sample": [
+        {
+         "cid": "1",
+         "symbol": "$",
+         "total_supply": "2010200",
+         "sum_mint": "210274",
+         "sum_burn": "-200074",
+         "ledger_derived": "10200",
+         "diff": "2000000",
+         "baseline": "2000000",
+         "ok": true
+        }
+       ]
+      },
+      {
+       "id": "account_vs_ledger",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      },
+      {
+       "id": "batt_account_vs_batt_entry",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      }
+     ],
+     "checked_at": "2026-10-17T05:15:54.197Z",
+     "duration_ms": 0
+    }
+   },
+   "resp_text_has_fixture": false,
+   "tg_text_has_fixture": false,
+   "warn_has_fixture": false,
+   "warn_has_heartbeat_url": false
+  },
+  {
+   "id": "M11_hb_fetch_throw",
+   "note": "心跳 fetch 抛错 ⇒ 响应不变",
+   "status": 200,
+   "ok": true,
+   "error_code": null,
+   "ping_calls": [
+    "https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555"
+   ],
+   "ping_fail_calls": 0,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 3,
+   "warn_lines": [
+    "[ops-alert] heartbeat ping failed: Error"
+   ],
+   "error_lines": [],
+   "resp_json": {
+    "success": true,
+    "message": "Ledger recon completed",
+    "data": {
+     "ok": true,
+     "checks": [
+      {
+       "id": "supply_vs_ledger",
+       "status": "PASS",
+       "rows": 1,
+       "diff": "0",
+       "sample": [
+        {
+         "cid": "1",
+         "symbol": "$",
+         "total_supply": "2010200",
+         "sum_mint": "210274",
+         "sum_burn": "-200074",
+         "ledger_derived": "10200",
+         "diff": "2000000",
+         "baseline": "2000000",
+         "ok": true
+        }
+       ]
+      },
+      {
+       "id": "account_vs_ledger",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      },
+      {
+       "id": "batt_account_vs_batt_entry",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      }
+     ],
+     "checked_at": "2026-10-17T05:15:57.208Z",
+     "duration_ms": 1
+    }
+   },
+   "resp_text_has_fixture": false,
+   "tg_text_has_fixture": false,
+   "warn_has_fixture": false,
+   "warn_has_heartbeat_url": false
+  },
+  {
+   "id": "M12_no_cron_secret",
+   "note": "CRON_SECRET 缺 ⇒ 503 且不告警",
+   "status": 503,
+   "error_code": null,
+   "ping_calls": [],
+   "ping_fail_calls": 0,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 2,
+   "warn_lines": [],
+   "error_lines": [],
+   "resp_json": {
+    "success": false,
+    "message": "CRON_SECRET not configured",
+    "error": "CRON_SECRET not configured"
+   },
+   "resp_text_has_fixture": false,
+   "tg_text_has_fixture": false,
+   "warn_has_fixture": false,
+   "warn_has_heartbeat_url": false
+  },
+  {
+   "id": "M13_wrong_secret",
+   "note": "错 secret ⇒ 401 且不告警",
+   "status": 401,
+   "error_code": "AUTH_UNAUTHORIZED",
+   "ping_calls": [],
+   "ping_fail_calls": 0,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 2,
+   "warn_lines": [],
+   "error_lines": [],
+   "resp_json": {
+    "error": {
+     "code": "AUTH_UNAUTHORIZED",
+     "message": "Authentication is required",
+     "i18n_key": "auth.err.AUTH_UNAUTHORIZED",
+     "details": {}
+    }
+   },
+   "resp_text_has_fixture": false,
+   "tg_text_has_fixture": false,
+   "warn_has_fixture": false,
+   "warn_has_heartbeat_url": false
+  },
+  {
+   "id": "M14_tg_negative_group",
+   "note": "tg_user_id 为负（群组 chat_id）⇒ 被判无效、不发（AC7 已知限制实证）",
+   "status": 200,
+   "ok": false,
+   "error_code": null,
+   "ping_calls": [
+    "https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555/fail"
+   ],
+   "ping_fail_calls": 1,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 2,
+   "warn_lines": [],
+   "error_lines": [
+    "[recon] ledger drift detected {\"checked_at\":\"2026-10-17T05:15:57.214Z\",\"duration_ms\":0,\"failed\":[{\"id\":\"supply_vs_ledger\",\"rows\":1,\"diff\":\"2000001\"}]}"
+   ],
+   "resp_json": {
+    "success": true,
+    "message": "Ledger recon detected drift",
+    "data": {
+     "ok": false,
+     "checks": [
+      {
+       "id": "supply_vs_ledger",
+       "status": "FAIL",
+       "rows": 1,
+       "diff": "2000001",
+       "sample": [
+        {
+         "cid": "1",
+         "symbol": "$",
+         "total_supply": "2010200",
+         "sum_mint": "210274",
+         "sum_burn": "-200074",
+         "ledger_derived": "10199",
+         "diff": "2000001",
+         "baseline": "2000000",
+         "ok": false
+        }
+       ]
+      },
+      {
+       "id": "account_vs_ledger",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      },
+      {
+       "id": "batt_account_vs_batt_entry",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      }
+     ],
+     "checked_at": "2026-10-17T05:15:57.214Z",
+     "duration_ms": 0
+    }
+   },
+   "resp_text_has_fixture": false,
+   "tg_text_has_fixture": false,
+   "warn_has_fixture": false,
+   "warn_has_heartbeat_url": false
+  },
+  {
+   "id": "M15_tg_nonnumeric",
+   "note": "tg_user_id 非数字 ⇒ 不发",
+   "status": 200,
+   "ok": false,
+   "error_code": null,
+   "ping_calls": [
+    "https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555/fail"
+   ],
+   "ping_fail_calls": 1,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 2,
+   "warn_lines": [],
+   "error_lines": [
+    "[recon] ledger drift detected {\"checked_at\":\"2026-10-17T05:15:57.216Z\",\"duration_ms\":0,\"failed\":[{\"id\":\"supply_vs_ledger\",\"rows\":1,\"diff\":\"2000001\"}]}"
+   ],
+   "resp_json": {
+    "success": true,
+    "message": "Ledger recon detected drift",
+    "data": {
+     "ok": false,
+     "checks": [
+      {
+       "id": "supply_vs_ledger",
+       "status": "FAIL",
+       "rows": 1,
+       "diff": "2000001",
+       "sample": [
+        {
+         "cid": "1",
+         "symbol": "$",
+         "total_supply": "2010200",
+         "sum_mint": "210274",
+         "sum_burn": "-200074",
+         "ledger_derived": "10199",
+         "diff": "2000001",
+         "baseline": "2000000",
+         "ok": false
+        }
+       ]
+      },
+      {
+       "id": "account_vs_ledger",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      },
+      {
+       "id": "batt_account_vs_batt_entry",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      }
+     ],
+     "checked_at": "2026-10-17T05:15:57.216Z",
+     "duration_ms": 0
+    }
+   },
+   "resp_text_has_fixture": false,
+   "tg_text_has_fixture": false,
+   "warn_has_fixture": false,
+   "warn_has_heartbeat_url": false
+  },
+  {
+   "id": "M16_user_query_error",
+   "note": "收件人查询抛错 ⇒ 不发、响应不变、只一行 warn",
+   "status": 200,
+   "ok": false,
+   "error_code": null,
+   "ping_calls": [
+    "https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555/fail"
+   ],
+   "ping_fail_calls": 1,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 1,
+   "warn_lines": [
+    "[ops-alert] notifyOps degraded: connect ECONNREFUSED 127.0.0.1:5432"
+   ],
+   "error_lines": [
+    "[recon] ledger drift detected {\"checked_at\":\"2026-10-17T05:15:57.217Z\",\"duration_ms\":0,\"failed\":[{\"id\":\"supply_vs_ledger\",\"rows\":1,\"diff\":\"2000001\"}]}"
+   ],
+   "resp_json": {
+    "success": true,
+    "message": "Ledger recon detected drift",
+    "data": {
+     "ok": false,
+     "checks": [
+      {
+       "id": "supply_vs_ledger",
+       "status": "FAIL",
+       "rows": 1,
+       "diff": "2000001",
+       "sample": [
+        {
+         "cid": "1",
+         "symbol": "$",
+         "total_supply": "2010200",
+         "sum_mint": "210274",
+         "sum_burn": "-200074",
+         "ledger_derived": "10199",
+         "diff": "2000001",
+         "baseline": "2000000",
+         "ok": false
+        }
+       ]
+      },
+      {
+       "id": "account_vs_ledger",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      },
+      {
+       "id": "batt_account_vs_batt_entry",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      }
+     ],
+     "checked_at": "2026-10-17T05:15:57.217Z",
+     "duration_ms": 0
+    }
+   },
+   "resp_text_has_fixture": false,
+   "tg_text_has_fixture": false,
+   "warn_has_fixture": false,
+   "warn_has_heartbeat_url": false
+  },
+  {
+   "id": "T5_handler_trailing_slash_drift",
+   "note": "env 带尾 / ⇒ 实际外发 URL 必须 /fail（不得 //fail）",
+   "status": 200,
+   "ok": false,
+   "error_code": null,
+   "ping_calls": [
+    "https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555/fail"
+   ],
+   "ping_fail_calls": 1,
+   "tg_calls": 1,
+   "tg_text": "对账漂移 2026-10-17T05:15:57.219Z 用时0ms 失败1/3项: supply_vs_ledger rows=1 diff=2000001",
+   "tg_chars": 80,
+   "elapsed_ms": 1,
+   "warn_lines": [],
+   "error_lines": [
+    "[recon] ledger drift detected {\"checked_at\":\"2026-10-17T05:15:57.219Z\",\"duration_ms\":0,\"failed\":[{\"id\":\"supply_vs_ledger\",\"rows\":1,\"diff\":\"2000001\"}]}"
+   ],
+   "resp_json": {
+    "success": true,
+    "message": "Ledger recon detected drift",
+    "data": {
+     "ok": false,
+     "checks": [
+      {
+       "id": "supply_vs_ledger",
+       "status": "FAIL",
+       "rows": 1,
+       "diff": "2000001",
+       "sample": [
+        {
+         "cid": "1",
+         "symbol": "$",
+         "total_supply": "2010200",
+         "sum_mint": "210274",
+         "sum_burn": "-200074",
+         "ledger_derived": "10199",
+         "diff": "2000001",
+         "baseline": "2000000",
+         "ok": false
+        }
+       ]
+      },
+      {
+       "id": "account_vs_ledger",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      },
+      {
+       "id": "batt_account_vs_batt_entry",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      }
+     ],
+     "checked_at": "2026-10-17T05:15:57.219Z",
+     "duration_ms": 0
+    }
+   },
+   "resp_text_has_fixture": false,
+   "tg_text_has_fixture": false,
+   "warn_has_fixture": false,
+   "warn_has_heartbeat_url": false
+  },
+  {
+   "id": "R1_infra_dirty_message",
+   "note": "含密错误的 infra 文案 ⇒ 外发与日志均不得出现密文",
+   "status": 503,
+   "error_code": "LEDGER_TX_TIMEOUT",
+   "ping_calls": [],
+   "ping_fail_calls": 0,
+   "tg_calls": 1,
+   "tg_text": "对账执行异常: connect failed: postgresql://***:***@db.example.tech:5432/seafood bot *** jwt *** hash ***",
+   "tg_chars": 98,
+   "elapsed_ms": 7,
+   "warn_lines": [],
+   "error_lines": [
+    "[ops.recon.ledger] infra failure: {\"code\":\"LEDGER_TX_TIMEOUT\",\"http_status\":503,\"reason\":\"driver_connection_error\",\"non_pg_class\":\"driver_connection_error\",\"constructor_name\":\"Error\",\"error_name\":\"Error\",\"event_object_family\":false,\"message\":\"connect failed: postgresql://sf_user:S3cretPassw0rd@db.example.tech:5432/seafood bot 123456789:AAFakeTokenXYZ0123456789abcdefghij jwt eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMDAifQ.c2lnbmF0dXJlLXZhbHVlMTIz h…[268]\",\"stack_head\":[\"Error: connect failed: postgresql://sf_user:S3cretPassw0rd@db.example.tech:5432/seafood bot 123456789:AAFakeTokenXYZ0123456789abcdefghij jwt eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMDAifQ.c2lnbmF0dXJlLXZhbHVlMTIz hash a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90\",\"at infraErr (/Users/kevin/bistro/seafood/ops/recon-alert/qa/probe/qa-alert-behavior.ts:99:13)\",\"at db.readQuery (/Users/kevin/bistro/seafood/ops/recon-alert/qa/probe/qa-alert-behavior.ts:119:11)\",\"at runLedgerRecon (/Users/kevin/bistro/seafood/backend-ts/src/ops-recon.ts:231:37)\",\"at opsReconHandler (/Users/kevin/bistro/seafood/backend-ts/src/index.ts:3245:40)\"],\"cause_chain\":[]}"
+   ],
+   "resp_json": {
+    "error": {
+     "code": "LEDGER_TX_TIMEOUT",
+     "message": "The system is busy, please try again later",
+     "i18n_key": "ledger.err.LEDGER_TX_TIMEOUT",
+     "details": {
+      "reason": "driver_connection_error",
+      "error_code": "ECONNREFUSED"
+     }
+    }
+   },
+   "resp_text_has_fixture": false,
+   "tg_text_has_fixture": false,
+   "warn_has_fixture": false,
+   "warn_has_heartbeat_url": false
+  },
+  {
+   "id": "R4_url_in_error_message",
+   "note": "心跳 fetch 抛 TypeError（message 内嵌 URL）⇒ 日志不得带 UUID/URL",
+   "status": 200,
+   "ok": true,
+   "error_code": null,
+   "ping_calls": [
+    "https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555"
+   ],
+   "ping_fail_calls": 0,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 1,
+   "warn_lines": [
+    "[ops-alert] heartbeat ping failed: TypeError"
+   ],
+   "error_lines": [],
+   "resp_json": {
+    "success": true,
+    "message": "Ledger recon completed",
+    "data": {
+     "ok": true,
+     "checks": [
+      {
+       "id": "supply_vs_ledger",
+       "status": "PASS",
+       "rows": 1,
+       "diff": "0",
+       "sample": [
+        {
+         "cid": "1",
+         "symbol": "$",
+         "total_supply": "2010200",
+         "sum_mint": "210274",
+         "sum_burn": "-200074",
+         "ledger_derived": "10200",
+         "diff": "2000000",
+         "baseline": "2000000",
+         "ok": true
+        }
+       ]
+      },
+      {
+       "id": "account_vs_ledger",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      },
+      {
+       "id": "batt_account_vs_batt_entry",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      }
+     ],
+     "checked_at": "2026-10-17T05:15:57.228Z",
+     "duration_ms": 0
+    }
+   },
+   "resp_text_has_fixture": false,
+   "tg_text_has_fixture": false,
+   "warn_has_fixture": false,
+   "warn_has_heartbeat_url": false
+  },
+  {
+   "id": "L1_drift_both_hang",
+   "note": "漂移 + 心跳挂起 + Telegram 挂起 ⇒ 串行 6s 上界内返回",
+   "status": 200,
+   "ok": false,
+   "error_code": null,
+   "ping_calls": [
+    "https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555/fail"
+   ],
+   "ping_fail_calls": 1,
+   "tg_calls": 1,
+   "tg_text": "对账漂移 2026-10-17T05:15:57.229Z 用时0ms 失败1/3项: supply_vs_ledger rows=1 diff=2000001",
+   "tg_chars": 80,
+   "elapsed_ms": 6010,
+   "warn_lines": [
+    "[ops-alert] heartbeat ping failed: Error",
+    "[ops-alert] telegram send exceeded time budget (not confirmed)"
+   ],
+   "error_lines": [
+    "[recon] ledger drift detected {\"checked_at\":\"2026-10-17T05:15:57.229Z\",\"duration_ms\":0,\"failed\":[{\"id\":\"supply_vs_ledger\",\"rows\":1,\"diff\":\"2000001\"}]}"
+   ],
+   "resp_json": {
+    "success": true,
+    "message": "Ledger recon detected drift",
+    "data": {
+     "ok": false,
+     "checks": [
+      {
+       "id": "supply_vs_ledger",
+       "status": "FAIL",
+       "rows": 1,
+       "diff": "2000001",
+       "sample": [
+        {
+         "cid": "1",
+         "symbol": "$",
+         "total_supply": "2010200",
+         "sum_mint": "210274",
+         "sum_burn": "-200074",
+         "ledger_derived": "10199",
+         "diff": "2000001",
+         "baseline": "2000000",
+         "ok": false
+        }
+       ]
+      },
+      {
+       "id": "account_vs_ledger",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      },
+      {
+       "id": "batt_account_vs_batt_entry",
+       "status": "PASS",
+       "rows": 0,
+       "sample": []
+      }
+     ],
+     "checked_at": "2026-10-17T05:15:57.229Z",
+     "duration_ms": 0
+    }
+   },
+   "resp_text_has_fixture": false,
+   "tg_text_has_fixture": false,
+   "warn_has_fixture": false,
+   "warn_has_heartbeat_url": false
+  }
+ ]
+}

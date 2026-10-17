@@ -1,0 +1,61 @@
+{
+  "subject": "commit b8a076e · B32 对账告警（D+A：Telegram 漂移/异常推送 + healthchecks 心跳）",
+  "base": "be483cc",
+  "fix_commit": "df12b31（AC5-8 凭据入日志，已修）",
+  "verdict": "PASS",
+  "verdict_basis": "Neng 独立质检 7 AC（AC1–AC4/AC6 PASS · AC5 初始 PASS-with-drift · AC7 PASS/REGISTERED）；drift AC5-8 由 Kong 在 df12b31 修复并复测全绿 ⇒ 最终判 PASS。",
+  "generated_by": "Zang（收口聚合）。★ 说明：Neng 的聚合脚本 ops/recon-alert/qa/probe/qa-verdict.mjs 在 iteration cap 处被截断（实测三处不可执行缺陷：① `ac7` 重复声明 ② 模板字符串内 `\\\"` 造成 SyntaxError ③ 后续未逐一排查）⇒ 无法自动产出 verdict，改由 Zang 依**盘上已落盘的真实读数**手工聚合（未改写任何断言、未删任何失败项）。",
+  "acs": [
+    {
+      "id": "AC1",
+      "status": "PASS",
+      "evidence": "readings/qa-behavior-baseline.json（修后复测 54/54）· 三态断言 AC1-1a/1b（ok=true ⇒ ping 1 次、URL 无 /fail、Telegram 0）、AC1-2a/2b/2c（ok=false ⇒ ping 1 次 /fail、Telegram 1 次、文本含 supply_vs_ledger rows=1 diff=2000001）、AC1-3a..3d（抛错 ⇒ ping 0、Telegram 1、503 同 code）全绿"
+    },
+    {
+      "id": "AC2",
+      "status": "PASS",
+      "evidence": "readings/qa-behavior-negctl_{notify,ping,both}.json · 三种内存注入（改导出为 throw，未改仓库文件）下**响应类断言全绿**、**投递类断言按预期变红**（negctl_both 39/54、negctl_notify 46/54、negctl_ping 45/54，红的均属「消息/心跳没发生」族）⇒ 告警面不阻断主流程且探针有分辨力"
+    },
+    {
+      "id": "AC3",
+      "status": "PASS",
+      "evidence": "同 readings · 17 臂降级矩阵（缺 OPS_ALERT_UID / 非数字 / 越界 / uid 查无 / tg_user_id NULL / 缺 bot token 不谎报 / 缺心跳 URL 0 warn / 心跳 500 / 挂起 / fetch 抛错 / 503 / 401 / 负 chat_id / 非数字 chat_id / 查询抛错）逐臂「响应不变 + 不抛」"
+    },
+    {
+      "id": "AC4",
+      "status": "PASS",
+      "evidence": "readings/qa-behavior-baseline.json 的 URL 形态臂 · 尾 `/`、`///`、无尾 ⇒ 目标均 `.../uuid/fail`（无 `//fail`）；空 URL ⇒ 0 次 ping"
+    },
+    {
+      "id": "AC5",
+      "status": "PASS",
+      "evidence": "修前（readings/qa-behavior-baseline-pre-fix-b8a076e.json）53/54，唯一失败 = AC5-8_no_uuid_in_log_when_url_in_error；Kong 修后（df12b31：脱敏表补 UUID 形状 + pingHeartbeat catch 只打错误类名）**复测 54/54 全绿**（readings/qa-behavior-baseline.json，at 2026-10-17T05:16:03Z）。配套：probe/uuid-redact-probe.ts 16/16 + 反向对照两臂（移除 UUID 规则 ⇒ 必红；叠加 catch 还原 ⇒ 复现 Neng 原文那一行）"
+    },
+    {
+      "id": "AC6",
+      "status": "PASS",
+      "evidence": "readings/AC6-static.json · tsc --noEmit exit 0；p7b-03 37/37、red=[]、AC10-1 codes=33、AC10-2 registration_points=107（零新路由）；diff be483cc..b8a076e 无 vercel.json / frontend / migrations / i18n"
+    },
+    {
+      "id": "AC7",
+      "status": "PASS (REGISTERED)",
+      "evidence": "readings/AC7-known-limit.json · `chatId <= 0` 判无效（ops-alert.ts:159-161）；现收件人口径 = webhook `Number(from.id)`（1:1 用户 ID，结构性为正）⇒ **现口径不受影响**；群组 `-100…` 确被静默拒发（M14 臂：Telegram 0 次、响应 200 不变）。**登记**：将来若发群，判据须改 `chatId !== 0`，本单不改码"
+    }
+  ],
+  "drift": [
+    {
+      "id": "DRIFT-1 (AC5-8)",
+      "status": "CLOSED by df12b31",
+      "detail": "RECON_HEARTBEAT_URL 缺失 scheme 时 fetch 抛出的 message 内嵌完整 URL（UUID = 凭据）被写入 console.warn。根因：旧脱敏表「长 hex ≥32 / base64url ≥40」都匹配不上 36 字符带连字符的 UUID（注释却声称已覆盖 = 假声明）。修法：脱敏表新增 UUID 形状并排在长 hex 之前 + catch 只打错误类名（errorKind）+ 修正失实注释。修后复测 54/54。"
+    }
+  ],
+  "env_limited": [
+    "生产 users.tg_user_id 实际取值属 Zang 环境（Neng 未读）⇒ AC7「正数为真」由绑定写入路径推定；dev 库 bound=0 行无名额数据。",
+    "healthchecks.io 真实 ping 与 Telegram 真实送达未在质检阶段验证（零真实网络）⇒ 留给上线后的「真告警演练」（Zang 执行）。"
+  ],
+  "notes": {
+    "probe_rerun": "修后 baseline 复跑：EXIT=0，54/54（日志 /tmp/qa-baseline-postfix.log）；需 `TS_NODE_PROJECT=tsconfig.json`（从仓外路径跑 ts-node 的既有坑）",
+    "neng_self_disclosure": "Neng 自曝：一个早期探针变体未 stub fetch，向 api.telegram.org 发过 1 次真请求（假 token，404，无真实凭据、无写入）",
+    "not_done": "未 push；未配 Vercel env（RECON_HEARTBEAT_URL / OPS_ALERT_UID）；未做真告警演练"
+  }
+}

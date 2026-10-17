@@ -1,0 +1,21 @@
+{
+ "probe": "qa-tg-token-echo",
+ "at": "2026-10-17T05:10:51.358Z",
+ "fetch_stubbed": true,
+ "urls_called": [
+  "https://api.telegram.org/botbad token:AAFakeToken***/sendMessage",
+  "https://api.telegram.org/botbad token:AAFakeToken***/sendMessage"
+ ],
+ "non2xx_warn": [
+  "[telegram.webhook] sendMessage failed: 404"
+ ],
+ "token_echoed_on_non2xx": false,
+ "parse_error_warn": [
+  "[telegram.webhook] sendMessage error: Failed to parse URL from https://api.telegram.org/botbad token:AAFakeTokenXYZ0123456789abcdefghij/sendMessage"
+ ],
+ "token_echoed_on_parse_error": true,
+ "observed_real_404_warn": [
+  "[telegram.webhook] sendMessage failed: 404"
+ ],
+ "attribution": "telegram-service.sendTelegramReply 本单未改（diff be483cc..b8a076e 只动 index.ts / ops-alert.ts）⇒ 既有面；且 scheme 硬编码 https://api.telegram.org ⇒ 解析失败路径实际不可达"
+}

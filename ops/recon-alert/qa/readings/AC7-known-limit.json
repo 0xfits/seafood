@@ -1,0 +1,65 @@
+{
+ "probe": "qa-ac7-known-limit",
+ "at": "2026-10-17T05:10:13.088Z",
+ "conclusion": {
+  "limitation": "notifyOps 判据 chatId <= 0 ⇒ 拒绝；Telegram 群组 chat_id 为负（-100…）⇒「发到群」被堵",
+  "current_scope_affected": false,
+  "why": "收件人口径 = OPS_ALERT_UID 指向的站内用户，tg_user_id 唯一写入源 = webhook message.from.id（Telegram 用户 ID，结构性为正）⇒ 现口径不会触发该判据",
+  "register_for_future": "若将来要发群（chat_id = -100…），判据需改为 chatId !== 0（群组 id 为负是合法值）；本单不建议改码",
+  "severity": "known-limitation（不影响现口径）"
+ },
+ "dev_readonly_probe": {
+  "probe": "qa-ac7-dev-read",
+  "at": "2026-10-17T05:10:02.528Z",
+  "ok": true,
+  "sign": {
+   "bound": "0",
+   "positive": "0",
+   "negative": "0"
+  },
+  "sample": [],
+  "note": "dev 只读（.env.local），仅 SELECT count/明细"
+ },
+ "env_limited": [
+  "dev 无任何绑定行（bound=0）⇒ 无实数据可证符号；生产 users.tg_user_id 属 Zang 环境，Neng 未读 ⇒ 结论仅由绑定写入路径（from.id）推定"
+ ],
+ "assertions": [
+  {
+   "id": "AC7-1_guard_is_le_zero",
+   "pass": true,
+   "detail": "ops-alert.ts 判据为 chatId <= 0 ⇒ 拒绝（负数群组 id 一并被拒）"
+  },
+  {
+   "id": "AC7-2_contrast_zero_only_absent",
+   "pass": true,
+   "detail": "ops-alert.ts 内无 chatId === 0 的宽松形态"
+  },
+  {
+   "id": "AC7-3_tg_user_id_from_message_from_id",
+   "pass": true,
+   "detail": "webhook: chatId = Number(from.id) ⇒ consumeBindCode ⇒ UPDATE users SET tg_user_id（Telegram 用户 ID，结构性为正）"
+  },
+  {
+   "id": "AC7-4_webhook_guard_allows_negative",
+   "pass": true,
+   "detail": "webhook 侧只拒 chatId === 0；但 from.id 是发送者用户 ID，1:1 绑定路径实际取不到负数"
+  },
+  {
+   "id": "AC7-5_migration_no_sign_check",
+   "pass": true,
+   "detail": "0046 仅 bigint + 部分唯一索引，无符号约束（库里可出现负数，但绑定路径不写负数）"
+  },
+  {
+   "id": "AC7-6_existing_push_has_no_sign_guard",
+   "pass": true,
+   "detail": "messages-service 推送口直接透传 tg_user_id（无符号校验）⇒ 两条推送路径口径不同"
+  },
+  {
+   "id": "AC7-7_negative_chat_id_silently_rejected",
+   "pass": true,
+   "detail": "tg=0 status=200 ok=false（不发、不改回执）"
+  }
+ ],
+ "failed": [],
+ "all_pass": true
+}

@@ -1,0 +1,150 @@
+{
+ "probe": "qa-static",
+ "at": "2026-10-17T05:09:30.541Z",
+ "commit": "b8a076e",
+ "parent": "be483cc",
+ "gate_artifact": "/Users/kevin/bistro/seafood/backend-ts/.p7b-artifacts/p7b-03-offline-gates-20261017T050930Zqpk4.json",
+ "tsc_log": "/Users/kevin/bistro/seafood/ops/recon-alert/qa/logs/qa-tsc.log",
+ "gate_log": "/Users/kevin/bistro/seafood/ops/recon-alert/qa/logs/qa-p7b-03-gate.log",
+ "diff_name_status": [
+  {
+   "status": "M",
+   "file": "backend-ts/src/index.ts"
+  },
+  {
+   "status": "A",
+   "file": "backend-ts/src/ops-alert.ts"
+  },
+  {
+   "status": "A",
+   "file": "ops/recon-alert/REPORT.md"
+  },
+  {
+   "status": "A",
+   "file": "ops/recon-alert/logs/p7b-03-gate.log"
+  },
+  {
+   "status": "A",
+   "file": "ops/recon-alert/logs/probe-negctl-always-ping.log"
+  },
+  {
+   "status": "A",
+   "file": "ops/recon-alert/logs/probe-negctl-notify-throw.log"
+  },
+  {
+   "status": "A",
+   "file": "ops/recon-alert/logs/probe-recon-alert.log"
+  },
+  {
+   "status": "A",
+   "file": "ops/recon-alert/logs/tsc.log"
+  },
+  {
+   "status": "A",
+   "file": "ops/recon-alert/probe/recon-alert-probe.ts"
+  },
+  {
+   "status": "A",
+   "file": "ops/recon-alert/readings/gate-p7b-03.json"
+  },
+  {
+   "status": "A",
+   "file": "ops/recon-alert/readings/index-ts.diff"
+  },
+  {
+   "status": "A",
+   "file": "ops/recon-alert/readings/ops-alert.sha256"
+  },
+  {
+   "status": "A",
+   "file": "ops/recon-alert/readings/probe-negctl-always-ping.json"
+  },
+  {
+   "status": "A",
+   "file": "ops/recon-alert/readings/probe-negctl-notify-throw.json"
+  },
+  {
+   "status": "A",
+   "file": "ops/recon-alert/readings/probe-recon-alert.json"
+  }
+ ],
+ "route_count": {
+  "total": 107,
+  "per_verb": {
+   "get": 47,
+   "post": 56,
+   "put": 0,
+   "delete": 3,
+   "patch": 1
+  }
+ },
+ "assertions": [
+  {
+   "id": "AC6-1_tsc_noemit_exit0",
+   "pass": true,
+   "detail": "exit=0 bytes=0"
+  },
+  {
+   "id": "AC6-2_gate_exit0",
+   "pass": true,
+   "detail": "exit=0"
+  },
+  {
+   "id": "AC6-3_gate_37_of_37",
+   "pass": true,
+   "detail": "{\"total\":37,\"passed\":37,\"failed\":0,\"red\":[]}"
+  },
+  {
+   "id": "AC6-4_registration_points_107",
+   "pass": true,
+   "detail": "reading=registration_points=107 parsed=107"
+  },
+  {
+   "id": "AC6-5_codes_33",
+   "pass": true,
+   "detail": "reading=codes=33 parsed=33"
+  },
+  {
+   "id": "AC6-6_route_count_107",
+   "pass": true,
+   "detail": "total=107 {\"get\":47,\"post\":56,\"put\":0,\"delete\":3,\"patch\":1}"
+  },
+  {
+   "id": "AC6-7_ops_recon_single_get_route",
+   "pass": true,
+   "detail": "matches=[\"get\"]"
+  },
+  {
+   "id": "AC6-8_no_vercel_json",
+   "pass": true,
+   "detail": "[]"
+  },
+  {
+   "id": "AC6-9_no_frontend",
+   "pass": true,
+   "detail": "[]"
+  },
+  {
+   "id": "AC6-10_no_migrations",
+   "pass": true,
+   "detail": "[]"
+  },
+  {
+   "id": "AC6-11_no_i18n_files",
+   "pass": true,
+   "detail": "[]"
+  },
+  {
+   "id": "AC6-12_touched_surface_limited",
+   "pass": true,
+   "detail": "[\"M backend-ts/src/index.ts\",\"A backend-ts/src/ops-alert.ts\",\"A ops/recon-alert/REPORT.md\",\"A ops/recon-alert/logs/p7b-03-gate.log\",\"A ops/recon-alert/logs/probe-negctl-always-ping.log\",\"A ops/recon-alert/logs/probe-negctl-notify-throw.log\",\"A ops/recon-alert/logs/probe-recon-alert.log\",\"A ops/recon-alert/logs/tsc.log\",\"A ops/recon-alert/probe/recon-alert-probe.ts\",\"A ops/recon-alert/readings/gate-p7b-03.json\",\"A ops/recon-alert/readings/index-ts.diff\",\"A ops/recon-alert/readings/ops-alert.sha256\",\"A ops/recon-alert/readings/probe-negctl-always-ping.json\",\"A ops/recon-alert/readings/probe-negctl-notify-throw.json\",\"A ops/recon-alert/readings/probe-recon-alert.json\"]"
+  },
+  {
+   "id": "AC6-13_only_index_imports_ops_alert",
+   "pass": true,
+   "detail": "{\"consumers\":[\"b8a076e:backend-ts/src/index.ts\",\"b8a076e:backend-ts/src/ops-alert.ts\"],\"importers\":[\"b8a076e:backend-ts/src/index.ts\"]}"
+  }
+ ],
+ "failed": [],
+ "all_pass": true
+}

@@ -1,0 +1,12 @@
+{
+ "probe": "qa-ac7-dev-read",
+ "at": "2026-10-17T05:10:02.528Z",
+ "ok": true,
+ "sign": {
+  "bound": "0",
+  "positive": "0",
+  "negative": "0"
+ },
+ "sample": [],
+ "note": "dev 只读（.env.local），仅 SELECT count/明细"
+}
