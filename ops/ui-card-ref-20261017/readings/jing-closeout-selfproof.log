@@ -1,0 +1,98 @@
+== Jing closeout 自证 / 可复跑命令清单（本轮收口回写单 · 只写 docs/**）==
+仓 = /Users/kevin/bistro/seafood
+生成 = 2026-10-17 CST · 执行方 = Jing（Specifier）
+
+★ 说明：本文件只列「可逐条复跑」的命令（原样粘贴即可）；读数落
+  ops/ui-card-ref-20261017/readings/jing-closeout-readings.log（同一轮生成）。
+★ 本单零代码（docs-only），未跑门套（build / test:unit）。
+
+------------------------------------------------------------
+0. 开工基线 / 并发对账（本仓多会话并发 ⇒ 交付前必取）
+------------------------------------------------------------
+cd /Users/kevin/bistro/seafood
+git log --oneline -3
+git rev-parse HEAD origin/main
+git rev-list --count origin/main..HEAD      # 期望 0（本轮 4 笔已被推）
+git status --porcelain                       # 本单写面 = 仅 2 个 docs 文件
+# 本轮 4 笔 = 4b388d0（卡片改造）/ ad52533（v1.20d 勘误 + §23）/ c412c7e（顶栏实黄）/ 05f6612（证据入库）
+# 其后的 195a9a7 = 生产终验证据笔（本笔落账时 HEAD = 195a9a7 · 已 push）
+
+------------------------------------------------------------
+1. 「倒序 / 前插」锚点现取（写前 · 一律取自 HEAD 版本，可独立复核）
+------------------------------------------------------------
+# 1a 节号上界（master-plan 的 §5.x 是「最新在上」⇒ 新节前插于最大节号之上）
+git show HEAD:docs/seafood.master-plan.md | grep -oE '^### 5\.[0-9]+ ' | sed 's/### 5\.//' | sed 's/ //g' | sort -n | tail -1
+#   ⇒ 413  ⇒ 新节号 = 5.414
+
+# 1b 版本号上界
+git show HEAD:docs/seafood.master-plan.md | grep -oE '^\| v0\.[0-9]+ ' | sed 's/[| ]//g' | sed 's/^v0\.//' | sort -n | tail -1
+#   ⇒ 331  ⇒ 新版本号 = v0.332
+
+# 1c 真表首行（= 版本行前插的锚）+ 其上一行（早期升序行段尾，★ 不得插进这段）
+git show HEAD:docs/seafood.master-plan.md | grep -n '^| v0\.331 | 2026-10-16 |' | cut -c1-42   # ⇒ 8726
+git show HEAD:docs/seafood.master-plan.md | awk 'NR==8725 {printf "%d|%s\n", NR, substr($0,1,50)}'
+#   ⇒ 8725|  | v0.10 | 2026-09-27 | …（早期行段尾 ⇒ 新行插在 8725 与 8726 之间 = 真表首行之上的正确位置）
+
+# 1d OPEN-ITEMS 现取号段上界（新登记接在其后）
+git show HEAD:docs/OPEN-ITEMS.md | grep -oE '^\| \*\*F[0-9]+\*\*' | tail -1     # ⇒ | **F28** ⇒ 新号段 F29–F36
+
+------------------------------------------------------------
+2. 写入后必核（各恰 1 命中 + 邻行 + 纯追加）
+------------------------------------------------------------
+cd /Users/kevin/bistro/seafood
+
+# 2a 新节 / 新版本行 各恰 1 命中
+grep -n '^### 5\.414'   docs/seafood.master-plan.md      # ⇒ 1417（1 命中）
+grep -n '^| v0\.332 |'  docs/seafood.master-plan.md      # ⇒ 8771（1 命中）
+grep -c '^### 5\.414'   docs/seafood.master-plan.md      # ⇒ 1
+grep -c '^| v0\.332 |'  docs/seafood.master-plan.md      # ⇒ 1
+
+# 2b 邻行核验（新节：上一行 = 前节 D 段 / 下一行 = 空行；再下一个节号必须 = ### 5.413）
+awk 'NR>=1415 && NR<=1419 {printf "%d|%s\n", NR, substr($0,1,66)}' docs/seafood.master-plan.md
+awk 'NR>1417' docs/seafood.master-plan.md | grep -m1 '^### 5\.' | cut -c1-40
+#   ⇒ ### 5.413 …
+
+# 2c 邻行核验（新版本行：上一行 = v0.10 早期段尾 / 下一行 = v0.331 真表首行）
+awk 'NR>=8770 && NR<=8772 {printf "%d|%s\n", NR, substr($0,1,50)}' docs/seafood.master-plan.md
+
+# 2d OPEN-ITEMS：新节 + 8 行登记（各恰 1）
+grep -c '^### F⁶\.' docs/OPEN-ITEMS.md                   # ⇒ 1
+for n in 29 30 31 32 33 34 35 36; do grep -c "^| \*\*F$n\*\* |" docs/OPEN-ITEMS.md; done   # ⇒ 1 ×8
+awk '/^### F⁶\./,0' docs/OPEN-ITEMS.md | grep -c '^| \*\*F[0-9]'                            # ⇒ 8
+# 表内无空行断开（表头 213 → 分隔 214 → F29..F36 = 215..222 连排）
+awk 'NR>=213 && NR<=222 {printf "%d|%s\n", NR, substr($0,1,46)}' docs/OPEN-ITEMS.md
+
+# 2e ★ 纯追加自证（删除列 = 0）
+git diff --numstat
+#   ⇒ 17	0	docs/OPEN-ITEMS.md
+#   ⇒ 46	0	docs/seafood.master-plan.md
+
+------------------------------------------------------------
+3. 未动面自证（规范册 / 实现面 / 工具面 零改动）
+------------------------------------------------------------
+git status --porcelain frontend backend-ts tools ctrl docs/design docs/route-layer.spec.md
+#   ⇒ （空）
+shasum -a 256 docs/design/design-system.spec.md
+#   ⇒ b843f50a710e37b76d1b4dd69539dd2b94039379f8b87636099a47b38f15a506
+#      （= v1.21 冻结值 ⇒ 规范册一字未动；该册已冻、本单不写）
+
+------------------------------------------------------------
+4. 证据入库注意（★ 承接 N42）
+------------------------------------------------------------
+#   ops/<线名>/ 本体不被 .gitignore 命中 ⇒ git add ops 可入库；
+#   但 ops/<线名>/logs/ 与任何 *.log 被仓根 .gitignore 命中（实测 .gitignore:243 logs / :244 *.log）
+#   ⇒ 本单两件读数（*.log）入库须显式 --force：
+git add -f ops/ui-card-ref-20261017/readings/jing-closeout-readings.log
+git add -f ops/ui-card-ref-20261017/readings/jing-closeout-selfproof.log
+git check-ignore -v ops/ui-card-ref-20261017/readings/jing-closeout-readings.log   # 证明确实被命中
+#   复核件数（别只看 git add 的返回）：
+git ls-tree -r --name-only <commit> | grep 'ui-card-ref-20261017/readings/jing-closeout'
+
+------------------------------------------------------------
+5. 本单未做（按派单纪律）
+------------------------------------------------------------
+- 未 commit / 未 push / 未 git add -A（由 Zang 统一提交）
+- 未改 frontend/** · 未改 backend-ts/** · 未改 docs/design/design-system.spec.md（已冻）
+- 未新增「### 5.x」之外的节；未新增 OPEN-ITEMS 的 §A–§E 段（只新增 §F⁶ 一行段 + 一行头部追加块）
+- 未启停任何服务
+== END ==
