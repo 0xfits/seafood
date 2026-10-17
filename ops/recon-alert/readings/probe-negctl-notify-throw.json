@@ -1,0 +1,549 @@
+{
+ "probe": "recon-alert-probe",
+ "negctl": "notify_throw",
+ "backend_root": "/Users/kevin/bistro/seafood/backend-ts",
+ "heartbeat_url_configured_sample": "https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid",
+ "sql_calls_total": 40,
+ "warn_lines": [
+  "[recon] alert channel \"notify\" failed: probe negctl: forced notify throw",
+  "[recon] alert channel \"notify\" failed: probe negctl: forced notify throw",
+  "[recon] alert channel \"notify\" failed: probe negctl: forced notify throw",
+  "[recon] alert channel \"notify\" failed: probe negctl: forced notify throw",
+  "[recon] alert channel \"notify\" failed: probe negctl: forced notify throw",
+  "[recon] alert channel \"notify\" failed: probe negctl: forced notify throw",
+  "[recon] alert channel \"notify\" failed: probe negctl: forced notify throw",
+  "[recon] alert channel \"notify\" failed: probe negctl: forced notify throw",
+  "[recon] alert channel \"notify\" failed: probe negctl: forced notify throw",
+  "[ops-alert] heartbeat ping non-2xx: 500",
+  "[ops-alert] heartbeat ping failed: fetch failed: connect ECONNREFUSED",
+  "[ops-alert] heartbeat ping failed: This operation was aborted"
+ ],
+ "assertions": [
+  {
+   "id": "A1_ping_once_success",
+   "ok": true,
+   "detail": "hb=[\"https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid\"]"
+  },
+  {
+   "id": "A1_no_telegram",
+   "ok": true,
+   "detail": "tg=0"
+  },
+  {
+   "id": "A1_status_200_ok_true",
+   "ok": true,
+   "detail": "status=200 ok=true"
+  },
+  {
+   "id": "A2_ping_fail_once",
+   "ok": true,
+   "detail": "hb=[\"https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid/fail\"]"
+  },
+  {
+   "id": "A2_one_telegram",
+   "ok": true,
+   "detail": "tg=0 negctl=notify_throw"
+  },
+  {
+   "id": "A2_200_ok_false",
+   "ok": true,
+   "detail": "status=200 ok=false"
+  },
+  {
+   "id": "A2_text_has_id_rows_diff",
+   "ok": false,
+   "detail": "null"
+  },
+  {
+   "id": "A2_text_has_checked_at_duration",
+   "ok": false,
+   "detail": "null"
+  },
+  {
+   "id": "A2_text_within_300",
+   "ok": false,
+   "detail": "chars=0"
+  },
+  {
+   "id": "A3_no_ping",
+   "ok": true,
+   "detail": "hb=[]"
+  },
+  {
+   "id": "A3_one_telegram",
+   "ok": false,
+   "detail": "tg=0"
+  },
+  {
+   "id": "A3_503_unchanged",
+   "ok": true,
+   "detail": "status=503 code=LEDGER_TX_TIMEOUT"
+  },
+  {
+   "id": "A3_text_infra",
+   "ok": false,
+   "detail": "null"
+  },
+  {
+   "id": "A4_three_ids_in_text",
+   "ok": false,
+   "detail": "null"
+  },
+  {
+   "id": "A4_text_within_300",
+   "ok": false,
+   "detail": "chars=0"
+  },
+  {
+   "id": "A5_no_ping_no_tg",
+   "ok": true,
+   "detail": "hb=0 tg=0"
+  },
+  {
+   "id": "A5_still_200_ok_true",
+   "ok": true,
+   "detail": "status=200 ok=true"
+  },
+  {
+   "id": "A6_notify_independent_of_heartbeat",
+   "ok": false,
+   "detail": "tg=0 hb=0 status=200"
+  },
+  {
+   "id": "A7_unbound_no_tg",
+   "ok": true,
+   "detail": "tg=0 hbFail=1"
+  },
+  {
+   "id": "A8_missing_user_no_tg",
+   "ok": true,
+   "detail": "tg=0"
+  },
+  {
+   "id": "A9_uid_env_missing_no_tg",
+   "ok": true,
+   "detail": "tg=0"
+  },
+  {
+   "id": "A10_uid_not_numeric_no_tg",
+   "ok": true,
+   "detail": "tg=0"
+  },
+  {
+   "id": "A11_user_query_error_no_tg",
+   "ok": true,
+   "detail": "tg=0 status=200"
+  },
+  {
+   "id": "A12_non2xx_no_effect",
+   "ok": true,
+   "detail": "status=200 ok=true"
+  },
+  {
+   "id": "A13_throw_no_effect",
+   "ok": true,
+   "detail": "status=200 ok=true"
+  },
+  {
+   "id": "A14_timeout_bounded",
+   "ok": true,
+   "detail": "elapsed=3004ms status=200"
+  },
+  {
+   "id": "A15_auth_503_no_alerts",
+   "ok": true,
+   "detail": "status=503 hb=0 tg=0"
+  },
+  {
+   "id": "A16_auth_401_no_alerts",
+   "ok": true,
+   "detail": "status=401 hb=0 tg=0"
+  },
+  {
+   "id": "U1_redact_connstring",
+   "ok": true,
+   "detail": "对账执行异常: connect postgresql://***:***@db.example.tech/x bot *** pid 1"
+  },
+  {
+   "id": "U1_redact_bot_token",
+   "ok": true,
+   "detail": "对账执行异常: connect postgresql://***:***@db.example.tech/x bot *** pid 1"
+  },
+  {
+   "id": "U2_clamp_300",
+   "ok": true,
+   "detail": "chars=148"
+  },
+  {
+   "id": "U3_drift_text_fields",
+   "ok": true,
+   "detail": "对账漂移 2026-10-17T03:30:00.000Z 用时42ms 失败1/3项: supply_vs_ledger rows=2 diff=2000001"
+  },
+  {
+   "id": "U4_drift_no_diff_key_uses_dash",
+   "ok": true,
+   "detail": "对账漂移 2026-10-17T03:30:00.000Z 用时5ms 失败1/1项: account_vs_ledger rows=3 diff=-"
+  },
+  {
+   "id": "U5_no_token_reports_unsent",
+   "ok": true,
+   "detail": "{\"sent\":false,\"reason\":\"threw: probe negctl: forced notify throw\",\"__threw\":true}"
+  },
+  {
+   "id": "U5_no_token_no_fetch",
+   "ok": true,
+   "detail": "tg=0"
+  },
+  {
+   "id": "U6_empty_url_no_ping",
+   "ok": true,
+   "detail": "calls=0"
+  },
+  {
+   "id": "N1_no_secret_leak_any_arm",
+   "ok": true,
+   "detail": "leaks=none"
+  },
+  {
+   "id": "N2_no_heartbeat_url_in_logs",
+   "ok": true,
+   "detail": "warn_lines=12"
+  }
+ ],
+ "failed": [
+  "A2_text_has_id_rows_diff",
+  "A2_text_has_checked_at_duration",
+  "A2_text_within_300",
+  "A3_one_telegram",
+  "A3_text_infra",
+  "A4_three_ids_in_text",
+  "A4_text_within_300",
+  "A6_notify_independent_of_heartbeat"
+ ],
+ "all_assertions_pass": false,
+ "readings": [
+  {
+   "id": "A1_ok_true_clean",
+   "recon_mode": "clean",
+   "user_mode": "bound",
+   "heartbeat_url_configured": true,
+   "fetch_mode": "ok",
+   "status": 200,
+   "ok": true,
+   "error_code": null,
+   "hb_calls": [
+    "https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid"
+   ],
+   "hb_fail_calls": 0,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 10,
+   "sql_calls": 3,
+   "secret_leak": false,
+   "note": "ok=true ⇒ ping 1 次（不含 /fail）、Telegram 0 次、200 + ok:true"
+  },
+  {
+   "id": "A2_ok_false_drift",
+   "recon_mode": "supply_drift",
+   "user_mode": "bound",
+   "heartbeat_url_configured": true,
+   "fetch_mode": "ok",
+   "status": 200,
+   "ok": false,
+   "error_code": null,
+   "hb_calls": [
+    "https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid/fail"
+   ],
+   "hb_fail_calls": 1,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 5,
+   "sql_calls": 3,
+   "secret_leak": false,
+   "note": "ok=false ⇒ ping /fail 1 次 + Telegram 1 次、仍 200 + ok:false"
+  },
+  {
+   "id": "A3_infra_error",
+   "recon_mode": "db_error",
+   "user_mode": "bound",
+   "heartbeat_url_configured": true,
+   "fetch_mode": "ok",
+   "status": 503,
+   "error_code": "LEDGER_TX_TIMEOUT",
+   "hb_calls": [],
+   "hb_fail_calls": 0,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 19,
+   "sql_calls": 1,
+   "secret_leak": false,
+   "note": "抛错 ⇒ ping 0 次 + Telegram 1 次、响应 503（分类器不变）"
+  },
+  {
+   "id": "A4_all_three_drift",
+   "recon_mode": "all_drift",
+   "user_mode": "bound",
+   "heartbeat_url_configured": true,
+   "fetch_mode": "ok",
+   "status": 200,
+   "ok": false,
+   "error_code": null,
+   "hb_calls": [
+    "https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid/fail"
+   ],
+   "hb_fail_calls": 1,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 1,
+   "sql_calls": 3,
+   "secret_leak": false,
+   "note": "三条全 FAIL ⇒ 文案含三条 id 且 ≤300 字"
+  },
+  {
+   "id": "A5_no_heartbeat_url_ok",
+   "recon_mode": "clean",
+   "user_mode": "bound",
+   "heartbeat_url_configured": false,
+   "fetch_mode": "ok",
+   "status": 200,
+   "ok": true,
+   "error_code": null,
+   "hb_calls": [],
+   "hb_fail_calls": 0,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 1,
+   "sql_calls": 3,
+   "secret_leak": false,
+   "note": "心跳 URL 缺 ⇒ ping 0、200 + ok:true（静默降级）"
+  },
+  {
+   "id": "A6_no_heartbeat_url_drift",
+   "recon_mode": "supply_drift",
+   "user_mode": "bound",
+   "heartbeat_url_configured": false,
+   "fetch_mode": "ok",
+   "status": 200,
+   "ok": false,
+   "error_code": null,
+   "hb_calls": [],
+   "hb_fail_calls": 0,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 1,
+   "sql_calls": 3,
+   "secret_leak": false,
+   "note": "心跳 URL 缺 + 漂移 ⇒ ping 0 但 Telegram 仍 1 次、200 + ok:false"
+  },
+  {
+   "id": "A7_user_unbound",
+   "recon_mode": "supply_drift",
+   "user_mode": "unbound",
+   "heartbeat_url_configured": true,
+   "fetch_mode": "ok",
+   "status": 200,
+   "ok": false,
+   "error_code": null,
+   "hb_calls": [
+    "https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid/fail"
+   ],
+   "hb_fail_calls": 1,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 1,
+   "sql_calls": 3,
+   "secret_leak": false,
+   "note": "uid 存在但 tg_user_id 为 null ⇒ Telegram 0 次"
+  },
+  {
+   "id": "A8_user_missing",
+   "recon_mode": "supply_drift",
+   "user_mode": "missing",
+   "heartbeat_url_configured": true,
+   "fetch_mode": "ok",
+   "status": 200,
+   "ok": false,
+   "error_code": null,
+   "hb_calls": [
+    "https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid/fail"
+   ],
+   "hb_fail_calls": 1,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 1,
+   "sql_calls": 3,
+   "secret_leak": false,
+   "note": "uid 查无该行 ⇒ Telegram 0 次"
+  },
+  {
+   "id": "A9_uid_env_missing",
+   "recon_mode": "supply_drift",
+   "user_mode": "bound",
+   "heartbeat_url_configured": true,
+   "fetch_mode": "ok",
+   "status": 200,
+   "ok": false,
+   "error_code": null,
+   "hb_calls": [
+    "https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid/fail"
+   ],
+   "hb_fail_calls": 1,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 1,
+   "sql_calls": 3,
+   "secret_leak": false,
+   "note": "OPS_ALERT_UID 未配 ⇒ Telegram 0 次"
+  },
+  {
+   "id": "A10_uid_not_numeric",
+   "recon_mode": "supply_drift",
+   "user_mode": "bound",
+   "heartbeat_url_configured": true,
+   "fetch_mode": "ok",
+   "status": 200,
+   "ok": false,
+   "error_code": null,
+   "hb_calls": [
+    "https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid/fail"
+   ],
+   "hb_fail_calls": 1,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 2,
+   "sql_calls": 3,
+   "secret_leak": false,
+   "note": "OPS_ALERT_UID 非数字 ⇒ Telegram 0 次"
+  },
+  {
+   "id": "A11_user_query_error",
+   "recon_mode": "supply_drift",
+   "user_mode": "query_error",
+   "heartbeat_url_configured": true,
+   "fetch_mode": "ok",
+   "status": 200,
+   "ok": false,
+   "error_code": null,
+   "hb_calls": [
+    "https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid/fail"
+   ],
+   "hb_fail_calls": 1,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 1,
+   "sql_calls": 3,
+   "secret_leak": false,
+   "note": "收件人查询抛错 ⇒ Telegram 0 次、漂移回执仍 200 + ok:false"
+  },
+  {
+   "id": "A12_heartbeat_non2xx",
+   "recon_mode": "clean",
+   "user_mode": "bound",
+   "heartbeat_url_configured": true,
+   "fetch_mode": "non2xx",
+   "status": 200,
+   "ok": true,
+   "error_code": null,
+   "hb_calls": [
+    "https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid"
+   ],
+   "hb_fail_calls": 0,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 1,
+   "sql_calls": 3,
+   "secret_leak": false,
+   "note": "心跳返回 500 ⇒ 响应仍 200 + ok:true"
+  },
+  {
+   "id": "A13_heartbeat_throw",
+   "recon_mode": "clean",
+   "user_mode": "bound",
+   "heartbeat_url_configured": true,
+   "fetch_mode": "throw",
+   "status": 200,
+   "ok": true,
+   "error_code": null,
+   "hb_calls": [
+    "https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid"
+   ],
+   "hb_fail_calls": 0,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 0,
+   "sql_calls": 3,
+   "secret_leak": false,
+   "note": "心跳 fetch 抛错 ⇒ 响应仍 200 + ok:true"
+  },
+  {
+   "id": "A14_heartbeat_hang_3s",
+   "recon_mode": "clean",
+   "user_mode": "bound",
+   "heartbeat_url_configured": true,
+   "fetch_mode": "hang",
+   "status": 200,
+   "ok": true,
+   "error_code": null,
+   "hb_calls": [
+    "https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid"
+   ],
+   "hb_fail_calls": 0,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 3004,
+   "sql_calls": 3,
+   "secret_leak": false,
+   "note": "心跳挂起 ⇒ 3s AbortController 上限后仍 200（且耗时 ≥2.9s）"
+  },
+  {
+   "id": "A15_no_cron_secret",
+   "recon_mode": "supply_drift",
+   "user_mode": "bound",
+   "heartbeat_url_configured": true,
+   "fetch_mode": "ok",
+   "status": 503,
+   "error_code": null,
+   "hb_calls": [],
+   "hb_fail_calls": 0,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 1,
+   "sql_calls": 0,
+   "secret_leak": false,
+   "note": "CRON_SECRET 缺 ⇒ 503 且 ping 0 / Telegram 0"
+  },
+  {
+   "id": "A16_wrong_secret",
+   "recon_mode": "supply_drift",
+   "user_mode": "bound",
+   "heartbeat_url_configured": true,
+   "fetch_mode": "ok",
+   "status": 401,
+   "error_code": "AUTH_UNAUTHORIZED",
+   "hb_calls": [],
+   "hb_fail_calls": 0,
+   "tg_calls": 0,
+   "tg_text": null,
+   "tg_chars": 0,
+   "elapsed_ms": 2,
+   "sql_calls": 0,
+   "secret_leak": false,
+   "note": "错 secret ⇒ 401 且 ping 0 / Telegram 0"
+  }
+ ]
+}

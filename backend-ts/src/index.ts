@@ -29,6 +29,7 @@ import {
 import { healthCheck } from './db';
 // 方案 A · 对账定时化：三条**纯只读**对账（供应量/账本、account/ledger、batt_account/batt_entry）
 import { runLedgerRecon } from './ops-recon';
+import { buildDriftAlertText, buildInfraAlertText, notifyOps, pingHeartbeat } from './ops-alert';
 // P4-SEC（缺陷 B）：基础设施异常走**既有** §14 分类器与 R107 错误体（不新增错误码）
 import { errorMessageOf, ledgerErrorDiagnostics, normalizeLedgerError, toErrorResponse } from './ledger-errors';
 // P7-A：账本流水读口的 `kind` 过滤取值 = **冻结关闭集**（`ledger.spec` §5.1/R40，20 个；不复制/不自造）
@@ -3207,6 +3208,27 @@ app.get('/api/translate/backfill', translateBackfillHandler);
 //   方法只用 GET（Vercel cron 发的是 GET；既有 `translate/backfill` 的 POST/GET 错配已另单修好）。
 //   零新错误码（503/401 均为既有形态）；零写库、零迁移、零前端、零 i18n 键。
 // ============================================================================
+// ============================================================================
+// ★ B32 · 对账告警（`OPEN-ITEMS` B32 · Kevin 2026-10-17 裁定 = **D + A**）
+//   D（站内）= 漂移 ⇒ 推 Telegram（`OPS_ALERT_UID` 现查 `users.tg_user_id`）；
+//              基础设施异常（本 handler 的 catch）⇒ 同样推一条。
+//   A（外部）= **只有成功跑完才** ping `RECON_HEARTBEAT_URL`；漂移/异常 ping `/fail`；
+//              异常分支**不 ping 成功位**是刻意的（缺 ping = 外部来叫人 = 死人开关语义）。
+//   「cron 根本没跑」站内**无解**（官方逐字：未触发时「no runtime log is created」）⇒
+//   该情形**只**靠外部心跳的「缺失 ping」覆盖。
+//   口径：告警是**旁路**，任何失败（缺 env / 查无此人 / 超时 / 非 2xx）一律静默降级，
+//   响应体 / 状态码 / 错误码**一字不变**（仍有界：心跳 3s、发送 3s）。
+// ============================================================================
+
+/** 告警旁路兜底：即便 `notifyOps` / `pingHeartbeat` 意外抛出，也绝不影响对账回执。 */
+const runAlertSafely = async (label: string, run: () => Promise<unknown>): Promise<void> => {
+  try {
+    await run();
+  } catch (error) {
+    console.warn(`[recon] alert channel "${label}" failed:`, error instanceof Error ? error.message : 'ERROR');
+  }
+};
+
 const opsReconHandler: RequestHandler = async (req, res) => {
   const secret = String(process.env.CRON_SECRET || '').trim();
   if (!secret) {
@@ -3232,8 +3254,20 @@ const opsReconHandler: RequestHandler = async (req, res) => {
           .map((c) => ({ id: c.id, rows: c.rows, diff: c.diff ?? null })),
       }));
     }
+    // ---- B32 告警面（旁路；任一失败不改回执）--------------------------------
+    if (report.ok) {
+      // A · 成功跑完 ⇒ ping 成功位（缺 ping = 外部来叫人）
+      await runAlertSafely('heartbeat', () => pingHeartbeat(process.env.RECON_HEARTBEAT_URL));
+    } else {
+      // A · 漂移 ⇒ 显式 ping `/fail`（healthchecks 侧记一红，比「缺 ping」更准）
+      await runAlertSafely('heartbeat', () => pingHeartbeat(process.env.RECON_HEARTBEAT_URL, true));
+      // D · 漂移 ⇒ 推一条中文摘要（checked_at / duration_ms / 每条失败 check 的 id+rows+diff）
+      await runAlertSafely('notify', () => notifyOps(buildDriftAlertText(report)));
+    }
     return sendSuccess(res, report, report.ok ? 'Ledger recon completed' : 'Ledger recon detected drift');
   } catch (error) {
+    // D · 基础设施异常 ⇒ 推一条（**不** ping 成功位：缺 ping 走外部报警，符合死人开关语义）
+    await runAlertSafely('notify', () => notifyOps(buildInfraAlertText(error)));
     // 基础设施异常交**既有** §14 分类器（DB/传输类 ⇒ 503 + 机读 reason），与 backfill 同体例。
     return sendInfraMapped(res, 'ops.recon.ledger', error);
   }

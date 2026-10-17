@@ -1,0 +1,71 @@
+{"id":"A1_ok_true_clean","recon_mode":"clean","user_mode":"bound","heartbeat_url_configured":true,"fetch_mode":"ok","status":200,"ok":true,"error_code":null,"hb_calls":["https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid"],"hb_fail_calls":0,"tg_calls":0,"tg_text":null,"tg_chars":0,"elapsed_ms":11,"sql_calls":3,"secret_leak":false,"note":"ok=true ⇒ ping 1 次（不含 /fail）、Telegram 0 次、200 + ok:true"}
+[recon] ledger drift detected {"checked_at":"2026-10-17T05:02:22.320Z","duration_ms":0,"failed":[{"id":"supply_vs_ledger","rows":1,"diff":"2000001"}]}
+{"id":"A2_ok_false_drift","recon_mode":"supply_drift","user_mode":"bound","heartbeat_url_configured":true,"fetch_mode":"ok","status":200,"ok":false,"error_code":null,"hb_calls":["https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid"],"hb_fail_calls":0,"tg_calls":1,"tg_text":"对账漂移 2026-10-17T05:02:22.320Z 用时0ms 失败1/3项: supply_vs_ledger rows=1 diff=2000001","tg_chars":80,"elapsed_ms":4,"sql_calls":4,"secret_leak":false,"note":"ok=false ⇒ ping /fail 1 次 + Telegram 1 次、仍 200 + ok:false"}
+[ops.recon.ledger] infra failure: {"code":"LEDGER_TX_TIMEOUT","http_status":503,"reason":"driver_connection_error","non_pg_class":"driver_connection_error","constructor_name":"Error","error_name":"Error","event_object_family":false,"message":"connect ECONNREFUSED 127.0.0.1:5432","stack_head":["Error: connect ECONNREFUSED 127.0.0.1:5432","at db.readQuery (/Users/kevin/bistro/seafood/ops/recon-alert/probe/recon-alert-probe.ts:65:17)","at runLedgerRecon (/Users/kevin/bistro/seafood/backend-ts/src/ops-recon.ts:231:37)","at opsReconHandler (/Users/kevin/bistro/seafood/backend-ts/src/index.ts:3245:40)","at Layer.handle [as handle_request] (/Users/kevin/bistro/seafood/backend-ts/node_modules/express/lib/router/layer.js:95:5)"],"cause_chain":[]}
+{"id":"A3_infra_error","recon_mode":"db_error","user_mode":"bound","heartbeat_url_configured":true,"fetch_mode":"ok","status":503,"error_code":"LEDGER_TX_TIMEOUT","hb_calls":[],"hb_fail_calls":0,"tg_calls":1,"tg_text":"对账执行异常: connect ECONNREFUSED 127.0.0.1:5432","tg_chars":43,"elapsed_ms":19,"sql_calls":2,"secret_leak":false,"note":"抛错 ⇒ ping 0 次 + Telegram 1 次、响应 503（分类器不变）"}
+[recon] ledger drift detected {"checked_at":"2026-10-17T05:02:22.341Z","duration_ms":0,"failed":[{"id":"supply_vs_ledger","rows":1,"diff":"2000001"},{"id":"account_vs_ledger","rows":1,"diff":null},{"id":"batt_account_vs_batt_entry","rows":1,"diff":null}]}
+{"id":"A4_all_three_drift","recon_mode":"all_drift","user_mode":"bound","heartbeat_url_configured":true,"fetch_mode":"ok","status":200,"ok":false,"error_code":null,"hb_calls":["https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid"],"hb_fail_calls":0,"tg_calls":1,"tg_text":"对账漂移 2026-10-17T05:02:22.341Z 用时0ms 失败3/3项: supply_vs_ledger rows=1 diff=2000001; account_vs_ledger rows=1 diff=-; batt_account_vs_batt_entry rows=1 diff=-","tg_chars":155,"elapsed_ms":1,"sql_calls":4,"secret_leak":false,"note":"三条全 FAIL ⇒ 文案含三条 id 且 ≤300 字"}
+{"id":"A5_no_heartbeat_url_ok","recon_mode":"clean","user_mode":"bound","heartbeat_url_configured":false,"fetch_mode":"ok","status":200,"ok":true,"error_code":null,"hb_calls":[],"hb_fail_calls":0,"tg_calls":0,"tg_text":null,"tg_chars":0,"elapsed_ms":1,"sql_calls":3,"secret_leak":false,"note":"心跳 URL 缺 ⇒ ping 0、200 + ok:true（静默降级）"}
+[recon] ledger drift detected {"checked_at":"2026-10-17T05:02:22.343Z","duration_ms":0,"failed":[{"id":"supply_vs_ledger","rows":1,"diff":"2000001"}]}
+{"id":"A6_no_heartbeat_url_drift","recon_mode":"supply_drift","user_mode":"bound","heartbeat_url_configured":false,"fetch_mode":"ok","status":200,"ok":false,"error_code":null,"hb_calls":[],"hb_fail_calls":0,"tg_calls":1,"tg_text":"对账漂移 2026-10-17T05:02:22.343Z 用时0ms 失败1/3项: supply_vs_ledger rows=1 diff=2000001","tg_chars":80,"elapsed_ms":1,"sql_calls":4,"secret_leak":false,"note":"心跳 URL 缺 + 漂移 ⇒ ping 0 但 Telegram 仍 1 次、200 + ok:false"}
+[recon] ledger drift detected {"checked_at":"2026-10-17T05:02:22.344Z","duration_ms":0,"failed":[{"id":"supply_vs_ledger","rows":1,"diff":"2000001"}]}
+{"id":"A7_user_unbound","recon_mode":"supply_drift","user_mode":"unbound","heartbeat_url_configured":true,"fetch_mode":"ok","status":200,"ok":false,"error_code":null,"hb_calls":["https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid"],"hb_fail_calls":0,"tg_calls":0,"tg_text":null,"tg_chars":0,"elapsed_ms":1,"sql_calls":4,"secret_leak":false,"note":"uid 存在但 tg_user_id 为 null ⇒ Telegram 0 次"}
+[recon] ledger drift detected {"checked_at":"2026-10-17T05:02:22.345Z","duration_ms":0,"failed":[{"id":"supply_vs_ledger","rows":1,"diff":"2000001"}]}
+{"id":"A8_user_missing","recon_mode":"supply_drift","user_mode":"missing","heartbeat_url_configured":true,"fetch_mode":"ok","status":200,"ok":false,"error_code":null,"hb_calls":["https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid"],"hb_fail_calls":0,"tg_calls":0,"tg_text":null,"tg_chars":0,"elapsed_ms":1,"sql_calls":4,"secret_leak":false,"note":"uid 查无该行 ⇒ Telegram 0 次"}
+[recon] ledger drift detected {"checked_at":"2026-10-17T05:02:22.347Z","duration_ms":0,"failed":[{"id":"supply_vs_ledger","rows":1,"diff":"2000001"}]}
+{"id":"A9_uid_env_missing","recon_mode":"supply_drift","user_mode":"bound","heartbeat_url_configured":true,"fetch_mode":"ok","status":200,"ok":false,"error_code":null,"hb_calls":["https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid"],"hb_fail_calls":0,"tg_calls":0,"tg_text":null,"tg_chars":0,"elapsed_ms":1,"sql_calls":3,"secret_leak":false,"note":"OPS_ALERT_UID 未配 ⇒ Telegram 0 次"}
+[recon] ledger drift detected {"checked_at":"2026-10-17T05:02:22.348Z","duration_ms":0,"failed":[{"id":"supply_vs_ledger","rows":1,"diff":"2000001"}]}
+{"id":"A10_uid_not_numeric","recon_mode":"supply_drift","user_mode":"bound","heartbeat_url_configured":true,"fetch_mode":"ok","status":200,"ok":false,"error_code":null,"hb_calls":["https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid"],"hb_fail_calls":0,"tg_calls":0,"tg_text":null,"tg_chars":0,"elapsed_ms":1,"sql_calls":3,"secret_leak":false,"note":"OPS_ALERT_UID 非数字 ⇒ Telegram 0 次"}
+[recon] ledger drift detected {"checked_at":"2026-10-17T05:02:22.349Z","duration_ms":0,"failed":[{"id":"supply_vs_ledger","rows":1,"diff":"2000001"}]}
+[ops-alert] notifyOps degraded: connect ECONNREFUSED 127.0.0.1:5432
+{"id":"A11_user_query_error","recon_mode":"supply_drift","user_mode":"query_error","heartbeat_url_configured":true,"fetch_mode":"ok","status":200,"ok":false,"error_code":null,"hb_calls":["https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid"],"hb_fail_calls":0,"tg_calls":0,"tg_text":null,"tg_chars":0,"elapsed_ms":0,"sql_calls":4,"secret_leak":false,"note":"收件人查询抛错 ⇒ Telegram 0 次、漂移回执仍 200 + ok:false"}
+[ops-alert] heartbeat ping non-2xx: 500
+{"id":"A12_heartbeat_non2xx","recon_mode":"clean","user_mode":"bound","heartbeat_url_configured":true,"fetch_mode":"non2xx","status":200,"ok":true,"error_code":null,"hb_calls":["https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid"],"hb_fail_calls":0,"tg_calls":0,"tg_text":null,"tg_chars":0,"elapsed_ms":1,"sql_calls":3,"secret_leak":false,"note":"心跳返回 500 ⇒ 响应仍 200 + ok:true"}
+[ops-alert] heartbeat ping failed: fetch failed: connect ECONNREFUSED
+{"id":"A13_heartbeat_throw","recon_mode":"clean","user_mode":"bound","heartbeat_url_configured":true,"fetch_mode":"throw","status":200,"ok":true,"error_code":null,"hb_calls":["https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid"],"hb_fail_calls":0,"tg_calls":0,"tg_text":null,"tg_chars":0,"elapsed_ms":1,"sql_calls":3,"secret_leak":false,"note":"心跳 fetch 抛错 ⇒ 响应仍 200 + ok:true"}
+[ops-alert] heartbeat ping failed: This operation was aborted
+{"id":"A14_heartbeat_hang_3s","recon_mode":"clean","user_mode":"bound","heartbeat_url_configured":true,"fetch_mode":"hang","status":200,"ok":true,"error_code":null,"hb_calls":["https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid"],"hb_fail_calls":0,"tg_calls":0,"tg_text":null,"tg_chars":0,"elapsed_ms":3004,"sql_calls":3,"secret_leak":false,"note":"心跳挂起 ⇒ 3s AbortController 上限后仍 200（且耗时 ≥2.9s）"}
+{"id":"A15_no_cron_secret","recon_mode":"supply_drift","user_mode":"bound","heartbeat_url_configured":true,"fetch_mode":"ok","status":503,"error_code":null,"hb_calls":[],"hb_fail_calls":0,"tg_calls":0,"tg_text":null,"tg_chars":0,"elapsed_ms":2,"sql_calls":0,"secret_leak":false,"note":"CRON_SECRET 缺 ⇒ 503 且 ping 0 / Telegram 0"}
+{"id":"A16_wrong_secret","recon_mode":"supply_drift","user_mode":"bound","heartbeat_url_configured":true,"fetch_mode":"ok","status":401,"error_code":"AUTH_UNAUTHORIZED","hb_calls":[],"hb_fail_calls":0,"tg_calls":0,"tg_text":null,"tg_chars":0,"elapsed_ms":2,"sql_calls":0,"secret_leak":false,"note":"错 secret ⇒ 401 且 ping 0 / Telegram 0"}
+[telegram.webhook] reply skipped: TELEGRAM_BOT_TOKEN not configured
+
+===== ASSERTIONS =====
+PASS A1_ping_once_success :: hb=["https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid"]
+PASS A1_no_telegram :: tg=0
+PASS A1_status_200_ok_true :: status=200 ok=true
+FAIL A2_ping_fail_once :: hb=["https://hc-ping.invalid/ping/probe-8f3a1c2d-uuid"]
+PASS A2_one_telegram :: tg=1 negctl=none
+PASS A2_200_ok_false :: status=200 ok=false
+PASS A2_text_has_id_rows_diff :: 对账漂移 2026-10-17T05:02:22.320Z 用时0ms 失败1/3项: supply_vs_ledger rows=1 diff=2000001
+PASS A2_text_has_checked_at_duration :: 对账漂移 2026-10-17T05:02:22.320Z 用时0ms 失败1/3项: supply_vs_ledger rows=1 diff=2000001
+PASS A2_text_within_300 :: chars=80
+PASS A3_no_ping :: hb=[]
+PASS A3_one_telegram :: tg=1
+PASS A3_503_unchanged :: status=503 code=LEDGER_TX_TIMEOUT
+PASS A3_text_infra :: 对账执行异常: connect ECONNREFUSED 127.0.0.1:5432
+PASS A4_three_ids_in_text :: 对账漂移 2026-10-17T05:02:22.341Z 用时0ms 失败3/3项: supply_vs_ledger rows=1 diff=2000001; account_vs_ledger rows=1 diff=-; batt_account_vs_batt_entry rows=1 diff=-
+PASS A4_text_within_300 :: chars=155
+PASS A5_no_ping_no_tg :: hb=0 tg=0
+PASS A5_still_200_ok_true :: status=200 ok=true
+PASS A6_notify_independent_of_heartbeat :: tg=1 hb=0 status=200
+FAIL A7_unbound_no_tg :: tg=0 hbFail=0
+PASS A8_missing_user_no_tg :: tg=0
+PASS A9_uid_env_missing_no_tg :: tg=0
+PASS A10_uid_not_numeric_no_tg :: tg=0
+PASS A11_user_query_error_no_tg :: tg=0 status=200
+PASS A12_non2xx_no_effect :: status=200 ok=true
+PASS A13_throw_no_effect :: status=200 ok=true
+PASS A14_timeout_bounded :: elapsed=3004ms status=200
+PASS A15_auth_503_no_alerts :: status=503 hb=0 tg=0
+PASS A16_auth_401_no_alerts :: status=401 hb=0 tg=0
+PASS U1_redact_connstring :: 对账执行异常: connect postgresql://***:***@db.example.tech/x bot *** pid 1
+PASS U1_redact_bot_token :: 对账执行异常: connect postgresql://***:***@db.example.tech/x bot *** pid 1
+PASS U2_clamp_300 :: chars=148
+PASS U3_drift_text_fields :: 对账漂移 2026-10-17T03:30:00.000Z 用时42ms 失败1/3项: supply_vs_ledger rows=2 diff=2000001
+PASS U4_drift_no_diff_key_uses_dash :: 对账漂移 2026-10-17T03:30:00.000Z 用时5ms 失败1/1项: account_vs_ledger rows=3 diff=-
+PASS U5_no_token_reports_unsent :: {"sent":false,"reason":"TELEGRAM_BOT_TOKEN not configured (telegram-service degraded to log-only)"}
+PASS U5_no_token_no_fetch :: tg=0
+PASS U6_empty_url_no_ping :: calls=0
+PASS N1_no_secret_leak_any_arm :: leaks=none
+PASS N2_no_heartbeat_url_in_logs :: warn_lines=5
+{"saved":"/Users/kevin/bistro/seafood/ops/recon-alert/readings/probe-recon-alert.json","total":38,"passed":36,"failed":["A2_ping_fail_once","A7_unbound_no_tg"],"all_assertions_pass":false}
