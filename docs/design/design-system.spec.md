@@ -3635,3 +3635,88 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 - **旧字面处置（逐字）**：§26.12.1 表「盒」行 `vertical-align: middle` **保留原文**；要判现行合规只读本节 —— 「以本段为准」。
 - **第二处口径差（同批登记）**：**空串口径** —— `ops/item-type/SPEC-NOTE.md` **§5.1 第 1 项**记「落盘：空串 ⇒ `null`」，现行 `normalizeItemType` **先 `trim` 再闭集判定** ⇒ `""` / `"   "` **均 `400`**（`LEDGER_AMOUNT_INVALID` / `reason=NOT_IN_CLOSED_SET` / `allowed` 三值 / 零行写入）⇒ **与 §26.12.4 契约一致，差额结案**（旧记逐字保留）。
 - **连带**：master **§5.436 + 版本行 v0.353** · `docs/OPEN-ITEMS.md` **`B44`**（发布页未新增 `item.typeRequired` 错误键）· 交付件 `ops/item-type/SPEC-NOTE-closure.md`。**本笔零代码 / 零测试改动 / 零 HTTP 实测**，只写 `docs/**` 与 `ops/item-type/**`，**纯追加删行 0**、**不 push**。
+
+#### 26.12.8 发布页 **2 + 2 + 2 三控件** ＋ 卡面**两枚标签（黄【包邮】/ 绿【自动发货】）**（四值修订 · 2026-10-20 · 追加 · **不升版** · 旧字面逐字保留）
+
+> **以本段为准**：① §26.12.4 的「**2 + 2 两控件**」在**数字分支**上升级为 **2 + 2 + 2 三控件**（一级 2 选 1 + **按分支各一套** 2 选 1 二级）；② `item_type` 由**三值换四值**（`DigitalAutoDeliver` / `DigitalManualDeliver` / `PhysicalFreeShip` / `PhysicalBuyerShip`），**`Digital` 退役**；③ **卡面标签由「仅 `PhysicalFreeShip`」扩为「两值两色」** —— 新增 **`DigitalAutoDeliver` ⇒【自动发货】（绿底黑字）**，位置与【包邮】**完全一致**。§26.12.1 / §26.12.3 / §26.12.4 的旧字面**逐字保留**（其「仅 `PhysicalFreeShip` 显示」「卡面只消费 `PhysicalFreeShip`」等句**于现行读法作废**，只在本节改写状态）。**本册不升版**（承 §26.10 / §26.12.7 体例）；**头注版本块不改写**。
+
+**A. 三控件 · 唯一读法**
+
+| 控件 | 层级 | 组钩子 | 选项（值 → 标签键） | 何时在场 | 必选 |
+|---|---|---|---|---|---|
+| **A** | 一级（恒在场） | `item-select-type` | `digital` → `itemType.digital` · `physical` → `itemType.physical` | **恒在场** | **必选** |
+| **B1** | 二级 · 数字 | `item-select-deliver` | `auto` → `itemType.autoDeliver` · `manual` → `itemType.manualDeliver` | **仅** A = `digital` | **必选** |
+| **B2** | 二级 · 实物 | `item-select-ship` | `free` → `itemType.freeShip` · `buyer` → `itemType.buyerShip` | **仅** A = `physical` | **必选** |
+
+- **两二级控件互斥在场（硬）**：任一时刻**至多一个**在 DOM；未选分支的控件**必须不渲染**（`display:none` 不足够 —— 会留在表单与可达树里，承 §26.12.4）。判负 #21。
+- **切换清空（硬）**：切换一级分支（`digital` ↔ `physical`）⇒ **两个二级值都重置为空**；只清「被切走那个」不够 —— 残留会在切回时变 stale 值并污染载荷 / 让提交闸误判（判负 #22）。
+- 选项渲染形态 = 每组 `role="radiogroup"` + `aria-required="true"`（现役落盘体例，承 §26.12.4 的「必选语义」；`<select required>` 与 radio 组**等价可接受**，见 E 的读数登记项）；选项钩子 = `item-input-type-<value>` / `item-input-deliver-<value>` / `item-input-ship-<value>`。
+- 每级初始值 = **空**（未选）⇒ **不给默认值**（默认值 = 替用户选，静默错分类，承 data §40.8 D 同纪律）。
+
+**B. 合成（前端唯一职责）= 单字段 `item_type`**
+
+| 控件 A | 二级 | → `item_type`（载荷逐字） |
+|---|---|---|
+| `digital` | `auto` | **`DigitalAutoDeliver`** |
+| `digital` | `manual` | **`DigitalManualDeliver`** |
+| `physical` | `free` | **`PhysicalFreeShip`** |
+| `physical` | `buyer` | **`PhysicalBuyerShip`** |
+| 空 | — | **不可提交**（前端闸） |
+| `digital` / `physical` | 空 | **不可提交**（前端闸） |
+
+- **载荷形状**：只发 `item_type`（四值逐字 PascalCase，**不翻译**）；**不发** `shipping` / `deliver` / `free_ship` / `shipping_free` 之类第二字段（服务端不认、出现即忽略；route §49.11.1 ⑥）。
+- **提交闸位置**：`onSubmit` **最前**、**零网络调用**（先于图片上传等任何动作）；未选一级 / 二级未选 ⇒ 阻断 + 组级 `aria-invalid` + 选项行高亮；提示**复用既有错误键**（`uiError.badRequest`），**不新增文案键**（承 §26.12.4 与 `OPEN-ITEMS B44` 口径）。
+
+**C. i18n（**+2 键 × 四语** · 键数现取复算 · 卡面绿标**不新增键**）**
+
+| 键 | zh | en | hk | vn | 状态 |
+|---|---|---|---|---|---|
+| `itemType.digital` | 数字商品 | Digital goods | 數字商品 | Hàng kỹ thuật số | **保留** · 语义 = **一级组标签**（**非存储值**，不得再作为 `item_type` 载荷） |
+| `itemType.physical` | 实物商品 | Physical goods | 實物商品 | Hàng vật lý | 保留 · 一级组标签 |
+| **`itemType.autoDeliver`** | 自动发货 | Auto delivery | 自動發貨 | Giao hàng tự động | **新增**（**同时**用作二级选项文案**与卡面绿标文案，一键两用） |
+| **`itemType.manualDeliver`** | 手动发货 | Manual delivery | 手動發貨 | Giao hàng thủ công | **新增**（仅二级选项文案） |
+| `itemType.freeShip` | 包邮 | Free shipping | 包郵 | Miễn phí vận chuyển | 不变 |
+| `itemType.buyerShip` | 不包邮 | Buyer pays shipping | 不包郵 | Người mua trả phí vận chuyển | 不变 |
+| `item.freeShipping` | 包邮 | Free shipping | 包郵 | Miễn phí vận chuyển | 不变（卡面黄标文案，仅 `PhysicalFreeShip` 消费） |
+
+- **卡面绿标文案复用 `itemType.autoDeliver`** —— **不新增第三个键**（Kevin 追加口径逐字：「标签文案复用已存在的 `itemType.autoDeliver` 键（不新增键）」）。
+- **★ 键名与存储字面是两层（别混）**：i18n 键名保持 **短名** `itemType.autoDeliver` / `itemType.manualDeliver`（= 派单指定键名），而**存储枚举字面**是 **`DigitalAutoDeliver` / `DigitalManualDeliver`**（Kevin 2026-10-20 定名，带 `Digital` 前缀）；前端 UI 选项 local value 用 `auto` / `manual`（**仅前端本地，不上送、不入库**）⇒ 三者**逐层分开**。若要「键名也带 `Digital` 前缀」（`itemType.digitalAutoDeliver` 一类）= 同名重命名、**键数不变**（flat **1122** / nodes **4488** 不动），**一句话可改**。
+- **非 zh 三语 = 待复核**（承 §26.12.4 体例：非中文文案由 Kevin 复核，本表只给可用值、不阻断实现）。
+- **键数前推（现取 `python3` 逐文件复算，改前 = 2026-10-20 编制时点）**：**top `130 → 130`**（`itemType` 命名空间**已存在**、不新增顶层）· **flat `1120 → 1122`**（**+2** = `autoDeliver` + `manualDeliver`；**卡面绿标零新增**）· **四语节点 `4480 → 4488`**（= 1122 × 4；四语各文件 top/flat 现取相等）· `itemType` 命名空间 **4 → 6 键** · `item` 命名空间 **54 → 54**（不变）。
+- **计数前推家族**：现取 `grep -rlE 'toBe\(1120\)|toBe\(4480\)|flat=1120|flat: 1120' frontend/src/test frontend/scripts` = **13 个文件**（清单以现取为准；§26.12.4 旧记「12」已随加键漂移）⇒ 前推归**实现单**，本册不改测试（承 §26.12.4 / §26.12.7 口径）。
+
+**D. 卡面标签（**两值两色** · 位置与几何同源、只有底色不同 · Kevin 2026-10-20 追加）**
+
+| `item_type` | 标签 | 底色 | 字色 |
+|---|---|---|---|
+| **`PhysicalFreeShip`** | **【包邮】**（`t('item.freeShipping')`） | **`#FFE60F`** = `var(--sf-btna-bg)`（`rgb(255,230,15)`） | `#202020` = `var(--sf-btna-fg)` |
+| **`DigitalAutoDeliver`** | **【自动发货】**（`t('itemType.autoDeliver')`） | **`#4ADE80`** = `var(--sf-reward-tag-auto-bg)`（`rgb(74,222,128)`） | `#202020`（**与包邮同黑**） |
+| `DigitalManualDeliver` | **不显示** | — | — |
+| `PhysicalBuyerShip` | **不显示**（写「包邮」= 误导，**最严重的一类错误**，承 §26.12.3） | — | — |
+| `NULL`（未分类 / 存量） | **不显示** | — | — |
+
+- **位置（两枚同源 · 硬）**：都必须是 `.row1-wrap-title` 内**标题文字之前**的**首子元素**（DOM 首子 = 标签节点，承 §26.12.1「位置」行与判负 #18）；**不得**放进 `row2-wrap-service`、不得置于标题之后、不得独占一行、不得两枚同时出现（一个商品只有一个 `item_type`，结构上不可能两枚同现；若同现 ⇒ 判负 #20 家族）。
+- **几何 / 字号 / 字重 / 圆角 / 内边距 / 间距 / 对齐 = 全部沿用包邮标签口径**（承 §26.12.1 与 §26.12.7）：**12px / 700** · `height:16px` + `line-height:16px` · `padding:0 4px` · `border-radius:2px` · `margin-right:4px` · `display:inline-block` · `white-space:nowrap` · **`vertical-align: baseline`**（§26.12.7 现行口径）。**差异只允许「底色」一项。**
+- **零新 token（硬）**：绿底落 `frontend/src/components/reward/reward-card.css` 的**卡内局部常量** `--sf-reward-tag-auto-bg: #4ADE80`（**与价格 `#FF4D00` 落局部常量同法**）⇒ **不进** `theme/tokens.js` 的 `TOKEN_KEYS`、**不进** `theme-tokens.css`、**不改** `STRUCT_PROV` / PROV 指针；因此 §26.12.2「禁止新增色值」在本值上是**唯一例外**且**仅限这一个常量名 + 这一个色值**。
+- **§26.12.5 #17 的适用面在本段收窄**：#17「标签规则出现 `#FFE60F` / `#202020` 以外的颜色字面 ⇒ 判负」**只对黄标（`PhysicalFreeShip`）成立**；绿标规则里出现 `#4ADE80`（或其 `var()` 引用）**不算违例**，但出现**任何第三个色值**仍判负（承 #17 原意）。以本段为准。
+- **行高与卡高不变**：两枚标签均 16px 盒 < 24px 行盒 ⇒ `row1-wrap-title` `offsetHeight` **恒 48**、卡总高 **恒 392**（判负 #16 对两枚同时承重）。
+- **★ 占宽张力（登记 · 实测归实现单）**：【自动发货】4 字宽 ≈ **4×12 + 8 = 56px** + 4px 间距 = **60px**（比【包邮】的 32 + 4 = 36px 多 **24px**）⇒ 1440 档首行可用宽由 187 降至 ≈ **127px**（≈ 9 汉字），**两行总容量可能不足 48 显示宽单位** ⇒ 末尾字面 `...` 被行盒裁掉的风险更高（已由 §26.12.5 **#5**「尾非字面 `...`」兜底）。**不改本契约的缓解（择一，交实现单实测）**：① 标签 `padding:0 3px`；② `row1` 横向 `padding` 10 → 8；③ 接受首行少 2–3 汉字；④ 标签字号不得低于 12px（§13 硬口径，**不可**为腾宽而缩字）。
+
+**E. 判负（**#20–#24** · 与 §26.12.5 的 #15–#19、§26.11.5 九条、§26.11.9 #10–#14 **并存、只增不改**）**
+
+| # | 探针 | 期望（违反即判负） |
+|---|---|---|
+| **20** | 写入路径全链：发布页载荷 / `POST /api/listing` / 库内行 / 读口载荷 | 任一处出现 **`Digital`** ⇒ **判负**（退役值；含「前端仍映射 `digital ⇒ Digital`」这种半改、含库内残留行） |
+| **21** | 二级控件在场：`item-select-deliver` 与 `item-select-ship` 的 DOM / 可达 / 表单参与 | **两分支二级控件同时在场**（同时渲染，或一个 `display:none` 但仍参与表单/载荷）⇒ **判负** |
+| **22** | **切换一级分支**后读两个二级值的 state / 重投载荷 | **切换未清值**：切到 `digital` 后 `ship` 仍非空、切到 `physical` 后 `deliver` 仍非空，或切换后载荷带上被切走分支的值 ⇒ **判负** |
+| **23** | **`DigitalAutoDeliver` 卡的绿标底色**（`getComputedStyle(tag).backgroundColor`） | ≠ **`rgb(74, 222, 128)`** ⇒ **判负**（含「写了 `#4ade80` 但被其它规则覆盖」「沿用黄底」「改了透明度」三种）；同时字色须 `rgb(32, 32, 32)` |
+| **24** | **绿标 DOM 位置** | 绿标**不是** `.row1-wrap-title` 的**首子元素**（落在标题文字之后 / 行 2 / 独立行 / 行外 / 无标签）⇒ **判负**；且 `row1` 高仍 **48**、卡高仍 **392** |
+
+- **读数登记项（不判负）**：二级控件的组名 / 选项钩子后缀命名（只要求命名可检索、不与既有钩子冲突）；`<select required>` 与 radio 组**形态二选一皆可**（只要求「必选语义 + `aria-invalid` 可读」）；绿标的 `padding` / 圆角 / 间距 ±1px（承 §26.12.5 读数项）。
+- **原判负不废**：§26.12.5 #15–#19 **继续全额有效**，其中 #15（四态标签矩阵）与 #18（标签位置）在四值下**读作本节 D 的五态矩阵**；#19 的「两控件」在数字分支上**读作本节三控件**。
+
+**F. 未做（本笔零代码 · 明账）**
+
+- 三控件与四值 **均未实现**；`itemType.autoDeliver` / `itemType.manualDeliver` **两键未落盘**、13 处计数断言**未前推**；卡面绿标 **未实现**（`--sf-reward-tag-auto-bg` 未落盘）；`0054` **已由并行实现单落盘（未提交）、两库未 apply**（data §40.8.1 F）；**未跑任何探针 / 单测 / 浏览器实测**；本节 #20–#24 **一条未跑**。
+- **生产不可自然取证**：两库存量 `item_type` **全 `NULL`**（data §40.8.1 D）⇒ 两枚标签只能靠 `context.route` 注入夹具验证（承既有体例：**不往生产库造测试商品**）。
+- **连带**：master **§5.437 + 版本行 v0.354** · data **§40.8.1** · route **§49.11.1** · 交付件 `ops/item-type/delivery/SPEC-NOTE.md`。本笔**只写 `docs/**` + `ops/item-type/delivery/**`**，零代码、零迁移文件、零测试改动、**不 push**；`git diff --numstat` **删除列 0**（纯追加）。

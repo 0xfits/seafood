@@ -5087,3 +5087,80 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_users_tg_user_id
 
 - **apply 态（现取 · 收笔时点）**：**未 apply** —— dev `/api/health` `schema_version` 仍 = **`0052`**；生产库读数与 `schema_migration` 顶仍 `NOT_MEASURED`。
 - **未做的读数**：`CHECK` 兜底 `23514` 实测、存量行数、`item_type IS NULL` 计数 —— **仍未取**（表未改）。
+
+### 40.8.1 四值修订：`Digital` 退役 · 数字商品再分「自动发货 / 手动发货」（2026-10-20 · 迁移 `0054_item_type_delivery_split.sql` · **§40.8 逐字保留、冲突以本段为准**）
+
+> **本节性质**：§40.8 的 A–F **一字未删**（三值闭集、`Digital` 语义、`0053` 迁移契约、存量 `NULL` 语义、并行差额登记**全文原样保留**），只在其后**追加**四值修订；**凡与 §40.8 冲突处，以本节为准**（旧字面留痕、可检索）。`DL` 编号域**零改动**（仍 `DL1..DL157`，本节以 `IT-*` 承载）；章节编号**追加为 §40.8.1**、**不重排**、**头注版本块不改写**（承 `route §49.11` / `design §26.12`「加性续登不升版」体例）。**依据** = Kevin 2026-10-20 口径（逐字转引自本单派单：**数字商品再分两类** —— `DigitalAutoDeliver`（自动发货）/ `DigitalManualDeliver`（手动发货）；枚举**三值变四值**、`Digital` **退役**；+ 执行中追加：【自动发货】与【包邮】同样上卡面、仅配色不同）：`DigitalAutoDeliver | DigitalManualDeliver | PhysicalFreeShip | PhysicalBuyerShip`。**原始会话未入仓** ⇒ 与 Kevin 原话若有出入，以 Kevin 一句话为准（承 §40.8 A 脚注体例）。姊妹册 = `route-layer.spec` **§49.11.1** + `design-system.spec` **§26.12.8** + `master-plan` **§5.437 / 版本行 v0.354** + 交付件 `ops/item-type/delivery/SPEC-NOTE.md`。
+
+**A. 变更摘要（三值 → 四值 · 只换值域：不换列、不换键、不换写入面）**
+
+| 项 | §40.8 旧口径（**逐字保留**） | 本节现行口径（**以本段为准**） |
+|---|---|---|
+| 闭集 | `Digital` / `PhysicalFreeShip` / `PhysicalBuyerShip`（**3 值**） | `DigitalAutoDeliver` / `DigitalManualDeliver` / `PhysicalFreeShip` / `PhysicalBuyerShip`（**4 值**） |
+| 数字商品 | **单值** `Digital`（一个值承载「虚拟 / 数码」） | **拆两值**：`DigitalAutoDeliver`（自动发货）/ `DigitalManualDeliver`（手动发货） |
+| `Digital` | 三值之一 · 可写入 | **退役**：写口拒收（`400`）、读口不应再出现、库内 **0 行**（D 节两库现取自证） |
+| 卡面标签消费值 | §40.8 A 表「卡面只消费 `PhysicalFreeShip`」 | **两个值**：`PhysicalFreeShip` ⇒【包邮】(黄) / **`DigitalAutoDeliver` ⇒【自动发货】(绿)**；其余无标签（design §26.12.8 D） |
+| 其余列属性 | `text` / 可空 / 零默认 / 零索引 / 零触发器 / 唯一写入口 `POST /api/listing` | **逐条不变**（承 §40.8 A）；本段**不加列、不改类型、不加默认、不加索引** |
+| 键面 | feed `48` / 详情 `47`（加性键 `item_type`） | **键数不变**（换值不换键；route §49.11.1 ④） |
+
+> **「退役」的精确含义**：`Digital` **不再是一个合法值** —— 不是「保留但少用」、不是「读旧写新」。它从 CHECK 集里**移除** ⇒ 库侧对它 = `23514`、写口对它 = `400`。反之 `DigitalAutoDeliver` / `DigitalManualDeliver` 是**新增**合法值。**不得**把旧客户端的 `Digital` 或存量 `NULL` 静默归一成 `DigitalAutoDeliver` / `DigitalManualDeliver` —— 那是替用户猜「会不会自动发货」，属**造数据**（承 §40.8 D「不猜补」同纪律）。
+
+**B. 四值闭集（大小写敏感 · 无归一 · 唯一读法）**
+
+| 值（逐字） | 语义 | 卡面 |
+|---|---|---|
+| `DigitalAutoDeliver` | 数字 · **卖家自动发货**（下单即自动交付，无人工介入） | **显示【自动发货】**（绿底 `#4ADE80` / 黑字，design §26.12.8 D） |
+| `DigitalManualDeliver` | 数字 · **卖家手动发货**（下单后人工交付） | **不显示**标签 |
+| `PhysicalFreeShip` | 实物 · **卖家包邮** | **显示【包邮】**（黄底 `#FFE60F` / 黑字，design §26.12.1） |
+| `PhysicalBuyerShip` | 实物 · **买家承担运费**（不包邮） | **不显示**标签 |
+| `NULL` | **未分类**（存量 / 未填） | **不显示**标签 |
+
+- **非法值举例（写口 400 / 库侧 `23514` 两道闸）**：`Digital`（**退役值 · 最优先的一条**）、`digital`、`DIGITAL`、`auto`、`autodeliver`、`DigitalAutoDeliver `（尾随空格）、`manual`、`deliver`、`physical_free_ship`、`free`、`包邮`、`''`、`0`、`true`、任意其它字符串。**闭集外零容忍**（不做大小写归一、不做别名映射 —— 归一化会让「同一语义两个值」进库，将来统计分叉；承 §40.8 B）。
+- **`NULL` ≠ 任一四值**（承 §40.8 B 的 `NULL ≠ Digital`，本段仅换举例）：可见结果相同（都不显示标签），**语义不等**（`NULL` = 未分类、可被将来管理面筛出补录）；**禁止**把 `NULL` 回填成任何值。
+- **一级「数字 / 实物」是 UI 分组、不是存储值**：库里**只记四值**，`Digital` 不再出现在库内（design §26.12.8 三控件形态）；**库里不存在「运费」列 / 「交付方式」列**，服务端只认 `item_type`（route §49.11.1 ⑥）。
+
+**C. 迁移内容契约（`0054_item_type_delivery_split.sql`）**
+
+- **唯一动作 = 换 CHECK 集**：先 `ALTER TABLE public.listing DROP CONSTRAINT IF EXISTS listing_item_type_check;`，再 `ALTER TABLE public.listing ADD CONSTRAINT listing_item_type_check CHECK (item_type IS NULL OR item_type IN ('DigitalAutoDeliver','DigitalManualDeliver','PhysicalFreeShip','PhysicalBuyerShip'));` —— 承 `0053`「**显式命名 + 先删后加** ⇒ 反复 apply 落**同一终态**、库内**恰 1 条**、不会新旧并存」体例；落盘若改用 `0053` 那种 `DO $$ … IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname='listing_item_type_check' …) THEN ADD …` 幂等块，**终态等价、以落盘为准**（承 §40.8 F 采信顺序：落盘形态为准、契约字面留痕）。
+- **零 DML**：无 `UPDATE` / `INSERT` / `DELETE`；**无列增删、无类型变更、无默认值、无索引、无触发器、无视图**。（`Digital` 行 = **0** ⇒ **无数据搬迁需求** —— 这不是「省略搬迁」，是 D 节两库实测的**前置事实**。）
+- **尾部 `DO $$` 自检（四项 · 任一不成立 ⇒ `RAISE` ⇒ 整迁移回滚、不写 `schema_migration` 行）**：
+  ① **列在场且可空**：`information_schema.columns` 命中 `public.listing.item_type`、`data_type = 'text'`、`is_nullable = 'YES'`（防顺手被加 `NOT NULL` / 被改类型）；
+  ② **约束恰 1 条且值集正确**：`pg_constraint` 按 `conname = 'listing_item_type_check' AND conrelid = 'public.listing'::regclass` **恰 1 行**，且 `pg_get_constraintdef(oid)` **含四值全字面**、**不含裸值 `'Digital'`**（按**整字面 + 终止符**判，**不得**误伤 `DigitalAutoDeliver` / `DigitalManualDeliver` 前缀值 —— 落盘用正则 `'''Digital''(::text)?[,)]'`，**以落盘为准**；防「只加新值没去旧值」与「四值漏一个」）；
+  ③ **存量未回填（fail-loud）**：全表 `item_type IS NOT NULL` 行数 = **0**（被回填 = 契约被违，须先对账再 apply）；
+  ④ **退役值零残留 + 幂等**：全表 `item_type = 'Digital'` 行数 = **0**、四值各 **0** 行（重跑读数不变、反复 apply 终态一致）。
+- **`0053` 一字不动**：它**已 apply**（两库 `schema_migration` 顶 = `0053`）⇒ 改它必然 `checksum` 漂移 ⇒ `migrate.ts` **`ABORT` 退 3**（承 `0051` 不改 `0050` 的先例）。四值切换**只能**新开 `0054`。
+- **事务**：文件内**零 `BEGIN`/`COMMIT`**（`scripts/migrate.ts` 逐文件包事务并在同事务内写版本行）。
+- **apply 后外部闭环**：`/api/health` 的 `schema_version` 翻 **`0054`**；`schema_migration` 顶 = `0054`、行数 **52 → 53**；`listing` 列数仍 **14**（`0053` 后口径，本段不加列）；约束名仍 `listing_item_type_check`。
+- **先 apply 后 push** 铁律不变（承 v0.142 / v0.240 / §40.8 C）。
+
+**D. 现取读数（2026-10-20 编制时点 · 两库只读 SELECT · 逐库自证 `neon.project_id`）**
+
+| 库 | `neon.project_id` | `listing` 总行 | `item_type IS NULL` | `Digital` | 四值各 | `schema_migration` 顶 / 行数 |
+|---|---|---|---|---|---|---|
+| dev | `quiet-math-65207667`（branch `br-soft-lake-b3iv9tli`） | **26** | **26** | **0** | **0 / 0 / 0 / 0** | **`0053` / 52** |
+| 生产 | `sweet-pond-28934105`（branch `br-delicate-fire-b3m3upi5`） | **7** | **7** | **0** | **0 / 0 / 0 / 0** | **`0053` / 52** |
+
+- 现约束 def 逐字（两库同）= `CHECK (((item_type IS NULL) OR (item_type = ANY (ARRAY['Digital'::text, 'PhysicalFreeShip'::text, 'PhysicalBuyerShip'::text]))))` ⇒ **旧三值集 + `NULL` 放行**，与 §40.8 A 一致；`0054` 后应变为**四值集**、`'Digital'` 零命中。
+- **结论**：存量**全 `NULL`**、`Digital` **0 行**、四值**各 0 行** ⇒ 换 CHECK 集**无数据搬迁、无回填、无风险窗口**；`NULL` 语义不因四值改变（仍 = 未分类）。
+- 探针口径披露：读 `backend-ts/.env.local`（dev）与 `~/.config/seafood/prod-db.env`（生产）**显式构造连接**（`dotenv.parse` 后 `neon(url)`，不吃 `process.env`）⇒ 不污染会话环境（承「跨库探针」纪律）；本笔**零写库、零 DDL、零 apply**。
+
+**E. 冲击与未测（诚实边界 · 禁填 0/空）**
+
+- **冲击 = 0**：无 `NOT NULL` / 无 FK / 无默认 / 无触发器 / 零 DML / 唯一 `DROP` 是**本列自有的具名 CHECK**（同一语句内立即以四值集重建）/ 无既有列改动；`ledger_*` 与资金不变式、`DL*` 条文全不涉及；读写口形状**零变化**（**换值不换键**，route §49.11.1 ④）。**卡面标签是纯前端渲染面**（两值两色，无新列、无新键）。
+- **未测项（全部 `NOT_MEASURED` · 归实现单 / 质检单）**：① `0054` 文件**已由并行实现单落盘**（**未提交**、93 行，差额见 F 节）、但两库**未 apply**；② 两库**均未 apply**（`schema_version` 现取 = **`0053`**）；③ 库侧兜底**未实测**（`INSERT … item_type = 'Digital'` ⇒ **`23514`**、零留行；四值各 `INSERT` ⇒ 通过、`SELECT` 回读逐字）；④ 读口四值往返（feed **48** / 详情 **47**，`item_type` 为四字面之一）**未实测**；⑤ 发布页 **2 + 2 + 2** 三控件的必选闸与切换清值**未实测**；⑥ **两标签配色 / 位置未实测**（生产与 dev 存量 `item_type` **全 `NULL`** ⇒ 标签只能靠注入夹具验证，不得往库内造商品）。
+
+**F. 并行实现单现取 · `0054` 落盘差额（2026-10-20 收笔时点 · **本单不背书** · 只登记差额）**
+
+> **触发**：本单落笔后现取发现并行实现单已**落盘** `backend-ts/migrations/0054_item_type_delivery_split.sql`（**93 行** · **未提交**）+ 改动 `backend-ts/src/listing-service.ts`（`ITEM_TYPES` 换四值）与 `backend-ts/scripts/s53-00-item-type-gate.ts`（门脚本，**未提交**）。以下只**登记差额**，§40.8.1 A–E 契约字面**不改写**；采信顺序承 §40.5 / §40.6 / §40.8 F 体例 = **落盘形态为准、契约字面留痕**。
+
+| # | 项 | 本节契约（A–C） | 落盘现取 | 处置 |
+|---|---|---|---|---|
+| 1 | 幂等写法 | 先 `DROP CONSTRAINT IF EXISTS` 再 `ADD CONSTRAINT`（显式命名） | 逐字一致（`:19` / `:21-23`） | **无差额** |
+| 2 | 四值字面 / 顺序 | `DigitalAutoDeliver` / `DigitalManualDeliver` / `PhysicalFreeShip` / `PhysicalBuyerShip` | **逐字一致 · 同序**（`:23`；`ITEM_TYPES` 亦同序） | **无差额** |
+| 3 | 自检 ③ | 全表 `item_type IS NOT NULL` 行数 = **0**（拦任何回填） | **闭集外行数** = 0（`IS NOT NULL AND NOT IN (四值)`） | **差额（落盘松一档）**：**合法值**回填不会红。契约仍 = 存量不回填（由「零 DML + 人工纪律」保证），**不擅改自检**；要收紧 = 实现单改 SQL 或另立迁移，本册只登记 |
+| 4 | 自检 ② / ④ 的「裸值」判定 | 契约写「def 不含裸值 `'Digital'`」 | 落盘用**正则**按「整字面 + 终止符」判（`'''Digital''(::text)?[,)]'`）+ 行数 `WHERE item_type = 'Digital'`，**显式避免误伤前缀值** | **落盘更严**（把「误伤 `DigitalAutoDeliver` / `DigitalManualDeliver`」这条坑写死了），采纳；契约 C② 已按此加注 |
+| 5 | 自检条数 | 四项（列 / 约束 / 存量未回填 / 退役值零残留 + 幂等） | 落盘 **四段**（④ 列 + ① 约束恰 1 + ② 裸值 0 行 + ③ 闭集外 0 行），**编号不同、覆盖面等价**（③ 口径差见 #3） | 编号不冻结、以落盘为准 |
+| 6 | 零 DML / 事务 | 零 `UPDATE` / `INSERT` / `DELETE`、零 `BEGIN` / `COMMIT` | 逐字一致（全文件仅 1 个 `ALTER … DROP` + 1 个 `ALTER … ADD` + 1 个 `DO $$`） | **无差额** |
+
+- **apply 态（现取 · 收笔时点）**：**两库均未 apply** —— dev / 生产 `schema_migration` 顶仍 = **`0053`** / 52 行（D 节读数即此态）⇒ `23514` 兜底与四值往返**仍未实测**（`NOT_MEASURED`）。
+- **未做的读数**：`INSERT … item_type = 'Digital'` ⇒ `23514` 实测、四值各 INSERT 回读、读口 48 / 47 的四值往返、发布页三控件必选 / 清值、两枚标签配色与位置 —— **全部未取**。
