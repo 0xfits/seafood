@@ -429,6 +429,10 @@
 > **v2.42 修订入口**：逐条 delta → 依据锚点 → 改动点 = **本册 §49**（**不建独立 delta 件**，承 v2.29 / v2.30 / v2.32 / v2.35–v2.41 先例）；姊妹册 = `master-plan` **§5.425** + `OPEN-ITEMS`（`B35` / `B36`）+ 交付件 `ops/feed-ranking/SPEC-NOTE.md`。**凡与本册 §49 冲突处，一律以现盘为准**（被登记面 = Kevin 2026-10-19 定稿 + 实现单在改未提交）。
 > **★★ v2.42 本单要点（先说结论，不含糊）**：① **只换排序轴、不换行形状**（`score` 只在子查询里参与 `ORDER BY`，不进响应行）；② **旧口径缺陷逐条写明**（`ORDER BY listing_id` 升序 + `LIMIT` ⇒ 新发永远排队尾；dev 26 件时首页只取 `[1..8]`、新发 `76` 不可见）；③ **权重 / 中性分 = 具名常量**（`FEED_RECENCY_WEIGHT` / `FEED_RATING_WEIGHT` / `FEED_RATING_NEUTRAL_STARS`）⇒ **配置化另立单、不动 `app_config` 合法键**；④ **三级 tie-break 全确定**（`score DESC, time_created DESC, listing_id DESC` ⇒ 全序无并列）；⑤ **分页语义不变**（`skip/limit` 缺省与上下限一字未改）；⑥ **判负 6 条**（首条非最新 / 两次请求异序 / `score` 漏进响应 / 注册点 111 / 分页重漏 / 两口不同序）。
 
+> **状态：v2.43（契约冻结 · **首页商品分页（`FEED-PAGING-v1`）+「列表只出 `listed`」行为变更**：★★ 商品统一走 `GET /api/prize/all?skip=<n>&limit=36`（**`PAGE_SIZE = 36`** · 首屏 `skip=0`）· 滑到底续拉 **36/页**、命中 **`< 36` 或空**即终止 · **`bID` 去重** · 失败可重试（保留已加载行、不自动重试）· **`/api/home` 只再用 `tasks` / `user_points` / `claimed_prize_ids`（响应形状不动）** · ★ **后端 `listBrands` 加 `WHERE l.status='listed'`**（`draft` / `delisted` 不再进任何列表读口 = **行为变更**；详情口 `getBrandById` **不过滤、不动**）· 排序仍 **§49 综合排序**（`score DESC, time_created DESC, listing_id DESC`）· **零新路由（注册点 110）· 零迁移 · 零响应键变化 · 位置分页语义不变** · 正文 = **§49.8**）（**只追加 · §1–§49.7 一字未动** · 本笔零代码（只写 `docs/**` + `ops/feed-paging/SPEC-NOTE.md`））** · 作者角色 = **Jing（Specifier · 制度员）** · 单号 = **JING-SPEC-FEED-PAGING**
+> **v2.43 修订入口**：逐条 delta → 依据锚点 → 改动点 = **本册 §49.8**（**不建独立 delta 件**，承 v2.29 / v2.30 / v2.32 / v2.35–v2.42 先例）；姊妹册 = `master-plan` **§5.426** + `OPEN-ITEMS`（**`B37`**）+ 交付件 `ops/feed-paging/SPEC-NOTE.md`。**实现面状态 = 在改未提交（必须披露）**：编制时点 `backend-ts/src/database.ts` / `frontend/src/pages/HomePage.jsx` 均为 `M`（Kong 同单在跑）⇒ 本册只登记**契约**；行号一律标「编制时点现取」，漂移时以**符号名 `listBrands` / 常量名 `FEED_PAGE_SIZE`** 为锚。
+> **★★ v2.43 本单要点（先说结论，不含糊）**：① **契约 = 单一分页读口**（36/页 · `skip` 递增 · 终止 = 某页 `< 36` 或空）⇒ **不再存在「首页 8 条聚合口」与「36 条分页口」两份实现**（`/api/home` 的 `prize_limit` 参数保留、首页不再消费其 `prizes`）；② **`/api/home` 形状不动** —— 首页只再用 `tasks` / `user_points` / `claimed_prize_ids` 三面（**判负 #5**）；③ **「只列 `listed`」是行为变更、不是纯前端改动**：`listBrands` 同时服务 `/api/home` 与 `/api/prize/all` ⇒ 两读口**同批生效**，`draft` / `delisted` 从两个列表读口一并消失；④ **去重按 `bID`**（位置分页 + 综合分漂移 ⇒ 相邻页可能重叠，v1 用客户端首见去重兜住、**不承诺「无重复」以外的更强保证**）；⑤ **分页与排序的稳定性**：`score` 随 `now()` 与评分变化 ⇒ 跨页可能出现**微量漂移（重 / 漏）**，**v1 明确接受**，彻底解 = keyset / 快照 ⇒ 挂 `OPEN-ITEMS` **`B37`**（另立单）；⑥ **判负 5 条**（首个响应非 36 条且库内 `listed ≥ 36` / 滑动后卡数不增 / 重复 `bID` / `draft` 出现在列表 / `/api/home` 形状变更）。
+
 > **v2.19 修订入口**：逐条 delta → 依据锚点 → 改动点 = `docs/audit/route-layer-v2.19-delta.md`（**同批姊妹册** = `docs/audit/data-layer-v0.26-delta.md` + `docs/audit/commission-v0.4-delta.md`）。**凡与 Zang 裁定冲突处，一律以 Zang 裁定为准**（本单为 P9⑤ 契约冻结；**未改写任何裁定、未发明任何路径 / 数值 / 权限键 / 文案值**）。**★ 姊妹册（同批）**：`docs/commission.spec.md` **v0.4 §19** + `docs/data-layer.spec.md` **v0.26 §34**，**本册不重抄其条文、只指路**。
 > **★★ v2.19 本单要点（先说结论，不含糊）**：① **零新用户面口**（邀请奖励 = 结算腿，无独立读 / 动作口）；② **后台配置面复用**（费率 + 6 项权重矩阵）；③ **注册点 `87 → 87`（+0）**；④ **权限键 11 键内（零增删）**；⑤ **错误码零新增 + `R107`**；⑥ **真生效四段（①③④ 段）**；⑦ **连带门改版**（`p8-s2` 8 键 / 守卫常量 / 页字段面随 `R-9-1` ⇒ 归实现单）。
 
@@ -9254,3 +9258,69 @@ ORDER BY score DESC, l.time_created DESC, l.listing_id DESC
 | 本笔改动 | 只写 `docs/**` + `ops/feed-ranking/SPEC-NOTE.md`；三册 `git diff --numstat` **删除列 = 0** |
 
 **未做（诚实边界）**：本节只冻结契约，**未实现、未质检、未上线**（实现归 Kong；编制时点 `database.ts` 为 `M` 未提交）；生产库 `rating` 行数与生产排序**未实测**（本笔不连生产）；前端「排序切换」UI **未登记、未做**。
+
+### 49.8 v2.43 · **首页商品分页契约（`FEED-PAGING-v1`）** + 「列表只出 `listed`」行为变更
+
+> **本节 = 首页商品分页的唯一现行契约**，与 §49.1–§49.7（排序轴）**并列不重叠**：§49 定「怎么排」，本节定「怎么取（分页）」「取哪些行（`status` 过滤）」。
+> **实现面状态（编制时点 · 必须披露）**：`backend-ts/src/database.ts`（`listBrands`）与 `frontend/src/pages/HomePage.jsx`（`FEED_PAGE_SIZE`）均为 **`M`（未提交）** —— 实现单（Kong）正在跑。本册只登记**契约**；行号标「编制时点现取」，漂移时以**符号名 / 常量名**为锚。
+
+#### 49.8.1 契约（写死）
+
+| # | 项 | 冻结值 | 依据 / 现取落点 |
+|---|---|---|---|
+| 1 | 读口 | **`GET /api/prize/all?skip=<n>&limit=36`**（唯一分页读口） | `backend-ts/src/index.ts:605` → `listPrizes(skip, limit)`（`database.ts:4523`）→ `listBrands`（`database.ts:2590`） |
+| 2 | `PAGE_SIZE` | **36**（= 6 行 × 6 列；**列数属 §25 / `T121`，与本节解耦**） | `frontend/src/pages/HomePage.jsx:41` `const FEED_PAGE_SIZE = 36`（编制时点现取） |
+| 3 | 首屏 | **`skip = 0`、`limit = 36`**（一次请求，不发两发） | 同上 `HomePage.jsx` 首屏 effect |
+| 4 | 续拉 | 滚到底 ⇒ **`skip += 36`**、`limit = 36`；**串行**（无并发双发） | 同上（游标只在**请求成功后**前推） |
+| 5 | 终止条件 | 某页返回 **`rows.length < 36`** **或** **`rows.length === 0`** ⇒ 置 `hasMore = false`、**不再发请求** | 同上 |
+| 6 | 去重 | 按 **`bID`**（回退键 `listing_id`）；**首见保留**、后见丢弃 | `HomePage.jsx` 的 `mergeRewardPage`（`Set` + 首见） |
+| 7 | 失败 | **保留已加载行** + 展示「重试」；**不自动重试**（防无限重试打后端）；**游标不前推** ⇒ 重试复用同一 `skip` | 同上注释 ④ |
+| 8 | `/api/home` | **形状不动**；首页**只再用** `tasks` / `user_points` / `claimed_prize_ids` 三面 | `index.ts:913`（`prize_limit` 缺省 8 / 上限 16 **参数保留**，首页不再消费其 `prizes`） |
+| 9 | 行集合 | **`WHERE l.status = 'listed'`**（见 §49.8.2） | `database.ts` 的 `listBrands`（编制时点现取） |
+| 10 | 排序 | **不变** —— §49.2 的 `ORDER BY f.score DESC, f.time_created DESC, f.listing_id DESC` | 同 SQL；本节**不改排序表达式** |
+| 11 | 形状 | **零新路由（注册点 `110`）· 零迁移 · 零新错误码 · 零新幂等键 · 零资金腿 · 响应行键集不变（45 键，`score` 不下发）** | 现取 |
+
+- **`skip/limit` 缺省与上下限**（`getPagination`）**一字未改** —— 本节只固定**调用方**的取值（36），不动服务端参数口径。
+- **不得为首页单开第二条商品读口**（如 `?feed=1` / `/api/prize/home36`）：一份数据面、一个口（判负 #5 的同族纪律）。
+
+#### 49.8.2 「只列 `listed`」= **行为变更**（不是纯前端改动）
+
+- **变更内容**：`listBrands` 的 `FROM listing AS l` 追加 **`WHERE l.status = 'listed'`**。修前**不过滤 `status`** ⇒ `draft` / `delisted` 行会漏进列表（实现单注释现取：「dev 库 26 行里 15 行 `draft` + 2 行 `delisted`」—— **该三项为 Kong 注释转引，本笔未连库复算**）。
+- **影响面 = 两个列表读口**：`listBrands` 同时服务 `GET /api/home`（其 `prizes` 面）与 `GET /api/prize/all` ⇒ **同批生效**；不是「只改首页」。
+- **详情读口不动**：`getBrandById` **不过滤 `status`** —— 下架商品详情**仍可打开**（既有「`/item/999999` 走详情页空态」口径不受影响）。
+- **判据**：任一列表读口返回行里出现 `status !== 'listed'` 的行 ⇒ **判负**（§49.8.4 #4）。
+- **留痕**：本变更**不删任何旧句**（本节之前本册无 `status` 过滤条文，`grep` 可证），**删除行 0**。
+
+#### 49.8.3 分页与综合排序的稳定性（**v1 明确接受漂移**）
+
+- **机制**：位置分页（`LIMIT/OFFSET`）+ **动态排序键**（`score` 含 `now()` 驱动的 `recency`，且 `rating` 随新评分变化）⇒ 相邻两页之间若有行「跨过」某页边界，会**重复**（该行在两页都出现）或**漏**（两页都不出现）。
+- **与 §49.3 的关系**：§49.3 保证的是「**同库态、连续两次同 `skip/limit` 请求逐位同序**」（判负 #2 仍成立）；**它不保证**「`skip=0..35` 与 `skip=36..71` 在**跨请求时间差**内无重叠 / 无缺口」—— 后者是**位置分页的固有性质**，旧口径同样存在。
+- **v1 处置（写死）**：**接受微量漂移**；客户端**按 `bID` 去重**消除「重复」的用户可见后果；**「漏」不兜底**（下一页会补上绝大多数漏项，且漏项随下次刷新自然回归）。
+- **彻底解 = 另立单**：keyset（游标 = `(score, time_created, listing_id)` 三元组）/ 快照（`skip` 绑定固定时间窗）⇒ 挂 `docs/OPEN-ITEMS.md` **`B37`**，**本单不做**。
+- **不得据此判负**：质检**不得**把「跨页漂移」当缺陷（除非漂移量超出「同一秒内新发插入」的量级，或出现**同页内重复**——后者是去重失效，属真缺陷）。
+
+#### 49.8.4 判负（5 条 · 质检必带）
+
+| # | 输入 / 探针 | 期望 | 判负 |
+|---|---|---|---|
+| 1 | `GET /api/prize/all?skip=0&limit=36`，**且库内 `status='listed'` 行数 ≥ 36** | `data.length === 36` | **首个响应非 36 条**（且库内 `listed ≥ 36`）⇒ **判负**（库内不足 36 时本条不适用，改判 `#1′`：`data.length === listed 总数`） |
+| 2 | 首页首屏 + 滚到底（至少再拉 1 页） | 卡片数**严格增加**（`after > before`） | **滑动后卡数不增** ⇒ **判负**（= 续拉未生效 / 终止条件写错 / 游标不前推） |
+| 3 | 合并后全部行的 `bID` 集合 | **无重复**（`new Set(ids).size === ids.length`） | 出现**重复 `bID`** ⇒ **判负**（去重失效） |
+| 4 | 任一列表读口返回行 | 每行 `status === 'listed'`（或行内 `status` 字段缺省但库内为 `listed`） | **`draft` 出现在列表**（含 `delisted`）⇒ **判负**（§49.8.2） |
+| 5 | `GET /api/home` 响应 JSON 键集 | 与改前**逐键相同**（`tasks` / `user_points` / `claimed_prize_ids` 仍在；**不新增 / 不删除任何键**） | **`/api/home` 形状变更** ⇒ **判负** |
+
+- **判负口径补充**：`#1` 的「36」是**页大小**、不是「库内必有 36 件」；库内 `listed` 不足时以 `#1′` 为准（**禁把「数据不足」判成「分页坏了」**）。
+- **#5 的反向义务**：首页**不得**再依赖 `/api/home` 的 `prizes` 字段渲染商品（否则等于两套数据面并存）—— 该事实由 #2 + 首个请求 Path 取证（首屏商品请求必须是 `/api/prize/all?...limit=36`）。
+
+#### 49.8.5 现取自证（编制时点）
+
+| 项 | 读数 |
+|---|---|
+| 页大小常量 | `FEED_PAGE_SIZE = 36`（`frontend/src/pages/HomePage.jsx:41` · 工作区 `M`） |
+| 排序 / 过滤落点 | `listBrands`（`backend-ts/src/database.ts:2590`）· `WHERE l.status = 'listed'` + `ORDER BY f.score DESC, f.time_created DESC, f.listing_id DESC`（工作区 `M`） |
+| `/api/home` 消费面 | `tasks` / `user_points` / `claimed_prize_ids`（`HomePage.jsx` 注释现取） |
+| 注册点 | **110**（get 49 / post 57 / put 0 / delete 3 / patch 1） |
+| 迁移 | **0** |
+| 本笔改动 | 只写 `docs/**` + `ops/feed-paging/SPEC-NOTE.md`；两册 `git diff --numstat` **删除列 = 0** |
+
+**未做（诚实边界）**：本节只冻结契约，**未实现、未质检、未上线**（实现归 Kong，编制时点两文件 `M` 未提交）；**库内 `listed` / `draft` / `delisted` 行数未复算**（实现单注释数字仅转引，本笔零 DB 连接）；**滚动续拉的浏览器级实测未做**（归实现单 / 质检单）。

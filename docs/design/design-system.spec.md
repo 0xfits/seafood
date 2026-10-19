@@ -26,6 +26,7 @@
 > **★ 勘误（2026-10-19 · §15.2 第 18 / 19 行「值不动」+ 发布页币种字段形态 · 勘误级不升版 · 本单只写 `docs/**`）**：**依据 = Kevin 2026-10-19 逐字指令**「在发布商品的时候，【币种编号】一栏，不要输入编号，而是要在下拉框中选择币种。」+ 同批契约（正典 = 姊妹册 `docs/route-layer.spec.md` **v2.37 §47**）。**① 旧句逐字保留**：§15.2 A 表第 18 行「`listings.cid` → `item.cid` ｜ 币种编号 ｜ 键名改（**值不动**）」与第 19 行「`listings.cidNote` → `item.cidNote` ｜ 币种编号请手动填写；社区积分 $ 填 1。 ｜ 键名改（**值不动**）」**原行一字未动**；**其「值不动」口径自本勘误起作废 · 以本段为准**（v1.10 时点该字段确为手填，现指令改为下拉选择 ⇒ 值必须改）。**② 现行口径（写死）** = `item.cid` / `item.cidNote` **只改值、键数不变**（四语同改）；文案**不得再含「手动填写 / 手填」语义**；`jobs.cid` / `jobs.cidNote`（发布任务页）**本单不动**。**③ 字段形态（可判负）** = `/item/new` 币种字段**必须是 `<select data-sf-m="item-select-cid">`**；**旧钩子 `item-input-cid` 不得存在**（数字输入框形态随本单下线）；选项文本 = `symbol · name`（**不显示编号**）；默认 `$`（cid 1）；列表加载失败或为空 ⇒ 仅 `$` 一项、表单仍可提交；提交 `cid` 仍为数字、`POST /api/listing` 形状一字不变。**④ 本册不改 token / 不改表单几何 / 不新增 `T` 规则**（本字段沿用既有 `.sf-item-*` 家族；若实现需新类，归实现单并回写）。**⑤ 落点 = 版本头（本行）+ §15.2 A 表后就地勘误段（旧表体与「旁证」行一字未动）**；**未动 `frontend/**` / `backend-ts/**` / `docs/design/style-preview.html`（真源零改动）**。
 > **★ 勘误（2026-10-19 · 第二单「发布任务页币种同改下拉」· §15.2 A 表 `jobs.cid*` **零命中** · 勘误级不升版 · 本单只写 `docs/**`）**：**依据 = Kevin 2026-10-19 追加指令逐字两条**「① 发布任务页（悬赏）同样的修改。② 下拉文本不带编号」+ 同批契约（正典 = 姊妹册 `docs/route-layer.spec.md` **v2.38 §47.8**）。**① 表体零命中（检索式写死）**：`grep -n 'jobs\.cid\|jobs\.cidNote' docs/design/design-system.spec.md` ⇒ 仅命中**版本头两行 + §15.2 上一段勘误**的叙述文字；**A 表体（第 1389–1408 行）内 `jobs.` 命中 = 0** ⇒ **表内无 `jobs.cid` / `jobs.cidNote` 行可勘**（不虚构行号、不改表体）。**② 旧句处置**：上一段勘误的第 ④ 项「`jobs.cid` / `jobs.cidNote`（发布任务页）**本单不动**」**自本段起作废 · 以本段为准**（旧句逐字保留，不删不改）。**③ 现行口径（写死）** = `jobs.cid` / `jobs.cidNote` **只改值、键数不变**（四语 zh / en / hk / vn 同改）；`jobs.cidNote` **不得再含手填 / 编号提示语义**（「填 1 / 填寫 / 手填 / enter 1 / nhập 1」）；**字段形态（可判负）** = `/task/new` 币种字段**必须是 `<select data-sf-m="jobs-select-cid">`**、**旧钩子 `jobs-input-cid` 不得存在**；选项文本 = `symbol · name`（**不带编号**）；默认 `$`（cid 1）、cid 1 不在列表 ⇒ 选首项；列表加载失败或为空 ⇒ 仅 `$` 一项且**表单仍可提交**；提交 `cid` 仍为数字、`POST /api/job` 形状一字不变。**④ 页面对称**：`/task/new` 与 `/item/new` **同形**（`<select>` + 同一读口 `GET /api/currencies` + 同一文案规则），差异仅钩子前缀（`jobs-` / `item-`）与页面壳类（`.sf-jobs-*` / `.sf-item-*`）。**⑤ 本册不改 token / 不改表单几何 / 不新增 `T` 规则**（沿用既有 `.sf-jobs-*` 家族；若实现需新类，归实现单并回写）。**⑥ 落点 = 版本头（本行）+ §15.2 A 表后追加本段**；**未动 `frontend/**` / `backend-ts/**` / `docs/design/style-preview.html`（真源零改动）**。
 > **★ 勘误（2026-10-19 · 第三单「媒体上传单」连带：`T94` 渐变占位图条款 + `T80` requiresAuth/恒 5 格 + 底栏①文案微单 · 勘误级不升版 · 本单只写 `docs/**`）**：**依据 = Kevin 2026-10-19 三裁定**（存储 = A「Neon 存图」/ 张数 ≤4 卡用第一张 / 占位 = 机械鱼图）+ 同批缺陷单 `9c8a460`（底栏恒 5 格）；契约正典 = `route-layer.spec` **v2.39 §48** + `data-layer.spec` **v0.34 §40** + `master-plan` **§5.422**。**① `T94` 勘误（状态改写式 · 旧句逐字保留）**：§19.2 `T94` 行「③ 详情面板（**渐变占位图** + 描述 + 库存 + 数量输入）」中的「渐变占位图」**形态限定自本勘误起作废 · 以本段为准** —— 现行口径 = 详情面板 image 槽 = **`media_urls[0] || 机械鱼占位`**（**渲染面允许真图 / 占位图填充原几何盒**，几何盒与槽位不变；媒体上传单落地前维持占位渲染）；§19.4/§19.5 涉「渐变占位图」字面同此读法。**② `T80` 勘误（状态改写式 · 旧句逐字保留）**：`T80` 行与 v1.7 补注中「`我的`→`/profile`（key `profile`，**`requiresAuth`**）」「**`requiresAuth` 仍 `true`**」的**可见性语义自本勘误起作废 · 以本段为准** —— `requiresAuth` 字段已随 `9c8a460` **废除**（`shell/nav.js` 删 `visibleNavItems` + 去 profile `requiresAuth`；生产码 `grep 'visibleNavItems|requiresAuth'` 零引用、仅注释留痕）；现行口径 = **底栏恒 5 格、含未登录**（`BottomTabBar` 恒染 `SHELL_NAV_ITEMS`；未登录点【我的】走既有钱包签名登录引导；详情页 `is-detail` 隐藏面不变）；三测试改锚 = `theme-shell-isomorphism` / `route-exchange-rename` / `v15-nav-floatmenu:92`（`fifth.requiresAuth` ⇒ `fifth.key==='profile'`）。**③ 底栏①文案微单（进行中）**：`home` 键值四语改短（**海鲜 / 海鮮 / Seafood / Hải sản**，键数不变）；§14.10 B / v1.6 注的「海鲜市场」= 旧值字面留痕，实现 commit 落盘后本册以现行值为准（消费点唯一 = `frontend/src/shell/nav.js:20`）。**④ 本册零 token / 零几何 / 零真源改动**（占位资产属图片资源、非主题 token）；**未动 `frontend/**` / `backend-ts/**` / `docs/design/style-preview.html`**。**现取基线 = HEAD `9c8a460`。**
+> **★ 现行版 = v1.24（2026-10-19 · Kevin「宽度与列数」两项口径 · 新增 §25 + 规则 `T121` + 三项结构常量链 · 只追加 + 就地指针 · 本单只写 `docs/**`）**：**① 容器最大宽 = `1536px`**（结构常量 `shell-max-w` `1440px ⇒ 1536px`）。**Kevin 今日口径（逐字）**：「容器最大宽 **1536px**」；**「1500 不是标准宽度」已当面说明** ⇒ **`1500` 不再是候选值**（承 §22.11 `Q8`「保持 `1440px` · 另立单」⇒ **本版取代该口径**，**`Q8` 原行一字未删**、其后追加指针行）。**② 列数断点（写死）** = **视口 `≥1280px` ⇒ 6 列** · **`768–1279px` ⇒ 4 列** · **`<768px` 手机档不变**（现取 d `2` / n `1`，**是否也调 2/2 待 Kevin** ⇒ `OPEN-ITEMS` `B38`）；**夜档 `feed-cols` 由 `3` 统一为 `4`**（与日档一致 —— 回归「列数属断点层、**不得按主题变**」的既有口径，见 `EXCLUDED_FROM_THEME` 该行 why）。**③ 落点约束（写死）**：`frontend/src/shell/shell.css` **只允许唯一 `767` 断点块**（现取 `@media` 计数 = **1** · `shell.css:185`）⇒ **`1280` 的 6 列规则落 `frontend/src/styles.css` 顶层 `@media (min-width:1280px)`**（承 §14 桌面 gutter「断点规则落 `styles.css`、`shell.css` 一字不动」先例），且**只覆盖 `.sf-grid` 的 `grid-template-columns`**。**④ 三件同步链（缺一即判负）**：`docs/design/style-preview.html` **纯追加**真源块（`max-width:1536px` 行 + `repeat(6,minmax(0,1fr))` 行 + 夜档 `repeat(4,…)` 行）⇒ `frontend/src/theme/tokens.js` 的 `STRUCT` / `STRUCT_PROV` **重指**（`shell-max-w` · `feed-cols.n` · **新键 `feed-cols-xl`**）⇒ `frontend/src/theme/theme-tokens.css` **用既有生成器重生成**（先跑零漂移 `cmp = 0` 自证）。**⑤ 零 i18n / 零颜色 / 不动 `TOKEN_KEYS`**（只动 `STRUCT`：**改 2 键值 + 改 1 个 PROV 指针 + 新增 1 键**）。**改动 = 版本头（本行）+ §12 表 v1.24 行 + §22.11 `Q8` 行后**新行**（指针，原行一字未动）+ §25（新）**；**本册只写 `docs/**`**；**未动 `frontend/**`**（值表 / 生成物 / 样式归实现单 —— 本笔 = **契约冻结，实现待发**）；**未启停任何服务**；**未 `git add -A` · 本单 commit 仅含 `docs/**` + `ops/feed-6col/**` · 未 push**。**★ 编号勘误（必须披露）**：派单写「新增记 **`T104`**」，而 **`T104` 已被 v1.19 §21（消息面板化 `T104`–`T108`）占用**（现取 `grep -n 'T104' docs/design/design-system.spec.md` 命中 §21 规则表）⇒ **本册按「数字现取」顺延为 `T121`**（现取最大 `T120` = §24），**派单编号字面保留于此**。
 
 > **★ v1.10 姊妹册（同批交付）** = `docs/route-layer.spec.md` **v2.28 §38**（`/item` 家族 + 旧路由硬删 + 「前端概念名 ⇄ 后端路径名」映射表）；本册只承载 **形态 / 入口集合 / 可达性 AC / 合并页口径 / i18n 删改留表**，**不重抄**。
 > **v1.5 口径来源（逐字）**：Kevin 2026-10-11 定档 ①方案 A·UI 先行（不动后端）②右悬浮菜单仅桌面档显示、H5 隐藏 ③消息模块占位（后续接驳 X/推特私信）④客服/反馈做弹窗模板位；**＋ Kevin 当日两条连锁更正**（`Zang` 转达）：**(A)** 底栏第二项 = **「市场」→ `/exchange`**（key `shard`，图标 `Store`；**不再新建 `/nearby` 占位页、`nearby` 键不新增**）**(B)** `T76` 去重按新底栏集合重算（**`exchange` 继续排除、`reward`/`task` 恢复**）。
@@ -836,6 +837,8 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 | **v1.21** | 2026-10-17 | **Kevin「顶栏实黄」逐字三项 + Zang 冻结裁定 1–6 落册（只追加 + 就地留痕 · 本单只写 `docs/**` + 本单读数）**：**① Kevin 三项答**（顶栏「B 顶栏实黄」· 移动档「保持全白」· 「先把顶栏定下来、改完再一并 push（含生产终验）」）。**② `T114` 日档顶栏实黄不透明**（`rgb(253,232,21)` · alpha = 1 · `bg-opacity-95`/`backdrop-blur-sm` 失效 · 落点 `styles.css` 顶层 · `shell.css` 一字不动）。**③ `T115` 夜档顶栏冻结 `#1F2937`** + **日档限定 `:root:not([data-theme="dark"])` 为承重件**（不加限定 ⇒ 夜档被压成 `rgb(11,12,14)` · 实测 · `N53`）。**④ `T116` 日档下边框色 = `--sf-topbar-border`**（宽度保持 1px · 真源 2px 属几何变更 ⇒ 另裁）。**⑤ `T117` 日档顶栏前景 ≥ 4.5:1**（logo · `.nav-link` 的 `:hover`/`.active` · 注册登录 hover ⇒ `var(--sf-brand-fg)`；夜档维持现状 · `styles.css:146-147` 不得改）。**⑥ `T118` 零新 token / 零 `STRUCT` / 零几何 / 零新 i18n**（真源本单零改动）。**⑦ `T119` 作用面 = 全站顶栏面**（`Header` 全站共享 ⇒ 归因允许变更集扩集）。**⑧ §23.3 现取对比度表 14 行**（逐元素 · 现状 vs 改后 · 阈值 · 判）+ **取数路径差登记**（合成 vs 未合成：夜档 `12.63`/`14.68` · logo `2.90`/`2.94` · nav base `7.45`/`7.56`）⇒ **`N52`**。**⑨ 断言影响** = 真改锚 0 / 真改面 3（`.nav-link[href]` 集 · 五 `data-sf-region` 恒等 · 落点不越界）/ 冻结面零改锚 8。**⑩ §23.5 归因式 `AC-1`–`AC-10`**（三档像素 · 前景硬门 · alpha = 1 · 不穿透 · 反事实空集 · **两向灵敏度自证** · 零几何 · 移动档）。**⑪ 顺带勘误 / 发现** = 顶栏 `sticky` **实际不生效**（含块高 = 顶栏高）· 移动面板在 `#header` 子树内（其 `bg-white` 继承 95% 语义）· **移动面板「登录」胶囊 `2.80:1` ✗（既有 · 挂账）**；**待裁 `Q10`**（移动档读法）。**改动 = 版本头 + §12（本行）+ §23（新）**；**改前快照** = `docs/versions/design-system.spec.v1.20.md`（`cmp` = 0；md5 `6fa271687481dd69c70a5ce358b63dc5`；2646 行 / 607,188 B）；**本版镜像** = `docs/versions/design-system.spec.v1.21.md`（`cmp=0`）；**delta** = `docs/audit/design-system-v1.21-delta.md`；**证据** = `ops/ui-card-ref-20261017/readings/jing-v121-*`。**未动 `frontend/**` / `backend-ts/**` / `tools/**` / `ctrl/**` / `docs/design/style-preview.html` / `ops/ui-card-ref-20261017/shots/**`；未启停任何服务；未 `git add -A` · 未 commit · 未 push。** |
 | **v1.22** | 2026-10-17 | **Kevin「`/item/:id` 操作栏 goofish 形态」裁定落册（只追加 + 就地留痕 · 本单只写 `docs/**` + `frontend/src/theme/**` + 本单读数）**：**① 本轮唯一新增 2 个颜色 token** —— `--sf-cta-solid-bg` 日 `#202020` / 夜 `#EDEFF2`、`--sf-cta-solid-fg` 日 `#FFFFFF` / 夜 `#0A0A0A`（**夜档成对反相**：夜档深页上深底会消失 ⇒ 亮底深字；亮底色值与 `--sf-title-fg` 夜档同源；日档底色取既有 ink 家族 `--sf-btna-fg` 同值，**不引入第二套墨色**）。**② 其余全部复用既有 token、零新增** —— `聊一聊` = `--sf-btna-bg` / `--sf-btna-fg`（日夜同值 `#FFE60F` / `#202020`）；`收藏` = `--sf-btnalt-bg` / `--sf-btnalt-fg` / `--sf-btnalt-border`（夜档自带反相）。**③ 新增 §24 + 规则 `T120`** —— 三段结构（组合条 2 段 + 留白 + 独立收藏）· 组合条内部占比 `聊一聊 58% / 立即购买 42%`（±1 个百分点）· 组合条与收藏**留白 > 0** · **两端半圆 + 中缝直角**（中缝 4 角 = 0）· 收藏 = 独立胶囊 · **两档几何逐值相等**（颜色以外不进主题层）· 几何常量落页面局部 `--sf-l-*`（承 `T98`，**不进 `STRUCT`**）。**④ 四处同动读数** —— 真源尾部纯追加 `<section id="item-actionbar-ref-v122">`（**1103 行 / 93,949 B / md5 `7b8780af…0490a5` ⇒ 1172 行 / 102,653 B / md5 `a17919a4…013753`**；`numstat = 69 0`）· `tokens.js` 两档键 **110 ⇒ 112**（同索引 `107` / `108`；`numstat = 12 0`）· `PROV` 新指 **1130 / 1133 行** · `theme-tokens.css` 生成器重生成（先跑零漂移 `cmp = 0`）**8,155 ⇒ 8,275 B**（`numstat = 4 0`）。**⑤ 断言影响 = 零计数常量前推** —— 仓内 token 计数断言全为下限 / 包含式 ⇒ **未改任何测试文件**。**⑥ 未动面** —— `frontend/src/pages/item/**` / `ItemDetailPage` / `shell.css` / `data-sf-region` 集合 / `--sf-l-actionbar-h`(60px) / 任何既有 token 值 / §1–§23 与真源 1–1103 行：**一字未改**。**⑦ 挂账** —— 「收藏」无数据承载 / 无收藏接口 ⇒ 接后端 vs 视觉按钮**待裁**（§24.6 第 1 项）。**未 `git add -A` · 未 commit · 未 push。** |
 | **v1.23** | 2026-10-17 | **「首页商品卡片动作胶囊下线」勘误单（只追加 + 状态改写 · 旧字面逐字保留 · 本单只写 `docs/**` + 本单读数）**：**① Kevin 指令** = 「首页商品卡片移除『查看详情』胶囊」（实现 = `RewardCard.jsx` 的 `actionLabelKey` 存在时动作胶囊**整块不渲染**）。**② 口径改写（取代 `T112` 的 CTA 子条）** = **首页卡片不渲染动作胶囊** · **入口由整卡链接承载**（卡根单一 `<a>`，`href` = `buildLocalizedPath(lang,'/item/'+id)`）· **卡内交互元素计数仍 = 0** · **钩子 `reward-card-view` 随胶囊下线**。**③ 落点** = §22.2 `T112` 后勘误段 · §22.6「CTA 形态」取代行 · §22.9 `AC-3 · v1.23 勘误注` · §22.12 `6-勘误（v1.23）` · `docs/OPEN-ITEMS.md` `F32` 状态改写（+ 头部 v2.40 块）。**④ 读数** = 首页卡内 `reward-card-view` **4 → 0**（1440 / 390 同）· 卡根 `a[href]` 仍在 · 卡内交互元素 `0 → 0` · 末行子元素 `2 → 1` · 点标题仍跳 `/item/3041` · 门套 **57 files / 554 tests 前后不变** · CSS 零变化。**⑤ 零变化面** = 零新 token / 零 `STRUCT` / 零 CSS / 零真源（`style-preview.html` 一字未动）/ i18n 零新增零删除（`item.viewDetail` 键保留不删）。**未 `git add -A` · 未 commit · 未 push。** |
+| **v1.24** | 2026-10-19 | **Kevin「宽度与列数」两项口径落册（新增 §25 + 规则 `T121` + 三项结构常量链 · 只追加 + 就地指针 · 本单只写 `docs/**`）**：**① 容器最大宽 `1536px`**（`shell-max-w` `1440px ⇒ 1536px`；**「1500 不是标准宽度」已当面说明** ⇒ `1500` 退出候选；承 §22.11 `Q8`「保持 `1440px`」⇒ **被本版取代**、原行一字未删 + 追加指针行）。**② 列数断点 = `≥1280 ⇒ 6` / `768–1279 ⇒ 4` / `<768` 手机档不变**（现 d `2` / n `1` ⇒ 是否调 2/2 挂 `B38`）+ **夜档 `feed-cols` `3 ⇒ 4` 统一**（回归「列数不得按主题变」）。**③ 落点约束 = `shell.css` 只许唯一 `767` 块**（现取 `@media` 计数 `1`）⇒ `1280` 的 6 列规则落 **`src/styles.css` 顶层 `@media (min-width:1280px)`**（承 §14 gutter 先例），只覆盖 `.sf-grid` 的 `grid-template-columns`。**④ 三件链** = `style-preview.html` 纯追加真源块（`max-width:1536px` / `repeat(6,…)` / 夜档 `repeat(4,…)`）⇒ `tokens.js` `STRUCT`/`STRUCT_PROV` 重指（**新键 `feed-cols-xl: 6`** + `shell-max-w` + `feed-cols.n`）⇒ `theme-tokens.css` 重生成（先零漂移 `cmp=0`）。**⑤ 零 i18n / 零颜色 / `TOKEN_KEYS` 不动**；**实现待发（笔 2）**。**★ 编号勘误**：派单写 `T104`，但 `T104` 已被 v1.19 §21 占用 ⇒ 顺延 **`T121`**。 |
+
 
 ### 与上游文件的关系（只读，本册未改一字）
 
@@ -2585,6 +2588,7 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 | **`Q6`** | **已裁 = 候选 (a)（只留阴影）** | 去 `hover="glow"`（其 `hover:shadow-xl hover:ring-2 hover:ring-yellow-200` 含**黄环** `ring-yellow-200`）⇒ 改 **`hover="none"`** + `className` 追加 **`hover:shadow-lg`**；**不位移**（不得引入 `-translate-y-*`、不得改用 `lift` 变体）。**不动 `ui/Card.jsx` 的 hover 变体表**（`none` 已是既有档）。 |
 | **`Q7`** | **已裁 = 候选 (a) + 暂定标注** | 夜档 `--sf-surface-bg` **保留 `#101114`**；**PROV 不变**（仍 `docs/design/style-preview.html:1073` ⇒ `tokens.js` 的 `surface-bg.n = [1073,'background:#101114']`）；**同时标注为「暂定值」** —— 随下条「夜档另议」**另立单复核**（与夜档页底 `#0B0C0E` 仅差 ΔRGB(5,5,6)，分层可辨性**未定案**）。 |
 | **`Q8`** | **已裁 = 不动** | `--sf-st-shell-max-w` **保持 `1440px`**（`tokens.js:391` + `STRUCT_PROV['shell-max-w'] = [85,'max-width:1440px']` **一字不动**）；Kevin「约 1500 像素」**按描述性近似**处置 ⇒ **零几何改动**。若日后要真 `1500px` ⇒ **另立单**（须同步 `STRUCT_PROV`，溯源硬门）。 |
+| **`Q8` ❗ 指针（v1.24 · 2026-10-19）** | **已被 §25 `T121` 取代** | 容器最大宽 **`1440px ⇒ 1536px`**（Kevin 2026-10-19 口径「容器最大宽 **1536px**」；**「1500 不是标准宽度」已当面说明** ⇒ `1500` 退出候选）。上行 `Q8`「已裁 = 不动 · 保持 `1440px` · 若日后要真 `1500px` 须另立单」**字面逐字保留、不作现行口径**；现行落法 = `tokens.js` 的 `shell-max-w` 值 + `STRUCT_PROV['shell-max-w']` 两档指针 + `theme-tokens.css` 生成物 **三件同步**（见 §25.5）。 |
 | **`Q9`** | **已裁 = 候选 (a) 的变体（显式「保持现状权重」）** | **数字字号保持既有 Tailwind `text-2xl`（24px）不变**（**不缩小现有视觉权重**）—— 候选 (a) 默认的「用既有 `--sf-st-price-num-size`(21px)」**已被本裁定否决**（理由入册为教训 `N48`）；**`$` 与单位（若有）字号 = 数字的 `0.75em`（≈18px**，命中参考图「`¥` 高 ≈ 数字高 75–80%」）；**数字 `font-weight ≥ 700`**（`font-bold`）；**零新增常量 / 零新 token / 零新 `--sf-l-*`**（`0.75em` 是**相对比例**、非新常量；`18px` 的等价既有 Tailwind 档 = `text-lg` ⇒ 二者取等价形即可，收口判据 = §22.9 `AC-2` 的比值区间 `[0.70,0.85]`）。 |
 
 **★ 夜档另议边界（v1.20 就地注 · **写死边界** · 与上表同批）**
@@ -2989,3 +2993,139 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 **★ 夜档不在本表范围**：参考图只有亮底一档；夜档（`#EDEFF2` 底 / `#0A0A0A` 字）是**本站自定反相**（§24.2 理由：夜档深页上深底会消失）⇒ **无参考图对应值可比**，故不登记色差，也**不许**「为对齐参考图」把夜档改回深底。
 
 **★ 判负（写死）**：实现单**不得**为逼近参考图新增任何 token、也不得在页面里**硬编码**上表参考色（如 `background:#3B3B3B` / `#FFE92C` / `#F6F6F6`）；**若 Kevin 要复刻，只能按「一句话可改」列改 1–2 个既有键的值**，且**改值须另立单 + 全站复验**。
+
+---
+
+## §25 ★★ v1.24 · **宽度与列数**：容器最大宽 `1536px` · `≥1280px` ⇒ **6 列** · `768–1279` ⇒ 4 列 · 夜档列数 `3 ⇒ 4` 统一 · 规则 **`T121`**（**本节只追加 · §1–§24 一字未动** · 依据 = **Kevin 2026-10-19 两项口径**（逐字见 §25.0）· **本笔零代码：契约冻结、实现待发**）
+
+### 25.0 依据与口径（先记住三条）
+
+**Kevin 2026-10-19 逐字两条**：
+
+> ① 「**web 版 UI 要保证每行 6 条商品（目前 4 条）**。」
+> ② 「**容器最大宽 1536px**。」
+
+**问答结论（必须留痕，防再次反复）**：Kevin 会上一度以「约 **1500** 像素」描述容器宽（§22.11 `Q1` 原话「约 1500 像素固定宽度」）。今日当面说明 **「1500 不是标准宽度」** ⇒ **`1500` 退出候选值**，取 **`1536px`**（= 1280 断点族上沿 `1280 + 256`，属「标准宽度」序列：`1024 / 1280 / 1536 / 1920`）。
+
+**与既有裁定的关系**：§22.11 `Q8`「已裁 = 不动 · 保持 `1440px` · 若日后要真 `1500px` 须另立单」**字面逐字保留**，其后已追加 **`Q8 ❗ 指针（v1.24）`** 行 ⇒ 现行口径 = **`1536px`**（本节）。**这属于「另立单」的兑现**，不是静默改写。
+
+**实现状态**：**笔 2（宽度与列数）尚未派单** ⇒ 本节 = **契约冻结**；`tokens.js` / `theme-tokens.css` / `style-preview.html` / `styles.css` **本笔一字未动**（归实现单）。
+
+### 25.1 `T121` 条文（三款 · 写死）
+
+| 款 | 条文 | 落点（实现单必须按此） |
+|---|---|---|
+| **a. 容器宽** | **`--sf-st-shell-max-w` = `1536px`**（日 / 夜同值，结构常量、**不进主题层**） | `tokens.js` `STRUCT['shell-max-w']`（现 `'1440px'` `:410`）⇒ `'1536px'`；`theme-tokens.css` 生成物同步（`:17`） |
+| **b. 列数** | **视口 `≥1280px` ⇒ `.sf-grid` 6 列**；**`768–1279px` ⇒ 4 列**（不变）；**`<768px` ⇒ 手机档不变**（现 d `2` / n `1`） | **6 列规则落 `frontend/src/styles.css` 顶层 `@media (min-width:1280px)`**（只覆盖 `.sf-grid` 的 `grid-template-columns`；**`shell.css` 不得新增 `@media`**）；4 列 / 手机档沿用 `shell.css:60` / `:200` **一字不动** |
+| **c. 夜档** | **`feed-cols` 夜档 `3 ⇒ 4`**（与日档一致）⇒ 「**列数不进主题层**」 | 真源夜档行改 4 列 + `STRUCT_PROV['feed-cols'].n` **重指新行**；**`STRUCT['feed-cols']` 值不变（`'4'`）** |
+
+**为什么 6 列规则不能进 `shell.css`（硬理由，不是偏好）**：`theme-shell-isomorphism.test.jsx:216-230` 断言 `shell.css` **只有一个 `@media`**（`medias.length === 1`，且必须含 `767px`），并断言宽屏块含 `repeat(var(--sf-st-feed-cols), minmax(0, 1fr))`、手机块含 `repeat(var(--sf-st-feed-cols-m), minmax(0, 1fr))`。把 1280 块塞进 `shell.css` ⇒ **该断言必红**；改断言 = **动冻结面**（判负 #4）。**先例**：§14 桌面 gutter（裁定⑨/⑩，虽已于 v1.9 撤销）当时即裁「断点规则落 `styles.css`、`shell.css` 一字不动」⇒ 本版**同法**。
+
+### 25.2 列数断点表（逐档 · 现取）
+
+| 视口 | 列数 | 生效落点 | 现取状态 |
+|---|---|---|---|
+| `≥1280px` | **6** | `src/styles.css` 顶层 `@media (min-width:1280px){ .sf-grid{ grid-template-columns: repeat(var(--sf-st-feed-cols-xl), minmax(0, 1fr)) } }` | **待实现**（现 = 4 列 ⇒ 本版是**新增一档**） |
+| `768–1279px` | **4** | `shell.css:60`（默认块，`repeat(var(--sf-st-feed-cols), …)`） | **已符合、一字不动**（现取 `@media` 计数 `1`，默认块即宽屏块） |
+| `<768px` | **不变** | `shell.css:200`（唯一 `767` 块，`repeat(var(--sf-st-feed-cols-m), …)`） | **不变**；现 d `2` / n `1` ⇒ **是否也调 `2/2` 待 Kevin**（`OPEN-ITEMS` **`B38`**） |
+
+- **与 36 条首屏整除关系（顺带校验，非新约束）**：`36 % 6 = 0`、`36 % 4 = 0` ⇒ 首屏在 6 列档 = **6 行整**、4 列档 = **9 行整**，**无半行空洞**（`route-layer.spec` §49.8 的 `PAGE_SIZE = 36` 由 §25 反推与此一致）。
+- **`1280` 这个数字不是新造**：§3 已有建议常量 `--sea-bp-pc-side-min: 1280px`（「≥1280 才显示 320px 侧栏」）⇒ 本版**复用同界**，不新增第二个宽屏断点。
+
+### 25.3 夜档列数统一（`3 ⇒ 4`）—— 现状是一处**真矛盾**，本版即修
+
+**现取事实（必须如实记）**：
+
+- `STRUCT['feed-cols'] = '4'`（`tokens.js:411`）是**单一值**，生成物 `theme-tokens.css:18` 只有一份 `--sf-st-feed-cols: 4`（`:root` 内、**日/夜不分支**）⇒ **应用层日档与夜档实际都是 4 列**。
+- 但 `STRUCT_PROV['feed-cols']` 的两档指针**不一致**：`d: [115,'grid-template-columns:repeat(4,minmax(0,1fr))']` / **`n: [291,'grid-template-columns:repeat(3,minmax(0,1fr))']`**（`tokens.js:455`）—— 真源夜档 `style-preview.html:291` 的 `.vstage-b .feed` 写的是 **3 列**。
+- ⇒ **真源夜档（3 列）与值表 / 应用实渲（4 列）不一致**；`EXCLUDED_FROM_THEME` 该行 `why` 早已写明「**栅格列数属断点层（本单要求横竖屏也不得按主题变）**」—— 现盘等于**留着一条反例**。
+
+**本版口径（写死）**：**夜档 = 4 列**（与日档一致）；真源追加块内新写一行 `.vstage-b .feed{grid-template-columns:repeat(4,minmax(0,1fr))}`，`STRUCT_PROV['feed-cols'].n` **重指该新行**；**旧 `:291` 行不删**（历史留痕，且其它键 `feed-gap.n` 仍指 `:291`）。**判负**：夜档任一档位实渲列数 ≠ 日档同日同档位 ⇒ 判负。
+
+### 25.4 落点约束（三条禁令）
+
+1. **`frontend/src/shell/shell.css` 不得新增任何 `@media` 块**（现取 `grep -c '@media' shell.css = 1`，唯一块 = `:185` `@media (max-width: 767px)`）⇒ 6 列规则**只能**落 `src/styles.css`。
+2. **`styles.css` 的 1280 块只许覆盖 `.sf-grid` 的 `grid-template-columns`**（不得顺手改 `gap` / `padding` / `max-width`；容器宽走 token，不在这里硬编码 `1536px`）。
+3. **不得手改 `theme-tokens.css`**（头注「生成物，勿手改」）：必须用既有生成器 `backend-ts/.p4-artifacts/b4c-20260930T210239/gen-theme-css.mjs`，**先跑一次零漂移自证（`cmp = 0`）**再生成。
+
+**顺带现取（省实现方一轮排查）**：`styles.css:69` 的 `@source inline("… md:grid-cols-6 … xl:grid-cols-6 …")` **已把 `grid-cols-6` 系列列入 Tailwind 安全列白名单** ⇒ 若实现选「工具类」路线**无需补 safelist**；但**口径仍以 `var(--sf-st-feed-cols-xl)` 为准**（token 层是唯一真源，直接写 `repeat(6, …)` 会与 `STRUCT_PROV` 溯源门脱钩）。
+
+### 25.5 三件同步链（token / PROV / 生成物 · 缺一即判负）
+
+| 键 | `tokens.js` 现值 | 目标值 | `STRUCT_PROV` 现指 | 目标指针 |
+|---|---|---|---|---|
+| `shell-max-w` | `'1440px'`（`:410`） | **`'1536px'`** | `d/n: [85,'max-width:1440px']`（`:454`） | `d/n: [<新行>,'max-width:1536px']` |
+| `feed-cols` | `'4'`（`:411`） | **`'4'`（值不变）** | `d: [115,'…repeat(4,…)']` / **`n: [291,'…repeat(3,…)']`**（`:455`） | `d` 不变 / **`n: [<新行>,'grid-template-columns:repeat(4,minmax(0,1fr))']`** |
+| **`feed-cols-xl`** | **（无此键）** | **`'6'`（新键）** | — | `d/n: [<新行>,'grid-template-columns:repeat(6,minmax(0,1fr))']` |
+| `feed-cols-m` | `'2'`（`:412`） | `'2'`（不变） | `d: [116,…]` / `n: [328,'…minmax(0,1fr)']`（`:456`） | **不动**（`B38` 待裁） |
+
+**真源追加块（`docs/design/style-preview.html`）要求**（现取 **1172 行 / 102,653 B / md5 `a17919a495f4bd03bdf2434df8013753`**）：
+
+- **尾部纯追加** `<section id="layout-width-ref-v124">`，**必须含三行可回读字面**（`theme-tokens.test.js:132-140` 的 `verify` 机制 = 「按行号取该行原文 + 断言含 needle」）：
+  1. `max-width:1536px`（容器 / 顶栏内层）
+  2. `grid-template-columns:repeat(6,minmax(0,1fr))`（该行须自带 `@media (min-width:1280px)` 语境，可用注释行说明、但 **needle 必须逐字出现**）
+  3. 夜档 `.vstage-b .feed{grid-template-columns:repeat(4,minmax(0,1fr))}`
+- **旧行一律不删**：`:85` `.tb-inner{…max-width:1440px…}`、`:112` `.layout{…max-width:1440px…}`、`:291` `.vstage-b .feed{…repeat(3,…)}` **逐字保留**（历史 + `feed-gap.n` 仍指 `:291`）⇒ 真源 `numstat` **删除列 = 0**。
+- **`theme-tokens.css` 重生成**：预期改动 = `:17` 值 `1440px ⇒ 1536px` + **新增 `--sf-st-feed-cols-xl: 6;`**（`STRUCT` 新增一键 ⇒ 生成物 +1 行）；**不得手改**。
+
+### 25.6 旧条款指针（**涉宽度 / 列数的旧条文一律不删，指针在此**）
+
+| 旧条款 | 现取内容 | 与本版关系 |
+|---|---|---|
+| §22.11 **`Q8`** | 「已裁 = 不动 · `1440px` 保持」（`design-system.spec` 该行） | **已被本节取代**；原行后已追加 **`Q8 ❗ 指针（v1.24）`** 行（**原行一字未删**） |
+| §14 **`T85`** | 悬浮菜单几何（宽 `72` / 单元高 `92` / 图标 `26` / 字号 `12` / 右距 `16` / `top:45%`）+ 六档 × 多页**零横向溢出** | **判据不变、不降级**；容器变宽后**须复跑**六档（`768`/`1024`/`1280`/`1440`/`1600`/`1920`）× 三页 `scrollWidth == clientWidth`（见 §25.7 #7） |
+| §21 **`T106`** | 消息面板几何（`600` / `104` / `704` / `240` / `360`）+ 「零断点值新增」 | **不动**（面板 = `position:fixed` 浮层，与容器最大宽解耦；`≥1280` 时容器 1536 不改变面板宽度） |
+| §24 **`T120`** | 操作栏三段比例口径 | **不动**（与本版无交集） |
+| `EXCLUDED_FROM_THEME` 的 `feed-cols` 行 | `what` = 信息流列数与间距；`why` = 「栅格列数属断点层（横竖屏也不得按主题变）」 | **本版即执行该 `why`**（§25.3 夜档 `3 ⇒ 4`）；登记行**文字不动** |
+| §3 `--sea-bp-pc-side-min` | `1280px`（「≥1280 才显示 320px 侧栏」，册内建议 · 一句话可改） | **同界复用、不冲突**（同一断点：侧栏在 + 6 列） |
+
+### 25.7 判负 / AC（8 条 · 质检必带）
+
+| # | 探针 | 期望 | 判负 |
+|---|---|---|---|
+| 1 | 视口 **1280 / 1440 / 1600 / 1920** 四档取**首页信息流网格节点**的 `grid-template-columns` 计算值（节点 = `.sf-grid`；若实现改为 `[data-sf-m="feed-grid"]` 见 §25.10） | 拆出 **6** 条轨道 | 任一档 ≠ 6 ⇒ **判负** |
+| 2 | 视口 **768 / 1024** 两档 | **4** 条轨道 | ≠ 4 ⇒ 判负（回归） |
+| 3 | 视口 **390 / 375 / 320** 日档 | **2** 条轨道（手机档不变） | ≠ 2 ⇒ 判负 |
+| 4 | **夜档**同档位列数 vs 日档 | **逐档相等**（含 `≥1280` 的 6） | 任一档不等 ⇒ **判负**（列数按主题变 = 违 `EXCLUDED_FROM_THEME` 的 `why`） |
+| 5 | `.sf-route-container` 计算 `max-width`（1440 / 1600 两档） | **`1536px`** | ≠ 1536 ⇒ 判负；`≤767` 仍满宽（原口径不变） |
+| 6 | `grep -c '@media' frontend/src/shell/shell.css` | **`1`**（且仍 = `max-width:767px`） | 出现第 2 个 `@media` ⇒ **判负**（§25.4 禁令 ①） |
+| 7 | 六档（`768`…`1920`）× 三页（`/`、`/item`、`/exchange`） | `scrollWidth == clientWidth`（零横向溢出） | 任一溢出 ⇒ 判负（`T85` 判据不降级） |
+| 8 | `theme-tokens.test.js` 的 PROV 回读 + 生成物一致性 | 全绿；`--sf-st-shell-max-w: 1536px` 与 `--sf-st-feed-cols-xl: 6` 均在 `theme-tokens.css` | PROV 指不到 / 生成物手改 / 键缺失 ⇒ **判负** |
+
+### 25.8 现取自证（编制时点 · 2026-10-19）
+
+| 项 | 读数 |
+|---|---|
+| `STRUCT['shell-max-w']` | `'1440px'`（`tokens.js:410`） |
+| `STRUCT['feed-cols']` / `['feed-cols-m']` | `'4'` / `'2'`（`:411` / `:412`） |
+| `STRUCT_PROV` 三行 | `shell-max-w` `d/n [85,…1440px]` · `feed-cols` `d [115,…4]` / `n [291,…3]` · `feed-cols-m` `d [116,…2]` / `n [328,…1]`（`:454-456`） |
+| 生成物 | `theme-tokens.css:17-19` = `1440px` / `4` / `2`（**日/夜同值、单份**） |
+| `shell.css` 断点 | `@media` **1** 块（`:185` `max-width: 767px`）；宽屏 `.sf-grid` = `shell.css:60`；手机档 = `:200`；`max-width` 仅 `:29` 一处 |
+| `styles.css` | **无** `min-width:1280` 块（本版为新增）；`:69` `@source inline(...)` 已含 `md/lg/xl:grid-cols-6` |
+| 真源 | `style-preview.html` **1172 行 / 102,653 B / md5 `a17919a4…013753`**；`max-width:1440px` 命中 `:85` / `:112`；夜档 3 列 = `:291` |
+| 本笔改动 | 只写 `docs/**` + `ops/feed-6col/SPEC-NOTE.md`；**未动 `frontend/**` / `docs/design/style-preview.html`** |
+
+### 25.9 未做 / 诚实边界
+
+- **本节只冻结契约**：`tokens.js` / `theme-tokens.css` / `style-preview.html` / `styles.css` **本笔零改动**（实现归笔 2，**尚未派单**）；§25.7 的八条 AC **一条未跑**（无浏览器几何读数）。
+- **手机档列数未定**：现 d `2` / n `1`，是否统一 `2/2` ⇒ **待 Kevin**（`OPEN-ITEMS` `B38`）；本版**不动**。
+- **`1536px` 的作用域** = `.sf-route-container`（`shell.css:29`，全站唯一 `max-width` 声明）；若将来出现第二个容器（如后台台面单独定宽）**须另立单**，本节不预设。
+- **6 列在 1280 档的观感未验**：容器 1536 时 `≥1280` 视口下 6 列卡宽 ≈ `(min(视口,1536) − 2×20 − 侧栏/间距) / 6`；**1280 档是否偏窄属观感**，读数由实现单 / 质检单采（本笔不预设「观感合格」）。
+
+### 25.10 ★ 实现面观察与冲突登记（2026-10-19 编制时点现取 · **待 Zang 裁定 · 本笔不改契约**）
+
+**观察到的事实**（工作区未提交面，属**笔 1** 在跑，非本笔写面）：
+
+- 首页商品网格已由 `<div className="sf-grid">` 改为 **`<ResponsiveGrid sm={1} md={2} lg={4} gap={6} data-sf-m="feed-grid">`**（`frontend/src/pages/HomePage.jsx:446` 编制时点现取），并给 `ResponsiveGrid` 补了 `...rest` 透传（`frontend/src/components/ui/Responsive.jsx`）。
+- `ResponsiveGrid` 的档位映射 = **Tailwind 类名**：`grid-cols-{sm}` + `md:`（≥768）+ `lg:`（≥1024）+ `xl:`（**≥1280**）⇒ 若要 6 列，实现路径应是 **`xl={6}`**（`gridClasses` 已含 `6: 'grid-cols-6'`），**而非** `styles.css` 的 `@media (min-width:1280px)` + `var(--sf-st-feed-cols-xl)`。
+- **`.sf-grid` 现取只剩一个消费者** = `frontend/src/pages/ThemePreviewPage.jsx:147`（首页已不用）⇒ **§25.2 那条「6 列规则落 `styles.css` 覆盖 `.sf-grid`」对首页不生效**。
+- 有利现取：`frontend/src/styles.css:69` 的 `@source inline(...)` **已含 `xl:grid-cols-6`** ⇒ 走 `xl={6}` 路线**无需补 safelist**。
+
+**两条对齐路径（不得由实现方自选，须 Zang 裁定）**：
+
+| 路径 | 做法 | 代价 / 风险 |
+|---|---|---|
+| **(A) 回到 token 路径**（本节原文口径） | 首页网格恢复 `.sf-grid`（或 1280 块同时命中 `[data-sf-m="feed-grid"]`）+ `var(--sf-st-feed-cols-xl)` | 与笔 1 已落的分页改造**同批回退网格节点** ⇒ 需重跑首页用例；但 `STRUCT_PROV` 溯源门完整、`xl` 值可回读真源 |
+| **(B) 保留 `ResponsiveGrid` + `xl={6}`** | 只改一行 prop；`styles.css` 不需 1280 块 | **与 `STRUCT_PROV` / token 层脱钩**（列数不再由结构常量驱动）⇒ 若选此路，`feed-cols-xl` 键**不必新增**，且 §25.5 的「三件链」需同步缩为「`shell-max-w` 两件 + 夜档 `feed-cols.n` 重指」；本册须出勘误级追补 |
+
+**本笔处置**：**契约按原文冻结（A 路径为默认）**，同时把冲突**登记在此**（不沉默、不擅自改判）。**质检注意**：§25.7 #1 的探针按「**首页信息流网格实际节点**」取（`.sf-grid` 或 `[data-sf-m="feed-grid"]`），**以计算列数为准**，不以选择器名判负。
