@@ -1,0 +1,68 @@
+{
+  "task": "符号字号 0.6em → 12px（满足可见文本最小字号 ≥12px 硬口径 design §13 / T79 系列）",
+  "date": "2026-10-19",
+  "baseHead": "4db0efa",
+  "change": {
+    "file": "frontend/src/components/reward/reward-card.css",
+    "selector": ".sf-reward-price-cur",
+    "before": "font-size: 0.6em  → computed 10.2px（17 × 0.6），违反可见文本 ≥12px 硬口径",
+    "after": "font-size: 12px（绝对值）",
+    "ratio": "12/17 ≈ 0.71（参考图 0.6 的代价；下限约束的必然结果，规范侧已登记）",
+    "untouched": ["color #FF4D00 (var(--sf-reward-price-fg))", "font-weight 700", "baseline 对齐（父 .sf-reward-price align-items: baseline）", "gap 8", "左对齐 flex-start", "wants 12px #999999", "行高 24", "卡高 392"]
+  },
+  "probe": {
+    "cmd": "node ops/card-rows/price-ref/probe-price-row.mjs",
+    "readings": "ops/card-rows/price-ref/readings/probe-price-row.json",
+    "verdict": "PASS",
+    "passes": 4,
+    "checks": 108,
+    "red": 0,
+    "pageErrors": 0,
+    "matrix": ["1440/light", "1440/dark", "1536/light", "1536/dark"],
+    "metrics": {
+      "curFontSize": "12px",
+      "curFontWeight": "700",
+      "curColor": "rgb(255, 77, 0)",
+      "numFontSize": "17px",
+      "numFontWeight": "700",
+      "numColor": "rgb(255, 77, 0)",
+      "wantsFontSize": "12px",
+      "wantsColor": "rgb(153, 153, 153)",
+      "baselineDiffPx": 0,
+      "rowGap": "8px",
+      "priceLeftGapPx": 12,
+      "wantsGapAfterPricePx": 8,
+      "row3HeightPx": 24,
+      "cardInnerHeightPx": 392,
+      "imageBoxPx": 240,
+      "contentPx": 152,
+      "rowsPx": "48/32/24/48"
+    },
+    "probeEdit": "旧断言 cur-0.6em≈10px-bold 作废，改为 cur-font-size=12px（含 700）＋ cur-font-size≥12px-floor 两条；spec 串同步"
+  },
+  "negativeControl": {
+    "purpose": "自证判据有分辨力（探针 + 单测两层）",
+    "probe": {
+      "action": "CSS 临时改回 0.6em 重跑探针",
+      "observed": "VERDICT=FAIL red=8/108；四相逐条仅这两条红：cur-font-size=12px (10.2px/700×4) 与 cur-font-size≥12px-floor (10.2px×4)",
+      "others": "颜色/基线(=0)/行高 24/gap 8/左对齐 12 全绿 ⇒ 判据不误伤、也不恒红"
+    },
+    "unit": {
+      "action": "CSS 临时改回 0.6em 跑 reward-card-resize.test.jsx",
+      "observed": "1 failed | 26 passed（该断言红）",
+      "restored": true
+    }
+  },
+  "gates": {
+    "frontendBuild": { "cmd": "npm run build (frontend)", "exit": 0, "note": "vite 5.4.20 ✓ built in 1.86s" },
+    "testUnit": { "cmd": "npx vitest run src/test/unit", "files": "62 passed (62)", "tests": "610 passed (610)", "exit": 0 }
+  },
+  "filesTouched": [
+    "frontend/src/components/reward/reward-card.css",
+    "ops/card-rows/price-ref/probe-price-row.mjs",
+    "ops/card-rows/price-ref/readings/probe-price-row.json",
+    "frontend/src/test/unit/reward-card-resize.test.jsx"
+  ],
+  "testFileNote": "src/test/unit/reward-card-resize.test.jsx 原有 `expect(curBlk).toContain('font-size: 0.6em')` 是源码文本锁，不同步则门红；改为 `font-size: 12px` + `not.toMatch(/font-size:\\s*[\\d.]+em/)` + parseFloat ≥ 12（仍是同一契约，且对回退有分辨力）。",
+  "discipline": { "push": false, "docs": "未改 docs/", "scope": "仅本次改动文件" }
+}

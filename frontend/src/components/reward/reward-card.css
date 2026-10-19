@@ -41,7 +41,9 @@
 
 /* 符号槽：必须仍在 <span> 内（r9-93 的 `>$</span>` 计数 = 1）；同色、小号、700 */
 .sf-reward-price-cur {
-  font-size: 0.6em;    /* = 数字的 0.6 倍（17 × 0.6 ≈ 10px）· 零新增字号常量 */
+  /* 绝对值 12px（本站硬口径「可见文本 ≥12px」下限）· 比例 12/17 ≈ 0.71（参考图 0.6 的代价，
+     已登记于规范侧；不得回退到 0.6em=10.2px） */
+  font-size: 12px;
   font-weight: 700;
   color: var(--sf-reward-price-fg);
 }

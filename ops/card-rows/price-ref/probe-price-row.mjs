@@ -227,7 +227,9 @@ async function runPass(browser, { vp, theme }) {
   checks.push(check('num-color=FF4D00', all((c) => c.numColor === RGB_PRICE), col((c) => c.numColor)))
   checks.push(check('num-17px-bold', all((c) => c.numFontSize === '17px' && Number(c.numFontWeight) >= 700), col((c) => `${c.numFontSize}/${c.numFontWeight}`)))
   checks.push(check('cur-same-color-as-num', all((c) => c.curColor === c.numColor && c.curColor === RGB_PRICE), col((c) => c.curColor)))
-  checks.push(check('cur-0.6em≈10px-bold', all((c) => Math.abs(parseFloat(c.curFontSize) - 10) <= 0.4 && Number(c.curFontWeight) >= 700), col((c) => `${c.curFontSize}/${c.curFontWeight}`)))
+  // 符号字号：硬口径「可见文本 ≥12px」⇒ 绝对 12px（参考图 0.6em=10.2px 已废；比例 12/17）
+  checks.push(check('cur-font-size=12px', all((c) => c.curFontSize === '12px' && Number(c.curFontWeight) >= 700), col((c) => `${c.curFontSize}/${c.curFontWeight}`)))
+  checks.push(check('cur-font-size≥12px-floor', all((c) => parseFloat(c.curFontSize) >= 12), col((c) => c.curFontSize)))
   checks.push(check('cur-smaller-than-num', all((c) => parseFloat(c.curFontSize) < parseFloat(c.numFontSize)), col((c) => `${c.curFontSize}<${c.numFontSize}`)))
   checks.push(check('wants-color=999999', all((c) => c.wantsColor === RGB_WANTS), col((c) => c.wantsColor)))
   checks.push(check('wants-12px-400', all((c) => c.wantsFontSize === '12px' && c.wantsFontWeight === '400'), col((c) => `${c.wantsFontSize}/${c.wantsFontWeight}`)))
@@ -259,7 +261,7 @@ const main = async () => {
   const verdict = results.every((r) => r.pass) && errors.length === 0 ? 'PASS' : 'FAIL'
   const out = {
     verdict,
-    spec: 'price row: #FF4D00 700 17px num + same-color 0.6em $ + #999999 12px/400 wants, left-aligned, baseline, row 24 / card 392',
+    spec: 'price row: #FF4D00 700 17px num + same-color 12px/700 $ (floor ≥12px, ref 0.6em retired) + #999999 12px/400 wants, left-aligned, baseline, row 24 / card 392',
     errors,
     env: { base: BASE, viewports: [1440, 1536], themes: ['light', 'dark'], fixtures: FIXTURES.map((f) => ({ bID: f.bID, points: f.points, wants: f.wants })) },
     results,

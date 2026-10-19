@@ -325,7 +325,7 @@ describe('G · 接线面 · reward-card.css 几何常量', () => {
     expect(cardCss).not.toContain('412px')
   })
 
-  it('价格行参考图口径（2026-10-19）：#FF4D00 17px/700 数字 + 同色 0.6em 符号 + #999999 12px/400 wants + 左对齐同基线', () => {
+  it('价格行参考图口径（2026-10-19）：#FF4D00 17px/700 数字 + 同色 12px 符号（≥12 下限）+ #999999 12px/400 wants + 左对齐同基线', () => {
     // ① 局部常量（卡片白底、日/夜同值）——**不进主题 token 层**
     expect(cardCss).toContain('--sf-reward-price-fg: #FF4D00')
     expect(cardCss).toContain('--sf-reward-wants-fg: #999999')
@@ -343,13 +343,16 @@ describe('G · 接线面 · reward-card.css 几何常量', () => {
     expect(row3).toContain('align-items: baseline')
     expect(row3).toContain('justify-content: flex-start')
     expect(row3).not.toContain('space-between')
-    // ③ 字号/字重：数字 17px/700，符号 0.6em/700 同色，wants 12px/400 灰
+    // ③ 字号/字重：数字 17px/700，符号 12px/700 同色（硬口径 ≥12px：参考图 0.6em=10.2px 已废），wants 12px/400 灰
     const numBlk = block('.sf-reward-price-num')
     expect(numBlk).toContain('font-size: 17px')
     expect(numBlk).toContain('font-weight: 700')
     expect(numBlk).toContain('color: var(--sf-reward-price-fg)')
     const curBlk = block('.sf-reward-price-cur')
-    expect(curBlk).toContain('font-size: 0.6em')
+    expect(curBlk).toContain('font-size: 12px')
+    expect(curBlk).not.toMatch(/font-size:\s*[\d.]+em/)
+    const curSize = parseFloat((curBlk.match(/font-size:\s*([\d.]+)px/) || [])[1])
+    expect(curSize).toBeGreaterThanOrEqual(12)
     expect(curBlk).toContain('font-weight: 700')
     expect(curBlk).toContain('color: var(--sf-reward-price-fg)')
     const wantsBlk = block('.sf-reward-card .sf-reward-wants')
