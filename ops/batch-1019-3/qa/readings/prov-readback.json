@@ -1,0 +1,41 @@
+{
+  "at": "2026-10-19T05:42:39.767Z",
+  "checks": [
+    {
+      "name": "shell-max-w d",
+      "line_no": 1180,
+      "snippet": "max-width:1536px",
+      "present": true,
+      "line_trim": "<pre>.tb-inner,.layout{max-width:1536px}</pre>"
+    },
+    {
+      "name": "shell-max-w n",
+      "line_no": 1180,
+      "snippet": "max-width:1536px",
+      "present": true,
+      "line_trim": "<pre>.tb-inner,.layout{max-width:1536px}</pre>"
+    },
+    {
+      "name": "feed-cols d",
+      "line_no": 115,
+      "snippet": "grid-template-columns:repeat(4,minmax(0,1fr))",
+      "present": true,
+      "line_trim": ".feed{display:grid;gap:14px;grid-template-columns:repeat(4,minmax(0,1fr))}"
+    },
+    {
+      "name": "feed-cols n",
+      "line_no": 1182,
+      "snippet": "grid-template-columns:repeat(4,minmax(0,1fr))",
+      "present": true,
+      "line_trim": "<pre>.feed{grid-template-columns:repeat(4,minmax(0,1fr))}</pre>"
+    },
+    {
+      "name": "css shell-max-w",
+      "value": "1536px"
+    },
+    {
+      "name": "css feed-cols",
+      "value": "4"
+    }
+  ]
+}

@@ -1,0 +1,138 @@
+{
+  "task": "batch-1019-3 独立质检：首页分页（82e465e）+ 6 列/容器 1536（10ef6b1）",
+  "qa": "Zang 独立质检（本单不重做 0fe454a 排序基线；只检 82e465e 与 10ef6b1）",
+  "head": "55cce4b",
+  "targets": {
+    "paging": "82e465e",
+    "grid_6col_1536": "10ef6b1"
+  },
+  "env": {
+    "frontend": "vite dev http://localhost:5787（/api 反代 → 5788）",
+    "backend": "http://localhost:5788",
+    "db_project": "quiet-math-65207667",
+    "db_total_listing": 26,
+    "chrome": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+  },
+  "summary": {
+    "PASS": 6,
+    "FAIL": 0,
+    "NOT_MEASURED": 0
+  },
+  "acs": [
+    {
+      "id": "AC1",
+      "name": "分页真生效（真后端 390/1440 + 拦截夹具）",
+      "verdict": "PASS",
+      "reading": "readings/probe-paging.json, readings/probe-paging-retry.json",
+      "checks": {
+        "real_390_1440_first_screen_equals_min36_listed": true,
+        "paged_a_cards_36_72_80_skip_0_36_72": true,
+        "paged_b_overlap_deduped_36_70_80": true,
+        "loading_transient_no_residual": true,
+        "failure_stops_and_retry_reuses_skip": true
+      },
+      "failed_checks": [],
+      "note": "real 两档首屏 9/9 卡 = min(36, listed=9)，无重复 bID，skip 仅 0（StrictMode 双发首条 ERR_ABORTED），到底 feed-end；夹具 A 36→72→80、skip 0→36→72、distinct 80、无残留 loading；夹具 B（第 2 页重叠 2 行）36→70→80（82 交付→80 distinct，去重生效）；slow-600ms 臂 loading 见 8 次采样后清零；retry 臂 500 后停住（2.5s 内 skip=36 仍只 1 次，无自动重试），点重试复用 skip=36 → 72 → 80 到底",
+      "falsifier": "任一站卡数/顺序/去重/终止/残留不符即判负"
+    },
+    {
+      "id": "AC2",
+      "name": "只列 listed（行为变更）",
+      "verdict": "PASS",
+      "reading": "readings/api-db.json",
+      "checks": {
+        "api_bid_set_equals_db_listed": true,
+        "no_draft_delisted_in_api": true,
+        "api_count_equals_listed_count": true,
+        "page2_skip36_empty": true,
+        "home_prizes_all_listed": true,
+        "home_prizes_count_9": true,
+        "detail_draft_ids_still_readable": true,
+        "detail_listed_readable": true
+      },
+      "failed_checks": [],
+      "note": "dev 库 26 行（draft 15 / delisted 2 / listed 9）；/api/prize/all bID 集合 = DB listed 集合 逐项相等（[76,71,24,23,19,18,15,14,13]，missing/extra 皆 ∅）；draft/delisted 泄漏 0；/api/home prizes 9 条全 listed；draft 详情 /api/prize/1、/api/prize/22 仍 200 可读 46 键（getBrandById 未过滤，未被误伤）",
+      "falsifier": "任一 draft/delisted bID 出现在列表读口，或 draft 详情变不可读即判负"
+    },
+    {
+      "id": "AC3",
+      "name": "6 列断点（CSS 驱动）",
+      "verdict": "PASS",
+      "reading": "readings/probe-layout.json",
+      "checks": {
+        "vp390_cols_2": true,
+        "vp1024_cols_4": true,
+        "vp1280_cols_6": true,
+        "vp1440_cols_6": true,
+        "vp1536_cols_6": true,
+        "vp1920_cols_6": true,
+        "day_night_same_cols_every_width": true,
+        "no_page_or_console_errors": true
+      },
+      "failed_checks": [],
+      "note": "computed gridTemplateColumns 轨道数：390=2 / 1024=4 / 1280=6 / 1440=6 / 1536=6 / 1920=6；日/夜两档六宽度逐档相等；网格类 = `sf-grid sf-feed`（HomePage 商品网格不再用 ResponsiveGrid，本文件零 innerWidth/matchMedia 读数）；12 行读数零 pageerror/console error",
+      "falsifier": "任一档列数不符或日/夜列数不一致即判负"
+    },
+    {
+      "id": "AC4",
+      "name": "容器 1536",
+      "verdict": "PASS",
+      "reading": "readings/probe-layout.json, readings/prov-readback.json",
+      "checks": {
+        "container_width_1536_at_1920": true,
+        "container_centered_at_1920": true,
+        "no_horizontal_overflow_all_rows": true,
+        "token_computed_1536px": true,
+        "token_computed_on_1920": true,
+        "css_token_1536px": true
+      },
+      "failed_checks": [],
+      "note": "1920 档 .sf-route-container 实宽 1536、left=192 ⇒ 居中；全 12 行 docScrollWidth−clientWidth=0；`--sf-st-shell-max-w` computed 全档 1536px（CSS 真值 1536px）；PROV 回读 style-preview.html:1180 `max-width:1536px` 命中",
+      "falsifier": "1920 档容器 ≠1536 或溢出 ≠0 或 token ≠1536px 即判负"
+    },
+    {
+      "id": "AC5",
+      "name": "门套",
+      "verdict": "PASS",
+      "reading": "readings/build.log, readings/test-unit.log, readings/tsc-noemit.log, readings/p7b-03.log, readings/p7b-03-offline-gates.json, readings/gates-theme.log, readings/prov-readback.json",
+      "checks": {
+        "frontend_build_exit_0": true,
+        "test_unit_61_files_583_tests": true,
+        "backend_tsc_noemit_exit_0": true,
+        "p7b_03_37_of_37": true,
+        "p7b_ac10_2_regs_110": true,
+        "theme_gates_green": true,
+        "prov_pointer_readback": true,
+        "shell_css_single_767_block": true
+      },
+      "failed_checks": [],
+      "note": "frontend build exit 0（✓ built in 1.81s）；test:unit 61 文件 / 583 例全过（≥61/583）；backend-ts tsc --noEmit exit 0（零诊断）；p7b-03 37/37 regs=110（AC10-2 pass，源文件现取 110 = get49/post57/delete3/patch1）；theme-tokens + theme-shell-isomorphism 2 文件 33 例绿；shell.css @media 仍只 1 块且为 767",
+      "falsifier": "任一门红、例数下降或 regs≠110 即判负"
+    },
+    {
+      "id": "AC6",
+      "name": "回归",
+      "verdict": "PASS",
+      "reading": "readings/api-db.json, readings/probe-routes.json",
+      "checks": {
+        "home_key_set_unchanged": true,
+        "detail_row_keys_46": true,
+        "currencies_2_rows": true,
+        "media_999_404": true,
+        "routes_no_pageerror": true,
+        "routes_render_non_empty": true,
+        "routes_no_overflow": true
+      },
+      "failed_checks": [],
+      "note": "/api/home 载荷键集未变（claimed_prize_ids / is_authenticated / prizes / tasks / user_points）；/api/prize/76 行键 46；/api/currencies 2 行（$ + BTTC）；/api/media/999 = 404；/、/item/1、/task 三页 #root 非空、零 pageerror、零 console error、零横向溢出",
+      "falsifier": "键集变化、行键数变化或页面异常即判负"
+    }
+  ],
+  "ruler_notes": [
+    "派单 AC1 夹具预期「36→72→80 且第 2 页重叠 2 行」在算术上互斥：第 2 页 36 行若含 2 行重复，去重后卡数只能是 36+34=70。故本检跑两套夹具：paged-a（重叠落在第 2↔3 页边界 71,72）命中 AC 字面 36→72→80；paged-b（重叠落在第 1↔2 页边界 35,36）得 36→70→80，用来单独证实「跨页去重」。两臂 skip 序列均 0→36→72、终态 distinct 80（82 交付行 − 2 重复）。",
+    "dev 库 listed 仅 9 行 ⇒ 真网络下第 2 页必空（skip=36 实测 0 行），分页的多页行为只能靠 context.route 夹具取证（已披露，非缺陷）。",
+    "React.StrictMode 令首屏 skip=0 双发（首条 net::ERR_ABORTED），所有臂的 requests 原始序列均含 [0,0]，去重后为 [0]；不影响卡数与游标。",
+    "本轮截图/读数全部在真 vite dev + 真 dev 后端上取；未写库、未改产品代码、未 commit/push。",
+    "5788 现跑代码已含 status='listed' 过滤（/api/prize/all 返回 9 行）⇒ 上一轮「5788 仍是排序版代码」的口径已失效。"
+  ]
+}

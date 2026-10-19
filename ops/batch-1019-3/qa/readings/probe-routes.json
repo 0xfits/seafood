@@ -1,0 +1,37 @@
+{
+  "base": "http://localhost:5787",
+  "at": "2026-10-19T05:40:29.765Z",
+  "chrome": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "rows": [
+    {
+      "route": "/",
+      "status": 200,
+      "rootHtmlLen": 48474,
+      "textLen": 120,
+      "textSample": "Seafood 海鲜市场 社区任务 市场 订单 语言 注册 登录 欢迎来到 Jinli Club 参与任务，赚取$，兑换精彩奖励 立即注册 发布闲置 热门任务 参与任务赚取$ 查看全部 进行中 p4b2:fixture:A 137 $ p4",
+      "docOverflowX": 0,
+      "pageErrors": [],
+      "consoleErrors": []
+    },
+    {
+      "route": "/item/1",
+      "status": 200,
+      "rootHtmlLen": 14537,
+      "textLen": 120,
+      "textSample": "Seafood 海鲜市场 社区任务 市场 订单 语言 注册 登录 $ 137 单价 p4b2c:listing A 物品编号 #1 · - p4b2c desc 库存 - 闲置物品 购买金额由平台统一结算，无需填写价格或收款方。 购买金额以",
+      "docOverflowX": 0,
+      "pageErrors": [],
+      "consoleErrors": []
+    },
+    {
+      "route": "/task",
+      "status": 200,
+      "rootHtmlLen": 109022,
+      "textLen": 120,
+      "textSample": "Seafood 海鲜市场 社区任务 市场 订单 语言 注册 登录 任务中心 参与任务，赚取积分，解锁精彩奖励 发布招工 审核入口 招工列表 45 可参与 0 待领取 0 已完成 0 待验证 可参与 (45) 待领取 (0) 已完成 (0) ",
+      "docOverflowX": 0,
+      "pageErrors": [],
+      "consoleErrors": []
+    }
+  ]
+}

@@ -1,0 +1,635 @@
+{
+  "base": "http://localhost:5787",
+  "at": "2026-10-19T05:40:29.765Z",
+  "chrome": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "arms": [
+    {
+      "arm": "real",
+      "viewport": "390x844",
+      "fixture": false,
+      "first_screen": {
+        "cards": 9,
+        "distinct": 9,
+        "ids": [
+          76,
+          71,
+          24,
+          23,
+          19,
+          18,
+          15,
+          14,
+          13
+        ],
+        "duplicate_ids": [],
+        "sentinel": true,
+        "end": true,
+        "loading": false,
+        "error": false,
+        "retry": false
+      },
+      "requests": {
+        "raw": [
+          {
+            "skip": "0",
+            "limit": "36"
+          },
+          {
+            "skip": "0",
+            "limit": "36"
+          }
+        ],
+        "distinct_skips": [
+          "0"
+        ],
+        "limits": [
+          "36"
+        ],
+        "failed": [
+          {
+            "url": "http://localhost:5787/api/prize/all?skip=0&limit=36",
+            "err": "net::ERR_ABORTED"
+          }
+        ]
+      },
+      "scroll_timeline": [
+        {
+          "step": 0,
+          "cards": 9,
+          "distinct": 9,
+          "loading": false,
+          "end": true,
+          "error": false,
+          "retry": false
+        }
+      ],
+      "final": {
+        "cards": 9,
+        "distinct": 9,
+        "duplicate_ids": [],
+        "end": true,
+        "loading": false,
+        "error": false,
+        "retry": false,
+        "sentinel": true
+      },
+      "pageErrors": [],
+      "consoleErrors": [],
+      "windowErrors": []
+    },
+    {
+      "arm": "paged-a",
+      "viewport": "390x844",
+      "fixture": true,
+      "first_screen": {
+        "cards": 36,
+        "distinct": 36,
+        "ids": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36
+        ],
+        "duplicate_ids": [],
+        "sentinel": true,
+        "end": false,
+        "loading": false,
+        "error": false,
+        "retry": false
+      },
+      "requests": {
+        "raw": [
+          {
+            "skip": "0",
+            "limit": "36"
+          },
+          {
+            "skip": "0",
+            "limit": "36"
+          },
+          {
+            "skip": "36",
+            "limit": "36"
+          },
+          {
+            "skip": "72",
+            "limit": "36"
+          }
+        ],
+        "distinct_skips": [
+          "0",
+          "36",
+          "72"
+        ],
+        "limits": [
+          "36"
+        ],
+        "failed": [
+          {
+            "url": "http://localhost:5787/api/prize/all?skip=0&limit=36",
+            "err": "net::ERR_ABORTED"
+          }
+        ]
+      },
+      "scroll_timeline": [
+        {
+          "step": 0,
+          "cards": 72,
+          "distinct": 72,
+          "loading": false,
+          "end": false,
+          "error": false,
+          "retry": false
+        },
+        {
+          "step": 1,
+          "cards": 80,
+          "distinct": 80,
+          "loading": false,
+          "end": true,
+          "error": false,
+          "retry": false
+        }
+      ],
+      "final": {
+        "cards": 80,
+        "distinct": 80,
+        "duplicate_ids": [],
+        "end": true,
+        "loading": false,
+        "error": false,
+        "retry": false,
+        "sentinel": true
+      },
+      "pageErrors": [],
+      "consoleErrors": [],
+      "windowErrors": []
+    },
+    {
+      "arm": "paged-b",
+      "viewport": "390x844",
+      "fixture": true,
+      "first_screen": {
+        "cards": 36,
+        "distinct": 36,
+        "ids": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36
+        ],
+        "duplicate_ids": [],
+        "sentinel": true,
+        "end": false,
+        "loading": false,
+        "error": false,
+        "retry": false
+      },
+      "requests": {
+        "raw": [
+          {
+            "skip": "0",
+            "limit": "36"
+          },
+          {
+            "skip": "0",
+            "limit": "36"
+          },
+          {
+            "skip": "36",
+            "limit": "36"
+          },
+          {
+            "skip": "72",
+            "limit": "36"
+          }
+        ],
+        "distinct_skips": [
+          "0",
+          "36",
+          "72"
+        ],
+        "limits": [
+          "36"
+        ],
+        "failed": [
+          {
+            "url": "http://localhost:5787/api/prize/all?skip=0&limit=36",
+            "err": "net::ERR_ABORTED"
+          }
+        ]
+      },
+      "scroll_timeline": [
+        {
+          "step": 0,
+          "cards": 70,
+          "distinct": 70,
+          "loading": false,
+          "end": false,
+          "error": false,
+          "retry": false
+        },
+        {
+          "step": 1,
+          "cards": 80,
+          "distinct": 80,
+          "loading": false,
+          "end": true,
+          "error": false,
+          "retry": false
+        }
+      ],
+      "final": {
+        "cards": 80,
+        "distinct": 80,
+        "duplicate_ids": [],
+        "end": true,
+        "loading": false,
+        "error": false,
+        "retry": false,
+        "sentinel": true
+      },
+      "pageErrors": [],
+      "consoleErrors": [],
+      "windowErrors": []
+    },
+    {
+      "arm": "real",
+      "viewport": "1440x900",
+      "fixture": false,
+      "first_screen": {
+        "cards": 9,
+        "distinct": 9,
+        "ids": [
+          76,
+          71,
+          24,
+          23,
+          19,
+          18,
+          15,
+          14,
+          13
+        ],
+        "duplicate_ids": [],
+        "sentinel": true,
+        "end": true,
+        "loading": false,
+        "error": false,
+        "retry": false
+      },
+      "requests": {
+        "raw": [
+          {
+            "skip": "0",
+            "limit": "36"
+          },
+          {
+            "skip": "0",
+            "limit": "36"
+          }
+        ],
+        "distinct_skips": [
+          "0"
+        ],
+        "limits": [
+          "36"
+        ],
+        "failed": [
+          {
+            "url": "http://localhost:5787/api/prize/all?skip=0&limit=36",
+            "err": "net::ERR_ABORTED"
+          }
+        ]
+      },
+      "scroll_timeline": [
+        {
+          "step": 0,
+          "cards": 9,
+          "distinct": 9,
+          "loading": false,
+          "end": true,
+          "error": false,
+          "retry": false
+        }
+      ],
+      "final": {
+        "cards": 9,
+        "distinct": 9,
+        "duplicate_ids": [],
+        "end": true,
+        "loading": false,
+        "error": false,
+        "retry": false,
+        "sentinel": true
+      },
+      "pageErrors": [],
+      "consoleErrors": [],
+      "windowErrors": []
+    },
+    {
+      "arm": "paged-a",
+      "viewport": "1440x900",
+      "fixture": true,
+      "first_screen": {
+        "cards": 36,
+        "distinct": 36,
+        "ids": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36
+        ],
+        "duplicate_ids": [],
+        "sentinel": true,
+        "end": false,
+        "loading": false,
+        "error": false,
+        "retry": false
+      },
+      "requests": {
+        "raw": [
+          {
+            "skip": "0",
+            "limit": "36"
+          },
+          {
+            "skip": "0",
+            "limit": "36"
+          },
+          {
+            "skip": "36",
+            "limit": "36"
+          },
+          {
+            "skip": "72",
+            "limit": "36"
+          }
+        ],
+        "distinct_skips": [
+          "0",
+          "36",
+          "72"
+        ],
+        "limits": [
+          "36"
+        ],
+        "failed": [
+          {
+            "url": "http://localhost:5787/api/prize/all?skip=0&limit=36",
+            "err": "net::ERR_ABORTED"
+          }
+        ]
+      },
+      "scroll_timeline": [
+        {
+          "step": 0,
+          "cards": 72,
+          "distinct": 72,
+          "loading": false,
+          "end": false,
+          "error": false,
+          "retry": false
+        },
+        {
+          "step": 1,
+          "cards": 80,
+          "distinct": 80,
+          "loading": false,
+          "end": true,
+          "error": false,
+          "retry": false
+        }
+      ],
+      "final": {
+        "cards": 80,
+        "distinct": 80,
+        "duplicate_ids": [],
+        "end": true,
+        "loading": false,
+        "error": false,
+        "retry": false,
+        "sentinel": true
+      },
+      "pageErrors": [],
+      "consoleErrors": [],
+      "windowErrors": []
+    },
+    {
+      "arm": "paged-b",
+      "viewport": "1440x900",
+      "fixture": true,
+      "first_screen": {
+        "cards": 36,
+        "distinct": 36,
+        "ids": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36
+        ],
+        "duplicate_ids": [],
+        "sentinel": true,
+        "end": false,
+        "loading": false,
+        "error": false,
+        "retry": false
+      },
+      "requests": {
+        "raw": [
+          {
+            "skip": "0",
+            "limit": "36"
+          },
+          {
+            "skip": "0",
+            "limit": "36"
+          },
+          {
+            "skip": "36",
+            "limit": "36"
+          },
+          {
+            "skip": "72",
+            "limit": "36"
+          }
+        ],
+        "distinct_skips": [
+          "0",
+          "36",
+          "72"
+        ],
+        "limits": [
+          "36"
+        ],
+        "failed": [
+          {
+            "url": "http://localhost:5787/api/prize/all?skip=0&limit=36",
+            "err": "net::ERR_ABORTED"
+          }
+        ]
+      },
+      "scroll_timeline": [
+        {
+          "step": 0,
+          "cards": 70,
+          "distinct": 70,
+          "loading": false,
+          "end": false,
+          "error": false,
+          "retry": false
+        },
+        {
+          "step": 1,
+          "cards": 80,
+          "distinct": 80,
+          "loading": false,
+          "end": true,
+          "error": false,
+          "retry": false
+        }
+      ],
+      "final": {
+        "cards": 80,
+        "distinct": 80,
+        "duplicate_ids": [],
+        "end": true,
+        "loading": false,
+        "error": false,
+        "retry": false,
+        "sentinel": true
+      },
+      "pageErrors": [],
+      "consoleErrors": [],
+      "windowErrors": []
+    }
+  ]
+}

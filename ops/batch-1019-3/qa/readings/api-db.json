@@ -1,0 +1,153 @@
+{
+  "at": "2026-10-19T05:40:35.618Z",
+  "api": "http://localhost:5788",
+  "db_identity": {
+    "project_id": "quiet-math-65207667",
+    "branch_id": "br-soft-lake-b3iv9tli"
+  },
+  "db": {
+    "total": 26,
+    "by_status": {
+      "draft": 15,
+      "delisted": 2,
+      "listed": 9
+    },
+    "listed_ids": [
+      13,
+      14,
+      15,
+      18,
+      19,
+      23,
+      24,
+      71,
+      76
+    ],
+    "non_listed_ids_sample": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "non_listed_count": 17
+  },
+  "prize_all": {
+    "status": 200,
+    "success": true,
+    "count": 9,
+    "bIDs": [
+      76,
+      71,
+      24,
+      23,
+      19,
+      18,
+      15,
+      14,
+      13
+    ],
+    "row_key_count": 45,
+    "set_equals_listed": true,
+    "missing_from_api": [],
+    "extra_in_api": [],
+    "draft_or_delisted_leaked": []
+  },
+  "prize_all_page2": {
+    "status": 200,
+    "count": 0,
+    "bIDs": []
+  },
+  "prize_all_skip8": {
+    "count": 1,
+    "bIDs": [
+      13
+    ]
+  },
+  "home": {
+    "status": 200,
+    "success": true,
+    "payload_keys": [
+      "claimed_prize_ids",
+      "is_authenticated",
+      "prizes",
+      "tasks",
+      "user_points"
+    ],
+    "expected_keys": [
+      "claimed_prize_ids",
+      "is_authenticated",
+      "prizes",
+      "tasks",
+      "user_points"
+    ],
+    "key_set_unchanged": true,
+    "prizes_count": 9,
+    "prizes_bIDs": [
+      76,
+      71,
+      24,
+      23,
+      19,
+      18,
+      15,
+      14,
+      13
+    ],
+    "prizes_all_listed": true,
+    "tasks_count": 6,
+    "is_authenticated": false,
+    "user_points": 0
+  },
+  "detail": {
+    "1": {
+      "db_status": "draft",
+      "status": 200,
+      "success": true,
+      "readable": true,
+      "row_key_count": 46,
+      "has_status_field": false
+    },
+    "22": {
+      "db_status": "draft",
+      "status": 200,
+      "success": true,
+      "readable": true,
+      "row_key_count": 46,
+      "has_status_field": false
+    },
+    "76": {
+      "db_status": "listed",
+      "status": 200,
+      "success": true,
+      "readable": true,
+      "row_key_count": 46,
+      "has_status_field": false
+    }
+  },
+  "currencies": {
+    "status": 200,
+    "rows": [
+      {
+        "cid": "1",
+        "symbol": "$",
+        "name": "平台积分"
+      },
+      {
+        "cid": "399",
+        "symbol": "BTTC",
+        "name": "battcoin"
+      }
+    ],
+    "count": 2
+  },
+  "media_999": {
+    "status": 404,
+    "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"Referenced object not found\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"media\",\"ref_"
+  }
+}

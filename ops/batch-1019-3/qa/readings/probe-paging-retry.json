@@ -1,0 +1,111 @@
+{
+  "at": "2026-10-19T05:42:01.734Z",
+  "base": "http://localhost:5787",
+  "arms": [
+    {
+      "arm": "slow-600ms",
+      "hits": [
+        0,
+        0,
+        36,
+        72
+      ],
+      "loading_samples": 8,
+      "loading_seen_text": [
+        "加载中..."
+      ],
+      "card_progression": [
+        36,
+        72,
+        80
+      ],
+      "final": {
+        "cards": 80,
+        "loading": false,
+        "end": true,
+        "error": false,
+        "retry": false,
+        "sentinel": true,
+        "loadingText": null,
+        "endText": "没有更多数据了"
+      },
+      "residual_loading": false,
+      "pageErrors": []
+    },
+    {
+      "arm": "retry-once",
+      "hits": [
+        {
+          "skip": 0,
+          "t": 1792388532846
+        },
+        {
+          "skip": 0,
+          "t": 1792388532851
+        },
+        {
+          "skip": 36,
+          "t": 1792388534777
+        },
+        {
+          "skip": 36,
+          "t": 1792388537511
+        },
+        {
+          "skip": 72,
+          "t": 1792388538419
+        }
+      ],
+      "distinct_skips": [
+        0,
+        36,
+        72
+      ],
+      "skip36_before_retry": 1,
+      "skip36_after_idle_wait": 1,
+      "auto_retry_observed": false,
+      "after_fail": {
+        "cards": 36,
+        "loading": false,
+        "end": false,
+        "error": true,
+        "retry": true,
+        "sentinel": true,
+        "loadingText": null,
+        "endText": null
+      },
+      "idle_after_2_5s": {
+        "cards": 36,
+        "loading": false,
+        "end": false,
+        "error": true,
+        "retry": true,
+        "sentinel": true,
+        "loadingText": null,
+        "endText": null
+      },
+      "after_retry_click": {
+        "cards": 72,
+        "loading": false,
+        "end": false,
+        "error": false,
+        "retry": false,
+        "sentinel": true,
+        "loadingText": null,
+        "endText": null
+      },
+      "retryButtonText": null,
+      "final": {
+        "cards": 80,
+        "loading": false,
+        "end": true,
+        "error": false,
+        "retry": false,
+        "sentinel": true,
+        "loadingText": null,
+        "endText": "没有更多数据了"
+      },
+      "pageErrors": []
+    }
+  ]
+}
