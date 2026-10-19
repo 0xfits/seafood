@@ -1,0 +1,170 @@
+[
+ {
+  "vw": 1440,
+  "theme": "light",
+  "pageerrors": [],
+  "consoleErrors": [],
+  "m": {
+   "cards": 7,
+   "cardHeights": [
+    392,
+    392,
+    392,
+    392,
+    392,
+    392,
+    392
+   ],
+   "sample": [
+    {
+     "rowH": 24,
+     "num": {
+      "text": "2",
+      "size": "17px",
+      "weight": "700",
+      "color": "rgb(255, 77, 0)"
+     },
+     "cur": {
+      "text": "$",
+      "size": "12px",
+      "color": "rgb(255, 77, 0)"
+     },
+     "wants": {
+      "text": "0人想要",
+      "size": "12px",
+      "color": "rgb(153, 153, 153)"
+     },
+     "baselineDelta": 0,
+     "rowJustify": "flex-start"
+    },
+    {
+     "rowH": 24,
+     "num": {
+      "text": "2",
+      "size": "17px",
+      "weight": "700",
+      "color": "rgb(255, 77, 0)"
+     },
+     "cur": {
+      "text": "$",
+      "size": "12px",
+      "color": "rgb(255, 77, 0)"
+     },
+     "wants": {
+      "text": "0人想要",
+      "size": "12px",
+      "color": "rgb(153, 153, 153)"
+     },
+     "baselineDelta": 0,
+     "rowJustify": "flex-start"
+    },
+    {
+     "rowH": 24,
+     "num": {
+      "text": "2",
+      "size": "17px",
+      "weight": "700",
+      "color": "rgb(255, 77, 0)"
+     },
+     "cur": {
+      "text": "$",
+      "size": "12px",
+      "color": "rgb(255, 77, 0)"
+     },
+     "wants": {
+      "text": "0人想要",
+      "size": "12px",
+      "color": "rgb(153, 153, 153)"
+     },
+     "baselineDelta": 0,
+     "rowJustify": "flex-start"
+    }
+   ],
+   "overflow": 0
+  }
+ },
+ {
+  "vw": 1536,
+  "theme": "dark",
+  "pageerrors": [],
+  "consoleErrors": [],
+  "m": {
+   "cards": 7,
+   "cardHeights": [
+    392,
+    392,
+    392,
+    392,
+    392,
+    392,
+    392
+   ],
+   "sample": [
+    {
+     "rowH": 24,
+     "num": {
+      "text": "2",
+      "size": "17px",
+      "weight": "700",
+      "color": "rgb(255, 77, 0)"
+     },
+     "cur": {
+      "text": "$",
+      "size": "12px",
+      "color": "rgb(255, 77, 0)"
+     },
+     "wants": {
+      "text": "0人想要",
+      "size": "12px",
+      "color": "rgb(153, 153, 153)"
+     },
+     "baselineDelta": 0,
+     "rowJustify": "flex-start"
+    },
+    {
+     "rowH": 24,
+     "num": {
+      "text": "2",
+      "size": "17px",
+      "weight": "700",
+      "color": "rgb(255, 77, 0)"
+     },
+     "cur": {
+      "text": "$",
+      "size": "12px",
+      "color": "rgb(255, 77, 0)"
+     },
+     "wants": {
+      "text": "0人想要",
+      "size": "12px",
+      "color": "rgb(153, 153, 153)"
+     },
+     "baselineDelta": 0,
+     "rowJustify": "flex-start"
+    },
+    {
+     "rowH": 24,
+     "num": {
+      "text": "2",
+      "size": "17px",
+      "weight": "700",
+      "color": "rgb(255, 77, 0)"
+     },
+     "cur": {
+      "text": "$",
+      "size": "12px",
+      "color": "rgb(255, 77, 0)"
+     },
+     "wants": {
+      "text": "0人想要",
+      "size": "12px",
+      "color": "rgb(153, 153, 153)"
+     },
+     "baselineDelta": 0,
+     "rowJustify": "flex-start"
+    }
+   ],
+   "overflow": 0
+  }
+ }
+]

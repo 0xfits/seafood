@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- 站点图标 · 真源：frontend/public/brand/favicon.svg · sha256 4dc72e7793a117b6a28bc92aaf2d9a66373e187eb2cc6109e07c1df3c08bffb9 · R-9-46
+         （旧引用 /vite.svg 指向不存在的 frontend/public/vite.svg，已清除） -->
+    <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/brand/favicon-32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/brand/apple-touch-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- 主题档 ↔ color-scheme（[2026-10-11 · Kevin 口径] 补声明；此前全仓 0 处 ⇒ 真机日档被 UA「强制深色」压暗/去饱和）。
+         本 meta = 首帧告知 UA「本页支持 浅/深 两档」；随档真值同步在 src/styles.css 的
+         `html { color-scheme: light }` / `html[data-theme="dark"] { color-scheme: dark }` 两条规则。 -->
+    <meta name="color-scheme" content="light dark" />
+    <!-- 主题首帧初始化（React 渲染之前 · 2026-10-12 单「首次访问跟随系统」）：
+         ① 用户显式选过（localStorage['theme'] ∈ {dark,light}）⇒ 沿用存储（既有口径不变）；
+         ② 否则跟随系统 prefers-color-scheme（dark ⇒ 夜档，其余 ⇒ 日档），结果**不落盘** ——
+            localStorage['theme'] 保持为空，只有用户显式切换（ThemeProvider/Header 主题钮）才写入；
+         ③ matchMedia 不可用或抛错 ⇒ 回退日档（light，= DEFAULT_THEME 语义）。
+         本脚本是全仓**唯一**允许做系统档判定的地方（src/theme/**、src/shell/** 由
+         theme-shell-isomorphism.test.jsx 的同构断言拦截 matchMedia/innerWidth）。 -->
+    <script>
+      (function () {
+        var saved = null
+        try { saved = window.localStorage ? window.localStorage.getItem('theme') : null } catch (e) { saved = null }
+        var mode
+        if (saved === 'dark' || saved === 'light') {
+          mode = saved
+        } else {
+          try {
+            mode = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light'
+          } catch (e) {
+            mode = 'light'
+          }
+        }
+        document.documentElement.setAttribute('data-theme', mode)
+      })()
+    </script>
+    <!-- 回退标题（中性占位）：仅用于 i18n 启动前 / 无 JS / 爬虫抓取；真源是 src/locales/*.json 的
+         siteTitle（仅品牌名）+ siteSlogan，运行时由 App.jsx 的 DocumentTitle 按「覆盖值 > locale」组合为
+         「品牌名｜标语」立即覆盖（P9① · R-9-10④ / R-9-13-3） -->
+    <title>Seafood</title>
+    <!-- 样式：Tailwind v4 改为**构建期**编译（见 src/styles.css 的 `@import "tailwindcss"`；
+         运行期 CDN `cdn.tailwindcss.com` 已移除，原因见 docs/audit/p6-fe-perf.md） -->
+    <!-- Font Awesome CDN -->
+    <link id="fa-css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Google Fonts：Crimson Text / EB Garamond / Noto Sans / LXGW WenKai（霞鹜文楷） -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=LXGW+WenKai&display=swap" rel="stylesheet">
+    <!-- Montserrat for badge-gift text -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- jsDelivr 预连接，用作字体回退源 -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
+    <!-- Smiley Sans 样式引用（稳定 npm 包路径） -->
+    <link href="https://cdn.jsdelivr.net/npm/font-smiley-sans@1.0.0/style.min.css" rel="stylesheet">
+    <script>
+      // 简单的字体加载监测与回退逻辑：若在限定时间内未检测到 LXGW WenKai 可用，则注入 jsDelivr 的 WebFont 样式
+      // 说明：
+      // 1) 使用 Font Loading API 的 document.fonts.check 检测字体是否可用；
+      // 2) 若不可用，则追加一个 link 指向 jsDelivr 的 WebFont CSS 包；
+      // 3) 该包会声明 @font-face 并提供多种格式，提升加载成功率。
+      (function(){
+        function ensureLXGW(){
+          var isSupported = false;
+          try {
+            // 检测字体是否可用（若系统或 GoogleFonts 已加载，会返回 true）
+            isSupported = document.fonts && document.fonts.check && document.fonts.check('16px "LXGW WenKai"');
+          } catch(e) {
+            isSupported = false;
+          }
+
+          if (!isSupported) {
+            // 注入 jsDelivr 的 WebFont 样式（npm 包方式），作为回退
+            var fallback = document.createElement('link');
+            fallback.rel = 'stylesheet';
+            fallback.href = 'https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@latest/style.css';
+            document.head.appendChild(fallback);
+          }
+        }
+
+        function ensureSmiley(){
+          var ok = false;
+          try {
+            ok = document.fonts && document.fonts.check && document.fonts.check('16px "Smiley Sans"');
+          } catch(e) {
+            ok = false;
+          }
+          if (!ok) {
+            var link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://cdn.jsdelivr.net/npm/font-smiley-sans@1.0.0/style.min.css';
+            document.head.appendChild(link);
+          }
+        }
+
+        // 等待一段时间让 Google Fonts 先尝试加载，再进行检测
+        window.addEventListener('load', function(){
+          setTimeout(function(){ ensureLXGW(); ensureSmiley(); }, 1800);
+        });
+      })();
+    </script>
+    <!-- 备用方案 -->
+    <script>
+      // 如果CDN加载失败，使用备选方案，并且为CSS引入追加时间戳以避免缓存
+      window.addEventListener('DOMContentLoaded', function() {
+        // 为 Font Awesome 样式追加时间戳参数，避免缓存
+        try {
+          var linkEl = document.getElementById('fa-css');
+          if (linkEl && linkEl.href) {
+            var url = new URL(linkEl.href);
+            url.searchParams.set('ts', Date.now().toString());
+            linkEl.href = url.toString();
+          }
+        } catch (e) {
+          console.warn('追加时间戳到字体样式失败：', e);
+        }
+
+        if (typeof window.FontAwesome === 'undefined') {
+          console.warn('Font Awesome CDN加载失败，尝试使用本地版本');
+          // TODO: 可添加本地回退方案，例如 /public/font-awesome.min.css
+        }
+      });
+    </script>
+    <!-- Tailwind 自定义色（原运行期 `tailwind.config` 六项）已于 P6-FE-PERF 逐项迁到
+         src/styles.css 的 `@theme` 块（构建期生效，v4 CSS-first） -->
+    <script type="module" crossorigin src="/assets/index-KeEbxjcR.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/vendor-AmHF8z37.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-react-CZtNYldG.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-router-DiMdLYdS.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-ui-0RVkXCeF.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-i18n-Dv2xmCnL.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-CheJaC-a.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
