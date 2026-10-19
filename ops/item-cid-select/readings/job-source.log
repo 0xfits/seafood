@@ -1,0 +1,41 @@
+# job-source.log · 2026-10-19T00:58:15Z · 发布任务页币种下拉 · 源码级读数
+
+## 1) grep -rn 'jobs-input-cid' frontend/src （全仓）
+frontend/src/test/unit/publish-job-cid-select.test.jsx:5: *   ① 渲染 `select[data-sf-m="jobs-select-cid"]`，且 `[data-sf-m="jobs-input-cid"]` **计数 = 0**；
+frontend/src/test/unit/publish-job-cid-select.test.jsx:57:const cidInputs = (container) => container.querySelectorAll('[data-sf-m="jobs-input-cid"]')
+frontend/src/test/unit/publish-job-cid-select.test.jsx:82:  it('① 渲染 `select[data-sf-m="jobs-select-cid"]`，且 `jobs-input-cid` 计数 = 0', async () => {
+frontend/src/test/unit/publish-job-cid-select.test.jsx:92:    expect(container.querySelector('input[inputmode="numeric"][data-sf-m="jobs-input-cid"]')).toBeNull()
+frontend/src/pages/jobs/PublishJobPage.jsx:13:// 币种：下拉选择（读口 `GET /api/currencies`，公开只读，仅 `status='listed'`）；旧手填 `jobs-input-cid` 已下线。
+
+— 其中「非注释、非测试」命中数 = 0（expect 0）
+— 说明：命中仅剩 ① PublishJobPage.jsx:13 注释（历史钩子名，说明已下线）② 新单测内的负断言选择器。产品代码 data-sf-m 属性命中 = 0。
+
+## 2) 新钩子 jobs-select-cid 命中（产品代码 expect 1）
+frontend/src/pages/jobs/PublishJobPage.jsx:159:                <select className="sf-jobs-input" data-sf-m="jobs-select-cid" value={form.cid} onChange={setField('cid')} required>
+产品代码命中数 = 1
+
+## 3) fetchCurrencies 定义（jobs 线独立包装，不跨线 import）
+frontend/src/pages/jobs/job-api.js:58:export const fetchCurrencies = (user) => getJson('/api/currencies', user)
+frontend/src/pages/jobs/PublishJobPage.jsx:6:import { createJobPublishTracker, fetchCurrencies, jobPublishFingerprint, publishJob } from './job-api'
+frontend/src/pages/jobs/PublishJobPage.jsx:40:    fetchCurrencies(user)
+跨线 import（jobs 引用 item-api）命中 = 0
+
+## 4) 四语 jobs.cid / jobs.cidNote 值与键数
+zh: top=128 flat=1106 item=49 jobs=45 | jobs.cid="币种" | jobs.cidNote="请从下拉框选择悬赏币种" | item.cid="币种" | item.cidNote="请从下拉框选择计价币种"
+hk: top=128 flat=1106 item=49 jobs=45 | jobs.cid="幣種" | jobs.cidNote="請從下拉框選擇幣種。" | item.cid="幣種" | item.cidNote="請從下拉框選擇幣種。"
+en: top=128 flat=1106 item=49 jobs=45 | jobs.cid="Currency" | jobs.cidNote="Select the currency from the dropdown." | item.cid="Currency" | item.cidNote="Select the currency from the dropdown."
+vn: top=128 flat=1106 item=49 jobs=45 | jobs.cid="Tiền tệ" | jobs.cidNote="Chọn tiền tệ từ danh sách." | item.cid="Tiền tệ" | item.cidNote="Chọn tiền tệ từ danh sách."
+
+## 5) 黑名单自查（新值）
+jobs.cid/cidNote 四语 × 二键 = 8 节点，黑名单命中 = 0
+
+## 6) 后端零改动自证
+git status --porcelain backend-ts/ => []
+注册点计数 = 108（expect 108）
+
+## 7) 构建产物名（新产物）
+dist/assets/index-DnoMyxQu.css         123.50 kB │ gzip:  22.74 kB
+dist/assets/index-BREoUqs6.js          450.99 kB │ gzip: 133.17 kB
+（改前基线产物 = ops/item-cid-select/readings/build.log 内的 index-*）
+dist/assets/index-DnoMyxQu.css         123.50 kB │ gzip:  22.74 kB
+dist/assets/index-CfFASwXH.js          450.43 kB │ gzip: 133.09 kB

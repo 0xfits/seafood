@@ -1,23 +1,67 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
-import { createJobPublishTracker, jobPublishFingerprint, publishJob } from './job-api'
+import { createJobPublishTracker, fetchCurrencies, jobPublishFingerprint, publishJob } from './job-api'
 import './jobs.css'
 
 // 招工线 · 发布招工（§4.2 J1 · POST /api/job = **已注册**：backend-ts/src/index.ts:1314）
 // 幂等键：**前端提供** `cli:` 键（服务端 fail-loud，缺键 ⇒ 400 LEDGER_IDEMPOTENCY_KEY_REQUIRED，
 //   真源 backend-ts/src/job-funds-service.ts:84）。同一次操作重试 ⇒ tracker 复用同一个键。
 // 金额口径：`reward` = A 类「供给侧自主出价」（§4.8.1）⇒ 客户端可传、原样透传（路由层零计算）。
-// 币种：`cid` 手填（平台 $ = 1）—— **币种读口未注册**（已注册表内无 GET /api/currency*）⇒ 不作为读面依赖，登记见报告。
+// 币种：下拉选择（读口 `GET /api/currencies`，公开只读，仅 `status='listed'`）；旧手填 `jobs-input-cid` 已下线。
+//   显示文本 = `${symbol}${name ? ' · ' + name : ''}`（**不显示编号**）；默认 `'1'`（平台 $，与旧默认一致）。
+//   加载失败 / 空列表 ⇒ **回退仅 $（cid 1）一项**，表单照常可提交（不白屏、不禁用提交、零新增文案键）。
+const DEFAULT_CID = '1'
+
+/** 回退选项（接口失败 / 空列表时唯一可用项）：平台 `$`，`cid = 1`，无 name。 */
+const FALLBACK_CURRENCIES = [{ cid: 1, symbol: '$', name: '' }]
+
+/** 币种选项显示文本：`symbol · name`；**不显示编号**（`cid` 只作 value）。 */
+const currencyLabel = (row) => {
+  const symbol = String(row?.symbol ?? '')
+  const name = typeof row?.name === 'string' ? row.name : ''
+  return `${symbol}${name ? ` · ${name}` : ''}`
+}
+
 const PublishJobPage = () => {
   const { t } = useTranslation()
   const location = useLocation()
   const { isAuthenticated, user } = useAuth()
-  const [form, setForm] = useState({ cid: '1', reward: '', headcount: '1', title: '', description: '' })
+  const [form, setForm] = useState({ cid: DEFAULT_CID, reward: '', headcount: '1', title: '', description: '' })
   const [state, setState] = useState({ phase: 'idle', message: '' })
+  const [currencies, setCurrencies] = useState(FALLBACK_CURRENCIES)
   const tracker = useMemo(() => createJobPublishTracker(), [])
+
+  // 币种选项：挂载时取一次（公开读口 ⇒ 无 token 也返回）。任一路失败都**回退 $**、绝不拦提交。
+  useEffect(() => {
+    let cancelled = false
+    fetchCurrencies(user)
+      .then((rows) => {
+        if (cancelled) return
+        const list = Array.isArray(rows)
+          ? rows.filter((row) => row && row.cid !== undefined && row.cid !== null && String(row.cid) !== '')
+          : []
+        if (!list.length) {
+          setCurrencies(FALLBACK_CURRENCIES)
+          return
+        }
+        setCurrencies(list)
+        // 默认值不在返回列表里 ⇒ 选第一项（否则 select 会停在空值、提交 `Number('')` = 0）。
+        setForm((prev) => (
+          list.some((row) => String(row.cid) === String(prev.cid))
+            ? prev
+            : { ...prev, cid: String(list[0].cid) }
+        ))
+      })
+      .catch(() => {
+        if (!cancelled) setCurrencies(FALLBACK_CURRENCIES)
+      })
+    return () => { cancelled = true }
+    // 刻意只跑一次（挂载时）：选项来源是公开只读面，不随登录态变化而重取。
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   // ★ S18（本单）：审核入口改「**已登录即可见**」，与 `/task/review`（S17a）同口径。
   //   S16 后端已把待审队列读口准入放宽为「admin（持 `review_tasks`）∨ 已登录」（非 admin 只返回其
   //   `job.employer_uid` 命中的 pending 提交；过滤唯一真源 = 后端 `resolveReviewQueueScope`）⇒
@@ -112,7 +156,11 @@ const PublishJobPage = () => {
               </label>
               <label className="sf-jobs-field">
                 <span className="sf-jobs-label">{t('jobs.cid')}</span>
-                <input className="sf-jobs-input" data-sf-m="jobs-input-cid" value={form.cid} onChange={setField('cid')} inputMode="numeric" required />
+                <select className="sf-jobs-input" data-sf-m="jobs-select-cid" value={form.cid} onChange={setField('cid')} required>
+                  {currencies.map((row) => (
+                    <option key={String(row.cid)} value={String(row.cid)}>{currencyLabel(row)}</option>
+                  ))}
+                </select>
               </label>
               <label className="sf-jobs-field sf-jobs-field-wide">
                 <span className="sf-jobs-label">{t('jobs.description')}</span>

@@ -50,6 +50,14 @@ export const fetchPendingVerification = (user) => getJson('/api/tasklist/pending
 export const fetchUserAsset = (uID, user) => getJson(`/api/user/asset/${uID}`, user)
 
 /**
+ * 币种列表（**公开只读** · `GET /api/currencies`）。**无鉴权闸**（未登录也返回 200）⇒ 发布页
+ * 首屏即可渲染选项，不必等登录态。返回 = 行数组，行键集冻结 = **恰三键** `cid` / `symbol` / `name`
+ * （只含 `status='listed'`，按 `cid` 升序；后台字段不外泄）。**读面无键面**（无幂等键）。
+ * ★ 与 `pages/item/item-api.js` 的同名读口**各自包装同一条路径**（两条线不跨线 import）。
+ */
+export const fetchCurrencies = (user) => getJson('/api/currencies', user)
+
+/**
  * ★S7 该任务逐条提交读口（`GET /api/job/:jobId/submissions`，**已注册** `backend-ts/src/index.ts:2483`；S6 入库）。
  * 准入 = **发布者本人 ∨ 持 `review_tasks`**（复用既有 `requireJobOwnerOrAdmin` 归属闸）⇒ 非本人且无权限 **403 AUTH_FORBIDDEN**；
  * 无 token 401；任务不存在 / 非数字 **404**。`data` = 逐条 **9 键**
