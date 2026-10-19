@@ -442,8 +442,13 @@ const HomePage = () => {
 
             {filteredRewards.length > 0 ? (
               <StaggerContainer>
-                {/* 首屏 / 已加载商品容器（受测钩子 `feed-grid`；卡数 = 子节点卡数） */}
-                <ResponsiveGrid sm={1} md={2} lg={4} gap={6} data-sf-m="feed-grid">
+                {/* 首屏 / 已加载商品容器（受测钩子 `feed-grid`；卡数 = 子节点卡数）
+                    ★ T121（design v1.24 §25）：列数**只由 CSS 断点决定**，禁 JS 宽度读数
+                      （`ResponsiveGrid` 走 `window.innerWidth` ⇒ 不用于本网格）。
+                      基础 768–1279 = 4 列（`--sf-st-feed-cols`，shell.css `.sf-grid`）；
+                      ≥1280 = 6 列（styles.css 顶层 `@media (min-width:1280px)` 覆盖 `.sf-feed`）；
+                      ≤767 = 2 列（`.sf-grid` 唯一 767 断点块，`--sf-st-feed-cols-m`）。 */}
+                <div className="sf-grid sf-feed" data-sf-m="feed-grid">
                   {filteredRewards.map((reward, index) => (
                     // 36+ 条时不再逐条累加延迟（原 `index*100` 到第 36 条要等 3.5s 才显形）
                     <FadeIn key={reward.bID} delay={Math.min(index, 8) * 100}>
@@ -457,7 +462,7 @@ const HomePage = () => {
                       />
                     </FadeIn>
                   ))}
-                </ResponsiveGrid>
+                </div>
               </StaggerContainer>
             ) : feedError ? (
               <Card variant="inactive">

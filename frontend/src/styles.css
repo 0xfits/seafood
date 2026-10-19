@@ -13,6 +13,19 @@
 @import './theme/theme-tokens.css';
 @import './shell/shell.css';
 
+/* ===== T121（design-system.spec v1.24 §25）· 首页商品网格 ≥1280px = 6 列 =====
+   Kevin 定稿：「web 版每行 6 条商品（原 4 条）」；容器最大宽 1536px（token `--sf-st-shell-max-w`）。
+   落点 = 本文件**顶层**（@import 段之后、@theme 之外；不入 @layer）—— 依据：shell.css 挂「唯一 767 断点块」硬断言
+   （`theme-shell-isomorphism.test.jsx`：`@media` 恰 1 个且必须含 767px），第二块塞进去必红。
+   先例：§14 桌面 gutter 同法（断点规则落 styles.css、shell.css 一字不动）。
+   ★ 只覆盖 `grid-template-columns`，不动 gap / padding，也不在此硬编码容器宽（容器宽走 token）。
+   ★ 无 JS 宽度读数：列数只由本断点 + shell.css 的基础 4 列（`--sf-st-feed-cols`）/ 767 块的 2 列决定。 */
+@media (min-width: 1280px) {
+  .sf-feed {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
 /* ===== T95（design-system.spec v1.15 §19）· 详情页隐藏底栏 =====
    机制 = DOM 恒在 + 页面级 display:none（否决 DOM 移除，保住「同构 ⇒ DOM 恒在」硬核）。
    状态挂点 = shell/BottomTabBar.jsx（已有 useLocation；只做路由串匹配，无宽度判定）⇒ 命中详情路由时挂 is-detail。

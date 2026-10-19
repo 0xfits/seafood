@@ -407,7 +407,9 @@ export const STRUCT = {
   'radius-badge': '6px',
   'radius-tag': '5px',
   'radius-fab': '14px',
-  'shell-max-w': '1440px',
+  // T121（v1.24 §25 · Kevin 定稿）：容器最大宽 1440 ⇒ 1536（1500 非标准宽度，退出候选）。
+  // 真源回读 = style-preview.html:1180（尾部纯追加段，旧行 :85/:112 的 1440px 逐字保留为历史）。
+  'shell-max-w': '1536px',
   'feed-cols': '4',
   'feed-cols-m': '2',
   'feed-gap': '16px',
@@ -451,8 +453,8 @@ export const STRUCT_PROV = {
   'radius-badge': { d: [120, 'border-radius:6px'], n: [295, 'border-radius:2px'] },
   'radius-tag': { d: [131, 'border-radius:5px'], n: [303, 'border-radius:2px'] },
   'radius-fab': { d: [173, 'border-radius:14px'], n: [339, 'border-radius:2px'] },
-  'shell-max-w': { d: [85, 'max-width:1440px'], n: [85, 'max-width:1440px'] },
-  'feed-cols': { d: [115, 'grid-template-columns:repeat(4,minmax(0,1fr))'], n: [291, 'grid-template-columns:repeat(3,minmax(0,1fr))'] },
+  'shell-max-w': { d: [1180, 'max-width:1536px'], n: [1180, 'max-width:1536px'] },
+  'feed-cols': { d: [115, 'grid-template-columns:repeat(4,minmax(0,1fr))'], n: [1182, 'grid-template-columns:repeat(4,minmax(0,1fr))'] },
   'feed-cols-m': { d: [116, 'grid-template-columns:repeat(2,minmax(0,1fr))'], n: [328, 'grid-template-columns:minmax(0,1fr)'] },
   'feed-gap': { d: [218, 'gap:16px'], n: [291, 'gap:13px'] },
   'feed-gap-m': { d: [116, 'gap:9px'], n: [328, 'gap:8px'] },

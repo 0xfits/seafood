@@ -1170,3 +1170,17 @@ body.view-mobile .frame.pc{display:none}
   </div>
   <p style="margin:10px 0 0">形态口径（逐条见 <code>docs/design/design-system.spec.md</code> <code>T120</code> / §24）：三段结构 = 组合条 2 段（聊一聊 <b>58%</b> / 立即购买 <b>42%</b>）+ 留白 + 独立收藏；两端半圆、<b>中缝直角</b>；<b>两档几何逐值相等</b>（颜色以外不进主题层）。</p>
 </section>
+<!-- ===== JING-SPEC-FEED-6COL · T121（design-system.spec v1.24 §25）· 纯追加登记 =====
+     只追加本段，旧行（:85 / :112 的 1440px、:291 的 夜档 3 列）逐字保留 ⇒ 真源 numstat 删除列 = 0。
+     取值口径：容器最大宽 1536px（Kevin 定稿：1500 非标准宽度 ⇒ 取 1536）；信息流 ≥1280px 六列；
+     夜档 feed 列数与日档统一为 4（原 3 列系历史保留行，不再作为应用值）。 -->
+<section id="layout-width-ref-v124">
+  <h3>容器最大宽与信息流列数（结构常量 · 日/夜同值 · T121）</h3>
+  <p>容器（<code>.tb-inner</code> / <code>.layout</code>）最大宽 —— 结构常量 <code>shell-max-w</code>，日档 / 夜档同值：</p>
+  <pre>.tb-inner,.layout{max-width:1536px}</pre>
+  <p>信息流栅格基础档（768–1279px）= 4 列；夜档同档位已统一为 4 列（原 3 列历史行保留于 :291，不作应用值）：</p>
+  <pre>.feed{grid-template-columns:repeat(4,minmax(0,1fr))}</pre>
+  <p>宽屏档（≥1280px）= 6 列；规则落 <code>frontend/src/styles.css</code> 顶层 <code>@media (min-width:1280px)</code>，<code>shell.css</code> 不新增断点块：</p>
+  <pre>@media (min-width:1280px){.sf-feed{grid-template-columns:repeat(6,minmax(0,1fr))}}</pre>
+  <p>手机竖屏档（≤767px）= 2 列（不变，<code>feed-cols-m</code>；夜档是否统一 2/2 见 OPEN-ITEMS <code>B38</code>）。</p>
+</section>
