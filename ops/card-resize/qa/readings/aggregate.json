@@ -1,0 +1,1453 @@
+{
+  "generatedAt": "2026-10-19T07:31:06.079Z",
+  "head": "d37a813",
+  "total": 171,
+  "failedCount": 0,
+  "checks": [
+    {
+      "id": "fixture-w1440.cardCount=4",
+      "pass": true,
+      "got": 4,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.A有图.cardH=412",
+      "pass": true,
+      "got": 412,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.A有图.innerH=412",
+      "pass": true,
+      "got": 412,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.A有图.sellerH=48",
+      "pass": true,
+      "got": 48,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.A有图.mediaH=240",
+      "pass": true,
+      "got": 240,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.A有图.mediaW=卡内宽",
+      "pass": true,
+      "got": {
+        "mediaW": 207.33,
+        "innerClientW": 207,
+        "cardW": 209.33,
+        "borderX": 2
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.A有图.innerW自洽(卡宽-边框=内宽)",
+      "pass": true,
+      "got": {
+        "cardW": 209.33,
+        "borderX": 2,
+        "innerClientW": 207
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.A有图.fit=cover",
+      "pass": true,
+      "got": "cover",
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.A有图.imgLoaded",
+      "pass": true,
+      "got": {
+        "complete": true,
+        "naturalWidth": 612,
+        "fit": "cover"
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.A有图.blobPresent",
+      "pass": true,
+      "got": true,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.A有图.sellerW=卡内宽",
+      "pass": true,
+      "got": {
+        "sellerW": 207.33,
+        "innerClientW": 207
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.B无图(占位).cardH=412",
+      "pass": true,
+      "got": 412,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.B无图(占位).innerH=412",
+      "pass": true,
+      "got": 412,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.B无图(占位).sellerH=48",
+      "pass": true,
+      "got": 48,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.B无图(占位).mediaH=240",
+      "pass": true,
+      "got": 240,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.B无图(占位).mediaW=卡内宽",
+      "pass": true,
+      "got": {
+        "mediaW": 207.33,
+        "innerClientW": 207,
+        "cardW": 209.33,
+        "borderX": 2
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.B无图(占位).innerW自洽(卡宽-边框=内宽)",
+      "pass": true,
+      "got": {
+        "cardW": 209.33,
+        "borderX": 2,
+        "innerClientW": 207
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.B无图(占位).fit=cover",
+      "pass": true,
+      "got": "cover",
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.B无图(占位).imgLoaded",
+      "pass": true,
+      "got": {
+        "complete": true,
+        "naturalWidth": 320,
+        "fit": "cover"
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.B无图(占位).blobPresent",
+      "pass": true,
+      "got": true,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.B无图(占位).sellerW=卡内宽",
+      "pass": true,
+      "got": {
+        "sellerW": 207.33,
+        "innerClientW": 207
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.C长标题60字.cardH=412",
+      "pass": true,
+      "got": 412,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.C长标题60字.innerH=412",
+      "pass": true,
+      "got": 412,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.C长标题60字.sellerH=48",
+      "pass": true,
+      "got": 48,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.C长标题60字.mediaH=240",
+      "pass": true,
+      "got": 240,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.C长标题60字.mediaW=卡内宽",
+      "pass": true,
+      "got": {
+        "mediaW": 207.33,
+        "innerClientW": 207,
+        "cardW": 209.33,
+        "borderX": 2
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.C长标题60字.innerW自洽(卡宽-边框=内宽)",
+      "pass": true,
+      "got": {
+        "cardW": 209.33,
+        "borderX": 2,
+        "innerClientW": 207
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.C长标题60字.fit=cover",
+      "pass": true,
+      "got": "cover",
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.C长标题60字.imgLoaded",
+      "pass": true,
+      "got": {
+        "complete": true,
+        "naturalWidth": 612,
+        "fit": "cover"
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.C长标题60字.blobPresent",
+      "pass": true,
+      "got": true,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.C长标题60字.sellerW=卡内宽",
+      "pass": true,
+      "got": {
+        "sellerW": 207.33,
+        "innerClientW": 207
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.D无描述.cardH=412",
+      "pass": true,
+      "got": 412,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.D无描述.innerH=412",
+      "pass": true,
+      "got": 412,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.D无描述.sellerH=48",
+      "pass": true,
+      "got": 48,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.D无描述.mediaH=240",
+      "pass": true,
+      "got": 240,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.D无描述.mediaW=卡内宽",
+      "pass": true,
+      "got": {
+        "mediaW": 207.34,
+        "innerClientW": 207,
+        "cardW": 209.34,
+        "borderX": 2
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.D无描述.innerW自洽(卡宽-边框=内宽)",
+      "pass": true,
+      "got": {
+        "cardW": 209.34,
+        "borderX": 2,
+        "innerClientW": 207
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.D无描述.fit=cover",
+      "pass": true,
+      "got": "cover",
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.D无描述.imgLoaded",
+      "pass": true,
+      "got": {
+        "complete": true,
+        "naturalWidth": 612,
+        "fit": "cover"
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.D无描述.blobPresent",
+      "pass": true,
+      "got": true,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.D无描述.sellerW=卡内宽",
+      "pass": true,
+      "got": {
+        "sellerW": 207.34,
+        "innerClientW": 207
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.cardCount=4",
+      "pass": true,
+      "got": 4,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.A有图.cardH=412",
+      "pass": true,
+      "got": 412,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.A有图.innerH=412",
+      "pass": true,
+      "got": 412,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.A有图.sellerH=48",
+      "pass": true,
+      "got": 48,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.A有图.mediaH=240",
+      "pass": true,
+      "got": 240,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.A有图.mediaW=卡内宽",
+      "pass": true,
+      "got": {
+        "mediaW": 223.33,
+        "innerClientW": 223,
+        "cardW": 225.33,
+        "borderX": 2
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.A有图.innerW自洽(卡宽-边框=内宽)",
+      "pass": true,
+      "got": {
+        "cardW": 225.33,
+        "borderX": 2,
+        "innerClientW": 223
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.A有图.fit=cover",
+      "pass": true,
+      "got": "cover",
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.A有图.imgLoaded",
+      "pass": true,
+      "got": {
+        "complete": true,
+        "naturalWidth": 612,
+        "fit": "cover"
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.A有图.blobPresent",
+      "pass": true,
+      "got": true,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.A有图.sellerW=卡内宽",
+      "pass": true,
+      "got": {
+        "sellerW": 223.33,
+        "innerClientW": 223
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.B无图(占位).cardH=412",
+      "pass": true,
+      "got": 412,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.B无图(占位).innerH=412",
+      "pass": true,
+      "got": 412,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.B无图(占位).sellerH=48",
+      "pass": true,
+      "got": 48,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.B无图(占位).mediaH=240",
+      "pass": true,
+      "got": 240,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.B无图(占位).mediaW=卡内宽",
+      "pass": true,
+      "got": {
+        "mediaW": 223.33,
+        "innerClientW": 223,
+        "cardW": 225.33,
+        "borderX": 2
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.B无图(占位).innerW自洽(卡宽-边框=内宽)",
+      "pass": true,
+      "got": {
+        "cardW": 225.33,
+        "borderX": 2,
+        "innerClientW": 223
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.B无图(占位).fit=cover",
+      "pass": true,
+      "got": "cover",
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.B无图(占位).imgLoaded",
+      "pass": true,
+      "got": {
+        "complete": true,
+        "naturalWidth": 320,
+        "fit": "cover"
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.B无图(占位).blobPresent",
+      "pass": true,
+      "got": true,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.B无图(占位).sellerW=卡内宽",
+      "pass": true,
+      "got": {
+        "sellerW": 223.33,
+        "innerClientW": 223
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.C长标题60字.cardH=412",
+      "pass": true,
+      "got": 412,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.C长标题60字.innerH=412",
+      "pass": true,
+      "got": 412,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.C长标题60字.sellerH=48",
+      "pass": true,
+      "got": 48,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.C长标题60字.mediaH=240",
+      "pass": true,
+      "got": 240,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.C长标题60字.mediaW=卡内宽",
+      "pass": true,
+      "got": {
+        "mediaW": 223.33,
+        "innerClientW": 223,
+        "cardW": 225.33,
+        "borderX": 2
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.C长标题60字.innerW自洽(卡宽-边框=内宽)",
+      "pass": true,
+      "got": {
+        "cardW": 225.33,
+        "borderX": 2,
+        "innerClientW": 223
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.C长标题60字.fit=cover",
+      "pass": true,
+      "got": "cover",
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.C长标题60字.imgLoaded",
+      "pass": true,
+      "got": {
+        "complete": true,
+        "naturalWidth": 612,
+        "fit": "cover"
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.C长标题60字.blobPresent",
+      "pass": true,
+      "got": true,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.C长标题60字.sellerW=卡内宽",
+      "pass": true,
+      "got": {
+        "sellerW": 223.33,
+        "innerClientW": 223
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.D无描述.cardH=412",
+      "pass": true,
+      "got": 412,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.D无描述.innerH=412",
+      "pass": true,
+      "got": 412,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.D无描述.sellerH=48",
+      "pass": true,
+      "got": 48,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.D无描述.mediaH=240",
+      "pass": true,
+      "got": 240,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.D无描述.mediaW=卡内宽",
+      "pass": true,
+      "got": {
+        "mediaW": 223.34,
+        "innerClientW": 223,
+        "cardW": 225.34,
+        "borderX": 2
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.D无描述.innerW自洽(卡宽-边框=内宽)",
+      "pass": true,
+      "got": {
+        "cardW": 225.34,
+        "borderX": 2,
+        "innerClientW": 223
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.D无描述.fit=cover",
+      "pass": true,
+      "got": "cover",
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.D无描述.imgLoaded",
+      "pass": true,
+      "got": {
+        "complete": true,
+        "naturalWidth": 612,
+        "fit": "cover"
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.D无描述.blobPresent",
+      "pass": true,
+      "got": true,
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.D无描述.sellerW=卡内宽",
+      "pass": true,
+      "got": {
+        "sellerW": 223.34,
+        "innerClientW": 223
+      },
+      "note": ""
+    },
+    {
+      "id": "combo.C.titleLen60",
+      "pass": true,
+      "got": 60,
+      "note": ""
+    },
+    {
+      "id": "combo.D.noDesc",
+      "pass": true,
+      "got": false,
+      "note": ""
+    },
+    {
+      "id": "combo.A.shortTitle",
+      "pass": true,
+      "got": "罗技 G Pro X 无线耳机 白色",
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.giftIcons=0",
+      "pass": true,
+      "got": {
+        "grid": 0,
+        "perCard": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.removedTexts=0",
+      "pass": true,
+      "got": [
+        {
+          "t": "库存不足",
+          "n": 0
+        },
+        {
+          "t": "可兑换",
+          "n": 0
+        },
+        {
+          "t": "已兑换",
+          "n": 0
+        },
+        {
+          "t": "人已领取",
+          "n": 0
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "fixture-w1440.blob每卡在场",
+      "pass": true,
+      "got": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.giftIcons=0",
+      "pass": true,
+      "got": {
+        "grid": 0,
+        "perCard": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.removedTexts=0",
+      "pass": true,
+      "got": [
+        {
+          "t": "库存不足",
+          "n": 0
+        },
+        {
+          "t": "可兑换",
+          "n": 0
+        },
+        {
+          "t": "已兑换",
+          "n": 0
+        },
+        {
+          "t": "人已领取",
+          "n": 0
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "fixture-w1536.blob每卡在场",
+      "pass": true,
+      "got": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "note": ""
+    },
+    {
+      "id": "realfeed-w1440.giftIcons=0",
+      "pass": true,
+      "got": {
+        "grid": 0,
+        "perCard": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "note": ""
+    },
+    {
+      "id": "realfeed-w1440.removedTexts=0",
+      "pass": true,
+      "got": [
+        {
+          "t": "库存不足",
+          "n": 0
+        },
+        {
+          "t": "可兑换",
+          "n": 0
+        },
+        {
+          "t": "已兑换",
+          "n": 0
+        },
+        {
+          "t": "人已领取",
+          "n": 0
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "realfeed-w1440.blob每卡在场",
+      "pass": true,
+      "got": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "note": ""
+    },
+    {
+      "id": "realfeed-w390.giftIcons=0",
+      "pass": true,
+      "got": {
+        "grid": 0,
+        "perCard": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "note": ""
+    },
+    {
+      "id": "realfeed-w390.removedTexts=0",
+      "pass": true,
+      "got": [
+        {
+          "t": "库存不足",
+          "n": 0
+        },
+        {
+          "t": "可兑换",
+          "n": 0
+        },
+        {
+          "t": "已兑换",
+          "n": 0
+        },
+        {
+          "t": "人已领取",
+          "n": 0
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "realfeed-w390.blob每卡在场",
+      "pass": true,
+      "got": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "note": ""
+    },
+    {
+      "id": "realfeed.card0.sellerH=48",
+      "pass": true,
+      "got": 48,
+      "note": ""
+    },
+    {
+      "id": "realfeed.card0.maskFormat",
+      "pass": true,
+      "got": "0x59**b0",
+      "note": ""
+    },
+    {
+      "id": "realfeed.card0.avatar占位(灰底首字符)",
+      "pass": true,
+      "got": {
+        "text": "0",
+        "bg": "rgb(238, 240, 242)",
+        "hasImg": false
+      },
+      "note": ""
+    },
+    {
+      "id": "realfeed.card0.tier=new文案",
+      "pass": true,
+      "got": "新卖家",
+      "note": ""
+    },
+    {
+      "id": "realfeed.card1.sellerH=48",
+      "pass": true,
+      "got": 48,
+      "note": ""
+    },
+    {
+      "id": "realfeed.card1.maskFormat",
+      "pass": true,
+      "got": "0x37**b9",
+      "note": ""
+    },
+    {
+      "id": "realfeed.card1.avatar占位(灰底首字符)",
+      "pass": true,
+      "got": {
+        "text": "0",
+        "bg": "rgb(238, 240, 242)",
+        "hasImg": false
+      },
+      "note": ""
+    },
+    {
+      "id": "realfeed.card1.tier=new文案",
+      "pass": true,
+      "got": "新卖家",
+      "note": ""
+    },
+    {
+      "id": "realfeed.card2.sellerH=48",
+      "pass": true,
+      "got": 48,
+      "note": ""
+    },
+    {
+      "id": "realfeed.card2.maskFormat",
+      "pass": true,
+      "got": "0x11**5a",
+      "note": ""
+    },
+    {
+      "id": "realfeed.card2.avatar占位(灰底首字符)",
+      "pass": true,
+      "got": {
+        "text": "0",
+        "bg": "rgb(238, 240, 242)",
+        "hasImg": false
+      },
+      "note": ""
+    },
+    {
+      "id": "realfeed.card2.tier=new文案",
+      "pass": true,
+      "got": "新卖家",
+      "note": ""
+    },
+    {
+      "id": "realfeed.card3.sellerH=48",
+      "pass": true,
+      "got": 48,
+      "note": ""
+    },
+    {
+      "id": "realfeed.card3.maskFormat",
+      "pass": true,
+      "got": "0x64**72",
+      "note": ""
+    },
+    {
+      "id": "realfeed.card3.avatar占位(灰底首字符)",
+      "pass": true,
+      "got": {
+        "text": "0",
+        "bg": "rgb(238, 240, 242)",
+        "hasImg": false
+      },
+      "note": ""
+    },
+    {
+      "id": "realfeed.card3.tier=new文案",
+      "pass": true,
+      "got": "新卖家",
+      "note": ""
+    },
+    {
+      "id": "realfeed.card4.sellerH=48",
+      "pass": true,
+      "got": 48,
+      "note": ""
+    },
+    {
+      "id": "realfeed.card4.maskFormat",
+      "pass": true,
+      "got": "0x99**74",
+      "note": ""
+    },
+    {
+      "id": "realfeed.card4.avatar占位(灰底首字符)",
+      "pass": true,
+      "got": {
+        "text": "0",
+        "bg": "rgb(238, 240, 242)",
+        "hasImg": false
+      },
+      "note": ""
+    },
+    {
+      "id": "realfeed.card4.tier=new文案",
+      "pass": true,
+      "got": "新卖家",
+      "note": ""
+    },
+    {
+      "id": "realfeed.card5.sellerH=48",
+      "pass": true,
+      "got": 48,
+      "note": ""
+    },
+    {
+      "id": "realfeed.card5.maskFormat",
+      "pass": true,
+      "got": "0x97**00",
+      "note": ""
+    },
+    {
+      "id": "realfeed.card5.avatar占位(灰底首字符)",
+      "pass": true,
+      "got": {
+        "text": "0",
+        "bg": "rgb(238, 240, 242)",
+        "hasImg": false
+      },
+      "note": ""
+    },
+    {
+      "id": "realfeed.card5.tier=new文案",
+      "pass": true,
+      "got": "新卖家",
+      "note": ""
+    },
+    {
+      "id": "realfeed.card6.sellerH=48",
+      "pass": true,
+      "got": 48,
+      "note": ""
+    },
+    {
+      "id": "realfeed.card6.maskFormat",
+      "pass": true,
+      "got": "0xe4**6b",
+      "note": ""
+    },
+    {
+      "id": "realfeed.card6.avatar占位(灰底首字符)",
+      "pass": true,
+      "got": {
+        "text": "0",
+        "bg": "rgb(238, 240, 242)",
+        "hasImg": false
+      },
+      "note": ""
+    },
+    {
+      "id": "realfeed.card6.tier=new文案",
+      "pass": true,
+      "got": "新卖家",
+      "note": ""
+    },
+    {
+      "id": "realfeed.card7.sellerH=48",
+      "pass": true,
+      "got": 48,
+      "note": ""
+    },
+    {
+      "id": "realfeed.card7.maskFormat",
+      "pass": true,
+      "got": "0xe4**6b",
+      "note": ""
+    },
+    {
+      "id": "realfeed.card7.avatar占位(灰底首字符)",
+      "pass": true,
+      "got": {
+        "text": "0",
+        "bg": "rgb(238, 240, 242)",
+        "hasImg": false
+      },
+      "note": ""
+    },
+    {
+      "id": "realfeed.card7.tier=new文案",
+      "pass": true,
+      "got": "新卖家",
+      "note": ""
+    },
+    {
+      "id": "realfeed.card8.sellerH=48",
+      "pass": true,
+      "got": 48,
+      "note": ""
+    },
+    {
+      "id": "realfeed.card8.maskFormat",
+      "pass": true,
+      "got": "0xe4**6b",
+      "note": ""
+    },
+    {
+      "id": "realfeed.card8.avatar占位(灰底首字符)",
+      "pass": true,
+      "got": {
+        "text": "0",
+        "bg": "rgb(238, 240, 242)",
+        "hasImg": false
+      },
+      "note": ""
+    },
+    {
+      "id": "realfeed.card8.tier=new文案",
+      "pass": true,
+      "got": "新卖家",
+      "note": ""
+    },
+    {
+      "id": "mask.0x59**b0=单源重算一致且不含全址",
+      "pass": true,
+      "got": {
+        "nick": "0x59**b0",
+        "evmCount": 1,
+        "evmSample": "0x59f9f640…"
+      },
+      "note": ""
+    },
+    {
+      "id": "mask.0x37**b9=单源重算一致且不含全址",
+      "pass": true,
+      "got": {
+        "nick": "0x37**b9",
+        "evmCount": 1,
+        "evmSample": "0x374876ef…"
+      },
+      "note": ""
+    },
+    {
+      "id": "mask.0x11**5a=单源重算一致且不含全址",
+      "pass": true,
+      "got": {
+        "nick": "0x11**5a",
+        "evmCount": 1,
+        "evmSample": "0x114ea6e1…"
+      },
+      "note": ""
+    },
+    {
+      "id": "mask.0x64**72=单源重算一致且不含全址",
+      "pass": true,
+      "got": {
+        "nick": "0x64**72",
+        "evmCount": 1,
+        "evmSample": "0x6483e239…"
+      },
+      "note": ""
+    },
+    {
+      "id": "mask.0x99**74=单源重算一致且不含全址",
+      "pass": true,
+      "got": {
+        "nick": "0x99**74",
+        "evmCount": 1,
+        "evmSample": "0x99a7ae98…"
+      },
+      "note": ""
+    },
+    {
+      "id": "mask.0x97**00=单源重算一致且不含全址",
+      "pass": true,
+      "got": {
+        "nick": "0x97**00",
+        "evmCount": 4,
+        "evmSample": "0x97000200…"
+      },
+      "note": ""
+    },
+    {
+      "id": "mask.0xe4**6b=单源重算一致且不含全址",
+      "pass": true,
+      "got": {
+        "nick": "0xe4**6b",
+        "evmCount": 1,
+        "evmSample": "0xe4b8e611…"
+      },
+      "note": ""
+    },
+    {
+      "id": "mask.feed昵称集非空",
+      "pass": true,
+      "got": [
+        "0x59**b0",
+        "0x37**b9",
+        "0x11**5a",
+        "0x64**72",
+        "0x99**74",
+        "0x97**00",
+        "0xe4**6b"
+      ],
+      "note": ""
+    },
+    {
+      "id": "credit.插行前全 new",
+      "pass": true,
+      "got": "realfeed 插行前档分布",
+      "note": ""
+    },
+    {
+      "id": "credit.插行计数0→1→0",
+      "pass": true,
+      "got": {
+        "before": 0,
+        "mid": 1,
+        "after": 0
+      },
+      "note": ""
+    },
+    {
+      "id": "credit.触发器恒O",
+      "pass": true,
+      "got": {
+        "before": "O",
+        "mid": "O",
+        "after": "O"
+      },
+      "note": ""
+    },
+    {
+      "id": "credit.API.excellent",
+      "pass": true,
+      "got": [
+        {
+          "bID": 76,
+          "credit": "excellent",
+          "nickname": "0x59**b0"
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "credit.其余仍new",
+      "pass": true,
+      "got": [
+        "new"
+      ],
+      "note": ""
+    },
+    {
+      "id": "credit.页面.卖家信用优秀",
+      "pass": true,
+      "got": "卖家信用优秀",
+      "note": ""
+    },
+    {
+      "id": "credit.页面.其余新卖家",
+      "pass": true,
+      "got": [
+        "卖家信用优秀",
+        "新卖家",
+        "新卖家",
+        "新卖家",
+        "新卖家",
+        "新卖家",
+        "新卖家",
+        "新卖家",
+        "新卖家"
+      ],
+      "note": ""
+    },
+    {
+      "id": "dev.prizeAll.行键46",
+      "pass": true,
+      "got": 46,
+      "note": ""
+    },
+    {
+      "id": "dev.prizeAll.seller四键",
+      "pass": true,
+      "got": {
+        "uid": 970213,
+        "nickname": "0x59**b0",
+        "avatar": null,
+        "credit": "new"
+      },
+      "note": ""
+    },
+    {
+      "id": "dev.prize1.顶层46",
+      "pass": true,
+      "got": 46,
+      "note": ""
+    },
+    {
+      "id": "dev.prize1.seller.credit在场",
+      "pass": true,
+      "got": {
+        "uid": 970101,
+        "nickname": "0x97**00",
+        "avatar": null,
+        "credit": "new"
+      },
+      "note": ""
+    },
+    {
+      "id": "prod.prizeAll.行键45(未push旧版)",
+      "pass": true,
+      "got": 45,
+      "note": ""
+    },
+    {
+      "id": "prod.prize1.seller无credit(未push旧版)",
+      "pass": true,
+      "got": {
+        "uid": 100,
+        "nickname": "0x59f9…09b0",
+        "avatar": null
+      },
+      "note": ""
+    },
+    {
+      "id": "item1.渲染(rootLen>0)",
+      "pass": true,
+      "got": 14537,
+      "note": ""
+    },
+    {
+      "id": "item1.零未捕获异常",
+      "pass": true,
+      "got": [],
+      "note": ""
+    },
+    {
+      "id": "w390.零横向溢出",
+      "pass": true,
+      "got": 0,
+      "note": ""
+    },
+    {
+      "id": "w390.卡高412",
+      "pass": true,
+      "got": [
+        412,
+        412,
+        412,
+        412,
+        412,
+        412,
+        412,
+        412,
+        412
+      ],
+      "note": ""
+    },
+    {
+      "id": "w390.零未捕获异常",
+      "pass": true,
+      "got": [],
+      "note": ""
+    },
+    {
+      "id": "reg.currencies=2行",
+      "pass": true,
+      "got": [
+        "$",
+        "BTTC"
+      ],
+      "note": ""
+    },
+    {
+      "id": "reg.media999=404",
+      "pass": true,
+      "got": 404,
+      "note": ""
+    },
+    {
+      "id": "gate.build.exit0+✓built",
+      "pass": true,
+      "got": "✓ built in 1.87s | BUILD_EXIT=0",
+      "note": ""
+    },
+    {
+      "id": "gate.testUnit.62文件/598例",
+      "pass": true,
+      "got": {
+        "files": "62",
+        "tests": "598"
+      },
+      "note": ""
+    },
+    {
+      "id": "gate.backendTsc.exit0",
+      "pass": true,
+      "got": " | TSC_EXIT=0",
+      "note": ""
+    },
+    {
+      "id": "gate.p7b03.37/37",
+      "pass": true,
+      "got": {
+        "total": 37,
+        "passed": 37,
+        "failed": 0,
+        "red": []
+      },
+      "note": ""
+    },
+    {
+      "id": "gate.regs=110",
+      "pass": true,
+      "got": 110,
+      "note": ""
+    },
+    {
+      "id": "schema.dev顶0052",
+      "pass": true,
+      "got": {
+        "top": "0052",
+        "project": "quiet-math-65207667"
+      },
+      "note": ""
+    },
+    {
+      "id": "schema.prod顶0052",
+      "pass": true,
+      "got": {
+        "top": "0052",
+        "project": "sweet-pond-28934105"
+      },
+      "note": ""
+    },
+    {
+      "id": "prodUI.旧版特征(gift>0/高不一)=未push预期",
+      "pass": true,
+      "got": {
+        "cards": 7,
+        "gift": 14,
+        "heights": [
+          374,
+          374,
+          412,
+          412,
+          412,
+          432,
+          374
+        ]
+      },
+      "note": ""
+    },
+    {
+      "id": "prodUI.零未捕获异常",
+      "pass": true,
+      "got": [],
+      "note": ""
+    },
+    {
+      "id": "prodUI.渲染(rootLen>0)",
+      "pass": true,
+      "got": 40256,
+      "note": ""
+    }
+  ]
+}

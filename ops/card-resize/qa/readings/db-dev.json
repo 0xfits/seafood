@@ -1,0 +1,158 @@
+{
+  "project_id": "quiet-math-65207667",
+  "schema_top": "0052",
+  "schema_rows": 51,
+  "avatar_url_col": 1,
+  "rating_count": 0,
+  "rating_trigger": "O",
+  "rating_qa_rows": 0,
+  "listings": [
+    {
+      "id": "76",
+      "seller": "970213",
+      "status": "listed"
+    },
+    {
+      "id": "71",
+      "seller": "971214",
+      "status": "listed"
+    },
+    {
+      "id": "24",
+      "seller": "910001",
+      "status": "listed"
+    },
+    {
+      "id": "23",
+      "seller": "900001",
+      "status": "listed"
+    },
+    {
+      "id": "22",
+      "seller": "1",
+      "status": "draft"
+    },
+    {
+      "id": "21",
+      "seller": "1",
+      "status": "draft"
+    },
+    {
+      "id": "20",
+      "seller": "1",
+      "status": "draft"
+    },
+    {
+      "id": "19",
+      "seller": "1",
+      "status": "listed"
+    },
+    {
+      "id": "18",
+      "seller": "970001",
+      "status": "listed"
+    },
+    {
+      "id": "17",
+      "seller": "970001",
+      "status": "draft"
+    },
+    {
+      "id": "16",
+      "seller": "970001",
+      "status": "delisted"
+    },
+    {
+      "id": "15",
+      "seller": "7",
+      "status": "listed"
+    },
+    {
+      "id": "14",
+      "seller": "7",
+      "status": "listed"
+    },
+    {
+      "id": "13",
+      "seller": "7",
+      "status": "listed"
+    },
+    {
+      "id": "12",
+      "seller": "970101",
+      "status": "draft"
+    },
+    {
+      "id": "11",
+      "seller": "970101",
+      "status": "draft"
+    },
+    {
+      "id": "10",
+      "seller": "970101",
+      "status": "draft"
+    },
+    {
+      "id": "9",
+      "seller": "970101",
+      "status": "draft"
+    },
+    {
+      "id": "8",
+      "seller": "970101",
+      "status": "draft"
+    },
+    {
+      "id": "7",
+      "seller": "970101",
+      "status": "delisted"
+    },
+    {
+      "id": "6",
+      "seller": "970101",
+      "status": "draft"
+    },
+    {
+      "id": "5",
+      "seller": "970101",
+      "status": "draft"
+    },
+    {
+      "id": "4",
+      "seller": "970101",
+      "status": "draft"
+    },
+    {
+      "id": "3",
+      "seller": "970101",
+      "status": "draft"
+    },
+    {
+      "id": "2",
+      "seller": "970101",
+      "status": "draft"
+    },
+    {
+      "id": "1",
+      "seller": "970101",
+      "status": "draft"
+    }
+  ],
+  "users_sample": [
+    {
+      "v": "971223"
+    },
+    {
+      "v": "971222"
+    },
+    {
+      "v": "971221"
+    },
+    {
+      "v": "971220"
+    },
+    {
+      "v": "971219"
+    }
+  ]
+}

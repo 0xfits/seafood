@@ -1,0 +1,1197 @@
+{
+  "generatedAt": "2026-10-19T07:30:07.524Z",
+  "head": "d37a813",
+  "fixture": {
+    "combos": [
+      "with-image",
+      "no-image",
+      "long-title-60",
+      "no-description"
+    ]
+  },
+  "views": {
+    "fixture-w1440": {
+      "href": "http://localhost:5787/",
+      "cardCount": 4,
+      "cards": [
+        {
+          "cardH": 412,
+          "cardW": 209.33,
+          "innerH": 412,
+          "innerClientW": 207,
+          "innerBorderX": 2,
+          "media": {
+            "h": 240,
+            "w": 207.33
+          },
+          "img": {
+            "complete": true,
+            "naturalWidth": 612,
+            "fit": "cover"
+          },
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "nickname": "0x59**b0",
+          "tierText": "新卖家",
+          "avatar": {
+            "text": "0",
+            "bg": "rgb(238, 240, 242)",
+            "hasImg": false
+          },
+          "giftIcons": 0,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [],
+          "title": "罗技 G Pro X 无线耳机 白色",
+          "descPresent": true
+        },
+        {
+          "cardH": 412,
+          "cardW": 209.33,
+          "innerH": 412,
+          "innerClientW": 207,
+          "innerBorderX": 2,
+          "media": {
+            "h": 240,
+            "w": 207.33
+          },
+          "img": {
+            "complete": true,
+            "naturalWidth": 320,
+            "fit": "cover"
+          },
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "nickname": "0x59**b0",
+          "tierText": "新卖家",
+          "avatar": {
+            "text": "0",
+            "bg": "rgb(238, 240, 242)",
+            "hasImg": false
+          },
+          "giftIcons": 0,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [],
+          "title": "宜家马克杯 两只装 蓝白花纹",
+          "descPresent": true
+        },
+        {
+          "cardH": 412,
+          "cardW": 209.33,
+          "innerH": 412,
+          "innerClientW": 207,
+          "innerBorderX": 2,
+          "media": {
+            "h": 240,
+            "w": 207.33
+          },
+          "img": {
+            "complete": true,
+            "naturalWidth": 612,
+            "fit": "cover"
+          },
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "nickname": "0x59**b0",
+          "tierText": "新卖家",
+          "avatar": {
+            "text": "0",
+            "bg": "rgb(238, 240, 242)",
+            "hasImg": false
+          },
+          "giftIcons": 0,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl bg-purple-400"
+          },
+          "removedTexts": [],
+          "title": "九成新青轴机械键盘104键RGB背光白色款带手托可小刀自用一年无维修无进水附原装拔键器与备用轴体同城面交可试打手感顺滑无",
+          "descPresent": true
+        },
+        {
+          "cardH": 412,
+          "cardW": 209.34,
+          "innerH": 412,
+          "innerClientW": 207,
+          "innerBorderX": 2,
+          "media": {
+            "h": 240,
+            "w": 207.34
+          },
+          "img": {
+            "complete": true,
+            "naturalWidth": 612,
+            "fit": "cover"
+          },
+          "sellerH": 48,
+          "sellerW": 207.34,
+          "nickname": "0x59**b0",
+          "tierText": "新卖家",
+          "avatar": {
+            "text": "0",
+            "bg": "rgb(238, 240, 242)",
+            "hasImg": false
+          },
+          "giftIcons": 0,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [],
+          "title": "小米台灯 Pro 白色",
+          "descPresent": false
+        }
+      ],
+      "gridGiftIcons": 0,
+      "gridRemovedCounts": [
+        {
+          "t": "库存不足",
+          "n": 0
+        },
+        {
+          "t": "可兑换",
+          "n": 0
+        },
+        {
+          "t": "已兑换",
+          "n": 0
+        },
+        {
+          "t": "人已领取",
+          "n": 0
+        }
+      ],
+      "overflowX": 0,
+      "rootLen": 33049
+    },
+    "fixture-w1536": {
+      "href": "http://localhost:5787/",
+      "cardCount": 4,
+      "cards": [
+        {
+          "cardH": 412,
+          "cardW": 225.33,
+          "innerH": 412,
+          "innerClientW": 223,
+          "innerBorderX": 2,
+          "media": {
+            "h": 240,
+            "w": 223.33
+          },
+          "img": {
+            "complete": true,
+            "naturalWidth": 612,
+            "fit": "cover"
+          },
+          "sellerH": 48,
+          "sellerW": 223.33,
+          "nickname": "0x59**b0",
+          "tierText": "新卖家",
+          "avatar": {
+            "text": "0",
+            "bg": "rgb(238, 240, 242)",
+            "hasImg": false
+          },
+          "giftIcons": 0,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [],
+          "title": "罗技 G Pro X 无线耳机 白色",
+          "descPresent": true
+        },
+        {
+          "cardH": 412,
+          "cardW": 225.33,
+          "innerH": 412,
+          "innerClientW": 223,
+          "innerBorderX": 2,
+          "media": {
+            "h": 240,
+            "w": 223.33
+          },
+          "img": {
+            "complete": true,
+            "naturalWidth": 320,
+            "fit": "cover"
+          },
+          "sellerH": 48,
+          "sellerW": 223.33,
+          "nickname": "0x59**b0",
+          "tierText": "新卖家",
+          "avatar": {
+            "text": "0",
+            "bg": "rgb(238, 240, 242)",
+            "hasImg": false
+          },
+          "giftIcons": 0,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [],
+          "title": "宜家马克杯 两只装 蓝白花纹",
+          "descPresent": true
+        },
+        {
+          "cardH": 412,
+          "cardW": 225.33,
+          "innerH": 412,
+          "innerClientW": 223,
+          "innerBorderX": 2,
+          "media": {
+            "h": 240,
+            "w": 223.33
+          },
+          "img": {
+            "complete": true,
+            "naturalWidth": 612,
+            "fit": "cover"
+          },
+          "sellerH": 48,
+          "sellerW": 223.33,
+          "nickname": "0x59**b0",
+          "tierText": "新卖家",
+          "avatar": {
+            "text": "0",
+            "bg": "rgb(238, 240, 242)",
+            "hasImg": false
+          },
+          "giftIcons": 0,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl bg-purple-400"
+          },
+          "removedTexts": [],
+          "title": "九成新青轴机械键盘104键RGB背光白色款带手托可小刀自用一年无维修无进水附原装拔键器与备用轴体同城面交可试打手感顺滑无",
+          "descPresent": true
+        },
+        {
+          "cardH": 412,
+          "cardW": 225.34,
+          "innerH": 412,
+          "innerClientW": 223,
+          "innerBorderX": 2,
+          "media": {
+            "h": 240,
+            "w": 223.34
+          },
+          "img": {
+            "complete": true,
+            "naturalWidth": 612,
+            "fit": "cover"
+          },
+          "sellerH": 48,
+          "sellerW": 223.34,
+          "nickname": "0x59**b0",
+          "tierText": "新卖家",
+          "avatar": {
+            "text": "0",
+            "bg": "rgb(238, 240, 242)",
+            "hasImg": false
+          },
+          "giftIcons": 0,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [],
+          "title": "小米台灯 Pro 白色",
+          "descPresent": false
+        }
+      ],
+      "gridGiftIcons": 0,
+      "gridRemovedCounts": [
+        {
+          "t": "库存不足",
+          "n": 0
+        },
+        {
+          "t": "可兑换",
+          "n": 0
+        },
+        {
+          "t": "已兑换",
+          "n": 0
+        },
+        {
+          "t": "人已领取",
+          "n": 0
+        }
+      ],
+      "overflowX": 0,
+      "rootLen": 33037
+    },
+    "realfeed-w1440": {
+      "href": "http://localhost:5787/",
+      "cardCount": 9,
+      "cards": [
+        {
+          "cardH": 412,
+          "cardW": 209.33,
+          "innerH": 412,
+          "innerClientW": 207,
+          "innerBorderX": 2,
+          "media": {
+            "h": 240,
+            "w": 207.33
+          },
+          "img": {
+            "complete": true,
+            "naturalWidth": 612,
+            "fit": "cover"
+          },
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "nickname": "0x59**b0",
+          "tierText": "新卖家",
+          "avatar": {
+            "text": "0",
+            "bg": "rgb(238, 240, 242)",
+            "hasImg": false
+          },
+          "giftIcons": 0,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [],
+          "title": "VPN",
+          "descPresent": true
+        },
+        {
+          "cardH": 412,
+          "cardW": 209.33,
+          "innerH": 412,
+          "innerClientW": 207,
+          "innerBorderX": 2,
+          "media": {
+            "h": 240,
+            "w": 207.33
+          },
+          "img": {
+            "complete": true,
+            "naturalWidth": 320,
+            "fit": "cover"
+          },
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "nickname": "0x37**b9",
+          "tierText": "新卖家",
+          "avatar": {
+            "text": "0",
+            "bg": "rgb(238, 240, 242)",
+            "hasImg": false
+          },
+          "giftIcons": 0,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [],
+          "title": "sf14qa 测试商品（质检夹具·勿购）",
+          "descPresent": true
+        },
+        {
+          "cardH": 412,
+          "cardW": 209.33,
+          "innerH": 412,
+          "innerClientW": 207,
+          "innerBorderX": 2,
+          "media": {
+            "h": 240,
+            "w": 207.33
+          },
+          "img": {
+            "complete": true,
+            "naturalWidth": 320,
+            "fit": "cover"
+          },
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "nickname": "0x11**5a",
+          "tierText": "新卖家",
+          "avatar": {
+            "text": "0",
+            "bg": "rgb(238, 240, 242)",
+            "hasImg": false
+          },
+          "giftIcons": 0,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [],
+          "title": "qa7b fixture listing",
+          "descPresent": false
+        },
+        {
+          "cardH": 412,
+          "cardW": 209.34,
+          "innerH": 412,
+          "innerClientW": 207,
+          "innerBorderX": 2,
+          "media": {
+            "h": 240,
+            "w": 207.34
+          },
+          "img": {
+            "complete": true,
+            "naturalWidth": 320,
+            "fit": "cover"
+          },
+          "sellerH": 48,
+          "sellerW": 207.34,
+          "nickname": "0x64**72",
+          "tierText": "新卖家",
+          "avatar": {
+            "text": "0",
+            "bg": "rgb(238, 240, 242)",
+            "hasImg": false
+          },
+          "giftIcons": 0,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [],
+          "title": "p7b fixture listing",
+          "descPresent": false
+        },
+        {
+          "cardH": 412,
+          "cardW": 209.33,
+          "innerH": 412,
+          "innerClientW": 207,
+          "innerBorderX": 2,
+          "media": {
+            "h": 240,
+            "w": 207.33
+          },
+          "img": {
+            "complete": true,
+            "naturalWidth": 320,
+            "fit": "cover"
+          },
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "nickname": "0x99**74",
+          "tierText": "新卖家",
+          "avatar": {
+            "text": "0",
+            "bg": "rgb(238, 240, 242)",
+            "hasImg": false
+          },
+          "giftIcons": 0,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [],
+          "title": "海鲜礼盒测试丙：虾蟹双拼",
+          "descPresent": true
+        },
+        {
+          "cardH": 412,
+          "cardW": 209.33,
+          "innerH": 412,
+          "innerClientW": 207,
+          "innerBorderX": 2,
+          "media": {
+            "h": 240,
+            "w": 207.33
+          },
+          "img": {
+            "complete": true,
+            "naturalWidth": 320,
+            "fit": "cover"
+          },
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "nickname": "0x97**00",
+          "tierText": "新卖家",
+          "avatar": {
+            "text": "0",
+            "bg": "rgb(238, 240, 242)",
+            "hasImg": false
+          },
+          "giftIcons": 0,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [],
+          "title": "b4ciib item b4ciib08420800",
+          "descPresent": true
+        },
+        {
+          "cardH": 412,
+          "cardW": 209.33,
+          "innerH": 412,
+          "innerClientW": 207,
+          "innerBorderX": 2,
+          "media": {
+            "h": 240,
+            "w": 207.33
+          },
+          "img": {
+            "complete": true,
+            "naturalWidth": 320,
+            "fit": "cover"
+          },
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "nickname": "0xe4**6b",
+          "tierText": "新卖家",
+          "avatar": {
+            "text": "0",
+            "bg": "rgb(238, 240, 242)",
+            "hasImg": false
+          },
+          "giftIcons": 0,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl bg-purple-400"
+          },
+          "removedTexts": [],
+          "title": "b3d pricey",
+          "descPresent": false
+        },
+        {
+          "cardH": 412,
+          "cardW": 209.33,
+          "innerH": 412,
+          "innerClientW": 207,
+          "innerBorderX": 2,
+          "media": {
+            "h": 240,
+            "w": 207.33
+          },
+          "img": {
+            "complete": true,
+            "naturalWidth": 320,
+            "fit": "cover"
+          },
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "nickname": "0xe4**6b",
+          "tierText": "新卖家",
+          "avatar": {
+            "text": "0",
+            "bg": "rgb(238, 240, 242)",
+            "hasImg": false
+          },
+          "giftIcons": 0,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [],
+          "title": "b3d empty",
+          "descPresent": false
+        },
+        {
+          "cardH": 412,
+          "cardW": 209.33,
+          "innerH": 412,
+          "innerClientW": 207,
+          "innerBorderX": 2,
+          "media": {
+            "h": 240,
+            "w": 207.33
+          },
+          "img": {
+            "complete": true,
+            "naturalWidth": 320,
+            "fit": "cover"
+          },
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "nickname": "0xe4**6b",
+          "tierText": "新卖家",
+          "avatar": {
+            "text": "0",
+            "bg": "rgb(238, 240, 242)",
+            "hasImg": false
+          },
+          "giftIcons": 0,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [],
+          "title": "b3d happy",
+          "descPresent": false
+        }
+      ],
+      "gridGiftIcons": 0,
+      "gridRemovedCounts": [
+        {
+          "t": "库存不足",
+          "n": 0
+        },
+        {
+          "t": "可兑换",
+          "n": 0
+        },
+        {
+          "t": "已兑换",
+          "n": 0
+        },
+        {
+          "t": "人已领取",
+          "n": 0
+        }
+      ],
+      "overflowX": 0,
+      "rootLen": 40300,
+      "uncaught": []
+    },
+    "item1-w1440": {
+      "href": "http://localhost:5787/item/1",
+      "cardCount": 0,
+      "cards": [],
+      "gridGiftIcons": null,
+      "gridRemovedCounts": null,
+      "overflowX": 0,
+      "rootLen": 14537,
+      "uncaught": [],
+      "consoleErrors": []
+    },
+    "realfeed-w390": {
+      "href": "http://localhost:5787/",
+      "cardCount": 9,
+      "cards": [
+        {
+          "cardH": 412,
+          "cardW": 164.5,
+          "innerH": 412,
+          "innerClientW": 163,
+          "innerBorderX": 2,
+          "media": {
+            "h": 240,
+            "w": 162.5
+          },
+          "img": {
+            "complete": true,
+            "naturalWidth": 612,
+            "fit": "cover"
+          },
+          "sellerH": 48,
+          "sellerW": 162.5,
+          "nickname": "0x59**b0",
+          "tierText": "新卖家",
+          "avatar": {
+            "text": "0",
+            "bg": "rgb(238, 240, 242)",
+            "hasImg": false
+          },
+          "giftIcons": 0,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [],
+          "title": "VPN",
+          "descPresent": true
+        },
+        {
+          "cardH": 412,
+          "cardW": 164.5,
+          "innerH": 412,
+          "innerClientW": 163,
+          "innerBorderX": 2,
+          "media": {
+            "h": 240,
+            "w": 162.5
+          },
+          "img": {
+            "complete": true,
+            "naturalWidth": 320,
+            "fit": "cover"
+          },
+          "sellerH": 48,
+          "sellerW": 162.5,
+          "nickname": "0x37**b9",
+          "tierText": "新卖家",
+          "avatar": {
+            "text": "0",
+            "bg": "rgb(238, 240, 242)",
+            "hasImg": false
+          },
+          "giftIcons": 0,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [],
+          "title": "sf14qa 测试商品（质检夹具·勿购）",
+          "descPresent": true
+        },
+        {
+          "cardH": 412,
+          "cardW": 164.5,
+          "innerH": 412,
+          "innerClientW": 163,
+          "innerBorderX": 2,
+          "media": {
+            "h": 240,
+            "w": 162.5
+          },
+          "img": {
+            "complete": true,
+            "naturalWidth": 320,
+            "fit": "cover"
+          },
+          "sellerH": 48,
+          "sellerW": 162.5,
+          "nickname": "0x11**5a",
+          "tierText": "新卖家",
+          "avatar": {
+            "text": "0",
+            "bg": "rgb(238, 240, 242)",
+            "hasImg": false
+          },
+          "giftIcons": 0,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [],
+          "title": "qa7b fixture listing",
+          "descPresent": false
+        },
+        {
+          "cardH": 412,
+          "cardW": 164.5,
+          "innerH": 412,
+          "innerClientW": 163,
+          "innerBorderX": 2,
+          "media": {
+            "h": 240,
+            "w": 162.5
+          },
+          "img": {
+            "complete": true,
+            "naturalWidth": 320,
+            "fit": "cover"
+          },
+          "sellerH": 48,
+          "sellerW": 162.5,
+          "nickname": "0x64**72",
+          "tierText": "新卖家",
+          "avatar": {
+            "text": "0",
+            "bg": "rgb(238, 240, 242)",
+            "hasImg": false
+          },
+          "giftIcons": 0,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [],
+          "title": "p7b fixture listing",
+          "descPresent": false
+        },
+        {
+          "cardH": 412,
+          "cardW": 164.5,
+          "innerH": 412,
+          "innerClientW": 163,
+          "innerBorderX": 2,
+          "media": {
+            "h": 240,
+            "w": 162.5
+          },
+          "img": {
+            "complete": true,
+            "naturalWidth": 320,
+            "fit": "cover"
+          },
+          "sellerH": 48,
+          "sellerW": 162.5,
+          "nickname": "0x99**74",
+          "tierText": "新卖家",
+          "avatar": {
+            "text": "0",
+            "bg": "rgb(238, 240, 242)",
+            "hasImg": false
+          },
+          "giftIcons": 0,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [],
+          "title": "海鲜礼盒测试丙：虾蟹双拼",
+          "descPresent": true
+        },
+        {
+          "cardH": 412,
+          "cardW": 164.5,
+          "innerH": 412,
+          "innerClientW": 163,
+          "innerBorderX": 2,
+          "media": {
+            "h": 240,
+            "w": 162.5
+          },
+          "img": {
+            "complete": true,
+            "naturalWidth": 320,
+            "fit": "cover"
+          },
+          "sellerH": 48,
+          "sellerW": 162.5,
+          "nickname": "0x97**00",
+          "tierText": "新卖家",
+          "avatar": {
+            "text": "0",
+            "bg": "rgb(238, 240, 242)",
+            "hasImg": false
+          },
+          "giftIcons": 0,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [],
+          "title": "b4ciib item b4ciib08420800",
+          "descPresent": true
+        },
+        {
+          "cardH": 412,
+          "cardW": 164.5,
+          "innerH": 412,
+          "innerClientW": 163,
+          "innerBorderX": 2,
+          "media": {
+            "h": 240,
+            "w": 162.5
+          },
+          "img": {
+            "complete": true,
+            "naturalWidth": 320,
+            "fit": "cover"
+          },
+          "sellerH": 48,
+          "sellerW": 162.5,
+          "nickname": "0xe4**6b",
+          "tierText": "新卖家",
+          "avatar": {
+            "text": "0",
+            "bg": "rgb(238, 240, 242)",
+            "hasImg": false
+          },
+          "giftIcons": 0,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl bg-purple-400"
+          },
+          "removedTexts": [],
+          "title": "b3d pricey",
+          "descPresent": false
+        },
+        {
+          "cardH": 412,
+          "cardW": 164.5,
+          "innerH": 412,
+          "innerClientW": 163,
+          "innerBorderX": 2,
+          "media": {
+            "h": 240,
+            "w": 162.5
+          },
+          "img": {
+            "complete": true,
+            "naturalWidth": 320,
+            "fit": "cover"
+          },
+          "sellerH": 48,
+          "sellerW": 162.5,
+          "nickname": "0xe4**6b",
+          "tierText": "新卖家",
+          "avatar": {
+            "text": "0",
+            "bg": "rgb(238, 240, 242)",
+            "hasImg": false
+          },
+          "giftIcons": 0,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [],
+          "title": "b3d empty",
+          "descPresent": false
+        },
+        {
+          "cardH": 412,
+          "cardW": 164.5,
+          "innerH": 412,
+          "innerClientW": 163,
+          "innerBorderX": 2,
+          "media": {
+            "h": 240,
+            "w": 162.5
+          },
+          "img": {
+            "complete": true,
+            "naturalWidth": 320,
+            "fit": "cover"
+          },
+          "sellerH": 48,
+          "sellerW": 162.5,
+          "nickname": "0xe4**6b",
+          "tierText": "新卖家",
+          "avatar": {
+            "text": "0",
+            "bg": "rgb(238, 240, 242)",
+            "hasImg": false
+          },
+          "giftIcons": 0,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [],
+          "title": "b3d happy",
+          "descPresent": false
+        }
+      ],
+      "gridGiftIcons": 0,
+      "gridRemovedCounts": [
+        {
+          "t": "库存不足",
+          "n": 0
+        },
+        {
+          "t": "可兑换",
+          "n": 0
+        },
+        {
+          "t": "已兑换",
+          "n": 0
+        },
+        {
+          "t": "人已领取",
+          "n": 0
+        }
+      ],
+      "overflowX": 0,
+      "rootLen": 40288,
+      "uncaught": []
+    },
+    "prod-w1440": {
+      "href": "https://0xseafood.com/",
+      "cardCount": 7,
+      "cards": [
+        {
+          "cardH": 374,
+          "cardW": 209.33,
+          "innerH": null,
+          "innerClientW": null,
+          "innerBorderX": null,
+          "media": null,
+          "img": null,
+          "sellerH": null,
+          "sellerW": null,
+          "nickname": null,
+          "tierText": null,
+          "avatar": null,
+          "giftIcons": 2,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [
+            "库存不足",
+            "人已领取"
+          ],
+          "title": null,
+          "descPresent": false
+        },
+        {
+          "cardH": 374,
+          "cardW": 209.33,
+          "innerH": null,
+          "innerClientW": null,
+          "innerBorderX": null,
+          "media": null,
+          "img": null,
+          "sellerH": null,
+          "sellerW": null,
+          "nickname": null,
+          "tierText": null,
+          "avatar": null,
+          "giftIcons": 2,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [
+            "库存不足",
+            "人已领取"
+          ],
+          "title": null,
+          "descPresent": false
+        },
+        {
+          "cardH": 412,
+          "cardW": 209.33,
+          "innerH": null,
+          "innerClientW": null,
+          "innerBorderX": null,
+          "media": null,
+          "img": null,
+          "sellerH": null,
+          "sellerW": null,
+          "nickname": null,
+          "tierText": null,
+          "avatar": null,
+          "giftIcons": 2,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [
+            "库存不足",
+            "人已领取"
+          ],
+          "title": null,
+          "descPresent": false
+        },
+        {
+          "cardH": 412,
+          "cardW": 209.34,
+          "innerH": null,
+          "innerClientW": null,
+          "innerBorderX": null,
+          "media": null,
+          "img": null,
+          "sellerH": null,
+          "sellerW": null,
+          "nickname": null,
+          "tierText": null,
+          "avatar": null,
+          "giftIcons": 2,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [
+            "库存不足",
+            "人已领取"
+          ],
+          "title": null,
+          "descPresent": false
+        },
+        {
+          "cardH": 412,
+          "cardW": 209.33,
+          "innerH": null,
+          "innerClientW": null,
+          "innerBorderX": null,
+          "media": null,
+          "img": null,
+          "sellerH": null,
+          "sellerW": null,
+          "nickname": null,
+          "tierText": null,
+          "avatar": null,
+          "giftIcons": 2,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [
+            "库存不足",
+            "人已领取"
+          ],
+          "title": null,
+          "descPresent": false
+        },
+        {
+          "cardH": 432,
+          "cardW": 209.33,
+          "innerH": null,
+          "innerClientW": null,
+          "innerBorderX": null,
+          "media": null,
+          "img": null,
+          "sellerH": null,
+          "sellerW": null,
+          "nickname": null,
+          "tierText": null,
+          "avatar": null,
+          "giftIcons": 2,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [
+            "库存不足",
+            "人已领取"
+          ],
+          "title": null,
+          "descPresent": false
+        },
+        {
+          "cardH": 374,
+          "cardW": 209.33,
+          "innerH": null,
+          "innerClientW": null,
+          "innerBorderX": null,
+          "media": null,
+          "img": null,
+          "sellerH": null,
+          "sellerW": null,
+          "nickname": null,
+          "tierText": null,
+          "avatar": null,
+          "giftIcons": 2,
+          "blob": {
+            "present": true,
+            "cls": "absolute top-0 right-0 w-20 h-20 rounded-full opacity-20 blur-xl"
+          },
+          "removedTexts": [
+            "库存不足",
+            "人已领取"
+          ],
+          "title": null,
+          "descPresent": false
+        }
+      ],
+      "gridGiftIcons": 14,
+      "gridRemovedCounts": [
+        {
+          "t": "库存不足",
+          "n": 7
+        },
+        {
+          "t": "可兑换",
+          "n": 0
+        },
+        {
+          "t": "已兑换",
+          "n": 0
+        },
+        {
+          "t": "人已领取",
+          "n": 7
+        }
+      ],
+      "overflowX": 0,
+      "rootLen": 40256,
+      "uncaught": [],
+      "consoleErrors": []
+    }
+  }
+}

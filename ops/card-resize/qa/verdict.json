@@ -1,0 +1,71 @@
+{
+  "line": "card-resize",
+  "task": "商品卡改版独立质检（412 恒高四组合 / 移除项 0 / 卖家栏与信用档 / 数据面含生产 / 门套 / 回归）",
+  "qaRole": "独立质检（Zang）",
+  "head": "d37a813",
+  "generatedAt": "2026-10-19T07:35:00+08:00",
+  "env": {
+    "devFrontend": "http://localhost:5787 (vite dev, 真页)",
+    "devBackend": "http://localhost:5788 (真页真 API)",
+    "browser": "playwright + system Chrome (headless)",
+    "dbSelfCert": { "dev": "quiet-math-65207667", "prod": "sweet-pond-28934105" }
+  },
+  "verdict": "PASS",
+  "verdictNote": "六条 AC 的本地读数全部通过（aggregate.json 171 条判据 FAILED=0）。生产腿（AC4 后半）现刻为『未 push 的旧版预期态』：生产 API/UI 均仍旧版（详见 readings 与 REPORT §AC4），属 push 后生产终验项、非产品缺陷——push 后须复跑生产探针。",
+  "acs": {
+    "AC1_height_412": {
+      "verdict": "PASS",
+      "detail": "fixture 四组合（有图 / 无图→占位 / 长标题60字 / 无描述）× 1440 与 1536 两档，共 8 次页面读数；每档 4 卡 cardH 与 innerH 全部 =412；图高恒 240、宽 = 卡内宽（inner clientWidth，1px 边框自洽）；cover 裁切、图真实解码（naturalWidth>0）；卖家栏恒 48、宽 = 卡内宽。真实 feed（9 卡）与 390 档（9 卡）同样全 412。",
+      "evidence": ["readings/probe-card-qa.json (views.fixture-w1440 / fixture-w1536 / realfeed-w1440 / realfeed-w390)", "readings/aggregate.json", "shots/fixture-w1440.png", "shots/fixture-w1536.png"]
+    },
+    "AC2_removed_zero": {
+      "verdict": "PASS",
+      "detail": "svg.lucide-gift 计数 = 0（feed 网格与逐卡，fixture/真feed/390 全部视图）；「库存不足 / 可兑换 / 已兑换 / 人已领取」全文计数 = 0；稀有度光斑（.blur-xl）每卡恰 1 个在场（改版非全卡重做）。",
+      "evidence": ["readings/aggregate.json checks: *.giftIcons=0 / *.removedTexts=0 / *.blob每卡在场"]
+    },
+    "AC3_seller_bar_credit": {
+      "verdict": "PASS",
+      "detail": "卖家栏高 48（真 feed 逐卡）；掩码 = 0x+前2+**+末2、恰 8 字符，且对 feed 全部卖家以 DB evm 单源重算逐一致、不含完整地址；avatar=null ⇒ 灰底（rgb(238,240,242)）+ 掩码首字符占位、无 <img>；信用档：插行前 9 卡全「新卖家」(new)；插 1 行 5 星评分（ratee=970213，feed bID76 卖家）后 API credit=excellent、页面胶囊=「卖家信用优秀」（其余 8 卡仍新卖家）。",
+      "evidence": ["readings/aggregate.json checks: realfeed.* / mask.* / credit.*", "readings/credit-tier.json", "shots/realfeed-w1440.png"]
+    },
+    "AC4_data_plane": {
+      "verdict": "PASS_LOCAL_PROD_PENDING_PUSH",
+      "devDetail": "dev /api/prize/all 9 行、行键恰 46、每行 seller={uid,nickname,avatar,credit}；/api/prize/1 顶层 46 且 seller.credit 在场。",
+      "prodDetail": "生产（--host-resolver-rules MAP 0xseafood.com 76.76.21.21）现刻仍旧版：/api/prize/all 行键 45、无 seller 键；/api/prize/1 顶层 46 但 seller 无 credit（昵称仍省略号掩码 0x59f9…09b0）；首页 7 卡旧形态（高 [374,374,412,412,412,432,374]、gift=14）——与 git origin/main..HEAD=2（d37a813/c31f8ae 未 push）一致，且生产库 schema_migration 顶已 =0052（迁移已 apply、代码未上）。生产 UI 探针零未捕获异常、渲染正常。⇒ 『生产 seller.credit 在场 / 卡高 412 / 卖家栏在』三条为 push 后生产终验项，须复跑。",
+      "evidence": ["readings/dev-prize-all.json", "readings/dev-prize-1.json", "readings/prod-prize-all.json", "readings/prod-prize-1.json", "readings/probe-card-qa.json (views.prod-w1440)", "readings/db-dev.json", "readings/db-prod.json", "shots/prod-w1440.png"]
+    },
+    "AC5_gates": {
+      "verdict": "PASS",
+      "detail": "frontend build exit 0（✓ built in 1.87s）；test:unit 62 files / 598 tests 全过（≥62/≥598）；backend-ts tsc（npm run build）exit 0 无 error TS；p7b-03 离线门 37/37 passed failed=0（含 AC10-2 注册点断言），regs 由 index.ts 独立复算 = 110；schema_migration 顶 dev=0052 / 生产=0052（各一读，project 自证分别为 quiet-math-65207667 / sweet-pond-28934105）。",
+      "evidence": ["logs/build.log", "logs/test-unit.log", "logs/backend-tsc.log", "logs/p7b-03.log", "readings/db-dev.json", "readings/db-prod.json", "readings/aggregate.json checks: gate.*"]
+    },
+    "AC6_regression": {
+      "verdict": "PASS",
+      "detail": "/api/currencies 恰 2 行（$ / BTTC）；/api/media/999 = 404；/item/1 详情页渲染（#root>0）且零未捕获异常；390 档首页 scrollWidth−clientWidth = 0（零横向溢出）且 9 卡全 412。",
+      "evidence": ["readings/aggregate.json checks: item1.* / w390.* / reg.*", "shots/realfeed-w390.png"]
+    }
+  },
+  "cleanup": {
+    "ratingRows": { "before": 0, "duringProbe": 1, "afterRecover": 0, "idempotencyKey": "qa:card-resize-20261019:excellent" },
+    "trgRatingAppendOnly": { "before": "O", "during": "O", "after": "O" },
+    "method": "单条 DO 块 DISABLE/INSERT/ENABLE（异常路径复原），回收同体例；回收后按 idempotency_key 复核 0 行",
+    "fixtureDisclosure": "四组合卡片夹具 = context.route 内存拦截 /api/prize/all（零写库）；dev feed 真数据未改动；全 QA 仅上述 1 行 rating 写入并已回收"
+  },
+  "judgeCorrections": [
+    {
+      "id": "mediaW/sellerW 参照修正",
+      "why": "首版判据以卡外宽（.sf-reward-card）为参照恒红（差恒 2px）——Card 有 1px 边框，「占满卡内宽」的正确参照是 .sf-reward-inner 的 clientWidth。旧尺对任何实现都报红 = 无效尺；修正后补采 computed border（innerBorderX）做自洽断言（卡宽−边框=内宽），两态可证。",
+      "impact": "仅判据修正，无实现改动；16 条假红 → 0 红（aggregate.json 171 判据）"
+    },
+    {
+      "id": "credit 档夹具卖家选点修正",
+      "why": "首次插评分选 ratee=970101，其 12 行 listing 全非 listed ⇒ feed 无其行（listBrands 只列 status='listed'），excellent 不可观测；另 /item/1 子串匹配会误配 /item/1x。改为 ratee=970213（feed 行 bID76 的卖家）+ 正则精确匹配。首次运行零残留（已核 count=0、trigger=O）。"
+    }
+  ],
+  "files": {
+    "probes": ["probe-db-reads.mjs", "probe-card-qa.mjs", "probe-credit-tier.mjs", "aggregate.mjs"],
+    "readings": ["dev-prize-all.json", "dev-prize-1.json", "prod-prize-all.json", "prod-prize-1.json", "db-dev.json", "db-prod.json", "probe-card-qa.json", "credit-tier.json", "aggregate.json"],
+    "shots": ["fixture-w1440.png", "fixture-w1536.png", "realfeed-w1440.png", "realfeed-w390.png", "prod-w1440.png"],
+    "logs": ["build.log", "test-unit.log", "backend-tsc.log", "p7b-03.log"]
+  }
+}
