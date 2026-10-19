@@ -1,0 +1,6996 @@
+{
+  "started": "2026-10-19T11:04:40.187Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "combos": [
+    {
+      "cards": [
+        {
+          "bID": 9101,
+          "title": "短标题",
+          "checks": [
+            {
+              "id": "card.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "inner.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "content.h152",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": 150,
+              "expected": 152
+            },
+            {
+              "id": "image.h240",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 240,
+              "expected": 240
+            },
+            {
+              "id": "image.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "imgW": 207.33,
+                "innerClientW": 207
+              },
+              "expected": "img 宽 = 卡内宽"
+            },
+            {
+              "id": "image.objectFitCover",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "fit": "cover",
+                "pos": "50% 50%"
+              },
+              "expected": "cover + center（无图则容器在）"
+            },
+            {
+              "id": "row1.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "row2.h32",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 32,
+              "expected": 32
+            },
+            {
+              "id": "row3.h24",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 24,
+              "expected": 24
+            },
+            {
+              "id": "row2.emptyPlaceholder",
+              "ac": "AC1",
+              "pass": true,
+              "actual": "",
+              "expected": "空占位（无文本）"
+            },
+            {
+              "id": "row4.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "content.childCount=4",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 4,
+              "expected": 4
+            },
+            {
+              "id": "rows.stackSum=152",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 152,
+              "expected": 152
+            },
+            {
+              "id": "rows.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "rowW": 207.33,
+                "innerClientW": 207
+              },
+              "expected": "行宽 = 卡内宽"
+            },
+            {
+              "id": "no.hOverflow.card",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "scrollW": 209,
+                "clientW": 209
+              },
+              "expected": "scrollWidth <= clientWidth"
+            },
+            {
+              "id": "no.vOverflow.content",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": {
+                "scrollH": 152,
+                "clientH": 150
+              },
+              "expected": "content 不纵向溢出"
+            },
+            {
+              "id": "title.textExact",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "got": "短标题",
+                "expected": "短标题",
+                "gotLen": 3,
+                "expLen": 3
+              },
+              "expected": "逐字相等（≤48 全等 / >48 前缀+`...`）"
+            },
+            {
+              "id": "title.width<=51",
+              "ac": "AC2",
+              "pass": true,
+              "actual": 6,
+              "expected": "<= 48 + 3 (`...`)"
+            },
+            {
+              "id": "title.endsWithLiteralDots",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "text": "短标题",
+                "overLimit": false
+              },
+              "expected": "超限卡结尾恰为 `...` / 未超限卡不加点"
+            },
+            {
+              "id": "title.noU2026",
+              "ac": "AC2",
+              "pass": true,
+              "actual": false,
+              "expected": "不含 `…`"
+            },
+            {
+              "id": "title.noDoubleEllipsis",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "短标题",
+              "expected": "非双尾"
+            },
+            {
+              "id": "title.within48Height",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "scrollH": 48,
+                "clientH": 48
+              },
+              "expected": "scrollHeight <= 48（两行内）"
+            },
+            {
+              "id": "title.dotsVisible",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "no trailing dots node",
+              "expected": "未截断卡不适用"
+            },
+            {
+              "id": "price.dollarInSpan",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "tag": "SPAN",
+                "text": "$"
+              },
+              "expected": "<span>$</span>"
+            },
+            {
+              "id": "price.noYen",
+              "ac": "AC3",
+              "pass": true,
+              "actual": false,
+              "expected": "无 `¥`"
+            },
+            {
+              "id": "price.num=points",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "495",
+              "expected": "495"
+            },
+            {
+              "id": "price.wantsRegex",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "20人想要",
+              "expected": "^\\d+人想要$"
+            },
+            {
+              "id": "price.wantsValue",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "20人想要",
+              "expected": "20人想要"
+            },
+            {
+              "id": "price.singleLine",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "scrollH": 24,
+                "clientH": 24
+              },
+              "expected": "单行（行高 24，无换行）"
+            },
+            {
+              "id": "price.curNumAdjacent",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "gap": 0
+              },
+              "expected": "`$` 与数字紧贴（gap ≤ 1px）"
+            },
+            {
+              "id": "price.wantsRightOfNum",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "numRight": 101.02,
+                "wantsLeft": 197.92
+              },
+              "expected": "wants 在数字右侧"
+            },
+            {
+              "id": "removed.description",
+              "ac": "AC5",
+              "pass": true,
+              "actual": false,
+              "expected": "描述行不渲染"
+            },
+            {
+              "id": "removed.clamp3",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "removed.clockIcon",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "kept.priceBlock",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "`$` 块在场"
+            },
+            {
+              "id": "kept.sellerBar",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "卖家栏 + 信用胶囊在场"
+            },
+            {
+              "id": "kept.wholeCardLink",
+              "ac": "AC5",
+              "pass": true,
+              "actual": "/item/9101",
+              "expected": "a[href=/item/<数字>]"
+            },
+            {
+              "id": "kept.noNestedInteractive",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            }
+          ]
+        },
+        {
+          "bID": 9102,
+          "title": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉",
+          "checks": [
+            {
+              "id": "card.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "inner.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "content.h152",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": 150,
+              "expected": 152
+            },
+            {
+              "id": "image.h240",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 240,
+              "expected": 240
+            },
+            {
+              "id": "image.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "imgW": 207.33,
+                "innerClientW": 207
+              },
+              "expected": "img 宽 = 卡内宽"
+            },
+            {
+              "id": "image.objectFitCover",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "fit": "cover",
+                "pos": "50% 50%"
+              },
+              "expected": "cover + center（无图则容器在）"
+            },
+            {
+              "id": "row1.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "row2.h32",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 32,
+              "expected": 32
+            },
+            {
+              "id": "row3.h24",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 24,
+              "expected": 24
+            },
+            {
+              "id": "row2.emptyPlaceholder",
+              "ac": "AC1",
+              "pass": true,
+              "actual": "",
+              "expected": "空占位（无文本）"
+            },
+            {
+              "id": "row4.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "content.childCount=4",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 4,
+              "expected": 4
+            },
+            {
+              "id": "rows.stackSum=152",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 152,
+              "expected": 152
+            },
+            {
+              "id": "rows.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "rowW": 207.33,
+                "innerClientW": 207
+              },
+              "expected": "行宽 = 卡内宽"
+            },
+            {
+              "id": "no.hOverflow.card",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "scrollW": 209,
+                "clientW": 209
+              },
+              "expected": "scrollWidth <= clientWidth"
+            },
+            {
+              "id": "no.vOverflow.content",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": {
+                "scrollH": 152,
+                "clientH": 150
+              },
+              "expected": "content 不纵向溢出"
+            },
+            {
+              "id": "title.textExact",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "got": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉",
+                "expected": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉",
+                "gotLen": 24,
+                "expLen": 24
+              },
+              "expected": "逐字相等（≤48 全等 / >48 前缀+`...`）"
+            },
+            {
+              "id": "title.width<=51",
+              "ac": "AC2",
+              "pass": true,
+              "actual": 48,
+              "expected": "<= 48 + 3 (`...`)"
+            },
+            {
+              "id": "title.endsWithLiteralDots",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "text": "汉汉汉汉汉汉汉汉",
+                "overLimit": false
+              },
+              "expected": "超限卡结尾恰为 `...` / 未超限卡不加点"
+            },
+            {
+              "id": "title.noU2026",
+              "ac": "AC2",
+              "pass": true,
+              "actual": false,
+              "expected": "不含 `…`"
+            },
+            {
+              "id": "title.noDoubleEllipsis",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "汉汉汉汉汉汉",
+              "expected": "非双尾"
+            },
+            {
+              "id": "title.within48Height",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "scrollH": 48,
+                "clientH": 48
+              },
+              "expected": "scrollHeight <= 48（两行内）"
+            },
+            {
+              "id": "title.dotsVisible",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "no trailing dots node",
+              "expected": "未截断卡不适用"
+            },
+            {
+              "id": "price.dollarInSpan",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "tag": "SPAN",
+                "text": "$"
+              },
+              "expected": "<span>$</span>"
+            },
+            {
+              "id": "price.noYen",
+              "ac": "AC3",
+              "pass": true,
+              "actual": false,
+              "expected": "无 `¥`"
+            },
+            {
+              "id": "price.num=points",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "12",
+              "expected": "12"
+            },
+            {
+              "id": "price.wantsRegex",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "0人想要",
+              "expected": "^\\d+人想要$"
+            },
+            {
+              "id": "price.wantsValue",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "0人想要",
+              "expected": "0人想要"
+            },
+            {
+              "id": "price.singleLine",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "scrollH": 24,
+                "clientH": 24
+              },
+              "expected": "单行（行高 24，无换行）"
+            },
+            {
+              "id": "price.curNumAdjacent",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "gap": 0
+              },
+              "expected": "`$` 与数字紧贴（gap ≤ 1px）"
+            },
+            {
+              "id": "price.wantsRightOfNum",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "numRight": 316.73,
+                "wantsLeft": 430.45
+              },
+              "expected": "wants 在数字右侧"
+            },
+            {
+              "id": "removed.description",
+              "ac": "AC5",
+              "pass": true,
+              "actual": false,
+              "expected": "描述行不渲染"
+            },
+            {
+              "id": "removed.clamp3",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "removed.clockIcon",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "kept.priceBlock",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "`$` 块在场"
+            },
+            {
+              "id": "kept.sellerBar",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "卖家栏 + 信用胶囊在场"
+            },
+            {
+              "id": "kept.wholeCardLink",
+              "ac": "AC5",
+              "pass": true,
+              "actual": "/item/9102",
+              "expected": "a[href=/item/<数字>]"
+            },
+            {
+              "id": "kept.noNestedInteractive",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            }
+          ]
+        },
+        {
+          "bID": 9103,
+          "title": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉",
+          "checks": [
+            {
+              "id": "card.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "inner.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "content.h152",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": 150,
+              "expected": 152
+            },
+            {
+              "id": "image.h240",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 240,
+              "expected": 240
+            },
+            {
+              "id": "image.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "imgW": 207.33,
+                "innerClientW": 207
+              },
+              "expected": "img 宽 = 卡内宽"
+            },
+            {
+              "id": "image.objectFitCover",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "fit": "cover",
+                "pos": "50% 50%"
+              },
+              "expected": "cover + center（无图则容器在）"
+            },
+            {
+              "id": "row1.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "row2.h32",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 32,
+              "expected": 32
+            },
+            {
+              "id": "row3.h24",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 24,
+              "expected": 24
+            },
+            {
+              "id": "row2.emptyPlaceholder",
+              "ac": "AC1",
+              "pass": true,
+              "actual": "",
+              "expected": "空占位（无文本）"
+            },
+            {
+              "id": "row4.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "content.childCount=4",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 4,
+              "expected": 4
+            },
+            {
+              "id": "rows.stackSum=152",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 152,
+              "expected": 152
+            },
+            {
+              "id": "rows.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "rowW": 207.33,
+                "innerClientW": 207
+              },
+              "expected": "行宽 = 卡内宽"
+            },
+            {
+              "id": "no.hOverflow.card",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "scrollW": 209,
+                "clientW": 209
+              },
+              "expected": "scrollWidth <= clientWidth"
+            },
+            {
+              "id": "no.vOverflow.content",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": {
+                "scrollH": 152,
+                "clientH": 150
+              },
+              "expected": "content 不纵向溢出"
+            },
+            {
+              "id": "title.textExact",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "got": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉...",
+                "expected": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉...",
+                "gotLen": 27,
+                "expLen": 27
+              },
+              "expected": "逐字相等（≤48 全等 / >48 前缀+`...`）"
+            },
+            {
+              "id": "title.width<=51",
+              "ac": "AC2",
+              "pass": true,
+              "actual": 51,
+              "expected": "<= 48 + 3 (`...`)"
+            },
+            {
+              "id": "title.endsWithLiteralDots",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "text": "汉汉汉汉汉...",
+                "overLimit": true
+              },
+              "expected": "超限卡结尾恰为 `...` / 未超限卡不加点"
+            },
+            {
+              "id": "title.noU2026",
+              "ac": "AC2",
+              "pass": true,
+              "actual": false,
+              "expected": "不含 `…`"
+            },
+            {
+              "id": "title.noDoubleEllipsis",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "汉汉汉...",
+              "expected": "非双尾"
+            },
+            {
+              "id": "title.within48Height",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "scrollH": 48,
+                "clientH": 48
+              },
+              "expected": "scrollHeight <= 48（两行内）"
+            },
+            {
+              "id": "title.dotsVisible",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "dotsRect": {
+                  "top": 959,
+                  "bottom": 976,
+                  "left": 603.25,
+                  "right": 613.3,
+                  "h": 17,
+                  "w": 10.05
+                },
+                "rowRect": {
+                  "top": 932,
+                  "bottom": 980,
+                  "left": 503.66,
+                  "right": 710.98
+                }
+              },
+              "expected": "`...` 落在行盒内（未被裁）"
+            },
+            {
+              "id": "price.dollarInSpan",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "tag": "SPAN",
+                "text": "$"
+              },
+              "expected": "<span>$</span>"
+            },
+            {
+              "id": "price.noYen",
+              "ac": "AC3",
+              "pass": true,
+              "actual": false,
+              "expected": "无 `¥`"
+            },
+            {
+              "id": "price.num=points",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "8888",
+              "expected": "8888"
+            },
+            {
+              "id": "price.wantsRegex",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "1234人想要",
+              "expected": "^\\d+人想要$"
+            },
+            {
+              "id": "price.wantsValue",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "1234人想要",
+              "expected": "1234人想要"
+            },
+            {
+              "id": "price.singleLine",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "scrollH": 24,
+                "clientH": 24
+              },
+              "expected": "单行（行高 24，无换行）"
+            },
+            {
+              "id": "price.curNumAdjacent",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "gap": 0
+              },
+              "expected": "`$` 与数字紧贴（gap ≤ 1px）"
+            },
+            {
+              "id": "price.wantsRightOfNum",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "numRight": 561.27,
+                "wantsLeft": 634.17
+              },
+              "expected": "wants 在数字右侧"
+            },
+            {
+              "id": "removed.description",
+              "ac": "AC5",
+              "pass": true,
+              "actual": false,
+              "expected": "描述行不渲染"
+            },
+            {
+              "id": "removed.clamp3",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "removed.clockIcon",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "kept.priceBlock",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "`$` 块在场"
+            },
+            {
+              "id": "kept.sellerBar",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "卖家栏 + 信用胶囊在场"
+            },
+            {
+              "id": "kept.wholeCardLink",
+              "ac": "AC5",
+              "pass": true,
+              "actual": "/item/9103",
+              "expected": "a[href=/item/<数字>]"
+            },
+            {
+              "id": "kept.noNestedInteractive",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            }
+          ]
+        },
+        {
+          "bID": 9104,
+          "title": "Ultra long product title fixture for truncation test 0123456789",
+          "checks": [
+            {
+              "id": "card.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "inner.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "content.h152",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": 150,
+              "expected": 152
+            },
+            {
+              "id": "image.h240",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 240,
+              "expected": 240
+            },
+            {
+              "id": "image.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "imgW": 207.34,
+                "innerClientW": 207
+              },
+              "expected": "img 宽 = 卡内宽"
+            },
+            {
+              "id": "image.objectFitCover",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "fit": "cover",
+                "pos": "50% 50%"
+              },
+              "expected": "cover + center（无图则容器在）"
+            },
+            {
+              "id": "row1.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "row2.h32",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 32,
+              "expected": 32
+            },
+            {
+              "id": "row3.h24",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 24,
+              "expected": 24
+            },
+            {
+              "id": "row2.emptyPlaceholder",
+              "ac": "AC1",
+              "pass": true,
+              "actual": "",
+              "expected": "空占位（无文本）"
+            },
+            {
+              "id": "row4.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "content.childCount=4",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 4,
+              "expected": 4
+            },
+            {
+              "id": "rows.stackSum=152",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 152,
+              "expected": 152
+            },
+            {
+              "id": "rows.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "rowW": 207.34,
+                "innerClientW": 207
+              },
+              "expected": "行宽 = 卡内宽"
+            },
+            {
+              "id": "no.hOverflow.card",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "scrollW": 209,
+                "clientW": 209
+              },
+              "expected": "scrollWidth <= clientWidth"
+            },
+            {
+              "id": "no.vOverflow.content",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": {
+                "scrollH": 152,
+                "clientH": 150
+              },
+              "expected": "content 不纵向溢出"
+            },
+            {
+              "id": "title.textExact",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "got": "Ultra long product title fixture for truncation ...",
+                "expected": "Ultra long product title fixture for truncation ...",
+                "gotLen": 51,
+                "expLen": 51
+              },
+              "expected": "逐字相等（≤48 全等 / >48 前缀+`...`）"
+            },
+            {
+              "id": "title.width<=51",
+              "ac": "AC2",
+              "pass": true,
+              "actual": 51,
+              "expected": "<= 48 + 3 (`...`)"
+            },
+            {
+              "id": "title.endsWithLiteralDots",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "text": "tion ...",
+                "overLimit": true
+              },
+              "expected": "超限卡结尾恰为 `...` / 未超限卡不加点"
+            },
+            {
+              "id": "title.noU2026",
+              "ac": "AC2",
+              "pass": true,
+              "actual": false,
+              "expected": "不含 `…`"
+            },
+            {
+              "id": "title.noDoubleEllipsis",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "on ...",
+              "expected": "非双尾"
+            },
+            {
+              "id": "title.within48Height",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "scrollH": 48,
+                "clientH": 48
+              },
+              "expected": "scrollHeight <= 48（两行内）"
+            },
+            {
+              "id": "title.dotsVisible",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "dotsRect": {
+                  "top": 959,
+                  "bottom": 976,
+                  "left": 792.69,
+                  "right": 802.75,
+                  "h": 17,
+                  "w": 10.06
+                },
+                "rowRect": {
+                  "top": 932,
+                  "bottom": 980,
+                  "left": 728.98,
+                  "right": 936.33
+                }
+              },
+              "expected": "`...` 落在行盒内（未被裁）"
+            },
+            {
+              "id": "price.dollarInSpan",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "tag": "SPAN",
+                "text": "$"
+              },
+              "expected": "<span>$</span>"
+            },
+            {
+              "id": "price.noYen",
+              "ac": "AC3",
+              "pass": true,
+              "actual": false,
+              "expected": "无 `¥`"
+            },
+            {
+              "id": "price.num=points",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "7",
+              "expected": "7"
+            },
+            {
+              "id": "price.wantsRegex",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "3人想要",
+              "expected": "^\\d+人想要$"
+            },
+            {
+              "id": "price.wantsValue",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "3人想要",
+              "expected": "3人想要"
+            },
+            {
+              "id": "price.singleLine",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "scrollH": 24,
+                "clientH": 24
+              },
+              "expected": "单行（行高 24，无换行）"
+            },
+            {
+              "id": "price.curNumAdjacent",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "gap": 0
+              },
+              "expected": "`$` 与数字紧贴（gap ≤ 1px）"
+            },
+            {
+              "id": "price.wantsRightOfNum",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "numRight": 757.8,
+                "wantsLeft": 881.13
+              },
+              "expected": "wants 在数字右侧"
+            },
+            {
+              "id": "removed.description",
+              "ac": "AC5",
+              "pass": true,
+              "actual": false,
+              "expected": "描述行不渲染"
+            },
+            {
+              "id": "removed.clamp3",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "removed.clockIcon",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "kept.priceBlock",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "`$` 块在场"
+            },
+            {
+              "id": "kept.sellerBar",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "卖家栏 + 信用胶囊在场"
+            },
+            {
+              "id": "kept.wholeCardLink",
+              "ac": "AC5",
+              "pass": true,
+              "actual": "/item/9104",
+              "expected": "a[href=/item/<数字>]"
+            },
+            {
+              "id": "kept.noNestedInteractive",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            }
+          ]
+        },
+        {
+          "bID": 9105,
+          "title": "无图卡",
+          "checks": [
+            {
+              "id": "card.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "inner.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "content.h152",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": 150,
+              "expected": 152
+            },
+            {
+              "id": "image.h240",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 240,
+              "expected": 240
+            },
+            {
+              "id": "image.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "imgW": 207.33,
+                "innerClientW": 207
+              },
+              "expected": "img 宽 = 卡内宽"
+            },
+            {
+              "id": "image.objectFitCover",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "fit": "cover",
+                "pos": "50% 50%"
+              },
+              "expected": "cover + center（无图则容器在）"
+            },
+            {
+              "id": "row1.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "row2.h32",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 32,
+              "expected": 32
+            },
+            {
+              "id": "row3.h24",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 24,
+              "expected": 24
+            },
+            {
+              "id": "row2.emptyPlaceholder",
+              "ac": "AC1",
+              "pass": true,
+              "actual": "",
+              "expected": "空占位（无文本）"
+            },
+            {
+              "id": "row4.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "content.childCount=4",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 4,
+              "expected": 4
+            },
+            {
+              "id": "rows.stackSum=152",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 152,
+              "expected": 152
+            },
+            {
+              "id": "rows.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "rowW": 207.33,
+                "innerClientW": 207
+              },
+              "expected": "行宽 = 卡内宽"
+            },
+            {
+              "id": "no.hOverflow.card",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "scrollW": 209,
+                "clientW": 209
+              },
+              "expected": "scrollWidth <= clientWidth"
+            },
+            {
+              "id": "no.vOverflow.content",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": {
+                "scrollH": 152,
+                "clientH": 150
+              },
+              "expected": "content 不纵向溢出"
+            },
+            {
+              "id": "title.textExact",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "got": "无图卡",
+                "expected": "无图卡",
+                "gotLen": 3,
+                "expLen": 3
+              },
+              "expected": "逐字相等（≤48 全等 / >48 前缀+`...`）"
+            },
+            {
+              "id": "title.width<=51",
+              "ac": "AC2",
+              "pass": true,
+              "actual": 6,
+              "expected": "<= 48 + 3 (`...`)"
+            },
+            {
+              "id": "title.endsWithLiteralDots",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "text": "无图卡",
+                "overLimit": false
+              },
+              "expected": "超限卡结尾恰为 `...` / 未超限卡不加点"
+            },
+            {
+              "id": "title.noU2026",
+              "ac": "AC2",
+              "pass": true,
+              "actual": false,
+              "expected": "不含 `…`"
+            },
+            {
+              "id": "title.noDoubleEllipsis",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "无图卡",
+              "expected": "非双尾"
+            },
+            {
+              "id": "title.within48Height",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "scrollH": 48,
+                "clientH": 48
+              },
+              "expected": "scrollHeight <= 48（两行内）"
+            },
+            {
+              "id": "title.dotsVisible",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "no trailing dots node",
+              "expected": "未截断卡不适用"
+            },
+            {
+              "id": "price.dollarInSpan",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "tag": "SPAN",
+                "text": "$"
+              },
+              "expected": "<span>$</span>"
+            },
+            {
+              "id": "price.noYen",
+              "ac": "AC3",
+              "pass": true,
+              "actual": false,
+              "expected": "无 `¥`"
+            },
+            {
+              "id": "price.num=points",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "1",
+              "expected": "1"
+            },
+            {
+              "id": "price.wantsRegex",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "0人想要",
+              "expected": "^\\d+人想要$"
+            },
+            {
+              "id": "price.wantsValue",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "0人想要",
+              "expected": "0人想要"
+            },
+            {
+              "id": "price.singleLine",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "scrollH": 24,
+                "clientH": 24
+              },
+              "expected": "单行（行高 24，无换行）"
+            },
+            {
+              "id": "price.curNumAdjacent",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "gap": 0
+              },
+              "expected": "`$` 与数字紧贴（gap ≤ 1px）"
+            },
+            {
+              "id": "price.wantsRightOfNum",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "numRight": 983.14,
+                "wantsLeft": 1106.45
+              },
+              "expected": "wants 在数字右侧"
+            },
+            {
+              "id": "removed.description",
+              "ac": "AC5",
+              "pass": true,
+              "actual": false,
+              "expected": "描述行不渲染"
+            },
+            {
+              "id": "removed.clamp3",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "removed.clockIcon",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "kept.priceBlock",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "`$` 块在场"
+            },
+            {
+              "id": "kept.sellerBar",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "卖家栏 + 信用胶囊在场"
+            },
+            {
+              "id": "kept.wholeCardLink",
+              "ac": "AC5",
+              "pass": true,
+              "actual": "/item/9105",
+              "expected": "a[href=/item/<数字>]"
+            },
+            {
+              "id": "kept.noNestedInteractive",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            }
+          ]
+        }
+      ],
+      "page": {
+        "cardCount": 5,
+        "hOverflow": 0,
+        "gridCols": 6,
+        "theme": "light"
+      },
+      "__boxDiag": [
+        {
+          "bID": 9101,
+          "cardRectH": 392,
+          "innerClientH": 390,
+          "innerOffsetH": 392,
+          "innerBorderTop": "1px",
+          "innerBorderBottom": "1px",
+          "innerBoxSizing": "border-box",
+          "contentRectH": 150,
+          "sellerBottom": 1084,
+          "innerBottom": 1083,
+          "sellerClippedPx": 1
+        },
+        {
+          "bID": 9102,
+          "cardRectH": 392,
+          "innerClientH": 390,
+          "innerOffsetH": 392,
+          "innerBorderTop": "1px",
+          "innerBorderBottom": "1px",
+          "innerBoxSizing": "border-box",
+          "contentRectH": 150,
+          "sellerBottom": 1084,
+          "innerBottom": 1083,
+          "sellerClippedPx": 1
+        },
+        {
+          "bID": 9103,
+          "cardRectH": 392,
+          "innerClientH": 390,
+          "innerOffsetH": 392,
+          "innerBorderTop": "1px",
+          "innerBorderBottom": "1px",
+          "innerBoxSizing": "border-box",
+          "contentRectH": 150,
+          "sellerBottom": 1084,
+          "innerBottom": 1083,
+          "sellerClippedPx": 1
+        },
+        {
+          "bID": 9104,
+          "cardRectH": 392,
+          "innerClientH": 390,
+          "innerOffsetH": 392,
+          "innerBorderTop": "1px",
+          "innerBorderBottom": "1px",
+          "innerBoxSizing": "border-box",
+          "contentRectH": 150,
+          "sellerBottom": 1084,
+          "innerBottom": 1083,
+          "sellerClippedPx": 1
+        },
+        {
+          "bID": 9105,
+          "cardRectH": 392,
+          "innerClientH": 390,
+          "innerOffsetH": 392,
+          "innerBorderTop": "1px",
+          "innerBorderBottom": "1px",
+          "innerBoxSizing": "border-box",
+          "contentRectH": 150,
+          "sellerBottom": 1084,
+          "innerBottom": 1083,
+          "sellerClippedPx": 1
+        }
+      ],
+      "combo": {
+        "width": 1440,
+        "theme": "light",
+        "injectCss": null
+      },
+      "pageErrors": []
+    },
+    {
+      "cards": [
+        {
+          "bID": 9101,
+          "title": "短标题",
+          "checks": [
+            {
+              "id": "card.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "inner.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "content.h152",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": 150,
+              "expected": 152
+            },
+            {
+              "id": "image.h240",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 240,
+              "expected": 240
+            },
+            {
+              "id": "image.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "imgW": 207.33,
+                "innerClientW": 207
+              },
+              "expected": "img 宽 = 卡内宽"
+            },
+            {
+              "id": "image.objectFitCover",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "fit": "cover",
+                "pos": "50% 50%"
+              },
+              "expected": "cover + center（无图则容器在）"
+            },
+            {
+              "id": "row1.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "row2.h32",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 32,
+              "expected": 32
+            },
+            {
+              "id": "row3.h24",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 24,
+              "expected": 24
+            },
+            {
+              "id": "row2.emptyPlaceholder",
+              "ac": "AC1",
+              "pass": true,
+              "actual": "",
+              "expected": "空占位（无文本）"
+            },
+            {
+              "id": "row4.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "content.childCount=4",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 4,
+              "expected": 4
+            },
+            {
+              "id": "rows.stackSum=152",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 152,
+              "expected": 152
+            },
+            {
+              "id": "rows.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "rowW": 207.33,
+                "innerClientW": 207
+              },
+              "expected": "行宽 = 卡内宽"
+            },
+            {
+              "id": "no.hOverflow.card",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "scrollW": 209,
+                "clientW": 209
+              },
+              "expected": "scrollWidth <= clientWidth"
+            },
+            {
+              "id": "no.vOverflow.content",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": {
+                "scrollH": 152,
+                "clientH": 150
+              },
+              "expected": "content 不纵向溢出"
+            },
+            {
+              "id": "title.textExact",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "got": "短标题",
+                "expected": "短标题",
+                "gotLen": 3,
+                "expLen": 3
+              },
+              "expected": "逐字相等（≤48 全等 / >48 前缀+`...`）"
+            },
+            {
+              "id": "title.width<=51",
+              "ac": "AC2",
+              "pass": true,
+              "actual": 6,
+              "expected": "<= 48 + 3 (`...`)"
+            },
+            {
+              "id": "title.endsWithLiteralDots",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "text": "短标题",
+                "overLimit": false
+              },
+              "expected": "超限卡结尾恰为 `...` / 未超限卡不加点"
+            },
+            {
+              "id": "title.noU2026",
+              "ac": "AC2",
+              "pass": true,
+              "actual": false,
+              "expected": "不含 `…`"
+            },
+            {
+              "id": "title.noDoubleEllipsis",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "短标题",
+              "expected": "非双尾"
+            },
+            {
+              "id": "title.within48Height",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "scrollH": 48,
+                "clientH": 48
+              },
+              "expected": "scrollHeight <= 48（两行内）"
+            },
+            {
+              "id": "title.dotsVisible",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "no trailing dots node",
+              "expected": "未截断卡不适用"
+            },
+            {
+              "id": "price.dollarInSpan",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "tag": "SPAN",
+                "text": "$"
+              },
+              "expected": "<span>$</span>"
+            },
+            {
+              "id": "price.noYen",
+              "ac": "AC3",
+              "pass": true,
+              "actual": false,
+              "expected": "无 `¥`"
+            },
+            {
+              "id": "price.num=points",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "495",
+              "expected": "495"
+            },
+            {
+              "id": "price.wantsRegex",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "20人想要",
+              "expected": "^\\d+人想要$"
+            },
+            {
+              "id": "price.wantsValue",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "20人想要",
+              "expected": "20人想要"
+            },
+            {
+              "id": "price.singleLine",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "scrollH": 24,
+                "clientH": 24
+              },
+              "expected": "单行（行高 24，无换行）"
+            },
+            {
+              "id": "price.curNumAdjacent",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "gap": 0
+              },
+              "expected": "`$` 与数字紧贴（gap ≤ 1px）"
+            },
+            {
+              "id": "price.wantsRightOfNum",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "numRight": 101.02,
+                "wantsLeft": 197.92
+              },
+              "expected": "wants 在数字右侧"
+            },
+            {
+              "id": "removed.description",
+              "ac": "AC5",
+              "pass": true,
+              "actual": false,
+              "expected": "描述行不渲染"
+            },
+            {
+              "id": "removed.clamp3",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "removed.clockIcon",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "kept.priceBlock",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "`$` 块在场"
+            },
+            {
+              "id": "kept.sellerBar",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "卖家栏 + 信用胶囊在场"
+            },
+            {
+              "id": "kept.wholeCardLink",
+              "ac": "AC5",
+              "pass": true,
+              "actual": "/item/9101",
+              "expected": "a[href=/item/<数字>]"
+            },
+            {
+              "id": "kept.noNestedInteractive",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            }
+          ]
+        },
+        {
+          "bID": 9102,
+          "title": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉",
+          "checks": [
+            {
+              "id": "card.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "inner.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "content.h152",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": 150,
+              "expected": 152
+            },
+            {
+              "id": "image.h240",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 240,
+              "expected": 240
+            },
+            {
+              "id": "image.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "imgW": 207.33,
+                "innerClientW": 207
+              },
+              "expected": "img 宽 = 卡内宽"
+            },
+            {
+              "id": "image.objectFitCover",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "fit": "cover",
+                "pos": "50% 50%"
+              },
+              "expected": "cover + center（无图则容器在）"
+            },
+            {
+              "id": "row1.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "row2.h32",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 32,
+              "expected": 32
+            },
+            {
+              "id": "row3.h24",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 24,
+              "expected": 24
+            },
+            {
+              "id": "row2.emptyPlaceholder",
+              "ac": "AC1",
+              "pass": true,
+              "actual": "",
+              "expected": "空占位（无文本）"
+            },
+            {
+              "id": "row4.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "content.childCount=4",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 4,
+              "expected": 4
+            },
+            {
+              "id": "rows.stackSum=152",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 152,
+              "expected": 152
+            },
+            {
+              "id": "rows.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "rowW": 207.33,
+                "innerClientW": 207
+              },
+              "expected": "行宽 = 卡内宽"
+            },
+            {
+              "id": "no.hOverflow.card",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "scrollW": 209,
+                "clientW": 209
+              },
+              "expected": "scrollWidth <= clientWidth"
+            },
+            {
+              "id": "no.vOverflow.content",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": {
+                "scrollH": 152,
+                "clientH": 150
+              },
+              "expected": "content 不纵向溢出"
+            },
+            {
+              "id": "title.textExact",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "got": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉",
+                "expected": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉",
+                "gotLen": 24,
+                "expLen": 24
+              },
+              "expected": "逐字相等（≤48 全等 / >48 前缀+`...`）"
+            },
+            {
+              "id": "title.width<=51",
+              "ac": "AC2",
+              "pass": true,
+              "actual": 48,
+              "expected": "<= 48 + 3 (`...`)"
+            },
+            {
+              "id": "title.endsWithLiteralDots",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "text": "汉汉汉汉汉汉汉汉",
+                "overLimit": false
+              },
+              "expected": "超限卡结尾恰为 `...` / 未超限卡不加点"
+            },
+            {
+              "id": "title.noU2026",
+              "ac": "AC2",
+              "pass": true,
+              "actual": false,
+              "expected": "不含 `…`"
+            },
+            {
+              "id": "title.noDoubleEllipsis",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "汉汉汉汉汉汉",
+              "expected": "非双尾"
+            },
+            {
+              "id": "title.within48Height",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "scrollH": 48,
+                "clientH": 48
+              },
+              "expected": "scrollHeight <= 48（两行内）"
+            },
+            {
+              "id": "title.dotsVisible",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "no trailing dots node",
+              "expected": "未截断卡不适用"
+            },
+            {
+              "id": "price.dollarInSpan",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "tag": "SPAN",
+                "text": "$"
+              },
+              "expected": "<span>$</span>"
+            },
+            {
+              "id": "price.noYen",
+              "ac": "AC3",
+              "pass": true,
+              "actual": false,
+              "expected": "无 `¥`"
+            },
+            {
+              "id": "price.num=points",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "12",
+              "expected": "12"
+            },
+            {
+              "id": "price.wantsRegex",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "0人想要",
+              "expected": "^\\d+人想要$"
+            },
+            {
+              "id": "price.wantsValue",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "0人想要",
+              "expected": "0人想要"
+            },
+            {
+              "id": "price.singleLine",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "scrollH": 24,
+                "clientH": 24
+              },
+              "expected": "单行（行高 24，无换行）"
+            },
+            {
+              "id": "price.curNumAdjacent",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "gap": 0
+              },
+              "expected": "`$` 与数字紧贴（gap ≤ 1px）"
+            },
+            {
+              "id": "price.wantsRightOfNum",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "numRight": 316.73,
+                "wantsLeft": 430.45
+              },
+              "expected": "wants 在数字右侧"
+            },
+            {
+              "id": "removed.description",
+              "ac": "AC5",
+              "pass": true,
+              "actual": false,
+              "expected": "描述行不渲染"
+            },
+            {
+              "id": "removed.clamp3",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "removed.clockIcon",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "kept.priceBlock",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "`$` 块在场"
+            },
+            {
+              "id": "kept.sellerBar",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "卖家栏 + 信用胶囊在场"
+            },
+            {
+              "id": "kept.wholeCardLink",
+              "ac": "AC5",
+              "pass": true,
+              "actual": "/item/9102",
+              "expected": "a[href=/item/<数字>]"
+            },
+            {
+              "id": "kept.noNestedInteractive",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            }
+          ]
+        },
+        {
+          "bID": 9103,
+          "title": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉",
+          "checks": [
+            {
+              "id": "card.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "inner.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "content.h152",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": 150,
+              "expected": 152
+            },
+            {
+              "id": "image.h240",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 240,
+              "expected": 240
+            },
+            {
+              "id": "image.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "imgW": 207.33,
+                "innerClientW": 207
+              },
+              "expected": "img 宽 = 卡内宽"
+            },
+            {
+              "id": "image.objectFitCover",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "fit": "cover",
+                "pos": "50% 50%"
+              },
+              "expected": "cover + center（无图则容器在）"
+            },
+            {
+              "id": "row1.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "row2.h32",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 32,
+              "expected": 32
+            },
+            {
+              "id": "row3.h24",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 24,
+              "expected": 24
+            },
+            {
+              "id": "row2.emptyPlaceholder",
+              "ac": "AC1",
+              "pass": true,
+              "actual": "",
+              "expected": "空占位（无文本）"
+            },
+            {
+              "id": "row4.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "content.childCount=4",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 4,
+              "expected": 4
+            },
+            {
+              "id": "rows.stackSum=152",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 152,
+              "expected": 152
+            },
+            {
+              "id": "rows.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "rowW": 207.33,
+                "innerClientW": 207
+              },
+              "expected": "行宽 = 卡内宽"
+            },
+            {
+              "id": "no.hOverflow.card",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "scrollW": 209,
+                "clientW": 209
+              },
+              "expected": "scrollWidth <= clientWidth"
+            },
+            {
+              "id": "no.vOverflow.content",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": {
+                "scrollH": 152,
+                "clientH": 150
+              },
+              "expected": "content 不纵向溢出"
+            },
+            {
+              "id": "title.textExact",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "got": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉...",
+                "expected": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉...",
+                "gotLen": 27,
+                "expLen": 27
+              },
+              "expected": "逐字相等（≤48 全等 / >48 前缀+`...`）"
+            },
+            {
+              "id": "title.width<=51",
+              "ac": "AC2",
+              "pass": true,
+              "actual": 51,
+              "expected": "<= 48 + 3 (`...`)"
+            },
+            {
+              "id": "title.endsWithLiteralDots",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "text": "汉汉汉汉汉...",
+                "overLimit": true
+              },
+              "expected": "超限卡结尾恰为 `...` / 未超限卡不加点"
+            },
+            {
+              "id": "title.noU2026",
+              "ac": "AC2",
+              "pass": true,
+              "actual": false,
+              "expected": "不含 `…`"
+            },
+            {
+              "id": "title.noDoubleEllipsis",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "汉汉汉...",
+              "expected": "非双尾"
+            },
+            {
+              "id": "title.within48Height",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "scrollH": 48,
+                "clientH": 48
+              },
+              "expected": "scrollHeight <= 48（两行内）"
+            },
+            {
+              "id": "title.dotsVisible",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "dotsRect": {
+                  "top": 959,
+                  "bottom": 976,
+                  "left": 603.25,
+                  "right": 613.3,
+                  "h": 17,
+                  "w": 10.05
+                },
+                "rowRect": {
+                  "top": 932,
+                  "bottom": 980,
+                  "left": 503.66,
+                  "right": 710.98
+                }
+              },
+              "expected": "`...` 落在行盒内（未被裁）"
+            },
+            {
+              "id": "price.dollarInSpan",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "tag": "SPAN",
+                "text": "$"
+              },
+              "expected": "<span>$</span>"
+            },
+            {
+              "id": "price.noYen",
+              "ac": "AC3",
+              "pass": true,
+              "actual": false,
+              "expected": "无 `¥`"
+            },
+            {
+              "id": "price.num=points",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "8888",
+              "expected": "8888"
+            },
+            {
+              "id": "price.wantsRegex",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "1234人想要",
+              "expected": "^\\d+人想要$"
+            },
+            {
+              "id": "price.wantsValue",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "1234人想要",
+              "expected": "1234人想要"
+            },
+            {
+              "id": "price.singleLine",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "scrollH": 24,
+                "clientH": 24
+              },
+              "expected": "单行（行高 24，无换行）"
+            },
+            {
+              "id": "price.curNumAdjacent",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "gap": 0
+              },
+              "expected": "`$` 与数字紧贴（gap ≤ 1px）"
+            },
+            {
+              "id": "price.wantsRightOfNum",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "numRight": 561.27,
+                "wantsLeft": 634.17
+              },
+              "expected": "wants 在数字右侧"
+            },
+            {
+              "id": "removed.description",
+              "ac": "AC5",
+              "pass": true,
+              "actual": false,
+              "expected": "描述行不渲染"
+            },
+            {
+              "id": "removed.clamp3",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "removed.clockIcon",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "kept.priceBlock",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "`$` 块在场"
+            },
+            {
+              "id": "kept.sellerBar",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "卖家栏 + 信用胶囊在场"
+            },
+            {
+              "id": "kept.wholeCardLink",
+              "ac": "AC5",
+              "pass": true,
+              "actual": "/item/9103",
+              "expected": "a[href=/item/<数字>]"
+            },
+            {
+              "id": "kept.noNestedInteractive",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            }
+          ]
+        },
+        {
+          "bID": 9104,
+          "title": "Ultra long product title fixture for truncation test 0123456789",
+          "checks": [
+            {
+              "id": "card.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "inner.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "content.h152",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": 150,
+              "expected": 152
+            },
+            {
+              "id": "image.h240",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 240,
+              "expected": 240
+            },
+            {
+              "id": "image.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "imgW": 207.34,
+                "innerClientW": 207
+              },
+              "expected": "img 宽 = 卡内宽"
+            },
+            {
+              "id": "image.objectFitCover",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "fit": "cover",
+                "pos": "50% 50%"
+              },
+              "expected": "cover + center（无图则容器在）"
+            },
+            {
+              "id": "row1.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "row2.h32",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 32,
+              "expected": 32
+            },
+            {
+              "id": "row3.h24",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 24,
+              "expected": 24
+            },
+            {
+              "id": "row2.emptyPlaceholder",
+              "ac": "AC1",
+              "pass": true,
+              "actual": "",
+              "expected": "空占位（无文本）"
+            },
+            {
+              "id": "row4.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "content.childCount=4",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 4,
+              "expected": 4
+            },
+            {
+              "id": "rows.stackSum=152",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 152,
+              "expected": 152
+            },
+            {
+              "id": "rows.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "rowW": 207.34,
+                "innerClientW": 207
+              },
+              "expected": "行宽 = 卡内宽"
+            },
+            {
+              "id": "no.hOverflow.card",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "scrollW": 209,
+                "clientW": 209
+              },
+              "expected": "scrollWidth <= clientWidth"
+            },
+            {
+              "id": "no.vOverflow.content",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": {
+                "scrollH": 152,
+                "clientH": 150
+              },
+              "expected": "content 不纵向溢出"
+            },
+            {
+              "id": "title.textExact",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "got": "Ultra long product title fixture for truncation ...",
+                "expected": "Ultra long product title fixture for truncation ...",
+                "gotLen": 51,
+                "expLen": 51
+              },
+              "expected": "逐字相等（≤48 全等 / >48 前缀+`...`）"
+            },
+            {
+              "id": "title.width<=51",
+              "ac": "AC2",
+              "pass": true,
+              "actual": 51,
+              "expected": "<= 48 + 3 (`...`)"
+            },
+            {
+              "id": "title.endsWithLiteralDots",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "text": "tion ...",
+                "overLimit": true
+              },
+              "expected": "超限卡结尾恰为 `...` / 未超限卡不加点"
+            },
+            {
+              "id": "title.noU2026",
+              "ac": "AC2",
+              "pass": true,
+              "actual": false,
+              "expected": "不含 `…`"
+            },
+            {
+              "id": "title.noDoubleEllipsis",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "on ...",
+              "expected": "非双尾"
+            },
+            {
+              "id": "title.within48Height",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "scrollH": 48,
+                "clientH": 48
+              },
+              "expected": "scrollHeight <= 48（两行内）"
+            },
+            {
+              "id": "title.dotsVisible",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "dotsRect": {
+                  "top": 959,
+                  "bottom": 976,
+                  "left": 792.69,
+                  "right": 802.75,
+                  "h": 17,
+                  "w": 10.06
+                },
+                "rowRect": {
+                  "top": 932,
+                  "bottom": 980,
+                  "left": 728.98,
+                  "right": 936.33
+                }
+              },
+              "expected": "`...` 落在行盒内（未被裁）"
+            },
+            {
+              "id": "price.dollarInSpan",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "tag": "SPAN",
+                "text": "$"
+              },
+              "expected": "<span>$</span>"
+            },
+            {
+              "id": "price.noYen",
+              "ac": "AC3",
+              "pass": true,
+              "actual": false,
+              "expected": "无 `¥`"
+            },
+            {
+              "id": "price.num=points",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "7",
+              "expected": "7"
+            },
+            {
+              "id": "price.wantsRegex",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "3人想要",
+              "expected": "^\\d+人想要$"
+            },
+            {
+              "id": "price.wantsValue",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "3人想要",
+              "expected": "3人想要"
+            },
+            {
+              "id": "price.singleLine",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "scrollH": 24,
+                "clientH": 24
+              },
+              "expected": "单行（行高 24，无换行）"
+            },
+            {
+              "id": "price.curNumAdjacent",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "gap": 0
+              },
+              "expected": "`$` 与数字紧贴（gap ≤ 1px）"
+            },
+            {
+              "id": "price.wantsRightOfNum",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "numRight": 757.8,
+                "wantsLeft": 881.13
+              },
+              "expected": "wants 在数字右侧"
+            },
+            {
+              "id": "removed.description",
+              "ac": "AC5",
+              "pass": true,
+              "actual": false,
+              "expected": "描述行不渲染"
+            },
+            {
+              "id": "removed.clamp3",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "removed.clockIcon",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "kept.priceBlock",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "`$` 块在场"
+            },
+            {
+              "id": "kept.sellerBar",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "卖家栏 + 信用胶囊在场"
+            },
+            {
+              "id": "kept.wholeCardLink",
+              "ac": "AC5",
+              "pass": true,
+              "actual": "/item/9104",
+              "expected": "a[href=/item/<数字>]"
+            },
+            {
+              "id": "kept.noNestedInteractive",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            }
+          ]
+        },
+        {
+          "bID": 9105,
+          "title": "无图卡",
+          "checks": [
+            {
+              "id": "card.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "inner.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "content.h152",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": 150,
+              "expected": 152
+            },
+            {
+              "id": "image.h240",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 240,
+              "expected": 240
+            },
+            {
+              "id": "image.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "imgW": 207.33,
+                "innerClientW": 207
+              },
+              "expected": "img 宽 = 卡内宽"
+            },
+            {
+              "id": "image.objectFitCover",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "fit": "cover",
+                "pos": "50% 50%"
+              },
+              "expected": "cover + center（无图则容器在）"
+            },
+            {
+              "id": "row1.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "row2.h32",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 32,
+              "expected": 32
+            },
+            {
+              "id": "row3.h24",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 24,
+              "expected": 24
+            },
+            {
+              "id": "row2.emptyPlaceholder",
+              "ac": "AC1",
+              "pass": true,
+              "actual": "",
+              "expected": "空占位（无文本）"
+            },
+            {
+              "id": "row4.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "content.childCount=4",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 4,
+              "expected": 4
+            },
+            {
+              "id": "rows.stackSum=152",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 152,
+              "expected": 152
+            },
+            {
+              "id": "rows.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "rowW": 207.33,
+                "innerClientW": 207
+              },
+              "expected": "行宽 = 卡内宽"
+            },
+            {
+              "id": "no.hOverflow.card",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "scrollW": 209,
+                "clientW": 209
+              },
+              "expected": "scrollWidth <= clientWidth"
+            },
+            {
+              "id": "no.vOverflow.content",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": {
+                "scrollH": 152,
+                "clientH": 150
+              },
+              "expected": "content 不纵向溢出"
+            },
+            {
+              "id": "title.textExact",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "got": "无图卡",
+                "expected": "无图卡",
+                "gotLen": 3,
+                "expLen": 3
+              },
+              "expected": "逐字相等（≤48 全等 / >48 前缀+`...`）"
+            },
+            {
+              "id": "title.width<=51",
+              "ac": "AC2",
+              "pass": true,
+              "actual": 6,
+              "expected": "<= 48 + 3 (`...`)"
+            },
+            {
+              "id": "title.endsWithLiteralDots",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "text": "无图卡",
+                "overLimit": false
+              },
+              "expected": "超限卡结尾恰为 `...` / 未超限卡不加点"
+            },
+            {
+              "id": "title.noU2026",
+              "ac": "AC2",
+              "pass": true,
+              "actual": false,
+              "expected": "不含 `…`"
+            },
+            {
+              "id": "title.noDoubleEllipsis",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "无图卡",
+              "expected": "非双尾"
+            },
+            {
+              "id": "title.within48Height",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "scrollH": 48,
+                "clientH": 48
+              },
+              "expected": "scrollHeight <= 48（两行内）"
+            },
+            {
+              "id": "title.dotsVisible",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "no trailing dots node",
+              "expected": "未截断卡不适用"
+            },
+            {
+              "id": "price.dollarInSpan",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "tag": "SPAN",
+                "text": "$"
+              },
+              "expected": "<span>$</span>"
+            },
+            {
+              "id": "price.noYen",
+              "ac": "AC3",
+              "pass": true,
+              "actual": false,
+              "expected": "无 `¥`"
+            },
+            {
+              "id": "price.num=points",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "1",
+              "expected": "1"
+            },
+            {
+              "id": "price.wantsRegex",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "0人想要",
+              "expected": "^\\d+人想要$"
+            },
+            {
+              "id": "price.wantsValue",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "0人想要",
+              "expected": "0人想要"
+            },
+            {
+              "id": "price.singleLine",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "scrollH": 24,
+                "clientH": 24
+              },
+              "expected": "单行（行高 24，无换行）"
+            },
+            {
+              "id": "price.curNumAdjacent",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "gap": 0
+              },
+              "expected": "`$` 与数字紧贴（gap ≤ 1px）"
+            },
+            {
+              "id": "price.wantsRightOfNum",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "numRight": 983.14,
+                "wantsLeft": 1106.45
+              },
+              "expected": "wants 在数字右侧"
+            },
+            {
+              "id": "removed.description",
+              "ac": "AC5",
+              "pass": true,
+              "actual": false,
+              "expected": "描述行不渲染"
+            },
+            {
+              "id": "removed.clamp3",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "removed.clockIcon",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "kept.priceBlock",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "`$` 块在场"
+            },
+            {
+              "id": "kept.sellerBar",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "卖家栏 + 信用胶囊在场"
+            },
+            {
+              "id": "kept.wholeCardLink",
+              "ac": "AC5",
+              "pass": true,
+              "actual": "/item/9105",
+              "expected": "a[href=/item/<数字>]"
+            },
+            {
+              "id": "kept.noNestedInteractive",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            }
+          ]
+        }
+      ],
+      "page": {
+        "cardCount": 5,
+        "hOverflow": 0,
+        "gridCols": 6,
+        "theme": "dark"
+      },
+      "__boxDiag": [
+        {
+          "bID": 9101,
+          "cardRectH": 392,
+          "innerClientH": 390,
+          "innerOffsetH": 392,
+          "innerBorderTop": "1px",
+          "innerBorderBottom": "1px",
+          "innerBoxSizing": "border-box",
+          "contentRectH": 150,
+          "sellerBottom": 1084,
+          "innerBottom": 1083,
+          "sellerClippedPx": 1
+        },
+        {
+          "bID": 9102,
+          "cardRectH": 392,
+          "innerClientH": 390,
+          "innerOffsetH": 392,
+          "innerBorderTop": "1px",
+          "innerBorderBottom": "1px",
+          "innerBoxSizing": "border-box",
+          "contentRectH": 150,
+          "sellerBottom": 1084,
+          "innerBottom": 1083,
+          "sellerClippedPx": 1
+        },
+        {
+          "bID": 9103,
+          "cardRectH": 392,
+          "innerClientH": 390,
+          "innerOffsetH": 392,
+          "innerBorderTop": "1px",
+          "innerBorderBottom": "1px",
+          "innerBoxSizing": "border-box",
+          "contentRectH": 150,
+          "sellerBottom": 1084,
+          "innerBottom": 1083,
+          "sellerClippedPx": 1
+        },
+        {
+          "bID": 9104,
+          "cardRectH": 392,
+          "innerClientH": 390,
+          "innerOffsetH": 392,
+          "innerBorderTop": "1px",
+          "innerBorderBottom": "1px",
+          "innerBoxSizing": "border-box",
+          "contentRectH": 150,
+          "sellerBottom": 1084,
+          "innerBottom": 1083,
+          "sellerClippedPx": 1
+        },
+        {
+          "bID": 9105,
+          "cardRectH": 392,
+          "innerClientH": 390,
+          "innerOffsetH": 392,
+          "innerBorderTop": "1px",
+          "innerBorderBottom": "1px",
+          "innerBoxSizing": "border-box",
+          "contentRectH": 150,
+          "sellerBottom": 1084,
+          "innerBottom": 1083,
+          "sellerClippedPx": 1
+        }
+      ],
+      "combo": {
+        "width": 1440,
+        "theme": "dark",
+        "injectCss": null
+      },
+      "pageErrors": []
+    },
+    {
+      "cards": [
+        {
+          "bID": 9101,
+          "title": "短标题",
+          "checks": [
+            {
+              "id": "card.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "inner.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "content.h152",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": 150,
+              "expected": 152
+            },
+            {
+              "id": "image.h240",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 240,
+              "expected": 240
+            },
+            {
+              "id": "image.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "imgW": 223.33,
+                "innerClientW": 223
+              },
+              "expected": "img 宽 = 卡内宽"
+            },
+            {
+              "id": "image.objectFitCover",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "fit": "cover",
+                "pos": "50% 50%"
+              },
+              "expected": "cover + center（无图则容器在）"
+            },
+            {
+              "id": "row1.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "row2.h32",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 32,
+              "expected": 32
+            },
+            {
+              "id": "row3.h24",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 24,
+              "expected": 24
+            },
+            {
+              "id": "row2.emptyPlaceholder",
+              "ac": "AC1",
+              "pass": true,
+              "actual": "",
+              "expected": "空占位（无文本）"
+            },
+            {
+              "id": "row4.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "content.childCount=4",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 4,
+              "expected": 4
+            },
+            {
+              "id": "rows.stackSum=152",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 152,
+              "expected": 152
+            },
+            {
+              "id": "rows.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "rowW": 223.33,
+                "innerClientW": 223
+              },
+              "expected": "行宽 = 卡内宽"
+            },
+            {
+              "id": "no.hOverflow.card",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "scrollW": 225,
+                "clientW": 225
+              },
+              "expected": "scrollWidth <= clientWidth"
+            },
+            {
+              "id": "no.vOverflow.content",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": {
+                "scrollH": 152,
+                "clientH": 150
+              },
+              "expected": "content 不纵向溢出"
+            },
+            {
+              "id": "title.textExact",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "got": "短标题",
+                "expected": "短标题",
+                "gotLen": 3,
+                "expLen": 3
+              },
+              "expected": "逐字相等（≤48 全等 / >48 前缀+`...`）"
+            },
+            {
+              "id": "title.width<=51",
+              "ac": "AC2",
+              "pass": true,
+              "actual": 6,
+              "expected": "<= 48 + 3 (`...`)"
+            },
+            {
+              "id": "title.endsWithLiteralDots",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "text": "短标题",
+                "overLimit": false
+              },
+              "expected": "超限卡结尾恰为 `...` / 未超限卡不加点"
+            },
+            {
+              "id": "title.noU2026",
+              "ac": "AC2",
+              "pass": true,
+              "actual": false,
+              "expected": "不含 `…`"
+            },
+            {
+              "id": "title.noDoubleEllipsis",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "短标题",
+              "expected": "非双尾"
+            },
+            {
+              "id": "title.within48Height",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "scrollH": 48,
+                "clientH": 48
+              },
+              "expected": "scrollHeight <= 48（两行内）"
+            },
+            {
+              "id": "title.dotsVisible",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "no trailing dots node",
+              "expected": "未截断卡不适用"
+            },
+            {
+              "id": "price.dollarInSpan",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "tag": "SPAN",
+                "text": "$"
+              },
+              "expected": "<span>$</span>"
+            },
+            {
+              "id": "price.noYen",
+              "ac": "AC3",
+              "pass": true,
+              "actual": false,
+              "expected": "无 `¥`"
+            },
+            {
+              "id": "price.num=points",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "495",
+              "expected": "495"
+            },
+            {
+              "id": "price.wantsRegex",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "20人想要",
+              "expected": "^\\d+人想要$"
+            },
+            {
+              "id": "price.wantsValue",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "20人想要",
+              "expected": "20人想要"
+            },
+            {
+              "id": "price.singleLine",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "scrollH": 24,
+                "clientH": 24
+              },
+              "expected": "单行（行高 24，无换行）"
+            },
+            {
+              "id": "price.curNumAdjacent",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "gap": 0
+              },
+              "expected": "`$` 与数字紧贴（gap ≤ 1px）"
+            },
+            {
+              "id": "price.wantsRightOfNum",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "numRight": 101.02,
+                "wantsLeft": 213.92
+              },
+              "expected": "wants 在数字右侧"
+            },
+            {
+              "id": "removed.description",
+              "ac": "AC5",
+              "pass": true,
+              "actual": false,
+              "expected": "描述行不渲染"
+            },
+            {
+              "id": "removed.clamp3",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "removed.clockIcon",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "kept.priceBlock",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "`$` 块在场"
+            },
+            {
+              "id": "kept.sellerBar",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "卖家栏 + 信用胶囊在场"
+            },
+            {
+              "id": "kept.wholeCardLink",
+              "ac": "AC5",
+              "pass": true,
+              "actual": "/item/9101",
+              "expected": "a[href=/item/<数字>]"
+            },
+            {
+              "id": "kept.noNestedInteractive",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            }
+          ]
+        },
+        {
+          "bID": 9102,
+          "title": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉",
+          "checks": [
+            {
+              "id": "card.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "inner.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "content.h152",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": 150,
+              "expected": 152
+            },
+            {
+              "id": "image.h240",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 240,
+              "expected": 240
+            },
+            {
+              "id": "image.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "imgW": 223.33,
+                "innerClientW": 223
+              },
+              "expected": "img 宽 = 卡内宽"
+            },
+            {
+              "id": "image.objectFitCover",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "fit": "cover",
+                "pos": "50% 50%"
+              },
+              "expected": "cover + center（无图则容器在）"
+            },
+            {
+              "id": "row1.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "row2.h32",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 32,
+              "expected": 32
+            },
+            {
+              "id": "row3.h24",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 24,
+              "expected": 24
+            },
+            {
+              "id": "row2.emptyPlaceholder",
+              "ac": "AC1",
+              "pass": true,
+              "actual": "",
+              "expected": "空占位（无文本）"
+            },
+            {
+              "id": "row4.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "content.childCount=4",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 4,
+              "expected": 4
+            },
+            {
+              "id": "rows.stackSum=152",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 152,
+              "expected": 152
+            },
+            {
+              "id": "rows.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "rowW": 223.33,
+                "innerClientW": 223
+              },
+              "expected": "行宽 = 卡内宽"
+            },
+            {
+              "id": "no.hOverflow.card",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "scrollW": 225,
+                "clientW": 225
+              },
+              "expected": "scrollWidth <= clientWidth"
+            },
+            {
+              "id": "no.vOverflow.content",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": {
+                "scrollH": 152,
+                "clientH": 150
+              },
+              "expected": "content 不纵向溢出"
+            },
+            {
+              "id": "title.textExact",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "got": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉",
+                "expected": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉",
+                "gotLen": 24,
+                "expLen": 24
+              },
+              "expected": "逐字相等（≤48 全等 / >48 前缀+`...`）"
+            },
+            {
+              "id": "title.width<=51",
+              "ac": "AC2",
+              "pass": true,
+              "actual": 48,
+              "expected": "<= 48 + 3 (`...`)"
+            },
+            {
+              "id": "title.endsWithLiteralDots",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "text": "汉汉汉汉汉汉汉汉",
+                "overLimit": false
+              },
+              "expected": "超限卡结尾恰为 `...` / 未超限卡不加点"
+            },
+            {
+              "id": "title.noU2026",
+              "ac": "AC2",
+              "pass": true,
+              "actual": false,
+              "expected": "不含 `…`"
+            },
+            {
+              "id": "title.noDoubleEllipsis",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "汉汉汉汉汉汉",
+              "expected": "非双尾"
+            },
+            {
+              "id": "title.within48Height",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "scrollH": 48,
+                "clientH": 48
+              },
+              "expected": "scrollHeight <= 48（两行内）"
+            },
+            {
+              "id": "title.dotsVisible",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "no trailing dots node",
+              "expected": "未截断卡不适用"
+            },
+            {
+              "id": "price.dollarInSpan",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "tag": "SPAN",
+                "text": "$"
+              },
+              "expected": "<span>$</span>"
+            },
+            {
+              "id": "price.noYen",
+              "ac": "AC3",
+              "pass": true,
+              "actual": false,
+              "expected": "无 `¥`"
+            },
+            {
+              "id": "price.num=points",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "12",
+              "expected": "12"
+            },
+            {
+              "id": "price.wantsRegex",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "0人想要",
+              "expected": "^\\d+人想要$"
+            },
+            {
+              "id": "price.wantsValue",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "0人想要",
+              "expected": "0人想要"
+            },
+            {
+              "id": "price.singleLine",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "scrollH": 24,
+                "clientH": 24
+              },
+              "expected": "单行（行高 24，无换行）"
+            },
+            {
+              "id": "price.curNumAdjacent",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "gap": 0
+              },
+              "expected": "`$` 与数字紧贴（gap ≤ 1px）"
+            },
+            {
+              "id": "price.wantsRightOfNum",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "numRight": 332.73,
+                "wantsLeft": 462.45
+              },
+              "expected": "wants 在数字右侧"
+            },
+            {
+              "id": "removed.description",
+              "ac": "AC5",
+              "pass": true,
+              "actual": false,
+              "expected": "描述行不渲染"
+            },
+            {
+              "id": "removed.clamp3",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "removed.clockIcon",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "kept.priceBlock",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "`$` 块在场"
+            },
+            {
+              "id": "kept.sellerBar",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "卖家栏 + 信用胶囊在场"
+            },
+            {
+              "id": "kept.wholeCardLink",
+              "ac": "AC5",
+              "pass": true,
+              "actual": "/item/9102",
+              "expected": "a[href=/item/<数字>]"
+            },
+            {
+              "id": "kept.noNestedInteractive",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            }
+          ]
+        },
+        {
+          "bID": 9103,
+          "title": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉",
+          "checks": [
+            {
+              "id": "card.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "inner.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "content.h152",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": 150,
+              "expected": 152
+            },
+            {
+              "id": "image.h240",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 240,
+              "expected": 240
+            },
+            {
+              "id": "image.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "imgW": 223.33,
+                "innerClientW": 223
+              },
+              "expected": "img 宽 = 卡内宽"
+            },
+            {
+              "id": "image.objectFitCover",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "fit": "cover",
+                "pos": "50% 50%"
+              },
+              "expected": "cover + center（无图则容器在）"
+            },
+            {
+              "id": "row1.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "row2.h32",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 32,
+              "expected": 32
+            },
+            {
+              "id": "row3.h24",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 24,
+              "expected": 24
+            },
+            {
+              "id": "row2.emptyPlaceholder",
+              "ac": "AC1",
+              "pass": true,
+              "actual": "",
+              "expected": "空占位（无文本）"
+            },
+            {
+              "id": "row4.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "content.childCount=4",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 4,
+              "expected": 4
+            },
+            {
+              "id": "rows.stackSum=152",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 152,
+              "expected": 152
+            },
+            {
+              "id": "rows.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "rowW": 223.33,
+                "innerClientW": 223
+              },
+              "expected": "行宽 = 卡内宽"
+            },
+            {
+              "id": "no.hOverflow.card",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "scrollW": 225,
+                "clientW": 225
+              },
+              "expected": "scrollWidth <= clientWidth"
+            },
+            {
+              "id": "no.vOverflow.content",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": {
+                "scrollH": 152,
+                "clientH": 150
+              },
+              "expected": "content 不纵向溢出"
+            },
+            {
+              "id": "title.textExact",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "got": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉...",
+                "expected": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉...",
+                "gotLen": 27,
+                "expLen": 27
+              },
+              "expected": "逐字相等（≤48 全等 / >48 前缀+`...`）"
+            },
+            {
+              "id": "title.width<=51",
+              "ac": "AC2",
+              "pass": true,
+              "actual": 51,
+              "expected": "<= 48 + 3 (`...`)"
+            },
+            {
+              "id": "title.endsWithLiteralDots",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "text": "汉汉汉汉汉...",
+                "overLimit": true
+              },
+              "expected": "超限卡结尾恰为 `...` / 未超限卡不加点"
+            },
+            {
+              "id": "title.noU2026",
+              "ac": "AC2",
+              "pass": true,
+              "actual": false,
+              "expected": "不含 `…`"
+            },
+            {
+              "id": "title.noDoubleEllipsis",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "汉汉汉...",
+              "expected": "非双尾"
+            },
+            {
+              "id": "title.within48Height",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "scrollH": 48,
+                "clientH": 48
+              },
+              "expected": "scrollHeight <= 48（两行内）"
+            },
+            {
+              "id": "title.dotsVisible",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "dotsRect": {
+                  "top": 959,
+                  "bottom": 976,
+                  "left": 612.84,
+                  "right": 622.91,
+                  "h": 17,
+                  "w": 10.06
+                },
+                "rowRect": {
+                  "top": 932,
+                  "bottom": 980,
+                  "left": 535.66,
+                  "right": 758.98
+                }
+              },
+              "expected": "`...` 落在行盒内（未被裁）"
+            },
+            {
+              "id": "price.dollarInSpan",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "tag": "SPAN",
+                "text": "$"
+              },
+              "expected": "<span>$</span>"
+            },
+            {
+              "id": "price.noYen",
+              "ac": "AC3",
+              "pass": true,
+              "actual": false,
+              "expected": "无 `¥`"
+            },
+            {
+              "id": "price.num=points",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "8888",
+              "expected": "8888"
+            },
+            {
+              "id": "price.wantsRegex",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "1234人想要",
+              "expected": "^\\d+人想要$"
+            },
+            {
+              "id": "price.wantsValue",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "1234人想要",
+              "expected": "1234人想要"
+            },
+            {
+              "id": "price.singleLine",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "scrollH": 24,
+                "clientH": 24
+              },
+              "expected": "单行（行高 24，无换行）"
+            },
+            {
+              "id": "price.curNumAdjacent",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "gap": 0
+              },
+              "expected": "`$` 与数字紧贴（gap ≤ 1px）"
+            },
+            {
+              "id": "price.wantsRightOfNum",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "numRight": 593.27,
+                "wantsLeft": 682.17
+              },
+              "expected": "wants 在数字右侧"
+            },
+            {
+              "id": "removed.description",
+              "ac": "AC5",
+              "pass": true,
+              "actual": false,
+              "expected": "描述行不渲染"
+            },
+            {
+              "id": "removed.clamp3",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "removed.clockIcon",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "kept.priceBlock",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "`$` 块在场"
+            },
+            {
+              "id": "kept.sellerBar",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "卖家栏 + 信用胶囊在场"
+            },
+            {
+              "id": "kept.wholeCardLink",
+              "ac": "AC5",
+              "pass": true,
+              "actual": "/item/9103",
+              "expected": "a[href=/item/<数字>]"
+            },
+            {
+              "id": "kept.noNestedInteractive",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            }
+          ]
+        },
+        {
+          "bID": 9104,
+          "title": "Ultra long product title fixture for truncation test 0123456789",
+          "checks": [
+            {
+              "id": "card.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "inner.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "content.h152",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": 150,
+              "expected": 152
+            },
+            {
+              "id": "image.h240",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 240,
+              "expected": 240
+            },
+            {
+              "id": "image.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "imgW": 223.34,
+                "innerClientW": 223
+              },
+              "expected": "img 宽 = 卡内宽"
+            },
+            {
+              "id": "image.objectFitCover",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "fit": "cover",
+                "pos": "50% 50%"
+              },
+              "expected": "cover + center（无图则容器在）"
+            },
+            {
+              "id": "row1.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "row2.h32",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 32,
+              "expected": 32
+            },
+            {
+              "id": "row3.h24",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 24,
+              "expected": 24
+            },
+            {
+              "id": "row2.emptyPlaceholder",
+              "ac": "AC1",
+              "pass": true,
+              "actual": "",
+              "expected": "空占位（无文本）"
+            },
+            {
+              "id": "row4.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "content.childCount=4",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 4,
+              "expected": 4
+            },
+            {
+              "id": "rows.stackSum=152",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 152,
+              "expected": 152
+            },
+            {
+              "id": "rows.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "rowW": 223.34,
+                "innerClientW": 223
+              },
+              "expected": "行宽 = 卡内宽"
+            },
+            {
+              "id": "no.hOverflow.card",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "scrollW": 225,
+                "clientW": 225
+              },
+              "expected": "scrollWidth <= clientWidth"
+            },
+            {
+              "id": "no.vOverflow.content",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": {
+                "scrollH": 152,
+                "clientH": 150
+              },
+              "expected": "content 不纵向溢出"
+            },
+            {
+              "id": "title.textExact",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "got": "Ultra long product title fixture for truncation ...",
+                "expected": "Ultra long product title fixture for truncation ...",
+                "gotLen": 51,
+                "expLen": 51
+              },
+              "expected": "逐字相等（≤48 全等 / >48 前缀+`...`）"
+            },
+            {
+              "id": "title.width<=51",
+              "ac": "AC2",
+              "pass": true,
+              "actual": 51,
+              "expected": "<= 48 + 3 (`...`)"
+            },
+            {
+              "id": "title.endsWithLiteralDots",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "text": "tion ...",
+                "overLimit": true
+              },
+              "expected": "超限卡结尾恰为 `...` / 未超限卡不加点"
+            },
+            {
+              "id": "title.noU2026",
+              "ac": "AC2",
+              "pass": true,
+              "actual": false,
+              "expected": "不含 `…`"
+            },
+            {
+              "id": "title.noDoubleEllipsis",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "on ...",
+              "expected": "非双尾"
+            },
+            {
+              "id": "title.within48Height",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "scrollH": 48,
+                "clientH": 48
+              },
+              "expected": "scrollHeight <= 48（两行内）"
+            },
+            {
+              "id": "title.dotsVisible",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "dotsRect": {
+                  "top": 959,
+                  "bottom": 976,
+                  "left": 840.69,
+                  "right": 850.75,
+                  "h": 17,
+                  "w": 10.06
+                },
+                "rowRect": {
+                  "top": 932,
+                  "bottom": 980,
+                  "left": 776.98,
+                  "right": 1000.33
+                }
+              },
+              "expected": "`...` 落在行盒内（未被裁）"
+            },
+            {
+              "id": "price.dollarInSpan",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "tag": "SPAN",
+                "text": "$"
+              },
+              "expected": "<span>$</span>"
+            },
+            {
+              "id": "price.noYen",
+              "ac": "AC3",
+              "pass": true,
+              "actual": false,
+              "expected": "无 `¥`"
+            },
+            {
+              "id": "price.num=points",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "7",
+              "expected": "7"
+            },
+            {
+              "id": "price.wantsRegex",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "3人想要",
+              "expected": "^\\d+人想要$"
+            },
+            {
+              "id": "price.wantsValue",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "3人想要",
+              "expected": "3人想要"
+            },
+            {
+              "id": "price.singleLine",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "scrollH": 24,
+                "clientH": 24
+              },
+              "expected": "单行（行高 24，无换行）"
+            },
+            {
+              "id": "price.curNumAdjacent",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "gap": 0
+              },
+              "expected": "`$` 与数字紧贴（gap ≤ 1px）"
+            },
+            {
+              "id": "price.wantsRightOfNum",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "numRight": 805.8,
+                "wantsLeft": 945.13
+              },
+              "expected": "wants 在数字右侧"
+            },
+            {
+              "id": "removed.description",
+              "ac": "AC5",
+              "pass": true,
+              "actual": false,
+              "expected": "描述行不渲染"
+            },
+            {
+              "id": "removed.clamp3",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "removed.clockIcon",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "kept.priceBlock",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "`$` 块在场"
+            },
+            {
+              "id": "kept.sellerBar",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "卖家栏 + 信用胶囊在场"
+            },
+            {
+              "id": "kept.wholeCardLink",
+              "ac": "AC5",
+              "pass": true,
+              "actual": "/item/9104",
+              "expected": "a[href=/item/<数字>]"
+            },
+            {
+              "id": "kept.noNestedInteractive",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            }
+          ]
+        },
+        {
+          "bID": 9105,
+          "title": "无图卡",
+          "checks": [
+            {
+              "id": "card.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "inner.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "content.h152",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": 150,
+              "expected": 152
+            },
+            {
+              "id": "image.h240",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 240,
+              "expected": 240
+            },
+            {
+              "id": "image.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "imgW": 223.33,
+                "innerClientW": 223
+              },
+              "expected": "img 宽 = 卡内宽"
+            },
+            {
+              "id": "image.objectFitCover",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "fit": "cover",
+                "pos": "50% 50%"
+              },
+              "expected": "cover + center（无图则容器在）"
+            },
+            {
+              "id": "row1.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "row2.h32",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 32,
+              "expected": 32
+            },
+            {
+              "id": "row3.h24",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 24,
+              "expected": 24
+            },
+            {
+              "id": "row2.emptyPlaceholder",
+              "ac": "AC1",
+              "pass": true,
+              "actual": "",
+              "expected": "空占位（无文本）"
+            },
+            {
+              "id": "row4.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "content.childCount=4",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 4,
+              "expected": 4
+            },
+            {
+              "id": "rows.stackSum=152",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 152,
+              "expected": 152
+            },
+            {
+              "id": "rows.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "rowW": 223.33,
+                "innerClientW": 223
+              },
+              "expected": "行宽 = 卡内宽"
+            },
+            {
+              "id": "no.hOverflow.card",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "scrollW": 225,
+                "clientW": 225
+              },
+              "expected": "scrollWidth <= clientWidth"
+            },
+            {
+              "id": "no.vOverflow.content",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": {
+                "scrollH": 152,
+                "clientH": 150
+              },
+              "expected": "content 不纵向溢出"
+            },
+            {
+              "id": "title.textExact",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "got": "无图卡",
+                "expected": "无图卡",
+                "gotLen": 3,
+                "expLen": 3
+              },
+              "expected": "逐字相等（≤48 全等 / >48 前缀+`...`）"
+            },
+            {
+              "id": "title.width<=51",
+              "ac": "AC2",
+              "pass": true,
+              "actual": 6,
+              "expected": "<= 48 + 3 (`...`)"
+            },
+            {
+              "id": "title.endsWithLiteralDots",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "text": "无图卡",
+                "overLimit": false
+              },
+              "expected": "超限卡结尾恰为 `...` / 未超限卡不加点"
+            },
+            {
+              "id": "title.noU2026",
+              "ac": "AC2",
+              "pass": true,
+              "actual": false,
+              "expected": "不含 `…`"
+            },
+            {
+              "id": "title.noDoubleEllipsis",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "无图卡",
+              "expected": "非双尾"
+            },
+            {
+              "id": "title.within48Height",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "scrollH": 48,
+                "clientH": 48
+              },
+              "expected": "scrollHeight <= 48（两行内）"
+            },
+            {
+              "id": "title.dotsVisible",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "no trailing dots node",
+              "expected": "未截断卡不适用"
+            },
+            {
+              "id": "price.dollarInSpan",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "tag": "SPAN",
+                "text": "$"
+              },
+              "expected": "<span>$</span>"
+            },
+            {
+              "id": "price.noYen",
+              "ac": "AC3",
+              "pass": true,
+              "actual": false,
+              "expected": "无 `¥`"
+            },
+            {
+              "id": "price.num=points",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "1",
+              "expected": "1"
+            },
+            {
+              "id": "price.wantsRegex",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "0人想要",
+              "expected": "^\\d+人想要$"
+            },
+            {
+              "id": "price.wantsValue",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "0人想要",
+              "expected": "0人想要"
+            },
+            {
+              "id": "price.singleLine",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "scrollH": 24,
+                "clientH": 24
+              },
+              "expected": "单行（行高 24，无换行）"
+            },
+            {
+              "id": "price.curNumAdjacent",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "gap": 0
+              },
+              "expected": "`$` 与数字紧贴（gap ≤ 1px）"
+            },
+            {
+              "id": "price.wantsRightOfNum",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "numRight": 1047.14,
+                "wantsLeft": 1186.45
+              },
+              "expected": "wants 在数字右侧"
+            },
+            {
+              "id": "removed.description",
+              "ac": "AC5",
+              "pass": true,
+              "actual": false,
+              "expected": "描述行不渲染"
+            },
+            {
+              "id": "removed.clamp3",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "removed.clockIcon",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "kept.priceBlock",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "`$` 块在场"
+            },
+            {
+              "id": "kept.sellerBar",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "卖家栏 + 信用胶囊在场"
+            },
+            {
+              "id": "kept.wholeCardLink",
+              "ac": "AC5",
+              "pass": true,
+              "actual": "/item/9105",
+              "expected": "a[href=/item/<数字>]"
+            },
+            {
+              "id": "kept.noNestedInteractive",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            }
+          ]
+        }
+      ],
+      "page": {
+        "cardCount": 5,
+        "hOverflow": 0,
+        "gridCols": 6,
+        "theme": "light"
+      },
+      "__boxDiag": [
+        {
+          "bID": 9101,
+          "cardRectH": 392,
+          "innerClientH": 390,
+          "innerOffsetH": 392,
+          "innerBorderTop": "1px",
+          "innerBorderBottom": "1px",
+          "innerBoxSizing": "border-box",
+          "contentRectH": 150,
+          "sellerBottom": 1084,
+          "innerBottom": 1083,
+          "sellerClippedPx": 1
+        },
+        {
+          "bID": 9102,
+          "cardRectH": 392,
+          "innerClientH": 390,
+          "innerOffsetH": 392,
+          "innerBorderTop": "1px",
+          "innerBorderBottom": "1px",
+          "innerBoxSizing": "border-box",
+          "contentRectH": 150,
+          "sellerBottom": 1084,
+          "innerBottom": 1083,
+          "sellerClippedPx": 1
+        },
+        {
+          "bID": 9103,
+          "cardRectH": 392,
+          "innerClientH": 390,
+          "innerOffsetH": 392,
+          "innerBorderTop": "1px",
+          "innerBorderBottom": "1px",
+          "innerBoxSizing": "border-box",
+          "contentRectH": 150,
+          "sellerBottom": 1084,
+          "innerBottom": 1083,
+          "sellerClippedPx": 1
+        },
+        {
+          "bID": 9104,
+          "cardRectH": 392,
+          "innerClientH": 390,
+          "innerOffsetH": 392,
+          "innerBorderTop": "1px",
+          "innerBorderBottom": "1px",
+          "innerBoxSizing": "border-box",
+          "contentRectH": 150,
+          "sellerBottom": 1084,
+          "innerBottom": 1083,
+          "sellerClippedPx": 1
+        },
+        {
+          "bID": 9105,
+          "cardRectH": 392,
+          "innerClientH": 390,
+          "innerOffsetH": 392,
+          "innerBorderTop": "1px",
+          "innerBorderBottom": "1px",
+          "innerBoxSizing": "border-box",
+          "contentRectH": 150,
+          "sellerBottom": 1084,
+          "innerBottom": 1083,
+          "sellerClippedPx": 1
+        }
+      ],
+      "combo": {
+        "width": 1536,
+        "theme": "light",
+        "injectCss": null
+      },
+      "pageErrors": []
+    },
+    {
+      "cards": [
+        {
+          "bID": 9101,
+          "title": "短标题",
+          "checks": [
+            {
+              "id": "card.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "inner.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "content.h152",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": 150,
+              "expected": 152
+            },
+            {
+              "id": "image.h240",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 240,
+              "expected": 240
+            },
+            {
+              "id": "image.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "imgW": 223.33,
+                "innerClientW": 223
+              },
+              "expected": "img 宽 = 卡内宽"
+            },
+            {
+              "id": "image.objectFitCover",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "fit": "cover",
+                "pos": "50% 50%"
+              },
+              "expected": "cover + center（无图则容器在）"
+            },
+            {
+              "id": "row1.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "row2.h32",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 32,
+              "expected": 32
+            },
+            {
+              "id": "row3.h24",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 24,
+              "expected": 24
+            },
+            {
+              "id": "row2.emptyPlaceholder",
+              "ac": "AC1",
+              "pass": true,
+              "actual": "",
+              "expected": "空占位（无文本）"
+            },
+            {
+              "id": "row4.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "content.childCount=4",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 4,
+              "expected": 4
+            },
+            {
+              "id": "rows.stackSum=152",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 152,
+              "expected": 152
+            },
+            {
+              "id": "rows.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "rowW": 223.33,
+                "innerClientW": 223
+              },
+              "expected": "行宽 = 卡内宽"
+            },
+            {
+              "id": "no.hOverflow.card",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "scrollW": 225,
+                "clientW": 225
+              },
+              "expected": "scrollWidth <= clientWidth"
+            },
+            {
+              "id": "no.vOverflow.content",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": {
+                "scrollH": 152,
+                "clientH": 150
+              },
+              "expected": "content 不纵向溢出"
+            },
+            {
+              "id": "title.textExact",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "got": "短标题",
+                "expected": "短标题",
+                "gotLen": 3,
+                "expLen": 3
+              },
+              "expected": "逐字相等（≤48 全等 / >48 前缀+`...`）"
+            },
+            {
+              "id": "title.width<=51",
+              "ac": "AC2",
+              "pass": true,
+              "actual": 6,
+              "expected": "<= 48 + 3 (`...`)"
+            },
+            {
+              "id": "title.endsWithLiteralDots",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "text": "短标题",
+                "overLimit": false
+              },
+              "expected": "超限卡结尾恰为 `...` / 未超限卡不加点"
+            },
+            {
+              "id": "title.noU2026",
+              "ac": "AC2",
+              "pass": true,
+              "actual": false,
+              "expected": "不含 `…`"
+            },
+            {
+              "id": "title.noDoubleEllipsis",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "短标题",
+              "expected": "非双尾"
+            },
+            {
+              "id": "title.within48Height",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "scrollH": 48,
+                "clientH": 48
+              },
+              "expected": "scrollHeight <= 48（两行内）"
+            },
+            {
+              "id": "title.dotsVisible",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "no trailing dots node",
+              "expected": "未截断卡不适用"
+            },
+            {
+              "id": "price.dollarInSpan",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "tag": "SPAN",
+                "text": "$"
+              },
+              "expected": "<span>$</span>"
+            },
+            {
+              "id": "price.noYen",
+              "ac": "AC3",
+              "pass": true,
+              "actual": false,
+              "expected": "无 `¥`"
+            },
+            {
+              "id": "price.num=points",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "495",
+              "expected": "495"
+            },
+            {
+              "id": "price.wantsRegex",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "20人想要",
+              "expected": "^\\d+人想要$"
+            },
+            {
+              "id": "price.wantsValue",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "20人想要",
+              "expected": "20人想要"
+            },
+            {
+              "id": "price.singleLine",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "scrollH": 24,
+                "clientH": 24
+              },
+              "expected": "单行（行高 24，无换行）"
+            },
+            {
+              "id": "price.curNumAdjacent",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "gap": 0
+              },
+              "expected": "`$` 与数字紧贴（gap ≤ 1px）"
+            },
+            {
+              "id": "price.wantsRightOfNum",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "numRight": 101.02,
+                "wantsLeft": 213.92
+              },
+              "expected": "wants 在数字右侧"
+            },
+            {
+              "id": "removed.description",
+              "ac": "AC5",
+              "pass": true,
+              "actual": false,
+              "expected": "描述行不渲染"
+            },
+            {
+              "id": "removed.clamp3",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "removed.clockIcon",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "kept.priceBlock",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "`$` 块在场"
+            },
+            {
+              "id": "kept.sellerBar",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "卖家栏 + 信用胶囊在场"
+            },
+            {
+              "id": "kept.wholeCardLink",
+              "ac": "AC5",
+              "pass": true,
+              "actual": "/item/9101",
+              "expected": "a[href=/item/<数字>]"
+            },
+            {
+              "id": "kept.noNestedInteractive",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            }
+          ]
+        },
+        {
+          "bID": 9102,
+          "title": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉",
+          "checks": [
+            {
+              "id": "card.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "inner.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "content.h152",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": 150,
+              "expected": 152
+            },
+            {
+              "id": "image.h240",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 240,
+              "expected": 240
+            },
+            {
+              "id": "image.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "imgW": 223.33,
+                "innerClientW": 223
+              },
+              "expected": "img 宽 = 卡内宽"
+            },
+            {
+              "id": "image.objectFitCover",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "fit": "cover",
+                "pos": "50% 50%"
+              },
+              "expected": "cover + center（无图则容器在）"
+            },
+            {
+              "id": "row1.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "row2.h32",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 32,
+              "expected": 32
+            },
+            {
+              "id": "row3.h24",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 24,
+              "expected": 24
+            },
+            {
+              "id": "row2.emptyPlaceholder",
+              "ac": "AC1",
+              "pass": true,
+              "actual": "",
+              "expected": "空占位（无文本）"
+            },
+            {
+              "id": "row4.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "content.childCount=4",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 4,
+              "expected": 4
+            },
+            {
+              "id": "rows.stackSum=152",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 152,
+              "expected": 152
+            },
+            {
+              "id": "rows.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "rowW": 223.33,
+                "innerClientW": 223
+              },
+              "expected": "行宽 = 卡内宽"
+            },
+            {
+              "id": "no.hOverflow.card",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "scrollW": 225,
+                "clientW": 225
+              },
+              "expected": "scrollWidth <= clientWidth"
+            },
+            {
+              "id": "no.vOverflow.content",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": {
+                "scrollH": 152,
+                "clientH": 150
+              },
+              "expected": "content 不纵向溢出"
+            },
+            {
+              "id": "title.textExact",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "got": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉",
+                "expected": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉",
+                "gotLen": 24,
+                "expLen": 24
+              },
+              "expected": "逐字相等（≤48 全等 / >48 前缀+`...`）"
+            },
+            {
+              "id": "title.width<=51",
+              "ac": "AC2",
+              "pass": true,
+              "actual": 48,
+              "expected": "<= 48 + 3 (`...`)"
+            },
+            {
+              "id": "title.endsWithLiteralDots",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "text": "汉汉汉汉汉汉汉汉",
+                "overLimit": false
+              },
+              "expected": "超限卡结尾恰为 `...` / 未超限卡不加点"
+            },
+            {
+              "id": "title.noU2026",
+              "ac": "AC2",
+              "pass": true,
+              "actual": false,
+              "expected": "不含 `…`"
+            },
+            {
+              "id": "title.noDoubleEllipsis",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "汉汉汉汉汉汉",
+              "expected": "非双尾"
+            },
+            {
+              "id": "title.within48Height",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "scrollH": 48,
+                "clientH": 48
+              },
+              "expected": "scrollHeight <= 48（两行内）"
+            },
+            {
+              "id": "title.dotsVisible",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "no trailing dots node",
+              "expected": "未截断卡不适用"
+            },
+            {
+              "id": "price.dollarInSpan",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "tag": "SPAN",
+                "text": "$"
+              },
+              "expected": "<span>$</span>"
+            },
+            {
+              "id": "price.noYen",
+              "ac": "AC3",
+              "pass": true,
+              "actual": false,
+              "expected": "无 `¥`"
+            },
+            {
+              "id": "price.num=points",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "12",
+              "expected": "12"
+            },
+            {
+              "id": "price.wantsRegex",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "0人想要",
+              "expected": "^\\d+人想要$"
+            },
+            {
+              "id": "price.wantsValue",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "0人想要",
+              "expected": "0人想要"
+            },
+            {
+              "id": "price.singleLine",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "scrollH": 24,
+                "clientH": 24
+              },
+              "expected": "单行（行高 24，无换行）"
+            },
+            {
+              "id": "price.curNumAdjacent",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "gap": 0
+              },
+              "expected": "`$` 与数字紧贴（gap ≤ 1px）"
+            },
+            {
+              "id": "price.wantsRightOfNum",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "numRight": 332.73,
+                "wantsLeft": 462.45
+              },
+              "expected": "wants 在数字右侧"
+            },
+            {
+              "id": "removed.description",
+              "ac": "AC5",
+              "pass": true,
+              "actual": false,
+              "expected": "描述行不渲染"
+            },
+            {
+              "id": "removed.clamp3",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "removed.clockIcon",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "kept.priceBlock",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "`$` 块在场"
+            },
+            {
+              "id": "kept.sellerBar",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "卖家栏 + 信用胶囊在场"
+            },
+            {
+              "id": "kept.wholeCardLink",
+              "ac": "AC5",
+              "pass": true,
+              "actual": "/item/9102",
+              "expected": "a[href=/item/<数字>]"
+            },
+            {
+              "id": "kept.noNestedInteractive",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            }
+          ]
+        },
+        {
+          "bID": 9103,
+          "title": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉",
+          "checks": [
+            {
+              "id": "card.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "inner.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "content.h152",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": 150,
+              "expected": 152
+            },
+            {
+              "id": "image.h240",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 240,
+              "expected": 240
+            },
+            {
+              "id": "image.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "imgW": 223.33,
+                "innerClientW": 223
+              },
+              "expected": "img 宽 = 卡内宽"
+            },
+            {
+              "id": "image.objectFitCover",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "fit": "cover",
+                "pos": "50% 50%"
+              },
+              "expected": "cover + center（无图则容器在）"
+            },
+            {
+              "id": "row1.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "row2.h32",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 32,
+              "expected": 32
+            },
+            {
+              "id": "row3.h24",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 24,
+              "expected": 24
+            },
+            {
+              "id": "row2.emptyPlaceholder",
+              "ac": "AC1",
+              "pass": true,
+              "actual": "",
+              "expected": "空占位（无文本）"
+            },
+            {
+              "id": "row4.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "content.childCount=4",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 4,
+              "expected": 4
+            },
+            {
+              "id": "rows.stackSum=152",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 152,
+              "expected": 152
+            },
+            {
+              "id": "rows.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "rowW": 223.33,
+                "innerClientW": 223
+              },
+              "expected": "行宽 = 卡内宽"
+            },
+            {
+              "id": "no.hOverflow.card",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "scrollW": 225,
+                "clientW": 225
+              },
+              "expected": "scrollWidth <= clientWidth"
+            },
+            {
+              "id": "no.vOverflow.content",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": {
+                "scrollH": 152,
+                "clientH": 150
+              },
+              "expected": "content 不纵向溢出"
+            },
+            {
+              "id": "title.textExact",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "got": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉...",
+                "expected": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉...",
+                "gotLen": 27,
+                "expLen": 27
+              },
+              "expected": "逐字相等（≤48 全等 / >48 前缀+`...`）"
+            },
+            {
+              "id": "title.width<=51",
+              "ac": "AC2",
+              "pass": true,
+              "actual": 51,
+              "expected": "<= 48 + 3 (`...`)"
+            },
+            {
+              "id": "title.endsWithLiteralDots",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "text": "汉汉汉汉汉...",
+                "overLimit": true
+              },
+              "expected": "超限卡结尾恰为 `...` / 未超限卡不加点"
+            },
+            {
+              "id": "title.noU2026",
+              "ac": "AC2",
+              "pass": true,
+              "actual": false,
+              "expected": "不含 `…`"
+            },
+            {
+              "id": "title.noDoubleEllipsis",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "汉汉汉...",
+              "expected": "非双尾"
+            },
+            {
+              "id": "title.within48Height",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "scrollH": 48,
+                "clientH": 48
+              },
+              "expected": "scrollHeight <= 48（两行内）"
+            },
+            {
+              "id": "title.dotsVisible",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "dotsRect": {
+                  "top": 959,
+                  "bottom": 976,
+                  "left": 612.84,
+                  "right": 622.91,
+                  "h": 17,
+                  "w": 10.06
+                },
+                "rowRect": {
+                  "top": 932,
+                  "bottom": 980,
+                  "left": 535.66,
+                  "right": 758.98
+                }
+              },
+              "expected": "`...` 落在行盒内（未被裁）"
+            },
+            {
+              "id": "price.dollarInSpan",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "tag": "SPAN",
+                "text": "$"
+              },
+              "expected": "<span>$</span>"
+            },
+            {
+              "id": "price.noYen",
+              "ac": "AC3",
+              "pass": true,
+              "actual": false,
+              "expected": "无 `¥`"
+            },
+            {
+              "id": "price.num=points",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "8888",
+              "expected": "8888"
+            },
+            {
+              "id": "price.wantsRegex",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "1234人想要",
+              "expected": "^\\d+人想要$"
+            },
+            {
+              "id": "price.wantsValue",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "1234人想要",
+              "expected": "1234人想要"
+            },
+            {
+              "id": "price.singleLine",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "scrollH": 24,
+                "clientH": 24
+              },
+              "expected": "单行（行高 24，无换行）"
+            },
+            {
+              "id": "price.curNumAdjacent",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "gap": 0
+              },
+              "expected": "`$` 与数字紧贴（gap ≤ 1px）"
+            },
+            {
+              "id": "price.wantsRightOfNum",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "numRight": 593.27,
+                "wantsLeft": 682.17
+              },
+              "expected": "wants 在数字右侧"
+            },
+            {
+              "id": "removed.description",
+              "ac": "AC5",
+              "pass": true,
+              "actual": false,
+              "expected": "描述行不渲染"
+            },
+            {
+              "id": "removed.clamp3",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "removed.clockIcon",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "kept.priceBlock",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "`$` 块在场"
+            },
+            {
+              "id": "kept.sellerBar",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "卖家栏 + 信用胶囊在场"
+            },
+            {
+              "id": "kept.wholeCardLink",
+              "ac": "AC5",
+              "pass": true,
+              "actual": "/item/9103",
+              "expected": "a[href=/item/<数字>]"
+            },
+            {
+              "id": "kept.noNestedInteractive",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            }
+          ]
+        },
+        {
+          "bID": 9104,
+          "title": "Ultra long product title fixture for truncation test 0123456789",
+          "checks": [
+            {
+              "id": "card.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "inner.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "content.h152",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": 150,
+              "expected": 152
+            },
+            {
+              "id": "image.h240",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 240,
+              "expected": 240
+            },
+            {
+              "id": "image.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "imgW": 223.34,
+                "innerClientW": 223
+              },
+              "expected": "img 宽 = 卡内宽"
+            },
+            {
+              "id": "image.objectFitCover",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "fit": "cover",
+                "pos": "50% 50%"
+              },
+              "expected": "cover + center（无图则容器在）"
+            },
+            {
+              "id": "row1.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "row2.h32",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 32,
+              "expected": 32
+            },
+            {
+              "id": "row3.h24",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 24,
+              "expected": 24
+            },
+            {
+              "id": "row2.emptyPlaceholder",
+              "ac": "AC1",
+              "pass": true,
+              "actual": "",
+              "expected": "空占位（无文本）"
+            },
+            {
+              "id": "row4.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "content.childCount=4",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 4,
+              "expected": 4
+            },
+            {
+              "id": "rows.stackSum=152",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 152,
+              "expected": 152
+            },
+            {
+              "id": "rows.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "rowW": 223.34,
+                "innerClientW": 223
+              },
+              "expected": "行宽 = 卡内宽"
+            },
+            {
+              "id": "no.hOverflow.card",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "scrollW": 225,
+                "clientW": 225
+              },
+              "expected": "scrollWidth <= clientWidth"
+            },
+            {
+              "id": "no.vOverflow.content",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": {
+                "scrollH": 152,
+                "clientH": 150
+              },
+              "expected": "content 不纵向溢出"
+            },
+            {
+              "id": "title.textExact",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "got": "Ultra long product title fixture for truncation ...",
+                "expected": "Ultra long product title fixture for truncation ...",
+                "gotLen": 51,
+                "expLen": 51
+              },
+              "expected": "逐字相等（≤48 全等 / >48 前缀+`...`）"
+            },
+            {
+              "id": "title.width<=51",
+              "ac": "AC2",
+              "pass": true,
+              "actual": 51,
+              "expected": "<= 48 + 3 (`...`)"
+            },
+            {
+              "id": "title.endsWithLiteralDots",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "text": "tion ...",
+                "overLimit": true
+              },
+              "expected": "超限卡结尾恰为 `...` / 未超限卡不加点"
+            },
+            {
+              "id": "title.noU2026",
+              "ac": "AC2",
+              "pass": true,
+              "actual": false,
+              "expected": "不含 `…`"
+            },
+            {
+              "id": "title.noDoubleEllipsis",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "on ...",
+              "expected": "非双尾"
+            },
+            {
+              "id": "title.within48Height",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "scrollH": 48,
+                "clientH": 48
+              },
+              "expected": "scrollHeight <= 48（两行内）"
+            },
+            {
+              "id": "title.dotsVisible",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "dotsRect": {
+                  "top": 959,
+                  "bottom": 976,
+                  "left": 840.69,
+                  "right": 850.75,
+                  "h": 17,
+                  "w": 10.06
+                },
+                "rowRect": {
+                  "top": 932,
+                  "bottom": 980,
+                  "left": 776.98,
+                  "right": 1000.33
+                }
+              },
+              "expected": "`...` 落在行盒内（未被裁）"
+            },
+            {
+              "id": "price.dollarInSpan",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "tag": "SPAN",
+                "text": "$"
+              },
+              "expected": "<span>$</span>"
+            },
+            {
+              "id": "price.noYen",
+              "ac": "AC3",
+              "pass": true,
+              "actual": false,
+              "expected": "无 `¥`"
+            },
+            {
+              "id": "price.num=points",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "7",
+              "expected": "7"
+            },
+            {
+              "id": "price.wantsRegex",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "3人想要",
+              "expected": "^\\d+人想要$"
+            },
+            {
+              "id": "price.wantsValue",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "3人想要",
+              "expected": "3人想要"
+            },
+            {
+              "id": "price.singleLine",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "scrollH": 24,
+                "clientH": 24
+              },
+              "expected": "单行（行高 24，无换行）"
+            },
+            {
+              "id": "price.curNumAdjacent",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "gap": 0
+              },
+              "expected": "`$` 与数字紧贴（gap ≤ 1px）"
+            },
+            {
+              "id": "price.wantsRightOfNum",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "numRight": 805.8,
+                "wantsLeft": 945.13
+              },
+              "expected": "wants 在数字右侧"
+            },
+            {
+              "id": "removed.description",
+              "ac": "AC5",
+              "pass": true,
+              "actual": false,
+              "expected": "描述行不渲染"
+            },
+            {
+              "id": "removed.clamp3",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "removed.clockIcon",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "kept.priceBlock",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "`$` 块在场"
+            },
+            {
+              "id": "kept.sellerBar",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "卖家栏 + 信用胶囊在场"
+            },
+            {
+              "id": "kept.wholeCardLink",
+              "ac": "AC5",
+              "pass": true,
+              "actual": "/item/9104",
+              "expected": "a[href=/item/<数字>]"
+            },
+            {
+              "id": "kept.noNestedInteractive",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            }
+          ]
+        },
+        {
+          "bID": 9105,
+          "title": "无图卡",
+          "checks": [
+            {
+              "id": "card.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "inner.h392",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 392,
+              "expected": 392
+            },
+            {
+              "id": "content.h152",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": 150,
+              "expected": 152
+            },
+            {
+              "id": "image.h240",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 240,
+              "expected": 240
+            },
+            {
+              "id": "image.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "imgW": 223.33,
+                "innerClientW": 223
+              },
+              "expected": "img 宽 = 卡内宽"
+            },
+            {
+              "id": "image.objectFitCover",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "fit": "cover",
+                "pos": "50% 50%"
+              },
+              "expected": "cover + center（无图则容器在）"
+            },
+            {
+              "id": "row1.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "row2.h32",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 32,
+              "expected": 32
+            },
+            {
+              "id": "row3.h24",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 24,
+              "expected": 24
+            },
+            {
+              "id": "row2.emptyPlaceholder",
+              "ac": "AC1",
+              "pass": true,
+              "actual": "",
+              "expected": "空占位（无文本）"
+            },
+            {
+              "id": "row4.h48",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 48,
+              "expected": 48
+            },
+            {
+              "id": "content.childCount=4",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 4,
+              "expected": 4
+            },
+            {
+              "id": "rows.stackSum=152",
+              "ac": "AC1",
+              "pass": true,
+              "actual": 152,
+              "expected": 152
+            },
+            {
+              "id": "rows.width=inner",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "rowW": 223.33,
+                "innerClientW": 223
+              },
+              "expected": "行宽 = 卡内宽"
+            },
+            {
+              "id": "no.hOverflow.card",
+              "ac": "AC1",
+              "pass": true,
+              "actual": {
+                "scrollW": 225,
+                "clientW": 225
+              },
+              "expected": "scrollWidth <= clientWidth"
+            },
+            {
+              "id": "no.vOverflow.content",
+              "ac": "SPEC",
+              "pass": false,
+              "actual": {
+                "scrollH": 152,
+                "clientH": 150
+              },
+              "expected": "content 不纵向溢出"
+            },
+            {
+              "id": "title.textExact",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "got": "无图卡",
+                "expected": "无图卡",
+                "gotLen": 3,
+                "expLen": 3
+              },
+              "expected": "逐字相等（≤48 全等 / >48 前缀+`...`）"
+            },
+            {
+              "id": "title.width<=51",
+              "ac": "AC2",
+              "pass": true,
+              "actual": 6,
+              "expected": "<= 48 + 3 (`...`)"
+            },
+            {
+              "id": "title.endsWithLiteralDots",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "text": "无图卡",
+                "overLimit": false
+              },
+              "expected": "超限卡结尾恰为 `...` / 未超限卡不加点"
+            },
+            {
+              "id": "title.noU2026",
+              "ac": "AC2",
+              "pass": true,
+              "actual": false,
+              "expected": "不含 `…`"
+            },
+            {
+              "id": "title.noDoubleEllipsis",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "无图卡",
+              "expected": "非双尾"
+            },
+            {
+              "id": "title.within48Height",
+              "ac": "AC2",
+              "pass": true,
+              "actual": {
+                "scrollH": 48,
+                "clientH": 48
+              },
+              "expected": "scrollHeight <= 48（两行内）"
+            },
+            {
+              "id": "title.dotsVisible",
+              "ac": "AC2",
+              "pass": true,
+              "actual": "no trailing dots node",
+              "expected": "未截断卡不适用"
+            },
+            {
+              "id": "price.dollarInSpan",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "tag": "SPAN",
+                "text": "$"
+              },
+              "expected": "<span>$</span>"
+            },
+            {
+              "id": "price.noYen",
+              "ac": "AC3",
+              "pass": true,
+              "actual": false,
+              "expected": "无 `¥`"
+            },
+            {
+              "id": "price.num=points",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "1",
+              "expected": "1"
+            },
+            {
+              "id": "price.wantsRegex",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "0人想要",
+              "expected": "^\\d+人想要$"
+            },
+            {
+              "id": "price.wantsValue",
+              "ac": "AC3",
+              "pass": true,
+              "actual": "0人想要",
+              "expected": "0人想要"
+            },
+            {
+              "id": "price.singleLine",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "scrollH": 24,
+                "clientH": 24
+              },
+              "expected": "单行（行高 24，无换行）"
+            },
+            {
+              "id": "price.curNumAdjacent",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "gap": 0
+              },
+              "expected": "`$` 与数字紧贴（gap ≤ 1px）"
+            },
+            {
+              "id": "price.wantsRightOfNum",
+              "ac": "AC3",
+              "pass": true,
+              "actual": {
+                "numRight": 1047.14,
+                "wantsLeft": 1186.45
+              },
+              "expected": "wants 在数字右侧"
+            },
+            {
+              "id": "removed.description",
+              "ac": "AC5",
+              "pass": true,
+              "actual": false,
+              "expected": "描述行不渲染"
+            },
+            {
+              "id": "removed.clamp3",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "removed.clockIcon",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "id": "kept.priceBlock",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "`$` 块在场"
+            },
+            {
+              "id": "kept.sellerBar",
+              "ac": "AC5",
+              "pass": true,
+              "actual": true,
+              "expected": "卖家栏 + 信用胶囊在场"
+            },
+            {
+              "id": "kept.wholeCardLink",
+              "ac": "AC5",
+              "pass": true,
+              "actual": "/item/9105",
+              "expected": "a[href=/item/<数字>]"
+            },
+            {
+              "id": "kept.noNestedInteractive",
+              "ac": "AC5",
+              "pass": true,
+              "actual": 0,
+              "expected": 0
+            }
+          ]
+        }
+      ],
+      "page": {
+        "cardCount": 5,
+        "hOverflow": 0,
+        "gridCols": 6,
+        "theme": "dark"
+      },
+      "__boxDiag": [
+        {
+          "bID": 9101,
+          "cardRectH": 392,
+          "innerClientH": 390,
+          "innerOffsetH": 392,
+          "innerBorderTop": "1px",
+          "innerBorderBottom": "1px",
+          "innerBoxSizing": "border-box",
+          "contentRectH": 150,
+          "sellerBottom": 1084,
+          "innerBottom": 1083,
+          "sellerClippedPx": 1
+        },
+        {
+          "bID": 9102,
+          "cardRectH": 392,
+          "innerClientH": 390,
+          "innerOffsetH": 392,
+          "innerBorderTop": "1px",
+          "innerBorderBottom": "1px",
+          "innerBoxSizing": "border-box",
+          "contentRectH": 150,
+          "sellerBottom": 1084,
+          "innerBottom": 1083,
+          "sellerClippedPx": 1
+        },
+        {
+          "bID": 9103,
+          "cardRectH": 392,
+          "innerClientH": 390,
+          "innerOffsetH": 392,
+          "innerBorderTop": "1px",
+          "innerBorderBottom": "1px",
+          "innerBoxSizing": "border-box",
+          "contentRectH": 150,
+          "sellerBottom": 1084,
+          "innerBottom": 1083,
+          "sellerClippedPx": 1
+        },
+        {
+          "bID": 9104,
+          "cardRectH": 392,
+          "innerClientH": 390,
+          "innerOffsetH": 392,
+          "innerBorderTop": "1px",
+          "innerBorderBottom": "1px",
+          "innerBoxSizing": "border-box",
+          "contentRectH": 150,
+          "sellerBottom": 1084,
+          "innerBottom": 1083,
+          "sellerClippedPx": 1
+        },
+        {
+          "bID": 9105,
+          "cardRectH": 392,
+          "innerClientH": 390,
+          "innerOffsetH": 392,
+          "innerBorderTop": "1px",
+          "innerBorderBottom": "1px",
+          "innerBoxSizing": "border-box",
+          "contentRectH": 150,
+          "sellerBottom": 1084,
+          "innerBottom": 1083,
+          "sellerClippedPx": 1
+        }
+      ],
+      "combo": {
+        "width": 1536,
+        "theme": "dark",
+        "injectCss": null
+      },
+      "pageErrors": []
+    }
+  ],
+  "negative": {
+    "injectCss": ".sf-reward-card .row3-wrap-price{height:25px!important;flex:0 0 25px!important}",
+    "failCount": 25,
+    "fails": [
+      {
+        "id": "content.h152",
+        "ac": "SPEC",
+        "pass": false,
+        "actual": 150,
+        "expected": 152
+      },
+      {
+        "id": "row3.h24",
+        "ac": "AC1",
+        "pass": false,
+        "actual": 25,
+        "expected": 24
+      },
+      {
+        "id": "rows.stackSum=152",
+        "ac": "AC1",
+        "pass": false,
+        "actual": 153,
+        "expected": 152
+      },
+      {
+        "id": "no.vOverflow.content",
+        "ac": "SPEC",
+        "pass": false,
+        "actual": {
+          "scrollH": 153,
+          "clientH": 150
+        },
+        "expected": "content 不纵向溢出"
+      },
+      {
+        "id": "price.singleLine",
+        "ac": "AC3",
+        "pass": false,
+        "actual": {
+          "scrollH": 25,
+          "clientH": 25
+        },
+        "expected": "单行（行高 24，无换行）"
+      },
+      {
+        "id": "content.h152",
+        "ac": "SPEC",
+        "pass": false,
+        "actual": 150,
+        "expected": 152
+      },
+      {
+        "id": "row3.h24",
+        "ac": "AC1",
+        "pass": false,
+        "actual": 25,
+        "expected": 24
+      },
+      {
+        "id": "rows.stackSum=152",
+        "ac": "AC1",
+        "pass": false,
+        "actual": 153,
+        "expected": 152
+      },
+      {
+        "id": "no.vOverflow.content",
+        "ac": "SPEC",
+        "pass": false,
+        "actual": {
+          "scrollH": 153,
+          "clientH": 150
+        },
+        "expected": "content 不纵向溢出"
+      },
+      {
+        "id": "price.singleLine",
+        "ac": "AC3",
+        "pass": false,
+        "actual": {
+          "scrollH": 25,
+          "clientH": 25
+        },
+        "expected": "单行（行高 24，无换行）"
+      },
+      {
+        "id": "content.h152",
+        "ac": "SPEC",
+        "pass": false,
+        "actual": 150,
+        "expected": 152
+      },
+      {
+        "id": "row3.h24",
+        "ac": "AC1",
+        "pass": false,
+        "actual": 25,
+        "expected": 24
+      },
+      {
+        "id": "rows.stackSum=152",
+        "ac": "AC1",
+        "pass": false,
+        "actual": 153,
+        "expected": 152
+      },
+      {
+        "id": "no.vOverflow.content",
+        "ac": "SPEC",
+        "pass": false,
+        "actual": {
+          "scrollH": 153,
+          "clientH": 150
+        },
+        "expected": "content 不纵向溢出"
+      },
+      {
+        "id": "price.singleLine",
+        "ac": "AC3",
+        "pass": false,
+        "actual": {
+          "scrollH": 25,
+          "clientH": 25
+        },
+        "expected": "单行（行高 24，无换行）"
+      },
+      {
+        "id": "content.h152",
+        "ac": "SPEC",
+        "pass": false,
+        "actual": 150,
+        "expected": 152
+      },
+      {
+        "id": "row3.h24",
+        "ac": "AC1",
+        "pass": false,
+        "actual": 25,
+        "expected": 24
+      },
+      {
+        "id": "rows.stackSum=152",
+        "ac": "AC1",
+        "pass": false,
+        "actual": 153,
+        "expected": 152
+      },
+      {
+        "id": "no.vOverflow.content",
+        "ac": "SPEC",
+        "pass": false,
+        "actual": {
+          "scrollH": 153,
+          "clientH": 150
+        },
+        "expected": "content 不纵向溢出"
+      },
+      {
+        "id": "price.singleLine",
+        "ac": "AC3",
+        "pass": false,
+        "actual": {
+          "scrollH": 25,
+          "clientH": 25
+        },
+        "expected": "单行（行高 24，无换行）"
+      },
+      {
+        "id": "content.h152",
+        "ac": "SPEC",
+        "pass": false,
+        "actual": 150,
+        "expected": 152
+      },
+      {
+        "id": "row3.h24",
+        "ac": "AC1",
+        "pass": false,
+        "actual": 25,
+        "expected": 24
+      },
+      {
+        "id": "rows.stackSum=152",
+        "ac": "AC1",
+        "pass": false,
+        "actual": 153,
+        "expected": 152
+      },
+      {
+        "id": "no.vOverflow.content",
+        "ac": "SPEC",
+        "pass": false,
+        "actual": {
+          "scrollH": 153,
+          "clientH": 150
+        },
+        "expected": "content 不纵向溢出"
+      },
+      {
+        "id": "price.singleLine",
+        "ac": "AC3",
+        "pass": false,
+        "actual": {
+          "scrollH": 25,
+          "clientH": 25
+        },
+        "expected": "单行（行高 24，无换行）"
+      }
+    ],
+    "cards": [
+      {
+        "bID": 9101,
+        "row3": 25,
+        "cardH": 392
+      },
+      {
+        "bID": 9102,
+        "row3": 25,
+        "cardH": 392
+      },
+      {
+        "bID": 9103,
+        "row3": 25,
+        "cardH": 392
+      },
+      {
+        "bID": 9104,
+        "row3": 25,
+        "cardH": 392
+      },
+      {
+        "bID": 9105,
+        "row3": 25,
+        "cardH": 392
+      }
+    ]
+  },
+  "restore": {
+    "failCount": 10,
+    "fails": [
+      {
+        "id": "content.h152",
+        "ac": "SPEC",
+        "pass": false,
+        "actual": 150,
+        "expected": 152
+      },
+      {
+        "id": "no.vOverflow.content",
+        "ac": "SPEC",
+        "pass": false,
+        "actual": {
+          "scrollH": 152,
+          "clientH": 150
+        },
+        "expected": "content 不纵向溢出"
+      },
+      {
+        "id": "content.h152",
+        "ac": "SPEC",
+        "pass": false,
+        "actual": 150,
+        "expected": 152
+      },
+      {
+        "id": "no.vOverflow.content",
+        "ac": "SPEC",
+        "pass": false,
+        "actual": {
+          "scrollH": 152,
+          "clientH": 150
+        },
+        "expected": "content 不纵向溢出"
+      },
+      {
+        "id": "content.h152",
+        "ac": "SPEC",
+        "pass": false,
+        "actual": 150,
+        "expected": 152
+      },
+      {
+        "id": "no.vOverflow.content",
+        "ac": "SPEC",
+        "pass": false,
+        "actual": {
+          "scrollH": 152,
+          "clientH": 150
+        },
+        "expected": "content 不纵向溢出"
+      },
+      {
+        "id": "content.h152",
+        "ac": "SPEC",
+        "pass": false,
+        "actual": 150,
+        "expected": 152
+      },
+      {
+        "id": "no.vOverflow.content",
+        "ac": "SPEC",
+        "pass": false,
+        "actual": {
+          "scrollH": 152,
+          "clientH": 150
+        },
+        "expected": "content 不纵向溢出"
+      },
+      {
+        "id": "content.h152",
+        "ac": "SPEC",
+        "pass": false,
+        "actual": 150,
+        "expected": 152
+      },
+      {
+        "id": "no.vOverflow.content",
+        "ac": "SPEC",
+        "pass": false,
+        "actual": {
+          "scrollH": 152,
+          "clientH": 150
+        },
+        "expected": "content 不纵向溢出"
+      }
+    ]
+  },
+  "finished": "2026-10-19T11:04:54.248Z",
+  "summary": {
+    "combos": 4,
+    "totalChecks": 760,
+    "acChecks": 720,
+    "acFails": 0,
+    "specChecks": 40,
+    "specFails": 40,
+    "totalFails": 40,
+    "negativeFails": 25,
+    "restoreFails": 10,
+    "themes": [
+      {
+        "width": 1440,
+        "theme": "light"
+      },
+      {
+        "width": 1440,
+        "theme": "dark"
+      },
+      {
+        "width": 1536,
+        "theme": "light"
+      },
+      {
+        "width": 1536,
+        "theme": "dark"
+      }
+    ]
+  }
+}

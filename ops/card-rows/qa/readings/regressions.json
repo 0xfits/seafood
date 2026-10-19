@@ -1,0 +1,190 @@
+{
+  "finished": "2026-10-19T11:04:12.702Z",
+  "fe": "http://localhost:5787",
+  "api": "http://localhost:5788",
+  "steps": [
+    {
+      "id": "api.currencies=2",
+      "ok": true,
+      "actual": {
+        "rows": [
+          "1:$",
+          "399:BTTC"
+        ]
+      },
+      "expected": 2
+    },
+    {
+      "id": "api.currencies.has$",
+      "ok": true,
+      "actual": [
+        "$",
+        "BTTC"
+      ],
+      "expected": "['$','BTTC']"
+    },
+    {
+      "id": "api.media999=404",
+      "ok": true,
+      "actual": {
+        "status": 404
+      },
+      "expected": 404
+    },
+    {
+      "id": "item1.noPageError",
+      "ok": true,
+      "actual": {
+        "errors": []
+      },
+      "expected": 0
+    },
+    {
+      "id": "item1.noConsoleError",
+      "ok": true,
+      "actual": {
+        "errors": []
+      },
+      "expected": 0
+    },
+    {
+      "id": "item1.rootRendered",
+      "ok": true,
+      "actual": {
+        "status": 200,
+        "rootLen": 11837,
+        "title": "Seafood 海鲜市场｜加密人自己的「闲鱼」",
+        "h1": "",
+        "favToggle": false,
+        "detail": true
+      },
+      "expected": ">200 chars"
+    },
+    {
+      "id": "mobile390.noHOverflow",
+      "ok": true,
+      "actual": {
+        "overflow": 0,
+        "cards": 9,
+        "cardHeights": [
+          392
+        ],
+        "cardWidths": [
+          164.5
+        ],
+        "cols": 2,
+        "cardHeight": 392
+      },
+      "expected": "scrollWidth − clientWidth = 0"
+    },
+    {
+      "id": "mobile390.noPageError",
+      "ok": true,
+      "actual": {
+        "errors": []
+      },
+      "expected": 0
+    },
+    {
+      "id": "mobile390.cardsPresent",
+      "ok": true,
+      "actual": {
+        "cards": 9,
+        "cols": 2
+      },
+      "expected": ">0"
+    },
+    {
+      "id": "mobile390.cardH392",
+      "ok": true,
+      "actual": {
+        "heights": [
+          392
+        ],
+        "widths": [
+          164.5
+        ]
+      },
+      "expected": [
+        392
+      ]
+    },
+    {
+      "id": "realFeed1440.geometry",
+      "ok": true,
+      "actual": {
+        "cards": 9,
+        "sample": [
+          {
+            "h": 392,
+            "rows": [
+              48,
+              32,
+              24,
+              48
+            ],
+            "img": 240,
+            "priceText": "$20人想要",
+            "wantsText": "0人想要",
+            "curNumGap": 0
+          },
+          {
+            "h": 392,
+            "rows": [
+              48,
+              32,
+              24,
+              48
+            ],
+            "img": 240,
+            "priceText": "$40人想要",
+            "wantsText": "0人想要",
+            "curNumGap": 0
+          },
+          {
+            "h": 392,
+            "rows": [
+              48,
+              32,
+              24,
+              48
+            ],
+            "img": 240,
+            "priceText": "$10人想要",
+            "wantsText": "0人想要",
+            "curNumGap": 0
+          }
+        ],
+        "distinctHeights": [
+          392
+        ]
+      },
+      "expected": "全部 392 / 240 / 48·32·24·48"
+    },
+    {
+      "id": "realFeed1440.priceRow",
+      "ok": true,
+      "actual": {
+        "sample": [
+          {
+            "text": "$20人想要",
+            "wants": "0人想要",
+            "gap": 0
+          },
+          {
+            "text": "$40人想要",
+            "wants": "0人想要",
+            "gap": 0
+          },
+          {
+            "text": "$10人想要",
+            "wants": "0人想要",
+            "gap": 0
+          }
+        ]
+      },
+      "expected": "`$`+数字紧贴（gap≤1）+ `^\\d+人想要$`"
+    }
+  ],
+  "ok": true
+}

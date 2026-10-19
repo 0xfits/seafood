@@ -1,0 +1,520 @@
+{
+  "task": "商品卡四行结构（image-container + content 四行）· 独立质检 AC1–AC7",
+  "generated_at": "2026-10-19T11:05:11Z",
+  "repo": "/Users/kevin/bistro/seafood",
+  "contract": "docs/design/design-system.spec.md §26.11（design v1.25）",
+  "head": "38dcbe5",
+  "branch": "main",
+  "ahead_of_origin_main": 2,
+  "pushed": false,
+  "product_code_touched_by_qa": false,
+  "product_docs_touched_by_qa": false,
+  "verdict": "PASS",
+  "verdict_basis": "AC1–AC7 逐条自取读数全部通过（AC 判据 720 条 0 红；门套 4 项全绿；wants 真库往返含回收）；另登记 1 条契约文字面偏离（F1，非 AC 判据、不影响 AC 判定，需裁定）",
+  "acs": [
+    {
+      "id": "AC1",
+      "name": "几何：卡高 392 / 行高 48·32·24·48 / 图 240 / 图宽=卡内宽 / 零横向溢出",
+      "verdict": "PASS",
+      "checks": 280,
+      "fails": 0,
+      "evidence": "readings/rows-qa.json（4 组合 × 5 夹具卡：1440/1536 × 日/夜）",
+      "readings": {
+        "combos": [
+          {
+            "viewport": 1440,
+            "theme": "light",
+            "cards": 5,
+            "cols": 6,
+            "pageHOverflow": 0,
+            "checks": 190,
+            "acFails": 0,
+            "specFails": 10,
+            "pageErrors": []
+          },
+          {
+            "viewport": 1440,
+            "theme": "dark",
+            "cards": 5,
+            "cols": 6,
+            "pageHOverflow": 0,
+            "checks": 190,
+            "acFails": 0,
+            "specFails": 10,
+            "pageErrors": []
+          },
+          {
+            "viewport": 1536,
+            "theme": "light",
+            "cards": 5,
+            "cols": 6,
+            "pageHOverflow": 0,
+            "checks": 190,
+            "acFails": 0,
+            "specFails": 10,
+            "pageErrors": []
+          },
+          {
+            "viewport": 1536,
+            "theme": "dark",
+            "cards": 5,
+            "cols": 6,
+            "pageHOverflow": 0,
+            "checks": 190,
+            "acFails": 0,
+            "specFails": 10,
+            "pageErrors": []
+          }
+        ],
+        "cardH": 392,
+        "rows": [
+          48,
+          32,
+          24,
+          48
+        ],
+        "imgH": 240,
+        "imgW_equals_innerClientW": "207.33 / 207（1440 档）· 223.33 / 223（1536 档），差 0.33 为栅格子像素",
+        "pageHOverflow": 0,
+        "collayout": "6 列（两档）",
+        "perCard": [
+          {
+            "bID": 9101,
+            "fixtureTitleLen": 3,
+            "cardH": 392,
+            "imgH": 240,
+            "rows": [
+              48,
+              32,
+              24,
+              48
+            ],
+            "titleText": "短标题",
+            "titleUnits": 6,
+            "titleScrollH": 48,
+            "traceDots": true,
+            "dotsVisible": null,
+            "priceNum": "495",
+            "wantsText": "20人想要",
+            "curNumGap": 0,
+            "row2Empty": true,
+            "link": "/item/9101"
+          },
+          {
+            "bID": 9102,
+            "fixtureTitleLen": 24,
+            "cardH": 392,
+            "imgH": 240,
+            "rows": [
+              48,
+              32,
+              24,
+              48
+            ],
+            "titleText": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉",
+            "titleUnits": 48,
+            "titleScrollH": 48,
+            "traceDots": true,
+            "dotsVisible": null,
+            "priceNum": "12",
+            "wantsText": "0人想要",
+            "curNumGap": 0,
+            "row2Empty": true,
+            "link": "/item/9102"
+          },
+          {
+            "bID": 9103,
+            "fixtureTitleLen": 25,
+            "cardH": 392,
+            "imgH": 240,
+            "rows": [
+              48,
+              32,
+              24,
+              48
+            ],
+            "titleText": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉...",
+            "titleUnits": 51,
+            "titleScrollH": 48,
+            "traceDots": true,
+            "dotsVisible": true,
+            "priceNum": "8888",
+            "wantsText": "1234人想要",
+            "curNumGap": 0,
+            "row2Empty": true,
+            "link": "/item/9103"
+          },
+          {
+            "bID": 9104,
+            "fixtureTitleLen": 63,
+            "cardH": 392,
+            "imgH": 240,
+            "rows": [
+              48,
+              32,
+              24,
+              48
+            ],
+            "titleText": "Ultra long product title fixture for truncation ...",
+            "titleUnits": 51,
+            "titleScrollH": 48,
+            "traceDots": true,
+            "dotsVisible": true,
+            "priceNum": "7",
+            "wantsText": "3人想要",
+            "curNumGap": 0,
+            "row2Empty": true,
+            "link": "/item/9104"
+          },
+          {
+            "bID": 9105,
+            "fixtureTitleLen": 3,
+            "cardH": 392,
+            "imgH": 240,
+            "rows": [
+              48,
+              32,
+              24,
+              48
+            ],
+            "titleText": "无图卡",
+            "titleUnits": 6,
+            "titleScrollH": 48,
+            "traceDots": true,
+            "dotsVisible": null,
+            "priceNum": "1",
+            "wantsText": "0人想要",
+            "curNumGap": 0,
+            "row2Empty": true,
+            "link": "/item/9105"
+          }
+        ],
+        "realFeed1440": {
+          "cards": 9,
+          "sample": [
+            {
+              "h": 392,
+              "rows": [
+                48,
+                32,
+                24,
+                48
+              ],
+              "img": 240,
+              "priceText": "$20人想要",
+              "wantsText": "0人想要",
+              "curNumGap": 0
+            },
+            {
+              "h": 392,
+              "rows": [
+                48,
+                32,
+                24,
+                48
+              ],
+              "img": 240,
+              "priceText": "$40人想要",
+              "wantsText": "0人想要",
+              "curNumGap": 0
+            },
+            {
+              "h": 392,
+              "rows": [
+                48,
+                32,
+                24,
+                48
+              ],
+              "img": 240,
+              "priceText": "$10人想要",
+              "wantsText": "0人想要",
+              "curNumGap": 0
+            }
+          ],
+          "distinctHeights": [
+            392
+          ]
+        }
+      }
+    },
+    {
+      "id": "AC2",
+      "name": "标题截断：24 汉字不截 / 25 汉字 ⇒ 前 24 + `...` / 60 拉丁 ⇒ 以 `...` 结尾且无 `…` / 两行内不溢出 / 尾点可见",
+      "verdict": "PASS",
+      "checks": 140,
+      "fails": 0,
+      "evidence": "readings/rows-qa.json（title.* 判据，逐字比对期望值由契约读法现算）",
+      "readings": {
+        "han24": "逐字相等（24 字 / 48 单位 / 无尾点）",
+        "han25": "前 24 字 + `...`（显示宽 51 单位，字面 3 个 ASCII 点）",
+        "latin60": "48 拉丁字符前缀 + `...`（宽 51 单位，无 `…` U+2026，无双尾）",
+        "scrollHeight": "全部 48（= 行盒高，两行内不溢出）",
+        "dotsVisible": "Range 盒 bottom 976 ≤ 行盒 bottom 980，right 613.3 ≤ 行盒 right 711.0（未被裁）"
+      }
+    },
+    {
+      "id": "AC3",
+      "name": "价格行：`$` 在 span 内 / 数字 = points / 右 `^\\d+人想要$` / 单行 24",
+      "verdict": "PASS",
+      "checks": 160,
+      "fails": 0,
+      "evidence": "readings/rows-qa.json（price.* 判据）",
+      "readings": {
+        "dollarInSpan": "<span class=sf-reward-price-cur>$</span>（元素级校验，非纯文本匹配）",
+        "numEqualsPoints": "495 / 12 / 8888 / 7 / 1 逐卡相等",
+        "wantsText": "20人想要 · 0人想要 · 1234人想要 · 3人想要",
+        "adjacency": "`$` 与数字 rect 间隙 = 0px（5 卡 × 4 组合）",
+        "singleLine": "row3 offsetHeight 24、scrollHeight 24（无换行）",
+        "noYen": "卡面 `¥` 计数 0"
+      }
+    },
+    {
+      "id": "AC4",
+      "name": "wants 数据面真库往返（dev）",
+      "verdict": "PASS",
+      "checks": 10,
+      "fails": 0,
+      "evidence": "readings/db-wants.json",
+      "readings": {
+        "project_id": "quiet-math-65207667",
+        "before": "listing_favorite = 0 行；/api/prize/all 行键 47、wants 0",
+        "insert": "listing_id=13（listed）+ fav_uid=1，ON CONFLICT DO NOTHING ⇒ 1 行（fav_id=7）",
+        "after_insert": "/api/prize/all 行键 47、该行 wants=1（number 类型）、9 行同形状",
+        "detail": "/api/prize/13 = 46 键且无 wants；/api/prize/1 = 46 键且无 wants",
+        "cleanup": "DELETE 1 行 ⇒ listing_favorite 0 行、该行 wants=0（行键仍 47）"
+      }
+    },
+    {
+      "id": "AC5",
+      "name": "移除面 / 保留面：描述行与剩余时间行 0；`$` 块 / 卖家栏 / 整卡链接在",
+      "verdict": "PASS",
+      "checks": 140,
+      "fails": 0,
+      "evidence": "readings/rows-qa.json（removed.* / kept.* 判据）",
+      "readings": {
+        "removed_description": "夹具描述文本命中 0（每卡）",
+        "removed_time": "svg.lucide-clock / [data-sf-m=reward-card-time] 计数 0",
+        "removed_clamp3": "line-clamp-3 节点计数 0",
+        "kept": "`.sf-reward-price` 在场、卖家栏 + 信用胶囊在场、整卡链接 a[href=/item/<数字>] 在场、卡内嵌套交互元素 0"
+      }
+    },
+    {
+      "id": "AC6",
+      "name": "门套：build 0 / test:unit ≥62 文件 609 例 / backend tsc 0 / p7b-03 failed=0 且 regs=110",
+      "verdict": "PASS",
+      "checks": 4,
+      "fails": 0,
+      "evidence": "logs/build.log · logs/test-unit.log · logs/backend-tsc.log · logs/p7b-03.log",
+      "readings": {
+        "build": "exit 0；产物 index-iMtQQD5W.js / index-CpH22ErQ.css",
+        "test_unit": "Test Files 62 passed (62) / Tests 609 passed (609) / 0 failed",
+        "backend_tsc": "npx tsc --noEmit exit 0（日志仅 EXIT=0）",
+        "p7b_03": "total 37 / passed 37 / failed 0；AC10-2 registration_points=110"
+      }
+    },
+    {
+      "id": "AC7",
+      "name": "回归：/api/currencies 2 行 / /api/media/999 404 / /item/1 零异常 / 390 首页零横向溢出",
+      "verdict": "PASS",
+      "checks": 12,
+      "fails": 0,
+      "evidence": "readings/regressions.json",
+      "readings": {
+        "currencies": {
+          "rows": [
+            "1:$",
+            "399:BTTC"
+          ]
+        },
+        "media999": {
+          "status": 404
+        },
+        "item1": {
+          "status": 200,
+          "rootLen": 11837
+        },
+        "mobile390": {
+          "overflow": 0,
+          "cards": 9,
+          "cardHeights": [
+            392
+          ],
+          "cardWidths": [
+            164.5
+          ],
+          "cols": 2,
+          "cardHeight": 392
+        }
+      }
+    }
+  ],
+  "negative_self_proof": {
+    "method": "注入 `.sf-reward-card .row3-wrap-price{height:25px!important;flex:0 0 25px!important}`（页面 addInitScript 注入 style，不改仓库文件）后 1440/light 重测；随后无注入复测复原",
+    "injected_row3_px": 25,
+    "injected_fails": 25,
+    "injected_fail_ids": {
+      "content.h152": 5,
+      "row3.h24": 5,
+      "rows.stackSum=152": 5,
+      "no.vOverflow.content": 5,
+      "price.singleLine": 5
+    },
+    "restore_fails": 10,
+    "restore_fail_ids": {
+      "content.h152": 5,
+      "no.vOverflow.content": 5
+    },
+    "sensitivity_note": "行高 / 四行合计 / 价格单行 判据均变红（row3.h24=25、sum=153、price.singleLine scrollH=25）；card.h392 注入后仍 392 —— 卡高由 CSS 定高承重，对行高不通用的臂本就不敏感，故灵敏度锚取「行高 + 合计 + 单行」三条",
+    "restored_green": true
+  },
+  "gates": {
+    "build": {
+      "exit": 0,
+      "assets": [
+        "index-iMtQQD5W.js",
+        "index-CpH22ErQ.css"
+      ]
+    },
+    "test_unit": {
+      "files": 62,
+      "tests": 609,
+      "failed": 0
+    },
+    "backend_tsc": {
+      "exit": 0
+    },
+    "p7b_03": {
+      "total": 37,
+      "passed": 37,
+      "failed": 0,
+      "registration_points": 110
+    }
+  },
+  "i18n": {
+    "top": {
+      "zh": 129,
+      "en": 129,
+      "hk": 129,
+      "vn": 129
+    },
+    "flat": {
+      "zh": 1115,
+      "en": 1115,
+      "hk": 1115,
+      "vn": 1115
+    },
+    "nodes_leaves_x4": 4460,
+    "rewardCard.wants": {
+      "zh": "{{n}}人想要",
+      "en": "{{n}} want it",
+      "hk": "{{n}}人想要",
+      "vn": "{{n}} người muốn"
+    },
+    "note": "四语可数项实测一致；「节点 4460」按仓内口径 = 叶子键 1115 × 4"
+  },
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "contract-deviation（非 AC 判据 · 不阻断 AC 判定）",
+      "title": "卡体保留 1px 实边框 ⇒ content 内容盒 150 ≠ 契约 152，四行合计 152 溢出 2px 被卡体 overflow-hidden 裁掉",
+      "measurements": [
+        {
+          "bID": 9101,
+          "cardRectH": 392,
+          "innerClientH": 390,
+          "innerOffsetH": 392,
+          "innerBorderTop": "1px",
+          "innerBorderBottom": "1px",
+          "innerBoxSizing": "border-box",
+          "contentRectH": 150,
+          "sellerBottom": 1084,
+          "innerBottom": 1083,
+          "sellerClippedPx": 1
+        },
+        {
+          "bID": 9102,
+          "cardRectH": 392,
+          "innerClientH": 390,
+          "innerOffsetH": 392,
+          "innerBorderTop": "1px",
+          "innerBorderBottom": "1px",
+          "innerBoxSizing": "border-box",
+          "contentRectH": 150,
+          "sellerBottom": 1084,
+          "innerBottom": 1083,
+          "sellerClippedPx": 1
+        },
+        {
+          "bID": 9103,
+          "cardRectH": 392,
+          "innerClientH": 390,
+          "innerOffsetH": 392,
+          "innerBorderTop": "1px",
+          "innerBorderBottom": "1px",
+          "innerBoxSizing": "border-box",
+          "contentRectH": 150,
+          "sellerBottom": 1084,
+          "innerBottom": 1083,
+          "sellerClippedPx": 1
+        },
+        {
+          "bID": 9104,
+          "cardRectH": 392,
+          "innerClientH": 390,
+          "innerOffsetH": 392,
+          "innerBorderTop": "1px",
+          "innerBorderBottom": "1px",
+          "innerBoxSizing": "border-box",
+          "contentRectH": 150,
+          "sellerBottom": 1084,
+          "innerBottom": 1083,
+          "sellerClippedPx": 1
+        },
+        {
+          "bID": 9105,
+          "cardRectH": 392,
+          "innerClientH": 390,
+          "innerOffsetH": 392,
+          "innerBorderTop": "1px",
+          "innerBorderBottom": "1px",
+          "innerBoxSizing": "border-box",
+          "contentRectH": 150,
+          "sellerBottom": 1084,
+          "innerBottom": 1083,
+          "sellerClippedPx": 1
+        }
+      ],
+      "contract": "§26.11.1「卡体不得再加 1px 实边框：240 + 152 = 392 是内容盒分配；若保留 1px 实边框且 box-sizing:border-box，内容盒只剩 390 ⇒ 四行必被压 2px（结构性判负）。需要描边 ⇒ 用 inset box-shadow」",
+      "cause": "Card 基座类 `border`（1px）未被 RewardCard 覆盖；`.sf-reward-inner{height:392px;box-sizing:border-box}` ⇒ 内容盒 390；`.image-container` 240 + `.content` flex:1 = 150；四行 flex-basis 合计 152 ⇒ 溢出 2px，被 `.sf-reward-inner{overflow:hidden}` 裁掉（卖家行底 2px 不可见）",
+      "why_not_ac_fail": "派单 AC1 判据 = 卡高恒 392 / 行高逐行 48·32·24·48 / 图 240 / 图宽=卡内宽 / 零横向溢出 —— 全部成立（行高是被 flex-basis 固定、未被压扁，压掉的是底部 2px 可视边）；§26.11.1 自己给的判负读数也是 `getBoundingClientRect().height === 392`（成立）",
+      "impact": "视觉：0（卖家栏内容 24px 居中于 48px，裁掉的是底部空边 2px）；结构：契约文字面不符（content 应为 224×152）",
+      "remedy_if_kept": "按契约改用 `inset box-shadow` 描边（`.sf-reward-inner{box-shadow:inset 0 0 0 1px var(--sf-...)}` 且去掉 `border`），或把 `.sf-reward-inner` 高度改 394 保内容盒 392（与契约 392 冲突，不推荐）",
+      "owner": "待父代理/Kevin 裁定（本单不改产品代码）",
+      "corroborated_by": "实现方自己的 readings/probe-result.json 里 `contentH: 150`（真实现读数一致，非本探针伪影）"
+    }
+  ],
+  "artifacts": {
+    "probe": "ops/card-rows/qa/probe-rows-qa.mjs（自写：dist 静态映射 + 内存 API 夹具 + 判负自证臂）",
+    "db_probe": "ops/card-rows/qa/db-wants-roundtrip.mjs",
+    "regression_probe": "ops/card-rows/qa/probe-regressions.mjs",
+    "readings": [
+      "readings/rows-qa.json",
+      "readings/db-wants.json",
+      "readings/regressions.json"
+    ],
+    "logs": [
+      "logs/build.log",
+      "logs/test-unit.log",
+      "logs/backend-tsc.log",
+      "logs/p7b-03.log",
+      "logs/probe-rows-qa.log"
+    ]
+  },
+  "discipline": {
+    "committed": false,
+    "pushed": false,
+    "db_writes": "1 行 listing_favorite（listing_id=13, fav_uid=1）已 DELETE 回收；回收后表 0 行",
+    "product_code_or_docs_modified": false
+  }
+}

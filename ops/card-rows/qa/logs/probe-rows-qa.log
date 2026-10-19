@@ -1,0 +1,367 @@
+[combo] 1440/light cards=5 checks=180 fails=18 hOverflow=0 cols=6 errors=0
+   FAIL {"id":"content.h152","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"title.endsWithLiteralDots","pass":false,"actual":"短标题","expected":"结尾恰为字面 `...`（超限卡）"}
+   FAIL {"id":"kept.noNestedInteractive","pass":false,"actual":0,"expected":1}
+   FAIL {"id":"content.h152","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"title.endsWithLiteralDots","pass":false,"actual":"汉汉汉汉汉汉","expected":"结尾恰为字面 `...`（超限卡）"}
+   FAIL {"id":"kept.noNestedInteractive","pass":false,"actual":0,"expected":1}
+   FAIL {"id":"content.h152","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"kept.noNestedInteractive","pass":false,"actual":0,"expected":1}
+   FAIL {"id":"content.h152","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"kept.noNestedInteractive","pass":false,"actual":0,"expected":1}
+   FAIL {"id":"content.h152","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"title.endsWithLiteralDots","pass":false,"actual":"无图卡","expected":"结尾恰为字面 `...`（超限卡）"}
+   FAIL {"id":"kept.noNestedInteractive","pass":false,"actual":0,"expected":1}
+[combo] 1440/dark cards=5 checks=180 fails=18 hOverflow=0 cols=6 errors=0
+   FAIL {"id":"content.h152","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"title.endsWithLiteralDots","pass":false,"actual":"短标题","expected":"结尾恰为字面 `...`（超限卡）"}
+   FAIL {"id":"kept.noNestedInteractive","pass":false,"actual":0,"expected":1}
+   FAIL {"id":"content.h152","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"title.endsWithLiteralDots","pass":false,"actual":"汉汉汉汉汉汉","expected":"结尾恰为字面 `...`（超限卡）"}
+   FAIL {"id":"kept.noNestedInteractive","pass":false,"actual":0,"expected":1}
+   FAIL {"id":"content.h152","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"kept.noNestedInteractive","pass":false,"actual":0,"expected":1}
+   FAIL {"id":"content.h152","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"kept.noNestedInteractive","pass":false,"actual":0,"expected":1}
+   FAIL {"id":"content.h152","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"title.endsWithLiteralDots","pass":false,"actual":"无图卡","expected":"结尾恰为字面 `...`（超限卡）"}
+   FAIL {"id":"kept.noNestedInteractive","pass":false,"actual":0,"expected":1}
+[combo] 1536/light cards=5 checks=180 fails=18 hOverflow=0 cols=6 errors=0
+   FAIL {"id":"content.h152","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"title.endsWithLiteralDots","pass":false,"actual":"短标题","expected":"结尾恰为字面 `...`（超限卡）"}
+   FAIL {"id":"kept.noNestedInteractive","pass":false,"actual":0,"expected":1}
+   FAIL {"id":"content.h152","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"title.endsWithLiteralDots","pass":false,"actual":"汉汉汉汉汉汉","expected":"结尾恰为字面 `...`（超限卡）"}
+   FAIL {"id":"kept.noNestedInteractive","pass":false,"actual":0,"expected":1}
+   FAIL {"id":"content.h152","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"kept.noNestedInteractive","pass":false,"actual":0,"expected":1}
+   FAIL {"id":"content.h152","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"kept.noNestedInteractive","pass":false,"actual":0,"expected":1}
+   FAIL {"id":"content.h152","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"title.endsWithLiteralDots","pass":false,"actual":"无图卡","expected":"结尾恰为字面 `...`（超限卡）"}
+   FAIL {"id":"kept.noNestedInteractive","pass":false,"actual":0,"expected":1}
+[combo] 1536/dark cards=5 checks=180 fails=18 hOverflow=0 cols=6 errors=0
+   FAIL {"id":"content.h152","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"title.endsWithLiteralDots","pass":false,"actual":"短标题","expected":"结尾恰为字面 `...`（超限卡）"}
+   FAIL {"id":"kept.noNestedInteractive","pass":false,"actual":0,"expected":1}
+   FAIL {"id":"content.h152","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"title.endsWithLiteralDots","pass":false,"actual":"汉汉汉汉汉汉","expected":"结尾恰为字面 `...`（超限卡）"}
+   FAIL {"id":"kept.noNestedInteractive","pass":false,"actual":0,"expected":1}
+   FAIL {"id":"content.h152","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"kept.noNestedInteractive","pass":false,"actual":0,"expected":1}
+   FAIL {"id":"content.h152","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"kept.noNestedInteractive","pass":false,"actual":0,"expected":1}
+   FAIL {"id":"content.h152","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"title.endsWithLiteralDots","pass":false,"actual":"无图卡","expected":"结尾恰为字面 `...`（超限卡）"}
+   FAIL {"id":"kept.noNestedInteractive","pass":false,"actual":0,"expected":1}
+[negative] injected row3=25 ⇒ fails=33
+   NEG-FAIL {"id":"content.h152","pass":false,"actual":150,"expected":152}
+   NEG-FAIL {"id":"row3.h24","pass":false,"actual":25,"expected":24}
+   NEG-FAIL {"id":"rows.stackSum=152","pass":false,"actual":153,"expected":152}
+   NEG-FAIL {"id":"no.vOverflow.content","pass":false,"actual":{"scrollH":153,"clientH":150},"expected":"content 不纵向溢出"}
+   NEG-FAIL {"id":"title.endsWithLiteralDots","pass":false,"actual":"短标题","expected":"结尾恰为字面 `...`（超限卡）"}
+   NEG-FAIL {"id":"price.singleLine","pass":false,"actual":{"scrollH":25,"clientH":25},"expected":"单行（行高 24，无换行）"}
+   NEG-FAIL {"id":"kept.noNestedInteractive","pass":false,"actual":0,"expected":1}
+   NEG-FAIL {"id":"content.h152","pass":false,"actual":150,"expected":152}
+   NEG-FAIL {"id":"row3.h24","pass":false,"actual":25,"expected":24}
+   NEG-FAIL {"id":"rows.stackSum=152","pass":false,"actual":153,"expected":152}
+   NEG-FAIL {"id":"no.vOverflow.content","pass":false,"actual":{"scrollH":153,"clientH":150},"expected":"content 不纵向溢出"}
+   NEG-FAIL {"id":"title.endsWithLiteralDots","pass":false,"actual":"汉汉汉汉汉汉","expected":"结尾恰为字面 `...`（超限卡）"}
+   NEG-FAIL {"id":"price.singleLine","pass":false,"actual":{"scrollH":25,"clientH":25},"expected":"单行（行高 24，无换行）"}
+   NEG-FAIL {"id":"kept.noNestedInteractive","pass":false,"actual":0,"expected":1}
+   NEG-FAIL {"id":"content.h152","pass":false,"actual":150,"expected":152}
+   NEG-FAIL {"id":"row3.h24","pass":false,"actual":25,"expected":24}
+   NEG-FAIL {"id":"rows.stackSum=152","pass":false,"actual":153,"expected":152}
+   NEG-FAIL {"id":"no.vOverflow.content","pass":false,"actual":{"scrollH":153,"clientH":150},"expected":"content 不纵向溢出"}
+   NEG-FAIL {"id":"price.singleLine","pass":false,"actual":{"scrollH":25,"clientH":25},"expected":"单行（行高 24，无换行）"}
+   NEG-FAIL {"id":"kept.noNestedInteractive","pass":false,"actual":0,"expected":1}
+[restore] no-injection ⇒ fails=18
+[summary] {"combos":4,"totalChecks":720,"totalFails":72,"negativeFails":33,"restoreFails":18}
+[combo] 1440/light cards=5 checks=180 fails=10 hOverflow=0 cols=6 errors=0
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+[combo] 1440/dark cards=5 checks=180 fails=10 hOverflow=0 cols=6 errors=0
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+[combo] 1536/light cards=5 checks=180 fails=10 hOverflow=0 cols=6 errors=0
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+[combo] 1536/dark cards=5 checks=180 fails=10 hOverflow=0 cols=6 errors=0
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+[negative] injected row3=25 ⇒ fails=25
+   NEG-FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   NEG-FAIL {"id":"row3.h24","ac":"AC1","pass":false,"actual":25,"expected":24}
+   NEG-FAIL {"id":"rows.stackSum=152","ac":"AC1","pass":false,"actual":153,"expected":152}
+   NEG-FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":153,"clientH":150},"expected":"content 不纵向溢出"}
+   NEG-FAIL {"id":"price.singleLine","ac":"AC1","pass":false,"actual":{"scrollH":25,"clientH":25},"expected":"单行（行高 24，无换行）"}
+   NEG-FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   NEG-FAIL {"id":"row3.h24","ac":"AC1","pass":false,"actual":25,"expected":24}
+   NEG-FAIL {"id":"rows.stackSum=152","ac":"AC1","pass":false,"actual":153,"expected":152}
+   NEG-FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":153,"clientH":150},"expected":"content 不纵向溢出"}
+   NEG-FAIL {"id":"price.singleLine","ac":"AC1","pass":false,"actual":{"scrollH":25,"clientH":25},"expected":"单行（行高 24，无换行）"}
+   NEG-FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   NEG-FAIL {"id":"row3.h24","ac":"AC1","pass":false,"actual":25,"expected":24}
+   NEG-FAIL {"id":"rows.stackSum=152","ac":"AC1","pass":false,"actual":153,"expected":152}
+   NEG-FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":153,"clientH":150},"expected":"content 不纵向溢出"}
+   NEG-FAIL {"id":"price.singleLine","ac":"AC1","pass":false,"actual":{"scrollH":25,"clientH":25},"expected":"单行（行高 24，无换行）"}
+   NEG-FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   NEG-FAIL {"id":"row3.h24","ac":"AC1","pass":false,"actual":25,"expected":24}
+   NEG-FAIL {"id":"rows.stackSum=152","ac":"AC1","pass":false,"actual":153,"expected":152}
+   NEG-FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":153,"clientH":150},"expected":"content 不纵向溢出"}
+   NEG-FAIL {"id":"price.singleLine","ac":"AC1","pass":false,"actual":{"scrollH":25,"clientH":25},"expected":"单行（行高 24，无换行）"}
+[restore] no-injection ⇒ fails=10
+[summary] {"combos":4,"totalChecks":720,"acChecks":680,"acFails":0,"specChecks":40,"specFails":40,"totalFails":40,"negativeFails":25,"restoreFails":10,"themes":[{"width":1440,"theme":"light"},{"width":1440,"theme":"dark"},{"width":1536,"theme":"light"},{"width":1536,"theme":"dark"}]}
+[combo] 1440/light cards=5 checks=180 fails=10 hOverflow=0 cols=6 errors=0
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+[combo] 1440/dark cards=5 checks=180 fails=10 hOverflow=0 cols=6 errors=0
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+[combo] 1536/light cards=5 checks=180 fails=10 hOverflow=0 cols=6 errors=0
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+[combo] 1536/dark cards=5 checks=180 fails=10 hOverflow=0 cols=6 errors=0
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+[negative] injected row3=25 ⇒ fails=25
+   NEG-FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   NEG-FAIL {"id":"row3.h24","ac":"AC1","pass":false,"actual":25,"expected":24}
+   NEG-FAIL {"id":"rows.stackSum=152","ac":"AC1","pass":false,"actual":153,"expected":152}
+   NEG-FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":153,"clientH":150},"expected":"content 不纵向溢出"}
+   NEG-FAIL {"id":"price.singleLine","ac":"AC1","pass":false,"actual":{"scrollH":25,"clientH":25},"expected":"单行（行高 24，无换行）"}
+   NEG-FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   NEG-FAIL {"id":"row3.h24","ac":"AC1","pass":false,"actual":25,"expected":24}
+   NEG-FAIL {"id":"rows.stackSum=152","ac":"AC1","pass":false,"actual":153,"expected":152}
+   NEG-FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":153,"clientH":150},"expected":"content 不纵向溢出"}
+   NEG-FAIL {"id":"price.singleLine","ac":"AC1","pass":false,"actual":{"scrollH":25,"clientH":25},"expected":"单行（行高 24，无换行）"}
+   NEG-FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   NEG-FAIL {"id":"row3.h24","ac":"AC1","pass":false,"actual":25,"expected":24}
+   NEG-FAIL {"id":"rows.stackSum=152","ac":"AC1","pass":false,"actual":153,"expected":152}
+   NEG-FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":153,"clientH":150},"expected":"content 不纵向溢出"}
+   NEG-FAIL {"id":"price.singleLine","ac":"AC1","pass":false,"actual":{"scrollH":25,"clientH":25},"expected":"单行（行高 24，无换行）"}
+   NEG-FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   NEG-FAIL {"id":"row3.h24","ac":"AC1","pass":false,"actual":25,"expected":24}
+   NEG-FAIL {"id":"rows.stackSum=152","ac":"AC1","pass":false,"actual":153,"expected":152}
+   NEG-FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":153,"clientH":150},"expected":"content 不纵向溢出"}
+   NEG-FAIL {"id":"price.singleLine","ac":"AC1","pass":false,"actual":{"scrollH":25,"clientH":25},"expected":"单行（行高 24，无换行）"}
+[restore] no-injection ⇒ fails=10
+[summary] {"combos":4,"totalChecks":720,"acChecks":680,"acFails":0,"specChecks":40,"specFails":40,"totalFails":40,"negativeFails":25,"restoreFails":10,"themes":[{"width":1440,"theme":"light"},{"width":1440,"theme":"dark"},{"width":1536,"theme":"light"},{"width":1536,"theme":"dark"}]}
+[combo] 1440/light cards=5 checks=185 fails=10 hOverflow=0 cols=6 errors=0
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+[combo] 1440/dark cards=5 checks=185 fails=10 hOverflow=0 cols=6 errors=0
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+[combo] 1536/light cards=5 checks=185 fails=10 hOverflow=0 cols=6 errors=0
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+[combo] 1536/dark cards=5 checks=185 fails=10 hOverflow=0 cols=6 errors=0
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+[negative] injected row3=25 ⇒ fails=25
+   NEG-FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   NEG-FAIL {"id":"row3.h24","ac":"AC1","pass":false,"actual":25,"expected":24}
+   NEG-FAIL {"id":"rows.stackSum=152","ac":"AC1","pass":false,"actual":153,"expected":152}
+   NEG-FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":153,"clientH":150},"expected":"content 不纵向溢出"}
+   NEG-FAIL {"id":"price.singleLine","ac":"AC3","pass":false,"actual":{"scrollH":25,"clientH":25},"expected":"单行（行高 24，无换行）"}
+   NEG-FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   NEG-FAIL {"id":"row3.h24","ac":"AC1","pass":false,"actual":25,"expected":24}
+   NEG-FAIL {"id":"rows.stackSum=152","ac":"AC1","pass":false,"actual":153,"expected":152}
+   NEG-FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":153,"clientH":150},"expected":"content 不纵向溢出"}
+   NEG-FAIL {"id":"price.singleLine","ac":"AC3","pass":false,"actual":{"scrollH":25,"clientH":25},"expected":"单行（行高 24，无换行）"}
+   NEG-FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   NEG-FAIL {"id":"row3.h24","ac":"AC1","pass":false,"actual":25,"expected":24}
+   NEG-FAIL {"id":"rows.stackSum=152","ac":"AC1","pass":false,"actual":153,"expected":152}
+   NEG-FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":153,"clientH":150},"expected":"content 不纵向溢出"}
+   NEG-FAIL {"id":"price.singleLine","ac":"AC3","pass":false,"actual":{"scrollH":25,"clientH":25},"expected":"单行（行高 24，无换行）"}
+   NEG-FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   NEG-FAIL {"id":"row3.h24","ac":"AC1","pass":false,"actual":25,"expected":24}
+   NEG-FAIL {"id":"rows.stackSum=152","ac":"AC1","pass":false,"actual":153,"expected":152}
+   NEG-FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":153,"clientH":150},"expected":"content 不纵向溢出"}
+   NEG-FAIL {"id":"price.singleLine","ac":"AC3","pass":false,"actual":{"scrollH":25,"clientH":25},"expected":"单行（行高 24，无换行）"}
+[restore] no-injection ⇒ fails=10
+[summary] {"combos":4,"totalChecks":740,"acChecks":700,"acFails":0,"specChecks":40,"specFails":40,"totalFails":40,"negativeFails":25,"restoreFails":10,"themes":[{"width":1440,"theme":"light"},{"width":1440,"theme":"dark"},{"width":1536,"theme":"light"},{"width":1536,"theme":"dark"}]}
+[combo] 1440/light cards=5 checks=190 fails=10 hOverflow=0 cols=6 errors=0
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+[combo] 1440/dark cards=5 checks=190 fails=10 hOverflow=0 cols=6 errors=0
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+[combo] 1536/light cards=5 checks=190 fails=10 hOverflow=0 cols=6 errors=0
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+[combo] 1536/dark cards=5 checks=190 fails=10 hOverflow=0 cols=6 errors=0
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+   FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":152,"clientH":150},"expected":"content 不纵向溢出"}
+[negative] injected row3=25 ⇒ fails=25
+   NEG-FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   NEG-FAIL {"id":"row3.h24","ac":"AC1","pass":false,"actual":25,"expected":24}
+   NEG-FAIL {"id":"rows.stackSum=152","ac":"AC1","pass":false,"actual":153,"expected":152}
+   NEG-FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":153,"clientH":150},"expected":"content 不纵向溢出"}
+   NEG-FAIL {"id":"price.singleLine","ac":"AC3","pass":false,"actual":{"scrollH":25,"clientH":25},"expected":"单行（行高 24，无换行）"}
+   NEG-FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   NEG-FAIL {"id":"row3.h24","ac":"AC1","pass":false,"actual":25,"expected":24}
+   NEG-FAIL {"id":"rows.stackSum=152","ac":"AC1","pass":false,"actual":153,"expected":152}
+   NEG-FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":153,"clientH":150},"expected":"content 不纵向溢出"}
+   NEG-FAIL {"id":"price.singleLine","ac":"AC3","pass":false,"actual":{"scrollH":25,"clientH":25},"expected":"单行（行高 24，无换行）"}
+   NEG-FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   NEG-FAIL {"id":"row3.h24","ac":"AC1","pass":false,"actual":25,"expected":24}
+   NEG-FAIL {"id":"rows.stackSum=152","ac":"AC1","pass":false,"actual":153,"expected":152}
+   NEG-FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":153,"clientH":150},"expected":"content 不纵向溢出"}
+   NEG-FAIL {"id":"price.singleLine","ac":"AC3","pass":false,"actual":{"scrollH":25,"clientH":25},"expected":"单行（行高 24，无换行）"}
+   NEG-FAIL {"id":"content.h152","ac":"SPEC","pass":false,"actual":150,"expected":152}
+   NEG-FAIL {"id":"row3.h24","ac":"AC1","pass":false,"actual":25,"expected":24}
+   NEG-FAIL {"id":"rows.stackSum=152","ac":"AC1","pass":false,"actual":153,"expected":152}
+   NEG-FAIL {"id":"no.vOverflow.content","ac":"SPEC","pass":false,"actual":{"scrollH":153,"clientH":150},"expected":"content 不纵向溢出"}
+   NEG-FAIL {"id":"price.singleLine","ac":"AC3","pass":false,"actual":{"scrollH":25,"clientH":25},"expected":"单行（行高 24，无换行）"}
+[restore] no-injection ⇒ fails=10
+[summary] {"combos":4,"totalChecks":760,"acChecks":720,"acFails":0,"specChecks":40,"specFails":40,"totalFails":40,"negativeFails":25,"restoreFails":10,"themes":[{"width":1440,"theme":"light"},{"width":1440,"theme":"dark"},{"width":1536,"theme":"light"},{"width":1536,"theme":"dark"}]}

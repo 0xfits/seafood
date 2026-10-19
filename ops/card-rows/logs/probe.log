@@ -43,3 +43,67 @@ PASS 1536/light/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=223.3
 PASS 1536/dark/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=223.33x240
 PASS 1440/light/real cards=9 cardH=392,392,392,392,392,392,392,392,392 rows=48/32/24/48 img=207.33x240
 VERDICT=PASS passes=5 checks=169 red=0 pageErrors=0 → ops/card-rows/readings/probe-result.json
+FAIL 1440/light/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=207.33x240
+   ✗ card-content-box=392: 390,390,390,390
+   ✗ card-no-layout-border: 1px/1px,1px/1px,1px/1px,1px/1px
+   ✗ contentH=152: 150,150,150,150
+   ✗ seller-row-bottom-unclipped: -1,-1,-1,-1
+FAIL 1440/dark/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=207.33x240
+   ✗ card-content-box=392: 390,390,390,390
+   ✗ card-no-layout-border: 1px/1px,1px/1px,1px/1px,1px/1px
+   ✗ contentH=152: 150,150,150,150
+   ✗ seller-row-bottom-unclipped: -1,-1,-1,-1
+FAIL 1536/light/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=223.33x240
+   ✗ card-content-box=392: 390,390,390,390
+   ✗ card-no-layout-border: 1px/1px,1px/1px,1px/1px,1px/1px
+   ✗ contentH=152: 150,150,150,150
+   ✗ seller-row-bottom-unclipped: -1,-1,-1,-1
+FAIL 1536/dark/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=223.33x240
+   ✗ card-content-box=392: 390,390,390,390
+   ✗ card-no-layout-border: 1px/1px,1px/1px,1px/1px,1px/1px
+   ✗ contentH=152: 150,150,150,150
+   ✗ seller-row-bottom-unclipped: -1,-1,-1,-1
+FAIL 1440/light/real cards=9 cardH=392,392,392,392,392,392,392,392,392 rows=48/32/24/48 img=207.33x240
+   ✗ card-content-box=392: 390,390,390,390,390,390,390,390,390
+   ✗ card-no-layout-border: 1px/1px,1px/1px,1px/1px,1px/1px,1px/1px,1px/1px,1px/1px,1px/1px,1px/1px
+   ✗ contentH=152: 150,150,150,150,150,150,150,150,150
+   ✗ seller-row-bottom-unclipped: -1,-1,-1,-1,-1,-1,-1,-1,-1
+VERDICT=FAIL passes=5 checks=189 red=20 pageErrors=0 → ops/card-rows/readings/probe-result.json
+PASS 1440/light/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=209.33x240
+PASS 1440/dark/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=209.33x240
+PASS 1536/light/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=225.33x240
+PASS 1536/dark/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=225.33x240
+PASS 1440/light/real cards=9 cardH=392,392,392,392,392,392,392,392,392 rows=48/32/24/48 img=209.33x240
+VERDICT=PASS passes=5 checks=189 red=0 pageErrors=0 → ops/card-rows/readings/probe-result.json
+FAIL 1440/light/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=207.33x240
+   ✗ card-content-box=392: 390,390,390,390
+   ✗ card-no-layout-border: 1px/1px,1px/1px,1px/1px,1px/1px
+   ✗ contentH=152: 150,150,150,150
+   ✗ seller-row-bottom-unclipped: -1,-1,-1,-1
+FAIL 1440/dark/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=207.33x240
+   ✗ card-content-box=392: 390,390,390,390
+   ✗ card-no-layout-border: 1px/1px,1px/1px,1px/1px,1px/1px
+   ✗ contentH=152: 150,150,150,150
+   ✗ seller-row-bottom-unclipped: -1,-1,-1,-1
+FAIL 1536/light/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=223.33x240
+   ✗ card-content-box=392: 390,390,390,390
+   ✗ card-no-layout-border: 1px/1px,1px/1px,1px/1px,1px/1px
+   ✗ contentH=152: 150,150,150,150
+   ✗ seller-row-bottom-unclipped: -1,-1,-1,-1
+FAIL 1536/dark/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=223.33x240
+   ✗ card-content-box=392: 390,390,390,390
+   ✗ card-no-layout-border: 1px/1px,1px/1px,1px/1px,1px/1px
+   ✗ contentH=152: 150,150,150,150
+   ✗ seller-row-bottom-unclipped: -1,-1,-1,-1
+FAIL 1440/light/real cards=9 cardH=392,392,392,392,392,392,392,392,392 rows=48/32/24/48 img=207.33x240
+   ✗ card-content-box=392: 390,390,390,390,390,390,390,390,390
+   ✗ card-no-layout-border: 1px/1px,1px/1px,1px/1px,1px/1px,1px/1px,1px/1px,1px/1px,1px/1px,1px/1px
+   ✗ contentH=152: 150,150,150,150,150,150,150,150,150
+   ✗ seller-row-bottom-unclipped: -1,-1,-1,-1,-1,-1,-1,-1,-1
+VERDICT=FAIL passes=5 checks=189 red=20 pageErrors=0 → ops/card-rows/readings/probe-result.json
+PASS 1440/light/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=209.33x240
+PASS 1440/dark/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=209.33x240
+PASS 1536/light/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=225.33x240
+PASS 1536/dark/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=225.33x240
+PASS 1440/light/real cards=9 cardH=392,392,392,392,392,392,392,392,392 rows=48/32/24/48 img=209.33x240
+VERDICT=PASS passes=5 checks=189 red=0 pageErrors=0 → ops/card-rows/readings/probe-result.json

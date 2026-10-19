@@ -1,0 +1,108 @@
+{
+  "finished": "2026-10-19T11:03:12.228Z",
+  "project_id": "quiet-math-65207667",
+  "target": {
+    "listing_id": 13,
+    "uid": 1
+  },
+  "steps": [
+    {
+      "id": "before.count",
+      "ok": true,
+      "actual": {
+        "project_id": "quiet-math-65207667",
+        "favorite_rows": 0,
+        "apiRowCount": 9,
+        "rowKeys": 47,
+        "wants": 0,
+        "cacheControl": "public, s-maxage=30, stale-while-revalidate=300"
+      },
+      "expected": "基线（表 0 行 · 行键 47 · wants 0）"
+    },
+    {
+      "id": "insert",
+      "ok": true,
+      "actual": {
+        "insertedRows": 1,
+        "fav_id": "7",
+        "favorite_rows": 1
+      },
+      "expected": "插 1 行（ON CONFLICT DO NOTHING）"
+    },
+    {
+      "id": "feed.rowKeys=47",
+      "ok": true,
+      "actual": {
+        "keys": 47,
+        "hasWants": true
+      },
+      "expected": 47
+    },
+    {
+      "id": "feed.wants=1",
+      "ok": true,
+      "actual": {
+        "bID": 13,
+        "wants": 1,
+        "type": "number"
+      },
+      "expected": 1
+    },
+    {
+      "id": "feed.allRowsSameShape",
+      "ok": true,
+      "actual": {
+        "distinctShapeCount": 1,
+        "rows": 9
+      },
+      "expected": 1
+    },
+    {
+      "id": "detail.rowKeys=46",
+      "ok": true,
+      "actual": {
+        "keys": 46,
+        "hasWants": false,
+        "bID": 13
+      },
+      "expected": 46
+    },
+    {
+      "id": "detail1.rowKeys=46",
+      "ok": true,
+      "actual": {
+        "keys": 46,
+        "hasWants": false
+      },
+      "expected": 46
+    },
+    {
+      "id": "cleanup.deleted",
+      "ok": true,
+      "actual": {
+        "deletedRows": 1,
+        "favorite_rows_after": 0
+      },
+      "expected": 1
+    },
+    {
+      "id": "cleanup.wants=0",
+      "ok": true,
+      "actual": {
+        "bID": 13,
+        "wants": 0,
+        "rowKeys": 47
+      },
+      "expected": 0
+    },
+    {
+      "id": "cleanup.zeroRows",
+      "ok": true,
+      "actual": {
+        "favorite_rows": 0
+      },
+      "expected": 0
+    }
+  ],
+  "ok": true
+}
