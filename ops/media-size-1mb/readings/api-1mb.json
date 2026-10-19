@@ -1,0 +1,103 @@
+{
+  "at": "2026-10-19T04:30:17.466Z",
+  "api": "http://localhost:5788",
+  "cap_bytes": 1048576,
+  "phases": {
+    "login": {
+      "address_tail": "846388",
+      "challenge_status": 200,
+      "message_len": 236,
+      "verify_status": 200,
+      "token_present": true,
+      "token_len": 239,
+      "uid": 971223
+    },
+    "row_baseline": {
+      "count_before": 0,
+      "max_id_before": "0"
+    },
+    "exact_1048576": {
+      "request_bytes_decoded": 1048576,
+      "request_body_approx_bytes": 1398150,
+      "http": 200,
+      "ok": false,
+      "data": {
+        "url": "/api/media/5",
+        "media_id": 5,
+        "size_bytes": 1048576,
+        "sha256_tail": "6ad250",
+        "deduplicated": false
+      },
+      "error": null,
+      "pass": true
+    },
+    "over_1048577": {
+      "request_bytes_decoded": 1048577,
+      "request_body_approx_bytes": 1398150,
+      "http": 400,
+      "error": {
+        "code": "MEDIA_SIZE_EXCEEDED",
+        "message": "media payload exceeds 1MiB after base64 decode",
+        "i18n_key": "media.err.MEDIA_SIZE_EXCEEDED",
+        "details": {
+          "decoded_bytes": 1048577,
+          "max_bytes": 1048576
+        }
+      },
+      "pass": true
+    },
+    "db_constraint": {
+      "all_check_constraints": [
+        {
+          "conname": "media_content_type_check",
+          "def": "CHECK ((content_type = ANY (ARRAY['image/webp'::text, 'image/jpeg'::text, 'image/png'::text])))"
+        },
+        {
+          "conname": "media_size_bytes_check",
+          "def": "CHECK (((size_bytes > 0) AND (size_bytes <= 1048576)))"
+        }
+      ],
+      "size_bytes_checks": [
+        {
+          "conname": "media_size_bytes_check",
+          "def": "CHECK (((size_bytes > 0) AND (size_bytes <= 1048576)))"
+        }
+      ],
+      "has_1048576": true,
+      "has_2097152": false,
+      "constraint_count_on_size_bytes": 1,
+      "pass": true
+    },
+    "db_failed_insert": {
+      "attempted_size_bytes": 1048577,
+      "owner_uid": "1",
+      "error": {
+        "sqlstate": "23514",
+        "constraint": "media_size_bytes_check",
+        "message": "new row for relation \"media\" violates check constraint \"media_size_bytes_check\""
+      },
+      "exact_cap_insert_error": null,
+      "pass": true
+    },
+    "cleanup": {
+      "deleted_media_id": 5,
+      "deleted_rows": 1,
+      "count_before": 0,
+      "count_after": 0,
+      "pass": true
+    }
+  },
+  "summary": {
+    "checks": [
+      "login",
+      "exact_1048576",
+      "over_1048577",
+      "db_constraint",
+      "db_failed_insert",
+      "cleanup"
+    ],
+    "passed": 5,
+    "failed": [],
+    "total": 5
+  }
+}

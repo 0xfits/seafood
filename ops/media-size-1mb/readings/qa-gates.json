@@ -1,0 +1,30 @@
+{
+  "at": "2026-10-19T04:33:51.205Z",
+  "head": "ffa3635c90222b2635b9c2d62c877ee06212683e",
+  "frontend_build": {
+    "exit": 0,
+    "built": "✓ built in 1.81s",
+    "errors": false
+  },
+  "test_unit": {
+    "exit": 0,
+    "test_files": 60,
+    "tests": 577,
+    "failed": 0
+  },
+  "backend_tsc": {
+    "exit": 0,
+    "output_bytes": 0
+  },
+  "p7b_03": {
+    "exit": 0,
+    "total": 37,
+    "passed": 37,
+    "failed": 0,
+    "red": [],
+    "registration_points": 110
+  },
+  "notes": [
+    "qa-*.log 被 .gitignore 的 *.log 规则忽略；本文件为等值机读摘要（数字与日志逐字一致）。"
+  ]
+}

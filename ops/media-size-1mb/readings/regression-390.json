@@ -1,0 +1,86 @@
+{
+  "at": "2026-10-19T04:32:22.523Z",
+  "viewport": [
+    390,
+    844
+  ],
+  "cases": {
+    "home_placeholder": {
+      "url": "http://localhost:5800/zh",
+      "img_count": 8,
+      "imgs": [
+        {
+          "src": "http://localhost:5800/src/images/placeholder-item.webp",
+          "naturalWidth": 320,
+          "naturalHeight": 320,
+          "complete": true
+        },
+        {
+          "src": "http://localhost:5800/src/images/placeholder-item.webp",
+          "naturalWidth": 320,
+          "naturalHeight": 320,
+          "complete": true
+        },
+        {
+          "src": "http://localhost:5800/src/images/placeholder-item.webp",
+          "naturalWidth": 320,
+          "naturalHeight": 320,
+          "complete": true
+        },
+        {
+          "src": "http://localhost:5800/src/images/placeholder-item.webp",
+          "naturalWidth": 320,
+          "naturalHeight": 320,
+          "complete": true
+        },
+        {
+          "src": "http://localhost:5800/src/images/placeholder-item.webp",
+          "naturalWidth": 320,
+          "naturalHeight": 320,
+          "complete": true
+        },
+        {
+          "src": "http://localhost:5800/src/images/placeholder-item.webp",
+          "naturalWidth": 320,
+          "naturalHeight": 320,
+          "complete": true
+        },
+        {
+          "src": "http://localhost:5800/src/images/placeholder-item.webp",
+          "naturalWidth": 320,
+          "naturalHeight": 320,
+          "complete": true
+        },
+        {
+          "src": "http://localhost:5800/src/images/placeholder-item.webp",
+          "naturalWidth": 320,
+          "naturalHeight": 320,
+          "complete": true
+        }
+      ],
+      "pageErrors": [],
+      "pass": true
+    },
+    "publish_media_field": {
+      "url": "http://localhost:5800/zh/item/new",
+      "input": {
+        "type": "file",
+        "accept": "image/*",
+        "multiple": true,
+        "display": "none"
+      },
+      "addButton": {
+        "text": "+",
+        "disabled": false
+      },
+      "containerPresent": true,
+      "docScrollWidth": 390,
+      "pageErrors": [],
+      "pass": true
+    }
+  },
+  "summary": {
+    "total": 2,
+    "passed": 2
+  }
+}

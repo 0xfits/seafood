@@ -1,0 +1,259 @@
+{
+  "verdict": "PASS",
+  "subject": "ffa3635 feat(seafood): 上传图片上限收到 1MiB",
+  "scope": "独立复验（服务端 1MiB 边界 / DB CHECK 硬闸 / 客户端降级 / 门套 / 不回归）",
+  "at": "2026-10-19T04:34:18.315Z",
+  "head": "ffa3635c90222b2635b9c2d62c877ee06212683e",
+  "environment": {
+    "dev_backend": "http://localhost:5788（ts-node src/index.ts · health schema_version=0051）",
+    "dev_frontend": "http://localhost:5800（vite dev）",
+    "viewport": "390×844 @2x",
+    "db": "dev DATABASE_URL（Neon）",
+    "auth": "每次运行随机 ethers 钱包 → /api/auth/challenge → signMessage → /api/auth/verify（私钥/地址不落盘）"
+  },
+  "counts": {
+    "total": 14,
+    "passed": 14,
+    "failed": 0
+  },
+  "failed_ids": [],
+  "items": [
+    {
+      "id": "S1",
+      "name": "POST /api/media 恰 1,048,576 bytes ⇒ 200 且 size_bytes=1048576",
+      "pass": true,
+      "evidence": {
+        "http": 200,
+        "size_bytes": 1048576,
+        "media_id": 5,
+        "deduplicated": false,
+        "request_body_approx_bytes": 1398150
+      }
+    },
+    {
+      "id": "S2",
+      "name": "POST /api/media 1,048,577 bytes ⇒ 400 MEDIA_SIZE_EXCEEDED（max_bytes=1048576 · 非 413）",
+      "pass": true,
+      "evidence": {
+        "http": 400,
+        "error": {
+          "code": "MEDIA_SIZE_EXCEEDED",
+          "message": "media payload exceeds 1MiB after base64 decode",
+          "i18n_key": "media.err.MEDIA_SIZE_EXCEEDED",
+          "details": {
+            "decoded_bytes": 1048577,
+            "max_bytes": 1048576
+          }
+        },
+        "request_body_approx_bytes": 1398150
+      }
+    },
+    {
+      "id": "D1",
+      "name": "pg_constraint media_size_bytes_check 含 1048576 且不含 2097152（恰 1 条）",
+      "pass": true,
+      "evidence": {
+        "def": [
+          {
+            "conname": "media_size_bytes_check",
+            "def": "CHECK (((size_bytes > 0) AND (size_bytes <= 1048576)))"
+          }
+        ],
+        "has_2097152": false
+      }
+    },
+    {
+      "id": "D2",
+      "name": "故意 INSERT size_bytes=1048577 ⇒ 23514 约束拒绝；1MiB 在 CHECK 内；事务回滚零留行",
+      "pass": true,
+      "evidence": {
+        "error": {
+          "sqlstate": "23514",
+          "constraint": "media_size_bytes_check",
+          "message": "new row for relation \"media\" violates check constraint \"media_size_bytes_check\""
+        },
+        "exact_cap_insert_error": null
+      }
+    },
+    {
+      "id": "C1",
+      "name": "客户端 390 三臂（小图入列 / 强制超限 16 次编码后拒收+提示 / 首档超限 0.72 重编入列）",
+      "pass": true,
+      "evidence": {
+        "summary": {
+          "total": 3,
+          "passed": 3
+        },
+        "cases": {
+          "P1_normal_image": {
+            "pass": true,
+            "thumbCount": 1,
+            "thumbBytes": [
+              28688
+            ],
+            "notice": null,
+            "encodings": 1
+          },
+          "P2_oversized_rejected": {
+            "pass": true,
+            "thumbCount": 0,
+            "thumbBytes": [],
+            "notice": {
+              "text": "单张图片不能超过 1MB",
+              "role": "alert",
+              "visible": true
+            },
+            "encodings": 16
+          },
+          "P3_downgrade_then_accept": {
+            "pass": true,
+            "thumbCount": 1,
+            "thumbBytes": [
+              24122
+            ],
+            "notice": null,
+            "encodings": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "C2",
+      "name": "item.imageTooLarge 四语键在场（zh/hk/en/vn）",
+      "pass": true,
+      "evidence": {
+        "zh": "单张图片不能超过 1MB",
+        "hk": "單張圖片不能超過 1MB",
+        "en": "Each image must be 1MB or smaller",
+        "vn": "Mỗi ảnh không được vượt quá 1MB",
+        "source": "frontend/src/locales/{zh,hk,en,vn}.json:188"
+      }
+    },
+    {
+      "id": "G1",
+      "name": "frontend build exit 0",
+      "pass": true,
+      "evidence": {
+        "built_line": "✓ built in 1.81s"
+      }
+    },
+    {
+      "id": "G2",
+      "name": "test:unit 全绿且不少于 60 文件 / 577 例",
+      "pass": true,
+      "evidence": {
+        "test_files": 60,
+        "tests": 577
+      }
+    },
+    {
+      "id": "G3",
+      "name": "backend-ts tsc --noEmit = 0 行输出（0 error）",
+      "pass": true,
+      "evidence": {
+        "output_bytes": 0
+      }
+    },
+    {
+      "id": "G4",
+      "name": "p7b-03 37/37 且 registration_points=110（111 即判负）",
+      "pass": true,
+      "evidence": {
+        "total": 37,
+        "passed": 37,
+        "failed": 0,
+        "registration_points": 110
+      }
+    },
+    {
+      "id": "N1",
+      "name": "GET /api/currencies 仍 2 行（cid=1 $ / cid=399 BTTC）",
+      "pass": true,
+      "evidence": {
+        "rows": [
+          {
+            "cid": "1",
+            "symbol": "$"
+          },
+          {
+            "cid": "399",
+            "symbol": "BTTC"
+          }
+        ]
+      }
+    },
+    {
+      "id": "N2",
+      "name": "390 档首页未传图商品仍用占位图 placeholder-item.webp 且 naturalWidth=320",
+      "pass": true,
+      "evidence": {
+        "img_count": 8,
+        "widths": [
+          320
+        ],
+        "srcs": [
+          "http://localhost:5800/src/images/placeholder-item.webp"
+        ]
+      }
+    },
+    {
+      "id": "N3",
+      "name": "/item/new 选图字段仍在（file · image/* · multiple · + 按钮可用）",
+      "pass": true,
+      "evidence": {
+        "input": {
+          "type": "file",
+          "accept": "image/*",
+          "multiple": true,
+          "display": "none"
+        },
+        "addButton": {
+          "text": "+",
+          "disabled": false
+        },
+        "docScrollWidth": 390
+      }
+    },
+    {
+      "id": "R1",
+      "name": "验收自建 media 行已回收（前后计数一致）",
+      "pass": true,
+      "evidence": {
+        "deleted_media_id": 5,
+        "deleted_rows": 1,
+        "count_before": 0,
+        "count_after": 0,
+        "pass": true
+      }
+    }
+  ],
+  "cleanup": {
+    "media_rows_before": 0,
+    "media_rows_after": 0,
+    "deleted_rows": 1,
+    "deleted_media_id": 5
+  },
+  "disclosures": [
+    "真钱包登录在 users 表新建 1 行（uid=971223 · 地址尾 846388 · bio 空）⇒ 登录路径固有写入，非媒体行；media 行前后均为 0，已回收。",
+    "0050 迁移内的自检块仍断言旧上限 2097152（历史文件 checksum 冻结不改）⇒ 仅影响「重建 ledger 全链重放」场景，0051 为终态。",
+    "未 commit / 未 push；未调用发布接口（POST /api/listing 等零调用）。",
+    "readings/qa-*.log 命中仓根 .gitignore 的 *.log ⇒ 提交时不会入库；等值机读摘要落在 readings/qa-gates.json（数字与日志逐字一致）。",
+    "readings/probe-390.json 为本次重跑产物，相对 HEAD 仅 \"at\" 时间戳一行差异。"
+  ],
+  "readings": [
+    "ops/media-size-1mb/readings/api-1mb.json",
+    "ops/media-size-1mb/readings/probe-390.json",
+    "ops/media-size-1mb/readings/regression-390.json",
+    "ops/media-size-1mb/readings/qa-gates.json",
+    "ops/media-size-1mb/readings/qa-build.log",
+    "ops/media-size-1mb/readings/qa-test-unit.log",
+    "ops/media-size-1mb/readings/qa-backend-tsc.log",
+    "ops/media-size-1mb/readings/qa-p7b-03.log",
+    "ops/media-size-1mb/readings/qa-p7b-03-artifact.json"
+  ],
+  "probes": [
+    "ops/media-size-1mb/probe-api-1mb.mjs",
+    "ops/media-size-1mb/probe-390.mjs",
+    "ops/media-size-1mb/probe-regression-390.mjs"
+  ]
+}
