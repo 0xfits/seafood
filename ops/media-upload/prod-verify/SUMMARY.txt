@@ -1,0 +1,15 @@
+媒体上传单 · 生产终验（2026-10-19）
+push = 9adcfcc..cda9acf (11 commits)；生产迁移先行：schema_version 0049→0050（PENDING 空，media 表建出，0 行）
+
+同版证明（sha256 逐字同 = 线上跑的就是这一版）
+  js   158288f5fe501ea1  index-CSQD6eNe.js   (prod size 493526)
+  css  415fa31f11306ab9  index-Bwuo40gV.css  (prod size 124180)
+  webp df33258e96444707  placeholder-item-ChYVGMSM.webp (12616 B，与 Kevin 拍板档逐字同)
+
+bundle marker：item-image-input=1 · item-image-add=1 · /api/media=1 · placeholder-item=1 · item.imageUploadFail=1
+接口：POST /api/media 无鉴权 ⇒ 401（登录闸生效）；GET /api/media/1 ⇒ 404（库里暂无图）；GET /api/currencies ⇒ 2 行（上一单未回归）
+真浏览器（390 档，--host-resolver-rules 绕本机 DNS 劫持）：
+  /        4 张卡片全部 img=/assets/placeholder-item-*.webp naturalWidth=320（未传图走占位）
+  /item/1  详情页占位图 naturalWidth=320
+  /item/new 未登录落「请先登录」闸
+  三页 pageerror=0、console error=0

@@ -1,0 +1,48 @@
+{
+ "at": "2026-10-19T04:19:42.003Z",
+ "pages": [
+  {
+   "path": "/",
+   "pageerrors": [],
+   "consoleErrors": [],
+   "rootChildren": 2,
+   "imgs": [
+    {
+     "src": "/assets/placeholder-item-ChYVGMSM.webp",
+     "nw": 320
+    },
+    {
+     "src": "/assets/placeholder-item-ChYVGMSM.webp",
+     "nw": 320
+    },
+    {
+     "src": "/assets/placeholder-item-ChYVGMSM.webp",
+     "nw": 320
+    },
+    {
+     "src": "/assets/placeholder-item-ChYVGMSM.webp",
+     "nw": 320
+    }
+   ]
+  },
+  {
+   "path": "/item/1",
+   "pageerrors": [],
+   "consoleErrors": [],
+   "rootChildren": 2,
+   "imgs": [
+    {
+     "src": "/assets/placeholder-item-ChYVGMSM.webp",
+     "nw": 320
+    }
+   ]
+  },
+  {
+   "path": "/item/new",
+   "pageerrors": [],
+   "consoleErrors": [],
+   "rootChildren": 2,
+   "imgs": []
+  }
+ ]
+}

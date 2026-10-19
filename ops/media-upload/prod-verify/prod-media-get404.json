@@ -1,0 +1,1 @@
+{"error":{"code":"LEDGER_REF_NOT_FOUND","message":"Referenced object not found","i18n_key":"ledger.err.LEDGER_REF_NOT_FOUND","details":{"ref_type":"media","ref_id":"1","reason":"media_not_found"}}}
