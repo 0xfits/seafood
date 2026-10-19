@@ -3275,3 +3275,39 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 - **断言影响（现取点名）**：`r9-93-points-symbol`（`>$</span>` 恰 1 / `USAGE_FILES` 计数 1）与 `i18n-batch-b2`（无 Router 裸渲染不抛错 / 无 `<a href>`）**零改锚**；引用 `statusText` / `claimedUnit` 渲染的测试（现取 `grep -rln 'statusText\|claimedUnit' frontend/src/test/unit` = `i18n-batch-b2` / `i18n-batch-b3` / `r9-93` / `p6-miscfix` / `r9-90`）属**改锚面**（实现单同批前推）；i18n 计数前推家族（`sellerCredit` +4 键）随实现单。
 - **现取自证（编制时点 = 2026-10-19 · HEAD `12a94de`）**：i18n base top **128** / flat **1110** / 四语节点 **4440**（python 现算）；`sellerCredit` 四语 0 命中；backend `avatar` 零命中（列未建，`0052` = 契约号）；`reward-card.css` 48 行且尚无 412/240 常量（实现进行中）；工作区 `M frontend/src/components/reward/RewardCard.jsx` = 实现单未提交面（非本单写面）。
 - **未做 / 诚实边界**：本笔零代码、零迁移落盘（`0052` 文件由实现单创建、apply 由 Zang）；§26.7 的 7 条 AC **一条未跑**；`B40`（死键清理）与 `B41`（头像上传能力待立单）挂 `OPEN-ITEMS`；信用胶囊色值未锁（待实现单读数或 Kevin 给色值）。SPEC-NOTE = `ops/card-resize/SPEC-NOTE.md`。
+
+### 26.10 实现回写与生产终验（2026-10-19 收口 · 同 v1.25 契约的**实现面回写、不升版** · 承 §25.11 体例）
+
+> **本节性质**：**§26.0–§26.9 一字未改**；契约仍以 **v1.25** 为准，本节只补「已实现、已质检、已上线、生产终验 PASS」的事实与两处落地差。实现 = `d37a813`；独立质检 = `937b861`（**171 判据 0 红**）；上线 = push `12a94de..937b861`（3 提交 · **迁移先行** schema 0051→0052）；生产终验 = `133ed34`（证据 `ops/card-resize/prod-verify/`）。master 侧登记 = **§5.429 + 版本行 v0.346**。**★ 编号勘误（披露）**：本笔派单写「§26 末追加 **26.8**」，而 **§26.8（i18n 死键清单）/ §26.9（落点约束）已被 v1.25 占用** ⇒ 承 v1.24 `T121` 编号勘误先例**现取顺延 §26.10**，派单编号字面留痕于此。
+
+#### 26.10.1 掩码终态（`maskWalletAddress` 二轮再简短 · 与 §26.7 的作废关系）
+
+- **终态定式（写死）**：`maskWalletAddress(evm) = evm.length >= 8 ? evm.slice(0,4) + '**' + evm.slice(-2) : evm`（`backend-ts/src/messages-service.ts:607` 现取）＝ **`0x` + 前 2 位 + `**` + 末 2 位**，**恰 8 字符**（例 `0x12**cd`）；`evm` 长度不足 8 ⇒ 兜底原样返回（实现注释留痕）。适用面不变：详情卖家名（`getPrizeSellerView`）与首页 feed 行 `seller.nickname` **同源共用**该单源助手。
+- **作废关系（状态改写式 · 旧字面不删）**：§26.0 口径订正行、§26.1d、§26.4、**§26.7 #6** 的「前 6 + `******`（6 星）+ 后 4」与「`0x******abcd`」字面**一并作废、以本条为准**（§26.6 #3 再收口行 + route 册 §41.3 再收口行 = 同日正典，随实现 `d37a813` 入库）。**§26.7 #6 的判负实质不变**：期望形态改判 **`0x12**cd` 8 字符定式**，「出现明文 EVM 全量即判负」照旧；质检已按终态执行（恰 8 字符、对 feed 全部卖家以 DB `evm` 单源重算逐一致、不含完整地址）。
+
+#### 26.10.2 几何现取（生产读数 · 1536 档 ×7 卡 · `133ed34`）
+
+| 项 | 契约（§26.1） | 生产现取 |
+|---|---|---|
+| 卡高 | 恒 412 | **7/7 = 412**（逐卡 `getBoundingClientRect` 恒定） |
+| 预览图 | 高 240 · 通栏 · cover 居中裁切 | **7/7 高 240 × 宽 223**、cover；`naturalWidth`：320=占位 ×5 · **960 / 612 = 真实上传图 ×2**（生产首次有真实上传图读数） |
+| 卖家栏 | 高 48 · 占满卡内宽 | **7/7 = 48** |
+| 头像 | 24px 圆；null ⇒ 灰底 + 掩码名首字符占位 | 生产 `avatar_url` **全 null ⇒ 全占位**：灰底圆 + 掩码首字符、无 `<img>`（dev 读数灰底 `rgb(238,240,242)`；生产探针卖家栏文本首位「0」即 `0x59**b0` 的首字符 = 占位在场实证）；上传能力不存在 ⇒ `B41` 挂账 |
+| 移除项 | 徽章 / 领取行 / 前置礼物图标 = 0 | gift=0 · badges=0（QA 侧另证四文案 = 0、稀有度光斑每卡 1 在场） |
+| 信用胶囊 | 无图标 · 色值不锁（§26.1d） | 现取既有 Tailwind 阶：excellent `bg-orange-100 text-orange-600` / good `bg-blue-50 text-blue-600` / normal `bg-gray-100 text-gray-500` / new `bg-gray-100 text-gray-400`（`RewardCard.jsx:195-198` 现取）—— **零新 token、零新 hex**，与 §26.1d「不锁色值」相容 |
+
+- **卡内宽 223 与 225 锚的算术**：**223 = 卡内宽**（§26.0 的网格锚 ≈225 − 卡体 1px 边框 ×2），两者相容；**252 仍为 Kevin 测量近似、非判负**（§26.0）。QA 首版以卡外宽为参照得 16 条假红（差恒 2px = 无效尺），已自纠为以 `.sf-reward-inner` `clientWidth` 为参照 + computed border 自洽断言（verdict `judgeCorrections` 留痕，无实现改动）。
+- **6 列规则 = `styles.css` 字面（非 token）**：属 **§25.11.3 既有落地差**，商品卡不改列数面 ⇒ 本节不重复登记、仅指针。
+
+#### 26.10.3 数据面 / 质检 / 门套（现取）
+
+- 数据面：feed 行 `seller = {uid, nickname, avatar, credit}`（行键 **45→46**）；详情顶层 46 且 `seller.credit` 在场；`creditFromAvg`（`messages-service.ts:616` 现取）= null ⇒ new / ≥4.5 ⇒ excellent / ≥3.5 ⇒ good / 其余 ⇒ normal，**服务端算好下发、前端不本地算**（独立于排序中性 3.0，route §49.2 不动）。
+- 质检 `937b861`：**171 判据 0 红**、六 AC 全 PASS——四组合（有图 / 无图⇒占位 / 长标题 60 字 / 无描述）× 1440/1536 两档 8 读数恒 412（真实 feed 9 卡 + 390 档 9 卡同 412）· 移除项 0 · **插 1 行 5 星评分（ratee=970213）⇒ API credit=excellent + 页面「卖家信用优秀」、其余 8 卡仍「新卖家」，回收零残留**（rating before 0 / after 0、append-only 触发器前中后 `'O'`、四组合夹具 = route 内存拦截零写库）· 门套 build 0 + `test:unit` **62 文件 / 598 例** + `tsc` 0 + `p7b-03` **37/37** `regs=110` + 双库 schema 顶 `0052` · 回归（currencies 2 行 / media 404 / 390 零溢出）。
+- 生产终验 `133ed34`：同版 sha256 逐字（js `14eb3c5dab5279b8…` **497,271 B** / css `df93ff44c0bcd0a3…` **125,431 B**）+ **7 卡（生产 listed 4 旧 + 3 新）恒 412** + 图 240×223 cover + 卖家栏 48 + 掩码 `0x59**b0` / `0xf7**da` / `0xb8**27` / `0x9a**2b` 全命中 + gift/徽章 0 + pageerror / console error 0。
+
+#### 26.10.4 诚实边界 / 挂账（本节不裁新契约）
+
+- **信用四档生产仅「new」可见**：生产 `rating` **0 行** ⇒ 全部卖家「新卖家」；**「优秀 / 良好 / 一般」三档生产不可见**，只在 dev 插行取证（插 5 星 ⇒ excellent、回收零残留）——三档的生产可见性待生产出现真实评分后自然可验，**不造假数据**。
+- **头像**：`0052` 列已建、**写入口不存在**（`B41` 待立单）⇒ 生产头像全占位形态（见 26.10.2）。
+- **死键**：`rewardCard.limited` / `common.claimedUnit` 随移除面死亡、**未删**（`B40`）；保留面（整卡链接 / `$` 价格块 / 描述 clamp / 剩余时间行 / CTA / 稀有度光斑）零回归（AC2 光斑每卡 1 在场；`r9-93` / `i18n-batch-b2` 零改锚）。
+- 本节**零新契约 / 零新 token / 零 `STRUCT` / 零真源改动**；不升版依据 = 承 §25.11「实现面回写、不升版」先例。交付件 = `ops/card-resize/SPEC-NOTE-closure.md`。
