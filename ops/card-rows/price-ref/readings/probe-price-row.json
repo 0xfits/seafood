@@ -1,0 +1,1376 @@
+{
+  "verdict": "PASS",
+  "spec": "price row: #FF4D00 700 17px num + same-color 0.6em $ + #999999 12px/400 wants, left-aligned, baseline, row 24 / card 392",
+  "errors": [],
+  "env": {
+    "base": "http://localhost:5787",
+    "viewports": [
+      1440,
+      1536
+    ],
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "fixtures": [
+      {
+        "bID": 901,
+        "points": 495,
+        "wants": 20
+      },
+      {
+        "bID": 902,
+        "points": 1288,
+        "wants": 0
+      },
+      {
+        "bID": 903,
+        "points": 8888,
+        "wants": 1234
+      },
+      {
+        "bID": 904,
+        "points": 1,
+        "wants": 7
+      }
+    ]
+  },
+  "results": [
+    {
+      "tag": "1440/light",
+      "pass": true,
+      "checks": [
+        {
+          "name": "cardH=392",
+          "pass": true,
+          "detail": "392/392,392/392,392/392,392/392"
+        },
+        {
+          "name": "img240+content152",
+          "pass": true,
+          "detail": "240/152,240/152,240/152,240/152"
+        },
+        {
+          "name": "rows=48/32/24/48",
+          "pass": true,
+          "detail": "48/32/24/48"
+        },
+        {
+          "name": "row3H=24",
+          "pass": true,
+          "detail": "24,24,24,24"
+        },
+        {
+          "name": "row3-align=baseline",
+          "pass": true,
+          "detail": "baseline,baseline,baseline,baseline"
+        },
+        {
+          "name": "row3-justify=flex-start",
+          "pass": true,
+          "detail": "flex-start,flex-start,flex-start,flex-start"
+        },
+        {
+          "name": "row3-gap=8px",
+          "pass": true,
+          "detail": "8px,8px,8px,8px"
+        },
+        {
+          "name": "row3-nowrap",
+          "pass": true,
+          "detail": "nowrap,nowrap,nowrap,nowrap"
+        },
+        {
+          "name": "row3-single-line",
+          "pass": true,
+          "detail": "209/209,209/209,209/209,209/209"
+        },
+        {
+          "name": "row3-2-children-no-icon",
+          "pass": true,
+          "detail": "2/0,2/0,2/0,2/0"
+        },
+        {
+          "name": "price-group-left",
+          "pass": true,
+          "detail": "12,12,12,12"
+        },
+        {
+          "name": "wants-hugs-price",
+          "pass": true,
+          "detail": "8,8,8,8"
+        },
+        {
+          "name": "wants-right-whitespace>40",
+          "pass": true,
+          "detail": "102.19,99.19,77.58,129.81"
+        },
+        {
+          "name": "num-color=FF4D00",
+          "pass": true,
+          "detail": "rgb(255, 77, 0),rgb(255, 77, 0),rgb(255, 77, 0),rgb(255, 77, 0)"
+        },
+        {
+          "name": "num-17px-bold",
+          "pass": true,
+          "detail": "17px/700,17px/700,17px/700,17px/700"
+        },
+        {
+          "name": "cur-same-color-as-num",
+          "pass": true,
+          "detail": "rgb(255, 77, 0),rgb(255, 77, 0),rgb(255, 77, 0),rgb(255, 77, 0)"
+        },
+        {
+          "name": "cur-0.6em≈10px-bold",
+          "pass": true,
+          "detail": "10.2px/700,10.2px/700,10.2px/700,10.2px/700"
+        },
+        {
+          "name": "cur-smaller-than-num",
+          "pass": true,
+          "detail": "10.2px<17px,10.2px<17px,10.2px<17px,10.2px<17px"
+        },
+        {
+          "name": "wants-color=999999",
+          "pass": true,
+          "detail": "rgb(153, 153, 153),rgb(153, 153, 153),rgb(153, 153, 153),rgb(153, 153, 153)"
+        },
+        {
+          "name": "wants-12px-400",
+          "pass": true,
+          "detail": "12px/400,12px/400,12px/400,12px/400"
+        },
+        {
+          "name": "baseline-diff≤1px",
+          "pass": true,
+          "detail": "0,0,0,0"
+        },
+        {
+          "name": "wants-not-clipped",
+          "pass": true,
+          "detail": "0,0,0,0"
+        },
+        {
+          "name": "cur=$, in span",
+          "pass": true,
+          "detail": "true/$,true/$,true/$,true/$"
+        },
+        {
+          "name": "num-match-fixture",
+          "pass": true,
+          "detail": "495,1288,8888,1"
+        },
+        {
+          "name": "wants-match-fixture",
+          "pass": true,
+          "detail": "20人想要,0人想要,1234人想要,7人想要"
+        },
+        {
+          "name": "no-yen-symbol",
+          "pass": true,
+          "detail": "false,false,false,false"
+        }
+      ],
+      "cards": [
+        {
+          "innerH": 392,
+          "innerClientH": 392,
+          "imgBoxH": 240,
+          "contentH": 152,
+          "rowHs": [
+            48,
+            32,
+            24,
+            48
+          ],
+          "rowH": 24,
+          "rowBoxSizing": "border-box",
+          "rowAlignItems": "baseline",
+          "rowJustify": "flex-start",
+          "rowGap": "8px",
+          "rowPaddingLeft": "12px",
+          "rowWhiteSpace": "nowrap",
+          "rowOverflow": "hidden",
+          "rowScrollW": 209,
+          "rowClientW": 209,
+          "rowChildren": 2,
+          "rowIcons": 0,
+          "priceLeftGap": 12,
+          "priceBlockW": 36.73,
+          "priceBlockH": 27,
+          "numFontSize": "17px",
+          "numFontWeight": "700",
+          "numColor": "rgb(255, 77, 0)",
+          "numText": "495",
+          "numRectH": 24,
+          "curText": "$",
+          "curInSpan": true,
+          "curFontSize": "10.2px",
+          "curFontWeight": "700",
+          "curColor": "rgb(255, 77, 0)",
+          "wantsText": "20人想要",
+          "wantsFontSize": "12px",
+          "wantsFontWeight": "400",
+          "wantsColor": "rgb(153, 153, 153)",
+          "wantsAlign": "left",
+          "wantsGapAfterPrice": 8,
+          "wantsRightGap": 102.19,
+          "baseNum": 1315,
+          "baseWants": 1315,
+          "baseDiff": 0,
+          "wantsBottomOverflow": 0,
+          "hasYen": false
+        },
+        {
+          "innerH": 392,
+          "innerClientH": 392,
+          "imgBoxH": 240,
+          "contentH": 152,
+          "rowHs": [
+            48,
+            32,
+            24,
+            48
+          ],
+          "rowH": 24,
+          "rowBoxSizing": "border-box",
+          "rowAlignItems": "baseline",
+          "rowJustify": "flex-start",
+          "rowGap": "8px",
+          "rowPaddingLeft": "12px",
+          "rowWhiteSpace": "nowrap",
+          "rowOverflow": "hidden",
+          "rowScrollW": 209,
+          "rowClientW": 209,
+          "rowChildren": 2,
+          "rowIcons": 0,
+          "priceLeftGap": 12,
+          "priceBlockW": 46.94,
+          "priceBlockH": 27,
+          "numFontSize": "17px",
+          "numFontWeight": "700",
+          "numColor": "rgb(255, 77, 0)",
+          "numText": "1288",
+          "numRectH": 24,
+          "curText": "$",
+          "curInSpan": true,
+          "curFontSize": "10.2px",
+          "curFontWeight": "700",
+          "curColor": "rgb(255, 77, 0)",
+          "wantsText": "0人想要",
+          "wantsFontSize": "12px",
+          "wantsFontWeight": "400",
+          "wantsColor": "rgb(153, 153, 153)",
+          "wantsAlign": "left",
+          "wantsGapAfterPrice": 8,
+          "wantsRightGap": 99.19,
+          "baseNum": 1315,
+          "baseWants": 1315,
+          "baseDiff": 0,
+          "wantsBottomOverflow": 0,
+          "hasYen": false
+        },
+        {
+          "innerH": 392,
+          "innerClientH": 392,
+          "imgBoxH": 240,
+          "contentH": 152,
+          "rowHs": [
+            48,
+            32,
+            24,
+            48
+          ],
+          "rowH": 24,
+          "rowBoxSizing": "border-box",
+          "rowAlignItems": "baseline",
+          "rowJustify": "flex-start",
+          "rowGap": "8px",
+          "rowPaddingLeft": "12px",
+          "rowWhiteSpace": "nowrap",
+          "rowOverflow": "hidden",
+          "rowScrollW": 209,
+          "rowClientW": 209,
+          "rowChildren": 2,
+          "rowIcons": 0,
+          "priceLeftGap": 12,
+          "priceBlockW": 46.94,
+          "priceBlockH": 27,
+          "numFontSize": "17px",
+          "numFontWeight": "700",
+          "numColor": "rgb(255, 77, 0)",
+          "numText": "8888",
+          "numRectH": 24,
+          "curText": "$",
+          "curInSpan": true,
+          "curFontSize": "10.2px",
+          "curFontWeight": "700",
+          "curColor": "rgb(255, 77, 0)",
+          "wantsText": "1234人想要",
+          "wantsFontSize": "12px",
+          "wantsFontWeight": "400",
+          "wantsColor": "rgb(153, 153, 153)",
+          "wantsAlign": "left",
+          "wantsGapAfterPrice": 8,
+          "wantsRightGap": 77.58,
+          "baseNum": 1315,
+          "baseWants": 1315,
+          "baseDiff": 0,
+          "wantsBottomOverflow": 0,
+          "hasYen": false
+        },
+        {
+          "innerH": 392,
+          "innerClientH": 392,
+          "imgBoxH": 240,
+          "contentH": 152,
+          "rowHs": [
+            48,
+            32,
+            24,
+            48
+          ],
+          "rowH": 24,
+          "rowBoxSizing": "border-box",
+          "rowAlignItems": "baseline",
+          "rowJustify": "flex-start",
+          "rowGap": "8px",
+          "rowPaddingLeft": "12px",
+          "rowWhiteSpace": "nowrap",
+          "rowOverflow": "hidden",
+          "rowScrollW": 209,
+          "rowClientW": 209,
+          "rowChildren": 2,
+          "rowIcons": 0,
+          "priceLeftGap": 12,
+          "priceBlockW": 16.33,
+          "priceBlockH": 27,
+          "numFontSize": "17px",
+          "numFontWeight": "700",
+          "numColor": "rgb(255, 77, 0)",
+          "numText": "1",
+          "numRectH": 24,
+          "curText": "$",
+          "curInSpan": true,
+          "curFontSize": "10.2px",
+          "curFontWeight": "700",
+          "curColor": "rgb(255, 77, 0)",
+          "wantsText": "7人想要",
+          "wantsFontSize": "12px",
+          "wantsFontWeight": "400",
+          "wantsColor": "rgb(153, 153, 153)",
+          "wantsAlign": "left",
+          "wantsGapAfterPrice": 8,
+          "wantsRightGap": 129.81,
+          "baseNum": 1315,
+          "baseWants": 1315,
+          "baseDiff": 0,
+          "wantsBottomOverflow": 0,
+          "hasYen": false
+        }
+      ]
+    },
+    {
+      "tag": "1440/dark",
+      "pass": true,
+      "checks": [
+        {
+          "name": "cardH=392",
+          "pass": true,
+          "detail": "392/392,392/392,392/392,392/392"
+        },
+        {
+          "name": "img240+content152",
+          "pass": true,
+          "detail": "240/152,240/152,240/152,240/152"
+        },
+        {
+          "name": "rows=48/32/24/48",
+          "pass": true,
+          "detail": "48/32/24/48"
+        },
+        {
+          "name": "row3H=24",
+          "pass": true,
+          "detail": "24,24,24,24"
+        },
+        {
+          "name": "row3-align=baseline",
+          "pass": true,
+          "detail": "baseline,baseline,baseline,baseline"
+        },
+        {
+          "name": "row3-justify=flex-start",
+          "pass": true,
+          "detail": "flex-start,flex-start,flex-start,flex-start"
+        },
+        {
+          "name": "row3-gap=8px",
+          "pass": true,
+          "detail": "8px,8px,8px,8px"
+        },
+        {
+          "name": "row3-nowrap",
+          "pass": true,
+          "detail": "nowrap,nowrap,nowrap,nowrap"
+        },
+        {
+          "name": "row3-single-line",
+          "pass": true,
+          "detail": "209/209,209/209,209/209,209/209"
+        },
+        {
+          "name": "row3-2-children-no-icon",
+          "pass": true,
+          "detail": "2/0,2/0,2/0,2/0"
+        },
+        {
+          "name": "price-group-left",
+          "pass": true,
+          "detail": "12,12,12,12"
+        },
+        {
+          "name": "wants-hugs-price",
+          "pass": true,
+          "detail": "8,8,8,8"
+        },
+        {
+          "name": "wants-right-whitespace>40",
+          "pass": true,
+          "detail": "102.19,99.19,77.58,129.81"
+        },
+        {
+          "name": "num-color=FF4D00",
+          "pass": true,
+          "detail": "rgb(255, 77, 0),rgb(255, 77, 0),rgb(255, 77, 0),rgb(255, 77, 0)"
+        },
+        {
+          "name": "num-17px-bold",
+          "pass": true,
+          "detail": "17px/700,17px/700,17px/700,17px/700"
+        },
+        {
+          "name": "cur-same-color-as-num",
+          "pass": true,
+          "detail": "rgb(255, 77, 0),rgb(255, 77, 0),rgb(255, 77, 0),rgb(255, 77, 0)"
+        },
+        {
+          "name": "cur-0.6em≈10px-bold",
+          "pass": true,
+          "detail": "10.2px/700,10.2px/700,10.2px/700,10.2px/700"
+        },
+        {
+          "name": "cur-smaller-than-num",
+          "pass": true,
+          "detail": "10.2px<17px,10.2px<17px,10.2px<17px,10.2px<17px"
+        },
+        {
+          "name": "wants-color=999999",
+          "pass": true,
+          "detail": "rgb(153, 153, 153),rgb(153, 153, 153),rgb(153, 153, 153),rgb(153, 153, 153)"
+        },
+        {
+          "name": "wants-12px-400",
+          "pass": true,
+          "detail": "12px/400,12px/400,12px/400,12px/400"
+        },
+        {
+          "name": "baseline-diff≤1px",
+          "pass": true,
+          "detail": "0,0,0,0"
+        },
+        {
+          "name": "wants-not-clipped",
+          "pass": true,
+          "detail": "0,0,0,0"
+        },
+        {
+          "name": "cur=$, in span",
+          "pass": true,
+          "detail": "true/$,true/$,true/$,true/$"
+        },
+        {
+          "name": "num-match-fixture",
+          "pass": true,
+          "detail": "495,1288,8888,1"
+        },
+        {
+          "name": "wants-match-fixture",
+          "pass": true,
+          "detail": "20人想要,0人想要,1234人想要,7人想要"
+        },
+        {
+          "name": "no-yen-symbol",
+          "pass": true,
+          "detail": "false,false,false,false"
+        }
+      ],
+      "cards": [
+        {
+          "innerH": 392,
+          "innerClientH": 392,
+          "imgBoxH": 240,
+          "contentH": 152,
+          "rowHs": [
+            48,
+            32,
+            24,
+            48
+          ],
+          "rowH": 24,
+          "rowBoxSizing": "border-box",
+          "rowAlignItems": "baseline",
+          "rowJustify": "flex-start",
+          "rowGap": "8px",
+          "rowPaddingLeft": "12px",
+          "rowWhiteSpace": "nowrap",
+          "rowOverflow": "hidden",
+          "rowScrollW": 209,
+          "rowClientW": 209,
+          "rowChildren": 2,
+          "rowIcons": 0,
+          "priceLeftGap": 12,
+          "priceBlockW": 36.73,
+          "priceBlockH": 27,
+          "numFontSize": "17px",
+          "numFontWeight": "700",
+          "numColor": "rgb(255, 77, 0)",
+          "numText": "495",
+          "numRectH": 24,
+          "curText": "$",
+          "curInSpan": true,
+          "curFontSize": "10.2px",
+          "curFontWeight": "700",
+          "curColor": "rgb(255, 77, 0)",
+          "wantsText": "20人想要",
+          "wantsFontSize": "12px",
+          "wantsFontWeight": "400",
+          "wantsColor": "rgb(153, 153, 153)",
+          "wantsAlign": "left",
+          "wantsGapAfterPrice": 8,
+          "wantsRightGap": 102.19,
+          "baseNum": 1315,
+          "baseWants": 1315,
+          "baseDiff": 0,
+          "wantsBottomOverflow": 0,
+          "hasYen": false
+        },
+        {
+          "innerH": 392,
+          "innerClientH": 392,
+          "imgBoxH": 240,
+          "contentH": 152,
+          "rowHs": [
+            48,
+            32,
+            24,
+            48
+          ],
+          "rowH": 24,
+          "rowBoxSizing": "border-box",
+          "rowAlignItems": "baseline",
+          "rowJustify": "flex-start",
+          "rowGap": "8px",
+          "rowPaddingLeft": "12px",
+          "rowWhiteSpace": "nowrap",
+          "rowOverflow": "hidden",
+          "rowScrollW": 209,
+          "rowClientW": 209,
+          "rowChildren": 2,
+          "rowIcons": 0,
+          "priceLeftGap": 12,
+          "priceBlockW": 46.94,
+          "priceBlockH": 27,
+          "numFontSize": "17px",
+          "numFontWeight": "700",
+          "numColor": "rgb(255, 77, 0)",
+          "numText": "1288",
+          "numRectH": 24,
+          "curText": "$",
+          "curInSpan": true,
+          "curFontSize": "10.2px",
+          "curFontWeight": "700",
+          "curColor": "rgb(255, 77, 0)",
+          "wantsText": "0人想要",
+          "wantsFontSize": "12px",
+          "wantsFontWeight": "400",
+          "wantsColor": "rgb(153, 153, 153)",
+          "wantsAlign": "left",
+          "wantsGapAfterPrice": 8,
+          "wantsRightGap": 99.19,
+          "baseNum": 1315,
+          "baseWants": 1315,
+          "baseDiff": 0,
+          "wantsBottomOverflow": 0,
+          "hasYen": false
+        },
+        {
+          "innerH": 392,
+          "innerClientH": 392,
+          "imgBoxH": 240,
+          "contentH": 152,
+          "rowHs": [
+            48,
+            32,
+            24,
+            48
+          ],
+          "rowH": 24,
+          "rowBoxSizing": "border-box",
+          "rowAlignItems": "baseline",
+          "rowJustify": "flex-start",
+          "rowGap": "8px",
+          "rowPaddingLeft": "12px",
+          "rowWhiteSpace": "nowrap",
+          "rowOverflow": "hidden",
+          "rowScrollW": 209,
+          "rowClientW": 209,
+          "rowChildren": 2,
+          "rowIcons": 0,
+          "priceLeftGap": 12,
+          "priceBlockW": 46.94,
+          "priceBlockH": 27,
+          "numFontSize": "17px",
+          "numFontWeight": "700",
+          "numColor": "rgb(255, 77, 0)",
+          "numText": "8888",
+          "numRectH": 24,
+          "curText": "$",
+          "curInSpan": true,
+          "curFontSize": "10.2px",
+          "curFontWeight": "700",
+          "curColor": "rgb(255, 77, 0)",
+          "wantsText": "1234人想要",
+          "wantsFontSize": "12px",
+          "wantsFontWeight": "400",
+          "wantsColor": "rgb(153, 153, 153)",
+          "wantsAlign": "left",
+          "wantsGapAfterPrice": 8,
+          "wantsRightGap": 77.58,
+          "baseNum": 1315,
+          "baseWants": 1315,
+          "baseDiff": 0,
+          "wantsBottomOverflow": 0,
+          "hasYen": false
+        },
+        {
+          "innerH": 392,
+          "innerClientH": 392,
+          "imgBoxH": 240,
+          "contentH": 152,
+          "rowHs": [
+            48,
+            32,
+            24,
+            48
+          ],
+          "rowH": 24,
+          "rowBoxSizing": "border-box",
+          "rowAlignItems": "baseline",
+          "rowJustify": "flex-start",
+          "rowGap": "8px",
+          "rowPaddingLeft": "12px",
+          "rowWhiteSpace": "nowrap",
+          "rowOverflow": "hidden",
+          "rowScrollW": 209,
+          "rowClientW": 209,
+          "rowChildren": 2,
+          "rowIcons": 0,
+          "priceLeftGap": 12,
+          "priceBlockW": 16.33,
+          "priceBlockH": 27,
+          "numFontSize": "17px",
+          "numFontWeight": "700",
+          "numColor": "rgb(255, 77, 0)",
+          "numText": "1",
+          "numRectH": 24,
+          "curText": "$",
+          "curInSpan": true,
+          "curFontSize": "10.2px",
+          "curFontWeight": "700",
+          "curColor": "rgb(255, 77, 0)",
+          "wantsText": "7人想要",
+          "wantsFontSize": "12px",
+          "wantsFontWeight": "400",
+          "wantsColor": "rgb(153, 153, 153)",
+          "wantsAlign": "left",
+          "wantsGapAfterPrice": 8,
+          "wantsRightGap": 129.81,
+          "baseNum": 1315,
+          "baseWants": 1315,
+          "baseDiff": 0,
+          "wantsBottomOverflow": 0,
+          "hasYen": false
+        }
+      ]
+    },
+    {
+      "tag": "1536/light",
+      "pass": true,
+      "checks": [
+        {
+          "name": "cardH=392",
+          "pass": true,
+          "detail": "392/392,392/392,392/392,392/392"
+        },
+        {
+          "name": "img240+content152",
+          "pass": true,
+          "detail": "240/152,240/152,240/152,240/152"
+        },
+        {
+          "name": "rows=48/32/24/48",
+          "pass": true,
+          "detail": "48/32/24/48"
+        },
+        {
+          "name": "row3H=24",
+          "pass": true,
+          "detail": "24,24,24,24"
+        },
+        {
+          "name": "row3-align=baseline",
+          "pass": true,
+          "detail": "baseline,baseline,baseline,baseline"
+        },
+        {
+          "name": "row3-justify=flex-start",
+          "pass": true,
+          "detail": "flex-start,flex-start,flex-start,flex-start"
+        },
+        {
+          "name": "row3-gap=8px",
+          "pass": true,
+          "detail": "8px,8px,8px,8px"
+        },
+        {
+          "name": "row3-nowrap",
+          "pass": true,
+          "detail": "nowrap,nowrap,nowrap,nowrap"
+        },
+        {
+          "name": "row3-single-line",
+          "pass": true,
+          "detail": "225/225,225/225,225/225,225/225"
+        },
+        {
+          "name": "row3-2-children-no-icon",
+          "pass": true,
+          "detail": "2/0,2/0,2/0,2/0"
+        },
+        {
+          "name": "price-group-left",
+          "pass": true,
+          "detail": "12,12,12,12"
+        },
+        {
+          "name": "wants-hugs-price",
+          "pass": true,
+          "detail": "8,8,8,8"
+        },
+        {
+          "name": "wants-right-whitespace>40",
+          "pass": true,
+          "detail": "118.19,115.19,93.58,145.81"
+        },
+        {
+          "name": "num-color=FF4D00",
+          "pass": true,
+          "detail": "rgb(255, 77, 0),rgb(255, 77, 0),rgb(255, 77, 0),rgb(255, 77, 0)"
+        },
+        {
+          "name": "num-17px-bold",
+          "pass": true,
+          "detail": "17px/700,17px/700,17px/700,17px/700"
+        },
+        {
+          "name": "cur-same-color-as-num",
+          "pass": true,
+          "detail": "rgb(255, 77, 0),rgb(255, 77, 0),rgb(255, 77, 0),rgb(255, 77, 0)"
+        },
+        {
+          "name": "cur-0.6em≈10px-bold",
+          "pass": true,
+          "detail": "10.2px/700,10.2px/700,10.2px/700,10.2px/700"
+        },
+        {
+          "name": "cur-smaller-than-num",
+          "pass": true,
+          "detail": "10.2px<17px,10.2px<17px,10.2px<17px,10.2px<17px"
+        },
+        {
+          "name": "wants-color=999999",
+          "pass": true,
+          "detail": "rgb(153, 153, 153),rgb(153, 153, 153),rgb(153, 153, 153),rgb(153, 153, 153)"
+        },
+        {
+          "name": "wants-12px-400",
+          "pass": true,
+          "detail": "12px/400,12px/400,12px/400,12px/400"
+        },
+        {
+          "name": "baseline-diff≤1px",
+          "pass": true,
+          "detail": "0,0,0,0"
+        },
+        {
+          "name": "wants-not-clipped",
+          "pass": true,
+          "detail": "0,0,0,0"
+        },
+        {
+          "name": "cur=$, in span",
+          "pass": true,
+          "detail": "true/$,true/$,true/$,true/$"
+        },
+        {
+          "name": "num-match-fixture",
+          "pass": true,
+          "detail": "495,1288,8888,1"
+        },
+        {
+          "name": "wants-match-fixture",
+          "pass": true,
+          "detail": "20人想要,0人想要,1234人想要,7人想要"
+        },
+        {
+          "name": "no-yen-symbol",
+          "pass": true,
+          "detail": "false,false,false,false"
+        }
+      ],
+      "cards": [
+        {
+          "innerH": 392,
+          "innerClientH": 392,
+          "imgBoxH": 240,
+          "contentH": 152,
+          "rowHs": [
+            48,
+            32,
+            24,
+            48
+          ],
+          "rowH": 24,
+          "rowBoxSizing": "border-box",
+          "rowAlignItems": "baseline",
+          "rowJustify": "flex-start",
+          "rowGap": "8px",
+          "rowPaddingLeft": "12px",
+          "rowWhiteSpace": "nowrap",
+          "rowOverflow": "hidden",
+          "rowScrollW": 225,
+          "rowClientW": 225,
+          "rowChildren": 2,
+          "rowIcons": 0,
+          "priceLeftGap": 12,
+          "priceBlockW": 36.73,
+          "priceBlockH": 27,
+          "numFontSize": "17px",
+          "numFontWeight": "700",
+          "numColor": "rgb(255, 77, 0)",
+          "numText": "495",
+          "numRectH": 24,
+          "curText": "$",
+          "curInSpan": true,
+          "curFontSize": "10.2px",
+          "curFontWeight": "700",
+          "curColor": "rgb(255, 77, 0)",
+          "wantsText": "20人想要",
+          "wantsFontSize": "12px",
+          "wantsFontWeight": "400",
+          "wantsColor": "rgb(153, 153, 153)",
+          "wantsAlign": "left",
+          "wantsGapAfterPrice": 8,
+          "wantsRightGap": 118.19,
+          "baseNum": 1315,
+          "baseWants": 1315,
+          "baseDiff": 0,
+          "wantsBottomOverflow": 0,
+          "hasYen": false
+        },
+        {
+          "innerH": 392,
+          "innerClientH": 392,
+          "imgBoxH": 240,
+          "contentH": 152,
+          "rowHs": [
+            48,
+            32,
+            24,
+            48
+          ],
+          "rowH": 24,
+          "rowBoxSizing": "border-box",
+          "rowAlignItems": "baseline",
+          "rowJustify": "flex-start",
+          "rowGap": "8px",
+          "rowPaddingLeft": "12px",
+          "rowWhiteSpace": "nowrap",
+          "rowOverflow": "hidden",
+          "rowScrollW": 225,
+          "rowClientW": 225,
+          "rowChildren": 2,
+          "rowIcons": 0,
+          "priceLeftGap": 12,
+          "priceBlockW": 46.94,
+          "priceBlockH": 27,
+          "numFontSize": "17px",
+          "numFontWeight": "700",
+          "numColor": "rgb(255, 77, 0)",
+          "numText": "1288",
+          "numRectH": 24,
+          "curText": "$",
+          "curInSpan": true,
+          "curFontSize": "10.2px",
+          "curFontWeight": "700",
+          "curColor": "rgb(255, 77, 0)",
+          "wantsText": "0人想要",
+          "wantsFontSize": "12px",
+          "wantsFontWeight": "400",
+          "wantsColor": "rgb(153, 153, 153)",
+          "wantsAlign": "left",
+          "wantsGapAfterPrice": 8,
+          "wantsRightGap": 115.19,
+          "baseNum": 1315,
+          "baseWants": 1315,
+          "baseDiff": 0,
+          "wantsBottomOverflow": 0,
+          "hasYen": false
+        },
+        {
+          "innerH": 392,
+          "innerClientH": 392,
+          "imgBoxH": 240,
+          "contentH": 152,
+          "rowHs": [
+            48,
+            32,
+            24,
+            48
+          ],
+          "rowH": 24,
+          "rowBoxSizing": "border-box",
+          "rowAlignItems": "baseline",
+          "rowJustify": "flex-start",
+          "rowGap": "8px",
+          "rowPaddingLeft": "12px",
+          "rowWhiteSpace": "nowrap",
+          "rowOverflow": "hidden",
+          "rowScrollW": 225,
+          "rowClientW": 225,
+          "rowChildren": 2,
+          "rowIcons": 0,
+          "priceLeftGap": 12,
+          "priceBlockW": 46.94,
+          "priceBlockH": 27,
+          "numFontSize": "17px",
+          "numFontWeight": "700",
+          "numColor": "rgb(255, 77, 0)",
+          "numText": "8888",
+          "numRectH": 24,
+          "curText": "$",
+          "curInSpan": true,
+          "curFontSize": "10.2px",
+          "curFontWeight": "700",
+          "curColor": "rgb(255, 77, 0)",
+          "wantsText": "1234人想要",
+          "wantsFontSize": "12px",
+          "wantsFontWeight": "400",
+          "wantsColor": "rgb(153, 153, 153)",
+          "wantsAlign": "left",
+          "wantsGapAfterPrice": 8,
+          "wantsRightGap": 93.58,
+          "baseNum": 1315,
+          "baseWants": 1315,
+          "baseDiff": 0,
+          "wantsBottomOverflow": 0,
+          "hasYen": false
+        },
+        {
+          "innerH": 392,
+          "innerClientH": 392,
+          "imgBoxH": 240,
+          "contentH": 152,
+          "rowHs": [
+            48,
+            32,
+            24,
+            48
+          ],
+          "rowH": 24,
+          "rowBoxSizing": "border-box",
+          "rowAlignItems": "baseline",
+          "rowJustify": "flex-start",
+          "rowGap": "8px",
+          "rowPaddingLeft": "12px",
+          "rowWhiteSpace": "nowrap",
+          "rowOverflow": "hidden",
+          "rowScrollW": 225,
+          "rowClientW": 225,
+          "rowChildren": 2,
+          "rowIcons": 0,
+          "priceLeftGap": 12,
+          "priceBlockW": 16.33,
+          "priceBlockH": 27,
+          "numFontSize": "17px",
+          "numFontWeight": "700",
+          "numColor": "rgb(255, 77, 0)",
+          "numText": "1",
+          "numRectH": 24,
+          "curText": "$",
+          "curInSpan": true,
+          "curFontSize": "10.2px",
+          "curFontWeight": "700",
+          "curColor": "rgb(255, 77, 0)",
+          "wantsText": "7人想要",
+          "wantsFontSize": "12px",
+          "wantsFontWeight": "400",
+          "wantsColor": "rgb(153, 153, 153)",
+          "wantsAlign": "left",
+          "wantsGapAfterPrice": 8,
+          "wantsRightGap": 145.81,
+          "baseNum": 1315,
+          "baseWants": 1315,
+          "baseDiff": 0,
+          "wantsBottomOverflow": 0,
+          "hasYen": false
+        }
+      ]
+    },
+    {
+      "tag": "1536/dark",
+      "pass": true,
+      "checks": [
+        {
+          "name": "cardH=392",
+          "pass": true,
+          "detail": "392/392,392/392,392/392,392/392"
+        },
+        {
+          "name": "img240+content152",
+          "pass": true,
+          "detail": "240/152,240/152,240/152,240/152"
+        },
+        {
+          "name": "rows=48/32/24/48",
+          "pass": true,
+          "detail": "48/32/24/48"
+        },
+        {
+          "name": "row3H=24",
+          "pass": true,
+          "detail": "24,24,24,24"
+        },
+        {
+          "name": "row3-align=baseline",
+          "pass": true,
+          "detail": "baseline,baseline,baseline,baseline"
+        },
+        {
+          "name": "row3-justify=flex-start",
+          "pass": true,
+          "detail": "flex-start,flex-start,flex-start,flex-start"
+        },
+        {
+          "name": "row3-gap=8px",
+          "pass": true,
+          "detail": "8px,8px,8px,8px"
+        },
+        {
+          "name": "row3-nowrap",
+          "pass": true,
+          "detail": "nowrap,nowrap,nowrap,nowrap"
+        },
+        {
+          "name": "row3-single-line",
+          "pass": true,
+          "detail": "225/225,225/225,225/225,225/225"
+        },
+        {
+          "name": "row3-2-children-no-icon",
+          "pass": true,
+          "detail": "2/0,2/0,2/0,2/0"
+        },
+        {
+          "name": "price-group-left",
+          "pass": true,
+          "detail": "12,12,12,12"
+        },
+        {
+          "name": "wants-hugs-price",
+          "pass": true,
+          "detail": "8,8,8,8"
+        },
+        {
+          "name": "wants-right-whitespace>40",
+          "pass": true,
+          "detail": "118.19,115.19,93.58,145.81"
+        },
+        {
+          "name": "num-color=FF4D00",
+          "pass": true,
+          "detail": "rgb(255, 77, 0),rgb(255, 77, 0),rgb(255, 77, 0),rgb(255, 77, 0)"
+        },
+        {
+          "name": "num-17px-bold",
+          "pass": true,
+          "detail": "17px/700,17px/700,17px/700,17px/700"
+        },
+        {
+          "name": "cur-same-color-as-num",
+          "pass": true,
+          "detail": "rgb(255, 77, 0),rgb(255, 77, 0),rgb(255, 77, 0),rgb(255, 77, 0)"
+        },
+        {
+          "name": "cur-0.6em≈10px-bold",
+          "pass": true,
+          "detail": "10.2px/700,10.2px/700,10.2px/700,10.2px/700"
+        },
+        {
+          "name": "cur-smaller-than-num",
+          "pass": true,
+          "detail": "10.2px<17px,10.2px<17px,10.2px<17px,10.2px<17px"
+        },
+        {
+          "name": "wants-color=999999",
+          "pass": true,
+          "detail": "rgb(153, 153, 153),rgb(153, 153, 153),rgb(153, 153, 153),rgb(153, 153, 153)"
+        },
+        {
+          "name": "wants-12px-400",
+          "pass": true,
+          "detail": "12px/400,12px/400,12px/400,12px/400"
+        },
+        {
+          "name": "baseline-diff≤1px",
+          "pass": true,
+          "detail": "0,0,0,0"
+        },
+        {
+          "name": "wants-not-clipped",
+          "pass": true,
+          "detail": "0,0,0,0"
+        },
+        {
+          "name": "cur=$, in span",
+          "pass": true,
+          "detail": "true/$,true/$,true/$,true/$"
+        },
+        {
+          "name": "num-match-fixture",
+          "pass": true,
+          "detail": "495,1288,8888,1"
+        },
+        {
+          "name": "wants-match-fixture",
+          "pass": true,
+          "detail": "20人想要,0人想要,1234人想要,7人想要"
+        },
+        {
+          "name": "no-yen-symbol",
+          "pass": true,
+          "detail": "false,false,false,false"
+        }
+      ],
+      "cards": [
+        {
+          "innerH": 392,
+          "innerClientH": 392,
+          "imgBoxH": 240,
+          "contentH": 152,
+          "rowHs": [
+            48,
+            32,
+            24,
+            48
+          ],
+          "rowH": 24,
+          "rowBoxSizing": "border-box",
+          "rowAlignItems": "baseline",
+          "rowJustify": "flex-start",
+          "rowGap": "8px",
+          "rowPaddingLeft": "12px",
+          "rowWhiteSpace": "nowrap",
+          "rowOverflow": "hidden",
+          "rowScrollW": 225,
+          "rowClientW": 225,
+          "rowChildren": 2,
+          "rowIcons": 0,
+          "priceLeftGap": 12,
+          "priceBlockW": 36.73,
+          "priceBlockH": 27,
+          "numFontSize": "17px",
+          "numFontWeight": "700",
+          "numColor": "rgb(255, 77, 0)",
+          "numText": "495",
+          "numRectH": 24,
+          "curText": "$",
+          "curInSpan": true,
+          "curFontSize": "10.2px",
+          "curFontWeight": "700",
+          "curColor": "rgb(255, 77, 0)",
+          "wantsText": "20人想要",
+          "wantsFontSize": "12px",
+          "wantsFontWeight": "400",
+          "wantsColor": "rgb(153, 153, 153)",
+          "wantsAlign": "left",
+          "wantsGapAfterPrice": 8,
+          "wantsRightGap": 118.19,
+          "baseNum": 1315,
+          "baseWants": 1315,
+          "baseDiff": 0,
+          "wantsBottomOverflow": 0,
+          "hasYen": false
+        },
+        {
+          "innerH": 392,
+          "innerClientH": 392,
+          "imgBoxH": 240,
+          "contentH": 152,
+          "rowHs": [
+            48,
+            32,
+            24,
+            48
+          ],
+          "rowH": 24,
+          "rowBoxSizing": "border-box",
+          "rowAlignItems": "baseline",
+          "rowJustify": "flex-start",
+          "rowGap": "8px",
+          "rowPaddingLeft": "12px",
+          "rowWhiteSpace": "nowrap",
+          "rowOverflow": "hidden",
+          "rowScrollW": 225,
+          "rowClientW": 225,
+          "rowChildren": 2,
+          "rowIcons": 0,
+          "priceLeftGap": 12,
+          "priceBlockW": 46.94,
+          "priceBlockH": 27,
+          "numFontSize": "17px",
+          "numFontWeight": "700",
+          "numColor": "rgb(255, 77, 0)",
+          "numText": "1288",
+          "numRectH": 24,
+          "curText": "$",
+          "curInSpan": true,
+          "curFontSize": "10.2px",
+          "curFontWeight": "700",
+          "curColor": "rgb(255, 77, 0)",
+          "wantsText": "0人想要",
+          "wantsFontSize": "12px",
+          "wantsFontWeight": "400",
+          "wantsColor": "rgb(153, 153, 153)",
+          "wantsAlign": "left",
+          "wantsGapAfterPrice": 8,
+          "wantsRightGap": 115.19,
+          "baseNum": 1315,
+          "baseWants": 1315,
+          "baseDiff": 0,
+          "wantsBottomOverflow": 0,
+          "hasYen": false
+        },
+        {
+          "innerH": 392,
+          "innerClientH": 392,
+          "imgBoxH": 240,
+          "contentH": 152,
+          "rowHs": [
+            48,
+            32,
+            24,
+            48
+          ],
+          "rowH": 24,
+          "rowBoxSizing": "border-box",
+          "rowAlignItems": "baseline",
+          "rowJustify": "flex-start",
+          "rowGap": "8px",
+          "rowPaddingLeft": "12px",
+          "rowWhiteSpace": "nowrap",
+          "rowOverflow": "hidden",
+          "rowScrollW": 225,
+          "rowClientW": 225,
+          "rowChildren": 2,
+          "rowIcons": 0,
+          "priceLeftGap": 12,
+          "priceBlockW": 46.94,
+          "priceBlockH": 27,
+          "numFontSize": "17px",
+          "numFontWeight": "700",
+          "numColor": "rgb(255, 77, 0)",
+          "numText": "8888",
+          "numRectH": 24,
+          "curText": "$",
+          "curInSpan": true,
+          "curFontSize": "10.2px",
+          "curFontWeight": "700",
+          "curColor": "rgb(255, 77, 0)",
+          "wantsText": "1234人想要",
+          "wantsFontSize": "12px",
+          "wantsFontWeight": "400",
+          "wantsColor": "rgb(153, 153, 153)",
+          "wantsAlign": "left",
+          "wantsGapAfterPrice": 8,
+          "wantsRightGap": 93.58,
+          "baseNum": 1315,
+          "baseWants": 1315,
+          "baseDiff": 0,
+          "wantsBottomOverflow": 0,
+          "hasYen": false
+        },
+        {
+          "innerH": 392,
+          "innerClientH": 392,
+          "imgBoxH": 240,
+          "contentH": 152,
+          "rowHs": [
+            48,
+            32,
+            24,
+            48
+          ],
+          "rowH": 24,
+          "rowBoxSizing": "border-box",
+          "rowAlignItems": "baseline",
+          "rowJustify": "flex-start",
+          "rowGap": "8px",
+          "rowPaddingLeft": "12px",
+          "rowWhiteSpace": "nowrap",
+          "rowOverflow": "hidden",
+          "rowScrollW": 225,
+          "rowClientW": 225,
+          "rowChildren": 2,
+          "rowIcons": 0,
+          "priceLeftGap": 12,
+          "priceBlockW": 16.33,
+          "priceBlockH": 27,
+          "numFontSize": "17px",
+          "numFontWeight": "700",
+          "numColor": "rgb(255, 77, 0)",
+          "numText": "1",
+          "numRectH": 24,
+          "curText": "$",
+          "curInSpan": true,
+          "curFontSize": "10.2px",
+          "curFontWeight": "700",
+          "curColor": "rgb(255, 77, 0)",
+          "wantsText": "7人想要",
+          "wantsFontSize": "12px",
+          "wantsFontWeight": "400",
+          "wantsColor": "rgb(153, 153, 153)",
+          "wantsAlign": "left",
+          "wantsGapAfterPrice": 8,
+          "wantsRightGap": 145.81,
+          "baseNum": 1315,
+          "baseWants": 1315,
+          "baseDiff": 0,
+          "wantsBottomOverflow": 0,
+          "hasYen": false
+        }
+      ]
+    }
+  ]
+}

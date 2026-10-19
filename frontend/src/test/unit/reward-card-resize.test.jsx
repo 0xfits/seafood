@@ -324,6 +324,45 @@ describe('G · 接线面 · reward-card.css 几何常量', () => {
     // 旧口径 412 必须零残留（本单把卡高常量整体前推到 392）
     expect(cardCss).not.toContain('412px')
   })
+
+  it('价格行参考图口径（2026-10-19）：#FF4D00 17px/700 数字 + 同色 0.6em 符号 + #999999 12px/400 wants + 左对齐同基线', () => {
+    // ① 局部常量（卡片白底、日/夜同值）——**不进主题 token 层**
+    expect(cardCss).toContain('--sf-reward-price-fg: #FF4D00')
+    expect(cardCss).toContain('--sf-reward-wants-fg: #999999')
+    const themeTokensCss = fs.readFileSync(path.join(SRC, 'theme/theme-tokens.css'), 'utf8')
+    expect(themeTokensCss).not.toContain('#FF4D00')
+    expect(themeTokensCss).not.toContain('#999999')
+    // ② 行：左对齐分组 + 基线（不再两端对齐）
+    const block = (sel) => {
+      const i = cardCss.indexOf(sel + ' {')
+      expect(i).toBeGreaterThan(-1)
+      return cardCss.slice(i, cardCss.indexOf('}', i))
+    }
+    const row3 = block('.sf-reward-card .row3-wrap-price')
+    expect(row3).toContain('height: 24px')
+    expect(row3).toContain('align-items: baseline')
+    expect(row3).toContain('justify-content: flex-start')
+    expect(row3).not.toContain('space-between')
+    // ③ 字号/字重：数字 17px/700，符号 0.6em/700 同色，wants 12px/400 灰
+    const numBlk = block('.sf-reward-price-num')
+    expect(numBlk).toContain('font-size: 17px')
+    expect(numBlk).toContain('font-weight: 700')
+    expect(numBlk).toContain('color: var(--sf-reward-price-fg)')
+    const curBlk = block('.sf-reward-price-cur')
+    expect(curBlk).toContain('font-size: 0.6em')
+    expect(curBlk).toContain('font-weight: 700')
+    expect(curBlk).toContain('color: var(--sf-reward-price-fg)')
+    const wantsBlk = block('.sf-reward-card .sf-reward-wants')
+    expect(wantsBlk).toContain('font-size: 12px')
+    expect(wantsBlk).toContain('font-weight: 400')
+    expect(wantsBlk).toContain('color: var(--sf-reward-wants-fg, #999999)')
+    // ④ 符号仍是 `$`（span 内、无 `¥` 引入）
+    expect(cardSrc).toContain('<span className="sf-reward-price-cur">$</span>')
+    const { container } = renderCard(baseReward({ points_required: 495, wants: 20 }))
+    const rowText = container.querySelector('.row3-wrap-price').textContent
+    expect(rowText).toBe('$49520人想要')
+    expect(rowText).not.toMatch(/[¥￥]/)
+  })
 })
 
 // ---------------------------------------------------------------------------

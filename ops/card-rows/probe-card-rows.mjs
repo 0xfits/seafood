@@ -5,7 +5,7 @@
 //   · 夹具相：context.route 拦 `**/api/prize/all**` 注入 4 行（短标题 / 25 汉字 / 60 字符拉丁 / 24 汉字刚好 48 单位），
 //     × 视口(1440/1536) × 主题(日/夜) —— 每卡断言：
 //       卡总高恒 392 / 图容器 240 高且宽 = 卡内宽 / 四行高 48|32|24|48 逐行量 /
-//       标题以 `...` 收尾且不溢出 48 高（两行）/ row2 空但在场 / row3 两端对齐且不换行 / 卖家栏 48 + 掩码。
+//       标题以 `...` 收尾且不溢出 48 高（两行）/ row2 空但在场 / row3 左对齐分组且不换行 / 卖家栏 48 + 掩码。
 //   · 真数据相（无拦截）：dev feed 全卡同上几何 + 价格行是 `$N` + `N人想要`。
 //   · 判定动画干扰：等全部卡片 computed opacity==1（animate-fade-in 结束）后再量。
 import { createRequire } from 'node:module'
@@ -250,12 +250,13 @@ async function runPass(browser, { vp, theme, intercept }) {
   }
   // ⑤ row2：空但在场
   checks.push(check('service-empty', cards.every((c) => c.serviceText === '' && c.serviceChildren === 0), cards.map((c) => JSON.stringify(c.serviceText)).join(',')))
-  // ⑥ row3：`$` 在 span + 数字 + `{n}人想要` 单行不换行 + 两端对齐
+  // ⑥ row3：`$` 在 span + 数字 + `{n}人想要` 单行不换行 + **左对齐分组**（2026-10-19 参考图：
+  //    不再两端对齐 ⇒ wants 紧跟价格右侧，行右缘留大空白）
   checks.push(check('price-cur-in-span', cards.every((c) => c.curInSpan && c.curText === '$'), cards.map((c) => c.curText).join(',')))
   checks.push(check('price-wants-pattern', cards.every((c) => /^\d+人想要$/.test(c.wantsText || '')), cards.map((c) => c.wantsText).join('|')))
   checks.push(check('price-single-line', cards.every((c) => c.priceScrollW <= c.priceClientW + 1), cards.map((c) => `${c.priceScrollW}/${c.priceClientW}`).join(' ')))
   checks.push(check('price-nowrap', cards.every((c) => c.priceWhiteSpace === 'nowrap'), cards.map((c) => c.priceWhiteSpace).join(',')))
-  checks.push(check('price-two-ends', cards.every((c) => c.priceLeftGap >= 11 && c.priceLeftGap <= 13 && c.wantsRightGap >= 11 && c.wantsRightGap <= 13), cards.map((c) => `${c.priceLeftGap}/${c.wantsRightGap}`).join(' ')))
+  checks.push(check('price-group-left', cards.every((c) => c.priceLeftGap >= 11 && c.priceLeftGap <= 13 && c.wantsRightGap > 40), cards.map((c) => `${c.priceLeftGap}/${c.wantsRightGap}`).join(' ')))
   if (intercept) {
     checks.push(check('price-num-match', cards.every((c, i) => c.numText === String(FIXTURES[i].points)), cards.map((c) => c.numText).join(',')))
     checks.push(check('wants-num-match', cards.every((c, i) => c.wantsText === `${FIXTURES[i].wants}人想要`), cards.map((c) => c.wantsText).join('|')))

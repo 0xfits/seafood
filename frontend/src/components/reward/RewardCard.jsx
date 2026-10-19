@@ -129,7 +129,8 @@ const RewardCard = ({
           {/* row2 · 服务/标签槽：**当前留空**（Kevin：暂时留空），但占位恒在场（32 高） */}
           <div className="row2-wrap-service" data-sf-m="reward-card-service" />
 
-          {/* row3 · 价格：左 `$` + 数字（两端对齐的左端）/ 右「{n}人想要」（灰、右对齐），单行不换行 */}
+          {/* row3 · 价格：左分组 `$` + 数字（同色 #FF4D00 / 数字 17px Bold）+ 「{n}人想要」紧跟右侧
+              （12px / 400 / #999999），组内左对齐、基线对齐、单行不换行（参考图闲鱼式） */}
           <div className="row3-wrap-price" data-sf-m="reward-card-price">
             {Boolean(reward.points_required) && (
               // `$` 必须仍在 `<span>` 内（`r9-93-points-symbol` 断言本文件「$ 收尾 span」恰 1 处）。

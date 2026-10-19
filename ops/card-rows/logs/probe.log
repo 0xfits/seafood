@@ -107,3 +107,9 @@ PASS 1536/light/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=225.3
 PASS 1536/dark/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=225.33x240
 PASS 1440/light/real cards=9 cardH=392,392,392,392,392,392,392,392,392 rows=48/32/24/48 img=209.33x240
 VERDICT=PASS passes=5 checks=189 red=0 pageErrors=0 → ops/card-rows/readings/probe-result.json
+PASS 1440/light/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=209.33x240
+PASS 1440/dark/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=209.33x240
+PASS 1536/light/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=225.33x240
+PASS 1536/dark/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=225.33x240
+PASS 1440/light/real cards=9 cardH=392,392,392,392,392,392,392,392,392 rows=48/32/24/48 img=209.33x240
+VERDICT=PASS passes=5 checks=189 red=0 pageErrors=0 → ops/card-rows/readings/probe-result.json

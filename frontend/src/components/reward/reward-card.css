@@ -1,12 +1,14 @@
 /* 首页商品卡片（design-system.spec §22 · T109–T113 · Zang 终审 Q5–Q9）
  *
- * 1) 卡内价格块版式（T110 / Q9）：一行 flex + 同基线；顺序 `$` → 数字；符号小（数字的 0.75 倍）；
- *    **无外框 / 无底色 / 无内边距**。数字号 2026-10-19 重定义：16px（= row3 的 24 高单行），
- *    符号 = 相对比例 0.75em（零新增字号常量）。
- * 2) 卡内价格色（Zang 追加裁定）：卡片 = 与主题无关的**浅色白卡、两档同貌** ⇒ 卡内不得吃夜档
- *    token 值（夜档 --sf-price-num-fg = #FDE815 亮黄，在白卡上不可读）⇒ 在**卡片子树内局部重绑**
- *    价格三色为日档值；价格仍以 var(--sf-price-*-fg) 取值（「颜色走本站 token」逐字成立）。
- *    未新增主题 token / 未改 tokens.js 的 TOKEN_KEYS / 未改 theme-tokens.css 键集。
+ * 1) 卡内价格块版式（2026-10-19 **价格行参考图终版**，闲鱼式）：一行 flex + **同基线**；
+ *    顺序 `$` → 数字 →（紧跟右侧）`{n}人想要`；`justify-content: flex-start`（**左对齐分组**，
+ *    不再两端对齐）；数字 17px / 700，符号 0.6em（≈10px）/ 700 同色，wants 12px / 400 / #999999；
+ *    组内 gap 8px；**无外框 / 无底色 / 无内边距 / 无图标无分隔**。
+ * 2) 卡内价格色：卡片 = 与主题无关的**浅色白卡、两档同貌** ⇒ 卡内不吃主题 token 值（夜档
+ *    --sf-price-num-fg = #FDE815 亮黄，在白卡上不可读）⇒ 新增**卡片局部常量**
+ *    `--sf-reward-price-fg` / `--sf-reward-wants-fg`（日/夜同值，**不进主题 token 层**：
+ *    未新增主题 token / 未改 tokens.js 的 TOKEN_KEYS / 未改 theme-tokens.css 键集）。
+ *    原 `--sf-price-*` 局部重绑仅留给卡外/卡内其它消费方，价格行不再引用。
  *
  * ★ 选择器写成 `.sf-reward-card.sf-reward-card`（(0,2,0)）：压过 `:root` 与 `[data-theme="dark"]`
  *   的同具体性 token 声明，且**不依赖打包顺序**（未分层的自定义样式与主题层的先后不可控）。
@@ -17,33 +19,38 @@
   --sf-price-cur-fg: #030402;
   --sf-price-num-fg: #030402;
   --sf-price-unit-fg: #3A3A2A;
+  /* ★ 2026-10-19 价格行（参考图）：卡片恒白底 ⇒ 日/夜同值；**局部常量，不进主题 token 层**。
+     符号与数字同色（#FF4D00 亮橙红）；「{n}人想要」浅灰 #999999。 */
+  --sf-reward-price-fg: #FF4D00;
+  --sf-reward-wants-fg: #999999;
 }
 
-/* 价格块容器：同行 + 同基线；去框 / 去底 / 去内边距（对齐参考图「背后无框无底」） */
+/* 价格分组（`$` + 数字）：同行 + 同基线 + 左对齐；去框 / 去底 / 去内边距（参考图「背后无框无底」） */
 .sf-reward-price {
   display: flex;
   align-items: baseline;
-  justify-content: flex-end;
+  justify-content: flex-start;
   border-width: 0;
   background: transparent;
   padding: 0;
-  font-size: 1rem;     /* 数字号 16px（row3 恒 24 高 ⇒ 数字 + 行内边距单行放得下） */
-  /* ★ 行高必须用**无单位因子**：绝对行高会被两槽共同继承 ⇒ 两槽盒高相同 ⇒
-     实测符号/数字盒高比失真。无单位因子按各自字号等比缩放 ⇒ 盒高比 = 字号比 = 0.75。 */
-  line-height: 1.5;
+  font-size: 17px;     /* 数字字号（参考图：加粗大号；row3 恒 24 高 ⇒ 单行放得下） */
+  font-weight: 700;
+  /* 行高取行高 24px：数字盒 = 24 ⇒ 24 高行内垂直居中（半行距均分上下） */
+  line-height: 24px;
 }
 
-/* 符号槽：必须仍在 <span> 内（r9-93 的 `>$</span>` 计数 = 1） */
+/* 符号槽：必须仍在 <span> 内（r9-93 的 `>$</span>` 计数 = 1）；同色、小号、700 */
 .sf-reward-price-cur {
-  font-size: 0.75em;   /* = 数字的 0.75 倍（≈12px）· 零新增常量 */
+  font-size: 0.6em;    /* = 数字的 0.6 倍（17 × 0.6 ≈ 10px）· 零新增字号常量 */
   font-weight: 700;
-  color: var(--sf-price-cur-fg);
+  color: var(--sf-reward-price-fg);
 }
 
-/* 数字槽：加粗（font-weight ≥ 700） */
+/* 数字槽：大号加粗、与符号同色 */
 .sf-reward-price-num {
+  font-size: 17px;
   font-weight: 700;
-  color: var(--sf-price-num-fg);
+  color: var(--sf-reward-price-fg);
 }
 
 /* ============================================================================
@@ -140,15 +147,15 @@
   overflow: hidden;
 }
 
-/* row3 · 价格行：左 `$`+数字 / 右「{n}人想要」，两端对齐、单行不换行 */
+/* row3 · 价格行：`$`+数字 → 「{n}人想要」紧跟右侧，**左对齐分组**、基线对齐、单行不换行 */
 .sf-reward-card .row3-wrap-price {
   flex: 0 0 24px;
   height: 24px;
   box-sizing: border-box;
   padding: 0 12px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: baseline;
+  justify-content: flex-start;
   gap: 8px;
   white-space: nowrap;
   overflow: hidden;
@@ -158,12 +165,13 @@
   flex: 0 0 auto;
 }
 
-/* 「{n}人想要」：灰、小号、右对齐（n = listing_favorite count，后端 `wants`） */
+/* 「{n}人想要」：浅灰 #999999、12px / 400、紧跟价格右侧（组内 gap 8px）、与价格同基线 */
 .sf-reward-card .sf-reward-wants {
   font-size: 12px;
-  line-height: 24px;
-  color: #9CA3AF;
-  text-align: right;
+  font-weight: 400;
+  line-height: 20px;   /* 绝对行高 ⇒ 盒高 < 行高 24，基线对齐后不会被行底裁切 */
+  color: var(--sf-reward-wants-fg, #999999);
+  text-align: left;
   white-space: nowrap;
 }
 

@@ -1,0 +1,42 @@
+商品卡「价格行」参考图落地 · 读数汇总（2026-10-19）
+=====================================================
+口径（Kevin 参考图，闲鱼式）：
+  亮橙红 #FF4D00 · 加粗大号价格数字 + 同色小号 `$`（基线对齐）
+  + 浅灰 #999 小号「N人想要」紧跟价格右侧 + 无图标无分隔 + **价格分组左对齐**（不再两端对齐）
+  行高恒 24、卡高恒 392 不变（其余三行 48/32/48 零改动）
+
+改动（2 文件 + 1 处测试锚）：
+  · reward-card.css
+      - 卡内局部常量（卡片恒白底 ⇒ 日/夜同值，**不进主题 token 层**）：
+          --sf-reward-price-fg: #FF4D00   （符号 + 数字）
+          --sf-reward-wants-fg: #999999
+      - .sf-reward-price        : justify-content flex-start（原 flex-end）；font-size 17px；font-weight 700；line-height 24px
+      - .sf-reward-price-num    : 17px / 700 / var(--sf-reward-price-fg)
+      - .sf-reward-price-cur    : 0.6em（≈10.2px）/ 700 / 同色（仍在 <span> 内，r9-93 不破）
+      - .row3-wrap-price        : align-items baseline（原 center）+ justify-content flex-start（原 space-between）+ gap 8px
+      - .sf-reward-wants        : 12px / 400 / var(--sf-reward-wants-fg, #999999) / text-align left / line-height 20px
+  · RewardCard.jsx：仅 row3 注释同步（结构、`$` span、wants 走 rewardCard.wants 均未动）
+  · reward-card-resize.test.jsx：G 组新增 1 例价格行口径静态锚（CSS 常量/字号/字重/左对齐/基线 + 渲染文本 `$49520人想要`）
+  · probe-card-rows.mjs：旧 `price-two-ends`（两端对齐）断言改为 `price-group-left`（新口径）
+
+真浏览器读数（node ops/card-rows/price-ref/probe-price-row.mjs，dev 5787 + 5788）
+------------------------------------------------------------------------------
+视口/主题        行高  数字              符号         wants                   基线差 左缩进 gap 右空白  卡高  四行
+1440/light       24    17px/700 #FF4D00  10.2px/同色  12px/400 #999999        0px    12px   8px 102.19  392   48/32/24/48
+1440/dark        24    17px/700 #FF4D00  10.2px/同色  12px/400 #999999        0px    12px   8px 102.19  392   48/32/24/48
+1536/light       24    17px/700 #FF4D00  10.2px/同色  12px/400 #999999        0px    12px   8px 118.19  392   48/32/24/48
+1536/dark        24    17px/700 #FF4D00  10.2px/同色  12px/400 #999999        0px    12px   8px 118.19  392   48/32/24/48
+
+  · 基线取值法：向「数字」与「wants」各自 inline 上下文临时插入零尺寸 inline-block（vertical-align: baseline），
+    其底边 = 该行文字基线；读后立即移除（零残留）。
+  · 「价格分组左对齐」判据：价格块左缘 − 行左缘 = 12（仅行 padding 内缩）；wants 左缘 − 价格块右缘 = 8（组内 gap）；
+    行右缘空白 77.58 ~ 145.81（随数字位数变化，恒 > 40）⇒ wants 紧贴价格、不再贴右缘。
+  · 探针合计 104 项断言 × 4 相（1440/1536 × 日/夜）全绿，pageerror / console.error 各 0。
+    原始读数：readings/probe-price-row.json
+
+门套
+----
+  frontend `npm run build`      exit 0
+  frontend `test:unit`          62 files / 610 tests 全过（基线上限 609 → 新增 1 例）
+  backend-ts `tsc --noEmit`     exit 0
+  旧四行探针 ops/card-rows/probe-card-rows.mjs  5 passes / 189 checks / 0 red（新口径下同步）
