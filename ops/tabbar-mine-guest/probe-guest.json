@@ -1,0 +1,109 @@
+{
+  "generatedAt": "2026-10-19T02:39:42.778Z",
+  "entry": "http://localhost:5800",
+  "viewportMobile": "390x844",
+  "viewportDesktop": "1440x900",
+  "arms": {
+    "guest_mobile_390": {
+      "urlBeforeClick": "http://localhost:5800/item/new",
+      "tabs": [
+        {
+          "key": "home",
+          "href": "/",
+          "label": "海鲜市场"
+        },
+        {
+          "key": "shard",
+          "href": "/exchange",
+          "label": "市场"
+        },
+        {
+          "key": "sell",
+          "href": "/item/new",
+          "label": "卖闲置"
+        },
+        {
+          "key": "messages",
+          "href": "/messages",
+          "label": "消息"
+        },
+        {
+          "key": "profile",
+          "href": "/profile",
+          "label": "我的"
+        }
+      ],
+      "tabCount": 5,
+      "hasProfileTab": true,
+      "clickProfile": {
+        "urlAfterClick": "http://localhost:5800/login",
+        "loginGuide": {
+          "url": "/login",
+          "inputCount": 0,
+          "passwordInputCount": 0,
+          "pageTextHasLoginWord": true,
+          "snippet": "Seafood 海鲜市场 JINLI CLUB 连接钱包继续探索 使用现有钱包签名即可登录，完成后会返回你刚才访问的页面。 钱包签名登录 连接你的 EVM 钱包，并完成一次签名验证即可登录。 尚未连接钱包 请连接一个 EVM 钱包地址 登录只会请求一次签名，不会发起链上交易，也不会消耗 gas。 当前环境未检测到 MetaMask 或 OKX Wallet。安装钱包扩展后刷新页面即可继续。 连接钱"
+        }
+      },
+      "pageErrors": []
+    },
+    "fake_session_mobile_390": {
+      "url": "http://localhost:5800/",
+      "tabs": [
+        {
+          "key": "home",
+          "href": "/",
+          "label": "海鲜市场"
+        },
+        {
+          "key": "shard",
+          "href": "/exchange",
+          "label": "市场"
+        },
+        {
+          "key": "sell",
+          "href": "/item/new",
+          "label": "卖闲置"
+        },
+        {
+          "key": "messages",
+          "href": "/messages",
+          "label": "消息"
+        },
+        {
+          "key": "profile",
+          "href": "/profile",
+          "label": "我的"
+        }
+      ],
+      "tabCount": 5,
+      "hasProfileTab": true,
+      "sessionPersisted": true,
+      "topnavSnippet": "Seafood 海鲜市场社区任务市场订单语言0xqa00...00qa",
+      "pageErrors": []
+    },
+    "desktop_1440_guest": {
+      "url": "http://localhost:5800/",
+      "tabCountInDom": 5,
+      "keysInDom": [
+        "home",
+        "shard",
+        "sell",
+        "messages",
+        "profile"
+      ],
+      "tabbarComputedDisplay": "none",
+      "pageErrors": []
+    }
+  },
+  "verdict": {
+    "guest_tabCount_is5": true,
+    "guest_hasProfile": true,
+    "guest_click_lands_login_guide": true,
+    "guest_zero_pageerror": true,
+    "fakesession_tabCount_is5": true,
+    "desktop_display_none": true,
+    "desktop_dom_tabs_5": true,
+    "all_pass": true
+  }
+}

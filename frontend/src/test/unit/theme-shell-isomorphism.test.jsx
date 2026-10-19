@@ -22,7 +22,7 @@ vi.mock('../../admin-utils', () => ({
 
 import AppShell from '../../shell/AppShell'
 import { BREAKPOINTS } from '../../shell/breakpoints'
-import { SHELL_NAV_ITEMS, isNavItemActive, navPathInLang, visibleNavItems } from '../../shell/nav'
+import { SHELL_NAV_ITEMS, isNavItemActive, navPathInLang } from '../../shell/nav'
 import { TOKEN_KEYS } from '../../theme/tokens'
 import { readInitialTheme, ThemeProvider, useTheme } from '../../theme/ThemeProvider'
 import { useAuth } from '../../auth-context'
@@ -86,7 +86,7 @@ describe('应用外壳 · 骨架同构（横竖屏同一套 DOM）', () => {
     const tabbar = container.querySelector('[data-sf-region="tabbar"]')
     expect(tabbar).not.toBeNull()
     const tabs = Array.from(tabbar.querySelectorAll('a[data-sf-nav]'))
-    expect(tabs.map((a) => a.getAttribute('data-sf-nav'))).toEqual(visibleNavItems(false).map((i) => i.key))
+    expect(tabs.map((a) => a.getAttribute('data-sf-nav'))).toEqual(SHELL_NAV_ITEMS.map((i) => i.key))
   })
 
   it('顶栏与底栏「分家」：底栏=nav 五项（含 home）· 桌面左 nav=Header menuItems 三项（各自独立断言）', () => {
@@ -95,7 +95,7 @@ describe('应用外壳 · 骨架同构（横竖屏同一套 DOM）', () => {
     // ① 底栏（shell/nav.js 真源）：五项 href（含显式 home tab）
     const tabHrefs = Array.from(container.querySelectorAll('[data-sf-region="tabbar"] a[data-sf-nav]')).map((a) => a.getAttribute('href'))
     expect(tabHrefs).toEqual(['/', '/exchange', '/item/new', '/messages', '/profile'])
-    expect(tabHrefs).toEqual(visibleNavItems(true).map((i) => navPathInLang(i, 'zh')))
+    expect(tabHrefs).toEqual(SHELL_NAV_ITEMS.map((i) => navPathInLang(i, 'zh')))
     // ② 桌面左 nav + 右侧控件簇（Header.jsx · menuItems 现状值一字不动；home 由品牌 logo 承担）。
     //    sf14 前推（2026-10-14 单）：右上角新增「订单」按钮复用 nav-link 控件类 ⇒ href 集合 +'/profile'。
     const topHrefs = Array.from(container.querySelectorAll('.nav-link[href]')).map((a) => a.getAttribute('href'))
@@ -104,9 +104,9 @@ describe('应用外壳 · 骨架同构（横竖屏同一套 DOM）', () => {
     expect(brandHref).not.toBeNull()
   })
 
-  it('未登录时不含 profile / 登录后含 profile（与 Header 同一条可见性规则）', () => {
-    expect(visibleNavItems(false).map((i) => i.key)).toEqual(['home', 'shard', 'sell', 'messages'])
-    expect(visibleNavItems(true).map((i) => i.key)).toEqual(['home', 'shard', 'sell', 'messages', 'profile'])
+  it('底栏恒 5 格（含未登录；/profile 保护由路由层 ProtectedRoute 承担 —— 2026-10-19 缺陷单改锚）', () => {
+    // 前版曾断言「未登录不含 profile」（visibleNavItems 过滤已废）⇒ 现口径：key 集恒 5。
+    expect(SHELL_NAV_ITEMS.map((i) => i.key)).toEqual(['home', 'shard', 'sell', 'messages', 'profile'])
     useAuth.mockReturnValue({ isAuthenticated: true, user: { uID: '1', EVM: '0xabcdef1234' }, logout: vi.fn() })
     const { container } = renderShell()
     const tabs = Array.from(container.querySelectorAll('[data-sf-region="tabbar"] a[data-sf-nav]')).map((a) => a.getAttribute('data-sf-nav'))

@@ -41,7 +41,7 @@ vi.mock('../../auth-context', () => ({ useAuth: vi.fn() }))
 
 import App from '../../App'
 import { useAuth } from '../../auth-context'
-import { SHELL_NAV_ITEMS, navPathInLang, isNavItemActive, visibleNavItems } from '../../shell/nav'
+import { SHELL_NAV_ITEMS, navPathInLang, isNavItemActive } from '../../shell/nav'
 
 import zh from '../../locales/zh.json'
 import hk from '../../locales/hk.json'
@@ -100,8 +100,9 @@ describe('① 导航真源：path/route = exchange，key/labelKey 保持 shard',
     expect(isNavItemActive('/exchange', shardItem)).toBe(true)
     expect(isNavItemActive('/hk/exchange/anything', shardItem)).toBe(true)
     expect(isNavItemActive('/reward', shardItem)).toBe(false)
-    expect(visibleNavItems(false).map((i) => i.key)).toEqual(['home', 'shard', 'sell', 'messages'])
-    expect(visibleNavItems(true).map((i) => i.key)).toEqual(['home', 'shard', 'sell', 'messages', 'profile'])
+    // 底栏恒 5 格（含未登录）—— 2026-10-19 缺陷单改锚：前版「游客 4 / 登录 5」两断言已废，
+    // 现 key 集恒 5（/profile 保护由 App.jsx ProtectedRoute 承担，与 messages 同口径）。
+    expect(SHELL_NAV_ITEMS.map((i) => i.key)).toEqual(['home', 'shard', 'sell', 'messages', 'profile'])
   })
 
   it('App.jsx 源：交易所页挂在 path="exchange"；旧 /shard 由一条 Navigate 重定向承接', () => {

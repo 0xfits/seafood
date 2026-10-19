@@ -89,7 +89,7 @@ describe('v1.5 ① 底栏（H5）五项 label / href（含四语前缀）', () =
     expect(fifth.key).toBe('profile')
     expect(fifth.path).toBe('profile')
     expect(fifth.labelKey).toBe('profile')
-    expect(fifth.requiresAuth).toBe(true)
+    expect(fifth.key).toBe('profile') // requiresAuth 字段已废（2026-10-19：底栏恒 5 格，保护在路由层）
     // 全站统一（Kevin 口径）：profile 键四语取值
     expect({ zh: TABLES.zh.profile, en: TABLES.en.profile, hk: TABLES.hk.profile, vn: TABLES.vn.profile })
       .toEqual({ zh: '我的', en: 'Me', hk: '我的', vn: 'Tôi' })

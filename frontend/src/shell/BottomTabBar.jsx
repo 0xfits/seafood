@@ -2,8 +2,7 @@ import React from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { getLanguageFromUrl, stripLangPrefix } from '../utils'
-import { useAuth } from '../auth-context'
-import { isNavItemActive, navPathInLang, visibleNavItems } from './nav'
+import { SHELL_NAV_ITEMS, isNavItemActive, navPathInLang } from './nav'
 import { withPanelParams } from './messages-panel-routing'
 // T103 未读角标（v1.17 §20.6）：共享态 = 外壳层（与桌面悬浮菜单**同源消费、同值**）；
 // 角标样式落 shell/badge.css（**不改 shell.css**，不新增断点块）。
@@ -24,7 +23,8 @@ const isItemDetailPath = (pathname) => {
 
 // 手机竖屏底部 tab 骨架（web 横屏由断点 CSS 隐藏，但**始终在 DOM 中**）。
 // 结构与比选页手机壳底栏同形：grid repeat(5,1fr) 的竖直 icon+label 单元
-// （docs/design/style-preview.html:169-174）。与顶栏复用同一份 SHELL_NAV_ITEMS 与同一可见性规则。
+// （docs/design/style-preview.html:169-174）。底栏恒 5 格（含未登录；`/profile` 保护由路由层
+// ProtectedRoute 承担 —— 见 shell/nav.js 2026-10-19 留痕，本组件不读登录态）。
 //
 // ★ v1.19 §21（消息面板化 · 方案 1「就地叠加」· 入口①底栏第 4 格）：
 //   左键单击（`button === 0` 且无 ctrl/meta/shift/alt）⇒ `preventDefault()` + 在**当前路径**上加
@@ -36,9 +36,8 @@ const BottomTabBar = () => {
   const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
-  const { isAuthenticated } = useAuth()
   const lang = getLanguageFromUrl(location.pathname)
-  const items = visibleNavItems(isAuthenticated)
+  const items = SHELL_NAV_ITEMS
   // T103 未读角标（第 4 格 messages）：共享态同源消费。★ 本文件**不得**引入任何视口宽度判定 ——
   //   `theme-shell-isomorphism` 硬断言禁止在外壳 JS 里出现断点类读数，且**按明文全文扫描**（注释同样命中）
   //   ⇒ 本文件只做**路由串**匹配，宽度翻转一律交给 CSS 断点块（`shell.css` 唯一 767 块）。
