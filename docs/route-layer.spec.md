@@ -404,6 +404,16 @@
 > ⑤ **locale 只改值**：`item.cid` / `item.cidNote` 四语同改、**键数不变**（键集基线不动）；`jobs.cid` / `jobs.cidNote`（发布任务页）**本单不动**。
 > ⑥ **只追加 + 零迁移**：`git diff --numstat docs/route-layer.spec.md` **删除列 = 0**；**无迁移**（纯只读查询、零 DDL）；判负口径见 §47.6。
 
+> **状态：v2.38（已完成 · **「发布任务页（悬赏）币种同样改下拉」落册 = 同一读口 `GET /api/currencies` 的第二个前端消费点**：★★ **零新路由 ⇒ 注册点 `108 → 108`（+0）**（逐 verb 现取 = get 48 / post 56 / put 0 / delete 3 / patch 1）+ **★ 前端消费面 #2 冻结**（`/task/new` 币种字段 = `<select data-sf-m="jobs-select-cid">`；**旧钩子 `jobs-input-cid` 不得存在**；选项文本 = `symbol · name`（**不带编号**）；默认 `$`（cid 1）；默认值不在列表 ⇒ 首项；列表失败 / 为空 ⇒ 回退仅 `$`、表单仍可提交；提交 `cid` 仍为数字、`POST /api/job` 一字不变）+ **★ locale 只改值**（`jobs.cid` / `jobs.cidNote` 四语同改、**键数不变**；`item.*` 不动）+ **★ 判负**（`jobs-input-cid` 存在即判负；`/task/new` 发任何**额外**币种读请求即判负 —— 两页共用同一读口）；**本节只追加 · §1–§47.7 一字未动 · 零迁移 · 零代码（实现面归 Kong）**）** · 作者角色 = **Jing（Specifier · 制度员）**
+> **v2.38 修订入口**：逐条 delta → 依据锚点 → 改动点 = **本册 §47.8（续节）**（登记性回写；**本单不建独立 delta 件**，承 v2.29 / v2.30 / v2.32 / v2.35 / v2.36 / v2.37 先例）。**凡与实现现盘冲突处，一律以现盘为准**（被登记面 = 同批实现单：`frontend/src/pages/jobs/PublishJobPage.jsx` 的币种字段改造 + 四语 `jobs.cid*` 值；**后端零改动**）。
+> **★★ v2.38 本单要点（先说结论，不含糊）**：
+> ① **Kevin 指令逐字（2026-10-19 · 追加两条）**：「① 发布任务页（悬赏）同样的修改。② 下拉文本不带编号」⇒ 本批**只改前端 + 四语值**，**后端零改动**（不新增路由、不改读口契约、不改 `POST /api/job`）。
+> ② **同一读口、两页共用**：`/item/new`（v2.37）与 `/task/new`（本批）选项来源**都是** `GET /api/currencies`（§47.1 五条逐条继续生效）；**不得**为任务页新增任何第二个币种读口（§47.8.1 / 判负 §47.8.5 #18）。
+> ③ **注册点 `108 → 108`（+0）**：逐 verb 现取 = **get 48 / post 56 / put 0 / delete 3 / patch 1 = 108**；**不得写成 109**（本批零新路由）；门 `AC10-2` 冻结面维持 `regs === 108`。
+> ④ **前端面 #2**：`/task/new` 币种字段 = 下拉；**`jobs-select-cid` 必须在场**、**`jobs-input-cid` 不得存在**；选项文本 = `symbol · name`（**不带编号**）；默认 `$`（cid 1）；默认值不在列表 ⇒ 取首项；加载失败 / 空列表 ⇒ 回退仅 `$` 一项、**表单仍可提交**；提交载荷 `cid` 仍为**数字**、`POST /api/job` 请求体形状一字不变。
+> ⑤ **locale 只改值**：`jobs.cid` / `jobs.cidNote` 四语同改、**键数不变**（现取键集基线 `128 / 1106 / 4424` 逐字不动）；`item.cid` / `item.cidNote`（v2.37 已改）**本批不动**；`jobs.*` 其余键一字不动。
+> ⑥ **只追加 + 零迁移 + 零代码**：`git diff --numstat docs/route-layer.spec.md` **删除列 = 0**；**无迁移**（无 DDL / 无库写 / 无 HTTP 实测）；本节与 §47.8 只写 `docs/**`。
+
 > **v2.19 修订入口**：逐条 delta → 依据锚点 → 改动点 = `docs/audit/route-layer-v2.19-delta.md`（**同批姊妹册** = `docs/audit/data-layer-v0.26-delta.md` + `docs/audit/commission-v0.4-delta.md`）。**凡与 Zang 裁定冲突处，一律以 Zang 裁定为准**（本单为 P9⑤ 契约冻结；**未改写任何裁定、未发明任何路径 / 数值 / 权限键 / 文案值**）。**★ 姊妹册（同批）**：`docs/commission.spec.md` **v0.4 §19** + `docs/data-layer.spec.md` **v0.26 §34**，**本册不重抄其条文、只指路**。
 > **★★ v2.19 本单要点（先说结论，不含糊）**：① **零新用户面口**（邀请奖励 = 结算腿，无独立读 / 动作口）；② **后台配置面复用**（费率 + 6 项权重矩阵）；③ **注册点 `87 → 87`（+0）**；④ **权限键 11 键内（零增删）**；⑤ **错误码零新增 + `R107`**；⑥ **真生效四段（①③④ 段）**；⑦ **连带门改版**（`p8-s2` 8 键 / 守卫常量 / 页字段面随 `R-9-1` ⇒ 归实现单）。
 
@@ -8910,4 +8920,131 @@ grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts
 - **零代码自证**：本单 commit 只含 `docs/**` + `ops/item-cid-select/**` ⇒ `backend-ts/**` / `frontend/**` **零改动**；**库面零连接**（读口实测归实现 / 质检单）。
 - **未做项（显式登记，不冒充已做）**：① `docs/versions/route-layer.spec.v2.37.md` **未建**（快照重制归版本收口单）；② 读口 / 前端**未由本单实跑**（Jing 不跑前后端门套 ⇒ 归 Kong 与 Neng）；③ 四语精确字面**未由本单落笔**（实现单落笔后回写）；④ 发布任务页**未接**读口（本单范围外）。
 - **未发明项**：路径 / 方法集 / 行键集 / 状态过滤值 `'listed'` / 排序键 / 钩子名 / 注册点数字 —— **全部可回溯至 Kevin 指令 + 实现现盘 + 本节引用的现取命令**。
+
+### 47.8 续节 · v2.38：同一读口的**第二个前端消费点** `/task/new`（发布任务页）+ 注册点**不变 108**（**只追加 · §47.0–§47.7 一字未动**）
+
+> **本节性质（写死）**：① **只追加** —— **§47.0–§47.7 的旧句一字未动**（含 §47.0 表「前端消费面 = **唯一消费点**」与 §47.3 表「`/jobs/publish` 本单不动」两处旧字面：**原句逐字保留、其口径自本节起作废 · 以本节为准**）；② **零裁定新增** —— 只把「Kevin 已下追加指令 + 同批实现面」写成可判负条文；③ **后端零改动** —— **不新增路由、不改读口契约、不改 `POST /api/job`**；④ **本节唯一改动面 = 前端两处（字段形态 + 四语值）**，实现归 Kong、判据归本节。
+
+#### 47.8.0 依据（逐字）与被登记面
+
+- **Kevin 2026-10-19 追加指令（逐字两条）**：「① 发布任务页（悬赏）同样的修改。② 下拉文本不带编号」⇒ 展开为**两个契约面**：① **`/task/new` 币种字段 = 下拉**（与 `/item/new` 同形态）；② **选项文本不带编号**（`cid` 只进 `<option value>`，不进可见文案）—— ②对**两页同时生效**（`/item/new` 在 §47.3 已冻结同口径，本批不重写）。
+- **被登记面（本单开工时点现取）**：
+
+| 项 | 现取读数 | 命令 / 锚 |
+|---|---|---|
+| 页面路由字面 | **`/task/new`** | `frontend/src/App.jsx:99`（`<Route path="task/new" element={<PublishJobPage />} />`） |
+| 页面组件 | `frontend/src/pages/jobs/PublishJobPage.jsx` | 同上 import = `App.jsx:19` |
+| 改前字段形态（**历史锚 · 已作废**） | 改前 `:115` = `<input className="sf-jobs-input" data-sf-m="jobs-input-cid" … inputMode="numeric" required />` | 改前现取（v2.37 时点） |
+| 改后字段形态（**现盘 · 实现 commit `1d9b415`**） | `:159` = `<select className="sf-jobs-input" data-sf-m="jobs-select-cid" value={form.cid} onChange={setField('cid')} required>`；选项 `:161` = `{currencyLabel(row)}` | 本单收笔前现取 |
+| 默认值 | `DEFAULT_CID = '1'`（`:16`）+ `useState({ cid: DEFAULT_CID, … })`（`:32`）—— 改前亦为 `'1'` ⇒ 默认语义零变化 | 现取 |
+| 回退项 | `FALLBACK_CURRENCIES = [{ cid: 1, symbol: '$', name: '' }]`（`:19`） | 现取 |
+| 选项文本函数 | `currencyLabel`（`:22`）= `` `${symbol}${name ? ' · '+name : ''}` ``（**无编号**） | 现取 |
+| 提交载荷（**本批不变**） | `cid: Number(form.cid)`（`:101`） | 现取 |
+| 备注文案消费点 | `{t('jobs.cidNote')}`（`:135`） | 现取 |
+| job 侧读口封装 | `frontend/src/pages/jobs/job-api.js:58` = `export const fetchCurrencies = (user) => getJson('/api/currencies', user)`（**与 item 侧同名同路径**） | 现取 |
+| 读口注册行（**本批不动**） | `app.get('/api/currencies', …)` | `backend-ts/src/index.ts:2341` |
+| 提交口注册行（**本批不动**） | `app.post('/api/job', …)` | `backend-ts/src/index.ts:2482` |
+
+#### 47.8.1 两页共用同一读口（写死 · 不得出现第二个币种读口）
+
+1. **唯一选项来源 = `GET /api/currencies`**：`/item/new`（v2.37 §47.3）与 `/task/new`（本节）**共用**该读口；§47.1 五条契约（**仅 GET · 无鉴权闸 · `data` = 行数组且行键集恰 `{cid, symbol, name}` · 仅 `status='listed'` 且 `ORDER BY cid` · 只读零写 + 既有 `sendInfraMapped` 错误面）**逐条继续生效，未新增任何条款**。
+2. **不得新增第二个读口**：任务页**不得**依赖 `GET /api/job-currencies` / `GET /api/jobs/currencies` / `GET /api/currency/:cid`（逐 cid 详情）/ `GET /api/admin/currency`（后台口 · 闸 `review_tasks`）等任何其它路径；**亦不得**为任务页复制一份读逻辑去改行形状（行键集仍恰三键）。
+3. **前端请求条数（可判负）**：进入 `/task/new` 并完成一次渲染全过程，网络层对币种读口的请求 **恰 1 条**（`method=GET`、路径 = `/api/currencies`）；复用形态（复用 `frontend/src/pages/item/item-api.js` 的既有 `fetchCurrencies` 或等价 job 侧封装）**归实现单**，本节判的是**请求条数与路径**，不是文件位置。
+4. **回退语义与商品页一致**（承 §47.3「回退态承重」）：读口失败 / 空列表 ⇒ **仅 `$`（cid 1）一项**、**表单仍可提交**；**不得**因读口失败禁用 `jobs-primary`、不得弹阻断性错误、不得白屏。
+
+#### 47.8.2 注册点 `108 → 108`（+0 · 现取复算逐 verb）
+
+**口令（与 §40.2 / §46.5 / §47.2 同一条，不得换写法）**：
+
+```
+grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts
+```
+
+**逐 verb 复算（本单现取 · 两条命令互为对照）**：
+
+```
+for v in get post put delete patch; do printf "%s " "$v"; grep -cE "^app\.$v\(" backend-ts/src/index.ts; done
+```
+
+| 时点 | 合计 | get | post | put | delete | patch |
+|---|---:|---:|---:|---:|---:|---:|
+| 上一批（v2.37 改后基线） | **108** | 48 | 56 | 0 | 3 | 1 |
+| 本批（本单现取，改后亦为此值） | **108** | **48** | 56 | 0 | 3 | 1 |
+
+- **+0**：本批**只改前端 + 四语值** ⇒ **零新注册行、零删行、零改动词**。**任何把本批写成 `108 → 109` 的登记 = 判负**（本批没有新路由；tasks 页复用的仍是 `:2341` 那一条既有 GET）。
+- **归因**：注册点数字的**唯一变化来源**只可能是「新增/删除 `app.<verb>(` 注册行」；本批 diff 面 = `frontend/**` + `frontend/src/locales/*.json` + `docs/**` ⇒ 计数必为恒等。
+- **连锁门**：离线门 `p7b-03` 的 `AC10-2` 冻结面**维持 `regs === 108`**（**不得前推为 109**；门文件归实现单，本册零代码）。
+- **不得照抄 brief / 报告数字**：本表两行均为本单现取读数（brief 与本单一致 = 108，但**登记仍以现取为准**）。
+
+#### 47.8.3 前端契约（`/task/new` · 写死 · 可判负）
+
+| 项 | 契约 |
+|---|---|
+| **字段形态** | 币种字段 = **下拉选择器**（`<select>`），**不是**数字输入框。**旧钩子 `jobs-input-cid` 不得存在**（下拉落地后仍在 = 判负 ⇒ §47.8.5 #16）。 |
+| **钩子名** | **`data-sf-m="jobs-select-cid"`**，且**必须在场**（缺失 = 判负）。同表单其余钩子（`jobs-input-title` / `jobs-input-reward` / `jobs-input-headcount` / `jobs-input-note` / `jobs-deposit-hint` / `jobs-primary`）**本批不动**（`PublishJobPage.jsx:147/151/155/167/170/175` 现取；行号随实现落盘漂移，改前为 `:101/105/109/118/125/127`）。 |
+| **选项文本** | **`symbol · name`**（如 `$ · 平台积分`）；**`name` 为空时仅 `symbol`**（回退项 `$` 即此形）；**不带编号** —— `cid` 只做 `value`，**不得**出现 `1 · $` / `#1` / `(1)` 一类编号前缀或后缀（Kevin 追加指令 ②）。 |
+| **默认值** | **`$`（cid 1）** 为默认选中项（与改前 `cid: '1'` 一致 ⇒ 默认语义零变化）。 |
+| **默认值兜底** | 若 `$`（cid 1）**不在**返回列表内（如 cid 1 被 `frozen` / `delisted`）⇒ **选中首项**（`data[0]`，即 `cid` 升序最小者）；**不得**留空、**不得**保留一个不存在的 `value`（会渲染成空白选项）。 |
+| **回退态（承重）** | 列表**加载失败**或**为空** ⇒ 回退为**仅 `$` 一项**；**表单仍可提交**（不得禁用 `jobs-primary`、不得弹阻断性错误、不得白屏）。 |
+| **提交载荷** | `cid` 仍为**数字**（`Number(form.cid)`，现取值见 §47.8.0 表）；`POST /api/job` **请求体形状一字不变**（键集 = `cid` / `reward` / `headcount` / `title` / `description` 等**逐字不动**，幂等键口径 `cli:` 不动）。 |
+| **范围** | 只改 `/task/new`（`frontend/src/pages/jobs/PublishJobPage.jsx`）+ 四语两键值。**商品发布页 `/item/new` 本批不动**（其口径 = §47.3，**继续有效**）；`/tasklist/*` 一族（列表 / 详情 / 审核）**本批不动**。 |
+
+#### 47.8.4 locale 口径（只改值 · 键数不变）
+
+- **改**：`jobs.cid` / `jobs.cidNote` —— **四语同改**（zh / en / hk / vn），**只改值、键数不变**（键名不增不减）。
+- **改前值（本单现取 · 逐语 · 作「手填语义仍在」的证据，不是现行口径）**：
+
+| 语 | 键 | 改前值（现取） | 锚 |
+|---|---|---|---|
+| zh | `jobs.cid` | 币种编号 | `frontend/src/locales/zh.json:99` |
+| zh | `jobs.cidNote` | 币种编号：社区积分 $ 填 1 | `zh.json:100` |
+| en | `jobs.cid` / `jobs.cidNote` | Currency id / Currency id: enter 1 for community points ($). | `en.json:99` / `:100` |
+| hk | `jobs.cid` / `jobs.cidNote` | 幣種編號 / 幣種編號：社區積分 $ 填 1 | `hk.json:99` / `:100` |
+| vn | `jobs.cid` / `jobs.cidNote` | Mã tiền tệ / Mã tiền tệ: nhập 1 cho điểm cộng đồng ($). | `vn.json:99` / `:100` |
+
+- **语义要求（可判负）**：`jobs.cidNote` **不得再含「填 1 / 填寫 / 手动填写 / 手填 / enter 1 / nhập 1 / bằng tay」一类手填或编号提示语义**（该语义随 `jobs-input-cid` 下线）；`jobs.cid` **不得再以「编号 / id」为核心词**（下拉里选的是币种，不是编号）。
+- **不动**：`item.cid` / `item.cidNote`（v2.37 已改，**本批不动**）；`jobs.*` 其余键一字不动（键值均不动）。
+- **键集基线（本单现取 · 四语逐文件相等）**：顶层 **`128`** / 拍平 **`1106`** / 四语节点 **`4424`**（`= 1106 × 4`）—— 本批**只改值 ⇒ 三个数逐字不变**（与 v2.35 的 `128 / 1106 / 4424` 一致）。
+- **不发明文案值**：四语具体字面 = **实现单落笔**；本册只冻结「不得含手填 / 编号语义 + 键数不变」两条，落盘后以实现现盘为准。
+
+#### 47.8.5 判负口径（本批新增 · 任一条命中即判红 · 可证伪）
+
+| # | 判负条件 | 判法 |
+|--:|---|---|
+| 16 | `/task/new` 仍存在 `[data-sf-m="jobs-input-cid"]` | 真浏览器 DOM 查询，计数必须 **= 0**（**本条 = 任务书「jobs-input-cid 存在即判负」的落位**） |
+| 17 | `/task/new` **缺** `select[data-sf-m="jobs-select-cid"]` | 计数必须 **≥ 1**（且 `tagName === 'SELECT'`） |
+| 18 | `/task/new` 对**币种读口**发出**额外**请求：出现 `/api/currencies` 以外的任何币种路径（`/api/currency*`、`/api/admin/currency`、自造 `job-currencies` 一类），或同一路径**多于 1 条** GET | 抓网络层：币种相关请求集大小 **= 1**、路径 **= `/api/currencies`**、方法 **= GET** |
+| 19 | 选项文本**带编号**（`1 · $ · 平台积分` / `#1` / `(1)` / `cid 1`） | 逐项断言文本 = `symbol` 或 `symbol + ' · ' + name`（**不得出现 cid 数值或编号标记**）；**两页同判**（`/item/new` 一并抽验） |
+| 20 | 默认不选中 `$`（cid 1），或 cid 1 不在列表时**未**选首项（留空 / 选中不存在值） | 正常态断言 `select.value === '1'`；桩掉读口使其不含 cid 1 ⇒ 断言 `value === String(data[0].cid)` 且非空 |
+| 21 | 列表失败 / 为空时 `$` 选项**不在**，或**提交被阻断** | 拦截读口置 500 / 返回 `[]` ⇒ 选项数 = 1（`$`）、`jobs-primary` 的 `disabled === false`、提交仍发 `POST /api/job` |
+| 22 | 提交载荷 `cid` **非数字**，或 `POST /api/job` 请求体键集变化 | 抓请求体：`typeof cid === 'number'` + 键集与改前逐字相同（`cid` 只由字符串 `'1'` 变数字 `1`，**类型口径不变**） |
+| 23 | **注册点被写成 108 → 109**，或 `GET /api/currencies` 契约被改动（加闸 / 加分页 / 加写 / 行键变更） | 现取 `grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts` = **108** + §47.1 五条逐条复验；**本批 diff 不得含 `backend-ts/**`** |
+| 24 | `jobs.cid` / `jobs.cidNote` **键数**变化（增/删键），或 `item.cid*` 被改 | 四语逐文件键集相等（顶层 128 / 拍平 1106 / 四语节点 4424）+ `item.cid*` 逐值不变 |
+| 25 | `jobs.cidNote` 仍含手填 / 编号提示语义 | 四语正则 `填\s*1\|填寫\|手动\|手動\|by hand\|enter 1\|nhập 1` 命中数必须 **= 0**（`jobs.cid` 另判不得以「编号 / id」为核心词） |
+
+#### 47.8.6 既有登记处置（本单现取 · 逐处）
+
+| # | 位置 | 旧字面（摘要 · 逐字保留于原处） | 本单处置 |
+|--:|---|---|---|
+| 1 | 本册 §47.0 表「前端消费面」行 | 「`/item/new` … **唯一消费点**（… 发布任务页 `/jobs/publish` **仍未接** ⇒ §47.5）」 | **自本节起作废 · 以本节为准**（旧句逐字保留）：现行 = **两个消费点**（`/item/new` + `/task/new`），**共用同一读口**（§47.8.1）。 |
+| 2 | 本册 §47.3 表「范围」行 | 「`/jobs/publish`（`PublishJobPage.jsx`）**本单不动** ⇒ 其 `jobs.cid` / `jobs.cidNote` 与 `cid` 手填形态保持原样」 | **自本节起作废 · 以本节为准**：该页**本批已改**（下拉）；**且路由字面勘误见下条**。 |
+| 3 | 本册 §47.5 行 1（`PublishJobPage.jsx:13` 注释） | 「币种：`cid` 手填 … **币种读口未注册** … ⇒ 不作为读面依赖」 | **整句自本批起全过时**：读口已存在（§47.1）**且**任务页已消费（§47.8.1）⇒ 注释应改成「选项来自 `GET /api/currencies`（公开只读）」；**代码注释归 Kong 域**（Jing 不改代码）。 |
+| 4 | **路由字面勘误（本单现取）** | §47.0 / §47.3 / §47.5 把发布任务页写作 **`/jobs/publish`** | **实际路由字面 = `/task/new`**（`frontend/src/App.jsx:99`；仓内 `grep -rn "jobs/publish" frontend/src` 现取 = **0 命中**）⇒ 旧句里的 `/jobs/publish` 是**同一页的口语称呼、不是路径**；**一切判据一律以 `/task/new` 为字面**。**旧句不改**（只追加本节）。 |
+| 5 | `docs/audit/p4-b4c-ii-a-jobs-profile.md:145` / `:155`、`docs/audit/p8-p6-recon.md:76` | 「币种读口未注册 ⇒ 发布面 `cid` 手填」 | **历史时点读数**（审计件不改、不删）；**现状**以本册 §47 + 本节为准。 |
+| 6 | `docs/design/design-system.spec.md` §15.2 | A 表内**无** `jobs.cid` / `jobs.cidNote` 行（本单检索式见 §47.8.7）⇒ **零命中** | 同批追加**勘误段**（不改表体）：旧勘误段「`jobs.cid*` 本单不动」**作废 · 以新段为准** + 新断言 `jobs-select-cid` 必须在场 / `jobs-input-cid` 不得存在。 |
+| 7 | `docs/OPEN-ITEMS.md` | — | **零命中**（检索式见 §47.8.7）：无「任务页币种 / 读口未接」类挂账行 ⇒ **无状态可改写**，不新增挂账（本批非未闭环项）。 |
+
+#### 47.8.7 自证（改后现取）与未做项
+
+- **纯追加**：`git diff --numstat docs/route-layer.spec.md` = **`137 0`**（**删除行 = 0**）。
+- **版本锚点**：`grep -c '^> \*\*状态：v2.38'` = **恰 1**；**节号锚点**：`grep -c '^### 47\.8 '` = **恰 1**（前值最大子节号 = §47.7 ⇒ §47.8 **续节、无跳号**；**未新开 §48** —— 本批零新路由，不构成新的「路由族」）。
+- **位置自证**：v2.38 块**紧随 v2.37 块 ⑥ 行之后**（承 §45 / §46「两处版本记录同批入库」先例）；`§47.8` **接在 §47.7 文末**（同节续段，`---` 不插入）。
+- **注册点现取**：`108`（get 48 / post 56 / put 0 / delete 3 / patch 1）⇒ **本批 +0**（§47.8.2 表 · 两条命令互为对照）。
+- **钩子现取（改后 · 实现 commit `1d9b415` 落盘后）**：`grep -n 'jobs-select-cid' frontend/src/pages/jobs/PublishJobPage.jsx` = **1 命中（`:159`）**；`grep -n 'jobs-input-cid' frontend/src/pages/jobs/PublishJobPage.jsx` = **0 命中**（旧 input 已删，仅测试文件仍以「不得存在」断言引用该串）⇒ **本批判据（前者 ≥ 1 / 后者 = 0）已由实现满足**，判定复核归 Neng。**改前基线**（本单开工时点）：`jobs-select-cid` = 0 命中、`jobs-input-cid` = 1 命中（`:115`）。
+- **locale 键集现取**：四语逐文件 `len(d)` = **128**、递归叶 = **1106**、四语节点 = **4424**（本批只改值 ⇒ 不变）。
+- **检索式（§47.8.6 #6 / #7 的「零命中」依据）**：
+  - 设计册：`grep -n 'jobs\.cid\|jobs\.cidNote' docs/design/design-system.spec.md` ⇒ 仅命中**版本头 + §15.2 勘误段**两处叙述（**A 表行零命中**：`awk -v s=<A 表首行> -v e=<A 表末行> 'NR>=s && NR<=e' … | grep -c 'jobs\.'` = **0**（本单现取：A 表 = 第 1389–1408 行））。
+  - 挂账：`grep -n '任务页.*币种\|币种.*任务页\|jobs.*cid' docs/OPEN-ITEMS.md` = **0 命中**。
+- **零代码自证**：本单 commit 只含 `docs/**` + `ops/item-cid-select/**` ⇒ `backend-ts/**` / `frontend/**` **零改动**；**库面零连接**、**零 HTTP 实测**（实现 / 验收归 Kong 与 Neng）。
+- **未做项（显式登记，不冒充已做）**：① `docs/versions/route-layer.spec.v2.38.md` **未建**（快照重制归版本收口单）；② `/task/new` 的 DOM / 网络层判据**未由本单实跑**（Jing 不跑前后端门套）；③ 四语精确字面**未由本单落笔**（实现单落笔后回写）；④ 商品页口径**本批未复验**（归 Neng 的既质检面）。
 
