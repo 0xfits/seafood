@@ -9324,3 +9324,49 @@ ORDER BY score DESC, l.time_created DESC, l.listing_id DESC
 | 本笔改动 | 只写 `docs/**` + `ops/feed-paging/SPEC-NOTE.md`；两册 `git diff --numstat` **删除列 = 0** |
 
 **未做（诚实边界）**：本节只冻结契约，**未实现、未质检、未上线**（实现归 Kong，编制时点两文件 `M` 未提交）；**库内 `listed` / `draft` / `delisted` 行数未复算**（实现单注释数字仅转引，本笔零 DB 连接）；**滚动续拉的浏览器级实测未做**（归实现单 / 质检单）。
+
+### 49.9 实现回写与生产终验（**同 v2.43 契约的实现面回写 · 不升版** · 2026-10-19 收口）
+
+> **本节性质**：**只回写「契约已实现并上线」的读数**，**§49.1–§49.8 一字未改**（契约仍以 v2.43 为准）。实现 = `0fe454a`（排序）/ `82e465e`（分页 + 只列 `listed`）· 质检 = `55cce4b` + `f97252d`（各 6/6 PASS）· 上线 = push `b10f3d6..f97252d`（7 提交，**零迁移**）· 生产终验 = `0d8d15f`（证据 `ops/batch-1019-3/prod-verify/`）。
+
+#### 49.9.1 实现落点（现取 · 文件:行）
+
+| 契约项（§49.8.1） | 实现落点（现取） | 读数 |
+|---|---|---|
+| `PAGE_SIZE = 36` | `frontend/src/pages/HomePage.jsx:41` `const FEED_PAGE_SIZE = 36` | 契约值逐字 |
+| 读口唯一 | `HomePage.jsx:161` `` `/api/prize/all?skip=${skip}&limit=${FEED_PAGE_SIZE}` `` | 首屏 `skip=0`、续拉 `+36`、串行 |
+| 终止 | `HomePage.jsx:223` / `:252` `hasMore = rows.length >= FEED_PAGE_SIZE` | `< 36` 或 0 ⇒ 停 |
+| 去重 | `mergeRewardPage`（`bID` 首见；`Set`） | 见 §49.9.2 夹具 B |
+| 失败 / 重试 | 失败即停 + 「重试」复用同一 `skip`（游标只在成功后前推） | 见 §49.9.2 retry 臂 |
+| 只列 `listed` | `backend-ts/src/database.ts:2639` `WHERE l.status = 'listed'` | `draft` 15 / `delisted` 2 从两口消失 |
+| 详情不过滤 | `getBrandById` 未改 | `/api/prize/1`、`/api/prize/22`（均 `draft`）仍 **200 / 46 键** |
+| 排序不变 | `ORDER BY f.score DESC, f.time_created DESC, f.listing_id DESC` | §49.2 逐字 |
+| 形状 | **零新路由 · 注册点 110**（get 49 / post 57 / put 0 / delete 3 / patch 1）· **零迁移**（schema 仍 `0051`）· `score` 不下发 | `p7b-03` 37/37 `AC10-2` pass |
+
+#### 49.9.2 质检读数（两套夹具 + 失败臂 · 判据 = DOM 卡数 / `href` 的 `/item/<id>`，不以类名判）
+
+| 臂 | 首屏 | 卡数演进 | `skip` 序列 | 终态 |
+|---|---|---|---|---|
+| real（390 / 1440） | **9** = `min(36, listed 9)` | 9 | 0（StrictMode 双发首条 `ERR_ABORTED`） | distinct 9、`feed-end` 在场、无 `feed-loading` 残留 |
+| **paged-a**（重叠落第 2↔3 页边界 `71,72`） | 36 | **36→72→80** | **0→36→72** | distinct 80、重复 0、`feed-end` |
+| **paged-b**（重叠落第 1↔2 页边界 `35,36`） | 36 | **36→70→80** | 0→36→72 | distinct **80**（82 交付 − 2 重复） |
+| slow-600ms | 36 | 36→72→80 | 0→36→72 | `feed-loading` 命中 8 次采样、落地后**零残留** |
+| retry-once | 36 | 36→(失败停)→72→80 | 0→36→**36(重试)**→72 | 2.5s 内 `skip=36` 请求计数仍 **1**（无自动重试）；点击重试后变 2 ⇒ **复用同一 `skip`** |
+
+- **★ 口径更正（本回写即定稿）**：派单 AC1 的「**36→72→80** **且** 第 2 页重叠 2 行」在算术上**互斥** —— 第 2 页 36 行若含 2 行重复，去重后只能是 **36 + 36 − 2 = 70**。故拆两套夹具：**paged-a 命中「36→72→80」字面**（重复被第 3 页吸收），**paged-b 单独证「跨页去重真在跑」**（36→70→80）。两臂 `skip` 序列相同、终态 distinct 均 80 ⇒ 去重不是空判。
+- **失败即停口径**：500 后 `feed-error` + `feed-retry` 同时在场、卡数停在 36；2.5s 静置无自动重试（防无限重试打后端）；重试复用 `skip=36`。
+- **StrictMode 披露**：首屏 `skip=0` 因 StrictMode **双发**（首条 `net::ERR_ABORTED`），所有臂原始请求序列含 `[0,0]`、去重后 `[0]`；不影响卡数与游标。
+- **dev 数据面披露**：dev `listing` 26 行、`listed` 仅 **9** 行 ⇒ 真网络下第 2 页必空（`skip=36` 实测 0 行）；**多页行为只能靠 `context.route` 夹具取证**（非缺陷）。
+- **`/api/home` 面**：键集未变（`claimed_prize_ids` / `is_authenticated` / `prizes` / `tasks` / `user_points`）；`prizes` 9 条全 `listed`；首页商品请求只发 `/api/prize/all?...limit=36`。
+
+#### 49.9.3 生产终验（同版码 + 真浏览器）
+
+- **同版证明** = js `e18004923837fed7…`（`index-BdkQSoB8.js` **496,937 B**）/ css `ab4520e87a630616…`（`index-bzxNYmoV.css` **124,262 B**），与本地 HEAD 构建 **sha256 逐字相同**。
+- **JS marker** = `feed-sentinel` / `feed-grid` / `prize/all?skip=` 各 **1**（`SUMMARY.txt` 记录）+ 浏览器侧 `feed-end` 在场 **1**（`prod-probe.json` 五档全 1）⇒ 首页商品面走的是分页 + 哨兵路径，不是 `/api/home.prizes` 渲染路径。
+- **五档**（1024/1280/1440/1536/1920）列数 **4/6/6/6/6**、容器实宽 **1024/1280/1440/1536/1536**、溢出 **0**、`pageerror` **0** / console error **0**；首卡 `/item/4`（生产最新一件）⇒ 排序面生产生效。
+- **诚实边界（不掩盖）**：生产 `listed` **仅 4 件** ⇒ 首屏即到底（`feed-end` 在场，终止正确），**多页续拉 / 跨页去重 / 失败重试三臂在生产不可见**，只在 dev 同版本代码 + 夹具实测；生产分页口径 = 「≤36 时行为等同不分页」。
+
+#### 49.9.4 未做（仍挂账）
+
+- **`B37` 分页偏移漂移** —— v1 **仍接受**漂移；两套夹具只证「重复」被 `bID` 去重消除，「漏」未兜底（keyset / 快照另立单）。
+- **滚动续拉的浏览器级生产实测** —— 生产 `listed` 4 件，无法触发；待 Kevin 在生产重发足量商品后复测（同一探针可直接复用）。

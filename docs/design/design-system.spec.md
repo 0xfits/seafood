@@ -3129,3 +3129,56 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 | **(B) 保留 `ResponsiveGrid` + `xl={6}`** | 只改一行 prop；`styles.css` 不需 1280 块 | **与 `STRUCT_PROV` / token 层脱钩**（列数不再由结构常量驱动）⇒ 若选此路，`feed-cols-xl` 键**不必新增**，且 §25.5 的「三件链」需同步缩为「`shell-max-w` 两件 + 夜档 `feed-cols.n` 重指」；本册须出勘误级追补 |
 
 **本笔处置**：**契约按原文冻结（A 路径为默认）**，同时把冲突**登记在此**（不沉默、不擅自改判）。**质检注意**：§25.7 #1 的探针按「**首页信息流网格实际节点**」取（`.sf-grid` 或 `[data-sf-m="feed-grid"]`），**以计算列数为准**，不以选择器名判负。
+
+### 25.11 裁定与落地（2026-10-19 收口 · **路径 A 已采** · `ResponsiveGrid` 不入首页网格 · `B39` 另立单 · 同 v1.24 契约的**实现面回写、不升版**）
+
+> **本节性质**：§25.10 的两条「待 Zang 裁定」**已裁死**（见 A），并把 `T121` 的**落地读数**回写（见 B–D）。**§25.0–§25.10 一字未改**；契约仍以 **v1.24** 为准，本节只补「已实现并上线」的事实与差。实现 = `10ef6b1`；质检 = `f97252d`（6/6 PASS）；上线 = push `b10f3d6..f97252d`；生产终验 = `0d8d15f`。
+
+#### 25.11.1 两条裁定（Zang · 2026-10-19 · 落死）
+
+| # | 待裁项（§25.10） | 裁定 | 依据 / 后果 |
+|---|---|---|---|
+| ① | 6 列落地走 **(A) token 路径** 还是 **(B) `ResponsiveGrid` + `xl={6}`** | **裁 A = CSS 断点驱动** | 首页商品网格**回 `.sf-grid sf-feed`**（`data-sf-m="feed-grid"` 钩子保留、卡数判据不变），`≥1280` 6 列落 `frontend/src/styles.css` **顶层** `@media (min-width:1280px)`。**否决 B 的硬理由** = `ResponsiveGrid` 走 `useBreakpoint()` 的 `window.innerWidth` + `resize` 监听（`components/ui/Responsive.jsx:4-22`）⇒ 列数由 **JS 宽度读数**驱动，违「断点只在 CSS」；且 B 会把列数与 `STRUCT_PROV` 溯源链脱钩（列数不可再回读真源） |
+| ② | `ResponsiveGrid` 组件（`window.innerWidth` 分支）如何处置 | **本批不动 ⇒ `OPEN-ITEMS` `B39` 另立单**（「把该组件断点回 CSS」） | 现取 **9 处** `<ResponsiveGrid` 调用点：`HomePage.jsx:401`（任务区）、`TaskPage.jsx` 4 处、`DashboardPage.jsx` 2 处、`ProfilePage.jsx` 2 处 ⇒ 改动面 = 任务区 / 工作台 / 个人页**三处布局**，须单独质检 + 观感验收，**不并入本批**。**首页商品网格已零 `ResponsiveGrid`**（现取 `grep` 0） |
+
+#### 25.11.2 落地读数（现取 · 文件:行）
+
+| 键 / 落点 | 现行值（现取） | 与 §25.5 目标对齐 |
+|---|---|---|
+| `STRUCT['shell-max-w']` | `'1536px'`（`tokens.js:412`） | ✅ 目标 `1536px` |
+| `STRUCT_PROV['shell-max-w']` | `{ d: [1180,'max-width:1536px'], n: [1180,'max-width:1536px'] }`（`:456`）⇒ **两档同指 `:1180`** | ✅（v1.24 写「d/n 新行」，实为两档共用 `:1180` 一行） |
+| `STRUCT['feed-cols']` | `'4'`（`:413`，**值不变**） | ✅ |
+| `STRUCT_PROV['feed-cols'].n` | `[1182,'grid-template-columns:repeat(4,minmax(0,1fr))']`（`:457`）⇒ 由 `:291`(3 列) 重指 `:1182`(4 列) | ✅ 夜档 3⇒4 |
+| **`feed-cols-xl`** | **（无此键 · 未新增）** | ⚠️ **差**（见 §25.11.3） |
+| `STRUCT['feed-cols-m']` | `'2'`（`:414`）· PROV `d:[116]` / `n:[328]`（`:458`） | ✅ 不动（`B38` 待裁） |
+| 生成物 `theme-tokens.css` | `:17` `--sf-st-shell-max-w: 1536px` / `:18` `feed-cols: 4` / `:19` `feed-cols-m: 2`（生成器重生成，**仅 `:17` 一行变**） | ✅ 三件同步 |
+| 六列规则 | `frontend/src/styles.css:23-27` 顶层 `@media (min-width: 1280px){ .sf-feed{ grid-template-columns: repeat(6, minmax(0,1fr)) } }` | ✅ 落点合规 |
+| 首页网格节点 | `HomePage.jsx:451` `<div className="sf-grid sf-feed" data-sf-m="feed-grid">` | — |
+| 真源 | `style-preview.html` 尾段纯追加 `<section id="layout-width-ref-v124">`（`:1177` 起）；`max-width:1536px` `:1180` · 夜档 `repeat(4,…)` `:1182` · `@media (min-width:1280px){.sf-feed{…repeat(6,…)}}` `:1184`；现 **1186 行 / 104,094 B / md5 `25b6304afbb8d87f165d7cca7a600d0b`**；旧 `:85` / `:112` / `:291` **一字未删** | ✅ 删除列 0 |
+| `shell.css` | `@media` **仍 1 块**（`:185` `max-width: 767px`）；本版**未动** | ✅ §25.1 硬禁令成立 |
+
+#### 25.11.3 ★ 落地差（必须披露 · 不是缺陷，是裁定后果）
+
+- **`feed-cols-xl` 未入 `STRUCT`**：§25.5 原表把 `feed-cols-xl: '6'` 列为「新键 + 新 PROV 指针」，而裁定文字（§25.11.1 ①）为「**≥1280 的 6 列由 `styles.css` 顶层规则统一覆盖**」⇒ **6 列 = 断点层字面值，不进 token 层**。因此：`STRUCT` **无新键**、生成物**无新行**、§25.5 的「三件链」实际收为**两件**（`shell-max-w` 值 + `feed-cols.n` 重指）+ 生成物同步。
+- **真源 `:1184`（6 列行）现无 `PROV` 指针引用**：该行存在于真源（可回读字面），但**无 token 键指向它** ⇒ 追源门**不覆盖**该行；现行「6 列」的真源保证 = **`styles.css:23-27` 的字面规则**（不是 token）。若日后要求「列数也进 token 层（可配置 / 可回读）」，须**另立单**（不在 `B39` 范围）；本节不预设。
+- **§25.1 b 的选择器写 `.sf-grid`，实现为 `.sf-grid` 基础 4 列 + `.sf-feed` 6 列修饰类** —— 现取仓内并无「`.sf-feed` 由 token 驱动」的规则（`shell.css:58-62` 的选择器是 **`.sf-grid`**），故实现取「基础类给 4 列（token）+ 修饰类给 ≥1280 的 6 列」。**这是作用域收紧**（`ThemePreviewPage.jsx:147` 的 `.sf-grid` 窄容器演示**不被 6 列规则波及**），不是放开；契约文字「6 列落 `styles.css` 覆盖 `.sf-grid`」的**意图**（首页 6 列、`shell.css` 零新增断点）**已满足**。
+
+#### 25.11.4 `T121` 条文 → 实现（逐款回写）
+
+| 款 | 条文（§25.1） | 落地（现取） | 判定 |
+|---|---|---|---|
+| **a. 容器宽** | `--sf-st-shell-max-w = 1536px`（日/夜同值、结构常量、不进主题层） | `tokens.js:412` `'1536px'` + PROV `d/n [1180]` + 生成物 `theme-tokens.css:17` = `1536px`；`--sf-st-shell-max-w` computed 全档 **1536px** | ✅ 达标 |
+| **b. 列数** | `≥1280 ⇒ 6` · `768–1279 ⇒ 4`（不变）· `<768` 不变；6 列落 `styles.css` 顶层 `@media`；`shell.css` 不得新增 `@media` | `styles.css:23-27` 六列；4 列沿用 `shell.css:60`（token `feed-cols: 4`）；手机档 `shell.css:200`（`feed-cols-m: 2`）；`shell.css` `@media` 计数 **1**（未动） | ✅ 达标（选择器见 §25.11.3 第三点） |
+| **c. 夜档** | `feed-cols` 夜档 `3 ⇒ 4`；值不变；PROV `.n` 重指新行 | 值 `'4'` 不变；`STRUCT_PROV['feed-cols'].n` `[291]`（3 列）⇒ **`[1182]`**（4 列）；真源 `:291` 旧行不删 | ✅ 达标 |
+
+- **计算列数读数（质检 · 真浏览器 12 行 × 日/夜两档）** = **390 → 2** · **1024 → 4** · **1280 → 6** · **1440 → 6** · **1536 → 6** · **1920 → 6**，**日/夜逐档相等**；网格类 = `sf-grid sf-feed`，`HomePage` 零 `innerWidth` / `matchMedia` 读数。
+- **容器读数** = 1920 档 `.sf-route-container` 实宽 **1536**、`left=192`（居中）；12 行 `scrollWidth − clientWidth = 0`；单卡宽 1536 档 **225.33**（= `(1536 − 2×20 − 2×32 − 5×16) / 6`：容器 20px×2 + `ResponsiveContainer` `lg:px-8` 32px×2 后可用 1432，减 5 道 16px 间距再 ÷ 6；属既有内缩，非新增）。
+- **门套** = `theme-tokens` + `theme-shell-isomorphism` 2 文件 **33 例**绿（含「生成物与 `STRUCT` 一致」与「`shell.css` 唯一 767 块」双边断言）· `build` exit 0 · `test:unit` **61 文件 / 583 例**。
+- **生产** = 同版 sha256 逐字 + CSS marker 3/3（`min-width:1280px` / `repeat(6,minmax(0,1fr))` / `--sf-st-shell-max-w:1536px`）+ 五档列数 **4/6/6/6/6** + 1920 居中 1536 零溢出 + 零异常。
+
+#### 25.11.5 未做 / 诚实边界（不变）
+
+- **手机档 `2/2` 未定** —— 现 d `2` / n `1`，本版**不动**，仍挂 `OPEN-ITEMS` **`B38`**（需 Kevin 一句话）。
+- **`ResponsiveGrid` 的 JS 断点仍在**（9 处调用点）—— 归 `B39`，本批不修。
+- **1280 档观感未另评** —— 质检只取几何读数（列数 / 宽度 / 溢出 / 卡内截断），**「1280 档是否偏窄」属观感，不预设合格**。
+- **6 列作用域** = 仅首页商品网格（`.sf-feed`）；**任何其它网格要 6 列须另立单**，本节不扩面。
