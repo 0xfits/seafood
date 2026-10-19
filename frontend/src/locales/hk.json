@@ -181,7 +181,10 @@
     "filterHighValue": "高價值",
     "filterClaimed": "已兌換",
     "viewDetail": "查看詳情",
-    "chat": "聊一聊"
+    "chat": "聊一聊",
+    "imagesLabel": "商品圖片（可選，最多 4 張）",
+    "imageRemove": "移除圖片",
+    "imageUploadFail": "圖片上傳失敗，發布已取消"
   },
   "market": {
     "line": "交易所線",

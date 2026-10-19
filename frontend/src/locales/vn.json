@@ -181,7 +181,10 @@
     "filterHighValue": "Giá trị cao",
     "filterClaimed": "Đã đổi",
     "viewDetail": "Xem chi tiết",
-    "chat": "Nhắn tin"
+    "chat": "Nhắn tin",
+    "imagesLabel": "Hình ảnh sản phẩm (không bắt buộc, tối đa 4)",
+    "imageRemove": "Xóa ảnh",
+    "imageUploadFail": "Tải ảnh lên thất bại, đã hủy đăng"
   },
   "market": {
     "line": "Dòng sàn giao dịch",

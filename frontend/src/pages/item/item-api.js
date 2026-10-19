@@ -80,6 +80,14 @@ export const publishListing = ({ cid, price, stock, title, description, mediaUrl
     create_key: createKey,
   }, user)
 
+/**
+ * 商品图片上传（`POST /api/media` · 媒体单前端阶段 B）。`payload = { content_type, data_base64 }`。
+ * **登录闸**：未登录 ⇒ 401（服务端 `requireActor`）；`content_type` 三值闭集、魔数 fail-loud、单张 ≤2MiB；
+ * 同图去重 ⇒ 返回**既有** `media_id`（`{ url, media_id, sha256, size_bytes, deduplicated }`）。
+ * 本层只透传 ⇒ 压缩/尺寸归调用方（发布页 canvas 长边 ≤1280）。
+ */
+export const uploadMedia = (user, payload) => postJson('/api/media', payload, user)
+
 /** P1 状态迁移（`draft→listed` / `listed→delisted`）。入参别名取 `to_status`（§4.2 P1 口径）。无键面。 */
 export const setListingStatus = (listingId, toStatus, user) =>
   patchJson(`/api/listing/${listingId}`, { to_status: toStatus }, user)

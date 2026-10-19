@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
@@ -10,6 +10,7 @@ import {
   listingPublishFingerprint,
   publishListing,
   setListingStatus,
+  uploadMedia,
 } from './item-api'
 import './item.css'
 
@@ -41,15 +42,62 @@ const currencyLabel = (row) => {
   return `${symbol}${name ? ` · ${name}` : ''}`
 }
 
+// ---- 商品图片（可选 · 媒体单前端阶段 B） --------------------------------------
+// 口径：最多 4 张；仅 image/*；客户端压缩（canvas 长边 ≤1280，WebP q0.82，
+// 不支持 WebP ⇒ JPEG q0.85）；**先逐张上传**，任一失败 ⇒ 取消发布（绝不产生半截商品）。
+const MAX_IMAGES = 4
+const MAX_IMAGE_EDGE = 1280
+
+const readFileAsDataUrl = (file) => new Promise((resolve, reject) => {
+  const reader = new FileReader()
+  reader.onload = () => resolve(String(reader.result || ''))
+  reader.onerror = () => reject(reader.error || new Error('read failed'))
+  reader.readAsDataURL(file)
+})
+
+const loadImageElement = (src) => new Promise((resolve, reject) => {
+  const image = new Image()
+  image.onload = () => resolve(image)
+  image.onerror = () => reject(new Error('decode failed'))
+  image.src = src
+})
+
+/** 单张压缩 ⇒ `{ contentType, dataBase64, preview }`（`preview` = 压缩后的 data URL，直接做缩略图）。 */
+const compressImage = async (file) => {
+  const raw = await readFileAsDataUrl(file)
+  const image = await loadImageElement(raw)
+  const width = image.naturalWidth || image.width || 0
+  const height = image.naturalHeight || image.height || 0
+  const scale = width && height ? Math.min(1, MAX_IMAGE_EDGE / Math.max(width, height)) : 1
+  const canvas = document.createElement('canvas')
+  canvas.width = Math.max(1, Math.round(width * scale))
+  canvas.height = Math.max(1, Math.round(height * scale))
+  const context = canvas.getContext('2d')
+  if (!context) throw new Error('canvas unavailable')
+  context.drawImage(image, 0, 0, canvas.width, canvas.height)
+  let dataUrl = canvas.toDataURL('image/webp', 0.82)
+  let contentType = 'image/webp'
+  // 浏览器不支持 WebP 时 `toDataURL('image/webp')` 会静默回落 PNG ⇒ 显式改走 JPEG q0.85。
+  if (!dataUrl.startsWith('data:image/webp')) {
+    dataUrl = canvas.toDataURL('image/jpeg', 0.85)
+    contentType = 'image/jpeg'
+  }
+  const comma = dataUrl.indexOf(',')
+  if (comma < 0) throw new Error('encode failed')
+  return { contentType, dataBase64: dataUrl.slice(comma + 1), preview: dataUrl }
+}
+
 const PublishItemPage = () => {
   const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
   const { isAuthenticated, user } = useAuth()
   const [form, setForm] = useState({ cid: DEFAULT_CID, price: '', stock: '1', title: '', description: '' })
+  const [images, setImages] = useState([])
   const [state, setState] = useState({ phase: 'idle', message: '' })
   const [currencies, setCurrencies] = useState(FALLBACK_CURRENCIES)
   const tracker = useMemo(() => createListingPublishTracker(), [])
+  const fileInputRef = useRef(null)
 
   // 币种选项：挂载时取一次（公开读口 ⇒ 无 token 也返回）。任一路失败都**回退 $**、绝不拦提交。
   useEffect(() => {
@@ -82,11 +130,42 @@ const PublishItemPage = () => {
 
   const setField = (key) => (event) => setForm((prev) => ({ ...prev, [key]: event.target.value }))
 
+  /** 选图：仅 image/*；超出 4 张忽略多余；逐张本地压缩后入列（失败的单张丢弃，不拦其余）。 */
+  const onPickImages = async (event) => {
+    const input = event.target
+    const picked = Array.from(input.files || []).filter((file) => file && String(file.type || '').startsWith('image/'))
+    input.value = '' // 允许再次选择同一文件
+    const room = MAX_IMAGES - images.length
+    if (room <= 0 || !picked.length) return
+    const accepted = picked.slice(0, room)
+    const settled = await Promise.allSettled(accepted.map(compressImage))
+    const next = settled.filter((row) => row.status === 'fulfilled').map((row) => row.value)
+    if (next.length) setImages((prev) => [...prev, ...next].slice(0, MAX_IMAGES))
+  }
+
+  const removeImage = (index) => setImages((prev) => prev.filter((_, i) => i !== index))
+
   const onSubmit = async (event) => {
     event.preventDefault()
     if (state.phase === 'loading') return
-    const createKey = tracker.keyFor(listingPublishFingerprint(form))
     setState({ phase: 'loading', message: t('jobs.submitting') })
+
+    // ① 先逐张上传（顺序）：任一张失败 ⇒ **取消发布**（不调 publishListing，绝不产生半截商品）。
+    const mediaUrls = []
+    try {
+      for (const image of images) {
+        const uploaded = await uploadMedia(user, { content_type: image.contentType, data_base64: image.dataBase64 })
+        const url = uploaded?.url
+        if (typeof url !== 'string' || !url) throw new Error(String(t('error')))
+        mediaUrls.push(url)
+      }
+    } catch (error) {
+      tracker.reset() // 本次操作作废 ⇒ 重试重新取键
+      setState({ phase: 'error', message: `${t('item.imageUploadFail')}: ${String(error?.message || t('error'))}` })
+      return
+    }
+
+    const createKey = tracker.keyFor(listingPublishFingerprint(form))
     try {
       const created = await publishListing({
         cid: Number(form.cid),
@@ -94,6 +173,7 @@ const PublishItemPage = () => {
         stock: String(form.stock).trim(),
         title: form.title.trim(),
         description: form.description.trim(),
+        mediaUrls,
         createKey,
         user,
       })
@@ -181,6 +261,42 @@ const PublishItemPage = () => {
                 <span className="sf-item-label">{t('item.description')}</span>
                 <textarea className="sf-item-textarea" data-sf-m="item-input-note" value={form.description} onChange={setField('description')} rows={3} />
               </label>
+              <div className="sf-item-field sf-item-field-wide" data-sf-m="item-images">
+                <span className="sf-item-label">{t('item.imagesLabel')}</span>
+                <input
+                  ref={fileInputRef}
+                  className="sf-item-file"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  data-sf-m="item-image-input"
+                  onChange={onPickImages}
+                />
+                <div className="sf-item-image-row">
+                  <button
+                    className="sf-btn sf-item-btn"
+                    type="button"
+                    data-sf-m="item-image-add"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={images.length >= MAX_IMAGES}
+                  >
+                    +
+                  </button>
+                  {images.map((image, index) => (
+                    <div className="sf-item-image-thumb" data-sf-m={`item-image-thumb-${index}`} key={`${index}:${image.contentType}:${image.preview.length}`}>
+                      <img src={image.preview} alt="" />
+                      <button
+                        className="sf-item-image-remove"
+                        type="button"
+                        data-sf-m={`item-image-remove-${index}`}
+                        onClick={() => removeImage(index)}
+                      >
+                        {t('item.imageRemove')}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
             <p className="sf-item-meta">{t('item.cidNote')}</p>
             <div className="sf-item-row">

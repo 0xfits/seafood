@@ -512,3 +512,50 @@
     padding-bottom: calc(var(--sf-l-detailbar-h) + env(safe-area-inset-bottom));
   }
 }
+
+/* ---------------------------------------------------------------------------
+   媒体单前端阶段 B · 发布页选图（≤4 张）
+   隐藏原生 file input（由可见 `+` 按钮触发）；缩略图 = 64px 方盒 + 移除钮。
+   零新断点 / 零主题变量：颜色沿用既有 token，窄宽档同一几何。
+   --------------------------------------------------------------------------- */
+.sf-item-file {
+  display: none;
+}
+
+.sf-item-image-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.sf-item-image-thumb {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-thumb-border);
+  border-radius: var(--sf-st-radius-btna);
+  background: var(--sf-thumb-1);
+  overflow: hidden;
+}
+
+.sf-item-image-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sf-item-image-remove {
+  position: absolute;
+  inset-inline-end: 0;
+  inset-block-start: 0;
+  padding: 2px 4px;
+  border: 0;
+  border-end-start-radius: var(--sf-st-radius-btna);
+  background: var(--sf-card-bg);
+  color: var(--sf-meta-fg);
+  font-size: 10px;
+  line-height: 1.2;
+  cursor: pointer;
+}

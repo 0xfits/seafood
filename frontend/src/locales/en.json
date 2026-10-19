@@ -181,7 +181,10 @@
     "filterHighValue": "High value",
     "filterClaimed": "Redeemed",
     "viewDetail": "View details",
-    "chat": "Chat"
+    "chat": "Chat",
+    "imagesLabel": "Product images (optional, up to 4)",
+    "imageRemove": "Remove image",
+    "imageUploadFail": "Image upload failed, publish cancelled"
   },
   "market": {
     "line": "Exchange",

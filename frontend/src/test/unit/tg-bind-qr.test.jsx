@@ -11,7 +11,7 @@
  *
  * mock 纪律：messages-api 全替身（vi.fn 驱动）；react-qr-code 用真件（纯 SVG，jsdom 可渲染）；
  * i18n 走真 zh 词典（H.t）⇒ 新键若缺会渲染裸键名、断言当场红。断言前推记录：本单四语 +8 键/语
- * ⇒ 顶层 128（不变）/ 拍平 1095⇒1104 / 四语节点 4380⇒4416（22 处硬编字面已同步前推）。★ v1.19 §21.7（消息面板化 · 方案 1「就地叠加」）：`+1` 键 `messagesPage.close` ⇒ flat `1103⇒1104` / 四语节点 `4412⇒4416`。★ sf-bttc-shortfall（2026-10-17 单）：`+2` 键 `bttcPanel.mintNeedBatt`/`mintNeedUsd`（顶层 128 不变）⇒ flat `1104⇒1106` / 四语节点 `4416⇒4424`（本文件无硬编计数断言，仅口径留痕）。
+ * ⇒ 顶层 128（不变）/ 拍平 1095⇒1104 / 四语节点 4380⇒4416（22 处硬编字面已同步前推）。★ v1.19 §21.7（消息面板化 · 方案 1「就地叠加」）：`+1` 键 `messagesPage.close` ⇒ flat `1103⇒1104` / 四语节点 `4412⇒4416`。★ sf-bttc-shortfall（2026-10-17 单）：`+2` 键 `bttcPanel.mintNeedBatt`/`mintNeedUsd`（顶层 128 不变）⇒ flat `1104⇒1109` / 四语节点 `4416⇒4436`（本文件无硬编计数断言，仅口径留痕）。；**media-upload-B（阶段 B 写侧）**：+3 item 键（imagesLabel/imageRemove/imageUploadFail）⇒ flat 1106⇒1109 / 四语节点 4424⇒4436（top 128 不变）
  */
 import React from 'react'
 import { render, cleanup, fireEvent, waitFor } from '@testing-library/react'

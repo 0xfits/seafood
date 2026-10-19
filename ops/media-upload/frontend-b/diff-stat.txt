@@ -1,0 +1,22 @@
+ frontend/src/locales/en.json                       |   5 +-
+ frontend/src/locales/hk.json                       |   5 +-
+ frontend/src/locales/vn.json                       |   5 +-
+ frontend/src/locales/zh.json                       |   5 +-
+ frontend/src/pages/item/PublishItemPage.jsx        | 120 ++++++++++++++++++++-
+ frontend/src/pages/item/item-api.js                |   8 ++
+ frontend/src/pages/item/item.css                   |  47 ++++++++
+ frontend/src/test/unit/i18n-batch-b4a.test.jsx     |   2 +-
+ frontend/src/test/unit/i18n-batch-b4b.test.jsx     |   4 +-
+ frontend/src/test/unit/i18n-batch-b5.test.jsx      |   4 +-
+ .../src/test/unit/i18n-violation-closeout.test.jsx |   4 +-
+ .../src/test/unit/r9-93-points-symbol.test.jsx     |   2 +-
+ frontend/src/test/unit/r9-96-dashj-copy.test.jsx   |   4 +-
+ .../unit/s19-participants-truth-source.test.jsx    |   4 +-
+ .../test/unit/s23-participants-headcount.test.jsx  |   4 +-
+ .../src/test/unit/s5-publish-headcount.test.jsx    |   4 +-
+ .../src/test/unit/s7-submissions-panel.test.jsx    |   4 +-
+ .../src/test/unit/s8-locale-key-coverage.test.js   |   4 +-
+ .../src/test/unit/s9-ledger-kind-closure.test.js   |   4 +-
+ frontend/src/test/unit/tg-bind-qr.test.jsx         |   2 +-
+ 20 files changed, 212 insertions(+), 29 deletions(-)
+?? frontend/src/test/unit/publish-item-image.test.jsx (269 lines, new)
