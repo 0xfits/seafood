@@ -1,0 +1,188 @@
+{
+  "at": "2026-10-19T23:24:08.351Z",
+  "like": "IT4-QA-%",
+  "project_id": "quiet-math-65207667",
+  "fixtures": [
+    {
+      "listing_id": "93",
+      "title": "IT4-QA-DigitalAutoDeliver-20261019231440",
+      "status": "listed",
+      "item_type": "DigitalAutoDeliver"
+    },
+    {
+      "listing_id": "94",
+      "title": "IT4-QA-DigitalManualDeliver-20261019231440",
+      "status": "listed",
+      "item_type": "DigitalManualDeliver"
+    },
+    {
+      "listing_id": "95",
+      "title": "IT4-QA-PhysicalFreeShip-20261019231440",
+      "status": "listed",
+      "item_type": "PhysicalFreeShip"
+    },
+    {
+      "listing_id": "96",
+      "title": "IT4-QA-PhysicalBuyerShip-20261019231440",
+      "status": "listed",
+      "item_type": "PhysicalBuyerShip"
+    },
+    {
+      "listing_id": "97",
+      "title": "IT4-QA-NULL-omit-20261019231440",
+      "status": "listed",
+      "item_type": null
+    },
+    {
+      "listing_id": "98",
+      "title": "IT4-QA-NULL-explicit_null-20261019231440",
+      "status": "listed",
+      "item_type": null
+    },
+    {
+      "listing_id": "99",
+      "title": "IT4-QA-ui-1792452006313",
+      "status": "draft",
+      "item_type": "DigitalAutoDeliver"
+    },
+    {
+      "listing_id": "100",
+      "title": "IT4-QA-ui-1792452015878",
+      "status": "draft",
+      "item_type": "DigitalManualDeliver"
+    },
+    {
+      "listing_id": "101",
+      "title": "IT4-QA-ui-1792452025501",
+      "status": "draft",
+      "item_type": "PhysicalFreeShip"
+    },
+    {
+      "listing_id": "102",
+      "title": "IT4-QA-ui-1792452037086",
+      "status": "draft",
+      "item_type": "PhysicalBuyerShip"
+    },
+    {
+      "listing_id": "103",
+      "title": "IT4-QA-ui-1792452110853",
+      "status": "listed",
+      "item_type": "DigitalAutoDeliver"
+    },
+    {
+      "listing_id": "104",
+      "title": "IT4-QA-ui-1792452118033",
+      "status": "listed",
+      "item_type": "DigitalManualDeliver"
+    },
+    {
+      "listing_id": "105",
+      "title": "IT4-QA-ui-1792452124676",
+      "status": "listed",
+      "item_type": "PhysicalFreeShip"
+    },
+    {
+      "listing_id": "106",
+      "title": "IT4-QA-ui-1792452131342",
+      "status": "listed",
+      "item_type": "PhysicalBuyerShip"
+    }
+  ],
+  "fixture_ids": [
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    99,
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    106
+  ],
+  "reference_counts_before_delete": {
+    "listing_order": 0,
+    "conversation": 0,
+    "listing_favorite": 0,
+    "listing_review_log": 0,
+    "content_translation": 60,
+    "ledger_entry": 0,
+    "message": 0
+  },
+  "blockers": [],
+  "transaction": {
+    "trigger_before": "O",
+    "trigger_disabled_inside_tx": "D",
+    "translation_rows_deleted": 0,
+    "review_log_rows_deleted": 0,
+    "listing_deleted": [
+      94,
+      93,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ],
+    "trigger_enabled_inside_tx": "O"
+  },
+  "trigger_tgenabled_after": "O",
+  "counts_before": {
+    "listing": 40,
+    "listing_order": 18,
+    "conversation": 1,
+    "message": 7,
+    "ledger_entry": 509,
+    "listing_favorite": 0,
+    "listing_review_log": 0,
+    "content_translation": 414,
+    "media": 2
+  },
+  "counts_after": {
+    "listing": 26,
+    "listing_order": 18,
+    "conversation": 1,
+    "message": 7,
+    "ledger_entry": 509,
+    "listing_favorite": 0,
+    "listing_review_log": 0,
+    "content_translation": 354,
+    "media": 2
+  },
+  "delta": {
+    "listing": 14,
+    "listing_order": 0,
+    "conversation": 0,
+    "message": 0,
+    "ledger_entry": 0,
+    "listing_favorite": 0,
+    "listing_review_log": 0,
+    "content_translation": 60,
+    "media": 0
+  },
+  "listing_before": 40,
+  "listing_after": 26,
+  "leftover_rows": [],
+  "post_delete_reference_counts": {
+    "listing_by_id": 0,
+    "content_translation": 0,
+    "listing_review_log": 0,
+    "listing_order": 0,
+    "conversation": 0,
+    "listing_favorite": 0,
+    "message": 0
+  },
+  "zero_reference_surface": true,
+  "trigger_restored": true
+}

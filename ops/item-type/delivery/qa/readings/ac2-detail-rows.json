@@ -1,0 +1,88 @@
+{
+  "at": "2026-10-19T23:18:50.632Z",
+  "detail_rows": [
+    {
+      "listing_id": 93,
+      "arm": "DigitalAutoDeliver",
+      "http": 200,
+      "detail_item_type": "DigitalAutoDeliver",
+      "db_item_type": "DigitalAutoDeliver",
+      "detail_name": "IT4-QA-DigitalAutoDeliver-20261019231440",
+      "key_count": 47,
+      "has_item_type_key": true,
+      "pass": true
+    },
+    {
+      "listing_id": 94,
+      "arm": "DigitalManualDeliver",
+      "http": 200,
+      "detail_item_type": "DigitalManualDeliver",
+      "db_item_type": "DigitalManualDeliver",
+      "detail_name": "IT4-QA-DigitalManualDeliver-20261019231440",
+      "key_count": 47,
+      "has_item_type_key": true,
+      "pass": true
+    },
+    {
+      "listing_id": 95,
+      "arm": "PhysicalFreeShip",
+      "http": 200,
+      "detail_item_type": "PhysicalFreeShip",
+      "db_item_type": "PhysicalFreeShip",
+      "detail_name": "IT4-QA-PhysicalFreeShip-20261019231440",
+      "key_count": 47,
+      "has_item_type_key": true,
+      "pass": true
+    },
+    {
+      "listing_id": 96,
+      "arm": "PhysicalBuyerShip",
+      "http": 200,
+      "detail_item_type": "PhysicalBuyerShip",
+      "db_item_type": "PhysicalBuyerShip",
+      "detail_name": "IT4-QA-PhysicalBuyerShip-20261019231440",
+      "key_count": 47,
+      "has_item_type_key": true,
+      "pass": true
+    },
+    {
+      "listing_id": 97,
+      "arm": "NULL",
+      "http": 200,
+      "detail_item_type": null,
+      "db_item_type": null,
+      "detail_name": "IT4-QA-NULL-omit-20261019231440",
+      "key_count": 47,
+      "has_item_type_key": true,
+      "pass": true
+    },
+    {
+      "listing_id": 98,
+      "arm": "NULL",
+      "http": 200,
+      "detail_item_type": null,
+      "db_item_type": null,
+      "detail_name": "IT4-QA-NULL-explicit_null-20261019231440",
+      "key_count": 47,
+      "has_item_type_key": true,
+      "pass": true
+    }
+  ],
+  "detail_all_pass": true,
+  "key_counts": {
+    "feed": 48,
+    "detail": 47
+  },
+  "keys_only_in_feed": [
+    "wants"
+  ],
+  "keys_only_in_detail": [],
+  "feed_rows_listed": 15,
+  "item_type_value_counts": {
+    "NULL": 11,
+    "PhysicalBuyerShip": 1,
+    "PhysicalFreeShip": 1,
+    "DigitalManualDeliver": 1,
+    "DigitalAutoDeliver": 1
+  }
+}

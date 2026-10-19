@@ -1,0 +1,206 @@
+{
+  "at": "2026-10-19T23:10:07.548Z",
+  "project_id": "quiet-math-65207667",
+  "branch_id": "br-soft-lake-b3iv9tli",
+  "schema_top": [
+    {
+      "version": "0054",
+      "name": "0054_item_type_delivery_split.sql",
+      "applied_at": "2026-10-19T23:07:43.943Z"
+    },
+    {
+      "version": "0053",
+      "name": "0053_listing_item_type.sql",
+      "applied_at": "2026-10-19T22:30:40.868Z"
+    },
+    {
+      "version": "0052",
+      "name": "0052_users_avatar_url.sql",
+      "applied_at": "2026-10-19T06:45:00.261Z"
+    }
+  ],
+  "schema_migration_rows": 53,
+  "table_counts": {
+    "listing": 26,
+    "listing_order": 18,
+    "conversation": 1,
+    "message": 7,
+    "ledger_entry": 509,
+    "listing_favorite": 0,
+    "listing_review_log": 0,
+    "content_translation": 354,
+    "media": 2
+  },
+  "listing_total": 26,
+  "item_type_distribution": [
+    {
+      "v": "<NULL>",
+      "n": 26
+    }
+  ],
+  "item_type_constraints": [
+    {
+      "conname": "listing_item_type_check",
+      "def": "CHECK (((item_type IS NULL) OR (item_type = ANY (ARRAY['DigitalAutoDeliver'::text, 'DigitalManualDeliver'::text, 'PhysicalFreeShip'::text, 'PhysicalBuyerShip'::text]))))"
+    }
+  ],
+  "non_null_item_type_rows": 0,
+  "rows": [
+    {
+      "listing_id": "1",
+      "status": "draft",
+      "item_type": null,
+      "title": "p4b2c:listing A"
+    },
+    {
+      "listing_id": "2",
+      "status": "draft",
+      "item_type": null,
+      "title": "p4b2c:listing A"
+    },
+    {
+      "listing_id": "3",
+      "status": "draft",
+      "item_type": null,
+      "title": "p4b2c:listing A"
+    },
+    {
+      "listing_id": "4",
+      "status": "draft",
+      "item_type": null,
+      "title": "p4b2c:listing A"
+    },
+    {
+      "listing_id": "5",
+      "status": "draft",
+      "item_type": null,
+      "title": "p4b2c:listing A"
+    },
+    {
+      "listing_id": "6",
+      "status": "draft",
+      "item_type": null,
+      "title": "p4b2c:listing B"
+    },
+    {
+      "listing_id": "7",
+      "status": "delisted",
+      "item_type": null,
+      "title": "p4b2cr2:listing A v2"
+    },
+    {
+      "listing_id": "8",
+      "status": "draft",
+      "item_type": null,
+      "title": "p4b2cr2:listing A"
+    },
+    {
+      "listing_id": "9",
+      "status": "draft",
+      "item_type": null,
+      "title": "p4b2cr2:listing A"
+    },
+    {
+      "listing_id": "10",
+      "status": "draft",
+      "item_type": null,
+      "title": "p4b2cr2:listing A"
+    },
+    {
+      "listing_id": "11",
+      "status": "draft",
+      "item_type": null,
+      "title": "p4b2cr2:listing A"
+    },
+    {
+      "listing_id": "12",
+      "status": "draft",
+      "item_type": null,
+      "title": "p4b2cr2:listing B"
+    },
+    {
+      "listing_id": "13",
+      "status": "listed",
+      "item_type": null,
+      "title": "b3d happy"
+    },
+    {
+      "listing_id": "14",
+      "status": "listed",
+      "item_type": null,
+      "title": "b3d empty"
+    },
+    {
+      "listing_id": "15",
+      "status": "listed",
+      "item_type": null,
+      "title": "b3d pricey"
+    },
+    {
+      "listing_id": "16",
+      "status": "delisted",
+      "item_type": null,
+      "title": "b4a listing b4a30030859"
+    },
+    {
+      "listing_id": "17",
+      "status": "draft",
+      "item_type": null,
+      "title": "b4ciib nokey b4ciib08420800"
+    },
+    {
+      "listing_id": "18",
+      "status": "listed",
+      "item_type": null,
+      "title": "b4ciib item b4ciib08420800"
+    },
+    {
+      "listing_id": "19",
+      "status": "listed",
+      "item_type": null,
+      "title": "海鲜礼盒测试丙：虾蟹双拼"
+    },
+    {
+      "listing_id": "20",
+      "status": "draft",
+      "item_type": null,
+      "title": "海鲜礼盒TR1C测试：虾蟹双拼-tr1c01015515"
+    },
+    {
+      "listing_id": "21",
+      "status": "draft",
+      "item_type": null,
+      "title": "海鲜礼盒TR1C测试：虾蟹双拼-tr1c01015554"
+    },
+    {
+      "listing_id": "22",
+      "status": "draft",
+      "item_type": null,
+      "title": "海鲜礼盒TR1C测试：虾蟹双拼-tr1c01015659"
+    },
+    {
+      "listing_id": "23",
+      "status": "listed",
+      "item_type": null,
+      "title": "p7b fixture listing"
+    },
+    {
+      "listing_id": "24",
+      "status": "listed",
+      "item_type": null,
+      "title": "qa7b fixture listing"
+    },
+    {
+      "listing_id": "71",
+      "status": "listed",
+      "item_type": null,
+      "title": "sf14qa 测试商品（质检夹具·勿购）"
+    },
+    {
+      "listing_id": "76",
+      "status": "listed",
+      "item_type": null,
+      "title": "VPN"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "run": "20261019231440",
+  "prefix": "IT4-QA",
+  "created": [
+    {
+      "listing_id": 93,
+      "arm": "DigitalAutoDeliver",
+      "title": "IT4-QA-DigitalAutoDeliver-20261019231440",
+      "listed_http": 200,
+      "listed": "listed",
+      "item_type_after_list": "DigitalAutoDeliver"
+    },
+    {
+      "listing_id": 94,
+      "arm": "DigitalManualDeliver",
+      "title": "IT4-QA-DigitalManualDeliver-20261019231440",
+      "listed": "already"
+    },
+    {
+      "listing_id": 95,
+      "arm": "PhysicalFreeShip",
+      "title": "IT4-QA-PhysicalFreeShip-20261019231440",
+      "listed_http": 200,
+      "listed": "listed",
+      "item_type_after_list": "PhysicalFreeShip"
+    },
+    {
+      "listing_id": 96,
+      "arm": "PhysicalBuyerShip",
+      "title": "IT4-QA-PhysicalBuyerShip-20261019231440",
+      "listed_http": 200,
+      "listed": "listed",
+      "item_type_after_list": "PhysicalBuyerShip"
+    },
+    {
+      "listing_id": 97,
+      "arm": "NULL",
+      "title": "IT4-QA-NULL-omit-20261019231440",
+      "listed_http": 200,
+      "listed": "listed",
+      "item_type_after_list": null
+    },
+    {
+      "listing_id": 98,
+      "arm": "NULL",
+      "title": "IT4-QA-NULL-explicit_null-20261019231440",
+      "listed_http": 200,
+      "listed": "listed",
+      "item_type_after_list": null
+    }
+  ]
+}

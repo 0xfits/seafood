@@ -1,0 +1,490 @@
+{
+  "batch": {
+    "repo": "/Users/kevin/bistro/seafood",
+    "commits": [
+      "f5cdc26 docs(item-type): 四值闭集 + 卡面两标签",
+      "df14c53 feat(backend): 迁移 0054 + 闭集四值 + s53 同步",
+      "2688187 feat(frontend): 级联三控件 + 双标签"
+    ],
+    "head_at_qc": "9bcf4be（质检期间被并发会话 push，origin/main..HEAD = 0）",
+    "prod_schema": "0054",
+    "dev_project_id": "quiet-math-65207667",
+    "constraint": "CHECK (((item_type IS NULL) OR (item_type = ANY (ARRAY['DigitalAutoDeliver'::text, 'DigitalManualDeliver'::text, 'PhysicalFreeShip'::text, 'PhysicalBuyerShip'::text]))))"
+  },
+  "verdict": "PASS",
+  "acs": [
+    {
+      "id": "AC1",
+      "title": "写口四值 + 退役负控（真钱包登录 · 14 臂）",
+      "pass": true,
+      "evidence": [
+        "readings/ac1-write-port.json"
+      ],
+      "readings": {
+        "cases": 14,
+        "failed": [],
+        "valid_four": [
+          {
+            "sent": "DigitalAutoDeliver",
+            "db": "DigitalAutoDeliver",
+            "http": 200
+          },
+          {
+            "sent": "DigitalManualDeliver",
+            "db": "DigitalManualDeliver",
+            "http": 200
+          },
+          {
+            "sent": "PhysicalFreeShip",
+            "db": "PhysicalFreeShip",
+            "http": 200
+          },
+          {
+            "sent": "PhysicalBuyerShip",
+            "db": "PhysicalBuyerShip",
+            "http": 200
+          }
+        ],
+        "bare_Digital": {
+          "http": 400,
+          "code": "LEDGER_AMOUNT_INVALID",
+          "reason": "NOT_IN_CLOSED_SET",
+          "allowed": [
+            "DigitalAutoDeliver",
+            "DigitalManualDeliver",
+            "PhysicalFreeShip",
+            "PhysicalBuyerShip"
+          ],
+          "rows_written": 0
+        },
+        "invalid_all": [
+          {
+            "case": "invalid_bare_Digital",
+            "http": 400,
+            "code": "LEDGER_AMOUNT_INVALID",
+            "reason": "NOT_IN_CLOSED_SET",
+            "rows_written": 0
+          },
+          {
+            "case": "invalid_empty_string",
+            "http": 400,
+            "code": "LEDGER_AMOUNT_INVALID",
+            "reason": "NOT_IN_CLOSED_SET",
+            "rows_written": 0
+          },
+          {
+            "case": "invalid_spaces",
+            "http": 400,
+            "code": "LEDGER_AMOUNT_INVALID",
+            "reason": "NOT_IN_CLOSED_SET",
+            "rows_written": 0
+          },
+          {
+            "case": "invalid_lowercase_digital",
+            "http": 400,
+            "code": "LEDGER_AMOUNT_INVALID",
+            "reason": "NOT_IN_CLOSED_SET",
+            "rows_written": 0
+          },
+          {
+            "case": "invalid_lowercase_full",
+            "http": 400,
+            "code": "LEDGER_AMOUNT_INVALID",
+            "reason": "NOT_IN_CLOSED_SET",
+            "rows_written": 0
+          },
+          {
+            "case": "invalid_legacy_AutoDeliver",
+            "http": 400,
+            "code": "LEDGER_AMOUNT_INVALID",
+            "reason": "NOT_IN_CLOSED_SET",
+            "rows_written": 0
+          }
+        ],
+        "null_arms": [
+          {
+            "case": "null_omit",
+            "db": null,
+            "http": 200
+          },
+          {
+            "case": "null_explicit_null",
+            "db": null,
+            "http": 200
+          }
+        ],
+        "patch": [
+          {
+            "case": "patch_item_type_only",
+            "http": 400,
+            "db_before": "DigitalManualDeliver",
+            "db_after": "DigitalManualDeliver"
+          },
+          {
+            "case": "patch_to_listed_with_item_type",
+            "http": 200,
+            "db_after": "DigitalManualDeliver"
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC2",
+      "title": "读口 feed 48 / 详情 47 键 · 与 DB 逐行对拍",
+      "pass": true,
+      "evidence": [
+        "readings/ac2-read-port.json",
+        "readings/ac2-detail-rows.json"
+      ],
+      "readings": {
+        "feed_keys": 48,
+        "detail_keys": 47,
+        "feed_rows_compared": 15,
+        "mismatch": 0,
+        "keys_only_in_feed": [
+          "wants"
+        ],
+        "keys_only_in_detail": [],
+        "detail_rows_checked": 6,
+        "detail_all_pass": true,
+        "value_counts": {
+          "NULL": 11,
+          "PhysicalBuyerShip": 1,
+          "PhysicalFreeShip": 1,
+          "DigitalManualDeliver": 1,
+          "DigitalAutoDeliver": 1
+        }
+      }
+    },
+    {
+      "id": "AC3",
+      "title": "全链 E2E：四类型真页 1536 黄/绿标签矩阵",
+      "pass": true,
+      "evidence": [
+        "readings/ac3-ac4-ac6-browser.json",
+        "readings/created-listings.json"
+      ],
+      "readings": {
+        "cards": 15,
+        "yellow": 1,
+        "green": 1,
+        "yellow_on": {
+          "text": "包邮",
+          "bg": "rgb(255, 230, 15)",
+          "first_el": true
+        },
+        "green_on": {
+          "text": "自动发货",
+          "bg": "rgb(74, 222, 128)",
+          "first_el": true
+        },
+        "no_tag_arms": [
+          {
+            "arm": "DigitalManualDeliver",
+            "ship": false,
+            "auto": false
+          },
+          {
+            "arm": "PhysicalBuyerShip",
+            "ship": false,
+            "auto": false
+          }
+        ],
+        "row1_all_48": true,
+        "card_all_392": true,
+        "tag_geometry_equal": true,
+        "page_errors": [],
+        "checks": {
+          "four_arms_present": true,
+          "yellow_only_on_PhysicalFreeShip": true,
+          "green_only_on_DigitalAutoDeliver": true,
+          "DigitalManualDeliver_no_tag": true,
+          "PhysicalBuyerShip_no_tag": true,
+          "all_tags_first_element": true,
+          "all_tags_first_node": true,
+          "all_tags_before_text": true,
+          "yellow_count_is_1": true,
+          "green_count_is_1": true,
+          "yellow_rgb_255_230_15": true,
+          "green_rgb_74_222_128": true,
+          "tag_text_baoyou": true,
+          "tag_text_auto": true,
+          "tag_12px_700": true,
+          "tag_geometry_equal": true,
+          "row1_all_48": true,
+          "card_all_392": true,
+          "zero_page_errors": true
+        }
+      }
+    },
+    {
+      "id": "AC4",
+      "title": "发布页级联三控件：清空 / 互斥在场 / 三闸零请求 / 正控",
+      "pass": true,
+      "evidence": [
+        "readings/ac3-ac4-ac6-browser.json"
+      ],
+      "readings": {
+        "gates": [
+          {
+            "label": "A_no_type",
+            "api_count": 0,
+            "type_miss": "1",
+            "hints": true
+          },
+          {
+            "label": "B_digital_no_deliver",
+            "api_count": 0,
+            "type_miss": null,
+            "deliver_miss": "1",
+            "hints": true
+          },
+          {
+            "label": "C_physical_no_ship",
+            "api_count": 0,
+            "type_miss": null,
+            "ship_miss": "1",
+            "hints": true
+          }
+        ],
+        "cascade": {
+          "digital_branch": {
+            "deliver": true,
+            "ship": false
+          },
+          "after_switch_physical": {
+            "deliver": false,
+            "ship": true,
+            "ship_checked": null
+          },
+          "switch_back_digital_deliver_checked": null
+        },
+        "ui_publishes": [
+          {
+            "combo": "digital_auto",
+            "http": 200,
+            "payload": "DigitalAutoDeliver",
+            "db": "DigitalAutoDeliver",
+            "listing_id": 103,
+            "requests": 4,
+            "pass": true
+          },
+          {
+            "combo": "digital_manual",
+            "http": 200,
+            "payload": "DigitalManualDeliver",
+            "db": "DigitalManualDeliver",
+            "listing_id": 104,
+            "requests": 4,
+            "pass": true
+          },
+          {
+            "combo": "physical_free",
+            "http": 200,
+            "payload": "PhysicalFreeShip",
+            "db": "PhysicalFreeShip",
+            "listing_id": 105,
+            "requests": 6,
+            "pass": true
+          },
+          {
+            "combo": "physical_buyer",
+            "http": 200,
+            "payload": "PhysicalBuyerShip",
+            "db": "PhysicalBuyerShip",
+            "listing_id": 106,
+            "requests": 6,
+            "pass": true
+          }
+        ],
+        "checks": {
+          "A_zero_requests": true,
+          "A_type_highlighted": true,
+          "A_hint_shown": true,
+          "B_zero_requests": true,
+          "B_deliver_highlighted": true,
+          "C_zero_requests": true,
+          "C_ship_highlighted": true,
+          "digital_branch_has_deliver_not_ship": true,
+          "switch_to_physical_swaps_controls": true,
+          "switch_clears_second_level": true,
+          "physical_ship_unselected_after_swap": true,
+          "four_combos_positive": true,
+          "zero_page_errors": true
+        }
+      }
+    },
+    {
+      "id": "AC5",
+      "title": "门套（build / test:unit / backend tsc / p7b-03 / s54 / s53）",
+      "pass": true,
+      "evidence": [
+        "logs/build.log",
+        "logs/test-unit.log",
+        "logs/tsc.log",
+        "logs/p7b-03.log",
+        "logs/s54-gate.log",
+        "logs/s53-gate.log"
+      ],
+      "readings": {
+        "build": {
+          "exit": 0,
+          "built_in": "2.00s",
+          "js": "index-D1DS-jMh.js",
+          "css": "index-D6DXS34q.css"
+        },
+        "test_unit": {
+          "files": 63,
+          "tests": 634
+        },
+        "backend_tsc": {
+          "exit": 0
+        },
+        "p7b_03": {
+          "artifact": "backend-ts/.p7b-artifacts/p7b-03-offline-gates-20261019T232233Z7upm.json",
+          "summary": {
+            "total": 37,
+            "passed": 37,
+            "failed": 0,
+            "red": []
+          },
+          "registration_points": "registration_points=110"
+        },
+        "s54": {
+          "total": 45,
+          "passed": 45,
+          "failed": 0,
+          "red": []
+        },
+        "s53": {
+          "total": 50,
+          "passed": 50,
+          "failed": 0,
+          "red": []
+        },
+        "contaminated_first_pass": {
+          "s53": [
+            "P3",
+            "Q4"
+          ],
+          "s54": [
+            "P3",
+            "D4"
+          ],
+          "cause": "质检自建夹具在库内（listing 40 行 / item_type 非空 12 行）⇒ 存量面断言与「退回三值」负控臂当场红；回收后复跑即 50/50 与 45/45",
+          "logs": [
+            "logs/s53-gate-contaminated.log",
+            "logs/s54-gate-contaminated.log"
+          ]
+        }
+      }
+    },
+    {
+      "id": "AC6",
+      "title": "回归面（currencies 2 行 / media 404 / 390 零溢出 / 存量 26 行全 NULL）",
+      "pass": true,
+      "evidence": [
+        "readings/ac6-regression-http.json",
+        "readings/ac3-ac4-ac6-browser.json"
+      ],
+      "readings": {
+        "currencies_rows": 2,
+        "media_999": 404,
+        "mobile_390": {
+          "overflow_x": 0,
+          "body_overflow_x": 0,
+          "yellow": 2,
+          "green": 2,
+          "tabbar": 5,
+          "errors": 0
+        },
+        "listing_total": 26,
+        "non_null": 0,
+        "distribution": {
+          "NULL": 26
+        },
+        "checks": {
+          "currencies_two_rows": true,
+          "media_999_404": true,
+          "schema_0054": true,
+          "existing_rows_all_null": true,
+          "listing_back_to_26": true
+        }
+      }
+    },
+    {
+      "id": "AC7",
+      "title": "自建数据全回收（listing 前值复归 + 引用面清零 + 触发器复原）",
+      "pass": true,
+      "evidence": [
+        "readings/db-baseline.json",
+        "readings/cleanup-purge.json",
+        "readings/cleanup-partial-run.json"
+      ],
+      "readings": {
+        "baseline_listing": 26,
+        "deleted_fixtures": [
+          93,
+          94,
+          95,
+          96,
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104,
+          105,
+          106
+        ],
+        "listing_before_cleanup": 40,
+        "listing_after_cleanup": 26,
+        "reference_counts_before_delete": {
+          "listing_order": 0,
+          "conversation": 0,
+          "listing_favorite": 0,
+          "listing_review_log": 0,
+          "content_translation": 60,
+          "ledger_entry": 0,
+          "message": 0
+        },
+        "delta": {
+          "listing": 14,
+          "listing_order": 0,
+          "conversation": 0,
+          "message": 0,
+          "ledger_entry": 0,
+          "listing_favorite": 0,
+          "listing_review_log": 0,
+          "content_translation": 60,
+          "media": 0
+        },
+        "leftover": [],
+        "trigger": {
+          "before": "O",
+          "inside_disabled": "D",
+          "inside_enabled": "O",
+          "after": "O"
+        },
+        "post_delete_reference_counts": {
+          "listing_by_id": 0,
+          "content_translation": 0,
+          "listing_review_log": 0,
+          "listing_order": 0,
+          "conversation": 0,
+          "listing_favorite": 0,
+          "message": 0
+        }
+      }
+    }
+  ],
+  "red": [],
+  "notes": [
+    "承接方在质检期间把本批 push 了（HEAD 9bcf4be，origin/main..HEAD = 0，且已带一份 prod-verify 提交）⇒ 本单读数取自被推送的同一棵树（9bcf4be 仅新增 ops/ 工件，产品代码零改动）。",
+    "s53/s54 首次运行各有 2 条红（P3 / Q4 / P3 / D4）—— 归因 = 质检自建夹具在库（listing 40 行、item_type 非空 12 行）⇒ 存量面断言与「退回 0053 三值」负控臂被自己的夹具顶红；回收后复跑 s53 50/50、s54 45/45。不是产品缺陷，但**门必须在库面干净时跑**。",
+    "写口探针首跑中断一次（Neon HTTP ECONNRESET），已加指数退避重试；中断留下的 6 行夹具（87–92）单独回收并留证 readings/cleanup-partial-run.json（listing 32 → 26）。",
+    "feed 行数在质检期与回收后分别 15 / 9（差 = 自建 6 件 listed 夹具），属夹具口径，不是产品回归。"
+  ]
+}

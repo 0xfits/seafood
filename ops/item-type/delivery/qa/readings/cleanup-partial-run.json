@@ -1,0 +1,124 @@
+{
+  "at": "2026-10-19T23:14:24.157Z",
+  "like": "IT4-QA-%",
+  "project_id": "quiet-math-65207667",
+  "fixtures": [
+    {
+      "listing_id": "87",
+      "title": "IT4-QA-DigitalAutoDeliver-20261019231044",
+      "status": "listed",
+      "item_type": "DigitalAutoDeliver"
+    },
+    {
+      "listing_id": "88",
+      "title": "IT4-QA-DigitalManualDeliver-20261019231044",
+      "status": "listed",
+      "item_type": "DigitalManualDeliver"
+    },
+    {
+      "listing_id": "89",
+      "title": "IT4-QA-PhysicalFreeShip-20261019231044",
+      "status": "listed",
+      "item_type": "PhysicalFreeShip"
+    },
+    {
+      "listing_id": "90",
+      "title": "IT4-QA-PhysicalBuyerShip-20261019231044",
+      "status": "listed",
+      "item_type": "PhysicalBuyerShip"
+    },
+    {
+      "listing_id": "91",
+      "title": "IT4-QA-NULL-omit-20261019231044",
+      "status": "draft",
+      "item_type": null
+    },
+    {
+      "listing_id": "92",
+      "title": "IT4-QA-NULL-explicit_null-20261019231044",
+      "status": "draft",
+      "item_type": null
+    }
+  ],
+  "fixture_ids": [
+    87,
+    88,
+    89,
+    90,
+    91,
+    92
+  ],
+  "reference_counts_before_delete": {
+    "listing_order": 0,
+    "conversation": 0,
+    "listing_favorite": 0,
+    "listing_review_log": 0,
+    "content_translation": 36,
+    "ledger_entry": 0,
+    "message": 0
+  },
+  "blockers": [],
+  "transaction": {
+    "trigger_before": "O",
+    "trigger_disabled_inside_tx": "D",
+    "translation_rows_deleted": 0,
+    "review_log_rows_deleted": 0,
+    "listing_deleted": [
+      92,
+      88,
+      87,
+      91,
+      89,
+      90
+    ],
+    "trigger_enabled_inside_tx": "O"
+  },
+  "trigger_tgenabled_after": "O",
+  "counts_before": {
+    "listing": 32,
+    "listing_order": 18,
+    "conversation": 1,
+    "message": 7,
+    "ledger_entry": 509,
+    "listing_favorite": 0,
+    "listing_review_log": 0,
+    "content_translation": 390,
+    "media": 2
+  },
+  "counts_after": {
+    "listing": 26,
+    "listing_order": 18,
+    "conversation": 1,
+    "message": 7,
+    "ledger_entry": 509,
+    "listing_favorite": 0,
+    "listing_review_log": 0,
+    "content_translation": 354,
+    "media": 2
+  },
+  "delta": {
+    "listing": 6,
+    "listing_order": 0,
+    "conversation": 0,
+    "message": 0,
+    "ledger_entry": 0,
+    "listing_favorite": 0,
+    "listing_review_log": 0,
+    "content_translation": 36,
+    "media": 0
+  },
+  "listing_before": 32,
+  "listing_after": 26,
+  "leftover_rows": [],
+  "post_delete_reference_counts": {
+    "listing_by_id": 0,
+    "content_translation": 0,
+    "listing_review_log": 0,
+    "listing_order": 0,
+    "conversation": 0,
+    "listing_favorite": 0,
+    "message": 0
+  },
+  "zero_reference_surface": true,
+  "trigger_restored": true
+}

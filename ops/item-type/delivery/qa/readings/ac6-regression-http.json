@@ -1,0 +1,46 @@
+{
+  "at": "2026-10-19T23:24:30.634Z",
+  "project_id": "quiet-math-65207667",
+  "health": {
+    "status": 200,
+    "schema_version": "0054"
+  },
+  "currencies": {
+    "status": 200,
+    "rows": 2,
+    "data": [
+      {
+        "cid": "1",
+        "symbol": "$",
+        "name": "平台积分"
+      },
+      {
+        "cid": "399",
+        "symbol": "BTTC",
+        "name": "battcoin"
+      }
+    ]
+  },
+  "media_999": {
+    "status": 404,
+    "code": "LEDGER_REF_NOT_FOUND"
+  },
+  "listing_total": 26,
+  "listing_item_type_non_null": 0,
+  "listing_item_type_distribution": {
+    "NULL": 26
+  },
+  "feed": {
+    "http": 200,
+    "rows": 9,
+    "non_null_item_type": 0,
+    "key_count": 48
+  },
+  "checks": {
+    "currencies_two_rows": true,
+    "media_999_404": true,
+    "schema_0054": true,
+    "existing_rows_all_null": true,
+    "listing_back_to_26": true
+  }
+}

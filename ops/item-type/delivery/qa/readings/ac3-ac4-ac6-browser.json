@@ -1,0 +1,581 @@
+{
+  "at": "2026-10-19T23:21:35.003Z",
+  "run": "20261019231440",
+  "login": {
+    "challenge_http": 200,
+    "verify_http": 200,
+    "uid": 971226,
+    "evm": "0xcb5af7a098f8e5e7091dd9198269406c628bab21",
+    "token_len": 239
+  },
+  "ac3": {
+    "desktop_1536": {
+      "viewport": {
+        "width": 1536,
+        "height": 1000
+      },
+      "cards_total": 15,
+      "yellow_count": 1,
+      "green_count": 1,
+      "any_tag_count": 2,
+      "arms_found": {
+        "DigitalAutoDeliver": true,
+        "DigitalManualDeliver": true,
+        "PhysicalFreeShip": true,
+        "PhysicalBuyerShip": true
+      },
+      "arms": {
+        "DigitalAutoDeliver": {
+          "title": "IT4-QA-DigitalAutoDeliver-20261019231440",
+          "card_h": 392,
+          "row1_h": 48,
+          "has_ship_tag": false,
+          "has_auto_tag": true,
+          "tag_text": "自动发货",
+          "tag_first_element": true,
+          "tag_first_node": true,
+          "tag_before_text": true,
+          "tag_rect": {
+            "x": 1269,
+            "y": 1372,
+            "w": 46,
+            "h": 16
+          },
+          "title_text_rect": {
+            "x": 1319,
+            "y": 1370,
+            "w": 131
+          },
+          "bg": "rgb(74, 222, 128)",
+          "fg": "rgb(32, 32, 32)",
+          "classes": "sf-reward-auto-tag"
+        },
+        "DigitalManualDeliver": {
+          "title": "IT4-QA-DigitalManualDeliver-20261019231440",
+          "card_h": 392,
+          "row1_h": 48,
+          "has_ship_tag": false,
+          "has_auto_tag": false,
+          "tag_text": null,
+          "tag_first_element": null,
+          "tag_first_node": null,
+          "tag_before_text": false,
+          "tag_rect": null,
+          "title_text_rect": {
+            "x": 1027,
+            "y": 1370,
+            "w": 145
+          },
+          "classes": null
+        },
+        "PhysicalFreeShip": {
+          "title": "IT4-QA-PhysicalFreeShip-20261019231440",
+          "card_h": 392,
+          "row1_h": 48,
+          "has_ship_tag": true,
+          "has_auto_tag": false,
+          "tag_text": "包邮",
+          "tag_first_element": true,
+          "tag_first_node": true,
+          "tag_before_text": true,
+          "tag_rect": {
+            "x": 786,
+            "y": 1372,
+            "w": 27,
+            "h": 16
+          },
+          "title_text_rect": {
+            "x": 817,
+            "y": 1370,
+            "w": 127
+          },
+          "bg": "rgb(255, 230, 15)",
+          "fg": "rgb(32, 32, 32)",
+          "classes": "sf-reward-ship-tag"
+        },
+        "PhysicalBuyerShip": {
+          "title": "IT4-QA-PhysicalBuyerShip-20261019231440",
+          "card_h": 392,
+          "row1_h": 48,
+          "has_ship_tag": false,
+          "has_auto_tag": false,
+          "tag_text": null,
+          "tag_first_element": null,
+          "tag_first_node": null,
+          "tag_before_text": false,
+          "tag_rect": null,
+          "title_text_rect": {
+            "x": 545,
+            "y": 1370,
+            "w": 133
+          },
+          "classes": null
+        }
+      },
+      "yellow_tag": {
+        "text": "包邮",
+        "bg": "rgb(255, 230, 15)",
+        "fg": "rgb(32, 32, 32)",
+        "classes": "sf-reward-ship-tag"
+      },
+      "green_tag": {
+        "text": "自动发货",
+        "bg": "rgb(74, 222, 128)",
+        "fg": "rgb(32, 32, 32)",
+        "classes": "sf-reward-auto-tag"
+      },
+      "tag_geometry_keys": [
+        "fontSize",
+        "fontWeight",
+        "lineHeight",
+        "height",
+        "borderRadius",
+        "padding",
+        "marginRight",
+        "display",
+        "verticalAlign",
+        "color"
+      ],
+      "tag_geometry_equal": true,
+      "all_tag_rows": [
+        {
+          "title": "IT4-QA-PhysicalFreeShip-20261019231440",
+          "ship": true,
+          "auto": false,
+          "first_el": true,
+          "bg": "rgb(255, 230, 15)"
+        },
+        {
+          "title": "IT4-QA-DigitalAutoDeliver-20261019231440",
+          "ship": false,
+          "auto": true,
+          "first_el": true,
+          "bg": "rgb(74, 222, 128)"
+        }
+      ],
+      "rows_not_48": [],
+      "cards_not_392": [],
+      "checks": {
+        "four_arms_present": true,
+        "yellow_only_on_PhysicalFreeShip": true,
+        "green_only_on_DigitalAutoDeliver": true,
+        "DigitalManualDeliver_no_tag": true,
+        "PhysicalBuyerShip_no_tag": true,
+        "all_tags_first_element": true,
+        "all_tags_first_node": true,
+        "all_tags_before_text": true,
+        "yellow_count_is_1": true,
+        "green_count_is_1": true,
+        "yellow_rgb_255_230_15": true,
+        "green_rgb_74_222_128": true,
+        "tag_text_baoyou": true,
+        "tag_text_auto": true,
+        "tag_12px_700": true,
+        "tag_geometry_equal": true,
+        "row1_all_48": true,
+        "card_all_392": true,
+        "zero_page_errors": true
+      },
+      "page_errors": []
+    },
+    "checks_pass": true
+  },
+  "ac4": {
+    "steps": [
+      {
+        "label": "A_no_type",
+        "type": {
+          "present": true,
+          "miss": "1",
+          "aria_invalid": "true",
+          "class_miss": true,
+          "checked": null
+        },
+        "deliver": {
+          "present": false
+        },
+        "ship": {
+          "present": false
+        },
+        "type_checked": null,
+        "deliver_checked": null,
+        "ship_checked": null,
+        "submit_disabled": false,
+        "body_has_badrequest": true,
+        "url": "/item/new",
+        "api_requests": [],
+        "api_count": 0
+      },
+      {
+        "label": "B_digital_no_deliver",
+        "type": {
+          "present": true,
+          "miss": null,
+          "aria_invalid": null,
+          "class_miss": false,
+          "checked": null
+        },
+        "deliver": {
+          "present": true,
+          "miss": "1",
+          "aria_invalid": "true",
+          "class_miss": true,
+          "checked": null
+        },
+        "ship": {
+          "present": false
+        },
+        "type_checked": "digital",
+        "deliver_checked": null,
+        "ship_checked": null,
+        "submit_disabled": false,
+        "body_has_badrequest": true,
+        "url": "/item/new",
+        "api_requests": [],
+        "api_count": 0
+      },
+      {
+        "label": "C_physical_no_ship",
+        "type": {
+          "present": true,
+          "miss": null,
+          "aria_invalid": null,
+          "class_miss": false,
+          "checked": null
+        },
+        "deliver": {
+          "present": false
+        },
+        "ship": {
+          "present": true,
+          "miss": "1",
+          "aria_invalid": "true",
+          "class_miss": true,
+          "checked": null
+        },
+        "type_checked": "physical",
+        "deliver_checked": null,
+        "ship_checked": null,
+        "submit_disabled": false,
+        "body_has_badrequest": true,
+        "url": "/item/new",
+        "api_requests": [],
+        "api_count": 0
+      }
+    ],
+    "cascade": {
+      "c1_digital_branch": {
+        "label": "C1_digital_branch",
+        "type": {
+          "present": true,
+          "miss": null,
+          "aria_invalid": null,
+          "class_miss": false,
+          "checked": null
+        },
+        "deliver": {
+          "present": true,
+          "miss": null,
+          "aria_invalid": null,
+          "class_miss": false,
+          "checked": null
+        },
+        "ship": {
+          "present": false
+        },
+        "type_checked": "digital",
+        "deliver_checked": null,
+        "ship_checked": null,
+        "submit_disabled": false,
+        "body_has_badrequest": true,
+        "url": "/item/new",
+        "api_requests": [],
+        "api_count": 0
+      },
+      "c2_auto_selected": {
+        "label": "C2_digital_auto_selected",
+        "type": {
+          "present": true,
+          "miss": null,
+          "aria_invalid": null,
+          "class_miss": false,
+          "checked": null
+        },
+        "deliver": {
+          "present": true,
+          "miss": null,
+          "aria_invalid": null,
+          "class_miss": false,
+          "checked": null
+        },
+        "ship": {
+          "present": false
+        },
+        "type_checked": "digital",
+        "deliver_checked": "auto",
+        "ship_checked": null,
+        "submit_disabled": false,
+        "body_has_badrequest": true,
+        "url": "/item/new",
+        "api_requests": [],
+        "api_count": 0
+      },
+      "c3_switch_physical": {
+        "label": "C3_switch_to_physical",
+        "type": {
+          "present": true,
+          "miss": null,
+          "aria_invalid": null,
+          "class_miss": false,
+          "checked": null
+        },
+        "deliver": {
+          "present": false
+        },
+        "ship": {
+          "present": true,
+          "miss": null,
+          "aria_invalid": null,
+          "class_miss": false,
+          "checked": null
+        },
+        "type_checked": "physical",
+        "deliver_checked": null,
+        "ship_checked": null,
+        "submit_disabled": false,
+        "body_has_badrequest": true,
+        "url": "/item/new",
+        "api_requests": [],
+        "api_count": 0
+      },
+      "c4_back_digital": {
+        "label": "C4_back_to_digital_cleared",
+        "type": {
+          "present": true,
+          "miss": null,
+          "aria_invalid": null,
+          "class_miss": false,
+          "checked": null
+        },
+        "deliver": {
+          "present": true,
+          "miss": null,
+          "aria_invalid": null,
+          "class_miss": false,
+          "checked": null
+        },
+        "ship": {
+          "present": false
+        },
+        "type_checked": "digital",
+        "deliver_checked": null,
+        "ship_checked": null,
+        "submit_disabled": false,
+        "body_has_badrequest": true,
+        "url": "/item/new",
+        "api_requests": [],
+        "api_count": 0
+      }
+    },
+    "ui_publishes": [
+      {
+        "combo": "digital_auto",
+        "expect": "DigitalAutoDeliver",
+        "requests": [
+          "POST http://localhost:5787/api/listing",
+          "PATCH http://localhost:5787/api/listing/103",
+          "GET http://localhost:5787/api/prize/103",
+          "GET http://localhost:5787/api/prize/103"
+        ],
+        "api_count": 4,
+        "response_status": 200,
+        "payload_item_type": "DigitalAutoDeliver",
+        "payload_title": "IT4-QA-ui-1792452110853",
+        "listing_id": 103,
+        "db_item_type": "DigitalAutoDeliver",
+        "db_title": "IT4-QA-ui-1792452110853",
+        "url_after": "http://localhost:5787/item/103",
+        "pass": true
+      },
+      {
+        "combo": "digital_manual",
+        "expect": "DigitalManualDeliver",
+        "requests": [
+          "POST http://localhost:5787/api/listing",
+          "PATCH http://localhost:5787/api/listing/104",
+          "GET http://localhost:5787/api/prize/104",
+          "GET http://localhost:5787/api/prize/104"
+        ],
+        "api_count": 4,
+        "response_status": 200,
+        "payload_item_type": "DigitalManualDeliver",
+        "payload_title": "IT4-QA-ui-1792452118033",
+        "listing_id": 104,
+        "db_item_type": "DigitalManualDeliver",
+        "db_title": "IT4-QA-ui-1792452118033",
+        "url_after": "http://localhost:5787/item/104",
+        "pass": true
+      },
+      {
+        "combo": "physical_free",
+        "expect": "PhysicalFreeShip",
+        "requests": [
+          "POST http://localhost:5787/api/listing",
+          "PATCH http://localhost:5787/api/listing/105",
+          "GET http://localhost:5787/api/prize/105",
+          "GET http://localhost:5787/api/prize/105",
+          "GET http://localhost:5787/api/favorites",
+          "GET http://localhost:5787/api/prize/105"
+        ],
+        "api_count": 6,
+        "response_status": 200,
+        "payload_item_type": "PhysicalFreeShip",
+        "payload_title": "IT4-QA-ui-1792452124676",
+        "listing_id": 105,
+        "db_item_type": "PhysicalFreeShip",
+        "db_title": "IT4-QA-ui-1792452124676",
+        "url_after": "http://localhost:5787/item/105",
+        "pass": true
+      },
+      {
+        "combo": "physical_buyer",
+        "expect": "PhysicalBuyerShip",
+        "requests": [
+          "POST http://localhost:5787/api/listing",
+          "PATCH http://localhost:5787/api/listing/106",
+          "GET http://localhost:5787/api/prize/106",
+          "GET http://localhost:5787/api/prize/106",
+          "GET http://localhost:5787/api/favorites",
+          "GET http://localhost:5787/api/prize/106"
+        ],
+        "api_count": 6,
+        "response_status": 200,
+        "payload_item_type": "PhysicalBuyerShip",
+        "payload_title": "IT4-QA-ui-1792452131342",
+        "listing_id": 106,
+        "db_item_type": "PhysicalBuyerShip",
+        "db_title": "IT4-QA-ui-1792452131342",
+        "url_after": "http://localhost:5787/item/106",
+        "pass": true
+      }
+    ],
+    "page_errors": [],
+    "checks": {
+      "A_zero_requests": true,
+      "A_type_highlighted": true,
+      "A_hint_shown": true,
+      "B_zero_requests": true,
+      "B_deliver_highlighted": true,
+      "C_zero_requests": true,
+      "C_ship_highlighted": true,
+      "digital_branch_has_deliver_not_ship": true,
+      "switch_to_physical_swaps_controls": true,
+      "switch_clears_second_level": true,
+      "physical_ship_unselected_after_swap": true,
+      "four_combos_positive": true,
+      "zero_page_errors": true
+    },
+    "checks_pass": true
+  },
+  "ac6": {
+    "mobile_390": {
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "overflow_x": 0,
+      "body_overflow_x": 0,
+      "cards": 19,
+      "yellow": 2,
+      "green": 2,
+      "tabbar_items": 5,
+      "page_errors": [],
+      "checks": {
+        "zero_overflow": true,
+        "zero_page_errors": true
+      }
+    }
+  },
+  "ui_publishes": [
+    {
+      "combo": "digital_auto",
+      "expect": "DigitalAutoDeliver",
+      "requests": [
+        "POST http://localhost:5787/api/listing",
+        "PATCH http://localhost:5787/api/listing/103",
+        "GET http://localhost:5787/api/prize/103",
+        "GET http://localhost:5787/api/prize/103"
+      ],
+      "api_count": 4,
+      "response_status": 200,
+      "payload_item_type": "DigitalAutoDeliver",
+      "payload_title": "IT4-QA-ui-1792452110853",
+      "listing_id": 103,
+      "db_item_type": "DigitalAutoDeliver",
+      "db_title": "IT4-QA-ui-1792452110853",
+      "url_after": "http://localhost:5787/item/103",
+      "pass": true
+    },
+    {
+      "combo": "digital_manual",
+      "expect": "DigitalManualDeliver",
+      "requests": [
+        "POST http://localhost:5787/api/listing",
+        "PATCH http://localhost:5787/api/listing/104",
+        "GET http://localhost:5787/api/prize/104",
+        "GET http://localhost:5787/api/prize/104"
+      ],
+      "api_count": 4,
+      "response_status": 200,
+      "payload_item_type": "DigitalManualDeliver",
+      "payload_title": "IT4-QA-ui-1792452118033",
+      "listing_id": 104,
+      "db_item_type": "DigitalManualDeliver",
+      "db_title": "IT4-QA-ui-1792452118033",
+      "url_after": "http://localhost:5787/item/104",
+      "pass": true
+    },
+    {
+      "combo": "physical_free",
+      "expect": "PhysicalFreeShip",
+      "requests": [
+        "POST http://localhost:5787/api/listing",
+        "PATCH http://localhost:5787/api/listing/105",
+        "GET http://localhost:5787/api/prize/105",
+        "GET http://localhost:5787/api/prize/105",
+        "GET http://localhost:5787/api/favorites",
+        "GET http://localhost:5787/api/prize/105"
+      ],
+      "api_count": 6,
+      "response_status": 200,
+      "payload_item_type": "PhysicalFreeShip",
+      "payload_title": "IT4-QA-ui-1792452124676",
+      "listing_id": 105,
+      "db_item_type": "PhysicalFreeShip",
+      "db_title": "IT4-QA-ui-1792452124676",
+      "url_after": "http://localhost:5787/item/105",
+      "pass": true
+    },
+    {
+      "combo": "physical_buyer",
+      "expect": "PhysicalBuyerShip",
+      "requests": [
+        "POST http://localhost:5787/api/listing",
+        "PATCH http://localhost:5787/api/listing/106",
+        "GET http://localhost:5787/api/prize/106",
+        "GET http://localhost:5787/api/prize/106",
+        "GET http://localhost:5787/api/favorites",
+        "GET http://localhost:5787/api/prize/106"
+      ],
+      "api_count": 6,
+      "response_status": 200,
+      "payload_item_type": "PhysicalBuyerShip",
+      "payload_title": "IT4-QA-ui-1792452131342",
+      "listing_id": 106,
+      "db_item_type": "PhysicalBuyerShip",
+      "db_title": "IT4-QA-ui-1792452131342",
+      "url_after": "http://localhost:5787/item/106",
+      "pass": true
+    }
+  ]
+}

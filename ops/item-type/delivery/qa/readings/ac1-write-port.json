@@ -1,0 +1,399 @@
+{
+  "run": "20261019231440",
+  "base": "http://localhost:5788",
+  "project_id": "quiet-math-65207667",
+  "wallet": {
+    "address": "0xcb5af7a098f8e5e7091dd9198269406c628bab21"
+  },
+  "login": {
+    "challenge_http": 200,
+    "verify_http": 200,
+    "uid": 971226,
+    "evm": "0xcb5af7a098f8e5e7091dd9198269406c628bab21",
+    "token_len": 239
+  },
+  "cases": [
+    {
+      "case": "valid_DigitalAutoDeliver",
+      "sent": {
+        "item_type": "DigitalAutoDeliver"
+      },
+      "http": 200,
+      "code": null,
+      "listing_id": 93,
+      "db_item_type": "DigitalAutoDeliver",
+      "db_title": "IT4-QA-DigitalAutoDeliver-20261019231440",
+      "exact_match": true,
+      "pass": true
+    },
+    {
+      "case": "valid_DigitalManualDeliver",
+      "sent": {
+        "item_type": "DigitalManualDeliver"
+      },
+      "http": 200,
+      "code": null,
+      "listing_id": 94,
+      "db_item_type": "DigitalManualDeliver",
+      "db_title": "IT4-QA-DigitalManualDeliver-20261019231440",
+      "exact_match": true,
+      "pass": true
+    },
+    {
+      "case": "valid_PhysicalFreeShip",
+      "sent": {
+        "item_type": "PhysicalFreeShip"
+      },
+      "http": 200,
+      "code": null,
+      "listing_id": 95,
+      "db_item_type": "PhysicalFreeShip",
+      "db_title": "IT4-QA-PhysicalFreeShip-20261019231440",
+      "exact_match": true,
+      "pass": true
+    },
+    {
+      "case": "valid_PhysicalBuyerShip",
+      "sent": {
+        "item_type": "PhysicalBuyerShip"
+      },
+      "http": 200,
+      "code": null,
+      "listing_id": 96,
+      "db_item_type": "PhysicalBuyerShip",
+      "db_title": "IT4-QA-PhysicalBuyerShip-20261019231440",
+      "exact_match": true,
+      "pass": true
+    },
+    {
+      "case": "null_omit",
+      "sent": "(absent)",
+      "http": 200,
+      "code": null,
+      "listing_id": 97,
+      "db_item_type": null,
+      "pass": true
+    },
+    {
+      "case": "null_explicit_null",
+      "sent": {
+        "item_type": null
+      },
+      "http": 200,
+      "code": null,
+      "listing_id": 98,
+      "db_item_type": null,
+      "pass": true
+    },
+    {
+      "case": "invalid_bare_Digital",
+      "sent": {
+        "item_type": "Digital"
+      },
+      "http": 400,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "reason": "NOT_IN_CLOSED_SET",
+      "allowed": [
+        "DigitalAutoDeliver",
+        "DigitalManualDeliver",
+        "PhysicalFreeShip",
+        "PhysicalBuyerShip"
+      ],
+      "body": {
+        "error": {
+          "code": "LEDGER_AMOUNT_INVALID",
+          "message": "Request shape is invalid",
+          "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+          "details": {
+            "field": "listing.item_type",
+            "reason": "NOT_IN_CLOSED_SET",
+            "provided": "Digital",
+            "allowed": [
+              "DigitalAutoDeliver",
+              "DigitalManualDeliver",
+              "PhysicalFreeShip",
+              "PhysicalBuyerShip"
+            ]
+          }
+        }
+      },
+      "rows_written": 0,
+      "pass": true
+    },
+    {
+      "case": "invalid_empty_string",
+      "sent": {
+        "item_type": ""
+      },
+      "http": 400,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "reason": "NOT_IN_CLOSED_SET",
+      "allowed": [
+        "DigitalAutoDeliver",
+        "DigitalManualDeliver",
+        "PhysicalFreeShip",
+        "PhysicalBuyerShip"
+      ],
+      "body": {
+        "error": {
+          "code": "LEDGER_AMOUNT_INVALID",
+          "message": "Request shape is invalid",
+          "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+          "details": {
+            "field": "listing.item_type",
+            "reason": "NOT_IN_CLOSED_SET",
+            "provided": "",
+            "allowed": [
+              "DigitalAutoDeliver",
+              "DigitalManualDeliver",
+              "PhysicalFreeShip",
+              "PhysicalBuyerShip"
+            ]
+          }
+        }
+      },
+      "rows_written": 0,
+      "pass": true
+    },
+    {
+      "case": "invalid_spaces",
+      "sent": {
+        "item_type": "   "
+      },
+      "http": 400,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "reason": "NOT_IN_CLOSED_SET",
+      "allowed": [
+        "DigitalAutoDeliver",
+        "DigitalManualDeliver",
+        "PhysicalFreeShip",
+        "PhysicalBuyerShip"
+      ],
+      "body": {
+        "error": {
+          "code": "LEDGER_AMOUNT_INVALID",
+          "message": "Request shape is invalid",
+          "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+          "details": {
+            "field": "listing.item_type",
+            "reason": "NOT_IN_CLOSED_SET",
+            "provided": "",
+            "allowed": [
+              "DigitalAutoDeliver",
+              "DigitalManualDeliver",
+              "PhysicalFreeShip",
+              "PhysicalBuyerShip"
+            ]
+          }
+        }
+      },
+      "rows_written": 0,
+      "pass": true
+    },
+    {
+      "case": "invalid_lowercase_digital",
+      "sent": {
+        "item_type": "digital"
+      },
+      "http": 400,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "reason": "NOT_IN_CLOSED_SET",
+      "allowed": [
+        "DigitalAutoDeliver",
+        "DigitalManualDeliver",
+        "PhysicalFreeShip",
+        "PhysicalBuyerShip"
+      ],
+      "body": {
+        "error": {
+          "code": "LEDGER_AMOUNT_INVALID",
+          "message": "Request shape is invalid",
+          "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+          "details": {
+            "field": "listing.item_type",
+            "reason": "NOT_IN_CLOSED_SET",
+            "provided": "digital",
+            "allowed": [
+              "DigitalAutoDeliver",
+              "DigitalManualDeliver",
+              "PhysicalFreeShip",
+              "PhysicalBuyerShip"
+            ]
+          }
+        }
+      },
+      "rows_written": 0,
+      "pass": true
+    },
+    {
+      "case": "invalid_lowercase_full",
+      "sent": {
+        "item_type": "physicalfreeship"
+      },
+      "http": 400,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "reason": "NOT_IN_CLOSED_SET",
+      "allowed": [
+        "DigitalAutoDeliver",
+        "DigitalManualDeliver",
+        "PhysicalFreeShip",
+        "PhysicalBuyerShip"
+      ],
+      "body": {
+        "error": {
+          "code": "LEDGER_AMOUNT_INVALID",
+          "message": "Request shape is invalid",
+          "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+          "details": {
+            "field": "listing.item_type",
+            "reason": "NOT_IN_CLOSED_SET",
+            "provided": "physicalfreeship",
+            "allowed": [
+              "DigitalAutoDeliver",
+              "DigitalManualDeliver",
+              "PhysicalFreeShip",
+              "PhysicalBuyerShip"
+            ]
+          }
+        }
+      },
+      "rows_written": 0,
+      "pass": true
+    },
+    {
+      "case": "invalid_legacy_AutoDeliver",
+      "sent": {
+        "item_type": "AutoDeliver"
+      },
+      "http": 400,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "reason": "NOT_IN_CLOSED_SET",
+      "allowed": [
+        "DigitalAutoDeliver",
+        "DigitalManualDeliver",
+        "PhysicalFreeShip",
+        "PhysicalBuyerShip"
+      ],
+      "body": {
+        "error": {
+          "code": "LEDGER_AMOUNT_INVALID",
+          "message": "Request shape is invalid",
+          "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+          "details": {
+            "field": "listing.item_type",
+            "reason": "NOT_IN_CLOSED_SET",
+            "provided": "AutoDeliver",
+            "allowed": [
+              "DigitalAutoDeliver",
+              "DigitalManualDeliver",
+              "PhysicalFreeShip",
+              "PhysicalBuyerShip"
+            ]
+          }
+        }
+      },
+      "rows_written": 0,
+      "pass": true
+    },
+    {
+      "case": "patch_item_type_only",
+      "listing_id": 94,
+      "sent": {
+        "item_type": "PhysicalBuyerShip"
+      },
+      "http": 400,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "db_before": "DigitalManualDeliver",
+      "db_after": "DigitalManualDeliver",
+      "pass": true
+    },
+    {
+      "case": "patch_to_listed_with_item_type",
+      "listing_id": 94,
+      "sent": {
+        "to_status": "listed",
+        "item_type": "PhysicalFreeShip"
+      },
+      "http": 200,
+      "code": null,
+      "db_after": "DigitalManualDeliver",
+      "db_status_after": "listed",
+      "pass": true
+    }
+  ],
+  "created": [
+    {
+      "listing_id": 93,
+      "arm": "DigitalAutoDeliver",
+      "title": "IT4-QA-DigitalAutoDeliver-20261019231440",
+      "listed_http": 200,
+      "listed": "listed",
+      "item_type_after_list": "DigitalAutoDeliver"
+    },
+    {
+      "listing_id": 94,
+      "arm": "DigitalManualDeliver",
+      "title": "IT4-QA-DigitalManualDeliver-20261019231440",
+      "listed": "already"
+    },
+    {
+      "listing_id": 95,
+      "arm": "PhysicalFreeShip",
+      "title": "IT4-QA-PhysicalFreeShip-20261019231440",
+      "listed_http": 200,
+      "listed": "listed",
+      "item_type_after_list": "PhysicalFreeShip"
+    },
+    {
+      "listing_id": 96,
+      "arm": "PhysicalBuyerShip",
+      "title": "IT4-QA-PhysicalBuyerShip-20261019231440",
+      "listed_http": 200,
+      "listed": "listed",
+      "item_type_after_list": "PhysicalBuyerShip"
+    },
+    {
+      "listing_id": 97,
+      "arm": "NULL",
+      "title": "IT4-QA-NULL-omit-20261019231440",
+      "listed_http": 200,
+      "listed": "listed",
+      "item_type_after_list": null
+    },
+    {
+      "listing_id": 98,
+      "arm": "NULL",
+      "title": "IT4-QA-NULL-explicit_null-20261019231440",
+      "listed_http": 200,
+      "listed": "listed",
+      "item_type_after_list": null
+    }
+  ],
+  "negative_zero_write": [
+    {
+      "label": "bare_Digital",
+      "rows_written": 0
+    },
+    {
+      "label": "empty_string",
+      "rows_written": 0
+    },
+    {
+      "label": "spaces",
+      "rows_written": 0
+    },
+    {
+      "label": "lowercase_digital",
+      "rows_written": 0
+    },
+    {
+      "label": "lowercase_full",
+      "rows_written": 0
+    },
+    {
+      "label": "legacy_AutoDeliver",
+      "rows_written": 0
+    }
+  ],
+  "notes": []
+}
