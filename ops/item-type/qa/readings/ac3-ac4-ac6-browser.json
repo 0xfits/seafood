@@ -1,0 +1,227 @@
+{
+  "at": "2026-10-19T22:40:29.051Z",
+  "tag": "IT-TYPE-QA-20261019223806",
+  "login": {
+    "challenge_http": 200,
+    "verify_http": 200,
+    "uid": 971224,
+    "evm": "0x887915dc1fed7269dff404bd860b6247b10a67fc",
+    "token_len": 239
+  },
+  "ac3": {
+    "desktop_1536": {
+      "viewport": {
+        "width": 1536,
+        "height": 1000
+      },
+      "cards_total": 18,
+      "tag_count_global": 1,
+      "arms_found": {
+        "PhysicalFreeShip": true,
+        "Digital": true,
+        "PhysicalBuyerShip": true,
+        "NULL": true
+      },
+      "ship_arm": {
+        "title": "包邮IT-TYPE-QA-20261019223806-ship",
+        "title_only": "IT-TYPE-QA-20261019223806-ship",
+        "cardH": 392,
+        "row1H": 48,
+        "hasTag": true,
+        "tagFirstElement": true,
+        "tagIsFirstNode": true,
+        "tagText": "包邮",
+        "tagRect": {
+          "x": 303,
+          "y": 1780,
+          "w": 27,
+          "h": 16
+        },
+        "titleTextRect": {
+          "x": 334.53125,
+          "y": 1778,
+          "w": 168.234375
+        },
+        "tagTextRect": {
+          "x": 307.328125,
+          "y": 1780,
+          "w": 19.203125
+        },
+        "tagStyle": {
+          "backgroundColor": "rgb(255, 230, 15)",
+          "color": "rgb(32, 32, 32)",
+          "fontSize": "12px",
+          "fontWeight": "700",
+          "borderRadius": "2px",
+          "height": "16px",
+          "lineHeight": "16px",
+          "padding": "0px 4px 0px 4px",
+          "marginRight": "4px",
+          "display": "inline-block",
+          "verticalAlign": "baseline",
+          "whiteSpace": "nowrap"
+        }
+      },
+      "non_ship_arms": {
+        "Digital": {
+          "hasTag": false,
+          "row1H": 48,
+          "cardH": 392,
+          "tagText": null
+        },
+        "PhysicalBuyerShip": {
+          "hasTag": false,
+          "row1H": 48,
+          "cardH": 392,
+          "tagText": null
+        },
+        "NULL": {
+          "hasTag": false,
+          "row1H": 48,
+          "cardH": 392,
+          "tagText": null
+        }
+      },
+      "checks": {
+        "tag_present_ship": true,
+        "tag_is_first_element": true,
+        "tag_is_first_node": true,
+        "tag_before_title_text": true,
+        "tag_text_baoyou": true,
+        "bg_rgb_255_230_15": true,
+        "color_rgb_32_32_32": true,
+        "font_12px": true,
+        "weight_700": true,
+        "row1_h_48": true,
+        "card_h_392": true,
+        "other_arms_no_tag": true,
+        "only_one_tag_in_feed": true,
+        "non_tag_cards_row1_48": true,
+        "non_tag_cards_card_392": true
+      },
+      "page_errors": []
+    },
+    "checks_pass": true
+  },
+  "ac4": {
+    "seed_ok": true,
+    "results": [
+      {
+        "label": "A_unselected_type",
+        "api_requests_since_marker": 0,
+        "type_group_present": true,
+        "ship_group_present": false,
+        "type_miss": "1",
+        "type_aria_invalid": "true",
+        "type_class_miss": true,
+        "ship_miss": null,
+        "ship_aria_invalid": null,
+        "ship_class_miss": null,
+        "ship_checked": null,
+        "submit_disabled": false,
+        "has_bad_request_text": true,
+        "type_group_text": "数字商品|实物商品",
+        "ship_group_text": null,
+        "requests_since_marker": []
+      },
+      {
+        "label": "B_physical_no_ship",
+        "api_requests_since_marker": 0,
+        "type_group_present": true,
+        "ship_group_present": true,
+        "type_miss": null,
+        "type_aria_invalid": null,
+        "type_class_miss": false,
+        "ship_miss": "1",
+        "ship_aria_invalid": "true",
+        "ship_class_miss": true,
+        "ship_checked": null,
+        "submit_disabled": false,
+        "has_bad_request_text": true,
+        "type_group_text": "数字商品|实物商品",
+        "ship_group_text": "包邮|不包邮",
+        "requests_since_marker": []
+      }
+    ],
+    "linkage": {
+      "c_before_switch": {
+        "ship_group_present": true,
+        "ship_checked": "free"
+      },
+      "c_after_switch_digital": {
+        "ship_group_present": false,
+        "type_miss": null
+      },
+      "c_back_to_physical": {
+        "ship_group_present": true,
+        "ship_checked": null
+      }
+    },
+    "positive_arm": {
+      "snap": {
+        "label": "D_valid_digital_submit",
+        "api_requests_since_marker": 2,
+        "type_group_present": true,
+        "ship_group_present": false,
+        "type_miss": null,
+        "type_aria_invalid": null,
+        "type_class_miss": false,
+        "ship_miss": null,
+        "ship_aria_invalid": null,
+        "ship_class_miss": null,
+        "ship_checked": null,
+        "submit_disabled": true,
+        "has_bad_request_text": false,
+        "type_group_text": "数字商品|实物商品",
+        "ship_group_text": null,
+        "requests_since_marker": [
+          "POST http://localhost:5787/api/listing",
+          "PATCH http://localhost:5787/api/listing/86"
+        ]
+      },
+      "requests": [
+        "POST http://localhost:5787/api/listing",
+        "PATCH http://localhost:5787/api/listing/86"
+      ],
+      "extra_listing_id": 86,
+      "url_after": "http://localhost:5787/item/new"
+    },
+    "page_errors": [],
+    "checks": {
+      "A_zero_api": true,
+      "A_type_highlighted": true,
+      "A_inline_hint": true,
+      "B_zero_api": true,
+      "B_ship_highlighted": true,
+      "B_ship_group_rendered_on_physical": true,
+      "C_ship_group_absent_on_digital": true,
+      "C_ship_reset_on_return": true,
+      "D_positive_requests": true,
+      "D_positive_publish_id": true
+    },
+    "checks_pass": true
+  },
+  "ac6": {
+    "mobile_390": {
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "overflow_x": 0,
+      "body_overflow_x": 0,
+      "cards": 19,
+      "tag_count": 1,
+      "ship_tag_text": "包邮",
+      "ship_card_h": 392,
+      "ship_row1_h": 48,
+      "tabbar_items": 5,
+      "page_errors": [],
+      "pass_overflow": true
+    }
+  },
+  "extra_publish": {
+    "listing_id": 86,
+    "title": "IT-TYPE-QA-20261019223806-publish-door",
+    "item_type": "Digital"
+  }
+}

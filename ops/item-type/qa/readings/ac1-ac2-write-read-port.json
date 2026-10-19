@@ -1,0 +1,404 @@
+{
+  "run": "20261019223806",
+  "base": "http://localhost:5788",
+  "wallet": {
+    "address": "0x887915dc1fed7269dff404bd860b6247b10a67fc"
+  },
+  "login": {
+    "challenge_http": 200,
+    "verify_http": 200,
+    "uid": 971224,
+    "evm": "0x887915dc1fed7269dff404bd860b6247b10a67fc",
+    "token_len": 239
+  },
+  "cases": [
+    {
+      "case": "valid_Digital",
+      "sent": {
+        "item_type": "Digital"
+      },
+      "http": 200,
+      "code": null,
+      "db_listing_id": "77",
+      "db_item_type": "Digital",
+      "pass": true
+    },
+    {
+      "case": "valid_PhysicalFreeShip",
+      "sent": {
+        "item_type": "PhysicalFreeShip"
+      },
+      "http": 200,
+      "code": null,
+      "db_listing_id": "78",
+      "db_item_type": "PhysicalFreeShip",
+      "pass": true
+    },
+    {
+      "case": "valid_PhysicalBuyerShip",
+      "sent": {
+        "item_type": "PhysicalBuyerShip"
+      },
+      "http": 200,
+      "code": null,
+      "db_listing_id": "79",
+      "db_item_type": "PhysicalBuyerShip",
+      "pass": true
+    },
+    {
+      "case": "omit_item_type",
+      "sent": "(field absent)",
+      "http": 200,
+      "code": null,
+      "db_listing_id": "80",
+      "db_item_type": null,
+      "pass": true
+    },
+    {
+      "case": "explicit_null",
+      "sent": {
+        "item_type": null
+      },
+      "http": 200,
+      "code": null,
+      "db_listing_id": "81",
+      "db_item_type": null,
+      "pass": true
+    },
+    {
+      "case": "invalid_empty_string",
+      "sent": {
+        "item_type": ""
+      },
+      "http": 400,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "details": {
+        "field": "listing.item_type",
+        "reason": "NOT_IN_CLOSED_SET",
+        "provided": "",
+        "allowed": [
+          "Digital",
+          "PhysicalFreeShip",
+          "PhysicalBuyerShip"
+        ]
+      },
+      "body": {
+        "error": {
+          "code": "LEDGER_AMOUNT_INVALID",
+          "message": "Request shape is invalid",
+          "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+          "details": {
+            "field": "listing.item_type",
+            "reason": "NOT_IN_CLOSED_SET",
+            "provided": "",
+            "allowed": [
+              "Digital",
+              "PhysicalFreeShip",
+              "PhysicalBuyerShip"
+            ]
+          }
+        }
+      },
+      "pass": true
+    },
+    {
+      "case": "invalid_spaces",
+      "sent": {
+        "item_type": "   "
+      },
+      "http": 400,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "details": {
+        "field": "listing.item_type",
+        "reason": "NOT_IN_CLOSED_SET",
+        "provided": "",
+        "allowed": [
+          "Digital",
+          "PhysicalFreeShip",
+          "PhysicalBuyerShip"
+        ]
+      },
+      "body": {
+        "error": {
+          "code": "LEDGER_AMOUNT_INVALID",
+          "message": "Request shape is invalid",
+          "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+          "details": {
+            "field": "listing.item_type",
+            "reason": "NOT_IN_CLOSED_SET",
+            "provided": "",
+            "allowed": [
+              "Digital",
+              "PhysicalFreeShip",
+              "PhysicalBuyerShip"
+            ]
+          }
+        }
+      },
+      "pass": true
+    },
+    {
+      "case": "invalid_lowercase_digital",
+      "sent": {
+        "item_type": "digital"
+      },
+      "http": 400,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "details": {
+        "field": "listing.item_type",
+        "reason": "NOT_IN_CLOSED_SET",
+        "provided": "digital",
+        "allowed": [
+          "Digital",
+          "PhysicalFreeShip",
+          "PhysicalBuyerShip"
+        ]
+      },
+      "body": {
+        "error": {
+          "code": "LEDGER_AMOUNT_INVALID",
+          "message": "Request shape is invalid",
+          "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+          "details": {
+            "field": "listing.item_type",
+            "reason": "NOT_IN_CLOSED_SET",
+            "provided": "digital",
+            "allowed": [
+              "Digital",
+              "PhysicalFreeShip",
+              "PhysicalBuyerShip"
+            ]
+          }
+        }
+      },
+      "pass": true
+    },
+    {
+      "case": "invalid_bogus",
+      "sent": {
+        "item_type": "Bogus"
+      },
+      "http": 400,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "details": {
+        "field": "listing.item_type",
+        "reason": "NOT_IN_CLOSED_SET",
+        "provided": "Bogus",
+        "allowed": [
+          "Digital",
+          "PhysicalFreeShip",
+          "PhysicalBuyerShip"
+        ]
+      },
+      "body": {
+        "error": {
+          "code": "LEDGER_AMOUNT_INVALID",
+          "message": "Request shape is invalid",
+          "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+          "details": {
+            "field": "listing.item_type",
+            "reason": "NOT_IN_CLOSED_SET",
+            "provided": "Bogus",
+            "allowed": [
+              "Digital",
+              "PhysicalFreeShip",
+              "PhysicalBuyerShip"
+            ]
+          }
+        }
+      },
+      "pass": true
+    },
+    {
+      "case": "patch_with_item_type",
+      "listing_id": 82,
+      "sent": {
+        "to_status": "listed",
+        "item_type": "PhysicalBuyerShip"
+      },
+      "http": 200,
+      "code": null,
+      "db_before": "Digital",
+      "db_after": "Digital",
+      "db_status_after": "listed",
+      "pass": true
+    },
+    {
+      "case": "patch_item_type_only",
+      "listing_id": 82,
+      "sent": {
+        "item_type": "PhysicalFreeShip"
+      },
+      "http": 400,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "db_after": "Digital",
+      "pass": true,
+      "http_expected": "400 或 200 均可（本条只判库值不变）"
+    },
+    {
+      "case": "edit_post_with_item_type",
+      "listing_id": 77,
+      "http": 200,
+      "code": null,
+      "db_after": "Digital",
+      "pass": true
+    }
+  ],
+  "read_port": {
+    "feed_http": 200,
+    "feed_rows_returned": 15,
+    "feed_key_count": 48,
+    "feed_has_item_type": true,
+    "feed_key_names_sample": [
+      "activated_count",
+      "available_quantity",
+      "bID",
+      "circulation_seconds",
+      "claims_count",
+      "current_shard_supply",
+      "description",
+      "description_en",
+      "description_hk",
+      "description_vn",
+      "duration_seconds",
+      "free_shard_quota",
+      "free_shard_ratio",
+      "free_shards_distributed",
+      "free_shards_remaining",
+      "gift_limit",
+      "i18n_status",
+      "image_url",
+      "issued_quantity",
+      "item_type",
+      "lifecycle_status",
+      "liquidation_seconds",
+      "market_floor_points",
+      "market_is_open",
+      "market_shard_cap",
+      "media_urls",
+      "minimum_shard_price",
+      "name",
+      "name_en",
+      "name_hk",
+      "name_vn",
+      "points",
+      "price_floor_active",
+      "price_floor_eligible",
+      "price_floor_enabled",
+      "redeemed_quantity",
+      "remaining_market_shards",
+      "seller",
+      "stores_count",
+      "symbol",
+      "time_actived",
+      "time_created",
+      "time_end",
+      "time_start",
+      "time_updated",
+      "total_quantity",
+      "url_image",
+      "wants"
+    ],
+    "detail_id": 82,
+    "detail_http": 200,
+    "detail_key_count": 47,
+    "detail_has_item_type": true,
+    "detail_item_type": "Digital",
+    "detail_db_item_type": "Digital",
+    "api_vs_db_mismatches": [],
+    "feed_item_type_value_counts": {
+      "Digital": 2,
+      "NULL": 11,
+      "PhysicalBuyerShip": 1,
+      "PhysicalFreeShip": 1
+    },
+    "created_in_feed": [
+      {
+        "listing_id": 77,
+        "arm": "Digital",
+        "suffix": "digital",
+        "in_feed": true,
+        "item_type": "Digital",
+        "title": null
+      },
+      {
+        "listing_id": 78,
+        "arm": "PhysicalFreeShip",
+        "suffix": "ship",
+        "in_feed": true,
+        "item_type": "PhysicalFreeShip",
+        "title": null
+      },
+      {
+        "listing_id": 79,
+        "arm": "PhysicalBuyerShip",
+        "suffix": "buyer",
+        "in_feed": true,
+        "item_type": "PhysicalBuyerShip",
+        "title": null
+      },
+      {
+        "listing_id": 80,
+        "arm": "NULL",
+        "suffix": "null",
+        "in_feed": true,
+        "item_type": null,
+        "title": null
+      },
+      {
+        "listing_id": 81,
+        "arm": "NULL",
+        "suffix": "nullable",
+        "in_feed": true,
+        "item_type": null,
+        "title": null
+      },
+      {
+        "listing_id": 82,
+        "arm": "PATCH_CASE",
+        "suffix": "patch",
+        "in_feed": true,
+        "item_type": "Digital",
+        "title": null
+      }
+    ]
+  },
+  "created": [
+    {
+      "listing_id": 77,
+      "arm": "Digital",
+      "suffix": "digital",
+      "listed_http": 200
+    },
+    {
+      "listing_id": 78,
+      "arm": "PhysicalFreeShip",
+      "suffix": "ship",
+      "listed_http": 200
+    },
+    {
+      "listing_id": 79,
+      "arm": "PhysicalBuyerShip",
+      "suffix": "buyer",
+      "listed_http": 200
+    },
+    {
+      "listing_id": 80,
+      "arm": "NULL",
+      "suffix": "null",
+      "listed_http": 200
+    },
+    {
+      "listing_id": 81,
+      "arm": "NULL",
+      "suffix": "nullable",
+      "listed_http": 200
+    },
+    {
+      "listing_id": 82,
+      "arm": "PATCH_CASE",
+      "suffix": "patch"
+    }
+  ],
+  "notes": []
+}

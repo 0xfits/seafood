@@ -1,0 +1,59 @@
+{
+  "at": "2026-10-19T22:41:34.257Z",
+  "base": "http://localhost:5788",
+  "currencies": {
+    "http": 200,
+    "success": true,
+    "rows": 2,
+    "row_keys": [
+      "cid",
+      "name",
+      "symbol"
+    ],
+    "values": [
+      {
+        "cid": "1",
+        "symbol": "$"
+      },
+      {
+        "cid": "399",
+        "symbol": "BTTC"
+      }
+    ],
+    "pass": true
+  },
+  "media_999": {
+    "http": 404,
+    "code": "LEDGER_REF_NOT_FOUND",
+    "reason": "media_not_found",
+    "body": {
+      "error": {
+        "code": "LEDGER_REF_NOT_FOUND",
+        "message": "Referenced object not found",
+        "i18n_key": "ledger.err.LEDGER_REF_NOT_FOUND",
+        "details": {
+          "ref_type": "media",
+          "ref_id": "999",
+          "reason": "media_not_found"
+        }
+      }
+    },
+    "pass": true
+  },
+  "prize_1": {
+    "http": 200,
+    "success": true,
+    "has_error": false,
+    "key_count": 47,
+    "has_item_type": true,
+    "item_type": null,
+    "bID": 1,
+    "pass": true
+  },
+  "checks": {
+    "currencies_2": true,
+    "media_999_404": true,
+    "prize_1_clean": true
+  },
+  "pass": true
+}

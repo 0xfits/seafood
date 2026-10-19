@@ -1,0 +1,89 @@
+{
+  "tag": "post-cleanup",
+  "at": "2026-10-19T22:42:45.587Z",
+  "project_id": "quiet-math-65207667",
+  "schema_version": "0053",
+  "schema_migration_rows": 52,
+  "listing_columns": 14,
+  "listing_count": 26,
+  "listing_by_item_type": [
+    {
+      "item_type": "<<NULL>>",
+      "n": 26
+    }
+  ],
+  "recent_listings": [
+    {
+      "listing_id": "76",
+      "seller_uid": "970213",
+      "title": "VPN",
+      "status": "listed",
+      "item_type": null,
+      "time_created": "2026-10-19T04:55:51.714Z"
+    },
+    {
+      "listing_id": "71",
+      "seller_uid": "971214",
+      "title": "sf14qa 测试商品（质检夹具·勿购）",
+      "status": "listed",
+      "item_type": null,
+      "time_created": "2026-10-14T03:01:27.069Z"
+    },
+    {
+      "listing_id": "24",
+      "seller_uid": "910001",
+      "title": "qa7b fixture listing",
+      "status": "listed",
+      "item_type": null,
+      "time_created": "2026-10-02T11:05:13.577Z"
+    },
+    {
+      "listing_id": "23",
+      "seller_uid": "900001",
+      "title": "p7b fixture listing",
+      "status": "listed",
+      "item_type": null,
+      "time_created": "2026-10-02T08:07:27.100Z"
+    },
+    {
+      "listing_id": "22",
+      "seller_uid": "1",
+      "title": "海鲜礼盒TR1C测试：虾蟹双拼-tr1c01015659",
+      "status": "draft",
+      "item_type": null,
+      "time_created": "2026-10-01T01:57:04.303Z"
+    },
+    {
+      "listing_id": "21",
+      "seller_uid": "1",
+      "title": "海鲜礼盒TR1C测试：虾蟹双拼-tr1c01015554",
+      "status": "draft",
+      "item_type": null,
+      "time_created": "2026-10-01T01:56:00.027Z"
+    },
+    {
+      "listing_id": "20",
+      "seller_uid": "1",
+      "title": "海鲜礼盒TR1C测试：虾蟹双拼-tr1c01015515",
+      "status": "draft",
+      "item_type": null,
+      "time_created": "2026-10-01T01:55:21.426Z"
+    },
+    {
+      "listing_id": "19",
+      "seller_uid": "1",
+      "title": "海鲜礼盒测试丙：虾蟹双拼",
+      "status": "listed",
+      "item_type": null,
+      "time_created": "2026-10-01T01:41:20.635Z"
+    }
+  ],
+  "table_counts": {
+    "listing_order": 18,
+    "conversation": 1,
+    "message": 7,
+    "ledger_entry": 509,
+    "listing_favorite": 0,
+    "media": 2
+  }
+}

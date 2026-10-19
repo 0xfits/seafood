@@ -1,0 +1,181 @@
+{
+  "batch": "item-type（商品分类枚举 + 包邮标签）独立质检",
+  "repo": "/Users/kevin/bistro/seafood",
+  "head": "1eecbb7",
+  "backend_commit": "acfaa0b",
+  "migration": "0053（dev 已 apply：schema_version=0053 / schema_migration 52 行 / listing 列 14）",
+  "env": { "db_project_id": "quiet-math-65207667", "api": "http://localhost:5788", "web": "http://localhost:5787" },
+  "at": "2026-10-19T22:5xZ（见各读数文件 at 字段）",
+  "judge": "Zang（独立质检 · 只读产品代码，未改代码/文档/他人读数；未 commit、未 push）",
+  "verdict": "PASS",
+  "items": [
+    {
+      "id": "AC1",
+      "title": "后端写口边界（真钱包登录 · 三值 200 落库 · 四非法 400 · 缺省 NULL · PATCH 不改）",
+      "verdict": "PASS",
+      "evidence": "readings/ac1-ac2-write-read-port.json",
+      "readings": {
+        "login": { "challenge_http": 200, "verify_http": 200, "uid": 971224, "evm": "0x887915dc1fed7269dff404bd860b6247b10a67fc", "token_len": 239 },
+        "cases_total": 12,
+        "cases_failed": 0,
+        "valid_three": [
+          { "item_type": "Digital", "http": 200, "db": "Digital" },
+          { "item_type": "PhysicalFreeShip", "http": 200, "db": "PhysicalFreeShip" },
+          { "item_type": "PhysicalBuyerShip", "http": 200, "db": "PhysicalBuyerShip" }
+        ],
+        "invalid_four": [
+          { "sent": "", "http": 400, "code": "LEDGER_AMOUNT_INVALID", "reason": "NOT_IN_CLOSED_SET", "allowed": ["Digital", "PhysicalFreeShip", "PhysicalBuyerShip"] },
+          { "sent": "   ", "http": 400, "code": "LEDGER_AMOUNT_INVALID", "reason": "NOT_IN_CLOSED_SET", "allowed": ["Digital", "PhysicalFreeShip", "PhysicalBuyerShip"] },
+          { "sent": "digital", "http": 400, "code": "LEDGER_AMOUNT_INVALID", "reason": "NOT_IN_CLOSED_SET", "allowed": ["Digital", "PhysicalFreeShip", "PhysicalBuyerShip"] },
+          { "sent": "Bogus", "http": 400, "code": "LEDGER_AMOUNT_INVALID", "reason": "NOT_IN_CLOSED_SET", "allowed": ["Digital", "PhysicalFreeShip", "PhysicalBuyerShip"] }
+        ],
+        "invalid_zero_rows_written": true,
+        "omitted_and_explicit_null": { "http": 200, "db": null },
+        "patch_with_item_type": { "http": 200, "db_before": "Digital", "db_after": "Digital", "status_after": "listed" },
+        "patch_item_type_only": { "http": 400, "db_after": "Digital" },
+        "edit_post_with_item_type": { "http": 200, "db_after": "Digital" }
+      },
+      "notes": [
+        "空串口径以落盘为准 = 400（SPEC-NOTE §5.1 第 1 项登记的「空串 ⇒ null」差额已不成立，现盘 normalizeItemType 先 trim 再闭集判定）。",
+        "『   』一例的 details.provided 为 \"\"（实现先 trim 再回填），reason/allowed 均正确 —— 只登记字段形态，不判负。"
+      ]
+    },
+    {
+      "id": "AC2",
+      "title": "读口键数（feed 48 / 详情 47）· dev 实测与 DB 一致",
+      "verdict": "PASS",
+      "evidence": "readings/ac1-ac2-write-read-port.json",
+      "readings": {
+        "feed_http": 200,
+        "feed_key_count": 48,
+        "feed_has_item_type": true,
+        "detail_http": 200,
+        "detail_key_count": 47,
+        "detail_has_item_type": true,
+        "detail_id": 82,
+        "detail_item_type": "Digital",
+        "detail_db_item_type": "Digital",
+        "api_vs_db_mismatches": 0,
+        "rows_scanned": 15,
+        "feed_item_type_value_counts_at_probe": { "Digital": 2, "PhysicalFreeShip": 1, "PhysicalBuyerShip": 1, "NULL": 11 }
+      }
+    },
+    {
+      "id": "AC3",
+      "title": "全链 E2E（真登录发布 PhysicalFreeShip → listed → 首页真页 1536 卡面标签 · 四臂）",
+      "verdict": "PASS",
+      "evidence": "readings/ac3-ac4-ac6-browser.json",
+      "readings": {
+        "viewport": { "width": 1536, "height": 1000 },
+        "cards_total": 18,
+        "tag_count_global": 1,
+        "tagged_card": {
+          "bg": "rgb(255, 230, 15)",
+          "color": "rgb(32, 32, 32)",
+          "font_size": "12px",
+          "font_weight": "700",
+          "border_radius": "2px",
+          "height": "16px",
+          "line_height": "16px",
+          "padding": "0px 4px 0px 4px",
+          "margin_right": "4px",
+          "display": "inline-block",
+          "white_space": "nowrap",
+          "text": "包邮",
+          "is_first_element_of_row1": true,
+          "is_first_node_of_row1": true,
+          "tag_rect": { "x": 303, "w": 27, "h": 16 },
+          "title_text_rect_x": 334.5,
+          "row1_offset_height": 48,
+          "card_offset_height": 392
+        },
+        "other_arms": {
+          "Digital": { "has_tag": false, "row1_h": 48, "card_h": 392 },
+          "PhysicalBuyerShip": { "has_tag": false, "row1_h": 48, "card_h": 392 },
+          "NULL": { "has_tag": false, "row1_h": 48, "card_h": 392 }
+        },
+        "page_errors": 0,
+        "checks_passed": "15/15"
+      },
+      "notes": [
+        "卡面 CSS 落盘为 vertical-align: baseline，design §26.12.1 写 vertical-align:middle（该属性不在判负清单、也不在读数登记项内）⇒ 登记不判负；实测标签 y=1780 / 标题文字 y=1778（2px 基线差），未抬行。",
+        "标签实测宽 27px（12px×2 汉字 19.2 + 左右 padding 8），SPEC-NOTE §5 估算 ≈32px 属估计值，非契约数。"
+      ]
+    },
+    {
+      "id": "AC4",
+      "title": "发布页 2+2 控件联动 · 非法态零网络请求 + 页内高亮",
+      "verdict": "PASS",
+      "evidence": "readings/ac3-ac4-ac6-browser.json（ac4 段）",
+      "readings": {
+        "A_unselected_type": { "api_requests": 0, "type_group_miss": "1", "type_class_miss": true, "aria_invalid": "true", "inline_hint": "请求参数错误" },
+        "B_physical_no_ship": { "api_requests": 0, "ship_group_rendered": true, "ship_group_miss": "1", "ship_class_miss": true, "aria_invalid": "true" },
+        "C_linkage": { "ship_group_present_on_digital": false, "ship_group_present_on_physical": true, "ship_reset_after_switch_back": true },
+        "D_positive_control": { "api_requests": 2, "requests": ["POST /api/listing", "PATCH /api/listing/<id>"], "listing_id": 86 }
+      },
+      "notes": [
+        "D 臂为「尺子灵敏度」正控：合法态真发一次（POST /api/listing + PATCH listed 各 1）⇒ 证明零请求读数不是计数器失效；该行已回收。",
+        "联动为条件渲染（数字档 `item-select-ship` 不在 DOM），非 display:none；切回实物时运费选择被清空（无 stale 值）。"
+      ]
+    },
+    {
+      "id": "AC5",
+      "title": "门套（build / test:unit / backend tsc / p7b-03）",
+      "verdict": "PASS",
+      "evidence": "logs/frontend-gates.log · logs/backend-gates.log · backend-ts/.p7b-artifacts/p7b-03-offline-gates-20261019T223853Zw4i7.json",
+      "readings": {
+        "frontend_build": { "exit": 0, "log_anchor": "✓ built in 1.84s", "assets": ["assets/index-DKwYoDGj.js", "assets/index-DNTm1wEg.css"] },
+        "frontend_test_unit": { "files": 63, "tests": 631, "failed": 0, "log_anchor": "Test Files 63 passed (63) / Tests 631 passed (631)" },
+        "backend_tsc": { "exit": 0 },
+        "p7b_03": { "total": 37, "passed": 37, "failed": 0, "registration_points": 110, "ac10_2": "pass" }
+      },
+      "notes": ["lint 未跑（仓内无 ESLint 配置、恒 exit 2，属存量；本单不据此判负）。"]
+    },
+    {
+      "id": "AC6",
+      "title": "回归（currencies 2 行 / media/999 404 / prize/1 零异常 / 390 档零溢出）",
+      "verdict": "PASS",
+      "evidence": "readings/ac6-regression-http.json · readings/ac3-ac4-ac6-browser.json（ac6 段）",
+      "readings": {
+        "currencies": { "http": 200, "rows": 2, "values": [["1", "$"], ["399", "BTTC"]], "row_keys": ["cid", "name", "symbol"] },
+        "media_999": { "http": 404, "code": "LEDGER_REF_NOT_FOUND", "reason": "media_not_found" },
+        "prize_1": { "http": 200, "success": true, "has_error": false, "key_count": 47, "has_item_type": true, "item_type": null },
+        "mobile_390": { "viewport": "390x844", "overflow_x": 0, "body_overflow_x": 0, "cards": 18, "tag_count": 1, "ship_card_h": 392, "ship_row1_h": 48, "tabbar_items": 5 }
+      }
+    },
+    {
+      "id": "RECYCLE",
+      "title": "自建数据回收（含转 listed）· 引用面零残留 · 触发器复原",
+      "verdict": "PASS",
+      "evidence": "readings/cleanup-purge.json · readings/db-post-cleanup.json",
+      "readings": {
+        "fixture_ids": [77, 78, 79, 80, 81, 82, 83, 84, 85, 86],
+        "reference_counts_before_delete": { "listing_order": 0, "conversation": 0, "listing_favorite": 0, "listing_review_log": 0, "ledger_entry": 0, "content_translation": 48 },
+        "counts_before": { "listing": 36, "listing_order": 18, "conversation": 1, "message": 7, "ledger_entry": 509, "listing_favorite": 0, "listing_review_log": 0, "content_translation": 402, "media": 2 },
+        "counts_after": { "listing": 26, "listing_order": 18, "conversation": 1, "message": 7, "ledger_entry": 509, "listing_favorite": 0, "listing_review_log": 0, "content_translation": 354, "media": 2 },
+        "delta": { "listing": -10, "listing_order": 0, "conversation": 0, "message": 0, "ledger_entry": 0, "listing_favorite": 0, "listing_review_log": 0, "content_translation": -48, "media": 0 },
+        "trigger": { "before": "O", "disabled_inside_tx": "D", "enabled_inside_tx": "O", "after": "O" },
+        "post_delete_reference_counts": { "listing_by_id": 0, "content_translation": 0, "listing_review_log": 0, "listing_order": 0, "conversation": 0, "listing_favorite": 0 },
+        "leftover_rows": 0,
+        "post_state": { "listing_count": 26, "item_type_non_null": 0, "feed_rows": 9, "feed_tagged_rows": 0 }
+      },
+      "notes": [
+        "content_translation 减 48 行（10 件夹具各 4–5 行 pending 翻译），由同事务删除；事务内 DELETE 无 RETURNING ⇒ 该步返回行数读作 0，实际行数取前后计数差 48（已在报告披露）。",
+        "QA 登录钱包账户 uid=971224 留在 users（batt_account/batt_entry 引用、登录即建），不删，已在报告披露。",
+        "改动前基线（listing 26 行 / item_type 全 NULL / schema 0053）由 db-probe 首跑取得，其 JSON 因 tee 目标目录当时不存在而未落盘；等价终态读数见 readings/db-post-cleanup.json（26 行 / 全 NULL / 0053），删前计数见 cleanup-purge.json 的 counts_before。"
+      ]
+    }
+  ],
+  "non_blocking_notes": [
+    "卡面 `.sf-reward-ship-tag` 的 vertical-align 为 baseline，与 design §26.12.1 的 middle 不一致（非判负项、非读数登记项）。",
+    "SPEC-NOTE §5.1 第 1 项（空串 ⇒ null）已在现盘实现中反转为 400 —— 与本次 AC1 契约一致，登记结案。",
+    "本轮探针为取得「零网络」正控与页面联动读数多次重跑，共产生 4 件 publish-door 夹具（83–86），全部回收。"
+  ],
+  "no_changes": {
+    "product_code": 0,
+    "docs": 0,
+    "others_readings": 0,
+    "commit": false,
+    "push": false
+  }
+}

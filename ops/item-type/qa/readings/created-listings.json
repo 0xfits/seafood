@@ -1,0 +1,40 @@
+{
+  "TAG": "IT-TYPE-QA-20261019223806",
+  "created": [
+    {
+      "listing_id": 77,
+      "arm": "Digital",
+      "suffix": "digital",
+      "listed_http": 200
+    },
+    {
+      "listing_id": 78,
+      "arm": "PhysicalFreeShip",
+      "suffix": "ship",
+      "listed_http": 200
+    },
+    {
+      "listing_id": 79,
+      "arm": "PhysicalBuyerShip",
+      "suffix": "buyer",
+      "listed_http": 200
+    },
+    {
+      "listing_id": 80,
+      "arm": "NULL",
+      "suffix": "null",
+      "listed_http": 200
+    },
+    {
+      "listing_id": 81,
+      "arm": "NULL",
+      "suffix": "nullable",
+      "listed_http": 200
+    },
+    {
+      "listing_id": 82,
+      "arm": "PATCH_CASE",
+      "suffix": "patch"
+    }
+  ]
+}
