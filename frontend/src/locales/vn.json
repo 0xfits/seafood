@@ -432,7 +432,8 @@
     "limited": "Số lượng giới hạn",
     "timeLimited": "Thời gian có hạn",
     "insufficient": "Không đủ điểm",
-    "claimNow": "Nhận ngay"
+    "claimNow": "Nhận ngay",
+    "wants": "{{n}} người muốn"
   },
   "claimRewardModal": {
     "lore": "Thu thập ngọc trong chuyến phiêu lưu dưới nước rồi nhận thưởng."

@@ -1,0 +1,45 @@
+FAIL 1440/light/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=207.33x240
+   ✗ no-img-box-kept: img=240 box=240
+   ✗ title-h-noclip: 48/48 72/48 72/48 72/48
+   ✗ price-two-ends: 0/12 0/12 0/12 0/12
+FAIL 1440/dark/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=207.33x240
+   ✗ no-img-box-kept: img=240 box=240
+   ✗ title-h-noclip: 48/48 72/48 72/48 72/48
+   ✗ price-two-ends: 0/12 0/12 0/12 0/12
+FAIL 1536/light/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=223.33x240
+   ✗ no-img-box-kept: img=240 box=240
+   ✗ title-h-noclip: 48/48 72/48 48/48 72/48
+   ✗ price-two-ends: 0/12 0/12 0/12 0/12
+FAIL 1536/dark/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=223.33x240
+   ✗ no-img-box-kept: img=240 box=240
+   ✗ title-h-noclip: 48/48 72/48 48/48 72/48
+   ✗ price-two-ends: 0/12 0/12 0/12 0/12
+FAIL 1440/light/real cards=9 cardH=392,392,392,392,392,392,392,392,392 rows=48/32/24/48 img=207.33x240
+   ✗ price-two-ends: 0/12 0/12 0/12 0/12 0/12 0/12 0/12 0/12 0/12
+   ✗ nickname-mask: 0x59**b0|0x37**b9|0x11**5a|0x64**72|0x99**74|0x97**00|0xe4**6b|0xe4**6b|0xe4**6b
+VERDICT=FAIL passes=5 checks=169 red=14 pageErrors=0 → ops/card-rows/readings/probe-result.json
+PROBE CRASH: page.waitForSelector: Timeout 20000ms exceeded.
+Call log:
+  - waiting for locator('[data-sf-m="reward-card"]') to be visible
+
+    at settle (/Users/kevin/bistro/seafood/ops/card-rows/probe-card-rows.mjs:93:14)
+    at runPass (/Users/kevin/bistro/seafood/ops/card-rows/probe-card-rows.mjs:191:9)
+    at async main (/Users/kevin/bistro/seafood/ops/card-rows/probe-card-rows.mjs:266:20)
+FAIL 1440/light/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=207.33x240
+   ✗ title-h-noclip: 48/48 72/48 48/48 48/48
+   ✗ nickname-mask: 0xaaaa**aaa1|0xbbbb**bbb2|0xcccc**ccc3|0xdddd**ddd4
+FAIL 1440/dark/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=207.33x240
+   ✗ title-h-noclip: 48/48 72/48 48/48 48/48
+   ✗ nickname-mask: 0xaaaa**aaa1|0xbbbb**bbb2|0xcccc**ccc3|0xdddd**ddd4
+FAIL 1536/light/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=223.33x240
+   ✗ nickname-mask: 0xaaaa**aaa1|0xbbbb**bbb2|0xcccc**ccc3|0xdddd**ddd4
+FAIL 1536/dark/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=223.33x240
+   ✗ nickname-mask: 0xaaaa**aaa1|0xbbbb**bbb2|0xcccc**ccc3|0xdddd**ddd4
+PASS 1440/light/real cards=9 cardH=392,392,392,392,392,392,392,392,392 rows=48/32/24/48 img=207.33x240
+VERDICT=FAIL passes=5 checks=169 red=6 pageErrors=0 → ops/card-rows/readings/probe-result.json
+PASS 1440/light/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=207.33x240
+PASS 1440/dark/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=207.33x240
+PASS 1536/light/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=223.33x240
+PASS 1536/dark/fixture cards=4 cardH=392,392,392,392 rows=48/32/24/48 img=223.33x240
+PASS 1440/light/real cards=9 cardH=392,392,392,392,392,392,392,392,392 rows=48/32/24/48 img=207.33x240
+VERDICT=PASS passes=5 checks=169 red=0 pageErrors=0 → ops/card-rows/readings/probe-result.json

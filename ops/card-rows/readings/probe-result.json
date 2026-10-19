@@ -1,0 +1,2167 @@
+{
+  "verdict": "PASS",
+  "errors": [],
+  "env": {
+    "base": "http://localhost:5787",
+    "viewports": [
+      1440,
+      1536
+    ],
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "fixtures": [
+      {
+        "bID": 901,
+        "name": "短标题商品",
+        "points": 495,
+        "wants": 20,
+        "hasImage": true
+      },
+      {
+        "bID": 902,
+        "name": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉",
+        "points": 12,
+        "wants": 0,
+        "hasImage": false
+      },
+      {
+        "bID": 903,
+        "name": "Ultra long product title fixture for truncation test 0123456789",
+        "points": 8888,
+        "wants": 1234,
+        "hasImage": true
+      },
+      {
+        "bID": 904,
+        "name": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉",
+        "points": 1,
+        "wants": 7,
+        "hasImage": true
+      }
+    ]
+  },
+  "results": [
+    {
+      "tag": "1440/light/fixture",
+      "pass": true,
+      "checks": [
+        {
+          "name": "cardH=392(all)",
+          "pass": true,
+          "detail": "392,392,392,392"
+        },
+        {
+          "name": "rootH=392(all)",
+          "pass": true,
+          "detail": "392,392,392,392"
+        },
+        {
+          "name": "imageBoxH=240(all)",
+          "pass": true,
+          "detail": "240,240,240,240"
+        },
+        {
+          "name": "imageBoxW=innerW",
+          "pass": true,
+          "detail": "207.33/207 207.33/207 207.33/207 207.34/207"
+        },
+        {
+          "name": "contentW=innerW",
+          "pass": true,
+          "detail": "207.33/207 207.33/207 207.33/207 207.34/207"
+        },
+        {
+          "name": "img240xinnerW",
+          "pass": true,
+          "detail": "207.33x240 207.33x240 207.33x240 207.34x240"
+        },
+        {
+          "name": "objectFit=cover",
+          "pass": true,
+          "detail": "cover,cover,cover,cover"
+        },
+        {
+          "name": "placeholder-img-240",
+          "pass": true,
+          "detail": "img=207.33x240 inner=207"
+        },
+        {
+          "name": "rows=4",
+          "pass": true,
+          "detail": "4,4,4,4"
+        },
+        {
+          "name": "row-names",
+          "pass": true,
+          "detail": "row1-wrap-title|row2-wrap-service|row3-wrap-price|row4-wrap-seller"
+        },
+        {
+          "name": "row1H=48(all)",
+          "pass": true,
+          "detail": "48,48,48,48"
+        },
+        {
+          "name": "row2H=32(all)",
+          "pass": true,
+          "detail": "32,32,32,32"
+        },
+        {
+          "name": "row3H=24(all)",
+          "pass": true,
+          "detail": "24,24,24,24"
+        },
+        {
+          "name": "row4H=48(all)",
+          "pass": true,
+          "detail": "48,48,48,48"
+        },
+        {
+          "name": "rows-sum=152",
+          "pass": true,
+          "detail": "152"
+        },
+        {
+          "name": "240+152=392",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "title-h-noclip",
+          "pass": true,
+          "detail": "48/48 48/48 48/48 48/48"
+        },
+        {
+          "name": "title-clamp2",
+          "pass": true,
+          "detail": "2,2,2,2"
+        },
+        {
+          "name": "title-short-verbatim",
+          "pass": true,
+          "detail": "短标题商品"
+        },
+        {
+          "name": "title-han25-trunc",
+          "pass": true,
+          "detail": "汉汉汉..."
+        },
+        {
+          "name": "title-han24-verbatim",
+          "pass": true,
+          "detail": 24
+        },
+        {
+          "name": "title-latin60-trunc",
+          "pass": true,
+          "detail": "Ultra long product title fixture for truncation ..."
+        },
+        {
+          "name": "title-no-ellipsis-char",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "service-empty",
+          "pass": true,
+          "detail": "\"\",\"\",\"\",\"\""
+        },
+        {
+          "name": "price-cur-in-span",
+          "pass": true,
+          "detail": "$,$,$,$"
+        },
+        {
+          "name": "price-wants-pattern",
+          "pass": true,
+          "detail": "20人想要|0人想要|1234人想要|7人想要"
+        },
+        {
+          "name": "price-single-line",
+          "pass": true,
+          "detail": "207/207 207/207 207/207 207/207"
+        },
+        {
+          "name": "price-nowrap",
+          "pass": true,
+          "detail": "nowrap,nowrap,nowrap,nowrap"
+        },
+        {
+          "name": "price-two-ends",
+          "pass": true,
+          "detail": "12/12 12/12 12/12 12/12"
+        },
+        {
+          "name": "price-num-match",
+          "pass": true,
+          "detail": "495,12,8888,1"
+        },
+        {
+          "name": "wants-num-match",
+          "pass": true,
+          "detail": "20人想要|0人想要|1234人想要|7人想要"
+        },
+        {
+          "name": "wants-zero-cases",
+          "pass": true,
+          "detail": "0人想要"
+        },
+        {
+          "name": "seller-avatar-24",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "nickname-mask",
+          "pass": true,
+          "detail": "0xaa**a1|0xbb**b2|0xcc**c3|0xdd**d4"
+        },
+        {
+          "name": "grid-cols-6",
+          "pass": true,
+          "detail": "cols=6"
+        },
+        {
+          "name": "no-overflow-x",
+          "pass": true,
+          "detail": "overflowX=0"
+        }
+      ],
+      "cards": [
+        {
+          "rootH": 392,
+          "innerH": 392,
+          "innerW": 209.33,
+          "innerClientW": 207,
+          "imgBoxH": 240,
+          "imgBoxW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "contentH": 150,
+          "contentW": 207.33,
+          "rowCount": 4,
+          "rowClasses": [
+            "row1-wrap-title",
+            "row2-wrap-service",
+            "row3-wrap-price",
+            "row4-wrap-seller"
+          ],
+          "titleH": 48,
+          "titleW": 207.33,
+          "titleText": "短标题商品",
+          "titleScrollH": 48,
+          "titleClientH": 48,
+          "titleLineClamp": "2",
+          "titleOverflow": "hidden",
+          "serviceH": 32,
+          "serviceText": "",
+          "serviceChildren": 0,
+          "priceH": 24,
+          "priceText": "$49520人想要",
+          "priceWhiteSpace": "nowrap",
+          "priceScrollW": 207,
+          "priceClientW": 207,
+          "curText": "$",
+          "curInSpan": true,
+          "numText": "495",
+          "wantsText": "20人想要",
+          "wantsAlign": "right",
+          "priceLeftGap": 12,
+          "wantsRightGap": 12,
+          "priceBlockFontSize": "16px",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "nickname": "0xaa**a1",
+          "tierText": "卖家信用优秀"
+        },
+        {
+          "rootH": 392,
+          "innerH": 392,
+          "innerW": 209.33,
+          "innerClientW": 207,
+          "imgBoxH": 240,
+          "imgBoxW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "contentH": 150,
+          "contentW": 207.33,
+          "rowCount": 4,
+          "rowClasses": [
+            "row1-wrap-title",
+            "row2-wrap-service",
+            "row3-wrap-price",
+            "row4-wrap-seller"
+          ],
+          "titleH": 48,
+          "titleW": 207.33,
+          "titleText": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉...",
+          "titleScrollH": 48,
+          "titleClientH": 48,
+          "titleLineClamp": "2",
+          "titleOverflow": "hidden",
+          "serviceH": 32,
+          "serviceText": "",
+          "serviceChildren": 0,
+          "priceH": 24,
+          "priceText": "$120人想要",
+          "priceWhiteSpace": "nowrap",
+          "priceScrollW": 207,
+          "priceClientW": 207,
+          "curText": "$",
+          "curInSpan": true,
+          "numText": "12",
+          "wantsText": "0人想要",
+          "wantsAlign": "right",
+          "priceLeftGap": 12,
+          "wantsRightGap": 12,
+          "priceBlockFontSize": "16px",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "nickname": "0xbb**b2",
+          "tierText": "卖家信用良好"
+        },
+        {
+          "rootH": 392,
+          "innerH": 392,
+          "innerW": 209.33,
+          "innerClientW": 207,
+          "imgBoxH": 240,
+          "imgBoxW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "contentH": 150,
+          "contentW": 207.33,
+          "rowCount": 4,
+          "rowClasses": [
+            "row1-wrap-title",
+            "row2-wrap-service",
+            "row3-wrap-price",
+            "row4-wrap-seller"
+          ],
+          "titleH": 48,
+          "titleW": 207.33,
+          "titleText": "Ultra long product title fixture for truncation ...",
+          "titleScrollH": 48,
+          "titleClientH": 48,
+          "titleLineClamp": "2",
+          "titleOverflow": "hidden",
+          "serviceH": 32,
+          "serviceText": "",
+          "serviceChildren": 0,
+          "priceH": 24,
+          "priceText": "$88881234人想要",
+          "priceWhiteSpace": "nowrap",
+          "priceScrollW": 207,
+          "priceClientW": 207,
+          "curText": "$",
+          "curInSpan": true,
+          "numText": "8888",
+          "wantsText": "1234人想要",
+          "wantsAlign": "right",
+          "priceLeftGap": 12,
+          "wantsRightGap": 12,
+          "priceBlockFontSize": "16px",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "nickname": "0xcc**c3",
+          "tierText": "新卖家"
+        },
+        {
+          "rootH": 392,
+          "innerH": 392,
+          "innerW": 209.34,
+          "innerClientW": 207,
+          "imgBoxH": 240,
+          "imgBoxW": 207.34,
+          "imgH": 240,
+          "imgW": 207.34,
+          "objectFit": "cover",
+          "contentH": 150,
+          "contentW": 207.34,
+          "rowCount": 4,
+          "rowClasses": [
+            "row1-wrap-title",
+            "row2-wrap-service",
+            "row3-wrap-price",
+            "row4-wrap-seller"
+          ],
+          "titleH": 48,
+          "titleW": 207.34,
+          "titleText": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉",
+          "titleScrollH": 48,
+          "titleClientH": 48,
+          "titleLineClamp": "2",
+          "titleOverflow": "hidden",
+          "serviceH": 32,
+          "serviceText": "",
+          "serviceChildren": 0,
+          "priceH": 24,
+          "priceText": "$17人想要",
+          "priceWhiteSpace": "nowrap",
+          "priceScrollW": 207,
+          "priceClientW": 207,
+          "curText": "$",
+          "curInSpan": true,
+          "numText": "1",
+          "wantsText": "7人想要",
+          "wantsAlign": "right",
+          "priceLeftGap": 12,
+          "wantsRightGap": 12,
+          "priceBlockFontSize": "16px",
+          "sellerH": 48,
+          "sellerW": 207.34,
+          "avatarW": 24,
+          "avatarH": 24,
+          "nickname": "0xdd**d4",
+          "tierText": "卖家信用一般"
+        }
+      ],
+      "cols": 6,
+      "overflowX": 0
+    },
+    {
+      "tag": "1440/dark/fixture",
+      "pass": true,
+      "checks": [
+        {
+          "name": "cardH=392(all)",
+          "pass": true,
+          "detail": "392,392,392,392"
+        },
+        {
+          "name": "rootH=392(all)",
+          "pass": true,
+          "detail": "392,392,392,392"
+        },
+        {
+          "name": "imageBoxH=240(all)",
+          "pass": true,
+          "detail": "240,240,240,240"
+        },
+        {
+          "name": "imageBoxW=innerW",
+          "pass": true,
+          "detail": "207.33/207 207.33/207 207.33/207 207.34/207"
+        },
+        {
+          "name": "contentW=innerW",
+          "pass": true,
+          "detail": "207.33/207 207.33/207 207.33/207 207.34/207"
+        },
+        {
+          "name": "img240xinnerW",
+          "pass": true,
+          "detail": "207.33x240 207.33x240 207.33x240 207.34x240"
+        },
+        {
+          "name": "objectFit=cover",
+          "pass": true,
+          "detail": "cover,cover,cover,cover"
+        },
+        {
+          "name": "placeholder-img-240",
+          "pass": true,
+          "detail": "img=207.33x240 inner=207"
+        },
+        {
+          "name": "rows=4",
+          "pass": true,
+          "detail": "4,4,4,4"
+        },
+        {
+          "name": "row-names",
+          "pass": true,
+          "detail": "row1-wrap-title|row2-wrap-service|row3-wrap-price|row4-wrap-seller"
+        },
+        {
+          "name": "row1H=48(all)",
+          "pass": true,
+          "detail": "48,48,48,48"
+        },
+        {
+          "name": "row2H=32(all)",
+          "pass": true,
+          "detail": "32,32,32,32"
+        },
+        {
+          "name": "row3H=24(all)",
+          "pass": true,
+          "detail": "24,24,24,24"
+        },
+        {
+          "name": "row4H=48(all)",
+          "pass": true,
+          "detail": "48,48,48,48"
+        },
+        {
+          "name": "rows-sum=152",
+          "pass": true,
+          "detail": "152"
+        },
+        {
+          "name": "240+152=392",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "title-h-noclip",
+          "pass": true,
+          "detail": "48/48 48/48 48/48 48/48"
+        },
+        {
+          "name": "title-clamp2",
+          "pass": true,
+          "detail": "2,2,2,2"
+        },
+        {
+          "name": "title-short-verbatim",
+          "pass": true,
+          "detail": "短标题商品"
+        },
+        {
+          "name": "title-han25-trunc",
+          "pass": true,
+          "detail": "汉汉汉..."
+        },
+        {
+          "name": "title-han24-verbatim",
+          "pass": true,
+          "detail": 24
+        },
+        {
+          "name": "title-latin60-trunc",
+          "pass": true,
+          "detail": "Ultra long product title fixture for truncation ..."
+        },
+        {
+          "name": "title-no-ellipsis-char",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "service-empty",
+          "pass": true,
+          "detail": "\"\",\"\",\"\",\"\""
+        },
+        {
+          "name": "price-cur-in-span",
+          "pass": true,
+          "detail": "$,$,$,$"
+        },
+        {
+          "name": "price-wants-pattern",
+          "pass": true,
+          "detail": "20人想要|0人想要|1234人想要|7人想要"
+        },
+        {
+          "name": "price-single-line",
+          "pass": true,
+          "detail": "207/207 207/207 207/207 207/207"
+        },
+        {
+          "name": "price-nowrap",
+          "pass": true,
+          "detail": "nowrap,nowrap,nowrap,nowrap"
+        },
+        {
+          "name": "price-two-ends",
+          "pass": true,
+          "detail": "12/12 12/12 12/12 12/12"
+        },
+        {
+          "name": "price-num-match",
+          "pass": true,
+          "detail": "495,12,8888,1"
+        },
+        {
+          "name": "wants-num-match",
+          "pass": true,
+          "detail": "20人想要|0人想要|1234人想要|7人想要"
+        },
+        {
+          "name": "wants-zero-cases",
+          "pass": true,
+          "detail": "0人想要"
+        },
+        {
+          "name": "seller-avatar-24",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "nickname-mask",
+          "pass": true,
+          "detail": "0xaa**a1|0xbb**b2|0xcc**c3|0xdd**d4"
+        },
+        {
+          "name": "grid-cols-6",
+          "pass": true,
+          "detail": "cols=6"
+        },
+        {
+          "name": "no-overflow-x",
+          "pass": true,
+          "detail": "overflowX=0"
+        }
+      ],
+      "cards": [
+        {
+          "rootH": 392,
+          "innerH": 392,
+          "innerW": 209.33,
+          "innerClientW": 207,
+          "imgBoxH": 240,
+          "imgBoxW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "contentH": 150,
+          "contentW": 207.33,
+          "rowCount": 4,
+          "rowClasses": [
+            "row1-wrap-title",
+            "row2-wrap-service",
+            "row3-wrap-price",
+            "row4-wrap-seller"
+          ],
+          "titleH": 48,
+          "titleW": 207.33,
+          "titleText": "短标题商品",
+          "titleScrollH": 48,
+          "titleClientH": 48,
+          "titleLineClamp": "2",
+          "titleOverflow": "hidden",
+          "serviceH": 32,
+          "serviceText": "",
+          "serviceChildren": 0,
+          "priceH": 24,
+          "priceText": "$49520人想要",
+          "priceWhiteSpace": "nowrap",
+          "priceScrollW": 207,
+          "priceClientW": 207,
+          "curText": "$",
+          "curInSpan": true,
+          "numText": "495",
+          "wantsText": "20人想要",
+          "wantsAlign": "right",
+          "priceLeftGap": 12,
+          "wantsRightGap": 12,
+          "priceBlockFontSize": "16px",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "nickname": "0xaa**a1",
+          "tierText": "卖家信用优秀"
+        },
+        {
+          "rootH": 392,
+          "innerH": 392,
+          "innerW": 209.33,
+          "innerClientW": 207,
+          "imgBoxH": 240,
+          "imgBoxW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "contentH": 150,
+          "contentW": 207.33,
+          "rowCount": 4,
+          "rowClasses": [
+            "row1-wrap-title",
+            "row2-wrap-service",
+            "row3-wrap-price",
+            "row4-wrap-seller"
+          ],
+          "titleH": 48,
+          "titleW": 207.33,
+          "titleText": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉...",
+          "titleScrollH": 48,
+          "titleClientH": 48,
+          "titleLineClamp": "2",
+          "titleOverflow": "hidden",
+          "serviceH": 32,
+          "serviceText": "",
+          "serviceChildren": 0,
+          "priceH": 24,
+          "priceText": "$120人想要",
+          "priceWhiteSpace": "nowrap",
+          "priceScrollW": 207,
+          "priceClientW": 207,
+          "curText": "$",
+          "curInSpan": true,
+          "numText": "12",
+          "wantsText": "0人想要",
+          "wantsAlign": "right",
+          "priceLeftGap": 12,
+          "wantsRightGap": 12,
+          "priceBlockFontSize": "16px",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "nickname": "0xbb**b2",
+          "tierText": "卖家信用良好"
+        },
+        {
+          "rootH": 392,
+          "innerH": 392,
+          "innerW": 209.33,
+          "innerClientW": 207,
+          "imgBoxH": 240,
+          "imgBoxW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "contentH": 150,
+          "contentW": 207.33,
+          "rowCount": 4,
+          "rowClasses": [
+            "row1-wrap-title",
+            "row2-wrap-service",
+            "row3-wrap-price",
+            "row4-wrap-seller"
+          ],
+          "titleH": 48,
+          "titleW": 207.33,
+          "titleText": "Ultra long product title fixture for truncation ...",
+          "titleScrollH": 48,
+          "titleClientH": 48,
+          "titleLineClamp": "2",
+          "titleOverflow": "hidden",
+          "serviceH": 32,
+          "serviceText": "",
+          "serviceChildren": 0,
+          "priceH": 24,
+          "priceText": "$88881234人想要",
+          "priceWhiteSpace": "nowrap",
+          "priceScrollW": 207,
+          "priceClientW": 207,
+          "curText": "$",
+          "curInSpan": true,
+          "numText": "8888",
+          "wantsText": "1234人想要",
+          "wantsAlign": "right",
+          "priceLeftGap": 12,
+          "wantsRightGap": 12,
+          "priceBlockFontSize": "16px",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "nickname": "0xcc**c3",
+          "tierText": "新卖家"
+        },
+        {
+          "rootH": 392,
+          "innerH": 392,
+          "innerW": 209.34,
+          "innerClientW": 207,
+          "imgBoxH": 240,
+          "imgBoxW": 207.34,
+          "imgH": 240,
+          "imgW": 207.34,
+          "objectFit": "cover",
+          "contentH": 150,
+          "contentW": 207.34,
+          "rowCount": 4,
+          "rowClasses": [
+            "row1-wrap-title",
+            "row2-wrap-service",
+            "row3-wrap-price",
+            "row4-wrap-seller"
+          ],
+          "titleH": 48,
+          "titleW": 207.34,
+          "titleText": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉",
+          "titleScrollH": 48,
+          "titleClientH": 48,
+          "titleLineClamp": "2",
+          "titleOverflow": "hidden",
+          "serviceH": 32,
+          "serviceText": "",
+          "serviceChildren": 0,
+          "priceH": 24,
+          "priceText": "$17人想要",
+          "priceWhiteSpace": "nowrap",
+          "priceScrollW": 207,
+          "priceClientW": 207,
+          "curText": "$",
+          "curInSpan": true,
+          "numText": "1",
+          "wantsText": "7人想要",
+          "wantsAlign": "right",
+          "priceLeftGap": 12,
+          "wantsRightGap": 12,
+          "priceBlockFontSize": "16px",
+          "sellerH": 48,
+          "sellerW": 207.34,
+          "avatarW": 24,
+          "avatarH": 24,
+          "nickname": "0xdd**d4",
+          "tierText": "卖家信用一般"
+        }
+      ],
+      "cols": 6,
+      "overflowX": 0
+    },
+    {
+      "tag": "1536/light/fixture",
+      "pass": true,
+      "checks": [
+        {
+          "name": "cardH=392(all)",
+          "pass": true,
+          "detail": "392,392,392,392"
+        },
+        {
+          "name": "rootH=392(all)",
+          "pass": true,
+          "detail": "392,392,392,392"
+        },
+        {
+          "name": "imageBoxH=240(all)",
+          "pass": true,
+          "detail": "240,240,240,240"
+        },
+        {
+          "name": "imageBoxW=innerW",
+          "pass": true,
+          "detail": "223.33/223 223.33/223 223.33/223 223.34/223"
+        },
+        {
+          "name": "contentW=innerW",
+          "pass": true,
+          "detail": "223.33/223 223.33/223 223.33/223 223.34/223"
+        },
+        {
+          "name": "img240xinnerW",
+          "pass": true,
+          "detail": "223.33x240 223.33x240 223.33x240 223.34x240"
+        },
+        {
+          "name": "objectFit=cover",
+          "pass": true,
+          "detail": "cover,cover,cover,cover"
+        },
+        {
+          "name": "placeholder-img-240",
+          "pass": true,
+          "detail": "img=223.33x240 inner=223"
+        },
+        {
+          "name": "rows=4",
+          "pass": true,
+          "detail": "4,4,4,4"
+        },
+        {
+          "name": "row-names",
+          "pass": true,
+          "detail": "row1-wrap-title|row2-wrap-service|row3-wrap-price|row4-wrap-seller"
+        },
+        {
+          "name": "row1H=48(all)",
+          "pass": true,
+          "detail": "48,48,48,48"
+        },
+        {
+          "name": "row2H=32(all)",
+          "pass": true,
+          "detail": "32,32,32,32"
+        },
+        {
+          "name": "row3H=24(all)",
+          "pass": true,
+          "detail": "24,24,24,24"
+        },
+        {
+          "name": "row4H=48(all)",
+          "pass": true,
+          "detail": "48,48,48,48"
+        },
+        {
+          "name": "rows-sum=152",
+          "pass": true,
+          "detail": "152"
+        },
+        {
+          "name": "240+152=392",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "title-h-noclip",
+          "pass": true,
+          "detail": "48/48 48/48 48/48 48/48"
+        },
+        {
+          "name": "title-clamp2",
+          "pass": true,
+          "detail": "2,2,2,2"
+        },
+        {
+          "name": "title-short-verbatim",
+          "pass": true,
+          "detail": "短标题商品"
+        },
+        {
+          "name": "title-han25-trunc",
+          "pass": true,
+          "detail": "汉汉汉..."
+        },
+        {
+          "name": "title-han24-verbatim",
+          "pass": true,
+          "detail": 24
+        },
+        {
+          "name": "title-latin60-trunc",
+          "pass": true,
+          "detail": "Ultra long product title fixture for truncation ..."
+        },
+        {
+          "name": "title-no-ellipsis-char",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "service-empty",
+          "pass": true,
+          "detail": "\"\",\"\",\"\",\"\""
+        },
+        {
+          "name": "price-cur-in-span",
+          "pass": true,
+          "detail": "$,$,$,$"
+        },
+        {
+          "name": "price-wants-pattern",
+          "pass": true,
+          "detail": "20人想要|0人想要|1234人想要|7人想要"
+        },
+        {
+          "name": "price-single-line",
+          "pass": true,
+          "detail": "223/223 223/223 223/223 223/223"
+        },
+        {
+          "name": "price-nowrap",
+          "pass": true,
+          "detail": "nowrap,nowrap,nowrap,nowrap"
+        },
+        {
+          "name": "price-two-ends",
+          "pass": true,
+          "detail": "12/12 12/12 12/12 12/12"
+        },
+        {
+          "name": "price-num-match",
+          "pass": true,
+          "detail": "495,12,8888,1"
+        },
+        {
+          "name": "wants-num-match",
+          "pass": true,
+          "detail": "20人想要|0人想要|1234人想要|7人想要"
+        },
+        {
+          "name": "wants-zero-cases",
+          "pass": true,
+          "detail": "0人想要"
+        },
+        {
+          "name": "seller-avatar-24",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "nickname-mask",
+          "pass": true,
+          "detail": "0xaa**a1|0xbb**b2|0xcc**c3|0xdd**d4"
+        },
+        {
+          "name": "grid-cols-6",
+          "pass": true,
+          "detail": "cols=6"
+        },
+        {
+          "name": "no-overflow-x",
+          "pass": true,
+          "detail": "overflowX=0"
+        }
+      ],
+      "cards": [
+        {
+          "rootH": 392,
+          "innerH": 392,
+          "innerW": 225.33,
+          "innerClientW": 223,
+          "imgBoxH": 240,
+          "imgBoxW": 223.33,
+          "imgH": 240,
+          "imgW": 223.33,
+          "objectFit": "cover",
+          "contentH": 150,
+          "contentW": 223.33,
+          "rowCount": 4,
+          "rowClasses": [
+            "row1-wrap-title",
+            "row2-wrap-service",
+            "row3-wrap-price",
+            "row4-wrap-seller"
+          ],
+          "titleH": 48,
+          "titleW": 223.33,
+          "titleText": "短标题商品",
+          "titleScrollH": 48,
+          "titleClientH": 48,
+          "titleLineClamp": "2",
+          "titleOverflow": "hidden",
+          "serviceH": 32,
+          "serviceText": "",
+          "serviceChildren": 0,
+          "priceH": 24,
+          "priceText": "$49520人想要",
+          "priceWhiteSpace": "nowrap",
+          "priceScrollW": 223,
+          "priceClientW": 223,
+          "curText": "$",
+          "curInSpan": true,
+          "numText": "495",
+          "wantsText": "20人想要",
+          "wantsAlign": "right",
+          "priceLeftGap": 12,
+          "wantsRightGap": 12,
+          "priceBlockFontSize": "16px",
+          "sellerH": 48,
+          "sellerW": 223.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "nickname": "0xaa**a1",
+          "tierText": "卖家信用优秀"
+        },
+        {
+          "rootH": 392,
+          "innerH": 392,
+          "innerW": 225.33,
+          "innerClientW": 223,
+          "imgBoxH": 240,
+          "imgBoxW": 223.33,
+          "imgH": 240,
+          "imgW": 223.33,
+          "objectFit": "cover",
+          "contentH": 150,
+          "contentW": 223.33,
+          "rowCount": 4,
+          "rowClasses": [
+            "row1-wrap-title",
+            "row2-wrap-service",
+            "row3-wrap-price",
+            "row4-wrap-seller"
+          ],
+          "titleH": 48,
+          "titleW": 223.33,
+          "titleText": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉...",
+          "titleScrollH": 48,
+          "titleClientH": 48,
+          "titleLineClamp": "2",
+          "titleOverflow": "hidden",
+          "serviceH": 32,
+          "serviceText": "",
+          "serviceChildren": 0,
+          "priceH": 24,
+          "priceText": "$120人想要",
+          "priceWhiteSpace": "nowrap",
+          "priceScrollW": 223,
+          "priceClientW": 223,
+          "curText": "$",
+          "curInSpan": true,
+          "numText": "12",
+          "wantsText": "0人想要",
+          "wantsAlign": "right",
+          "priceLeftGap": 12,
+          "wantsRightGap": 12,
+          "priceBlockFontSize": "16px",
+          "sellerH": 48,
+          "sellerW": 223.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "nickname": "0xbb**b2",
+          "tierText": "卖家信用良好"
+        },
+        {
+          "rootH": 392,
+          "innerH": 392,
+          "innerW": 225.33,
+          "innerClientW": 223,
+          "imgBoxH": 240,
+          "imgBoxW": 223.33,
+          "imgH": 240,
+          "imgW": 223.33,
+          "objectFit": "cover",
+          "contentH": 150,
+          "contentW": 223.33,
+          "rowCount": 4,
+          "rowClasses": [
+            "row1-wrap-title",
+            "row2-wrap-service",
+            "row3-wrap-price",
+            "row4-wrap-seller"
+          ],
+          "titleH": 48,
+          "titleW": 223.33,
+          "titleText": "Ultra long product title fixture for truncation ...",
+          "titleScrollH": 48,
+          "titleClientH": 48,
+          "titleLineClamp": "2",
+          "titleOverflow": "hidden",
+          "serviceH": 32,
+          "serviceText": "",
+          "serviceChildren": 0,
+          "priceH": 24,
+          "priceText": "$88881234人想要",
+          "priceWhiteSpace": "nowrap",
+          "priceScrollW": 223,
+          "priceClientW": 223,
+          "curText": "$",
+          "curInSpan": true,
+          "numText": "8888",
+          "wantsText": "1234人想要",
+          "wantsAlign": "right",
+          "priceLeftGap": 12,
+          "wantsRightGap": 12,
+          "priceBlockFontSize": "16px",
+          "sellerH": 48,
+          "sellerW": 223.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "nickname": "0xcc**c3",
+          "tierText": "新卖家"
+        },
+        {
+          "rootH": 392,
+          "innerH": 392,
+          "innerW": 225.34,
+          "innerClientW": 223,
+          "imgBoxH": 240,
+          "imgBoxW": 223.34,
+          "imgH": 240,
+          "imgW": 223.34,
+          "objectFit": "cover",
+          "contentH": 150,
+          "contentW": 223.34,
+          "rowCount": 4,
+          "rowClasses": [
+            "row1-wrap-title",
+            "row2-wrap-service",
+            "row3-wrap-price",
+            "row4-wrap-seller"
+          ],
+          "titleH": 48,
+          "titleW": 223.34,
+          "titleText": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉",
+          "titleScrollH": 48,
+          "titleClientH": 48,
+          "titleLineClamp": "2",
+          "titleOverflow": "hidden",
+          "serviceH": 32,
+          "serviceText": "",
+          "serviceChildren": 0,
+          "priceH": 24,
+          "priceText": "$17人想要",
+          "priceWhiteSpace": "nowrap",
+          "priceScrollW": 223,
+          "priceClientW": 223,
+          "curText": "$",
+          "curInSpan": true,
+          "numText": "1",
+          "wantsText": "7人想要",
+          "wantsAlign": "right",
+          "priceLeftGap": 12,
+          "wantsRightGap": 12,
+          "priceBlockFontSize": "16px",
+          "sellerH": 48,
+          "sellerW": 223.34,
+          "avatarW": 24,
+          "avatarH": 24,
+          "nickname": "0xdd**d4",
+          "tierText": "卖家信用一般"
+        }
+      ],
+      "cols": 6,
+      "overflowX": 0
+    },
+    {
+      "tag": "1536/dark/fixture",
+      "pass": true,
+      "checks": [
+        {
+          "name": "cardH=392(all)",
+          "pass": true,
+          "detail": "392,392,392,392"
+        },
+        {
+          "name": "rootH=392(all)",
+          "pass": true,
+          "detail": "392,392,392,392"
+        },
+        {
+          "name": "imageBoxH=240(all)",
+          "pass": true,
+          "detail": "240,240,240,240"
+        },
+        {
+          "name": "imageBoxW=innerW",
+          "pass": true,
+          "detail": "223.33/223 223.33/223 223.33/223 223.34/223"
+        },
+        {
+          "name": "contentW=innerW",
+          "pass": true,
+          "detail": "223.33/223 223.33/223 223.33/223 223.34/223"
+        },
+        {
+          "name": "img240xinnerW",
+          "pass": true,
+          "detail": "223.33x240 223.33x240 223.33x240 223.34x240"
+        },
+        {
+          "name": "objectFit=cover",
+          "pass": true,
+          "detail": "cover,cover,cover,cover"
+        },
+        {
+          "name": "placeholder-img-240",
+          "pass": true,
+          "detail": "img=223.33x240 inner=223"
+        },
+        {
+          "name": "rows=4",
+          "pass": true,
+          "detail": "4,4,4,4"
+        },
+        {
+          "name": "row-names",
+          "pass": true,
+          "detail": "row1-wrap-title|row2-wrap-service|row3-wrap-price|row4-wrap-seller"
+        },
+        {
+          "name": "row1H=48(all)",
+          "pass": true,
+          "detail": "48,48,48,48"
+        },
+        {
+          "name": "row2H=32(all)",
+          "pass": true,
+          "detail": "32,32,32,32"
+        },
+        {
+          "name": "row3H=24(all)",
+          "pass": true,
+          "detail": "24,24,24,24"
+        },
+        {
+          "name": "row4H=48(all)",
+          "pass": true,
+          "detail": "48,48,48,48"
+        },
+        {
+          "name": "rows-sum=152",
+          "pass": true,
+          "detail": "152"
+        },
+        {
+          "name": "240+152=392",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "title-h-noclip",
+          "pass": true,
+          "detail": "48/48 48/48 48/48 48/48"
+        },
+        {
+          "name": "title-clamp2",
+          "pass": true,
+          "detail": "2,2,2,2"
+        },
+        {
+          "name": "title-short-verbatim",
+          "pass": true,
+          "detail": "短标题商品"
+        },
+        {
+          "name": "title-han25-trunc",
+          "pass": true,
+          "detail": "汉汉汉..."
+        },
+        {
+          "name": "title-han24-verbatim",
+          "pass": true,
+          "detail": 24
+        },
+        {
+          "name": "title-latin60-trunc",
+          "pass": true,
+          "detail": "Ultra long product title fixture for truncation ..."
+        },
+        {
+          "name": "title-no-ellipsis-char",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "service-empty",
+          "pass": true,
+          "detail": "\"\",\"\",\"\",\"\""
+        },
+        {
+          "name": "price-cur-in-span",
+          "pass": true,
+          "detail": "$,$,$,$"
+        },
+        {
+          "name": "price-wants-pattern",
+          "pass": true,
+          "detail": "20人想要|0人想要|1234人想要|7人想要"
+        },
+        {
+          "name": "price-single-line",
+          "pass": true,
+          "detail": "223/223 223/223 223/223 223/223"
+        },
+        {
+          "name": "price-nowrap",
+          "pass": true,
+          "detail": "nowrap,nowrap,nowrap,nowrap"
+        },
+        {
+          "name": "price-two-ends",
+          "pass": true,
+          "detail": "12/12 12/12 12/12 12/12"
+        },
+        {
+          "name": "price-num-match",
+          "pass": true,
+          "detail": "495,12,8888,1"
+        },
+        {
+          "name": "wants-num-match",
+          "pass": true,
+          "detail": "20人想要|0人想要|1234人想要|7人想要"
+        },
+        {
+          "name": "wants-zero-cases",
+          "pass": true,
+          "detail": "0人想要"
+        },
+        {
+          "name": "seller-avatar-24",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "nickname-mask",
+          "pass": true,
+          "detail": "0xaa**a1|0xbb**b2|0xcc**c3|0xdd**d4"
+        },
+        {
+          "name": "grid-cols-6",
+          "pass": true,
+          "detail": "cols=6"
+        },
+        {
+          "name": "no-overflow-x",
+          "pass": true,
+          "detail": "overflowX=0"
+        }
+      ],
+      "cards": [
+        {
+          "rootH": 392,
+          "innerH": 392,
+          "innerW": 225.33,
+          "innerClientW": 223,
+          "imgBoxH": 240,
+          "imgBoxW": 223.33,
+          "imgH": 240,
+          "imgW": 223.33,
+          "objectFit": "cover",
+          "contentH": 150,
+          "contentW": 223.33,
+          "rowCount": 4,
+          "rowClasses": [
+            "row1-wrap-title",
+            "row2-wrap-service",
+            "row3-wrap-price",
+            "row4-wrap-seller"
+          ],
+          "titleH": 48,
+          "titleW": 223.33,
+          "titleText": "短标题商品",
+          "titleScrollH": 48,
+          "titleClientH": 48,
+          "titleLineClamp": "2",
+          "titleOverflow": "hidden",
+          "serviceH": 32,
+          "serviceText": "",
+          "serviceChildren": 0,
+          "priceH": 24,
+          "priceText": "$49520人想要",
+          "priceWhiteSpace": "nowrap",
+          "priceScrollW": 223,
+          "priceClientW": 223,
+          "curText": "$",
+          "curInSpan": true,
+          "numText": "495",
+          "wantsText": "20人想要",
+          "wantsAlign": "right",
+          "priceLeftGap": 12,
+          "wantsRightGap": 12,
+          "priceBlockFontSize": "16px",
+          "sellerH": 48,
+          "sellerW": 223.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "nickname": "0xaa**a1",
+          "tierText": "卖家信用优秀"
+        },
+        {
+          "rootH": 392,
+          "innerH": 392,
+          "innerW": 225.33,
+          "innerClientW": 223,
+          "imgBoxH": 240,
+          "imgBoxW": 223.33,
+          "imgH": 240,
+          "imgW": 223.33,
+          "objectFit": "cover",
+          "contentH": 150,
+          "contentW": 223.33,
+          "rowCount": 4,
+          "rowClasses": [
+            "row1-wrap-title",
+            "row2-wrap-service",
+            "row3-wrap-price",
+            "row4-wrap-seller"
+          ],
+          "titleH": 48,
+          "titleW": 223.33,
+          "titleText": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉...",
+          "titleScrollH": 48,
+          "titleClientH": 48,
+          "titleLineClamp": "2",
+          "titleOverflow": "hidden",
+          "serviceH": 32,
+          "serviceText": "",
+          "serviceChildren": 0,
+          "priceH": 24,
+          "priceText": "$120人想要",
+          "priceWhiteSpace": "nowrap",
+          "priceScrollW": 223,
+          "priceClientW": 223,
+          "curText": "$",
+          "curInSpan": true,
+          "numText": "12",
+          "wantsText": "0人想要",
+          "wantsAlign": "right",
+          "priceLeftGap": 12,
+          "wantsRightGap": 12,
+          "priceBlockFontSize": "16px",
+          "sellerH": 48,
+          "sellerW": 223.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "nickname": "0xbb**b2",
+          "tierText": "卖家信用良好"
+        },
+        {
+          "rootH": 392,
+          "innerH": 392,
+          "innerW": 225.33,
+          "innerClientW": 223,
+          "imgBoxH": 240,
+          "imgBoxW": 223.33,
+          "imgH": 240,
+          "imgW": 223.33,
+          "objectFit": "cover",
+          "contentH": 150,
+          "contentW": 223.33,
+          "rowCount": 4,
+          "rowClasses": [
+            "row1-wrap-title",
+            "row2-wrap-service",
+            "row3-wrap-price",
+            "row4-wrap-seller"
+          ],
+          "titleH": 48,
+          "titleW": 223.33,
+          "titleText": "Ultra long product title fixture for truncation ...",
+          "titleScrollH": 48,
+          "titleClientH": 48,
+          "titleLineClamp": "2",
+          "titleOverflow": "hidden",
+          "serviceH": 32,
+          "serviceText": "",
+          "serviceChildren": 0,
+          "priceH": 24,
+          "priceText": "$88881234人想要",
+          "priceWhiteSpace": "nowrap",
+          "priceScrollW": 223,
+          "priceClientW": 223,
+          "curText": "$",
+          "curInSpan": true,
+          "numText": "8888",
+          "wantsText": "1234人想要",
+          "wantsAlign": "right",
+          "priceLeftGap": 12,
+          "wantsRightGap": 12,
+          "priceBlockFontSize": "16px",
+          "sellerH": 48,
+          "sellerW": 223.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "nickname": "0xcc**c3",
+          "tierText": "新卖家"
+        },
+        {
+          "rootH": 392,
+          "innerH": 392,
+          "innerW": 225.34,
+          "innerClientW": 223,
+          "imgBoxH": 240,
+          "imgBoxW": 223.34,
+          "imgH": 240,
+          "imgW": 223.34,
+          "objectFit": "cover",
+          "contentH": 150,
+          "contentW": 223.34,
+          "rowCount": 4,
+          "rowClasses": [
+            "row1-wrap-title",
+            "row2-wrap-service",
+            "row3-wrap-price",
+            "row4-wrap-seller"
+          ],
+          "titleH": 48,
+          "titleW": 223.34,
+          "titleText": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉",
+          "titleScrollH": 48,
+          "titleClientH": 48,
+          "titleLineClamp": "2",
+          "titleOverflow": "hidden",
+          "serviceH": 32,
+          "serviceText": "",
+          "serviceChildren": 0,
+          "priceH": 24,
+          "priceText": "$17人想要",
+          "priceWhiteSpace": "nowrap",
+          "priceScrollW": 223,
+          "priceClientW": 223,
+          "curText": "$",
+          "curInSpan": true,
+          "numText": "1",
+          "wantsText": "7人想要",
+          "wantsAlign": "right",
+          "priceLeftGap": 12,
+          "wantsRightGap": 12,
+          "priceBlockFontSize": "16px",
+          "sellerH": 48,
+          "sellerW": 223.34,
+          "avatarW": 24,
+          "avatarH": 24,
+          "nickname": "0xdd**d4",
+          "tierText": "卖家信用一般"
+        }
+      ],
+      "cols": 6,
+      "overflowX": 0
+    },
+    {
+      "tag": "1440/light/real",
+      "pass": true,
+      "checks": [
+        {
+          "name": "cardH=392(all)",
+          "pass": true,
+          "detail": "392,392,392,392,392,392,392,392,392"
+        },
+        {
+          "name": "rootH=392(all)",
+          "pass": true,
+          "detail": "392,392,392,392,392,392,392,392,392"
+        },
+        {
+          "name": "imageBoxH=240(all)",
+          "pass": true,
+          "detail": "240,240,240,240,240,240,240,240,240"
+        },
+        {
+          "name": "imageBoxW=innerW",
+          "pass": true,
+          "detail": "207.33/207 207.33/207 207.33/207 207.34/207 207.33/207 207.33/207 207.33/207 207.33/207 207.33/207"
+        },
+        {
+          "name": "contentW=innerW",
+          "pass": true,
+          "detail": "207.33/207 207.33/207 207.33/207 207.34/207 207.33/207 207.33/207 207.33/207 207.33/207 207.33/207"
+        },
+        {
+          "name": "rows=4",
+          "pass": true,
+          "detail": "4,4,4,4,4,4,4,4,4"
+        },
+        {
+          "name": "row-names",
+          "pass": true,
+          "detail": "row1-wrap-title|row2-wrap-service|row3-wrap-price|row4-wrap-seller"
+        },
+        {
+          "name": "row1H=48(all)",
+          "pass": true,
+          "detail": "48,48,48,48,48,48,48,48,48"
+        },
+        {
+          "name": "row2H=32(all)",
+          "pass": true,
+          "detail": "32,32,32,32,32,32,32,32,32"
+        },
+        {
+          "name": "row3H=24(all)",
+          "pass": true,
+          "detail": "24,24,24,24,24,24,24,24,24"
+        },
+        {
+          "name": "row4H=48(all)",
+          "pass": true,
+          "detail": "48,48,48,48,48,48,48,48,48"
+        },
+        {
+          "name": "rows-sum=152",
+          "pass": true,
+          "detail": "152"
+        },
+        {
+          "name": "240+152=392",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "title-h-noclip",
+          "pass": true,
+          "detail": "48/48 48/48 48/48 48/48 48/48 48/48 48/48 48/48 48/48"
+        },
+        {
+          "name": "title-clamp2",
+          "pass": true,
+          "detail": "2,2,2,2,2,2,2,2,2"
+        },
+        {
+          "name": "service-empty",
+          "pass": true,
+          "detail": "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\""
+        },
+        {
+          "name": "price-cur-in-span",
+          "pass": true,
+          "detail": "$,$,$,$,$,$,$,$,$"
+        },
+        {
+          "name": "price-wants-pattern",
+          "pass": true,
+          "detail": "0人想要|0人想要|0人想要|0人想要|0人想要|0人想要|0人想要|0人想要|0人想要"
+        },
+        {
+          "name": "price-single-line",
+          "pass": true,
+          "detail": "207/207 207/207 207/207 207/207 207/207 207/207 207/207 207/207 207/207"
+        },
+        {
+          "name": "price-nowrap",
+          "pass": true,
+          "detail": "nowrap,nowrap,nowrap,nowrap,nowrap,nowrap,nowrap,nowrap,nowrap"
+        },
+        {
+          "name": "price-two-ends",
+          "pass": true,
+          "detail": "12/12 12/12 12/12 12/12 12/12 12/12 12/12 12/12 12/12"
+        },
+        {
+          "name": "seller-avatar-24",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "nickname-mask",
+          "pass": true,
+          "detail": "0x59**b0|0x37**b9|0x11**5a|0x64**72|0x99**74|0x97**00|0xe4**6b|0xe4**6b|0xe4**6b"
+        },
+        {
+          "name": "grid-cols-6",
+          "pass": true,
+          "detail": "cols=6"
+        },
+        {
+          "name": "no-overflow-x",
+          "pass": true,
+          "detail": "overflowX=0"
+        }
+      ],
+      "cards": [
+        {
+          "rootH": 392,
+          "innerH": 392,
+          "innerW": 209.33,
+          "innerClientW": 207,
+          "imgBoxH": 240,
+          "imgBoxW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "contentH": 150,
+          "contentW": 207.33,
+          "rowCount": 4,
+          "rowClasses": [
+            "row1-wrap-title",
+            "row2-wrap-service",
+            "row3-wrap-price",
+            "row4-wrap-seller"
+          ],
+          "titleH": 48,
+          "titleW": 207.33,
+          "titleText": "VPN",
+          "titleScrollH": 48,
+          "titleClientH": 48,
+          "titleLineClamp": "2",
+          "titleOverflow": "hidden",
+          "serviceH": 32,
+          "serviceText": "",
+          "serviceChildren": 0,
+          "priceH": 24,
+          "priceText": "$20人想要",
+          "priceWhiteSpace": "nowrap",
+          "priceScrollW": 207,
+          "priceClientW": 207,
+          "curText": "$",
+          "curInSpan": true,
+          "numText": "2",
+          "wantsText": "0人想要",
+          "wantsAlign": "right",
+          "priceLeftGap": 12,
+          "wantsRightGap": 12,
+          "priceBlockFontSize": "16px",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "nickname": "0x59**b0",
+          "tierText": "新卖家"
+        },
+        {
+          "rootH": 392,
+          "innerH": 392,
+          "innerW": 209.33,
+          "innerClientW": 207,
+          "imgBoxH": 240,
+          "imgBoxW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "contentH": 150,
+          "contentW": 207.33,
+          "rowCount": 4,
+          "rowClasses": [
+            "row1-wrap-title",
+            "row2-wrap-service",
+            "row3-wrap-price",
+            "row4-wrap-seller"
+          ],
+          "titleH": 48,
+          "titleW": 207.33,
+          "titleText": "sf14qa 测试商品（质检夹具·勿购）",
+          "titleScrollH": 48,
+          "titleClientH": 48,
+          "titleLineClamp": "2",
+          "titleOverflow": "hidden",
+          "serviceH": 32,
+          "serviceText": "",
+          "serviceChildren": 0,
+          "priceH": 24,
+          "priceText": "$40人想要",
+          "priceWhiteSpace": "nowrap",
+          "priceScrollW": 207,
+          "priceClientW": 207,
+          "curText": "$",
+          "curInSpan": true,
+          "numText": "4",
+          "wantsText": "0人想要",
+          "wantsAlign": "right",
+          "priceLeftGap": 12,
+          "wantsRightGap": 12,
+          "priceBlockFontSize": "16px",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "nickname": "0x37**b9",
+          "tierText": "新卖家"
+        },
+        {
+          "rootH": 392,
+          "innerH": 392,
+          "innerW": 209.33,
+          "innerClientW": 207,
+          "imgBoxH": 240,
+          "imgBoxW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "contentH": 150,
+          "contentW": 207.33,
+          "rowCount": 4,
+          "rowClasses": [
+            "row1-wrap-title",
+            "row2-wrap-service",
+            "row3-wrap-price",
+            "row4-wrap-seller"
+          ],
+          "titleH": 48,
+          "titleW": 207.33,
+          "titleText": "qa7b fixture listing",
+          "titleScrollH": 48,
+          "titleClientH": 48,
+          "titleLineClamp": "2",
+          "titleOverflow": "hidden",
+          "serviceH": 32,
+          "serviceText": "",
+          "serviceChildren": 0,
+          "priceH": 24,
+          "priceText": "$10人想要",
+          "priceWhiteSpace": "nowrap",
+          "priceScrollW": 207,
+          "priceClientW": 207,
+          "curText": "$",
+          "curInSpan": true,
+          "numText": "1",
+          "wantsText": "0人想要",
+          "wantsAlign": "right",
+          "priceLeftGap": 12,
+          "wantsRightGap": 12,
+          "priceBlockFontSize": "16px",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "nickname": "0x11**5a",
+          "tierText": "新卖家"
+        },
+        {
+          "rootH": 392,
+          "innerH": 392,
+          "innerW": 209.34,
+          "innerClientW": 207,
+          "imgBoxH": 240,
+          "imgBoxW": 207.34,
+          "imgH": 240,
+          "imgW": 207.34,
+          "objectFit": "cover",
+          "contentH": 150,
+          "contentW": 207.34,
+          "rowCount": 4,
+          "rowClasses": [
+            "row1-wrap-title",
+            "row2-wrap-service",
+            "row3-wrap-price",
+            "row4-wrap-seller"
+          ],
+          "titleH": 48,
+          "titleW": 207.34,
+          "titleText": "p7b fixture listing",
+          "titleScrollH": 48,
+          "titleClientH": 48,
+          "titleLineClamp": "2",
+          "titleOverflow": "hidden",
+          "serviceH": 32,
+          "serviceText": "",
+          "serviceChildren": 0,
+          "priceH": 24,
+          "priceText": "$10人想要",
+          "priceWhiteSpace": "nowrap",
+          "priceScrollW": 207,
+          "priceClientW": 207,
+          "curText": "$",
+          "curInSpan": true,
+          "numText": "1",
+          "wantsText": "0人想要",
+          "wantsAlign": "right",
+          "priceLeftGap": 12,
+          "wantsRightGap": 12,
+          "priceBlockFontSize": "16px",
+          "sellerH": 48,
+          "sellerW": 207.34,
+          "avatarW": 24,
+          "avatarH": 24,
+          "nickname": "0x64**72",
+          "tierText": "新卖家"
+        },
+        {
+          "rootH": 392,
+          "innerH": 392,
+          "innerW": 209.33,
+          "innerClientW": 207,
+          "imgBoxH": 240,
+          "imgBoxW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "contentH": 150,
+          "contentW": 207.33,
+          "rowCount": 4,
+          "rowClasses": [
+            "row1-wrap-title",
+            "row2-wrap-service",
+            "row3-wrap-price",
+            "row4-wrap-seller"
+          ],
+          "titleH": 48,
+          "titleW": 207.33,
+          "titleText": "海鲜礼盒测试丙：虾蟹双拼",
+          "titleScrollH": 48,
+          "titleClientH": 48,
+          "titleLineClamp": "2",
+          "titleOverflow": "hidden",
+          "serviceH": 32,
+          "serviceText": "",
+          "serviceChildren": 0,
+          "priceH": 24,
+          "priceText": "$1200人想要",
+          "priceWhiteSpace": "nowrap",
+          "priceScrollW": 207,
+          "priceClientW": 207,
+          "curText": "$",
+          "curInSpan": true,
+          "numText": "120",
+          "wantsText": "0人想要",
+          "wantsAlign": "right",
+          "priceLeftGap": 12,
+          "wantsRightGap": 12,
+          "priceBlockFontSize": "16px",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "nickname": "0x99**74",
+          "tierText": "新卖家"
+        },
+        {
+          "rootH": 392,
+          "innerH": 392,
+          "innerW": 209.33,
+          "innerClientW": 207,
+          "imgBoxH": 240,
+          "imgBoxW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "contentH": 150,
+          "contentW": 207.33,
+          "rowCount": 4,
+          "rowClasses": [
+            "row1-wrap-title",
+            "row2-wrap-service",
+            "row3-wrap-price",
+            "row4-wrap-seller"
+          ],
+          "titleH": 48,
+          "titleW": 207.33,
+          "titleText": "b4ciib item b4ciib08420800",
+          "titleScrollH": 48,
+          "titleClientH": 48,
+          "titleLineClamp": "2",
+          "titleOverflow": "hidden",
+          "serviceH": 32,
+          "serviceText": "",
+          "serviceChildren": 0,
+          "priceH": 24,
+          "priceText": "$70人想要",
+          "priceWhiteSpace": "nowrap",
+          "priceScrollW": 207,
+          "priceClientW": 207,
+          "curText": "$",
+          "curInSpan": true,
+          "numText": "7",
+          "wantsText": "0人想要",
+          "wantsAlign": "right",
+          "priceLeftGap": 12,
+          "wantsRightGap": 12,
+          "priceBlockFontSize": "16px",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "nickname": "0x97**00",
+          "tierText": "新卖家"
+        },
+        {
+          "rootH": 392,
+          "innerH": 392,
+          "innerW": 209.33,
+          "innerClientW": 207,
+          "imgBoxH": 240,
+          "imgBoxW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "contentH": 150,
+          "contentW": 207.33,
+          "rowCount": 4,
+          "rowClasses": [
+            "row1-wrap-title",
+            "row2-wrap-service",
+            "row3-wrap-price",
+            "row4-wrap-seller"
+          ],
+          "titleH": 48,
+          "titleW": 207.33,
+          "titleText": "b3d pricey",
+          "titleScrollH": 48,
+          "titleClientH": 48,
+          "titleLineClamp": "2",
+          "titleOverflow": "hidden",
+          "serviceH": 32,
+          "serviceText": "",
+          "serviceChildren": 0,
+          "priceH": 24,
+          "priceText": "$1000000000人想要",
+          "priceWhiteSpace": "nowrap",
+          "priceScrollW": 207,
+          "priceClientW": 207,
+          "curText": "$",
+          "curInSpan": true,
+          "numText": "100000000",
+          "wantsText": "0人想要",
+          "wantsAlign": "right",
+          "priceLeftGap": 12,
+          "wantsRightGap": 12,
+          "priceBlockFontSize": "16px",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "nickname": "0xe4**6b",
+          "tierText": "新卖家"
+        },
+        {
+          "rootH": 392,
+          "innerH": 392,
+          "innerW": 209.33,
+          "innerClientW": 207,
+          "imgBoxH": 240,
+          "imgBoxW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "contentH": 150,
+          "contentW": 207.33,
+          "rowCount": 4,
+          "rowClasses": [
+            "row1-wrap-title",
+            "row2-wrap-service",
+            "row3-wrap-price",
+            "row4-wrap-seller"
+          ],
+          "titleH": 48,
+          "titleW": 207.33,
+          "titleText": "b3d empty",
+          "titleScrollH": 48,
+          "titleClientH": 48,
+          "titleLineClamp": "2",
+          "titleOverflow": "hidden",
+          "serviceH": 32,
+          "serviceText": "",
+          "serviceChildren": 0,
+          "priceH": 24,
+          "priceText": "$500人想要",
+          "priceWhiteSpace": "nowrap",
+          "priceScrollW": 207,
+          "priceClientW": 207,
+          "curText": "$",
+          "curInSpan": true,
+          "numText": "50",
+          "wantsText": "0人想要",
+          "wantsAlign": "right",
+          "priceLeftGap": 12,
+          "wantsRightGap": 12,
+          "priceBlockFontSize": "16px",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "nickname": "0xe4**6b",
+          "tierText": "新卖家"
+        },
+        {
+          "rootH": 392,
+          "innerH": 392,
+          "innerW": 209.33,
+          "innerClientW": 207,
+          "imgBoxH": 240,
+          "imgBoxW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "contentH": 150,
+          "contentW": 207.33,
+          "rowCount": 4,
+          "rowClasses": [
+            "row1-wrap-title",
+            "row2-wrap-service",
+            "row3-wrap-price",
+            "row4-wrap-seller"
+          ],
+          "titleH": 48,
+          "titleW": 207.33,
+          "titleText": "b3d happy",
+          "titleScrollH": 48,
+          "titleClientH": 48,
+          "titleLineClamp": "2",
+          "titleOverflow": "hidden",
+          "serviceH": 32,
+          "serviceText": "",
+          "serviceChildren": 0,
+          "priceH": 24,
+          "priceText": "$1000人想要",
+          "priceWhiteSpace": "nowrap",
+          "priceScrollW": 207,
+          "priceClientW": 207,
+          "curText": "$",
+          "curInSpan": true,
+          "numText": "100",
+          "wantsText": "0人想要",
+          "wantsAlign": "right",
+          "priceLeftGap": 12,
+          "wantsRightGap": 12,
+          "priceBlockFontSize": "16px",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "nickname": "0xe4**6b",
+          "tierText": "新卖家"
+        }
+      ],
+      "cols": 6,
+      "overflowX": 0
+    }
+  ]
+}

@@ -432,7 +432,8 @@
     "limited": "限量",
     "timeLimited": "剩餘時間有限",
     "insufficient": "積分不足",
-    "claimNow": "即刻領取"
+    "claimNow": "即刻領取",
+    "wants": "{{n}}人想要"
   },
   "claimRewardModal": {
     "lore": "喺水域嘅奇遇中收集寶石，完成探索後領取獎勵。"

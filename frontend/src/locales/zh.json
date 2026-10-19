@@ -432,7 +432,8 @@
     "limited": "限量",
     "timeLimited": "剩余时间有限",
     "insufficient": "积分不足",
-    "claimNow": "立即领取"
+    "claimNow": "立即领取",
+    "wants": "{{n}}人想要"
   },
   "claimRewardModal": {
     "lore": "在水域的奇遇中收集宝石，完成探索后领取奖励。"

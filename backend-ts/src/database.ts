@@ -1171,6 +1171,10 @@ export interface BrandRecord {
   description_vn: string;
   /** P6-TR-1b 读侧翻译覆盖度：所有可译字段 × en/vn/hk 全 ready ⇒ 'ready'；一个都没有 ⇒ 'pending'；否则 'partial'。 */
   i18n_status: I18nStatus;
+  /** ★ 2026-10-19 商品卡结构重定义：加性键 `wants`（feed 行键 46→47）= 该商品 `listing_favorite`
+   *   收藏计数（`count(*)`，无收藏 ⇒ 0）。**只发数字**，不含收藏者身份 ⇒ 无权限 / 隐私面。
+   *   仅 `listBrands`（feed 读口）携带；详情行不带该列 ⇒ 键不出现（详情顶层键数不变）。 */
+  wants?: number;
   /** ★ 2026-10-19 商品卡改版（Kevin 第 4 条）：加性键（feed 行键 45→46；详情行经 `getPrizeSellerView`
    *  于路由层合成同构对象 ⇒ 详情顶层键数不变）。形状 = `SellerView`（uid/nickname/avatar/credit）。 */
   seller?: SellerView;
@@ -1550,6 +1554,13 @@ const normalizeBrand = (
       avatar: toStringValue(row.seller_avatar_url) || null,
       credit: creditFromAvg(toRatingAvg(row.seller_rating_avg)),
     } satisfies SellerView;
+  }
+  // ★ 2026-10-19 商品卡结构重定义：feed 行加性键 `wants`（行键 46→47）= 该商品收藏数
+  //   （`listing_favorite` 按 listing 聚合的 `count(*)`，LEFT JOIN + COALESCE ⇒ 无收藏 ⇒ 0）。
+  //   仅当行携带聚合列（`listBrands` 专有）时透出：详情行无此列 ⇒ 键不出现（详情键数不变）。
+  //   **只发数字**（不含收藏者身份 / 时间），故无权限与隐私面。
+  if (row.want_count !== undefined) {
+    record.wants = toNumberValue(getValue(row, 'want_count'));
   }
   // P6-TR-1b：`name_*`/`description_*` 由 applyI18n 生成（有 ready 译文用译文，否则回落源文；含 i18n_status）
   applyI18n('listing', String(record.bID), record, i18nIndex);
@@ -2646,6 +2657,10 @@ export class DatabaseService {
           0::int AS activated_count,
           0::int AS current_shard_supply,
           0::int AS free_shards_distributed,
+          -- ★ 2026-10-19 商品卡结构重定义：feed 行加性键 wants = 该商品收藏数
+          --   （listing_favorite 按 listing 聚合；LEFT JOIN + COALESCE ⇒ 无收藏 ⇒ 0）。
+          --   只发数字、不含收藏者身份 ⇒ 无权限 / 隐私面；零新路由 / 零迁移 / 零 DDL。
+          COALESCE(fav.want_count, 0)::int AS want_count,
           u.evm AS seller_evm,
           u.avatar_url AS seller_avatar_url,
           -- 均星**裸值**（不 COALESCE）：credit 档位需区分「无评分（⇒ 'new'）」与「均 3 星（⇒ 'normal'）」；
@@ -2664,6 +2679,13 @@ export class DatabaseService {
           ) AS score
         FROM listing AS l
         LEFT JOIN public.users AS u ON u.uid = l.seller_uid
+        -- ★ 2026-10-19 商品卡结构重定义：收藏聚合（每个 listing 一行；无收藏的 listing 由
+        --   COALESCE 兜 0）。聚合面只出 count，不出收藏者身份 ⇒ 无权限 / 隐私面。
+        LEFT JOIN (
+          SELECT listing_id, count(*)::int AS want_count
+          FROM public.listing_favorite
+          GROUP BY listing_id
+        ) AS fav ON fav.listing_id = l.listing_id
         WHERE l.status = 'listed'
       ) AS f
       ORDER BY f.score DESC, f.time_created DESC, f.listing_id DESC

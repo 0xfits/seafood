@@ -1,8 +1,8 @@
-/* 首页商品卡片（design-system.spec v1.20 §22 · T109–T113 + Zang 终审 Q5–Q9）
+/* 首页商品卡片（design-system.spec §22 · T109–T113 · Zang 终审 Q5–Q9）
  *
  * 1) 卡内价格块版式（T110 / Q9）：一行 flex + 同基线；顺序 `$` → 数字；符号小（数字的 0.75 倍）；
- *    数字 24px 加粗；**无外框 / 无底色 / 无内边距**；零新增常量（数字 = 既有 Tailwind text-2xl，
- *    符号 = 相对比例 0.75em）。
+ *    **无外框 / 无底色 / 无内边距**。数字号 2026-10-19 重定义：16px（= row3 的 24 高单行），
+ *    符号 = 相对比例 0.75em（零新增字号常量）。
  * 2) 卡内价格色（Zang 追加裁定）：卡片 = 与主题无关的**浅色白卡、两档同貌** ⇒ 卡内不得吃夜档
  *    token 值（夜档 --sf-price-num-fg = #FDE815 亮黄，在白卡上不可读）⇒ 在**卡片子树内局部重绑**
  *    价格三色为日档值；价格仍以 var(--sf-price-*-fg) 取值（「颜色走本站 token」逐字成立）。
@@ -27,55 +27,62 @@
   border-width: 0;
   background: transparent;
   padding: 0;
-  font-size: 1.5rem;   /* 数字号（= Tailwind text-2xl / 24px，既有视觉权重不变） */
-  /* ★ 行高必须用**无单位因子**（= 2rem ÷ 1.5rem = 1.3333，即既有 text-2xl 行高 / 数字号）：
-     绝对行高会被两槽共同继承 ⇒ 两槽「盒高」相同 ⇒ 实测符号/数字盒高比 = 1（读数失真）。
-     无单位因子按各自字号等比缩放 ⇒ 盒高比 = 字号比 = 0.75，与视觉一致，且行盒总高仍 32px（与改前同）。 */
-  line-height: 1.3333;
+  font-size: 1rem;     /* 数字号 16px（row3 恒 24 高 ⇒ 数字 + 行内边距单行放得下） */
+  /* ★ 行高必须用**无单位因子**：绝对行高会被两槽共同继承 ⇒ 两槽盒高相同 ⇒
+     实测符号/数字盒高比失真。无单位因子按各自字号等比缩放 ⇒ 盒高比 = 字号比 = 0.75。 */
+  line-height: 1.5;
 }
 
 /* 符号槽：必须仍在 <span> 内（r9-93 的 `>$</span>` 计数 = 1） */
 .sf-reward-price-cur {
-  font-size: 0.75em;   /* = 数字的 0.75 倍（≈18px）· 零新增常量 */
+  font-size: 0.75em;   /* = 数字的 0.75 倍（≈12px）· 零新增常量 */
   font-weight: 700;
   color: var(--sf-price-cur-fg);
 }
 
-/* 数字槽：大号 + 加粗（font-weight ≥ 700） */
+/* 数字槽：加粗（font-weight ≥ 700） */
 .sf-reward-price-num {
   font-weight: 700;
   color: var(--sf-price-num-fg);
 }
 
 /* ============================================================================
- * ★ 2026-10-19 商品卡改版（Kevin 四条指令 + 第 4 条卖家栏）—— 固定高布局
+ * ★ 2026-10-19 商品卡结构**重定义**（Kevin 逐字：image-container + content 四行）
  * ----------------------------------------------------------------------------
- * 结构：.sf-reward-card > Card(.sf-reward-inner, 恒高 412 + flex column + padding 0)
- *        > .sf-reward-media（240 通栏裁切图）> .sf-reward-body（中部 flex-1 = 124）
- *        > .sf-reward-seller（卡底卖家栏 48 通栏）。
- * 高度恒 412 = 图 240 + 中部 124 + 卖家栏 48（**任何内容组合不变**；溢出由卡体
+ * 结构：.sf-reward-card > Card(.sf-reward-inner, 恒高 392 + flex column + padding 0)
+ *        > .image-container（240 高通栏裁切图）
+ *        > .content（flex-1 = 152）
+ *            > .row1-wrap-title   48
+ *            > .row2-wrap-service 32（当前留空，占位恒在场）
+ *            > .row3-wrap-price   24
+ *            > .row4-wrap-seller  48（视觉与上一版逐字不变）
+ * 高度恒 **392** = 240 + 48 + 32 + 24 + 48（**任何内容组合不变**；溢出由卡体
  * overflow-hidden 兜底裁切）。几何常量只落本文件，不用 Tailwind 任意值类。
+ * 行宽 = 卡内宽（栅格给多少即多少；1440/6 列档实测 223 = 225 槽 − 2×1px 边框）；
+ * 文字横向内缩 12px 由各行的 padding 承担（行的 border-box 仍 = 卡内宽）。
  * ★ `padding: 0` / 各覆盖规则均为**未分层**自定义样式 ⇒ 层序压过 @layer utilities 的
- *   Tailwind 类（Card 基座 p-6/p-4、CardHeader 基座 pb-4），不依赖打包顺序与具体性。
+ *   Tailwind 类（Card 基座 p-6/p-4），不依赖打包顺序与具体性。
  * ========================================================================== */
 
 .sf-reward-card .sf-reward-inner {
-  height: 412px;
+  height: 392px;
   padding: 0;
   display: flex;
   flex-direction: column;
 }
 
-/* 预览图：卡顶通栏，固定 240 高；原图任意比例 ⇒ cover + center 居中裁切；
-   卡体 overflow-hidden + rounded-lg ⇒ 圆角只落卡顶两角。 */
-.sf-reward-media {
+/* 第一部分 · 图容器：卡顶通栏、固定 240 高；原图任意比例 ⇒ cover + center 居中裁切；
+   卡体 overflow-hidden + rounded-lg ⇒ 圆角只落卡顶两角。
+   无图 ⇒ 容器仍在（#F3F4F6 灰底）—— 卡高恒 392 不允许图片槽塌陷。 */
+.sf-reward-card .image-container {
   flex: 0 0 240px;
   height: 240px;
   position: relative;
   overflow: hidden;
+  background: #F3F4F6;
 }
 
-.sf-reward-media-img {
+.sf-reward-card .sf-reward-media-img {
   display: block;
   width: 100%;
   height: 100%;
@@ -83,59 +90,83 @@
   object-position: center;
 }
 
-/* 中部（412 − 240 − 48 = 124）：内容顶部堆叠、底部自然留白；描述是唯一可缩项 */
-.sf-reward-body {
+/* 第二部分 · content：四行固定高之和 152 = 392 − 240 */
+.sf-reward-card .content {
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  padding: 10px 16px;
+  padding: 0;
 }
 
-/* CardHeader 基座 pb-4(16px) 收窄为 8px：给描述留出 3 行预算（10+36+8+60+10 = 124） */
-.sf-reward-body .sf-reward-header {
-  padding-bottom: 8px;
+/* row1 · 标题：48 = 两行 × 24 行高。文本已由 `truncateByWidth(text, 48)` 按
+   显示宽单位截断（超出追加字面 `...`）；本处的 line-clamp / overflow 只作渲染兜底。 */
+.sf-reward-card .row1-wrap-title {
+  flex: 0 0 48px;
+  height: 48px;
+  box-sizing: border-box;
+  margin: 0;            /* `<h3>` 标题语义（a11y role=heading）保留 ⇒ 归零外边距 */
+  padding: 0 10px;
+  /* 字号 15px 的推导（唯一约束 = 48 显示宽单位必须落在两行内，否则末尾 `...` 会被裁掉）：
+     实测卡内宽 207（1440/6 列）~ 223（1536/6 列）；行内可用宽 = 207 − 2×10 = 187
+     ⇒ 单行可容 187 ÷ 15 = 12 个汉字（180px，余量 7px）⇒ 两行 24 个汉字 = 48 单位 ✓ */
+  font-size: 14px;      /* 实测：1440 档卡内宽 207 − 2×10 padding = 187 ⇒ 187/14×2 = 26.7 单位，容得下 24 汉字 + `...`（15px 时会溢到第 3 行）*/
+  line-height: 24px;    /* 2 × 24 = 48，与盒高逐字相等 */
+  font-weight: 600;
+  color: #111827;
+  overflow: hidden;
+  word-break: break-word;
 }
 
-.sf-reward-body > * {
-  flex-shrink: 0;
-}
-
-.sf-reward-body > .sf-reward-content {
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.sf-reward-content > * {
-  flex-shrink: 0;
-}
-
-/* 标题区：固定两行盒高（text-lg × leading-none = 18px × 2 = 36px），单行标题下方留白跨卡对齐 */
-.sf-reward-title {
-  height: 2.25rem;
-}
-
-/* 描述：唯一可收缩弹性项（空间不足缩盒；line-clamp-3 + overflow hidden 兜底）
-   —— 放在 `.sf-reward-content > *` 之后，同具体性靠后者胜出 ⇒ 缩盒权生效 */
-.sf-reward-desc {
-  flex: 0 1 auto;
-  min-height: 0;
+/* row2 · 服务/标签槽：**当前留空**（Kevin：暂时留空），但占位恒在场（32 高） */
+.sf-reward-card .row2-wrap-service {
+  flex: 0 0 32px;
+  height: 32px;
+  box-sizing: border-box;
+  padding: 0 12px;
   overflow: hidden;
 }
 
-/* 卡底卖家栏：恒 48px、通栏；两端对齐。参考图 = 左头像+昵称 / 右信用胶囊（无图标） */
-.sf-reward-seller {
+/* row3 · 价格行：左 `$`+数字 / 右「{n}人想要」，两端对齐、单行不换行 */
+.sf-reward-card .row3-wrap-price {
+  flex: 0 0 24px;
+  height: 24px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sf-reward-card .row3-wrap-price > * {
+  flex: 0 0 auto;
+}
+
+/* 「{n}人想要」：灰、小号、右对齐（n = listing_favorite count，后端 `wants`） */
+.sf-reward-card .sf-reward-wants {
+  font-size: 12px;
+  line-height: 24px;
+  color: #9CA3AF;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* row4 · 卖家栏：恒 48、通栏；两端对齐。参考图 = 左头像+昵称 / 右信用胶囊（无图标） */
+.sf-reward-card .row4-wrap-seller {
   flex: 0 0 48px;
   height: 48px;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 12px;
+  overflow: hidden;
 }
 
-.sf-reward-seller-id {
+.sf-reward-card .sf-reward-seller-id {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -143,7 +174,7 @@
 }
 
 /* 头像 24px 圆：无图 ⇒ 灰底 + 掩码名首字符（常态，avatar_url 存量全 NULL） */
-.sf-reward-seller-avatar {
+.sf-reward-card .sf-reward-seller-avatar {
   flex: 0 0 24px;
   width: 24px;
   height: 24px;
@@ -158,7 +189,7 @@
   overflow: hidden;
 }
 
-.sf-reward-seller-avatar-img {
+.sf-reward-card .sf-reward-seller-avatar-img {
   display: block;
   width: 100%;
   height: 100%;
@@ -166,7 +197,7 @@
 }
 
 /* 脱敏昵称：灰色、单行截断（窄卡不挤胶囊） */
-.sf-reward-seller-name {
+.sf-reward-card .sf-reward-seller-name {
   color: #6B7280;
   font-size: 14px;
   line-height: 20px;

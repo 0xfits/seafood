@@ -432,7 +432,8 @@
     "limited": "Limited",
     "timeLimited": "Limited time left",
     "insufficient": "Not enough points",
-    "claimNow": "Claim now"
+    "claimNow": "Claim now",
+    "wants": "{{n}} want it"
   },
   "claimRewardModal": {
     "lore": "Collect gems on your water adventures, then claim your reward."

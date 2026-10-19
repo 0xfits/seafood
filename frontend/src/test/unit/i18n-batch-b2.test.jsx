@@ -109,10 +109,10 @@ describe('P6-I18N-LIT-B2 · en 档渲染英文文案（Task / Home / Profile）'
     expect(screen.getByText('Limited edition (0)')).toBeInTheDocument()
     expect(screen.getByText('High value (0)')).toBeInTheDocument()
     expect(screen.getByText('Redeemed (0)')).toBeInTheDocument()
-    // ★ 2026-10-19 改锚（合法移除）：原「标题 + 品牌行」两处都渲染英文 ⇒ 品牌行随卡片改版移除，
-    //   仅卡标题一处渲染 `name_en`（卖家栏昵称 = 后端掩码派生，与本断言无关）。
+    // ★ 2026-10-19 改锚（合法移除 ×2）：品牌行（上一版移除）与**描述行**（本版四行结构无槽位）都不再渲染，
+    //   卡面英文文案只剩标题一处（卖家栏昵称 = 后端掩码派生，与本断言无关）。
     expect(screen.getAllByText('English reward').length).toBe(1)
-    expect(screen.getByText('English description')).toBeInTheDocument()
+    expect(screen.queryByText('English description')).toBeNull()
     expect(badgeEl()).not.toBeNull()
     expect(screen.queryByText('奖励原文')).toBeNull()
   })
