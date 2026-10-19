@@ -1,0 +1,11 @@
+商品卡四行结构 · 生产终验（2026-10-19）
+push = 546b495..49a7d99（4 提交：b2c6b5e 契约 / 38dcbe5 实现 / dca495e F1 修正 / 49a7d99 质检入库）；本批零迁移（schema 仍 0052）
+
+同版证明：js 13a6b63c9ddc53da index-BZDLiVL8.js (497,255B) / css 7a86f0b8a65a7bff index-CSAoTEI9.css (126,007B)
+          prod sha256 == 本地 HEAD 构建逐字
+
+真浏览器 1440 / 1536 两档（7 卡逐卡）：
+  卡高 = 392 ×7 · 图 240 ×7 · 行高 title 48 / service 32 / price 24 / seller 48 ×7
+  gift 图标 = 0 · 横向溢出 = 0 · pageerror/console error = 0
+  价格行文本形如 $20 + 0人想要（左价右想要，两端对齐）
+  标题均未超 48 单位（现有商品标题短，截断逻辑由 dev 夹具 25 汉字/60 拉丁取证）
