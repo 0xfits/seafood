@@ -1,0 +1,99 @@
+{
+  "ac": "AC2",
+  "generated_at": "2026-10-19T04:07:02.846Z",
+  "base": "http://localhost:5788",
+  "cases": [
+    {
+      "id": "N1",
+      "desc": "无 Authorization POST /api/media",
+      "expect": "401",
+      "http": 401,
+      "code": "AUTH_UNAUTHORIZED",
+      "i18n_key": "auth.err.AUTH_UNAUTHORIZED",
+      "details": {},
+      "body_keys": [
+        "error"
+      ]
+    },
+    {
+      "id": "N2",
+      "desc": "content_type=image/gif（超三值闭集），字节为真 png",
+      "expect": "400 MEDIA_CONTENT_TYPE_INVALID",
+      "http": 400,
+      "code": "MEDIA_CONTENT_TYPE_INVALID",
+      "i18n_key": "media.err.MEDIA_CONTENT_TYPE_INVALID",
+      "details": {
+        "content_type": "image/gif"
+      },
+      "body_keys": [
+        "error"
+      ]
+    },
+    {
+      "id": "N3",
+      "desc": "data_base64 非 RFC4648 严格 base64（!!!not-base64!!!）",
+      "expect": "400 MEDIA_BASE64_INVALID",
+      "http": 400,
+      "code": "MEDIA_BASE64_INVALID",
+      "i18n_key": "media.err.MEDIA_BASE64_INVALID",
+      "details": {
+        "data_base64_chars": 16
+      },
+      "body_keys": [
+        "error"
+      ]
+    },
+    {
+      "id": "N4",
+      "desc": "解码后 2.5MiB（>2MiB）随机字节，声明 image/webp",
+      "expect": "400 MEDIA_SIZE_EXCEEDED",
+      "http": 400,
+      "code": "MEDIA_SIZE_EXCEEDED",
+      "i18n_key": "media.err.MEDIA_SIZE_EXCEEDED",
+      "details": {
+        "decoded_bytes": 2621440,
+        "max_bytes": 2097152
+      },
+      "body_keys": [
+        "error"
+      ],
+      "base64_chars": 3495256,
+      "decoded_bytes": 2621440
+    },
+    {
+      "id": "N5",
+      "desc": "png 字节（89 50 4E 47 魔数）声明 image/jpeg",
+      "expect": "400 MEDIA_MAGIC_MISMATCH",
+      "http": 400,
+      "code": "MEDIA_MAGIC_MISMATCH",
+      "i18n_key": "media.err.MEDIA_MAGIC_MISMATCH",
+      "details": {
+        "content_type": "image/jpeg",
+        "decoded_bytes": 199
+      },
+      "body_keys": [
+        "error"
+      ],
+      "actual_magic_hex": "89504e47"
+    },
+    {
+      "id": "N6",
+      "desc": "解码后 3MiB（base64 4.19MB > express.json 4mb）—— 观察姿态",
+      "expect": "record only",
+      "http": 413,
+      "code": null,
+      "i18n_key": null,
+      "details": null,
+      "body_keys": null,
+      "base64_chars": 4194304,
+      "decoded_bytes": 3145728
+    }
+  ],
+  "actor": {
+    "uid": 971216,
+    "address_tail": "…9fe5"
+  },
+  "pass_expected": true,
+  "failed": [],
+  "pass": true
+}

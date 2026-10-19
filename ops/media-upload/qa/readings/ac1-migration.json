@@ -1,0 +1,267 @@
+{
+  "ac": "AC1",
+  "generated_at": "2026-10-19T04:06:04.576Z",
+  "project": "quiet-math-65207667",
+  "checks": [
+    {
+      "id": "1.1",
+      "what": "库身份 = dev project quiet-math-65207667（库内 current_setting('neon.project_id') 权威读数 + Neon endpoint host）",
+      "pass": true,
+      "reading": "project_id=quiet-math-65207667 db=neondb usr=neondb_owner host_neon=true（host 本身不含 project 名 = Neon 新 endpoint 形态）"
+    },
+    {
+      "id": "1.2",
+      "what": "schema_migration 顶 = 0050 且 0050 恰 1 行",
+      "pass": true,
+      "reading": "top=0050 count_0050=1 total_rows=49"
+    },
+    {
+      "id": "1.3",
+      "what": "public.media 表存在",
+      "pass": true,
+      "reading": "tables_found=1"
+    },
+    {
+      "id": "1.4",
+      "what": "media 恰 7 列",
+      "pass": true,
+      "reading": "count=7 cols=media_id,sha256,content_type,bytes,size_bytes,owner_uid,time_created"
+    },
+    {
+      "id": "1.5",
+      "what": "7 列名/类型/可空性逐字符合（media_id bigint PK identity · sha256 char(64) · content_type text · bytes bytea · size_bytes int · owner_uid bigint · time_created timestamptz）",
+      "pass": true,
+      "reading": "all 7 columns match"
+    },
+    {
+      "id": "1.6",
+      "what": "UNIQUE(sha256, size_bytes) 去重键在场",
+      "pass": true,
+      "reading": "media_sha256_size_uniq: UNIQUE (sha256, size_bytes)"
+    },
+    {
+      "id": "1.7",
+      "what": "PRIMARY KEY(media_id)",
+      "pass": true,
+      "reading": "media_pkey: PRIMARY KEY (media_id)"
+    },
+    {
+      "id": "1.8",
+      "what": "size_bytes CHECK 上限 2,097,152 字节（2MiB）",
+      "pass": true,
+      "reading": "media_size_bytes_check: CHECK (((size_bytes > 0) AND (size_bytes <= 2097152)))"
+    },
+    {
+      "id": "1.9",
+      "what": "content_type CHECK 三值闭集（webp/jpeg/png）",
+      "pass": true,
+      "reading": "media_content_type_check: CHECK ((content_type = ANY (ARRAY['image/webp'::text, 'image/jpeg'::text, 'image/png'::text])))"
+    },
+    {
+      "id": "1.10",
+      "what": "owner_uid FK → public.users(uid)",
+      "pass": true,
+      "reading": "media_owner_uid_fkey: FOREIGN KEY (owner_uid) REFERENCES users(uid)"
+    },
+    {
+      "id": "1.11",
+      "what": "media_sha256_idx 在场",
+      "pass": true,
+      "reading": "indexes=media_pkey,media_sha256_idx,media_sha256_size_uniq"
+    },
+    {
+      "id": "1.12",
+      "what": "0050 语句体零 ALTER/DROP/TRUNCATE/UPDATE/DELETE/INSERT（零动既有表）",
+      "pass": true,
+      "reading": "verbs_found=0"
+    },
+    {
+      "id": "1.13",
+      "what": "commit a6d718d 未触碰 0001–0049 任何迁移文件",
+      "pass": true,
+      "reading": "no 00[0-4]x migration in diffstat"
+    },
+    {
+      "id": "1.14",
+      "what": "关键既有表列数现取（抽查 5 张，供对照/回归基线）",
+      "pass": true,
+      "reading": "account=7 currency=15 listing=13 listing_order=14 users=8"
+    }
+  ],
+  "identity": {
+    "db": "neondb",
+    "usr": "neondb_owner",
+    "project_id": "quiet-math-65207667",
+    "host": "ep-holy-forest-b3fi7u3u-pooler.c-4.ap-southeast-1.aws.neon.tech",
+    "host_has_quiet_math": false,
+    "dbname_from_url": "neondb"
+  },
+  "schema_migration_columns": [
+    "id:bigint",
+    "version:text",
+    "name:text",
+    "checksum:text",
+    "applied_at:timestamp with time zone"
+  ],
+  "schema_migration_top": {
+    "version_key": "version",
+    "top_row": {
+      "id": "59",
+      "version": "0050",
+      "name": "0050_media_store.sql",
+      "checksum": "d936600df30eb225e678b7d8b7f63c823e7b8766e600165feda5b2f40508a0d7",
+      "applied_at": "2026-10-19T03:43:15.193Z"
+    }
+  },
+  "media_columns": [
+    {
+      "column_name": "media_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null,
+      "numeric_precision": 64
+    },
+    {
+      "column_name": "sha256",
+      "data_type": "character",
+      "is_nullable": "NO",
+      "column_default": null,
+      "numeric_precision": null
+    },
+    {
+      "column_name": "content_type",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "numeric_precision": null
+    },
+    {
+      "column_name": "bytes",
+      "data_type": "bytea",
+      "is_nullable": "NO",
+      "column_default": null,
+      "numeric_precision": null
+    },
+    {
+      "column_name": "size_bytes",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null,
+      "numeric_precision": 32
+    },
+    {
+      "column_name": "owner_uid",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null,
+      "numeric_precision": 64
+    },
+    {
+      "column_name": "time_created",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "numeric_precision": null
+    }
+  ],
+  "media_constraints": [
+    {
+      "conname": "media_content_type_check",
+      "contype": "c",
+      "def": "CHECK ((content_type = ANY (ARRAY['image/webp'::text, 'image/jpeg'::text, 'image/png'::text])))"
+    },
+    {
+      "conname": "media_size_bytes_check",
+      "contype": "c",
+      "def": "CHECK (((size_bytes > 0) AND (size_bytes <= 2097152)))"
+    },
+    {
+      "conname": "media_owner_uid_fkey",
+      "contype": "f",
+      "def": "FOREIGN KEY (owner_uid) REFERENCES users(uid)"
+    },
+    {
+      "conname": "media_bytes_not_null",
+      "contype": "n",
+      "def": "NOT NULL bytes"
+    },
+    {
+      "conname": "media_content_type_not_null",
+      "contype": "n",
+      "def": "NOT NULL content_type"
+    },
+    {
+      "conname": "media_media_id_not_null",
+      "contype": "n",
+      "def": "NOT NULL media_id"
+    },
+    {
+      "conname": "media_owner_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL owner_uid"
+    },
+    {
+      "conname": "media_sha256_not_null",
+      "contype": "n",
+      "def": "NOT NULL sha256"
+    },
+    {
+      "conname": "media_size_bytes_not_null",
+      "contype": "n",
+      "def": "NOT NULL size_bytes"
+    },
+    {
+      "conname": "media_time_created_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_created"
+    },
+    {
+      "conname": "media_pkey",
+      "contype": "p",
+      "def": "PRIMARY KEY (media_id)"
+    },
+    {
+      "conname": "media_sha256_size_uniq",
+      "contype": "u",
+      "def": "UNIQUE (sha256, size_bytes)"
+    }
+  ],
+  "media_indexes": [
+    {
+      "indexname": "media_pkey",
+      "indexdef": "CREATE UNIQUE INDEX media_pkey ON public.media USING btree (media_id)"
+    },
+    {
+      "indexname": "media_sha256_idx",
+      "indexdef": "CREATE INDEX media_sha256_idx ON public.media USING btree (sha256)"
+    },
+    {
+      "indexname": "media_sha256_size_uniq",
+      "indexdef": "CREATE UNIQUE INDEX media_sha256_size_uniq ON public.media USING btree (sha256, size_bytes)"
+    }
+  ],
+  "existing_table_column_counts": [
+    {
+      "table_name": "account",
+      "col_count": 7
+    },
+    {
+      "table_name": "currency",
+      "col_count": 15
+    },
+    {
+      "table_name": "listing",
+      "col_count": 13
+    },
+    {
+      "table_name": "listing_order",
+      "col_count": 14
+    },
+    {
+      "table_name": "users",
+      "col_count": 8
+    }
+  ],
+  "pass": true,
+  "failed": []
+}

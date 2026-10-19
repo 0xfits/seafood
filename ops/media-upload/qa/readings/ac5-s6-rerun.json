@@ -1,0 +1,91 @@
+{
+  "ac": "AC5",
+  "segment": "s6_rerun",
+  "generated_at": "2026-10-19T04:10:59.037Z",
+  "web_base": "http://localhost:5800",
+  "checks": [
+    {
+      "id": "S0",
+      "what": "真会话下 /item/new 渲染发布表单",
+      "pass": true,
+      "reading": "item-form count=1"
+    },
+    {
+      "id": "S5",
+      "what": "成功路径重提 ⇒ 跳 /item/<id>",
+      "pass": true,
+      "reading": "final_url=http://localhost:5800/item/75 media_post=1 media_ok=1 listing_post=1"
+    },
+    {
+      "id": "S6",
+      "what": "落地页显示真图（img[src*=\"/api/media/\"] 且 naturalWidth>0）",
+      "pass": true,
+      "reading": "selector_count=1 src=/api/media/3 naturalWidth=64 complete=true detail_thumb={\"src\":\"/api/media/3\",\"naturalWidth\":64}"
+    },
+    {
+      "id": "S7",
+      "what": "本次重跑全程 pageerror = 0",
+      "pass": true,
+      "reading": "pageerrors=0"
+    },
+    {
+      "id": "S8",
+      "what": "落地商品在库：status=listed 且 media_urls 非空",
+      "pass": true,
+      "reading": "listing_id=75 status=listed media_urls=[\"/api/media/3\"]"
+    }
+  ],
+  "actor": {
+    "uid": 971222,
+    "address_tail": "…369a"
+  },
+  "chromium": {
+    "executablePath": "/Users/kevin/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell",
+    "version": "1.58.2"
+  },
+  "title": "QA媒体单-S6重跑-20261019041106",
+  "landing": {
+    "url": "http://localhost:5800/item/75",
+    "listing_id": 75,
+    "ledger": {
+      "media_post": 1,
+      "media_ok": 1,
+      "listing_post": 1
+    }
+  },
+  "landing_img": {
+    "selector": "img[src*=\"/api/media/\"]",
+    "count": 1,
+    "src": "/api/media/3",
+    "naturalWidth": 64,
+    "complete": true
+  },
+  "detail_thumb": {
+    "src": "/api/media/3",
+    "naturalWidth": 64
+  },
+  "page_errors": [],
+  "console_errors": [],
+  "db_row": {
+    "listing_id": "75",
+    "status": "listed",
+    "media_urls": [
+      "/api/media/3"
+    ],
+    "title": "QA媒体单-S6重跑-20261019041106"
+  },
+  "created": {
+    "listing_id": 75,
+    "media_id": 3,
+    "uid": 971222,
+    "title": "QA媒体单-S6重跑-20261019041106"
+  },
+  "media_row": {
+    "media_id": "3",
+    "owner_uid": "971221",
+    "content_type": "image/webp",
+    "size_bytes": 610
+  },
+  "pass": true,
+  "failed": []
+}

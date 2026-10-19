@@ -1,0 +1,21 @@
+{
+  "pass": true,
+  "failed": [],
+  "checks": [
+    "HOME-mobile-W PASS :: cards=5 home_prize_ids=[71,72,73,74,75] src=/api/media/1 naturalWidth=64",
+    "HOME-mobile-N PASS :: src=/src/images/placeholder-item.webp naturalWidth=320",
+    "HOME-mobile-E PASS :: pageerrors=0",
+    "DETAIL-mobile-W PASS :: src=/api/media/1 naturalWidth=64",
+    "DETAIL-mobile-W-E PASS :: pageerrors=0",
+    "DETAIL-mobile-N PASS :: src=/src/images/placeholder-item.webp naturalWidth=320",
+    "DETAIL-mobile-N-E PASS :: pageerrors=0",
+    "HOME-desktop-W PASS :: cards=5 home_prize_ids=[71,72,73,74,75] src=/api/media/1 naturalWidth=64",
+    "HOME-desktop-N PASS :: src=/src/images/placeholder-item.webp naturalWidth=320",
+    "HOME-desktop-E PASS :: pageerrors=0",
+    "DETAIL-desktop-W PASS :: src=/api/media/1 naturalWidth=64",
+    "DETAIL-desktop-W-E PASS :: pageerrors=0",
+    "DETAIL-desktop-N PASS :: src=/src/images/placeholder-item.webp naturalWidth=320",
+    "DETAIL-desktop-N-E PASS :: pageerrors=0"
+  ]
+}
+EXIT=0

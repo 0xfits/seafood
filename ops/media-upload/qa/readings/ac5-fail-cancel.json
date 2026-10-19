@@ -1,0 +1,171 @@
+{
+  "ac": "AC5",
+  "generated_at": "2026-10-19T04:09:13.032Z",
+  "web_base": "http://localhost:5800",
+  "checks": [
+    {
+      "id": "S0",
+      "what": "真会话下 /item/new 渲染发布表单（非「请先登录」空态）",
+      "pass": true,
+      "reading": "item-form count=1"
+    },
+    {
+      "id": "S1",
+      "what": "选 1 张真 png ⇒ 1 张缩略图（浏览器内压缩后 data: URL）",
+      "pass": true,
+      "reading": "thumbs=1 src_prefix=data:image/webp;base64,U"
+    },
+    {
+      "id": "S2",
+      "what": "上传失败 ⇒ 页面停 error 态且文案含「图片上传失败，发布已取消」",
+      "pass": true,
+      "reading": "phase=error text=图片上传失败，发布已取消: 系统繁忙，请稍后重试。"
+    },
+    {
+      "id": "S3",
+      "what": "上传失败时 POST /api/listing 调用次数 = 0（无半截商品）",
+      "pass": true,
+      "reading": "listing_post=0 media_post=1 media_failed=1"
+    },
+    {
+      "id": "S4",
+      "what": "库侧旁证：该标题在 public.listing 无新行",
+      "pass": true,
+      "reading": "db_rows_with_title=0"
+    },
+    {
+      "id": "S5",
+      "what": "恢复后重提 ⇒ 成功跳 /item/<id>",
+      "pass": true,
+      "reading": "final_url=http://localhost:5800/item/74 listing_post_total=1 media_post_total=2"
+    },
+    {
+      "id": "S6",
+      "what": "成功落地页显示真图（img[src*=\"/api/media/\"] 且 naturalWidth>0）",
+      "pass": false,
+      "reading": "src=/src/images/order.svg naturalWidth=256"
+    },
+    {
+      "id": "S7",
+      "what": "全程 pageerror = 0",
+      "pass": true,
+      "reading": "pageerrors=0"
+    },
+    {
+      "id": "S8",
+      "what": "UI 落地商品在库：status=listed 且 media_urls 非空（真 url）",
+      "pass": true,
+      "reading": "listing_id=74 status=listed media_urls=[\"/api/media/3\"]"
+    }
+  ],
+  "requests": [
+    {
+      "console_error": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    }
+  ],
+  "actor": {
+    "uid": 971221,
+    "address_tail": "…d3ad"
+  },
+  "chromium": {
+    "executablePath": "/Users/kevin/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell",
+    "version": "1.58.2"
+  },
+  "error_state": {
+    "phase": "error",
+    "statusText": "图片上传失败，发布已取消: 系统繁忙，请稍后重试。",
+    "url": "http://localhost:5800/item/new"
+  },
+  "success_state": {
+    "url": "http://localhost:5800/item/74",
+    "listing_post_total": 1,
+    "media_post_total": 2
+  },
+  "landing_img": {
+    "src": "/src/images/order.svg",
+    "naturalWidth": 256
+  },
+  "ui_created_db_row": {
+    "listing_id": "74",
+    "status": "listed",
+    "media_urls": [
+      "/api/media/3"
+    ],
+    "title": "QA媒体单-UI-20261019040920"
+  },
+  "page_errors": [],
+  "ledger": {
+    "media_post": 2,
+    "listing_post": 1,
+    "listing_post_urls": [
+      "{\"cid\":1,\"price\":\"77\",\"stock\":\"1\",\"title\":\"QA媒体单-UI-20261019040920\",\"description\":\"\",\"media_urls\":[\"/api/media/3\"],\"create_key\":\"cli:4867854a-45eb-4f74-b37c-c50c21b5c860\"}"
+    ],
+    "media_failed": [
+      "{\"content_type\":\"image/webp\",\"data_base64\":\"UklGRloCAABXRUJQVlA4WAoAAAAgAAAAPwAA"
+    ]
+  },
+  "pass": false,
+  "failed": [
+    "S6"
+  ],
+  "s6_rerun": {
+    "generated_at": "2026-10-19T04:10:59.037Z",
+    "supersedes": "S6（首轮读数 = 旧无条件 img 选择器所致，src=/src/images/order.svg）",
+    "checks": [
+      {
+        "id": "S0",
+        "what": "真会话下 /item/new 渲染发布表单",
+        "pass": true,
+        "reading": "item-form count=1"
+      },
+      {
+        "id": "S5",
+        "what": "成功路径重提 ⇒ 跳 /item/<id>",
+        "pass": true,
+        "reading": "final_url=http://localhost:5800/item/75 media_post=1 media_ok=1 listing_post=1"
+      },
+      {
+        "id": "S6",
+        "what": "落地页显示真图（img[src*=\"/api/media/\"] 且 naturalWidth>0）",
+        "pass": true,
+        "reading": "selector_count=1 src=/api/media/3 naturalWidth=64 complete=true detail_thumb={\"src\":\"/api/media/3\",\"naturalWidth\":64}"
+      },
+      {
+        "id": "S7",
+        "what": "本次重跑全程 pageerror = 0",
+        "pass": true,
+        "reading": "pageerrors=0"
+      },
+      {
+        "id": "S8",
+        "what": "落地商品在库：status=listed 且 media_urls 非空",
+        "pass": true,
+        "reading": "listing_id=75 status=listed media_urls=[\"/api/media/3\"]"
+      }
+    ],
+    "landing": {
+      "url": "http://localhost:5800/item/75",
+      "listing_id": 75,
+      "ledger": {
+        "media_post": 1,
+        "media_ok": 1,
+        "listing_post": 1
+      }
+    },
+    "landing_img": {
+      "selector": "img[src*=\"/api/media/\"]",
+      "count": 1,
+      "src": "/api/media/3",
+      "naturalWidth": 64,
+      "complete": true
+    },
+    "detail_thumb": {
+      "src": "/api/media/3",
+      "naturalWidth": 64
+    },
+    "page_errors": [],
+    "pass": true,
+    "failed": [],
+    "full_reading": "ops/media-upload/qa/readings/ac5-s6-rerun.json"
+  }
+}

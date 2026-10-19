@@ -1,0 +1,18 @@
+{
+  "pass": true,
+  "failed": [],
+  "checks": [
+    "S0 PASS :: item-form count=1",
+    "S5 PASS :: final_url=http://localhost:5800/item/75 media_post=1 media_ok=1 listing_post=1",
+    "S6 PASS :: selector_count=1 src=/api/media/3 naturalWidth=64 complete=true detail_thumb={\"src\":\"/api/media/3\",\"naturalWidth\":64}",
+    "S7 PASS :: pageerrors=0",
+    "S8 PASS :: listing_id=75 status=listed media_urls=[\"/api/media/3\"]"
+  ],
+  "created": {
+    "listing_id": 75,
+    "media_id": 3,
+    "uid": 971222,
+    "title": "QA媒体单-S6重跑-20261019041106"
+  }
+}
+EXIT=0

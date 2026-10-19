@@ -1,0 +1,213 @@
+{
+  "ac": "AC6",
+  "generated_at": "2026-10-19T04:11:58.929Z",
+  "web_base": "http://localhost:5800",
+  "arms": [
+    {
+      "arm": "home@390",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "surface": "home-card",
+      "home_prize_ids": [
+        71,
+        72,
+        73,
+        74,
+        75
+      ],
+      "cards": 5,
+      "with_image": {
+        "present": true,
+        "src": "/api/media/1",
+        "naturalWidth": 64
+      },
+      "no_image": {
+        "present": true,
+        "src": "/src/images/placeholder-item.webp",
+        "naturalWidth": 320
+      },
+      "pageerrors": []
+    },
+    {
+      "arm": "detail-72@390",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "surface": "detail",
+      "listing_id": 72,
+      "image": {
+        "present": true,
+        "src": "/api/media/1",
+        "naturalWidth": 64
+      },
+      "pageerrors": []
+    },
+    {
+      "arm": "detail-73@390",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "surface": "detail",
+      "listing_id": 73,
+      "image": {
+        "present": true,
+        "src": "/src/images/placeholder-item.webp",
+        "naturalWidth": 320
+      },
+      "pageerrors": []
+    },
+    {
+      "arm": "home@1440",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "surface": "home-card",
+      "home_prize_ids": [
+        71,
+        72,
+        73,
+        74,
+        75
+      ],
+      "cards": 5,
+      "with_image": {
+        "present": true,
+        "src": "/api/media/1",
+        "naturalWidth": 64
+      },
+      "no_image": {
+        "present": true,
+        "src": "/src/images/placeholder-item.webp",
+        "naturalWidth": 320
+      },
+      "pageerrors": []
+    },
+    {
+      "arm": "detail-72@1440",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "surface": "detail",
+      "listing_id": 72,
+      "image": {
+        "present": true,
+        "src": "/api/media/1",
+        "naturalWidth": 64
+      },
+      "pageerrors": []
+    },
+    {
+      "arm": "detail-73@1440",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "surface": "detail",
+      "listing_id": 73,
+      "image": {
+        "present": true,
+        "src": "/src/images/placeholder-item.webp",
+        "naturalWidth": 320
+      },
+      "pageerrors": []
+    }
+  ],
+  "checks": [
+    {
+      "id": "HOME-mobile-W",
+      "what": "首页卡 · 390 · listing 72（带图）⇒ img[src*=\"/api/media/\"] 且 naturalWidth>0",
+      "pass": true,
+      "reading": "cards=5 home_prize_ids=[71,72,73,74,75] src=/api/media/1 naturalWidth=64"
+    },
+    {
+      "id": "HOME-mobile-N",
+      "what": "首页卡 · 390 · listing 73（无图）⇒ img[src*=placeholder-item] 且 naturalWidth=320",
+      "pass": true,
+      "reading": "src=/src/images/placeholder-item.webp naturalWidth=320"
+    },
+    {
+      "id": "HOME-mobile-E",
+      "what": "首页卡臂 · 390 · pageerror=0",
+      "pass": true,
+      "reading": "pageerrors=0"
+    },
+    {
+      "id": "DETAIL-mobile-W",
+      "what": "详情页 · 390 · listing 72（带图）⇒ img[src*=\"/api/media/\"] 且 naturalWidth>0",
+      "pass": true,
+      "reading": "src=/api/media/1 naturalWidth=64"
+    },
+    {
+      "id": "DETAIL-mobile-W-E",
+      "what": "详情页臂 · 390 · listing 72 · pageerror=0",
+      "pass": true,
+      "reading": "pageerrors=0"
+    },
+    {
+      "id": "DETAIL-mobile-N",
+      "what": "详情页 · 390 · listing 73（无图）⇒ img[src*=placeholder-item] 且 naturalWidth=320",
+      "pass": true,
+      "reading": "src=/src/images/placeholder-item.webp naturalWidth=320"
+    },
+    {
+      "id": "DETAIL-mobile-N-E",
+      "what": "详情页臂 · 390 · listing 73 · pageerror=0",
+      "pass": true,
+      "reading": "pageerrors=0"
+    },
+    {
+      "id": "HOME-desktop-W",
+      "what": "首页卡 · 1440 · listing 72（带图）⇒ img[src*=\"/api/media/\"] 且 naturalWidth>0",
+      "pass": true,
+      "reading": "cards=5 home_prize_ids=[71,72,73,74,75] src=/api/media/1 naturalWidth=64"
+    },
+    {
+      "id": "HOME-desktop-N",
+      "what": "首页卡 · 1440 · listing 73（无图）⇒ img[src*=placeholder-item] 且 naturalWidth=320",
+      "pass": true,
+      "reading": "src=/src/images/placeholder-item.webp naturalWidth=320"
+    },
+    {
+      "id": "HOME-desktop-E",
+      "what": "首页卡臂 · 1440 · pageerror=0",
+      "pass": true,
+      "reading": "pageerrors=0"
+    },
+    {
+      "id": "DETAIL-desktop-W",
+      "what": "详情页 · 1440 · listing 72（带图）⇒ img[src*=\"/api/media/\"] 且 naturalWidth>0",
+      "pass": true,
+      "reading": "src=/api/media/1 naturalWidth=64"
+    },
+    {
+      "id": "DETAIL-desktop-W-E",
+      "what": "详情页臂 · 1440 · listing 72 · pageerror=0",
+      "pass": true,
+      "reading": "pageerrors=0"
+    },
+    {
+      "id": "DETAIL-desktop-N",
+      "what": "详情页 · 1440 · listing 73（无图）⇒ img[src*=placeholder-item] 且 naturalWidth=320",
+      "pass": true,
+      "reading": "src=/src/images/placeholder-item.webp naturalWidth=320"
+    },
+    {
+      "id": "DETAIL-desktop-N-E",
+      "what": "详情页臂 · 1440 · listing 73 · pageerror=0",
+      "pass": true,
+      "reading": "pageerrors=0"
+    }
+  ],
+  "chromium": {
+    "executablePath": "/Users/kevin/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell",
+    "version": "1.58.2"
+  },
+  "pass": true,
+  "failed": []
+}

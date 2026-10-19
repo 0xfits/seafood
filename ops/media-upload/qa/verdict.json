@@ -1,0 +1,99 @@
+{
+  "task": "媒体上传单（发布图片可选 + 未传图走机械鱼占位）全链独立质检",
+  "qa": "Neng独立质检两轮（第一轮 AC1-AC5、第二轮 AC5-S6/AC6/AC7/AC8）；**verdict/REPORT 由 Zang 依盘上读数手工聚合**（子代理两轮均撞迭代上限，未写收尾件；断言未改、失败项未删）",
+  "commits": [
+    "a6d718d 后端",
+    "c70800e 前端A",
+    "224775f dev数据态清理",
+    "eb62f7a 前端B"
+  ],
+  "head_at_qa": "eb62f7a",
+  "contract": {
+    "storage": "A · Neon media 表",
+    "images_max": 4,
+    "placeholder": "placeholder-item.webp 320×320 12,616B",
+    "fail_semantics": "上传失败即取消发布、零半截商品"
+  },
+  "summary": {
+    "PASS": 8,
+    "FAIL": 0,
+    "NOT_MEASURED": 0
+  },
+  "acs": [
+    {
+      "id": "AC1",
+      "name": "迁移与表结构",
+      "verdict": "PASS",
+      "reading": "readings/ac1-migration.json",
+      "note": "project=quiet-math-65207667 自证；schema_migration 顶 0050 恰 1 行；media 7 列/UNIQUE(sha256,size_bytes)/size_bytes≤2097152 CHECK/content_type 三值 CHECK/FK→users/media_sha256_idx 全在场；既有表零变（ALTER/DROP/UPDATE/DELETE/INSERT=0，列数抽查 account7/currency15/listing13/listing_order14/users8）；14/14",
+      "falsifier": "任一项列/约束缺失或既有表结构变化即判负"
+    },
+    {
+      "id": "AC2",
+      "name": "上传口负例",
+      "verdict": "PASS",
+      "reading": "readings/ac2-negative.json",
+      "note": "N1 无头 401 AUTH_UNAUTHORIZED · N2 gif 400 MEDIA_CONTENT_TYPE_INVALID · N3 非法 base64 400 MEDIA_BASE64_INVALID · N4 2.5MiB 400 MEDIA_SIZE_EXCEEDED · N5 魔数与声明不符 400 MEDIA_MAGIC_MISMATCH。**观察项 N6**：3MiB 载荷（base64≈4.19MB）先撞 express.json 4mb ⇒ 413，契约仍拒收但形状与 400 分叉（已登记，不判负）",
+      "falsifier": "任一例返回 2xx 或非拒收即判负"
+    },
+    {
+      "id": "AC3",
+      "name": "上传正例+内容去重+公开读取",
+      "verdict": "PASS",
+      "reading": "readings/ac3-positive.json",
+      "note": "64×64 webp 128B → 200 deduplicated:false；同字节重传 → deduplicated:true 且 media_id 相同（DB 该 sha256 恰 1 行）；GET /api/media/1 无鉴权 200 + image/webp + `public, max-age=31536000, immutable` + 字节 sha256 一致；不存在/非数字 id → 404 R107（LEDGER_REF_NOT_FOUND）",
+      "falsifier": "去重失效（同字节生成第二行）或 GET 不可公开读取即判负"
+    },
+    {
+      "id": "AC4",
+      "name": "发布 E2E（带图/无图）",
+      "verdict": "PASS",
+      "reading": "readings/ac4-publish-e2e.json",
+      "note": "带图 listing 72 media_urls=['/api/media/1'] listed；/api/prize/all 与 /api/prize/72 透出与 DB 逐字一致；无图 listing 73 media_urls=[] listed",
+      "falsifier": "media_urls 未落库或读口不透出即判负"
+    },
+    {
+      "id": "AC5",
+      "name": "失败即取消（核心）+ UI 上传成功路径",
+      "verdict": "PASS",
+      "reading": "readings/ac5-fail-cancel.json + readings/ac5-s6-rerun.json",
+      "note": "拦截 POST /api/media=500 ⇒ error 态、文案含「图片上传失败，发布已取消」；**POST /api/listing 调用计数=0**、库内该标题零行（零半截商品）；恢复后重提 ⇒ 跳 /item/74，DB listed + media_urls=['/api/media/3']。首轮 S6 子项因探针无条件 img 选择器误中 order.svg 判 FAIL，改用 `img[src*=\"/api/media/\"]` 重跑 PASS（ac5-s6-rerun 5/5，真上传落地 /item/75、naturalWidth=64）——首轮失败项**原样保留在 ac5-fail-cancel.json**，以重跑段为准",
+      "falsifier": "上传失败后仍发出 POST /api/listing 或库里出现半截商品即判负"
+    },
+    {
+      "id": "AC6",
+      "name": "展示两分支（390/1440 × 首页卡/详情页）",
+      "verdict": "PASS",
+      "reading": "readings/ac6-display.json",
+      "note": "14/14：带图 ⇒ img[/api/media/1] naturalWidth=64；无图 ⇒ img[placeholder-item.webp] naturalWidth=320；四臂 pageerror=0。环境口径：首页 /api/home 固定 skip=0/limit≤16，QA 行位次 25/26 不在首页 feed ⇒ 首页臂改走 /api/prize/all?skip=24&limit=8 取真实行（已在探针头披露）",
+      "falsifier": "任一侧（真图/占位）在该档位不渲染或 naturalWidth 不符即判负"
+    },
+    {
+      "id": "AC7",
+      "name": "门套复核（HEAD 自跑）",
+      "verdict": "PASS",
+      "reading": "logs/ac7-build.log + logs/ac7-unit.log + logs/ac7-tsc.log + logs/ac7-p7b03.log",
+      "note": "build exit 0；test:unit **60 文件 / 574 例全绿**；backend-ts tsc --noEmit exit 0；p7b-03 **37/37**、registration_points=110；行首锚定正则现算 get 49 / post 57 / delete 3 / patch 1 = 110",
+      "falsifier": "任一门红或注册点 ≠110 即判负"
+    },
+    {
+      "id": "AC8",
+      "name": "i18n 三新键与计数",
+      "verdict": "PASS",
+      "reading": "readings/ac8-i18n.json",
+      "note": "item.imagesLabel/imageRemove/imageUploadFail 四语在场非空；flat 1109×4 / nodes 4436 / top 128；四语两两键集差 0；旧值 1106/4424 的 13 处命中**全为注释变迁留痕**，可执行断言残值 0",
+      "falsifier": "四语键集不等或存在可执行旧计数断言即判负"
+    }
+  ],
+  "post_qa_cleanup": {
+    "by": "Zang（QA 子代理两轮撞上限未执行；按技能纪律由 Zang 收口）",
+    "script": "ops/media-upload/qa/readings/../../../../.hermes scratch qa-media-cleanup.mjs（同仓 purge-test-data.ts 体例）",
+    "action": "单事务：DISABLE trg_listing_no_delete → 删 4 条 QA 商品（72/73/74/75，title LIKE 'QA媒体单-%'）→ 删仅被它们引用的 media 行（1/3）→ ENABLE trigger → 断言 tgenabled='O'",
+    "result": "deleted_listings=[72,73,74,75] · deleted_media=[1,3] · listing 总数回 25 · media 归 0 · 触发器复原 'O'（事务内与事后双读数）",
+    "kept_and_disclosed": "6 个 QA 随机钱包用户保留（被 batt_account/batt_entry 引用，删用户会连带删派生行；无 bio/无积分/不可见，按「有引用则保留并披露」处置）"
+  },
+  "observations": [
+    "N6：3MiB 载荷返回 413（express.json 4mb 先行）而非 400 —— 契约拒收成立，形状分叉已登记",
+    "dev 库 image 1/3 已随清理删除；生产库 media 表将随 push 前 apply 迁移建出（0 行）"
+  ]
+}

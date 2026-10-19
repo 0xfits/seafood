@@ -1,0 +1,217 @@
+{
+  "ac": "AC8",
+  "generated_at": "2026-10-19T04:12:14.506479Z",
+  "checks": [
+    {
+      "id": "A8-imagesLabel",
+      "what": "四语 `item.imagesLabel` 在场且非空",
+      "pass": true,
+      "reading": "zh=\"商品图片（可选，最多 4 张）\" | en=\"Product images (optional, up to 4)\" | hk=\"商品圖片（可選，最多 4 張）\" | vn=\"Hình ảnh sản phẩm (không bắt buộc, tối đa 4)\""
+    },
+    {
+      "id": "A8-imageRemove",
+      "what": "四语 `item.imageRemove` 在场且非空",
+      "pass": true,
+      "reading": "zh=\"移除图片\" | en=\"Remove image\" | hk=\"移除圖片\" | vn=\"Xóa ảnh\""
+    },
+    {
+      "id": "A8-imageUploadFail",
+      "what": "四语 `item.imageUploadFail` 在场且非空",
+      "pass": true,
+      "reading": "zh=\"图片上传失败，发布已取消\" | en=\"Image upload failed, publish cancelled\" | hk=\"圖片上傳失敗，發布已取消\" | vn=\"Tải ảnh lên thất bại, đã hủy đăng\""
+    },
+    {
+      "id": "A8-count-flat",
+      "what": "拍平叶子数 = 1109/语（四语各一）",
+      "pass": true,
+      "reading": "zh=1109 en=1109 hk=1109 vn=1109"
+    },
+    {
+      "id": "A8-count-nodes",
+      "what": "四语节点合计 = 4436",
+      "pass": true,
+      "reading": "nodes=4436"
+    },
+    {
+      "id": "A8-count-top",
+      "what": "顶层键 = 128/语",
+      "pass": true,
+      "reading": "zh=128 en=128 hk=128 vn=128"
+    },
+    {
+      "id": "A8-parity",
+      "what": "四语两两键集差 = 0（同键面）",
+      "pass": true,
+      "reading": "zh-en:0; zh-hk:0; zh-vn:0; en-hk:0; en-vn:0; hk-vn:0"
+    },
+    {
+      "id": "A8-no-stale",
+      "what": "test/scripts 无旧残值 1106/4424 的可执行断言（仅注释变迁留痕）",
+      "pass": true,
+      "reading": "hits=13 legacy_narration=13 stale=0"
+    }
+  ],
+  "pairs": [
+    {
+      "pair": "zh-en",
+      "only_a": [],
+      "only_b": [],
+      "diff": 0
+    },
+    {
+      "pair": "zh-hk",
+      "only_a": [],
+      "only_b": [],
+      "diff": 0
+    },
+    {
+      "pair": "zh-vn",
+      "only_a": [],
+      "only_b": [],
+      "diff": 0
+    },
+    {
+      "pair": "en-hk",
+      "only_a": [],
+      "only_b": [],
+      "diff": 0
+    },
+    {
+      "pair": "en-vn",
+      "only_a": [],
+      "only_b": [],
+      "diff": 0
+    },
+    {
+      "pair": "hk-vn",
+      "only_a": [],
+      "only_b": [],
+      "diff": 0
+    }
+  ],
+  "stale_scan": {
+    "roots": [
+      "frontend/src/test",
+      "frontend/scripts",
+      "backend-ts/scripts"
+    ],
+    "hits": [
+      {
+        "file": "frontend/src/test/unit/s7-submissions-panel.test.jsx",
+        "line": 303,
+        "value": "1106",
+        "legacy_narration": true,
+        "text": "expect(flat(readTable(l)).length, `${l} flat`).toBe(1109) // **sf19-msgpanel**：`+1` 键（`messagesPage.close`）⇒ flat `1103⇒1104` / 四语节点 `4412⇒4416`；**sf-bttc-short"
+      },
+      {
+        "file": "frontend/src/test/unit/s5-publish-headcount.test.jsx",
+        "line": 88,
+        "value": "1106",
+        "legacy_narration": true,
+        "text": "expect(FLAT[l].length, `${l} flat`).toBe(1109) // **sf19-msgpanel**：`+1` 键（`messagesPage.close`）⇒ flat `1103⇒1104` / 四语节点 `4412⇒4416`；**sf-bttc-shortfall**：+2 键"
+      },
+      {
+        "file": "frontend/src/test/unit/i18n-batch-b4a.test.jsx",
+        "line": 148,
+        "value": "1106",
+        "legacy_narration": true,
+        "text": "expect(counts.zh).toEqual({ top: 128, flat: 1109 }) // **期望订正（S9 ledger.kind 缺键补齐）**：S8 +1 jobs.deliverable ⇒ 1055；S9 +4 ledger.kind 键/语 ⇒ 拍平 1055⇒1059（前订正 S7：1"
+      },
+      {
+        "file": "frontend/src/test/unit/r9-96-dashj-copy.test.jsx",
+        "line": 129,
+        "value": "1106",
+        "legacy_narration": true,
+        "text": "expect(f, `${l} flat`).toBe(1109) // **sf19-msgpanel**：`+1` 键（`messagesPage.close`）⇒ flat `1103⇒1104` / 四语节点 `4412⇒4416`；**sf-bttc-shortfall**：+2 键（`bttcPanel.m"
+      },
+      {
+        "file": "frontend/src/test/unit/r9-93-points-symbol.test.jsx",
+        "line": 195,
+        "value": "1106",
+        "legacy_narration": true,
+        "text": "expect(flat(TABLES[lang]).length, `${lang} flat`).toBe(1109) // **sf19-msgpanel**：`+1` 键（`messagesPage.close`）⇒ flat `1103⇒1104` / 四语节点 `4412⇒4416`；**sf-bttc-sh"
+      },
+      {
+        "file": "frontend/src/test/unit/i18n-batch-b5.test.jsx",
+        "line": 217,
+        "value": "1106",
+        "legacy_narration": true,
+        "text": "expect(out).toContain('zh: top=128 flat=1109') // **期望订正（S9）** 1059；**S25 再订正** 1059⇒1050（B7 退役 10 键）；**sf14 前推（2026-10-14 单）**：top 125⇒128 / flat 1078⇒1095；**s"
+      },
+      {
+        "file": "frontend/src/test/unit/tg-bind-qr.test.jsx",
+        "line": 14,
+        "value": "1106",
+        "legacy_narration": true,
+        "text": "* ⇒ 顶层 128（不变）/ 拍平 1095⇒1104 / 四语节点 4380⇒4416（22 处硬编字面已同步前推）。★ v1.19 §21.7（消息面板化 · 方案 1「就地叠加」）：`+1` 键 `messagesPage.close` ⇒ flat `1103⇒1104` / 四语节点 `4412⇒4416`"
+      },
+      {
+        "file": "frontend/src/test/unit/s19-participants-truth-source.test.jsx",
+        "line": 108,
+        "value": "1106",
+        "legacy_narration": true,
+        "text": "expect(flat(readTable(l)).length, `${l} flat`).toBe(1109) // **sf19-msgpanel**：`+1` 键（`messagesPage.close`）⇒ flat `1103⇒1104` / 四语节点 `4412⇒4416`；**sf-bttc-short"
+      },
+      {
+        "file": "frontend/src/test/unit/s8-locale-key-coverage.test.js",
+        "line": 188,
+        "value": "1106",
+        "legacy_narration": true,
+        "text": "expect(Object.keys(TABLES[l]).length, `${l} flat`).toBe(1109) // **sf19-msgpanel**：`+1` 键（`messagesPage.close`）⇒ flat `1103⇒1104` / 四语节点 `4412⇒4416`；**sf-bttc-s"
+      },
+      {
+        "file": "frontend/src/test/unit/i18n-batch-b4b.test.jsx",
+        "line": 260,
+        "value": "1106",
+        "legacy_narration": true,
+        "text": "expect(counts.zh).toEqual({ top: 128, flat: 1109 }) // **期望订正（S9）** 1059；**S25 再订正** 1059⇒1050（B7 退役 10 键）；**sf14 前推（2026-10-14 单）**：top 125⇒128 / flat 1078⇒109"
+      },
+      {
+        "file": "frontend/src/test/unit/i18n-violation-closeout.test.jsx",
+        "line": 88,
+        "value": "1106",
+        "legacy_narration": true,
+        "text": "expect(out).toContain('作用域命中节点数 = 4436') // **期望订正（S9 ledger.kind 缺键补齐）**：S8 ⇒ 1055/4220；S9 +4 ledger.kind 键/语 ⇒ 拍平 1055⇒1059 ⇒ 节点 4220⇒4236（前订正 S7：1044⇒1054 ⇒ "
+      },
+      {
+        "file": "frontend/src/test/unit/s9-ledger-kind-closure.test.js",
+        "line": 128,
+        "value": "1106",
+        "legacy_narration": true,
+        "text": "expect(flatten(readLocale(l)).length, `${l} flat`).toBe(1109) // **sf19-msgpanel**：`+1` 键（`messagesPage.close`）⇒ flat `1103⇒1104` / 四语节点 `4412⇒4416`；**sf-bttc-s"
+      },
+      {
+        "file": "frontend/src/test/unit/s23-participants-headcount.test.jsx",
+        "line": 121,
+        "value": "1106",
+        "legacy_narration": true,
+        "text": "expect(flat(readTable(l)).length, `${l} flat`).toBe(1109) // **sf19-msgpanel**：`+1` 键（`messagesPage.close`）⇒ flat `1103⇒1104` / 四语节点 `4412⇒4416`；**sf-bttc-short"
+      }
+    ],
+    "stale_count": 0,
+    "stale": []
+  },
+  "counts": {
+    "per_locale": {
+      "zh": {
+        "flat": 1109,
+        "top": 128
+      },
+      "en": {
+        "flat": 1109,
+        "top": 128
+      },
+      "hk": {
+        "flat": 1109,
+        "top": 128
+      },
+      "vn": {
+        "flat": 1109,
+        "top": 128
+      }
+    },
+    "total_nodes": 4436
+  },
+  "pass": true,
+  "failed": []
+}

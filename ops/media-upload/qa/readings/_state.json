@@ -1,0 +1,41 @@
+{
+  "media": {
+    "media_id": 1,
+    "sha256": "a33537c1a72f08dcb0d86eb23f669674762ec7e0459e15feb1a1961d12568bf8",
+    "size_bytes": 128,
+    "url": "/api/media/1",
+    "owner_uid": 971217
+  },
+  "actors": {
+    "ac3": {
+      "uid": 971217,
+      "address_tail": "…0694"
+    },
+    "ac4": {
+      "uid": 971219,
+      "address_tail": "…e339"
+    },
+    "ac5": {
+      "uid": 971221,
+      "address_tail": "…d3ad"
+    }
+  },
+  "listings": {
+    "with_image": {
+      "listing_id": 72,
+      "seller_uid": 971219,
+      "media_url": "/api/media/1",
+      "title": "QA媒体单-带图-20261019040754"
+    },
+    "no_image": {
+      "listing_id": 73,
+      "seller_uid": 971219,
+      "title": "QA媒体单-无图-20261019040754"
+    },
+    "ui_created": {
+      "listing_id": 74,
+      "seller_uid": 971221,
+      "title": "QA媒体单-UI-20261019040920"
+    }
+  }
+}

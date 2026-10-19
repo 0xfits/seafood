@@ -1,0 +1,135 @@
+{
+  "ac": "AC3",
+  "generated_at": "2026-10-19T04:07:09.253Z",
+  "base": "http://localhost:5788",
+  "checks": [
+    {
+      "id": "P1",
+      "what": "真登录上传 64×64 webp ⇒ 200 且 data 含 {url,media_id,sha256,size_bytes,deduplicated:false}",
+      "pass": true,
+      "reading": "http=200 url=/api/media/1 media_id=1 sha256=a33537c1a72f08dc… size=128 dedup=false"
+    },
+    {
+      "id": "P2",
+      "what": "同字节重传 ⇒ 200 deduplicated:true 且 media_id 一致（sha256+size 去重生效）",
+      "pass": true,
+      "reading": "http=200 media_id=1 (p1=1) dedup=true"
+    },
+    {
+      "id": "P2b",
+      "what": "DB media 表中该 sha256 恰 1 行（去重为真·非仅响应标记）",
+      "pass": true,
+      "reading": "rows=1 media_id=1"
+    },
+    {
+      "id": "P3",
+      "what": "GET /api/media/<id> 公开无头 ⇒ 200 + Content-Type=image/webp + Cache-Control 含 immutable + 字节 sha256 一致",
+      "pass": true,
+      "reading": "http=200 ct=image/webp cc=public, max-age=31536000, immutable bytes=128 sha_match=true"
+    },
+    {
+      "id": "P4",
+      "what": "GET /api/media/999999999 ⇒ 404 R107 形状（code=LEDGER_REF_NOT_FOUND · ref_type=media · reason=media_not_found）",
+      "pass": true,
+      "reading": "http=404 code=LEDGER_REF_NOT_FOUND details={\"ref_type\":\"media\",\"ref_id\":\"999999999\",\"reason\":\"media_not_found\"}"
+    },
+    {
+      "id": "P5",
+      "what": "GET /api/media/not-a-number ⇒ 404 R107 形状（非数字路径段同 miss 口径）",
+      "pass": true,
+      "reading": "http=404 code=LEDGER_REF_NOT_FOUND details={\"ref_type\":\"media\",\"ref_id\":\"not-a-number\",\"reason\":\"media_not_found\"}"
+    }
+  ],
+  "fixture": {
+    "file": "fixtures/qa-64.webp",
+    "bytes": 128,
+    "sha256": "a33537c1a72f08dcb0d86eb23f669674762ec7e0459e15feb1a1961d12568bf8"
+  },
+  "actor": {
+    "uid": 971217,
+    "address_tail": "…0694"
+  },
+  "p1_response": {
+    "http": 200,
+    "data": {
+      "url": "/api/media/1",
+      "media_id": 1,
+      "sha256": "a33537c1a72f08dcb0d86eb23f669674762ec7e0459e15feb1a1961d12568bf8",
+      "size_bytes": 128,
+      "deduplicated": false
+    }
+  },
+  "p2_response": {
+    "http": 200,
+    "data": {
+      "url": "/api/media/1",
+      "media_id": 1,
+      "sha256": "a33537c1a72f08dcb0d86eb23f669674762ec7e0459e15feb1a1961d12568bf8",
+      "size_bytes": 128,
+      "deduplicated": true
+    }
+  },
+  "db_rows_for_sha": [
+    {
+      "media_id": 1,
+      "size_bytes": 128,
+      "content_type": "image/webp"
+    }
+  ],
+  "p3_response": {
+    "http": 200,
+    "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "X-Session-Token",
+      "cache-control": "public, max-age=31536000, immutable",
+      "connection": "keep-alive",
+      "content-length": "128",
+      "content-security-policy": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests",
+      "content-type": "image/webp",
+      "cross-origin-opener-policy": "same-origin",
+      "cross-origin-resource-policy": "same-origin",
+      "date": "Mon, 19 Oct 2026 04:07:13 GMT",
+      "etag": "W/\"80-eMECsbIiegjb1M+z1DZ6sReWJJo\"",
+      "keep-alive": "timeout=5",
+      "origin-agent-cluster": "?1",
+      "referrer-policy": "no-referrer",
+      "strict-transport-security": "max-age=15552000; includeSubDomains",
+      "x-content-type-options": "nosniff",
+      "x-dns-prefetch-control": "off",
+      "x-download-options": "noopen",
+      "x-frame-options": "SAMEORIGIN",
+      "x-permitted-cross-domain-policies": "none",
+      "x-xss-protection": "0"
+    },
+    "bytes": 128,
+    "sha256": "a33537c1a72f08dcb0d86eb23f669674762ec7e0459e15feb1a1961d12568bf8"
+  },
+  "p4_response": {
+    "http": 404,
+    "error": {
+      "code": "LEDGER_REF_NOT_FOUND",
+      "message": "Referenced object not found",
+      "i18n_key": "ledger.err.LEDGER_REF_NOT_FOUND",
+      "details": {
+        "ref_type": "media",
+        "ref_id": "999999999",
+        "reason": "media_not_found"
+      }
+    }
+  },
+  "p5_response": {
+    "http": 404,
+    "error": {
+      "code": "LEDGER_REF_NOT_FOUND",
+      "message": "Referenced object not found",
+      "i18n_key": "ledger.err.LEDGER_REF_NOT_FOUND",
+      "details": {
+        "ref_type": "media",
+        "ref_id": "not-a-number",
+        "reason": "media_not_found"
+      }
+    }
+  },
+  "pass": true,
+  "failed": []
+}

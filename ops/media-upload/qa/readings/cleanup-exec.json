@@ -1,0 +1,11 @@
+{
+  "by": "Zang（QA 子代理撞迭代上限未执行；按技能纪律收口方执行）",
+  "project": "quiet-math-65207667 (dev, current_setting 自证)",
+  "method": "sql.transaction 单事务：DISABLE trg_listing_no_delete → DELETE listing(title LIKE 'QA媒体单-%') → DELETE media(无 listing 引用) → ENABLE trigger → 断言 tgenabled",
+  "deleted_listings": ["72","73","74","75"],
+  "deleted_media": ["1","3"],
+  "before": {"qa_listings": ["72","73","74","75"], "media_rows": 2},
+  "after": {"qa_listings_left": 0, "listing_total": 25, "media_total": 0, "trigger_tgenabled": "O"},
+  "trigger_assertions": {"in_txn": "O", "post": "O"},
+  "kept": "6 个 QA 随机钱包用户（batt_account/batt_entry 引用；无 bio/无积分/不可见）"
+}

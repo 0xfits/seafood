@@ -1,0 +1,124 @@
+{
+  "ac": "AC4",
+  "generated_at": "2026-10-19T04:07:52.554Z",
+  "base": "http://localhost:5788",
+  "checks": [
+    {
+      "id": "E1",
+      "what": "POST /api/listing（cid=1 · price=100 · stock=1 · media_urls:[url] · create_key）⇒ 200 + listing_id",
+      "pass": true,
+      "reading": "http=200 listing_id=72 status=draft media_urls=[\"/api/media/1\"]"
+    },
+    {
+      "id": "E2",
+      "what": "PATCH /api/listing/<id> {to_status:listed} ⇒ 200 且 status=listed",
+      "pass": true,
+      "reading": "http=200 status=listed"
+    },
+    {
+      "id": "E3",
+      "what": "DB listing 行 media_urls 恰 = [url]（逐字包含 · 长度 1）",
+      "pass": true,
+      "reading": "db_media_urls=[\"/api/media/1\"] expect=[\"/api/media/1\"] status=listed"
+    },
+    {
+      "id": "E4",
+      "what": "GET /api/prize/all 中该 bID 行 media_urls 与 DB 一致",
+      "pass": true,
+      "reading": "http=200 rows=26 found=true media_urls=[\"/api/media/1\"]"
+    },
+    {
+      "id": "E5",
+      "what": "GET /api/prize/<id> 行 media_urls 与 DB 一致",
+      "pass": true,
+      "reading": "http=200 media_urls=[\"/api/media/1\"]"
+    },
+    {
+      "id": "E6",
+      "what": "无图商品（不传 media_urls）⇒ DB media_urls = {}（空数组）且已 listed",
+      "pass": true,
+      "reading": "listing_id=73 db_media_urls=[] status=listed"
+    }
+  ],
+  "actor": {
+    "uid": 971219,
+    "address_tail": "…e339"
+  },
+  "create_with_image": {
+    "http": 200,
+    "data": {
+      "listing_id": "72",
+      "seller_uid": "971219",
+      "cid": "1",
+      "price": "100",
+      "stock": 1,
+      "title": "QA媒体单-带图-20261019040754",
+      "description": "QA media upload E2E (with image) — 自动回收",
+      "media_urls": [
+        "/api/media/1"
+      ],
+      "status": "draft",
+      "create_key": "cli:qa-media-e2e-img-20261019040754",
+      "outcome": "inserted",
+      "created_key_derived": false
+    },
+    "error": null
+  },
+  "patch_listed": {
+    "http": 200,
+    "data": {
+      "listing_id": "72",
+      "seller_uid": "971219",
+      "cid": "1",
+      "price": "100",
+      "stock": 1,
+      "title": "QA媒体单-带图-20261019040754",
+      "description": "QA media upload E2E (with image) — 自动回收",
+      "media_urls": [
+        "/api/media/1"
+      ],
+      "status": "listed",
+      "create_key": "cli:qa-media-e2e-img-20261019040754",
+      "outcome": "updated"
+    }
+  },
+  "db_row": {
+    "listing_id": "72",
+    "seller_uid": "971219",
+    "cid": "1",
+    "price": "100",
+    "stock": 1,
+    "status": "listed",
+    "media_urls": [
+      "/api/media/1"
+    ],
+    "create_key": "cli:qa-media-e2e-img-20261019040754"
+  },
+  "prize_all_row": {
+    "bID": 72,
+    "media_urls": [
+      "/api/media/1"
+    ],
+    "name": "QA媒体单-带图-20261019040754"
+  },
+  "prize_one_row": {
+    "bID": 72,
+    "media_urls": [
+      "/api/media/1"
+    ],
+    "name": "QA媒体单-带图-20261019040754"
+  },
+  "no_image_listing": {
+    "http": 200,
+    "error": null,
+    "listing_id": 73,
+    "patch_http": 200,
+    "db": {
+      "listing_id": "73",
+      "status": "listed",
+      "media_urls": []
+    }
+  },
+  "pass": true,
+  "failed": []
+}
