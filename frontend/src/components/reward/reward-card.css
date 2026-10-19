@@ -71,6 +71,19 @@
   flex-direction: column;
 }
 
+/* ★ F1（2026-10-19 独立质检 · design §26.11「不得加 1px 实边框」）
+ * Card 基座恒带 `.border`（1px 实边框）。`box-sizing: border-box` 下这 2px 从 392 里扣
+ * ⇒ 内容盒只剩 390 ⇒ image 240 + 四行 152 = 392 溢出 2px，被本卡 `overflow-hidden` 裁掉
+ * （卖家行底 2px 看不见）。修法：实边框归零（不吃布局），视觉上用 **outline + 负 offset**
+ * 原位画回浅灰 1px 环（色值 = 原 `border-gray-200` #e5e7eb），外观不变、几何复原。
+ * 不用 box-shadow：卡体已有 `hover:shadow-lg`，会被该工具类覆盖。
+ * `.sf-reward-card` 前缀保具体性 = (0,2,0)，压过 `@layer utilities` 的 `.border` 且不依赖打包顺序。 */
+.sf-reward-card .sf-reward-card-body {
+  border: 0;                                  /* 不吃 2px 布局 */
+  outline: 1px solid #e5e7eb;                  /* 视觉等同原 border-gray-200 */
+  outline-offset: -1px;
+}
+
 /* 第一部分 · 图容器：卡顶通栏、固定 240 高；原图任意比例 ⇒ cover + center 居中裁切；
    卡体 overflow-hidden + rounded-lg ⇒ 圆角只落卡顶两角。
    无图 ⇒ 容器仍在（#F3F4F6 灰底）—— 卡高恒 392 不允许图片槽塌陷。 */

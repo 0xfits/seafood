@@ -75,8 +75,11 @@ const RewardCard = ({
         variant={reward.variant || 'default'}
         hover="none"
         className={cn(
-          // 恒高 392 + flex column + padding 0（几何常量在 reward-card.css，不用 Tailwind 任意值）
-          'sf-reward-inner relative overflow-hidden hover:shadow-lg',
+          // 恒高 392 + flex column + padding 0（几何常量在 reward-card.css，不用 Tailwind 任意值类）
+          // `sf-reward-card-body`：F1 —— Card 基座的 `.border` 是 1px **实边框**，box-sizing:border-box
+          // 下会把内容盒从 392 压到 390（四行 152 溢出被裁）。该类在 reward-card.css 里把实边框换成
+          // **不占布局**的 outline（视觉同为浅灰 1px 环），内容盒回 392。
+          'sf-reward-inner sf-reward-card-body relative overflow-hidden hover:shadow-lg',
           compact && 'p-4',
           reward.rarity === 'legendary' && 'border-yellow-400',
           reward.rarity === 'epic' && 'border-purple-400'

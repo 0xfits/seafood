@@ -1,0 +1,44 @@
+{
+  "fix": "F1 — 卡体 1px 实边框（Card 基座 .border）侵占 box-sizing:border-box 的内容盒，392 总高只剩 390 内容区，四行 152 溢出 2px 被 overflow:hidden 裁掉",
+  "date": "2026-10-19",
+  "design_ref": "design-system.spec §26.11「不得加 1px 实边框」",
+  "head_before": "38dcbe5",
+  "change": {
+    "frontend/src/components/reward/RewardCard.jsx": "Card className 追加稳定类 `sf-reward-card-body`（其余类与结构未动）",
+    "frontend/src/components/reward/reward-card.css": "新增 .sf-reward-card .sf-reward-card-body { border:0; outline:1px solid #e5e7eb; outline-offset:-1px; }（不用 box-shadow：卡体已有 hover:shadow-lg 会覆盖）"
+  },
+  "content_box": {
+    "metric": ".sf-reward-inner clientHeight（内容盒高）/ .content 高 / 卖家行底边相对卡体内容盒底边（>0 = 溢出被裁）",
+    "before": { "inner_client_h": 390, "content_h": 150, "seller_bottom_vs_inner_bottom": -1, "border_top_bottom": "1px/1px", "img_w_1440": 207.33, "img_w_1536": 223.33 },
+    "after":  { "inner_client_h": 392, "content_h": 152, "seller_bottom_vs_inner_bottom": 0,  "border_top_bottom": "0px/0px", "img_w_1440": 209.33, "img_w_1536": 225.33 },
+    "note": "卡体 rect 高恒 392 两态相同 —— 单看总高看不出 F1；差异在内容盒（390/392）与卖家行底边是否被裁（-1/0），故探针判据取 clientHeight + 行底边 rect。"
+  },
+  "probe": {
+    "cmd": "node ops/card-rows/probe-card-rows.mjs",
+    "judges_added": [
+      "card-content-box=392（.sf-reward-inner clientHeight）",
+      "card-no-layout-border（computed border-top/bottom-width 必须 0）",
+      "contentH=152（.content 盒高）",
+      "seller-row-bottom-unclipped（卖家行 rect 底边 = 卡体内容盒底边，±0.5）"
+    ],
+    "run_before_fix": { "verdict": "FAIL", "passes": 5, "checks": 189, "red": 20, "red_judges": ["card-content-box=392 → 390", "card-no-layout-border → 1px/1px", "contentH=152 → 150", "seller-row-bottom-unclipped → -1"] },
+    "run_after_fix": { "verdict": "PASS", "passes": 5, "checks": 189, "red": 0, "page_errors": 0 },
+    "negative_control": {
+      "how": "临时把 border:0 改回 border:1px solid #e5e7eb 后重跑",
+      "verdict": "FAIL", "passes": 5, "checks": 189, "red": 20,
+      "numbers": { "inner_client_h": 390, "content_h": 150, "seller_bottom_vs_inner_bottom": -1 },
+      "conclusion": "判据有分辨力：同一探针对同一缺陷必红，恢复后必绿；已恢复 border:0 并重跑 PASS"
+    },
+    "coverage": ["1440/light/fixture", "1440/dark/fixture", "1536/light/fixture", "1536/dark/fixture", "1440/light/real"]
+  },
+  "gates": {
+    "frontend_build": { "cmd": "npm run build", "exit": 0, "built_in": "1.88s" },
+    "frontend_unit": { "cmd": "npm run test:unit", "exit": 0, "test_files": 62, "tests": 609, "baseline": "62 文件 / 609 例（不少于）" },
+    "backend_tsc": { "cmd": "npx tsc --noEmit", "exit": 0 }
+  },
+  "commit_scope": ["frontend/src/components/reward/RewardCard.jsx", "frontend/src/components/reward/reward-card.css", "ops/card-rows/probe-card-rows.mjs", "ops/card-rows/readings/fix-f1.json", "ops/card-rows/readings/probe-result.json"],
+  "notes": [
+    "外观：实边框（#e5e7eb 1px）→ outline 1px #e5e7eb + offset -1 ⇒ 环位置/粗细/颜色不变，且不再吃布局。",
+    "待确认（未擅自改）：稀有度类 border-yellow-400 / border-purple-400 依赖 1px 边框着色，border:0 后该色环不再绘制（四行结构下稀有度环非必需，且 §26.11 禁止实边框）。如需要，可在同一规则内以 outline-color 按类接管。"
+  ]
+}

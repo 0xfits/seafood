@@ -123,9 +123,18 @@ async function measure(page) {
       const cs = (el) => (el ? getComputedStyle(el) : null)
       const pr = price?.getBoundingClientRect()
       const wr = wants?.getBoundingClientRect()
+      const innerRect = inner ? inner.getBoundingClientRect() : null
+      const sellerRect = seller ? seller.getBoundingClientRect() : null
       return {
         rootH: h(root), innerH: h(inner), innerW: w(inner),
         innerClientW: inner ? inner.clientWidth : null,
+        // 内容盒高（border-box 下 rect 高含边框，clientHeight 才是可用内容区）：
+        // F1 判据 —— 卡体不得有吃布局的实边框，内容盒必须 392。
+        innerClientH: inner ? inner.clientHeight : null,
+        innerBorderTopW: inner ? getComputedStyle(inner).borderTopWidth : null,
+        innerBorderBottomW: inner ? getComputedStyle(inner).borderBottomWidth : null,
+        // 卖家行（第 4 行）底边相对卡体内容盒底边：>0 = 溢出被 overflow:hidden 裁掉。
+        sellerBottomVsInnerBottom: (innerRect && sellerRect) ? num(innerRect.bottom - sellerRect.bottom) : null,
         imgBoxH: h(imgBox), imgBoxW: w(imgBox), imgH: h(img), imgW: w(img),
         objectFit: img ? getComputedStyle(img).objectFit : (imgBox ? 'no-img' : null),
         contentH: h(content), contentW: w(content),
@@ -198,6 +207,14 @@ async function runPass(browser, { vp, theme, intercept }) {
   // ① 卡总高恒 392（内层卡体 + 根链接）
   checks.push(check('cardH=392(all)', cards.every((c) => c.innerH === 392), cards.map((c) => c.innerH).join(',')))
   checks.push(check('rootH=392(all)', cards.every((c) => c.rootH === 392), cards.map((c) => c.rootH).join(',')))
+  // ①b F1（2026-10-19 独立质检）：卡体**不得有吃布局的实边框**（design §26.11）。
+  //    `box-sizing: border-box` 下 392 总高若含 1px×2 边框 ⇒ 内容盒只剩 390 ⇒
+  //    image 240 + 四行 152 = 392 溢出 2px，被卡体 overflow-hidden 裁掉（卖家行底 2px 被切）。
+  //    判据三条：内容盒 392 / content 盒高 152 / 卖家行底边不被裁（rect 底边对齐内容盒底边）。
+  checks.push(check('card-content-box=392', cards.every((c) => c.innerClientH === 392), cards.map((c) => c.innerClientH).join(',')))
+  checks.push(check('card-no-layout-border', cards.every((c) => parseFloat(c.innerBorderTopW) === 0 && parseFloat(c.innerBorderBottomW) === 0), cards.map((c) => `${c.innerBorderTopW}/${c.innerBorderBottomW}`).join(',')))
+  checks.push(check('contentH=152', cards.every((c) => c.contentH === 152), cards.map((c) => c.contentH).join(',')))
+  checks.push(check('seller-row-bottom-unclipped', cards.every((c) => c.sellerBottomVsInnerBottom >= -0.5 && c.sellerBottomVsInnerBottom <= 0.5), cards.map((c) => c.sellerBottomVsInnerBottom).join(',')))
   // ② 图容器 240 高、宽 = 卡内宽（图片具体值优先：宽随栅格）
   checks.push(check('imageBoxH=240(all)', cards.every((c) => c.imgBoxH === 240), cards.map((c) => c.imgBoxH).join(',')))
   checks.push(check('imageBoxW=innerW', cards.every((c) => Math.abs(c.imgBoxW - c.innerClientW) <= 1), cards.map((c) => `${c.imgBoxW}/${c.innerClientW}`).join(' ')))
