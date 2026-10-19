@@ -121,6 +121,13 @@ const RewardCard = ({
             className="row1-wrap-title line-clamp-2"
             data-sf-m="reward-card-title"
           >
+            {/* 「包邮」贴纸（design §26.12.1 · Kevin 2026-10-20）：**仅** `item_type === 'PhysicalFreeShip'`
+                渲染，且必须是 `row1-wrap-title` 内**标题文字之前**的第一个 inline 节点
+                （`Digital` / `PhysicalBuyerShip` / `NULL` 一律不渲染 —— `PhysicalBuyerShip` 显示「包邮」= 误导）。
+                盒 16px < 行盒 24px ⇒ 不抬行（行高恒 48 / 卡高恒 392）；色值只取既有 `--sf-btna-*`（零新 token）。 */}
+            {reward.item_type === 'PhysicalFreeShip' ? (
+              <span className="sf-reward-ship-tag" data-sf-m="reward-card-ship-tag">{t('item.freeShipping')}</span>
+            ) : null}
             {titleText}
             {/* 「翻译中」小标（TR-2）：`i18n_status ∈ {pending, partial}` 且非 zh 档才渲染 */}
             <TranslatingBadge status={contentStatus(reward)} />

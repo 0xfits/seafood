@@ -125,6 +125,9 @@ const pickFiles = (container, files) => {
 const fillRequired = (container) => {
   fireEvent.change(container.querySelector('[data-sf-m="item-input-title"]'), { target: { value: '测试商品' } })
   fireEvent.change(container.querySelector('[data-sf-m="item-input-price"]'), { target: { value: '7' } })
+  // 商品分类（2026-10-20 · 2 + 2 两控件）：**必选** ⇒ 本文件只测图片面，统一选「数字商品」过闸
+  // （数字商品 ⇒ 运费控件不渲染、不参与载荷 ⇒ 本文件断言不受运费面影响）。
+  fireEvent.click(container.querySelector('[data-sf-m="item-input-type-digital"]'))
 }
 
 const submit = (container) => fireEvent.click(container.querySelector('[data-sf-m="item-primary"]'))

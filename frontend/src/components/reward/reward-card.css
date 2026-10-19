@@ -140,6 +140,26 @@
   word-break: break-word;
 }
 
+/* row1 · 「包邮」贴纸（design §26.12.1 · Kevin 2026-10-20）：**仅** `item_type === 'PhysicalFreeShip'`
+   渲染，位置 = 标题文字**之前**的第一个 inline 节点。色值只引既有 token（零新色值 / 零新 token）：
+   底色 `--sf-btna-bg`（日/夜同值 #FFE60F）· 字色 `--sf-btna-fg`（#202020）。
+   盒 16 高 < 行盒 24 ⇒ **不抬行**（row1 恒 48 / 卡高恒 392）；圆角 2px = 近方角「贴纸」观感
+   （**不得**用胶囊 999px 或按钮 8px；判负 #17/#18 见 design §26.12.5）。 */
+.sf-reward-card .sf-reward-ship-tag {
+  display: inline-block;
+  background: var(--sf-btna-bg);
+  color: var(--sf-btna-fg);
+  font-size: 12px;      /* §13 / T79 「可见文本 ≥12px」下限 */
+  font-weight: 700;
+  line-height: 16px;
+  height: 16px;
+  border-radius: 2px;   /* 近方角 · 非胶囊/非按钮 */
+  padding: 0 4px;
+  margin-right: 4px;    /* 与标题文字间距 4px */
+  vertical-align: baseline;
+  white-space: nowrap;
+}
+
 /* row2 · 服务/标签槽：**当前留空**（Kevin：暂时留空），但占位恒在场（32 高） */
 .sf-reward-card .row2-wrap-service {
   flex: 0 0 32px;

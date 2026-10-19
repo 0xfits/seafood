@@ -1,0 +1,46 @@
+{
+ "home": {
+  "pageerrors": [],
+  "consoleErrors": [],
+  "m": [
+   {
+    "title": "包邮包邮实测商品",
+    "tagPresent": true,
+    "tagText": "包邮",
+    "tagFirst": true,
+    "bg": "rgb(255, 230, 15)",
+    "fg": "rgb(32, 32, 32)",
+    "fs": "12px",
+    "fw": "700",
+    "radius": "2px",
+    "titleH": 48,
+    "cardH": 392
+   },
+   {
+    "title": "数字商品实测",
+    "tagPresent": false,
+    "tagText": null,
+    "tagFirst": true,
+    "titleH": 48,
+    "cardH": 392
+   }
+  ]
+ },
+ "publish": {
+  "pageerrors": [],
+  "initial": {
+   "typeGroup": 1,
+   "digital": 1,
+   "physical": 1,
+   "shipGroup": 0
+  },
+  "afterPhysical": {
+   "shipGroup": 1,
+   "free": 1,
+   "buyer": 1
+  },
+  "afterDigital": {
+   "shipGroup": 0
+  }
+ }
+}

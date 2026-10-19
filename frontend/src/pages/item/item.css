@@ -190,6 +190,44 @@
   color: var(--sf-meta-fg);
 }
 
+/* 商品分类 / 运费（2 选 1 单选组 · Kevin 2026-10-20「2 + 2 两控件」）
+ * 一行内并排、窄屏换行；颜色全取既有 token（缺选高亮 = --sf-down-fg），零新色值。 */
+.sf-item-choice {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  min-height: var(--sf-l-ctl-h);
+}
+
+.sf-item-choice-opt {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--sf-search-fg);
+  cursor: pointer;
+}
+
+.sf-item-choice-input {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: var(--sf-btna-bg);
+  cursor: pointer;
+}
+
+/* 必选缺选：仅**提示态**（不参与布局 ⇒ 零几何变化），由提交闸置位、选中即清 */
+.sf-item-choice-miss .sf-item-choice-text {
+  color: var(--sf-down-fg);
+}
+
+.sf-item-choice-miss {
+  outline: var(--sf-st-stroke-w-thin) solid var(--sf-down-fg);
+  outline-offset: 2px;
+  border-radius: var(--sf-st-radius-btna);
+}
+
 .sf-item-input,
 .sf-item-textarea,
 .sf-item-select {

@@ -185,7 +185,8 @@
     "imagesLabel": "Hình ảnh sản phẩm (không bắt buộc, tối đa 4)",
     "imageRemove": "Xóa ảnh",
     "imageUploadFail": "Tải ảnh lên thất bại, đã hủy đăng",
-    "imageTooLarge": "Mỗi ảnh không được vượt quá 1MB"
+    "imageTooLarge": "Mỗi ảnh không được vượt quá 1MB",
+    "freeShipping": "Miễn phí vận chuyển"
   },
   "market": {
     "line": "Dòng sàn giao dịch",
@@ -1250,5 +1251,11 @@
       "TG_NOT_LINKED": "Telegram chưa được liên kết",
       "TG_WEBHOOK_UNAUTHORIZED": "Yêu cầu chưa được xác thực"
     }
+  },
+  "itemType": {
+    "digital": "Hàng kỹ thuật số",
+    "physical": "Hàng vật lý",
+    "freeShip": "Miễn phí vận chuyển",
+    "buyerShip": "Người mua trả phí vận chuyển"
   }
 }

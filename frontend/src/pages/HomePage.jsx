@@ -117,6 +117,10 @@ const HomePage = () => {
       const storesCount = prize.stores_count || 0
       return {
         ...prize,
+        // 商品分类（迁移 0053 · 三值 `Digital` / `PhysicalFreeShip` / `PhysicalBuyerShip` / `NULL`）：
+        // 读口已透出 `item_type`（route §49.11 ④）⇒ 此处**显式透传**给卡片（`...prize` 已带，写明防丢）。
+        // 卡片只在 `PhysicalFreeShip` 时于标题前渲染「包邮」贴纸（design §26.12.1）。
+        item_type: prize.item_type ?? null,
         title: pickLocalized(prize, 'name', lang),
         description: pickLocalized(prize, 'description', lang),
         points_required: prize.points || 0,

@@ -185,7 +185,8 @@
     "imagesLabel": "Product images (optional, up to 4)",
     "imageRemove": "Remove image",
     "imageUploadFail": "Image upload failed, publish cancelled",
-    "imageTooLarge": "Each image must be 1MB or smaller"
+    "imageTooLarge": "Each image must be 1MB or smaller",
+    "freeShipping": "Free shipping"
   },
   "market": {
     "line": "Exchange",
@@ -1250,5 +1251,11 @@
       "TG_NOT_LINKED": "Telegram is not linked yet",
       "TG_WEBHOOK_UNAUTHORIZED": "Request unauthorized"
     }
+  },
+  "itemType": {
+    "digital": "Digital goods",
+    "physical": "Physical goods",
+    "freeShip": "Free shipping",
+    "buyerShip": "Buyer pays shipping"
   }
 }

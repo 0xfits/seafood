@@ -68,17 +68,24 @@ export const fetchCurrencies = (user) => getJson('/api/currencies', user)
 /**
  * P1 商品上架（直 DML · 无分录）。`price` = A 类**供给侧自主出价**（§4.8.1 ⇒ 客户端可填、原样透传，路由层零计算）。
  * `createKey` = 前端提供的 `cli:` 键（服务端缺键会派生，见文件头 ①）。
+ * `itemType` = 商品分类（迁移 0053 · 可选）：闭集三值 `Digital` / `PhysicalFreeShip` /
+ *   `PhysicalBuyerShip`，**原样逐字**发 `item_type`（未分类 ⇒ `null`）；**不发**第二分类字段。
+ *   `''` 属非法（后端 400 `LEDGER_AMOUNT_INVALID` + `reason=NOT_IN_CLOSED_SET`）⇒ 调用方须先过前端必选闸。
  */
-export const publishListing = ({ cid, price, stock, title, description, mediaUrls, createKey, user }) =>
-  postJson('/api/listing', {
+export const publishListing = ({ cid, price, stock, title, description, mediaUrls, itemType = null, createKey, user }) => {
+  const body = {
     cid,
     price,
     stock,
     title,
     description,
     media_urls: mediaUrls,
-    create_key: createKey,
-  }, user)
+  }
+  // 分类只在**有值**时进载荷：未分类 ⇒ 字段缺省（服务端落 NULL，route §49.11 ② `字段缺省 ⇒ NULL`）。
+  if (itemType) body.item_type = itemType
+  body.create_key = createKey
+  return postJson('/api/listing', body, user)
+}
 
 /**
  * 商品图片上传（`POST /api/media` · 媒体单前端阶段 B）。`payload = { content_type, data_base64 }`。

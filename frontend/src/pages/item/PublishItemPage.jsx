@@ -119,12 +119,44 @@ const compressImage = async (file) => {
 }
 
 
+// ---- 商品分类（迁移 0053 · Kevin 2026-10-20「2 + 2 两控件」） -------------------
+// 控件 A「商品分类」2 选 1（数字商品 / 实物商品）· 控件 B「运费」2 选 1（包邮 / 不包邮）。
+// **载荷唯一字段** = `item_type`（后端闭集三值 PascalCase，route §49.11 ②）：
+//   digital                ⇒ `Digital`
+//   physical + free        ⇒ `PhysicalFreeShip`
+//   physical + buyer       ⇒ `PhysicalBuyerShip`
+// 联动（design §26.12.4 · 判负 #19）：分类 = 数字 ⇒ **运费控件不渲染**（不是 display:none）
+//   且其值**重置为空**（防 stale 值带进载荷）；分类未选 / 实物未选运费 ⇒ **阻止提交**（不发 `''`，
+//   后端把空串判 400）。提示复用既有键（`uiError.badRequest`）+ 选项行高亮 + `aria-invalid`
+//   —— **零新文案键**（i18n 计数冻结 5 键：top 130 / flat 1120 / nodes 4480）。
+const TYPE_OPTIONS = [
+  { value: 'digital', labelKey: 'itemType.digital' },
+  { value: 'physical', labelKey: 'itemType.physical' },
+]
+const SHIP_OPTIONS = [
+  { value: 'free', labelKey: 'itemType.freeShip' },
+  { value: 'buyer', labelKey: 'itemType.buyerShip' },
+]
+
+/** 两控件 ⇒ 单字段 `item_type`（三值闭集；未选 / 实物未选运费 ⇒ `null`，由提交闸拦截）。 */
+const toItemType = (type, ship) => {
+  if (type === 'digital') return 'Digital'
+  if (type !== 'physical') return null
+  if (ship === 'free') return 'PhysicalFreeShip'
+  if (ship === 'buyer') return 'PhysicalBuyerShip'
+  return null
+}
+
 const PublishItemPage = () => {
   const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
   const { isAuthenticated, user } = useAuth()
   const [form, setForm] = useState({ cid: DEFAULT_CID, price: '', stock: '1', title: '', description: '' })
+  // 商品分类两控件（'' = 未选；initial 空 ⇒ 必选未选不可提交）
+  const [itemTypeSel, setItemTypeSel] = useState('')
+  const [shipSel, setShipSel] = useState('')
+  const [miss, setMiss] = useState({ type: false, ship: false })
   const [images, setImages] = useState([])
   const [imageNotice, setImageNotice] = useState('')
   const [state, setState] = useState({ phase: 'idle', message: '' })
@@ -163,6 +195,19 @@ const PublishItemPage = () => {
 
   const setField = (key) => (event) => setForm((prev) => ({ ...prev, [key]: event.target.value }))
 
+  /** 控件 A 选分类：切换即清运费值（数字商品 ⇒ 运费不适用，**不得**留 stale 值进载荷）。 */
+  const pickItemType = (value) => () => {
+    setItemTypeSel(value)
+    if (value !== 'physical') setShipSel('')
+    setMiss({ type: false, ship: false })
+  }
+
+  /** 控件 B 选运费（仅 `physical` 时渲染）。 */
+  const pickShipping = (value) => () => {
+    setShipSel(value)
+    setMiss((prev) => ({ ...prev, ship: false }))
+  }
+
   /** 选图：仅 image/*；超出 4 张忽略多余；逐张本地压缩后入列（失败的单张丢弃，不拦其余）。
    *  压缩后仍 >1MiB 的（`compressImage` 返 null）⇒ **拒收该张**：提示 `item.imageTooLarge`，
    *  该张不入列表（其余已选图片照常保留/入列）。 */
@@ -185,6 +230,19 @@ const PublishItemPage = () => {
   const onSubmit = async (event) => {
     event.preventDefault()
     if (state.phase === 'loading') return
+
+    // ⓪ 商品分类闸（必选；实物 + 运费必选）——**先于**图片上传与任何网络调用：
+    //    未选 ⇒ 阻止提交（不发 `item_type: ''`，后端把空串判 400）；提示复用既有键 + 行高亮。
+    const nextMiss = {
+      type: !itemTypeSel,
+      ship: itemTypeSel === 'physical' && !shipSel,
+    }
+    if (nextMiss.type || nextMiss.ship) {
+      setMiss(nextMiss)
+      setState({ phase: 'error', message: t('uiError.badRequest') })
+      return
+    }
+    setMiss({ type: false, ship: false })
     setState({ phase: 'loading', message: t('jobs.submitting') })
 
     // ① 先逐张上传（顺序）：任一张失败 ⇒ **取消发布**（不调 publishListing，绝不产生半截商品）。
@@ -211,6 +269,9 @@ const PublishItemPage = () => {
         title: form.title.trim(),
         description: form.description.trim(),
         mediaUrls,
+        // 单字段三值（`Digital` / `PhysicalFreeShip` / `PhysicalBuyerShip`）——
+        // **不发** `shipping` / `free_ship` 之类第二字段（后端不认，route §49.11 ②）
+        itemType: toItemType(itemTypeSel, shipSel),
         createKey,
         user,
       })
@@ -294,6 +355,63 @@ const PublishItemPage = () => {
                   ))}
                 </select>
               </label>
+              {/* 商品分类（Kevin 2026-10-20「2 + 2 两控件」）· 控件 A = 2 选 1（必选）
+                  钩子：组容器 `item-select-type`（design §26.12.4 承 `item-select-cid` 体例）+
+                  每个选项 `item-input-type-digital` / `item-input-type-physical`。
+                  未选 ⇒ 提交闸拦截（下方 `onSubmit` ⓪）+ 本组 `aria-invalid` + 选项行高亮。 */}
+              <div
+                className={`sf-item-field sf-item-field-wide sf-item-choice${miss.type ? ' sf-item-choice-miss' : ''}`}
+                data-sf-m="item-select-type"
+                data-sf-miss={miss.type ? '1' : undefined}
+                role="radiogroup"
+                aria-required="true"
+                aria-invalid={miss.type ? 'true' : undefined}
+              >
+                {TYPE_OPTIONS.map((option) => (
+                  <label className="sf-item-choice-opt" key={option.value}>
+                    <input
+                      className="sf-item-choice-input"
+                      type="radio"
+                      name="item_type"
+                      value={option.value}
+                      data-sf-m={`item-input-type-${option.value}`}
+                      checked={itemTypeSel === option.value}
+                      onChange={pickItemType(option.value)}
+                    />
+                    <span className="sf-item-choice-text">{t(option.labelKey)}</span>
+                  </label>
+                ))}
+              </div>
+
+              {/* 控件 B = 运费 2 选 1（**条件必选**）：**仅** 分类 = 实物商品时渲染。
+                  数字商品 ⇒ 整个控件不渲染（不是 display:none）且值已被清空 ⇒ 不参与载荷。
+                  钩子：组容器 `item-select-ship` + 选项 `item-input-ship-free` / `item-input-ship-buyer`。 */}
+              {itemTypeSel === 'physical' ? (
+                <div
+                  className={`sf-item-field sf-item-field-wide sf-item-choice${miss.ship ? ' sf-item-choice-miss' : ''}`}
+                  data-sf-m="item-select-ship"
+                  data-sf-miss={miss.ship ? '1' : undefined}
+                  role="radiogroup"
+                  aria-required="true"
+                  aria-invalid={miss.ship ? 'true' : undefined}
+                >
+                  {SHIP_OPTIONS.map((option) => (
+                    <label className="sf-item-choice-opt" key={option.value}>
+                      <input
+                        className="sf-item-choice-input"
+                        type="radio"
+                        name="item_shipping"
+                        value={option.value}
+                        data-sf-m={`item-input-ship-${option.value}`}
+                        checked={shipSel === option.value}
+                        onChange={pickShipping(option.value)}
+                      />
+                      <span className="sf-item-choice-text">{t(option.labelKey)}</span>
+                    </label>
+                  ))}
+                </div>
+              ) : null}
+
               <label className="sf-item-field sf-item-field-wide">
                 <span className="sf-item-label">{t('item.description')}</span>
                 <textarea className="sf-item-textarea" data-sf-m="item-input-note" value={form.description} onChange={setField('description')} rows={3} />

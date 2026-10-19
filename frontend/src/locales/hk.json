@@ -185,7 +185,8 @@
     "imagesLabel": "商品圖片（可選，最多 4 張）",
     "imageRemove": "移除圖片",
     "imageUploadFail": "圖片上傳失敗，發布已取消",
-    "imageTooLarge": "單張圖片不能超過 1MB"
+    "imageTooLarge": "單張圖片不能超過 1MB",
+    "freeShipping": "包郵"
   },
   "market": {
     "line": "交易所線",
@@ -1250,5 +1251,11 @@
       "TG_NOT_LINKED": "尚未綁定 Telegram",
       "TG_WEBHOOK_UNAUTHORIZED": "請求未授權"
     }
+  },
+  "itemType": {
+    "digital": "數字商品",
+    "physical": "實物商品",
+    "freeShip": "包郵",
+    "buyerShip": "不包郵"
   }
 }
