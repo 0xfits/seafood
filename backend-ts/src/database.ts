@@ -554,6 +554,18 @@ export const LISTING_DEPOSIT_POLICY_KEY = 'listing_deposit_policy' as const;
 const PRIZE_MARKET_THRESHOLD_SECONDS = 30 * 24 * 60 * 60;
 const PRIZE_PRICE_FLOOR_MIN_DURATION_SECONDS = 30 * 24 * 60 * 60;
 
+// ============================================================================
+// FEED-RANK-v1（首页 / 商品列表「综合排序」· 冻结公式 · 唯一定义点）
+//   score = FEED_RECENCY_WEIGHT × recency + FEED_RATING_WEIGHT × rating
+//     · recency = 1 / (1 + age_days)（新发 = 1.0；1 天 ≈ .5；7 天 ≈ .125；30 天 ≈ .032）
+//     · rating  = COALESCE(卖家收到评分均值, FEED_RATING_NEUTRAL_STARS) / 5（无评分 ⇒ 中性 3 星）
+//   权重与中性分**集中在此**，SQL 侧引用同源常量（不得散落字面量）；配置化另立单，
+//   本单**不改** `app_config` 合法键（`LEGAL_APP_CONFIG_KEYS` 不动）。
+// ============================================================================
+const FEED_RECENCY_WEIGHT = 0.8;
+const FEED_RATING_WEIGHT = 0.2;
+const FEED_RATING_NEUTRAL_STARS = 3.0;
+
 const resolvePrizeDurationSeconds = (timeStart: number, timeEnd: number) => {
   const normalizedStart = Math.max(0, Math.trunc(Number(timeStart) || 0));
   const normalizedEnd = Math.max(0, Math.trunc(Number(timeEnd) || 0));
@@ -2581,16 +2593,44 @@ export class DatabaseService {
     // time_created/time_updated 同名核对）。旧 gift_counts/shard_counts/transfer_counts CTE 引用的
     // prize_item/shard/shard_transfer 在新 schema 无对应表（probe.json 三口径 42P01）
     // ⇒ 聚合键保留、值恒 0（不编值）。
+    //
+    // ★ FEED-RANK-v1（首页 / 商品列表综合排序 —— 改**排序轴**，不改行形状）：
+    //   原 `ORDER BY l.listing_id`（升序）⇒ 永远先给最早发布，新发商品被 LIMIT 挤掉（dev 26 件时首页只见
+    //   [1..8]，新发的 76 完全不可见）。现按冻结公式打复合分：
+    //     score = FEED_RECENCY_WEIGHT × recency + FEED_RATING_WEIGHT × rating
+    //       · recency = 1 / (1 + age_days)，age_days = (now() - l.time_created)/86400（`GREATEST(_,0)` 兜未来时间戳）
+    //       · rating  = COALESCE(该卖家**收到的**评分均值, FEED_RATING_NEUTRAL_STARS) / 5
+    //                   （**不区分 direction** —— 只要 ratee_uid 是他；无任何评分 ⇒ 中性 3.0）
+    //   三级 tie-break 全确定、可重复：score DESC, time_created DESC, listing_id DESC。
+    //   **分页语义不变**（LIMIT/OFFSET 照旧，只是换排序轴）；零新路由 / 零迁移 / 零 DDL。
+    //   `score` 是**排他派生列**：`normalizeBrand` 逐键显式列举输出（无 spread）⇒ 不会漏进响应行。
+    //   性能注记：`rating` 现 0 行且 `ratee_uid` 无单列索引（`idx_rating_ratee_time` 是 `(ratee_uid, time_created DESC)`
+    //   复合索引，前导列可用 ⇒ 子查询仍走索引）—— 真上量后另立单评估，本单不加索引。
     const rows = extractRows(await sql`
       SELECT
-        l.*,
-        0::int AS stores_count,
-        0::int AS claims_count,
-        0::int AS activated_count,
-        0::int AS current_shard_supply,
-        0::int AS free_shards_distributed
-      FROM listing AS l
-      ORDER BY l.listing_id
+        f.*
+      FROM (
+        SELECT
+          l.*,
+          0::int AS stores_count,
+          0::int AS claims_count,
+          0::int AS activated_count,
+          0::int AS current_shard_supply,
+          0::int AS free_shards_distributed,
+          (
+            ${FEED_RECENCY_WEIGHT}::float8
+              * (1.0 / (1.0 + GREATEST((EXTRACT(EPOCH FROM (now() - l.time_created)) / 86400.0)::float8, 0.0)))
+            + ${FEED_RATING_WEIGHT}::float8
+              * (
+                  COALESCE(
+                    (SELECT avg(r.stars)::float8 FROM public.rating AS r WHERE r.ratee_uid = l.seller_uid),
+                    ${FEED_RATING_NEUTRAL_STARS}::float8
+                  ) / 5.0
+                )
+          ) AS score
+        FROM listing AS l
+      ) AS f
+      ORDER BY f.score DESC, f.time_created DESC, f.listing_id DESC
       LIMIT ${limit} OFFSET ${skip}
     `);
 
