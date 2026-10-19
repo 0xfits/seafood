@@ -1,0 +1,118 @@
+{
+ "saved": "/Users/kevin/bistro/seafood/ops/item-type/readings/s53-item-type-gate-20261019T225804Zl7k7.json",
+ "summary": {
+  "total": 50,
+  "passed": 50,
+  "failed": 0,
+  "red": []
+ },
+ "live": {
+  "feed": {
+   "rows": 9,
+   "keyCounts": [
+    48
+   ],
+   "itemTypePresent": true,
+   "itemTypeValues": [
+    "null"
+   ]
+  },
+  "detail": {
+   "bID": 76,
+   "db_layer_keys": 46,
+   "http_top_keys": 47,
+   "item_type": null,
+   "seller_in_route": true
+  }
+ },
+ "unit": [
+  {
+   "id": "U1-DigitalAutoDeliver",
+   "pass": true
+  },
+  {
+   "id": "U1-DigitalManualDeliver",
+   "pass": true
+  },
+  {
+   "id": "U1-PhysicalFreeShip",
+   "pass": true
+  },
+  {
+   "id": "U1-PhysicalBuyerShip",
+   "pass": true
+  },
+  {
+   "id": "U2-undefined",
+   "pass": true
+  },
+  {
+   "id": "U2-null",
+   "pass": true
+  },
+  {
+   "id": "U3-小写 digitalautodeliver",
+   "pass": true
+  },
+  {
+   "id": "U3-空格包裹仍合法",
+   "pass": true
+  },
+  {
+   "id": "U4-枚举外 Physical",
+   "pass": true
+  },
+  {
+   "id": "U4-空串",
+   "pass": true
+  },
+  {
+   "id": "U4-数字 123",
+   "pass": true
+  },
+  {
+   "id": "U10-Digital",
+   "pass": true
+  },
+  {
+   "id": "U5-DigitalAutoDeliver",
+   "pass": true
+  },
+  {
+   "id": "U5-DigitalManualDeliver",
+   "pass": true
+  },
+  {
+   "id": "U5-PhysicalFreeShip",
+   "pass": true
+  },
+  {
+   "id": "U5-PhysicalBuyerShip",
+   "pass": true
+  },
+  {
+   "id": "U6",
+   "pass": true
+  },
+  {
+   "id": "U7-Digital",
+   "pass": true
+  },
+  {
+   "id": "U7-Digital2",
+   "pass": true
+  },
+  {
+   "id": "U7-physicalfreeship",
+   "pass": true
+  },
+  {
+   "id": "U7-physical",
+   "pass": true
+  },
+  {
+   "id": "U8",
+   "pass": true
+  }
+ ]
+}

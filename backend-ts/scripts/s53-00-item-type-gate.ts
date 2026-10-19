@@ -4,6 +4,13 @@
  * 用法：cd backend-ts && npx ts-node --transpile-only scripts/s53-00-item-type-gate.ts
  * 读数：`ops/item-type/readings/s53-item-type-gate-<RUN>.json`
  *
+ * ★ 2026-10-20 续（迁移 `0054_item_type_delivery_split.sql` · Kevin 新口径「数字商品再拆两类」）：
+ *   闭集 3 值 → **4 值**（`AutoDeliver` / `ManualDeliver` / `PhysicalFreeShip` / `PhysicalBuyerShip`），
+ *   **`Digital` 退役**。本脚本随之同步（**只改读数口径，不改 0053 文件**）：
+ *   · A 段仍断言 **0053 冻结文本**（三值 + 不回填）—— 它已 apply，改文件 = checksum 漂移 ABORT；
+ *     现役闭集真源 = **0054**，由 B5 / Q 段与 `ops/item-type/delivery/s54-00-item-type-delivery-gate.ts` 断言。
+ *   · B5 / U 段 / Q 段改读**四值**；新增负控「`Digital` ⇒ 400」与「DB CHECK 拒 `Digital`（23514）」。
+ *
  * 纪律：
  *   · 迁移面 / 写口面 = **纯文本 + 纯函数**（零 DB）；单测桩**只替换 DatabaseService 两个静态方法**
  *     （`getCurrencyStatus` / `createListingRow`）⇒ **不写真库**（本单 migration 由 Zang apply）。
@@ -52,11 +59,30 @@ const stripSqlComments = (sql: string) =>
   const MIG_SQL = migExists ? fs.readFileSync(migPath, 'utf8') : '';
   const MIG_CODE = stripSqlComments(MIG_SQL).replace(/\s+/g, ' ').trim();
 
+  // ---- 现役闭集真源 = 0054（2026-10-20 换集：3 值 → 4 值，裸值 `Digital` 退役）----
+  const MIG54 = 'backend-ts/migrations/0054_item_type_delivery_split.sql';
+  const mig54Path = path.resolve(REPO_ROOT, MIG54);
+  const MIG54_EXISTS = fs.existsSync(mig54Path);
+  const MIG54_SQL = MIG54_EXISTS ? fs.readFileSync(mig54Path, 'utf8') : '';
+  const MIG54_CODE = stripSqlComments(MIG54_SQL).replace(/\s+/g, ' ').trim();
+  const SELFCHECK_AT = MIG54_SQL.indexOf('-- 尾部自检');
+  const MIG54_DDL = SELFCHECK_AT > 0 ? MIG54_SQL.slice(0, SELFCHECK_AT) : MIG54_SQL;
+  const MIG54_SELFCHECK = SELFCHECK_AT > 0 ? MIG54_SQL.slice(SELFCHECK_AT) : MIG54_SQL;
+  /** 取 `item_type IN (...)` 里的字面值（顺序保留）——用于「服务层常量 vs 迁移 CHECK」逐字比对 */
+  const closedSetOf = (code: string): string[] => {
+    const m = code.match(/item_type IN \(([^)]*)\)/);
+    return m ? (m[1].match(/'([^']+)'/g) ?? []).map((s) => s.slice(1, -1)) : [];
+  };
+
+  ck.t('A8', '迁移 `0054_item_type_delivery_split.sql` 在场（编号现取 = 0053 + 1），闭集 = 四值且**不含裸值 `Digital`**',
+    MIG54_EXISTS && JSON.stringify(closedSetOf(MIG54_CODE)) === JSON.stringify([...ITEM_TYPES]),
+    `exists=${MIG54_EXISTS} closed_set=${JSON.stringify(closedSetOf(MIG54_CODE))}`);
+
   ck.t('A1', '加列：`ALTER TABLE public.listing ADD COLUMN IF NOT EXISTS item_type text`',
     /ALTER TABLE public\.listing ADD COLUMN IF NOT EXISTS item_type text;/.test(MIG_CODE),
     `hit=${/ALTER TABLE public\.listing ADD COLUMN IF NOT EXISTS item_type text;/.test(MIG_CODE)}`);
 
-  ck.t('A2', '三值 CHECK 逐字（Digital / PhysicalFreeShip / PhysicalBuyerShip）+ 允许 NULL',
+  ck.t('A2', '0053 **冻结文本**·三值 CHECK 逐字（Digital / PhysicalFreeShip / PhysicalBuyerShip）+ 允许 NULL（历史值：现役闭集已由 0054 换为四值，见 A8/B5）',
     /CHECK \(item_type IS NULL OR item_type IN \('Digital', 'PhysicalFreeShip', 'PhysicalBuyerShip'\)\)/.test(MIG_CODE),
     'ok');
 
@@ -73,7 +99,7 @@ const stripSqlComments = (sql: string) =>
 
   const selfChecks = ['item_type missing', 'type is % (expect text)', 'not nullable', 'listing_item_type_check missing',
     'lacks closed set', 'must allow NULL', 'outside closed set', 'stock row(s) backfilled'];
-  ck.t('A5', '尾部 DO 自检 8 项（列在场 / 类型 text / 可空 / 约束在场 / 定义含三值 / 定义允许 NULL / 非法值 0 行 / 存量非 NULL 0 行）',
+  ck.t('A5', '尾部 DO 自检 8 项（0053 冻结文本：列在场 / 类型 text / 可空 / 约束在场 / 定义含三值 / 定义允许 NULL / 非法值 0 行 / 存量非 NULL 0 行）',
     selfChecks.every((s) => MIG_SQL.includes(s)), `hits=${selfChecks.filter((s) => MIG_SQL.includes(s)).length}/8`);
 
   ck.t('A6', '不回填：文件内**无** `UPDATE public.listing` / `SET item_type` / `DEFAULT`（存量行保持 NULL）',
@@ -87,8 +113,8 @@ const stripSqlComments = (sql: string) =>
     migDiff = `GIT_ERR:${String((e as Error).message).slice(0, 80)}`;
   }
   const migTouched = migDiff.split('\n').filter(Boolean);
-  ck.t('A7', '历史迁移零改动（git 工作树 migrations/ 下唯一变动 = 新增 0053；0050-0052 一字未动）',
-    migTouched.every((l) => l.includes('0053_listing_item_type.sql')) && migTouched.length <= 2,
+  ck.t('A7', '历史迁移零改动（git 工作树下 migrations/ 变动 ⊆ {新增 0053, 新增 0054}；0050-0052 一字未动）',
+    migTouched.every((l) => /0053_listing_item_type\.sql|0054_item_type_delivery_split\.sql/.test(l)) && migTouched.length <= 4,
     JSON.stringify(migTouched));
 
   // ======================================================= B · 写口面（静态）
@@ -112,10 +138,11 @@ const stripSqlComments = (sql: string) =>
     /toStatus: req\.body\?\.to_status \?\? req\.body\?\.status \?\? ''/.test(INDEX_TS)
       && !/app\.patch\('\/api\/listing\/:listingId'[\s\S]{0,900}item_type/.test(INDEX_TS),
     'ok');
-  ck.t('B5', '服务层闭集常量与迁移 CHECK 逐字一致（三值 + 顺序）',
-    JSON.stringify([...ITEM_TYPES]) === JSON.stringify(['Digital', 'PhysicalFreeShip', 'PhysicalBuyerShip'])
-      && ITEM_TYPES.every((v) => MIG_SQL.includes(`'${v}'`)),
-    JSON.stringify(ITEM_TYPES));
+  ck.t('B5', '服务层闭集常量 = 四值且与迁移 **0054** CHECK 逐字一致（含顺序）；裸值 `Digital` 不在其中（0053 文本冻结保留三值 = A2）',
+    JSON.stringify([...ITEM_TYPES]) === JSON.stringify(['DigitalAutoDeliver', 'DigitalManualDeliver', 'PhysicalFreeShip', 'PhysicalBuyerShip'])
+      && JSON.stringify(closedSetOf(MIG54_CODE)) === JSON.stringify([...ITEM_TYPES])
+      && !ITEM_TYPES.includes('Digital' as never),
+    `ITEM_TYPES=${JSON.stringify(ITEM_TYPES)} mig0054=${JSON.stringify(closedSetOf(MIG54_CODE))}`);
   const fpBody = SVC.match(/const fingerprintOf = \(row: Record<string, unknown>\) => JSON\.stringify\(\[([\s\S]*?)\]\);/)?.[1] ?? '';
   const fpFields = Array.from(new Set((fpBody.match(/row\.([a-z_]+)/g) ?? []).map((s) => s.slice(4))));
   ck.t('B6', '幂等指纹字段集未改（`fingerprintOf` 仍 6 字段，item_type 不进指纹）',
@@ -140,11 +167,14 @@ const stripSqlComments = (sql: string) =>
     const r = normalizeItemType(raw);
     u(`U2-${label}`, `未传 / ${label} ⇒ null（未分类）`, r.ok && r.value === null, r.ok ? String(r.value) : `ERR:${r.err.code}`);
   }
-  for (const [label, raw] of [['小写 digital', 'digital'], ['空格包裹仍合法', ' Digital ']] as const) {
+  for (const [label, raw, wantValue] of [
+    ['小写 digitalautodeliver', 'digitalautodeliver', null],
+    ['空格包裹仍合法', ' DigitalAutoDeliver ', 'DigitalAutoDeliver'],
+  ] as const) {
     const r = normalizeItemType(raw);
-    const want = label.startsWith('小写') ? false : true;
+    const want = wantValue !== null;
     u(`U3-${label}`, `${label} ⇒ ${want ? '通过（trim 后闭集命中）' : '400 NOT_IN_CLOSED_SET（大小写敏感）'}`,
-      want ? r.ok && r.value === 'Digital' : (!r.ok && r.err.status === 400 && r.err.details.reason === 'NOT_IN_CLOSED_SET'),
+      want ? r.ok && r.value === wantValue : (!r.ok && r.err.status === 400 && r.err.details.reason === 'NOT_IN_CLOSED_SET'),
       r.ok ? r.value : { status: r.err.status, code: r.err.code, reason: r.err.details.reason });
   }
   for (const [label, raw] of [['枚举外 Physical', 'Physical'], ['空串', ''], ['数字 123', 123]] as const) {
@@ -159,6 +189,18 @@ const stripSqlComments = (sql: string) =>
               && JSON.stringify(r.err.details.allowed) === JSON.stringify([...ITEM_TYPES]))
           : r.err.details.reason === 'NOT_A_STRING'),
       r.ok ? 'PASS?' : { status: r.err.status, code: r.err.code, details: r.err.details });
+  }
+
+  // U10（负控 · 退役生效）：裸值 `Digital` ⇒ 400 —— 且**不得**被新前缀值 `DigitalAutoDeliver` / `DigitalManualDeliver` 兜住
+  {
+    const rDigital = normalizeItemType('Digital');
+    u('U10-Digital', '退役值裸 `Digital` ⇒ 400 NOT_IN_CLOSED_SET（provided=Digital、allowed=四值）—— 「0054 换集生效」负控',
+      !rDigital.ok && rDigital.err.status === 400 && rDigital.err.code === 'LEDGER_AMOUNT_INVALID'
+        && rDigital.err.details.field === 'listing.item_type'
+        && rDigital.err.details.reason === 'NOT_IN_CLOSED_SET'
+        && rDigital.err.details.provided === 'Digital'
+        && JSON.stringify(rDigital.err.details.allowed) === JSON.stringify([...ITEM_TYPES]),
+      rDigital.ok ? 'PASS?' : { status: rDigital.err.status, code: rDigital.err.code, details: rDigital.err.details });
   }
 
   // U5-U7：createListing 桩（替换两个 DB 静态方法；零真写）
@@ -201,7 +243,7 @@ const stripSqlComments = (sql: string) =>
       rNone.ok ? { itemType: (lastInput as Record<string, unknown>)?.itemType } : rNone);
 
     // U7 非法值 ⇒ 400 且**零 DB 调用**（闸早于 currencyGate/createListingRow）
-    for (const bad of ['Digital2', 'physicalfreeship', ' physical']) {
+    for (const bad of ['Digital', 'Digital2', 'physicalfreeship', ' physical']) {
       gateCalls = 0; createCalls = 0;
       const rBad = await createListing({ ...baseParams, itemType: bad });
       u(`U7-${bad.trim()}`, `非法 item_type=\`${bad}\` ⇒ 400 NOT_IN_CLOSED_SET 且 DB 调用 0 次（闸在 currencyGate 之前）`,
@@ -301,18 +343,16 @@ const stripSqlComments = (sql: string) =>
       pre.column = col[0] ?? null;
       pre.constraint_def = con[0]?.def ?? null;
       pre.rows_with_item_type = nonNull;
-      ck.t('P1', `preflight 版本面：已应用最大 = ${maxApplied}，PENDING = [${pending.join(',')}]（0053 排在队首；本脚本**不 apply**）`,
-        (state === 'PRE_APPLY' && maxApplied === '0052' && pending[0] === '0053')
-          || (state === 'APPLIED' && String(maxApplied) >= '0053'),
+      ck.t('P1', `preflight 版本面：已应用最大 = ${maxApplied}，PENDING = [${pending.join(',')}]（0053 已 apply；0054 排在队首、待 Zang apply；本脚本**不 apply**）`,
+        state === 'APPLIED' && pending.every((v) => v === '0054'),
         `state=${state} max=${maxApplied} pending=${JSON.stringify(pending)}`);
-      ck.t('P2', state === 'PRE_APPLY'
-        ? 'preflight 目标面：`listing.item_type` **尚不存在**、约束尚未建（= 迁移待 apply 的正确前态）'
-        : 'apply 后目标面：列 = text 且可空、约束 `listing_item_type_check` 定义含三值 + IS NULL',
-        state === 'PRE_APPLY'
-          ? (col.length === 0 && con.length === 0)
-          : (col[0]?.data_type === 'text' && col[0]?.is_nullable === 'YES'
-              && ['Digital', 'PhysicalFreeShip', 'PhysicalBuyerShip'].every((v) => (con[0]?.def ?? '').includes(`'${v}'`))),
-        state === 'PRE_APPLY' ? `column=${col.length === 0 ? 'absent' : 'present'} constraint=${con.length}` : JSON.stringify(con[0]?.def ?? null));
+      const defNow = con[0]?.def ?? '';
+      const isFourValue = /DigitalAutoDeliver/.test(defNow) && !/'Digital'(::text)?([,)\]]|$)/.test(defNow);
+      const isThreeValue = /'Digital'::text/.test(defNow);
+      ck.t('P2', `preflight 授权面：列 = text 且可空；约束定义 ∈ {0053 三值（含裸 \`Digital\`）= 合法前态, 0054 四值（不含裸 \`Digital\`）} —— 目标面四值由 \`ops/item-type/delivery\` 的 s54 门严判（0053 已 apply，本处只判「已知两态之一」）`,
+        col.length === 1 && col[0]?.data_type === 'text' && col[0]?.is_nullable === 'YES'
+          && (isThreeValue || isFourValue),
+        `def=${JSON.stringify(defNow)} four_value=${isFourValue} three_value=${isThreeValue}`);
       ck.t('P3', `存量行零回填：item_type 非空行数 = ${nonNull}（期望 0；列未迁移时记 N/A=0）`,
         nonNull === 0, `rows_with_item_type=${nonNull}`);
     } finally {
@@ -326,36 +366,60 @@ const stripSqlComments = (sql: string) =>
   out.preflight = pre;
 
   // ============================================ Q · 迁移干跑（**inRollbackTx ⇒ 零残留**，不 apply 版本）
+  // ★ 0054 换集（3 值 → 4 值、裸 `Digital` 退役）：本段干跑 **0054**（现役闭集真源）；
+  //   0053 的列/三值契约由 A 段静态断言冻结（0053 已 apply，改文件 = checksum 漂移 ABORT）。
   const dry: Record<string, unknown> = {};
   try {
     const pool = mkPool(1);
     const probe = await inRollbackTx(pool, async (c) => {
       const r: Record<string, unknown> = {};
-      // ① 首跑：迁移全文（与 migrate.ts 同语义：单文件一事务）
-      await c.query(MIG_SQL);
+      // ① 前置：列若尚缺（未 apply 0053 的库）先补 0053，使干跑在两种前态下都成立；已 apply 的库自然跳过
+      const colNow = await raw<{ n: string }>(c,
+        "SELECT count(*)::text AS n FROM information_schema.columns WHERE table_schema='public' AND table_name='listing' AND column_name='item_type'");
+      r.column_pre_existing = Number(colNow[0]?.n ?? 0) === 1;
+      if (!r.column_pre_existing) await c.query(MIG_SQL);
       r.first_run = 'ok';
-      // ② 重跑：幂等（列 IF NOT EXISTS + 约束 pg_constraint 守卫）⇒ 零报错
-      await c.query(MIG_SQL);
+      // ② 首跑 0054 DDL（与 migrate.ts 同语义：单文件一事务）
+      await c.query(MIG54_DDL);
       r.second_run = 'ok';
-      // ③ 列/约束在场（本事务内可见）
+      // ③ 重跑：幂等（DROP CONSTRAINT IF EXISTS + ADD）⇒ 零报错、库内仍恰 1 条
+      await c.query(MIG54_DDL);
       const col = await raw<{ data_type: string; is_nullable: string }>(c,
         "SELECT data_type, is_nullable FROM information_schema.columns WHERE table_schema='public' AND table_name='listing' AND column_name='item_type'");
       const con = await raw<{ def: string }>(c,
         "SELECT pg_get_constraintdef(oid) AS def FROM pg_constraint WHERE conname='listing_item_type_check' AND conrelid='public.listing'::regclass AND contype='c'");
+      const conCnt = await raw<{ n: string }>(c,
+        "SELECT count(*)::text AS n FROM pg_constraint WHERE conrelid='public.listing'::regclass AND contype='c' AND (conname='listing_item_type_check' OR pg_get_constraintdef(oid) LIKE '%item_type%')");
       r.column = col[0] ?? null;
       r.constraint_def = con[0]?.def ?? null;
-      // ④ 闭集闸实证：三值各写一次（合法）+ 一个非法值（23514 判负），逐次 SAVEPOINT 包住
+      r.constraint_count = Number(conCnt[0]?.n ?? -1);
+      // ④ 闭集闸实证：四值各写一次（合法）+ 裸 `Digital`（退役 ⇒ 必须 23514）+ NULL（放行）+ `Bogus`（23514），逐次 SAVEPOINT 包住
       const target = await raw<{ listing_id: string }>(c, 'SELECT listing_id FROM public.listing ORDER BY listing_id LIMIT 1');
       const lid = target[0]?.listing_id ?? null;
       r.probe_listing_id = lid;
       const writes: Array<Record<string, unknown>> = [];
       if (lid) {
-        for (const v of [...ITEM_TYPES, 'Bogus']) {
+        for (const v of [...ITEM_TYPES, 'Digital', null, 'Bogus']) {
           const s = await sp<unknown>(c, async () => c.query('UPDATE public.listing SET item_type = $1 WHERE listing_id = $2::bigint', [v, lid]));
           writes.push({ value: v, ok: s.ok, sqlstate: s.ok ? null : String(((s.error as Record<string, unknown>)?.code) ?? '') });
         }
       }
       r.writes = writes;
+      // ⑤ 自检器灵敏度（负控自证：证明 0054 尾部 DO 不是恒绿）
+      //   (a) 造「四值 + 裸 Digital」的约束 ⇒ 0054 自检必须 RAISE（否则「退役值」判据是坏的）
+      const senA = await sp<unknown>(c, async () => {
+        await c.query('ALTER TABLE public.listing DROP CONSTRAINT listing_item_type_check');
+        await c.query("ALTER TABLE public.listing ADD CONSTRAINT listing_item_type_check CHECK (item_type IS NULL OR item_type IN ('DigitalAutoDeliver', 'DigitalManualDeliver', 'PhysicalFreeShip', 'PhysicalBuyerShip', 'Digital'))");
+        await c.query(MIG54_SELFCHECK);
+      });
+      r.selfcheck_with_bare_digital = { raised: !senA.ok, message: String(((senA.error as Record<string, unknown>)?.message) ?? '').slice(0, 160) };
+      //   (b) 退回 0053 三值 ⇒ 0054 自检必须 RAISE（否则「四值闭集」判据是坏的）
+      const senB = await sp<unknown>(c, async () => {
+        await c.query('ALTER TABLE public.listing DROP CONSTRAINT listing_item_type_check');
+        await c.query("ALTER TABLE public.listing ADD CONSTRAINT listing_item_type_check CHECK (item_type IS NULL OR item_type IN ('Digital', 'PhysicalFreeShip', 'PhysicalBuyerShip'))");
+        await c.query(MIG54_SELFCHECK);
+      });
+      r.selfcheck_with_old_triple = { raised: !senB.ok, message: String(((senB.error as Record<string, unknown>)?.message) ?? '').slice(0, 160) };
       return r;
     });
     await pool.end();
@@ -365,19 +429,28 @@ const stripSqlComments = (sql: string) =>
     const w = (probe.result?.writes ?? []) as Array<Record<string, unknown>>;
     const legal = w.filter((x) => x.ok === true);
     const illegal = w.filter((x) => x.ok === false);
-    ck.t('Q1', '迁移**干跑**（inRollbackTx）首跑 + 重跑均无报错（尾部自检 7 项通过 = 首跑成功的前提）',
+    const senA = (probe.result?.selfcheck_with_bare_digital ?? {}) as { raised?: boolean; message?: string };
+    const senB = (probe.result?.selfcheck_with_old_triple ?? {}) as { raised?: boolean; message?: string };
+    ck.t('Q1', '迁移 **0054 干跑**（inRollbackTx）：首跑 + 重跑均无报错（尾部 DO 自检全过 = 首跑成功的前提）',
       probe.error === null && probe.result?.first_run === 'ok' && probe.result?.second_run === 'ok',
       `first=${probe.result?.first_run} second=${probe.result?.second_run} err=${dry.error}`);
-    ck.t('Q2', '干跑后列 = text/可空 + 约束定义含三值（事务内可见，ROLLBACK 后零残留）',
+    ck.t('Q2', '干跑后列 = text/可空（不动列定义）+ 约束定义含四值、**不含裸 `Digital`** + 库内恰 1 条 item_type CHECK',
       (probe.result?.column as { data_type?: string; is_nullable?: string } | undefined)?.data_type === 'text'
         && (probe.result?.column as { is_nullable?: string } | undefined)?.is_nullable === 'YES'
-        && ['Digital', 'PhysicalFreeShip', 'PhysicalBuyerShip'].every((v) => String(probe.result?.constraint_def ?? '').includes(`'${v}'`)),
-      JSON.stringify({ column: probe.result?.column, def: probe.result?.constraint_def }));
-    ck.t('Q3', '闭集闸实证（事务内）：三值写入 200/OK、非法值 `Bogus` 被 CHECK 拒（SQLSTATE 23514）',
-      legal.length === 3 && illegal.length === 1 && legal.every((x) => x.ok === true)
-        && illegal[0]?.sqlstate === '23514',
+        && [...ITEM_TYPES].every((v) => String(probe.result?.constraint_def ?? '').includes(`'${v}'`))
+        && !/'Digital'(::text)?([,)\]]|$)/.test(String(probe.result?.constraint_def ?? ''))
+        && probe.result?.constraint_count === 1,
+      JSON.stringify({ column: probe.result?.column, def: probe.result?.constraint_def, count: probe.result?.constraint_count }));
+    ck.t('Q3', '闭集闸实证（事务内）：四值各写入 OK · `NULL` 放行 · **裸 `Digital` 被 CHECK 拒（23514）** · `Bogus` 被拒（23514）',
+      legal.length === 5 && illegal.length === 2 && legal.every((x) => x.ok === true)
+        && illegal.every((x) => x.sqlstate === '23514')
+        && w.find((x) => x.value === 'Digital')?.ok === false,
       JSON.stringify(w));
-    ck.t('Q4', '干跑**零残留**：事务一律 ROLLBACK（版本表无 0053 行、列未落盘 —— 由 P1/P2 的 PRE_APPLY 读数交叉印证）',
+    ck.t('Q4', '自检器灵敏度（负控自证）：装「四值+裸 Digital」约束 ⇒ 0054 自检 RAISE（退役值判据非恒绿）；退回 0053 三值 ⇒ 自检 RAISE（四值判据非恒绿）',
+      senA.raised === true && /retired value Digital/.test(String(senA.message ?? ''))
+        && senB.raised === true && /lacks 4-value closed set/.test(String(senB.message ?? '')),
+      JSON.stringify({ bare_digital: senA, old_triple: senB }));
+    ck.t('Q5', '干跑**零残留**：事务一律 ROLLBACK（版本表无 0054 行、约束仍为库内前态 —— 由 P1/P2 读数交叉印证）',
       probe.rolled_back === true, `rolled_back=${probe.rolled_back}`);
   } catch (e) {
     dry.error = String((e as Error).message).slice(0, 200);

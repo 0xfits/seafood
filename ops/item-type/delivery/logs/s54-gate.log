@@ -1,0 +1,117 @@
+{
+ "saved": "/Users/kevin/bistro/seafood/ops/item-type/delivery/readings/s54-item-type-delivery-gate-20261019T225817Zsu2j.json",
+ "summary": {
+  "total": 45,
+  "passed": 45,
+  "failed": 0,
+  "red": []
+ },
+ "preflight": {
+  "state": "THREE_VALUE_PRE_APPLY",
+  "pending": [
+   "0054"
+  ]
+ },
+ "live": {
+  "feed": {
+   "rows": 9,
+   "keyCounts": [
+    48
+   ],
+   "values": [
+    "null"
+   ]
+  },
+  "detail": {
+   "bID": 76,
+   "db_layer_keys": 46,
+   "http_top_keys": 47
+  }
+ },
+ "unit": [
+  {
+   "id": "U1-DigitalAutoDeliver",
+   "pass": true
+  },
+  {
+   "id": "U1-DigitalManualDeliver",
+   "pass": true
+  },
+  {
+   "id": "U1-PhysicalFreeShip",
+   "pass": true
+  },
+  {
+   "id": "U1-PhysicalBuyerShip",
+   "pass": true
+  },
+  {
+   "id": "U2-undefined",
+   "pass": true
+  },
+  {
+   "id": "U2-null",
+   "pass": true
+  },
+  {
+   "id": "U3-Digital",
+   "pass": true
+  },
+  {
+   "id": "U4-小写 digitalautodeliver",
+   "pass": true
+  },
+  {
+   "id": "U4-旧值 digital（小写裸值）",
+   "pass": true
+  },
+  {
+   "id": "U4-枚举外 Physical",
+   "pass": true
+  },
+  {
+   "id": "U4-空串",
+   "pass": true
+  },
+  {
+   "id": "U4-数字 123",
+   "pass": true
+  },
+  {
+   "id": "U5-DigitalAutoDeliver",
+   "pass": true
+  },
+  {
+   "id": "U5-DigitalManualDeliver",
+   "pass": true
+  },
+  {
+   "id": "U5-PhysicalFreeShip",
+   "pass": true
+  },
+  {
+   "id": "U5-PhysicalBuyerShip",
+   "pass": true
+  },
+  {
+   "id": "U6",
+   "pass": true
+  },
+  {
+   "id": "U7-Digital",
+   "pass": true
+  },
+  {
+   "id": "U7-Digitalx",
+   "pass": true
+  },
+  {
+   "id": "U7-digitalAutoDeliver",
+   "pass": true
+  },
+  {
+   "id": "U7-physical",
+   "pass": true
+  }
+ ]
+}

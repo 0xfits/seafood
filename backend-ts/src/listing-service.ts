@@ -90,11 +90,15 @@ export const resolveListingCreateKey = (
   return { ok: true, key: provided, derived: false };
 };
 
-// ---- 商品分类枚举（迁移 0053；Kevin 第 5 条）--------------------------------
-// 闭集唯一真源 = `migrations/0053_listing_item_type.sql` 的 CHECK（'Digital' /
-// 'PhysicalFreeShip' / 'PhysicalBuyerShip'）；本常量与之逐字一致，仅作**入参闸**（不落库、不派生）。
-// 语义：Digital = 虚拟/数字商品 · PhysicalFreeShip = 实物包邮 · PhysicalBuyerShip = 实物买家付运费。
-export const ITEM_TYPES = ['Digital', 'PhysicalFreeShip', 'PhysicalBuyerShip'] as const;
+// ---- 商品分类枚举（迁移 0054 换集；承 0053）----------------------------------
+// 闭集唯一真源 = `migrations/0054_item_type_delivery_split.sql` 的 CHECK
+// （'DigitalAutoDeliver' / 'DigitalManualDeliver' / 'PhysicalFreeShip' / 'PhysicalBuyerShip'）；
+// 本常量与之逐字一致（含顺序），仅作**入参闸**（不落库、不派生）。
+// 语义：DigitalAutoDeliver = 数字商品·自动发货 · DigitalManualDeliver = 数字商品·手动发货
+//        PhysicalFreeShip = 实物包邮 · PhysicalBuyerShip = 实物买家付运费。
+// ★ **裸值 `Digital`**（0053 的旧三值之一）**已退役** ⇒ 传它 = 闭集外 ⇒ 400（负控见 s53/s54 门）；
+//   注意新值 `DigitalAutoDeliver` / `DigitalManualDeliver` 只是**带前缀的新名**，与裸值 `Digital` 不互认。
+export const ITEM_TYPES = ['DigitalAutoDeliver', 'DigitalManualDeliver', 'PhysicalFreeShip', 'PhysicalBuyerShip'] as const;
 export type ItemType = (typeof ITEM_TYPES)[number];
 
 /**
@@ -203,7 +207,7 @@ export const createListing = async (params: {
   title?: unknown;
   description?: unknown;
   mediaUrls?: unknown;
-  /** 商品分类（迁移 0053）：闭集 `ItemType`，未传 ⇒ null（未分类）。仅创建时定，编辑/状态迁移不可改。 */
+  /** 商品分类（迁移 0054 换集，承 0053）：闭集 `ItemType`（4 值），未传 ⇒ null（未分类）。仅创建时定，编辑/状态迁移不可改。 */
   itemType?: unknown;
   createKeyRaw?: unknown;
 }): Promise<VerbResult> => {
@@ -220,7 +224,7 @@ export const createListing = async (params: {
   if (!description.ok) return description.err;
   const mediaUrls = toOptionalUrls(params.mediaUrls);
   if (!mediaUrls.ok) return mediaUrls.err;
-  // §3.2 形状闸：分类只允许三值闭集（非法 ⇒ 400，**早于**任何 DB 调用）
+  // §3.2 形状闸：分类只允许四值闭集（非法 ⇒ 400，**早于**任何 DB 调用；`Digital` 已退役 = 非法）
   const itemType = normalizeItemType(params.itemType);
   if (!itemType.ok) return itemType.err;
   const title = typeof params.title === 'string' ? params.title : (params.title === undefined || params.title === null ? '' : null);
