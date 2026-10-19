@@ -1,0 +1,47 @@
+{
+  "key": "jobs.cidNote",
+  "captured_at": "2026-10-19",
+  "before": {
+    "en.json": "Select the currency from the dropdown.",
+    "hk.json": "請從下拉框選擇幣種。",
+    "vn.json": "Chọn tiền tệ từ danh sách.",
+    "zh.json": "请从下拉框选择悬赏币种"
+  },
+  "after": {
+    "en.json": "Select the currency from the dropdown.",
+    "hk.json": "請從下拉框選擇幣種。",
+    "vn.json": "Chọn tiền tệ từ danh sách.",
+    "zh.json": "请从下拉框选择币种"
+  },
+  "item_cidNote_untouched_check": {
+    "en.json": "Select the currency from the dropdown.",
+    "hk.json": "請從下拉框選擇幣種。",
+    "vn.json": "Chọn tiền tệ từ danh sách.",
+    "zh.json": "请从下拉框选择计价币种"
+  },
+  "flat_keys_after": {
+    "en.json": 1106,
+    "hk.json": 1106,
+    "vn.json": 1106,
+    "zh.json": 1106
+  },
+  "flat_keys_pairwise_max_diff": 0,
+  "key_sets_identical_across_4_files": true,
+  "blacklist_scan": {
+    "scope": "与 frontend/src/test/unit/i18n-violation-closeout.test.jsx BLACKLIST 同口径",
+    "new_zh_value_hits": 0,
+    "full_four_lang_value_scan_hits": 0,
+    "evidence": "test:unit 全绿（59 files / 568 tests passed，含 i18n-violation-closeout ①③ 两例）"
+  },
+  "gate_probe": {
+    "url": "http://localhost:5800/task/new",
+    "viewport": "390x844",
+    "note_text": "请从下拉框选择币种",
+    "note_matches_new_value": true,
+    "render_point": "sf-jobs-note ([data-sf-m=\"jobs-hero\"] p)",
+    "console_errors": 0,
+    "page_errors": 0,
+    "business_writes": 0,
+    "detail_file": "align-probe.json"
+  }
+}

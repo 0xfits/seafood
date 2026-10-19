@@ -1,0 +1,23 @@
+{
+  "url": "http://localhost:5800/task/new",
+  "viewport": "390x844",
+  "at": "2026-10-19T02:20:24.165Z",
+  "expected_note": "请从下拉框选择币种",
+  "writes": [],
+  "steps": {
+    "noteText": "请从下拉框选择币种",
+    "noteClass": "sf-jobs-note",
+    "selectCount": 1,
+    "optionCount": 2,
+    "htmlLang": "zh-CN",
+    "note_matches_new_value": true
+  },
+  "console": {
+    "error_total": 0,
+    "unique": []
+  },
+  "pageerrors": {
+    "total": 0,
+    "list": []
+  }
+}

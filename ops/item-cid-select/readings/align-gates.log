@@ -1,0 +1,19 @@
+# align-gates.log — 门套读数蒸馏（基线 + 改后）· zh jobs.cidNote 四语对齐
+仓：/Users/kevin/bistro/seafood · 改动 = frontend/src/locales/zh.json jobs.cidNote 一行（git diff --numstat = 1 1）
+全量日志 sha256（scratch 暂存，蒸馏后可弃）：baseline=6641603052262ec54cf6f9c7613c6e5e7b926b77f7cde74892c41e63f6ce42ed after=97fbc0b9ca1b48c8c1026328ad9f437e7957d3f89aac709e1b613d6783fe2a23
+
+== 改前基线（2026-10-19 10:13）==
+dist/assets/index-BREoUqs6.js          450.99 kB
+dist/assets/index-DnoMyxQu.css         123.50 kB
+✓ built in 1.91s | BUILD_EXIT=0
+Test Files  59 passed (59) | Tests  568 passed (568) | TEST_EXIT=0
+
+== 改后（2026-10-19 10:15；唯一改动 = zh.json jobs.cidNote 值）==
+dist/assets/index-a3tEicdR.js          450.99 kB
+dist/assets/index-DnoMyxQu.css         123.50 kB
+✓ built in 1.82s | BUILD_EXIT=0
+Test Files  59 passed (59) | Tests  568 passed (568) | TEST_EXIT=0
+
+== 对照判读 ==
+- build：两轮 exit 0；JS 产物名 index-BREoUqs6.js → index-a3tEicdR.js（值改动入包）；CSS 产物名不变（index-DnoMyxQu.css，本单不涉样式，预期）。
+- test:unit：59 files / 568 tests → 59 / 568，0 failed（只增不减达成：与基线持平、零减少；含 i18n-violation-closeout 黑名单门）。
