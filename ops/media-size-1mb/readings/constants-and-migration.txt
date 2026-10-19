@@ -1,0 +1,39 @@
+# 1) 后端常量 —— 改前（HEAD 4b36f33）
+3650:  MEDIA_SIZE_EXCEEDED: 'media payload exceeds 2MiB after base64 decode',
+3680:const MEDIA_MAX_BYTES = 2 * 1024 * 1024; // 2MiB = 2,097,152（§48.2 / §40.1 同构）
+3706:    if (bytes.length > MEDIA_MAX_BYTES) {
+3707:      return sendMediaBadRequest(res, 'MEDIA_SIZE_EXCEEDED', { decoded_bytes: bytes.length, max_bytes: MEDIA_MAX_BYTES });
+
+# 2) 后端常量 —— 改后（工作区）
+131:// 媒体上传（route-layer.spec v2.39 §48.2）：`data_base64` = 解码后 ≤1MiB 的 base64 文本
+132:// （1MiB ≈ 1.40MB base64 + JSON 信封）⇒ 传输层上限 4mb。缺省 100kb 连前端 ≤300KB 的正常
+133:// 压缩图（≈405KB 请求体）都会 413，>1MiB 的业务闸（400 MEDIA_SIZE_EXCEEDED）在 handler 内判。
+3649:  /** 解码后字节数 > 1MiB（= 1,048,576，§48.2 体积闸；0051 重设的 DB CHECK 同构兜底）⇒ 400 */
+3650:  MEDIA_SIZE_EXCEEDED: 'media payload exceeds 1MiB after base64 decode',
+3680:const MEDIA_MAX_BYTES = 1 * 1024 * 1024; // 1MiB = 1,048,576（Kevin 2026-10-19 收口；与 0051 的 DB CHECK 同构）
+3705:    // ③ 体积闸：解码后 ≤1MiB（§48.4 #2 超 ⇒ 400；0051 重设的 size_bytes CHECK 同构兜底）
+3706:    if (bytes.length > MEDIA_MAX_BYTES) {
+3707:      return sendMediaBadRequest(res, 'MEDIA_SIZE_EXCEEDED', { decoded_bytes: bytes.length, max_bytes: MEDIA_MAX_BYTES });
+
+# 3) 迁移 CHECK —— 改前（HEAD 0050:48 · 2097152）
+48:  size_bytes integer NOT NULL CHECK (size_bytes > 0 AND size_bytes <= 2097152),
+
+# 4) 迁移 CHECK —— 改后（新文件 0051）
+11:--   · DROP CONSTRAINT IF EXISTS public.media.media_size_bytes_check
+13:--   · ADD CONSTRAINT media_size_bytes_check CHECK (size_bytes > 0 AND size_bytes <= 1048576)
+14:--   · 末尾 DO 自检：约束定义含 1048576 / 旧上限 2097152 不在场 / 表内无 >1MiB 行；
+32:-- §① 体积闸收口：2MiB ⇒ 1MiB（1048576 bytes）
+35:ALTER TABLE public.media DROP CONSTRAINT IF EXISTS media_size_bytes_check;
+38:  ADD CONSTRAINT media_size_bytes_check CHECK (size_bytes > 0 AND size_bytes <= 1048576);
+43:--     ① 约束在场且定义含 1048576；② 旧上限 2097152 已不在场（防「DROP 未生效 / 名字不符」
+53:  -- ① 新约束在场且含 1048576
+60:  IF v_text NOT LIKE '%1048576%' THEN
+61:    RAISE EXCEPTION '0051 self-check failed: size_bytes CHECK lacks 1048576 (%)', v_text;
+75:  SELECT count(*) INTO v_count FROM public.media WHERE size_bytes > 1048576;
+77:    RAISE EXCEPTION '0051 self-check failed: % existing media rows exceed 1MiB (1048576)', v_count;
+80:  RAISE NOTICE '0051 self-check OK: media_size_bytes_check = (size_bytes > 0 AND size_bytes <= 1048576); stale 2MiB cap absent; oversized rows = 0';
+
+# 5) 迁移文件时序（最大编号）
+0049_seed_bttc_currency.sql
+0050_media_store.sql
+0051_media_size_cap_1mb.sql

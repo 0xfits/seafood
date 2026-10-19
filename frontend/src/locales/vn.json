@@ -184,7 +184,8 @@
     "chat": "Nhắn tin",
     "imagesLabel": "Hình ảnh sản phẩm (không bắt buộc, tối đa 4)",
     "imageRemove": "Xóa ảnh",
-    "imageUploadFail": "Tải ảnh lên thất bại, đã hủy đăng"
+    "imageUploadFail": "Tải ảnh lên thất bại, đã hủy đăng",
+    "imageTooLarge": "Mỗi ảnh không được vượt quá 1MB"
   },
   "market": {
     "line": "Dòng sàn giao dịch",

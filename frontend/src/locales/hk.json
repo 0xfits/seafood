@@ -184,7 +184,8 @@
     "chat": "聊一聊",
     "imagesLabel": "商品圖片（可選，最多 4 張）",
     "imageRemove": "移除圖片",
-    "imageUploadFail": "圖片上傳失敗，發布已取消"
+    "imageUploadFail": "圖片上傳失敗，發布已取消",
+    "imageTooLarge": "單張圖片不能超過 1MB"
   },
   "market": {
     "line": "交易所線",

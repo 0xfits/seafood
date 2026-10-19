@@ -128,9 +128,9 @@ app.use(helmet());
 // P9-AUTH-RENEWAL：续期走**响应头** `X-Session-Token`（零新路由）。同源生产 / 本地 vite 代理都不需要
 // expose，但跨源场景（真机走 LAN 反代之外的直连、外部调用方）只有显式 expose 才能读到它 ⇒ 零成本加上。
 app.use(cors({ exposedHeaders: ['X-Session-Token'] }));
-// 媒体上传（route-layer.spec v2.39 §48.2）：`data_base64` = 解码后 ≤2MiB 的 base64 文本
-// （2MiB ≈ 2.80MB base64 + JSON 信封）⇒ 传输层上限 4mb。缺省 100kb 连前端 ≤300KB 的正常
-// 压缩图（≈405KB 请求体）都会 413，>2MiB 的业务闸（400 MEDIA_SIZE_EXCEEDED）在 handler 内判。
+// 媒体上传（route-layer.spec v2.39 §48.2）：`data_base64` = 解码后 ≤1MiB 的 base64 文本
+// （1MiB ≈ 1.40MB base64 + JSON 信封）⇒ 传输层上限 4mb。缺省 100kb 连前端 ≤300KB 的正常
+// 压缩图（≈405KB 请求体）都会 413，>1MiB 的业务闸（400 MEDIA_SIZE_EXCEEDED）在 handler 内判。
 app.use(express.json({ limit: '4mb' }));
 
 /**
@@ -3646,8 +3646,8 @@ const MEDIA_ERROR_CODES = {
   MEDIA_CONTENT_TYPE_INVALID: 'media content_type must be one of image/webp, image/jpeg, image/png',
   /** data_base64 缺失 / 非字符串 / 非 RFC 4648 严格 base64（字符集 · 4 字符组 · padding）/ 解码为空 ⇒ 400 */
   MEDIA_BASE64_INVALID: 'media data_base64 must be a non-empty strict base64 string',
-  /** 解码后字节数 > 2MiB（= 2,097,152，§48.2 体积闸；0050 的 DB CHECK 同构兜底）⇒ 400 */
-  MEDIA_SIZE_EXCEEDED: 'media payload exceeds 2MiB after base64 decode',
+  /** 解码后字节数 > 1MiB（= 1,048,576，§48.2 体积闸；0051 重设的 DB CHECK 同构兜底）⇒ 400 */
+  MEDIA_SIZE_EXCEEDED: 'media payload exceeds 1MiB after base64 decode',
   /** 解码字节魔数与声明 content_type 不一致（webp = RIFF….WEBP / jpeg = FF D8 FF / png = 89 50 4E 47）⇒ 400 */
   MEDIA_MAGIC_MISMATCH: 'media bytes do not match the declared content_type',
 } as const;
@@ -3677,7 +3677,7 @@ const MEDIA_MAGIC_CHECKS: Record<MediaContentType, (bytes: Buffer) => boolean> =
 
 /** RFC 4648 严格 base64：字符集闭集 + 恰 4 字符组 + padding 恰法（Buffer.from(…, 'base64') 是宽松的 ⇒ 必须先过本闸） */
 const STRICT_BASE64_RE = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
-const MEDIA_MAX_BYTES = 2 * 1024 * 1024; // 2MiB = 2,097,152（§48.2 / §40.1 同构）
+const MEDIA_MAX_BYTES = 1 * 1024 * 1024; // 1MiB = 1,048,576（Kevin 2026-10-19 收口；与 0051 的 DB CHECK 同构）
 
 app.post('/api/media', async (req, res) => {
   const actor = await requireActor(req, res);
@@ -3702,7 +3702,7 @@ app.post('/api/media', async (req, res) => {
       return sendMediaBadRequest(res, 'MEDIA_BASE64_INVALID', { data_base64_chars: dataBase64.length });
     }
 
-    // ③ 体积闸：解码后 ≤2MiB（§48.4 #2 超 ⇒ 400；0050 的 size_bytes CHECK 同构兜底）
+    // ③ 体积闸：解码后 ≤1MiB（§48.4 #2 超 ⇒ 400；0051 重设的 size_bytes CHECK 同构兜底）
     if (bytes.length > MEDIA_MAX_BYTES) {
       return sendMediaBadRequest(res, 'MEDIA_SIZE_EXCEEDED', { decoded_bytes: bytes.length, max_bytes: MEDIA_MAX_BYTES });
     }

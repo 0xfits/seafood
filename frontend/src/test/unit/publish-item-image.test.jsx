@@ -83,12 +83,18 @@ class FakeImage {
 
 let toDataUrlSpy
 
+/** 默认编码结果（WebP 3 字节 / JPEG 3 字节）——逐测例可被 mockImplementation 覆盖，beforeEach 归位。 */
+const defaultToDataUrl = (type) => `data:${type === 'image/webp' ? 'image/webp' : 'image/jpeg'};base64,QUJD`
+
+/** 超 1MiB 的编码结果：base64 长 1,398,104 ⇒ 解码 1,048,578 bytes（比硬顶多 2 字节）。 */
+const HUGE_BASE64_LENGTH = 4 * 349526
+const hugeWebp = () => `data:image/webp;base64,${'A'.repeat(HUGE_BASE64_LENGTH)}`
+
 beforeAll(() => {
   vi.stubGlobal('FileReader', FakeFileReader)
   vi.stubGlobal('Image', FakeImage)
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({ drawImage: vi.fn() })
-  toDataUrlSpy = vi.spyOn(HTMLCanvasElement.prototype, 'toDataURL')
-    .mockImplementation((type) => `data:${type === 'image/webp' ? 'image/webp' : 'image/jpeg'};base64,QUJD`)
+  toDataUrlSpy = vi.spyOn(HTMLCanvasElement.prototype, 'toDataURL').mockImplementation(defaultToDataUrl)
 })
 
 afterAll(() => {
@@ -126,6 +132,7 @@ const submit = (container) => fireEvent.click(container.querySelector('[data-sf-
 describe('发布商品页 · 商品图片（选图 / 压缩 / 上传 / 失败即取消）', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    toDataUrlSpy.mockImplementation(defaultToDataUrl) // 上一条测例可能改过编码结果 ⇒ 每条归位
     useAuth.mockReturnValue({ isAuthenticated: true, user: { uID: 7, token: 'test' } })
     fetchCurrencies.mockResolvedValue([])
     publishListing.mockResolvedValue({})
@@ -265,5 +272,91 @@ describe('发布商品页 · 商品图片（选图 / 压缩 / 上传 / 失败即
     expect(publishListing.mock.calls[0][0].mediaUrls).toEqual([])
     expect(uploadMedia).not.toHaveBeenCalled()
     await waitFor(() => expect(status(container).getAttribute('data-sf-phase')).toBe('ok'))
+  })
+})
+
+// ============================================================================
+// 单张图片硬顶 1MiB（Kevin 2026-10-19）：客户端压缩后 >1,048,576 bytes ⇒
+//   ① 逐级降级重编码（质量档 [0.82,0.72,0.62,0.5] × 边长档 [1280,1120,960,832]），命中即收；
+//   ② 全档位仍超 ⇒ 该张拒收（`item.imageTooLarge` 提示、不入列；其余已选图片不受影响）；
+//   ③ 正常小图路径不变（首档 WebP q0.82、一次编码即收、提示位不出现）。
+// 口径同后端 `MEDIA_MAX_BYTES` 与迁移 0051 的 `size_bytes <= 1048576`。
+// ============================================================================
+describe('发布商品页 · 单张图片 1MiB 硬顶（降级重编 / 拒收）', () => {
+  const notice = (container) => container.querySelector('[data-sf-m="item-image-notice"]')
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    toDataUrlSpy.mockImplementation(defaultToDataUrl)
+    useAuth.mockReturnValue({ isAuthenticated: true, user: { uID: 7, token: 'test' } })
+    fetchCurrencies.mockResolvedValue([])
+    publishListing.mockResolvedValue({})
+    setListingStatus.mockResolvedValue({})
+  })
+
+  it('① 首档编码超 1MiB ⇒ 降级重编码直至 ≤1MiB，该张仍入列（不提示）', async () => {
+    // 序列：q0.82 ⇒ 1,048,578 bytes（超 2 字节）；q0.72 ⇒ 3 bytes（命中即收）
+    toDataUrlSpy
+      .mockImplementationOnce(() => hugeWebp())
+      .mockImplementation(() => defaultToDataUrl('image/webp'))
+    const { container } = renderPage()
+
+    pickFiles(container, [imageFile('big.png')])
+    await waitFor(() => expect(thumbs(container).length).toBe(1))
+
+    // 降级链：先降质量（0.82 ⇒ 0.72），未动边长（仍在 1280 档）
+    expect(toDataUrlSpy.mock.calls.map(([, q]) => q)).toEqual([0.82, 0.72])
+    // 入列的是「命中档」的编码结果（3 bytes ⇒ base64 长 4）
+    const src = thumbs(container)[0].querySelector('img').getAttribute('src')
+    expect(src).toBe('data:image/webp;base64,QUJD')
+    expect(notice(container)).toBeNull()
+  })
+
+  it('② 全档位仍超 1MiB ⇒ 该张拒收：提示 item.imageTooLarge、不入列、不调上传；随后选小图照常入列', async () => {
+    toDataUrlSpy.mockImplementation(() => hugeWebp())
+    const { container } = renderPage()
+
+    pickFiles(container, [imageFile('huge.png')])
+    // 4 边长档 × 4 质量档 = 16 次编码后放弃
+    await waitFor(() => expect(toDataUrlSpy).toHaveBeenCalledTimes(16))
+    // 编码档位交叉穷举（逐档逐值，防「漏档直接拒收」）
+    expect(toDataUrlSpy.mock.calls.map(([, q]) => q)).toEqual(Array.from({ length: 4 }, () => [0.82, 0.72, 0.62, 0.5]).flat())
+
+    expect(thumbs(container).length).toBe(0)
+    const tip = notice(container)
+    expect(tip).not.toBeNull()
+    expect(tip.textContent).toBe('item.imageTooLarge')
+    expect(tip.getAttribute('role')).toBe('alert')
+    // 拒收不动发布链：无图照常发布，uploadMedia 零调用
+    fillRequired(container)
+    submit(container)
+    await waitFor(() => expect(publishListing).toHaveBeenCalledTimes(1))
+    expect(publishListing.mock.calls[0][0].mediaUrls).toEqual([])
+    expect(uploadMedia).not.toHaveBeenCalled()
+
+    // 同一页面随后选一张正常小图 ⇒ 入列；提示清空（其余已选图片 / 后续选择不受影响）
+    toDataUrlSpy.mockImplementation(defaultToDataUrl)
+    toDataUrlSpy.mockClear()
+    pickFiles(container, [imageFile('ok.png')])
+    await waitFor(() => expect(thumbs(container).length).toBe(1))
+    expect(notice(container)).toBeNull()
+    expect(toDataUrlSpy.mock.calls).toEqual([['image/webp', 0.82]])
+  })
+
+  it('③ 正常小图：首档 WebP q0.82 一次编码即收，不入降级链、无提示', async () => {
+    const { container } = renderPage()
+
+    pickFiles(container, [imageFile('a.png')])
+    await waitFor(() => expect(thumbs(container).length).toBe(1))
+
+    expect(toDataUrlSpy.mock.calls).toEqual([['image/webp', 0.82]])
+    expect(notice(container)).toBeNull()
+
+    uploadMedia.mockResolvedValueOnce({ url: '/api/media/21' })
+    fillRequired(container)
+    submit(container)
+    await waitFor(() => expect(publishListing).toHaveBeenCalledTimes(1))
+    expect(uploadMedia.mock.calls[0][1]).toEqual({ content_type: 'image/webp', data_base64: 'QUJD' })
+    expect(publishListing.mock.calls[0][0].mediaUrls).toEqual(['/api/media/21'])
   })
 })

@@ -184,7 +184,8 @@
     "chat": "聊一聊",
     "imagesLabel": "商品图片（可选，最多 4 张）",
     "imageRemove": "移除图片",
-    "imageUploadFail": "图片上传失败，发布已取消"
+    "imageUploadFail": "图片上传失败，发布已取消",
+    "imageTooLarge": "单张图片不能超过 1MB"
   },
   "market": {
     "line": "交易所线",

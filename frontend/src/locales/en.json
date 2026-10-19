@@ -184,7 +184,8 @@
     "chat": "Chat",
     "imagesLabel": "Product images (optional, up to 4)",
     "imageRemove": "Remove image",
-    "imageUploadFail": "Image upload failed, publish cancelled"
+    "imageUploadFail": "Image upload failed, publish cancelled",
+    "imageTooLarge": "Each image must be 1MB or smaller"
   },
   "market": {
     "line": "Exchange",

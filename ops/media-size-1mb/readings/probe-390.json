@@ -1,0 +1,215 @@
+{
+  "url": "http://localhost:5800/zh/item/new",
+  "viewport": [
+    390,
+    844
+  ],
+  "at": "2026-10-19T04:28:11.742Z",
+  "fakeSession": {
+    "storageKey": "user",
+    "tokenPayloadExp": 4102444800,
+    "realCredentials": false
+  },
+  "api": "all **/api/** aborted (zero writes)",
+  "capBytes": 1048576,
+  "fixture": {
+    "path": "/Users/kevin/bistro/seafood/ops/media-size-1mb/fixtures/probe-2400x600.png",
+    "width": 2400,
+    "height": 600,
+    "pngBytes": 1829442
+  },
+  "cases": {
+    "P1_normal_image": {
+      "thumbCount": 1,
+      "thumbIds": [
+        "item-image-thumb-0"
+      ],
+      "srcPrefixes": [
+        "data:image/webp;"
+      ],
+      "thumbBytes": [
+        28688
+      ],
+      "notice": null,
+      "addDisabled": false,
+      "docScrollWidth": 390,
+      "encodeLog": [
+        {
+          "type": "image/webp",
+          "quality": 0.82,
+          "w": 1280,
+          "h": 320,
+          "bytes": 28689
+        }
+      ],
+      "pageErrors": [],
+      "pass": true
+    },
+    "P2_oversized_rejected": {
+      "thumbCount": 0,
+      "thumbIds": [],
+      "srcPrefixes": [],
+      "thumbBytes": [],
+      "notice": {
+        "text": "单张图片不能超过 1MB",
+        "role": "alert",
+        "visible": true
+      },
+      "addDisabled": false,
+      "docScrollWidth": 390,
+      "encodeLog": [
+        {
+          "type": "image/webp",
+          "quality": 0.82,
+          "w": 1280,
+          "h": 320,
+          "bytes": 28689
+        },
+        {
+          "type": "image/webp",
+          "quality": 0.72,
+          "w": 1280,
+          "h": 320,
+          "bytes": 24123
+        },
+        {
+          "type": "image/webp",
+          "quality": 0.62,
+          "w": 1280,
+          "h": 320,
+          "bytes": 22680
+        },
+        {
+          "type": "image/webp",
+          "quality": 0.5,
+          "w": 1280,
+          "h": 320,
+          "bytes": 20451
+        },
+        {
+          "type": "image/webp",
+          "quality": 0.82,
+          "w": 1120,
+          "h": 280,
+          "bytes": 25920
+        },
+        {
+          "type": "image/webp",
+          "quality": 0.72,
+          "w": 1120,
+          "h": 280,
+          "bytes": 20745
+        },
+        {
+          "type": "image/webp",
+          "quality": 0.62,
+          "w": 1120,
+          "h": 280,
+          "bytes": 19302
+        },
+        {
+          "type": "image/webp",
+          "quality": 0.5,
+          "w": 1120,
+          "h": 280,
+          "bytes": 17946
+        },
+        {
+          "type": "image/webp",
+          "quality": 0.82,
+          "w": 960,
+          "h": 240,
+          "bytes": 22188
+        },
+        {
+          "type": "image/webp",
+          "quality": 0.72,
+          "w": 960,
+          "h": 240,
+          "bytes": 16461
+        },
+        {
+          "type": "image/webp",
+          "quality": 0.62,
+          "w": 960,
+          "h": 240,
+          "bytes": 15576
+        },
+        {
+          "type": "image/webp",
+          "quality": 0.5,
+          "w": 960,
+          "h": 240,
+          "bytes": 14181
+        },
+        {
+          "type": "image/webp",
+          "quality": 0.82,
+          "w": 832,
+          "h": 208,
+          "bytes": 19833
+        },
+        {
+          "type": "image/webp",
+          "quality": 0.72,
+          "w": 832,
+          "h": 208,
+          "bytes": 14577
+        },
+        {
+          "type": "image/webp",
+          "quality": 0.62,
+          "w": 832,
+          "h": 208,
+          "bytes": 13083
+        },
+        {
+          "type": "image/webp",
+          "quality": 0.5,
+          "w": 832,
+          "h": 208,
+          "bytes": 11808
+        }
+      ],
+      "pageErrors": [],
+      "pass": true
+    },
+    "P3_downgrade_then_accept": {
+      "thumbCount": 1,
+      "thumbIds": [
+        "item-image-thumb-0"
+      ],
+      "srcPrefixes": [
+        "data:image/webp;"
+      ],
+      "thumbBytes": [
+        24122
+      ],
+      "notice": null,
+      "addDisabled": false,
+      "docScrollWidth": 390,
+      "encodeLog": [
+        {
+          "type": "image/webp",
+          "quality": 0.82,
+          "w": 1280,
+          "h": 320,
+          "bytes": 28689
+        },
+        {
+          "type": "image/webp",
+          "quality": 0.72,
+          "w": 1280,
+          "h": 320,
+          "bytes": 24123
+        }
+      ],
+      "pageErrors": [],
+      "pass": true
+    }
+  },
+  "summary": {
+    "total": 3,
+    "passed": 3
+  }
+}
