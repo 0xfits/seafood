@@ -1,0 +1,137 @@
+{
+  "task": "独立质检 · 发布任务页（/task/new）币种由手填改下拉（commit 1d9b415 实现 + 9041097 实现方探针）· 规范 9087c51",
+  "qa": "Neng-line independent QA (qa-job), 2026-10-19",
+  "head_at_qa": "9087c51abbf31bb418a689bb2324a2403b2bf3d3",
+  "env": {
+    "frontend_dev": "http://localhost:5787 (vite dev, main workspace @9087c51 clean)",
+    "backend_dev": "http://localhost:5788 (real dev backend)",
+    "prod_arm": "vite preview of clean-worktree dist built at 9087c51 (bundle index-BREoUqs6.js)",
+    "db": "dev Neon Postgres, table public.currency — STRICT SELECT only",
+    "writes": "all write verbs intercepted in-flight in every probe; zero business writes (0 job/item publishes)"
+  },
+  "verdict": "PASS",
+  "all_ac_pass": true,
+  "acs": {
+    "AC1_form_shape": {
+      "status": "PASS",
+      "select_jobsSelectCid": 1,
+      "input_jobsInputCid": 0,
+      "legacy_anyTag": 0,
+      "tagName": "SELECT",
+      "required": true,
+      "decoy_negative_control": { "before": 0, "during_with_decoy": 1, "after_removal": 0, "ruler_not_blind": true },
+      "reading": "readings/ac1-ac2-ac4-browser-probe.json"
+    },
+    "AC2_options_real": {
+      "status": "PASS",
+      "api_rows": 11,
+      "page_options_dev": 11,
+      "page_options_prod": 11,
+      "exact_order_and_content_equal": true,
+      "set_equal_ignoring_order": true,
+      "listed_db_rows_equal_api_rows": true,
+      "draft_cids_in_db": ["9", "15", "22", "27", "28"],
+      "draft_cids_absent_from_options": true,
+      "option_text_shape": "symbol · name（无 cid 数字前缀；bareNumericPrefix = []）",
+      "selected_default": { "value": "1", "text": "$ · 平台积分" },
+      "readings": ["readings/ac1-ac2-ac4-browser-probe.json", "readings/ac2-db-currency.json", "readings/ac2-negative-control.json", "readings/ac2-prod-preview-requests.json"]
+    },
+    "AC3_public_endpoint_unchanged": {
+      "status": "PASS",
+      "http_no_auth": 200,
+      "http_bogus_bearer": 200,
+      "top_level_keys": ["data", "message", "success"],
+      "row_key_sets_distinct": [["cid", "name", "symbol"]],
+      "cid_json_type": "string（11/11 行）",
+      "ascending_by_cid_int": true,
+      "backend_diff_in_batch": "git diff --name-only 1d9b415^..9087c51 -- backend-ts/ = 空；7b597ec..9087c51 亦空；backend-ts 工作树干净",
+      "registration_row": "backend-ts/src/index.ts:2341 app.get('/api/currencies', …)（未动）",
+      "readings": ["readings/ac3-curl-summary.txt", "readings/ac3-currencies.body.json", "readings/ac3-currencies.headers.txt", "readings/ac3-backend-unchanged-git.log"]
+    },
+    "AC4_submit_semantics": {
+      "status": "PASS",
+      "two_selections_two_payloads": [
+        { "cid": 1, "cid_typeof": "number" },
+        { "cid": 4, "cid_typeof": "number" }
+      ],
+      "payload_key_set": ["cid", "create_key", "description", "headcount", "reward", "title"],
+      "idempotency_key_prefix": "cli:",
+      "publishJob_verbatim_vs_1d9b415^": true,
+      "publishJob_bytes": 457,
+      "job_api_whole_file_diff_1d9b415^..9087c51": "+8/-0（仅 fetchCurrencies 包装块；publishJob 未动）",
+      "reading": "readings/ac4-publishjob-verbatim.txt + readings/ac1-ac2-ac4-browser-probe.json (submit_payloads)",
+      "post_api_job": "intercepted in-flight — zero real job publishes"
+    },
+    "AC5_fallback_tri_state": {
+      "status": "PASS",
+      "arms": {
+        "inject_500": { "options": 1, "value": "1", "text": "$", "primary_disabled": false, "pageerror": 0, "submit_cid": "1 (number)" },
+        "inject_abort": { "options": 1, "value": "1", "text": "$", "primary_disabled": false, "pageerror": 0, "submit_cid": "1 (number)" },
+        "inject_empty_success_true_data": { "options": 1, "value": "1", "text": "$", "primary_disabled": false, "pageerror": 0, "submit_cid": "1 (number)" },
+        "real_backend_positive_control": { "options": 11, "primary_disabled": false, "pageerror": 0 }
+      },
+      "note": "500/abort 臂各有 2 条 console resource 错误 = 注入本身产生的网络失败日志（浏览器层），非未捕获异常",
+      "reading": "readings/ac5-fallback-arms.json"
+    },
+    "AC6_i18n": {
+      "status": "PASS",
+      "four_locales_changed": {
+        "zh": ["币种", "请从下拉框选择悬赏币种"],
+        "en": ["Currency", "Select the currency from the dropdown."],
+        "hk": ["幣種", "請從下拉框選擇幣種。"],
+        "vn": ["Tiền tệ", "Chọn tiền tệ từ danh sách."]
+      },
+      "flat_key_counts_new": { "zh": 1106, "en": 1106, "hk": 1106, "vn": 1106 },
+      "flat_key_counts_old": { "zh": 1106, "en": 1106, "hk": 1106, "vn": 1106 },
+      "top_keys": 128,
+      "nodes_total": 4424,
+      "keyset_identical_vs_1d9b415^": true,
+      "item_cid_untouched": true,
+      "item_cidNote_untouched": true,
+      "item_keys_diff": [],
+      "jobs_other_keys_diff": [],
+      "non_jobs_non_item_diff": [],
+      "blacklist_hits": [],
+      "handfill_semantic_hits": [],
+      "jobs_cid_numbered_core_hits": [],
+      "known_observation_not_fail": "zh jobs.cidNote 含「悬赏」限定（请从下拉框选择悬赏币种），en/hk/vn 无对应词 —— 按任务书登记为观察项，不进判负",
+      "reading": "readings/ac6-i18n.json"
+    },
+    "AC7_gates": {
+      "status": "PASS",
+      "clean_worktree": "git worktree add --detach <scratch>/qa-job-9087c51 9087c51 + node_modules 软链（frontend、backend-ts）+ 独立 cacheDir（vitest.qa.config.js）；已用毕移除",
+      "p7b_03": { "total": 37, "passed": 37, "failed": 0, "red": [], "AC10_2_registration_points": 108, "not_109": true, "exit": 0 },
+      "anchored_regex": { "total": 108, "get": 48, "post": 56, "put": 0, "delete": 3, "patch": 1 },
+      "unanchored_contrast": "109（多出 1 条 = index.ts:896 注释行 `…注册行 app.get('/api/user/ledger'…`，不当作注册点）",
+      "test_unit": { "files": 59, "passed_files": 59, "tests": 568, "failed": 0, "exit": 0, "threshold": ">= 59/568" },
+      "build_in_worktree": { "exit": 0, "js_bundle": "index-BREoUqs6.js（与实现方读数 job-build.log 逐字相同 = 独立复证）" },
+      "environmental_note": "首次 test:unit（未 build dist）= 58/59 files · 556 tests、p4z-feperf 缺 dist/assets/*.css 判红 —— 环境性 FAIL 原样登记（readings/ac7-first-run-env-fail-note.log），worktree 补 build 后复跑全绿",
+      "readings": ["readings/ac7-p7b03-clean-worktree.log", "readings/ac7-registration-regex.log", "readings/ac7-test-unit-clean-worktree.log", "readings/ac7-build-clean-worktree.log"]
+    },
+    "AC8_regression_surface": {
+      "status": "PASS",
+      "pages": {
+        "/": { "root_nonempty": true, "pageerror": 0, "unhandled_rejection": 0 },
+        "/task": { "root_nonempty": true, "pageerror": 0, "unhandled_rejection": 0 },
+        "/task/new（已登录假会话）": { "root_nonempty": true, "jobs_select_present": true, "pageerror": 0, "unhandled_rejection": 0 }
+      },
+      "api_task_all": 200,
+      "api_home": 200,
+      "zero_business_writes": true,
+      "environmental_note": "首次跑（GET 全透传真后端）假会话 token 触发 auth-expiry 清会话 → 登录过期态；属探针环境噪声非产品缺陷，改用既定配方（仅 /api/currencies 真后端）复跑，见 readings/ac8-first-run-passthrough-note.log",
+      "readings": ["readings/ac8-pages.json", "readings/ac8-api-status.txt", "readings/ac8_api_task_all.body.json", "readings/ac8_api_home.body.json"]
+    }
+  },
+  "observations_registered_not_fail": [
+    "zh jobs.cidNote 含「悬赏」限定而 en/hk/vn 无对应词（任务书已知观察项）",
+    "dev server（React.StrictMode）下 /task/new 挂载发 2 条相同 GET /api/currencies；生产构建（worktree dist @9087c51 实测）恰 1 条 —— StrictMode 仅 dev 双跑 effect，代码侧 useEffect deps=[] 单发，判负 #18 以生产面为准 = 1 条",
+    "worktree 干净检出缺 gitignore 的 dist/ ⇒ p4z-feperf 环境性红（补 build 后全绿）"
+  ],
+  "discipline": {
+    "product_code_or_docs_modified": false,
+    "committed_or_pushed": false,
+    "git_status_after": "仅新增未跟踪 ops/item-cid-select/qa-job/**（另 ops/item-cid-select/qa/** 为另一质检员既有件）",
+    "worktree_removed": true,
+    "real_publishes": 0
+  }
+}

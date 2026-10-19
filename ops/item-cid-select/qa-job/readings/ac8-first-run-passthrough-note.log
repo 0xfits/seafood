@@ -1,0 +1,18 @@
+AC8 first run (superseded recipe, kept per environmental-FAIL discipline):
+
+Recipe: fake session + ALL GET /api/* passed through to real dev backend (5788), writes intercepted.
+Result: three pages #root non-empty, pageerror 0, unhandledrejection 0, zero business writes,
+/api/task/all 200, /api/home 200 — BUT console showed 401 resource-load errors
+(4 on /, 10 on /task, 4 on /task/new) and the /task/new page degraded to the logged-out
+「登录已过期，请重新登录 / 请先登录」 state (innerText 188 chars).
+
+Attribution: the fake session's token is NOT a real credential ⇒ authed GETs legitimately
+return 401 ⇒ the app's auth-expiry interceptor (auth-expiry-20261017 work) clears the fake
+session ⇒ page renders the logged-out state. That is correct app behavior against a bogus
+token — environment noise of the probe, not a defect of this batch.
+
+Resolution: re-ran with the established recipe (implementer probe-job-form.mjs / item-QA
+probe-form.mjs): ONLY /api/currencies passes to the real backend; all other /api/* GETs are
+stubbed 200 {success:true,data:[]} so no 401 noise is manufactured. See ac8-pages.json (rerun).
+The real-backend 200s for /api/task/all + /api/home are covered by the direct curl readings
+(ac8_api_task_all.body.json / ac8_api_home.body.json + ac8-api-status.txt).

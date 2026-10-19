@@ -1,0 +1,244 @@
+{
+  "url": "http://localhost:5787/item/new",
+  "at": "2026-10-19T00:57:16.508Z",
+  "steps": {
+    "shape": {
+      "select_itemSelectCid": 1,
+      "input_itemInputCid": 0,
+      "anyElement_with_itemInputCid_attr": 0,
+      "cidControl_tagName": "SELECT",
+      "cidControl_type_attr": null,
+      "cidControl_role": null,
+      "optionsInCidControl": 11,
+      "inputElementsInsideCidField": 0,
+      "labelText": "币种",
+      "optionCountAllSelectsInForm": 1,
+      "rootChildCount": 2,
+      "submitButton": {
+        "text": "发布闲置",
+        "disabled": false
+      }
+    },
+    "options": {
+      "count": 11,
+      "values": [
+        "1",
+        "4",
+        "10",
+        "16",
+        "21",
+        "29",
+        "31",
+        "32",
+        "35",
+        "36",
+        "399"
+      ],
+      "texts": [
+        "$ · 平台积分",
+        "P4B3A013122 · P4B3A test unit",
+        "P4B3A013647 · P4B3A test unit",
+        "P4B3B590800 · P4B3B test unit",
+        "P4B3B590800X · server default fee",
+        "N1B0T203917 · num1 default",
+        "N1A0T204732 · num1 at floor",
+        "N1B0T204732 · num1 default",
+        "qap7a31l3k6 · QA p7-a fixture qap7a31l3k6",
+        "qap7b1wtoqc · QA p7-a fixture qap7b1wtoqc",
+        "BTTC · battcoin"
+      ],
+      "selectedValue": "1",
+      "selectedText": "$ · 平台积分"
+    },
+    "negative_control": {
+      "before": {
+        "select_itemSelectCid": 1,
+        "input_itemInputCid": 0
+      },
+      "during": {
+        "select_itemSelectCid": 1,
+        "input_itemInputCid": 1
+      },
+      "after": {
+        "select_itemSelectCid": 1,
+        "input_itemInputCid": 0
+      },
+      "probe_is_sensitive": true
+    },
+    "change": {
+      "requested": "4",
+      "domValue": "4",
+      "domSelectedText": "P4B3A013122 · P4B3A test unit"
+    },
+    "form_fields": [
+      {
+        "tag": "INPUT",
+        "name": null,
+        "hook": "item-input-title",
+        "type": null,
+        "inputMode": null,
+        "required": true
+      },
+      {
+        "tag": "INPUT",
+        "name": null,
+        "hook": "item-input-price",
+        "type": null,
+        "inputMode": "numeric",
+        "required": true
+      },
+      {
+        "tag": "INPUT",
+        "name": null,
+        "hook": "item-input-stock",
+        "type": null,
+        "inputMode": "numeric",
+        "required": true
+      },
+      {
+        "tag": "TEXTAREA",
+        "name": null,
+        "hook": "item-input-note",
+        "type": null,
+        "inputMode": null,
+        "required": false
+      }
+    ],
+    "submit_payload": {
+      "raw": "{\"cid\":4,\"price\":\"5\",\"stock\":\"QA probe item\",\"title\":\"QA probe item\",\"description\":\"\",\"create_key\":\"cli:d7fe8a95-1a06-4f6f-a30e-6a6b85b04128\"}",
+      "keys": [
+        "cid",
+        "price",
+        "stock",
+        "title",
+        "description",
+        "create_key"
+      ],
+      "cid": 4,
+      "cid_typeof": "number",
+      "expected_selected": "4",
+      "cid_matches_selected_numerically": true,
+      "price": "5",
+      "stock": "QA probe item",
+      "has_create_key": true
+    }
+  },
+  "api": {
+    "log": [
+      {
+        "path": "/api/role-names",
+        "method": "GET",
+        "hit": "stubbed-noise-isolation",
+        "status": 200
+      },
+      {
+        "path": "/api/admin/me",
+        "method": "GET",
+        "hit": "stubbed-noise-isolation",
+        "status": 200
+      },
+      {
+        "path": "/api/messages/unread-count",
+        "method": "GET",
+        "hit": "stubbed-noise-isolation",
+        "status": 200
+      },
+      {
+        "path": "/api/role-names",
+        "method": "GET",
+        "hit": "stubbed-noise-isolation",
+        "status": 200
+      },
+      {
+        "path": "/api/admin/me",
+        "method": "GET",
+        "hit": "stubbed-noise-isolation",
+        "status": 200
+      },
+      {
+        "path": "/api/messages/unread-count",
+        "method": "GET",
+        "hit": "stubbed-noise-isolation",
+        "status": 200
+      },
+      {
+        "path": "/api/currencies",
+        "method": "GET",
+        "hit": "real-backend",
+        "status": 200,
+        "bodyBytes": 715
+      },
+      {
+        "path": "/api/currencies",
+        "method": "GET",
+        "hit": "real-backend",
+        "status": 200,
+        "bodyBytes": 715
+      },
+      {
+        "path": "/api/listing",
+        "method": "POST",
+        "hit": "stubbed-captured",
+        "status": 200
+      },
+      {
+        "path": "/api/listing/987654",
+        "method": "PATCH",
+        "hit": "stubbed-captured",
+        "status": 200
+      },
+      {
+        "path": "/api/prize/987654",
+        "method": "GET",
+        "hit": "stubbed-noise-isolation",
+        "status": 200
+      },
+      {
+        "path": "/api/prize/987654",
+        "method": "GET",
+        "hit": "stubbed-noise-isolation",
+        "status": 200
+      },
+      {
+        "path": "/api/favorites",
+        "method": "GET",
+        "hit": "stubbed-noise-isolation",
+        "status": 200
+      }
+    ],
+    "writes": [
+      {
+        "path": "/api/listing",
+        "method": "POST",
+        "postData": "{\"cid\":4,\"price\":\"5\",\"stock\":\"QA probe item\",\"title\":\"QA probe item\",\"description\":\"\",\"create_key\":\"cli:d7fe8a95-1a06-4f6f-a30e-6a6b85b04128\"}",
+        "contentType": "application/json"
+      },
+      {
+        "path": "/api/listing/987654",
+        "method": "PATCH",
+        "postData": "{\"to_status\":\"listed\"}"
+      }
+    ]
+  },
+  "console": {
+    "error_total": 0,
+    "unique": []
+  },
+  "writes": [
+    {
+      "path": "/api/listing",
+      "method": "POST",
+      "postData": "{\"cid\":4,\"price\":\"5\",\"stock\":\"QA probe item\",\"title\":\"QA probe item\",\"description\":\"\",\"create_key\":\"cli:d7fe8a95-1a06-4f6f-a30e-6a6b85b04128\"}",
+      "contentType": "application/json"
+    },
+    {
+      "path": "/api/listing/987654",
+      "method": "PATCH",
+      "postData": "{\"to_status\":\"listed\"}"
+    }
+  ],
+  "pageerrors": {
+    "total": 0,
+    "list": []
+  }
+}

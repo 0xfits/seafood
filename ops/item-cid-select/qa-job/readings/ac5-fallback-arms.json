@@ -1,0 +1,188 @@
+{
+  "at": "2026-10-19T01:12:24.608Z",
+  "url": "http://localhost:5787/task/new",
+  "recipe": "GET passthrough only for real arm; injected arms intercepted before network; POST /api/job always intercepted (zero business write)",
+  "arms": {
+    "real-backend": {
+      "arm": "real-backend",
+      "mode": "real",
+      "state": {
+        "option_count": 11,
+        "options": [
+          {
+            "value": "1",
+            "text": "$ · 平台积分"
+          },
+          {
+            "value": "4",
+            "text": "P4B3A013122 · P4B3A test unit"
+          },
+          {
+            "value": "10",
+            "text": "P4B3A013647 · P4B3A test unit"
+          },
+          {
+            "value": "16",
+            "text": "P4B3B590800 · P4B3B test unit"
+          },
+          {
+            "value": "21",
+            "text": "P4B3B590800X · server default fee"
+          },
+          {
+            "value": "29",
+            "text": "N1B0T203917 · num1 default"
+          },
+          {
+            "value": "31",
+            "text": "N1A0T204732 · num1 at floor"
+          },
+          {
+            "value": "32",
+            "text": "N1B0T204732 · num1 default"
+          },
+          {
+            "value": "35",
+            "text": "qap7a31l3k6 · QA p7-a fixture qap7a31l3k6"
+          },
+          {
+            "value": "36",
+            "text": "qap7b1wtoqc · QA p7-a fixture qap7b1wtoqc"
+          },
+          {
+            "value": "399",
+            "text": "BTTC · battcoin"
+          }
+        ],
+        "selected_value": "1",
+        "single_option_is_value1_textDollar": false,
+        "primary_disabled": false,
+        "hero_note": "请从下拉框选择悬赏币种"
+      },
+      "submit": {
+        "job_post_count": 1,
+        "payloads": [
+          {
+            "cid": 1,
+            "cid_typeof": "number",
+            "title": "QA-fallback real-backend"
+          }
+        ],
+        "status_text": "招工已发布并托管酬金 · #987654"
+      },
+      "currency_get_count": 2,
+      "page_errors": [],
+      "console_errors": [],
+      "unhandled_rejections": 0
+    },
+    "inject-500": {
+      "arm": "inject-500",
+      "mode": "500",
+      "state": {
+        "option_count": 1,
+        "options": [
+          {
+            "value": "1",
+            "text": "$"
+          }
+        ],
+        "selected_value": "1",
+        "single_option_is_value1_textDollar": true,
+        "primary_disabled": false,
+        "hero_note": "请从下拉框选择悬赏币种"
+      },
+      "submit": {
+        "job_post_count": 1,
+        "payloads": [
+          {
+            "cid": 1,
+            "cid_typeof": "number",
+            "title": "QA-fallback inject-500"
+          }
+        ],
+        "status_text": "招工已发布并托管酬金 · #987654"
+      },
+      "currency_get_count": 2,
+      "page_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
+      "unhandled_rejections": 0
+    },
+    "inject-abort": {
+      "arm": "inject-abort",
+      "mode": "abort",
+      "state": {
+        "option_count": 1,
+        "options": [
+          {
+            "value": "1",
+            "text": "$"
+          }
+        ],
+        "selected_value": "1",
+        "single_option_is_value1_textDollar": true,
+        "primary_disabled": false,
+        "hero_note": "请从下拉框选择悬赏币种"
+      },
+      "submit": {
+        "job_post_count": 1,
+        "payloads": [
+          {
+            "cid": 1,
+            "cid_typeof": "number",
+            "title": "QA-fallback inject-abort"
+          }
+        ],
+        "status_text": "招工已发布并托管酬金 · #987654"
+      },
+      "currency_get_count": 2,
+      "page_errors": [],
+      "console_errors": [
+        "Failed to load resource: net::ERR_CONNECTION_RESET",
+        "Failed to load resource: net::ERR_CONNECTION_RESET"
+      ],
+      "unhandled_rejections": 0
+    },
+    "inject-empty": {
+      "arm": "inject-empty",
+      "mode": "empty",
+      "state": {
+        "option_count": 1,
+        "options": [
+          {
+            "value": "1",
+            "text": "$"
+          }
+        ],
+        "selected_value": "1",
+        "single_option_is_value1_textDollar": true,
+        "primary_disabled": false,
+        "hero_note": "请从下拉框选择悬赏币种"
+      },
+      "submit": {
+        "job_post_count": 1,
+        "payloads": [
+          {
+            "cid": 1,
+            "cid_typeof": "number",
+            "title": "QA-fallback inject-empty"
+          }
+        ],
+        "status_text": "招工已发布并托管酬金 · #987654"
+      },
+      "currency_get_count": 2,
+      "page_errors": [],
+      "console_errors": [],
+      "unhandled_rejections": 0
+    }
+  },
+  "verdict": {
+    "real_backend_options": 11,
+    "all_three_fallbacks_single_dollar": true,
+    "all_three_fallbacks_primary_enabled": true,
+    "all_three_fallbacks_zero_pageerror": true,
+    "all_three_fallbacks_submitted_cid1_number": true
+  }
+}

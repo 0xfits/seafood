@@ -1,0 +1,14 @@
+== HEAD ==
+9087c51abbf31bb418a689bb2324a2403b2bf3d3
+== anchored total ==
+108
+== per verb (anchored) ==
+get 48
+post 56
+put 0
+delete 3
+patch 1
+== UNanchored total (for contrast) ==
+109
+== unanchored extra hits (lines NOT starting with app.) ==
+896: * 置位说明：本块**置于端点之后**（端点之前零新增行）⇒ 注册行 `app.get('/api/user/ledger'` 仍为 **`:633`**

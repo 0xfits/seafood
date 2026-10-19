@@ -1,0 +1,171 @@
+{
+  "ac": "AC8",
+  "at": "2026-10-19T01:07:50.731Z",
+  "base": "http://localhost:5787",
+  "state": "logged-out",
+  "pages": [
+    {
+      "name": "home",
+      "path": "/",
+      "final_url": "http://localhost:5787/",
+      "goto": "ok",
+      "dom": {
+        "rootExists": true,
+        "rootChildCount": 2,
+        "rootChildTags": [
+          "div",
+          "div.app-container.gradient-bg"
+        ],
+        "bodyText_sample": "Seafood 海鲜市场 社区任务 市场 订单 语言 注册 登录 欢迎来到 Jinli Club 参与任务，赚取$，兑换精彩奖励 立即注册 发布闲置 热门任务 参与任务赚取$ 查看全部 进行中 p4b2:fixture:A 137 $ p4b2 P4-B2a fixture（无托管：escrow_txid 保持 NUL",
+        "still_loading": false,
+        "title": "Seafood 海鲜市场｜加密人自己的「闲鱼」"
+      },
+      "pageerror_count": 0,
+      "pageerrors": [],
+      "console_error_count": 0,
+      "console_error_classes": {},
+      "console_errors_sample": [],
+      "console_non_error": {
+        "warning": 4,
+        "other": 0
+      }
+    },
+    {
+      "name": "item-new-loggedout",
+      "path": "/item/new",
+      "final_url": "http://localhost:5787/item/new",
+      "goto": "ok",
+      "dom": {
+        "rootExists": true,
+        "rootChildCount": 2,
+        "rootChildTags": [
+          "div",
+          "div.app-container.gradient-bg"
+        ],
+        "bodyText_sample": "Seafood 海鲜市场 社区任务 市场 订单 语言 注册 登录 请先登录 简体中文 English 粤语 Tiếng Việt © 2024-2026 Abbey Quant & Jinli Club. 保留所有权利。 本网站支持简体中文、英文、粤语和越南语。 联系我们：contact@jinli.club 卖闲置 ",
+        "still_loading": false,
+        "title": "Seafood 海鲜市场｜加密人自己的「闲鱼」"
+      },
+      "pageerror_count": 0,
+      "pageerrors": [],
+      "console_error_count": 0,
+      "console_error_classes": {},
+      "console_errors_sample": [],
+      "console_non_error": {
+        "warning": 3,
+        "other": 0
+      }
+    },
+    {
+      "name": "item-detail-1",
+      "path": "/item/1",
+      "final_url": "http://localhost:5787/item/1",
+      "goto": "ok",
+      "dom": {
+        "rootExists": true,
+        "rootChildCount": 2,
+        "rootChildTags": [
+          "div",
+          "div.app-container.gradient-bg"
+        ],
+        "bodyText_sample": "Seafood 海鲜市场 社区任务 市场 订单 语言 注册 登录 $ 137 单价 p4b2c:listing A 物品编号 #1 · - p4b2c desc 库存 - 闲置物品 购买金额由平台统一结算，无需填写价格或收款方。 购买金额以平台结算为准；重复点击不会重复扣款。 退款只退还款项，商品库存不会恢复。 数量 ",
+        "still_loading": false,
+        "title": "Seafood 海鲜市场｜加密人自己的「闲鱼」"
+      },
+      "pageerror_count": 0,
+      "pageerrors": [],
+      "console_error_count": 0,
+      "console_error_classes": {},
+      "console_errors_sample": [],
+      "console_non_error": {
+        "warning": 3,
+        "other": 0
+      }
+    }
+  ],
+  "api": {
+    "home": {
+      "success": true,
+      "top_keys": [
+        "data",
+        "message",
+        "success"
+      ],
+      "data_keys": [
+        "claimed_prize_ids",
+        "is_authenticated",
+        "prizes",
+        "tasks",
+        "user_points"
+      ],
+      "prizes_len": 8,
+      "first_prize_keys_sample": [
+        "bID",
+        "symbol",
+        "name",
+        "description",
+        "image_url",
+        "url_image"
+      ]
+    },
+    "prize_all": {
+      "success": true,
+      "data_len": 25,
+      "first_bID": 1,
+      "first_row_key_count": 44
+    },
+    "picked_bID": 1
+  },
+  "crosscheck": {
+    "home": {
+      "stored": {
+        "success": true,
+        "prizes_len": 8,
+        "top_keys": [
+          "data",
+          "message",
+          "success"
+        ]
+      },
+      "live": {
+        "success": true,
+        "top_keys": [
+          "data",
+          "message",
+          "success"
+        ],
+        "data_keys": [
+          "claimed_prize_ids",
+          "is_authenticated",
+          "prizes",
+          "tasks",
+          "user_points"
+        ],
+        "prizes_len": 8,
+        "first_prize_keys_sample": [
+          "bID",
+          "symbol",
+          "name",
+          "description",
+          "image_url",
+          "url_image"
+        ]
+      },
+      "prizes_len_match": true
+    },
+    "prize_all": {
+      "stored": {
+        "success": true,
+        "data_len": 25
+      },
+      "live": {
+        "success": true,
+        "data_len": 25,
+        "first_bID": 1,
+        "first_row_key_count": 44
+      },
+      "data_len_match": true,
+      "note": "len mismatch, if any, = DB drift between 08:59 readings and now (multi-session repo), not shape regression; key sets compared separately"
+    }
+  }
+}

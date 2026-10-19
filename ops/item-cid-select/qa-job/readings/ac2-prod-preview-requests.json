@@ -1,0 +1,68 @@
+{
+  "at": "2026-10-19T01:18:40.572Z",
+  "served_by": "vite preview (worktree dist built at 9087c51; bundle = index-BREoUqs6.js expected)",
+  "bundles_loaded": [
+    "/assets/index-BREoUqs6.js"
+  ],
+  "currency_requests": [
+    {
+      "method": "GET",
+      "path": "/api/currencies"
+    }
+  ],
+  "currency_request_count": 1,
+  "exactly_one_get_currencies": true,
+  "page_state": {
+    "option_count": 11,
+    "options": [
+      {
+        "value": "1",
+        "text": "$ · 平台积分"
+      },
+      {
+        "value": "4",
+        "text": "P4B3A013122 · P4B3A test unit"
+      },
+      {
+        "value": "10",
+        "text": "P4B3A013647 · P4B3A test unit"
+      },
+      {
+        "value": "16",
+        "text": "P4B3B590800 · P4B3B test unit"
+      },
+      {
+        "value": "21",
+        "text": "P4B3B590800X · server default fee"
+      },
+      {
+        "value": "29",
+        "text": "N1B0T203917 · num1 default"
+      },
+      {
+        "value": "31",
+        "text": "N1A0T204732 · num1 at floor"
+      },
+      {
+        "value": "32",
+        "text": "N1B0T204732 · num1 default"
+      },
+      {
+        "value": "35",
+        "text": "qap7a31l3k6 · QA p7-a fixture qap7a31l3k6"
+      },
+      {
+        "value": "36",
+        "text": "qap7b1wtoqc · QA p7-a fixture qap7b1wtoqc"
+      },
+      {
+        "value": "399",
+        "text": "BTTC · battcoin"
+      }
+    ],
+    "selected_value": "1",
+    "legacy_input_count": 0
+  },
+  "page_errors": [],
+  "job_posts_intercepted": 0
+}

@@ -1,0 +1,56 @@
+{
+  "db_total_rows": 16,
+  "db_status_counts": {
+    "listed": 11,
+    "draft": 5
+  },
+  "draft_rows": [
+    {
+      "cid": "9",
+      "symbol": "P4B3A013122X",
+      "name": "D unit",
+      "status": "draft"
+    },
+    {
+      "cid": "15",
+      "symbol": "P4B3A013647X",
+      "name": "D unit",
+      "status": "draft"
+    },
+    {
+      "cid": "22",
+      "symbol": "QAB30929T185356Z",
+      "name": "QA B3 currency",
+      "status": "draft"
+    },
+    {
+      "cid": "27",
+      "symbol": "QAB4",
+      "name": "qab4 qab429191832",
+      "status": "draft"
+    },
+    {
+      "cid": "28",
+      "symbol": "N1A0T203917",
+      "name": "num1 below",
+      "status": "draft"
+    }
+  ],
+  "draft_cids": [
+    "9",
+    "15",
+    "22",
+    "27",
+    "28"
+  ],
+  "draft_cids_absent_from_dev_page_options": true,
+  "draft_cids_absent_from_prod_preview_options": true,
+  "listed_db_vs_api_rows_equal": true,
+  "api_listed_count": 11,
+  "dev_page_option_count": 11,
+  "prod_preview_option_count": 11,
+  "bare_numeric_prefix_dev": [],
+  "bare_numeric_prefix_prod_check": [],
+  "texts_all_symbol_dot_name_shape": true
+}
+create_key prefixes: ['cli', 'cli'] (expect cli:)

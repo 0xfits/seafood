@@ -1,0 +1,76 @@
+{
+  "at": "2026-10-19T01:18:27.289Z",
+  "base": "http://localhost:5787",
+  "recipe": "fake session; GET /api/* passthrough to real backend (read-only); ALL write verbs intercepted in-flight (zero business write)",
+  "pages": {
+    "/": {
+      "url": "http://localhost:5787/",
+      "root": {
+        "exists": true,
+        "childElementCount": 2,
+        "innerText_len": 304,
+        "innerText_head": "Seafood 海鲜市场\n社区任务\n市场\n订单\n语言\n欢迎来到 Jinli Club\n\n参与任务，赚取$，兑换精彩奖励\n\n继续任务\n发布闲置\n我的积分\n0\n🪙\n热门任务\n\n参与任务赚取$\n\n查看全部\n\n暂无可用任务\n\n精选奖励\n\n用$兑换",
+        "jobs_select_present": false
+      },
+      "root_nonempty": true,
+      "page_errors_this_page": [],
+      "page_errors_zero": true,
+      "unhandled_rejections": {
+        "count": 0,
+        "last": null
+      },
+      "console_error_count": 0,
+      "console_errors_sample": []
+    },
+    "/task": {
+      "url": "http://localhost:5787/task",
+      "root": {
+        "exists": true,
+        "childElementCount": 2,
+        "innerText_len": 281,
+        "innerText_head": "Seafood 海鲜市场\n社区任务\n市场\n订单\n语言\n任务中心\n\n参与任务，赚取积分，解锁精彩奖励\n\n发布招工\n审核入口\n招工列表\n0\n可参与\n0\n待领取\n0\n已完成\n0\n待验证\n可参与 (0)\n待领取 (0)\n已完成 (0)\n待验证 (0",
+        "jobs_select_present": false
+      },
+      "root_nonempty": true,
+      "page_errors_this_page": [],
+      "page_errors_zero": true,
+      "unhandled_rejections": {
+        "count": 0,
+        "last": null
+      },
+      "console_error_count": 0,
+      "console_errors_sample": []
+    },
+    "/task/new": {
+      "url": "http://localhost:5787/task/new",
+      "root": {
+        "exists": true,
+        "childElementCount": 2,
+        "innerText_len": 590,
+        "innerText_head": "Seafood 海鲜市场\n社区任务\n市场\n订单\n语言\n发布招工\n\n请从下拉框选择悬赏币种\n\n招工列表\n审核入口\n招工标题\n酬金\n总人数\n币种\n$ · 平台积分\nP4B3A013122 · P4B3A test unit\nP4B3A01364",
+        "jobs_select_present": true
+      },
+      "root_nonempty": true,
+      "page_errors_this_page": [],
+      "page_errors_zero": true,
+      "unhandled_rejections": {
+        "count": 0,
+        "last": null
+      },
+      "console_error_count": 0,
+      "console_errors_sample": []
+    }
+  },
+  "api_get_status": {
+    "/api/task/all": 200,
+    "/api/home": 200
+  },
+  "writes_intercepted": [],
+  "verdict": {
+    "three_pages_root_nonempty": true,
+    "three_pages_zero_pageerror": true,
+    "api_task_all_200": true,
+    "api_home_200": true,
+    "zero_business_writes": true
+  }
+}

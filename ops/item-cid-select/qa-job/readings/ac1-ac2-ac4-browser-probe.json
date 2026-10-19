@@ -1,0 +1,211 @@
+{
+  "at": "2026-10-19T01:09:44.727Z",
+  "head_commit": "9087c51 (worktree baseline; main repo working tree identical)",
+  "url": "http://localhost:5787/task/new",
+  "api_fetch_status": 200,
+  "api_rows": [
+    {
+      "cid": "1",
+      "symbol": "$",
+      "name": "平台积分"
+    },
+    {
+      "cid": "4",
+      "symbol": "P4B3A013122",
+      "name": "P4B3A test unit"
+    },
+    {
+      "cid": "10",
+      "symbol": "P4B3A013647",
+      "name": "P4B3A test unit"
+    },
+    {
+      "cid": "16",
+      "symbol": "P4B3B590800",
+      "name": "P4B3B test unit"
+    },
+    {
+      "cid": "21",
+      "symbol": "P4B3B590800X",
+      "name": "server default fee"
+    },
+    {
+      "cid": "29",
+      "symbol": "N1B0T203917",
+      "name": "num1 default"
+    },
+    {
+      "cid": "31",
+      "symbol": "N1A0T204732",
+      "name": "num1 at floor"
+    },
+    {
+      "cid": "32",
+      "symbol": "N1B0T204732",
+      "name": "num1 default"
+    },
+    {
+      "cid": "35",
+      "symbol": "qap7a31l3k6",
+      "name": "QA p7-a fixture qap7a31l3k6"
+    },
+    {
+      "cid": "36",
+      "symbol": "qap7b1wtoqc",
+      "name": "QA p7-a fixture qap7b1wtoqc"
+    },
+    {
+      "cid": "399",
+      "symbol": "BTTC",
+      "name": "battcoin"
+    }
+  ],
+  "recipe": "GET /api/currencies = real backend; POST /api/job = intercepted (fulfilled locally, zero business write); other /api/* = stubbed 200 {success:true,data:[]}",
+  "shape": {
+    "select_jobsSelectCid": 1,
+    "legacy_jobsInputCid_anyTag": 0,
+    "input_jobsInputCid": 0,
+    "select_tagName": "SELECT",
+    "select_required": true,
+    "root_children": 2
+  },
+  "decoy_negative_control": {
+    "before": 0,
+    "during_with_decoy": 1,
+    "after_removal": 0,
+    "ruler_not_blind": true
+  },
+  "options": {
+    "count": 11,
+    "opts": [
+      {
+        "value": "1",
+        "text": "$ · 平台积分"
+      },
+      {
+        "value": "4",
+        "text": "P4B3A013122 · P4B3A test unit"
+      },
+      {
+        "value": "10",
+        "text": "P4B3A013647 · P4B3A test unit"
+      },
+      {
+        "value": "16",
+        "text": "P4B3B590800 · P4B3B test unit"
+      },
+      {
+        "value": "21",
+        "text": "P4B3B590800X · server default fee"
+      },
+      {
+        "value": "29",
+        "text": "N1B0T203917 · num1 default"
+      },
+      {
+        "value": "31",
+        "text": "N1A0T204732 · num1 at floor"
+      },
+      {
+        "value": "32",
+        "text": "N1B0T204732 · num1 default"
+      },
+      {
+        "value": "35",
+        "text": "qap7a31l3k6 · QA p7-a fixture qap7a31l3k6"
+      },
+      {
+        "value": "36",
+        "text": "qap7b1wtoqc · QA p7-a fixture qap7b1wtoqc"
+      },
+      {
+        "value": "399",
+        "text": "BTTC · battcoin"
+      }
+    ],
+    "selectedValue": "1",
+    "selectedText": "$ · 平台积分",
+    "bareNumericPrefixExamples": []
+  },
+  "option_set_equality": {
+    "api_row_count": 11,
+    "page_option_count": 11,
+    "exact_order_and_content_equal": true,
+    "set_equal_ignoring_order": true,
+    "page_only": [],
+    "api_only": [],
+    "note": "draft cids (DB not_listed) checked separately in ac2-db-currency.json vs options",
+    "apiDraftAbsent": true
+  },
+  "submit_payloads": [
+    {
+      "method": "POST",
+      "path": "/api/job",
+      "postData": "{\"cid\":1,\"reward\":\"12\",\"title\":\"QA-jobs 1\",\"description\":\"\",\"headcount\":\"2\",\"create_key\":\"cli:79fce989-671b-4e9a-84b7-ac5889c97de5\"}",
+      "at": "2026-10-19T01:09:48.824Z"
+    },
+    {
+      "method": "POST",
+      "path": "/api/job",
+      "postData": "{\"cid\":4,\"reward\":\"12\",\"title\":\"QA-jobs 4\",\"description\":\"\",\"headcount\":\"2\",\"create_key\":\"cli:1f413ae3-b740-4d1b-84f5-eda756b84a43\"}",
+      "at": "2026-10-19T01:09:49.119Z"
+    }
+  ],
+  "currency_request_log": [
+    {
+      "method": "GET",
+      "path": "/api/currencies",
+      "status": 200,
+      "via": "real-backend-passthrough"
+    },
+    {
+      "method": "GET",
+      "path": "/api/currencies",
+      "status": 200,
+      "via": "real-backend-passthrough"
+    }
+  ],
+  "console_errors": [],
+  "page_errors": [],
+  "unhandled_rejections": [],
+  "selected_after_second": "4",
+  "submit_payload_parsed": [
+    {
+      "keys": [
+        "cid",
+        "create_key",
+        "description",
+        "headcount",
+        "reward",
+        "title"
+      ],
+      "cid": 1,
+      "cid_typeof": "number",
+      "createKey_prefix": null,
+      "reward": "12",
+      "headcount": "2",
+      "title": "QA-jobs 1"
+    },
+    {
+      "keys": [
+        "cid",
+        "create_key",
+        "description",
+        "headcount",
+        "reward",
+        "title"
+      ],
+      "cid": 4,
+      "cid_typeof": "number",
+      "createKey_prefix": null,
+      "reward": "12",
+      "headcount": "2",
+      "title": "QA-jobs 4"
+    }
+  ],
+  "two_selections_two_values": true,
+  "unhandled_from_page": {
+    "count": 0,
+    "msg": null
+  }
+}

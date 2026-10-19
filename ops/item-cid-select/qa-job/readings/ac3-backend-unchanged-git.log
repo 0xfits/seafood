@@ -1,0 +1,26 @@
+== files changed 1d9b415^..9087c51 (whole batch under test) ==
+docs/design/design-system.spec.md
+docs/route-layer.spec.md
+docs/seafood.master-plan.md
+frontend/src/locales/en.json
+frontend/src/locales/hk.json
+frontend/src/locales/vn.json
+frontend/src/locales/zh.json
+frontend/src/pages/jobs/PublishJobPage.jsx
+frontend/src/pages/jobs/job-api.js
+frontend/src/test/unit/publish-job-cid-select.test.jsx
+ops/item-cid-select/REPORT-job.md
+ops/item-cid-select/SPEC-NOTE-job.md
+ops/item-cid-select/probe-job-form.mjs
+ops/item-cid-select/readings/job-build.log
+ops/item-cid-select/readings/job-probe.json
+ops/item-cid-select/readings/job-source.log
+ops/item-cid-select/readings/job-test-unit-baseline.log
+ops/item-cid-select/readings/job-test-unit.log
+
+== backend-ts/ files in batch (must be empty) ==
+[end]
+== backend-ts/ files 7b597ec..9087c51 (must be empty) ==
+[end]
+== backend-ts working tree status (must be clean) ==
+[end]

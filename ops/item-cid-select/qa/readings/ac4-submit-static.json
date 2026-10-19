@@ -1,0 +1,35 @@
+{
+  "ac": "AC4",
+  "at": "2026-10-19T00:59:13.513Z",
+  "publishListing_body_identical": true,
+  "publishListing_head_body": "export const publishListing = ({ cid, price, stock, title, description, mediaUrls, createKey, user }) =>\n  postJson('/api/listing', {\n    cid,\n    price,\n    stock,\n    title,\n    description,\n    media_urls: mediaUrls,\n    create_key: createKey,\n  }, user)",
+  "publishListing_parent_body": "export const publishListing = ({ cid, price, stock, title, description, mediaUrls, createKey, user }) =>\n  postJson('/api/listing', {\n    cid,\n    price,\n    stock,\n    title,\n    description,\n    media_urls: mediaUrls,\n    create_key: createKey,\n  }, user)",
+  "publishListing_keys_head": [
+    "cid",
+    "price",
+    "stock",
+    "title",
+    "description",
+    "media_urls",
+    "create_key"
+  ],
+  "call_site_cid_expressions": [
+    "        cid: Number(form.cid),"
+  ],
+  "call_site_uses_Number": true,
+  "page_had_Number_before": true,
+  "postJson_url_unchanged": true,
+  "form_cid_default_head": "useState({ cid: DEFAULT_CID",
+  "form_cid_default_parent": "useState({ cid: '1'",
+  "unit_test_file": true,
+  "unit_test_cases": [
+    "① 渲染 `select[data-sf-m=\"item-select-cid\"]`，且 `item-input-cid` 计数 = 0",
+    "② 选项数 = 模拟接口返回条数（3 条夹具 ⇒ 3 个 option；文本 = `symbol · name`，不显示编号）",
+    "②b 接口换一组条数（5 条）⇒ 选项数跟着变（证明不是写死 3 条）",
+    "③ 换选币种后提交，载荷 `cid` = 所选数字值（7 与 21 两次 ⇒ 两次载荷不同、均非恒 1）",
+    "④ `fetchCurrencies` 失败 ⇒ 回退仅 $（cid 1）一项、表单仍可提交（不白屏、不禁用）",
+    "④b 返回空数组 ⇒ 同样回退 $（不是空 select）",
+    "⑤ 返回列表不含 cid 1 ⇒ 默认选中**第一项**（不留空值、不提交 0）"
+  ],
+  "verdict": "PASS"
+}

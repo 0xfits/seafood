@@ -1,0 +1,4 @@
+== AC3: GET /api/currencies WITHOUT Authorization header (explicitly emptied) ==
+http=200 time=0.555424
+== with a bogus Bearer (must NOT change outcome: public) ==
+http=200

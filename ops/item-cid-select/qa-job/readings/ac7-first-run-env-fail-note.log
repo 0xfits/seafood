@@ -1,0 +1,23 @@
+AC7 environment note (preserved per discipline: environmental FAIL kept + attributed):
+
+First test:unit attempt in clean worktree (before building dist):
+  Test Files  1 failed | 58 passed (59)
+       Tests  556 passed (556)
+  FAIL  src/test/unit/p4z-feperf.test.js
+  Error: p4z-feperf: 缺少构建产物 dist/assets/*.css —— 先跑 `npm run build`
+    at src/test/unit/p4z-feperf.test.js:24:17
+  EXIT=1
+
+Attribution: the clean worktree has no frontend/dist/ (gitignored build artifact,
+absent from `git worktree add`). p4z-feperf.test.js asserts on built CSS bytes, so the
+suite is dist-dependent BY DESIGN — this is an environment gap of the disposable worktree,
+NOT a product regression. Full log was overwritten by the successful rerun (same path);
+the failure text above is quoted verbatim from that run.
+
+Resolution: `npm run build` in the worktree → BUILD_EXIT=0, artifact
+dist/assets/index-BREoUqs6.js (byte-hash identical to implementer's claimed reading in
+ops/item-cid-select/readings/job-build.log → independent confirmation). Rerun of
+test:unit (same vitest.qa.config.js, independent cacheDir):
+  Test Files  59 passed (59)
+       Tests  568 passed (568)
+  EXIT=0

@@ -1,0 +1,69 @@
+{
+  "task": "JING-ITEM-CID-SELECT · QA (Neng) 收尾 verdict — 商品发布页币种下拉（commit 7b597ec 面）",
+  "generated_at": "2026-10-19T09:09:00+08:00",
+  "scope_commit": "7b597ec",
+  "scope_check": {
+    "head_at_closeout": "9087c51",
+    "note": "HEAD 中途被并发会话推进：7b597ec → 1d9b415（任务页实现，他人面）→ 9041097（任务页 QA 读数）→ 9087c51（docs）。git diff 7b597ec..HEAD -- frontend/src/pages/item/ backend-ts/src/ = 空 ⇒ 商品页与后端面与 7b597ec 逐字节一致，本 verdict 仍只证该面。",
+    "jobs_face": "任务页（jobs.*）归另一质检员并行判定，本文件不含 jobs.* 判定。"
+  },
+  "ac": [
+    {
+      "id": "AC1",
+      "name": "/item/new 表单形状：select[data-sf-m=\"item-select-cid\"] 在场、item-input-cid 全树为 0、选项由 select 承载",
+      "verdict": "PASS",
+      "reading": "qa/readings/ac1-ac2-ac4-browser-probe.json (steps.shape + steps.negative_control)",
+      "falsifier": "input_itemInputCid>0 或 anyElement_with_itemInputCid_attr>0，或 cidControl_tagName≠SELECT，即判负。实测：input_itemInputCid=0、anyElement=0、tag=SELECT、optionsInCidControl=11、labelText=币种；负控探针注入 item-input-cid 属性后被正确清空（probe_is_sensitive=true）⇒ 探针本身可判负。"
+    },
+    {
+      "id": "AC2",
+      "name": "下拉选项集 == DB listed 币种集（不多不少）",
+      "verdict": "PASS",
+      "reading": "qa/readings/ac2-ac3-validated.json (ac2) + qa/readings/ac2-db-currencies.json + qa/readings/ac1-ac2-ac4-browser-probe.json (steps.options)",
+      "falsifier": "API 选项与 DB listed 集合不等（only_in_api/only_in_db_listed 非空）即判负。实测：api_row_count=11 == db_listed_row_count=11，set_equal=true，两侧差集均空；DB 16 行中 draft=5（cid 9/15/22/27/28）确不在选项集；DOM 选项 values=[1,4,10,16,21,29,31,32,35,36,399] 与之一致。"
+    },
+    {
+      "id": "AC3",
+      "name": "GET /api/currencies 公开只读契约：无鉴权 200、信封 sendSuccess、行键恰 {cid,symbol,name}、仅 listed、ORDER BY cid",
+      "verdict": "PASS",
+      "reading": "qa/readings/ac2-ac3-validated.json (ac3) + qa/readings/ac3-curl-w.txt + qa/readings/ac3-currencies.body.json",
+      "falsifier": "无 Authorization 头返回非 200（401/403/404）即判负；任一行键数≠3 或键集≠{cid,name,symbol} 即判负；cid 序列非升序即判负；出现 draft/frozen/delisted cid 即判负。实测：http_code=200（Authorization 显式置空）、success=true、top_level_keys=[data,message,success]、row_key_sets_uniq 恰 [\"cid,name,symbol\"]、row_key_counts_uniq=[3]、cids 升序 1→399、行数 11 = listed 数。"
+    },
+    {
+      "id": "AC4",
+      "name": "提交语义不变：cid 仍走 Number(form.cid)，POST /api/listing 请求形状与改前一致",
+      "verdict": "PASS",
+      "reading": "qa/readings/ac4-submit-static.json + qa/readings/ac1-ac2-ac4-browser-probe.json (steps.change + api 截获)",
+      "falsifier": "publishListing 函数体/请求键集与 parent 版不一致，或 change 后 domValue 与请求 payload.cid 类型≠number，即判负。实测：publishListing_head_body 与 parent 逐字相同、请求键恰 [cid,price,stock,title,description,media_urls,create_key]、调用点 Number(form.cid) 未改；浏览器实测 change 到 cid=4 后 domValue=4；POST 被探针截获，零业务写。"
+    },
+    {
+      "id": "AC5",
+      "name": "失败/空回退：500 / 网络中断 / success+空数组 三臂均回退为仅 $（cid=1）且不禁用提交",
+      "verdict": "PASS",
+      "reading": "qa/readings/ac5-fallback-arms.json",
+      "falsifier": "任一臂出现 legacyInputCount>0、optionValues≠[\"1\"]、optionTexts≠[\"$\"]、submitDisabled=true 或 form 缺失，即判负。实测：arm1_http500 / arm2_network_abort / arm3_empty_array 三臂全部 optionValues=[\"1\"]、optionTexts=[\"$\"]、submitPresent=true、submitDisabled=false、formPresent=true；all_pass=true；阳性对照 = 真后端 11 选项（探针灵敏度有对照背书）。"
+    },
+    {
+      "id": "AC6",
+      "name": "i18n：item.cid / item.cidNote 四语改值、键集与键数不变、jobs.* 未被本单改动",
+      "verdict": "PASS",
+      "reading": "qa/readings/ac6-i18n.json",
+      "falsifier": "任一语种 item.cid/item_cidNote 未变、或 flat 键数 delta≠0、或 keyset 不等、或 jobs 键数≠45 / jobs 变更键>0，即判负。实测：item_cid_changed_all4=true、item_cidNote_changed_all4=true、keycount_delta_zero_all4=true、keysets_equal_all4=true、jobs_key_count=45×4 且 jobs_changed_keys=0×4；变更键恰 [item.cid, item.cidNote] ×4 语。"
+    },
+    {
+      "id": "AC7",
+      "name": "前端门：npm run build 干净 + npm run test:unit 全绿（p4z-feperf 在真实 dist/ 在场前提下计入）",
+      "verdict": "PASS",
+      "reading": "qa/readings/ac7-build.log (EXIT=0) + qa/readings/ac7-test-unit-recheck.log (EXIT=0, Test Files 59 passed (59), Tests 568 passed (568)) + 佐证 ops/item-cid-select/readings/job-build.log (BUILD_EXIT=0, 现盘 dist = 该次产物 index-BREoUqs6.js)",
+      "falsifier": "build 非 0 退出即判负；test:unit 任一 suite/test 失败即判负；p4z-feperf 因缺 dist 抛错即判负（该用例显式抛错不静默跳过）。实测：build EXIT=0；recheck 于 09:03 在 HEAD=9087c51、真实 dist/（非空，assets/index-DnoMyxQu.css 在场）前提下 59/59 文件、568/568 用例通过，EXIT=0；p4z-feperf 本轮正常载入并通过（其 19 例计入 568）。此前误红仅因上轮自建 dist-qa 跑法缺产物，非产品缺陷。"
+    },
+    {
+      "id": "AC8",
+      "name": "三页真浏览器回归（未登录态）：/ 、/item/new 、/item/:id —— #root 渲染、pageerror=0、console error=0；GET /api/home 与 /api/prize/all 形状成立",
+      "verdict": "PASS",
+      "reading": "qa/readings/ac8-browser-pages.json (browser 半边，本次新采) + qa/readings/ac8-home.json + qa/readings/ac8-prize-all.json (API 半边，08:59 已存)",
+      "falsifier": "任一页 rootChildCount=0（白屏）、pageerror>0、或出现非环境噪声类 console error 即判负；API 形状（success=true / data 数组 / data.prizes 数组）任一不成立即判负。实测（未登录、3.5s 沉降、bID=1 由 GET /api/prize/all 现取）：三页 rootChildCount=2、pageerror_count=0、console_error_count=0（分类计数全零，无需折扣）；/ 与 /item/1 渲染真实内容（首页热门任务、详情 物品编号 #1 · $137）、/item/new 未登录渲染 请先登录 闸且无重定向（final URL 不变）；/api/home prizes_len=8、/api/prize/all data_len=25，与 08:59 存档读数一致（crosscheck 双 true）。"
+    }
+  ],
+  "summary": { "total": 8, "PASS": 8, "FAIL": 0, "NOT_MEASURED": 0 }
+}

@@ -1,0 +1,102 @@
+{
+  "sql": "SELECT cid::text,symbol,name,status FROM public.currency ORDER BY cid::int",
+  "total": 16,
+  "status_counts": {
+    "listed": 11,
+    "draft": 5
+  },
+  "listed_count": 11,
+  "listed": [
+    {
+      "cid": "1",
+      "symbol": "$",
+      "name": "平台积分"
+    },
+    {
+      "cid": "4",
+      "symbol": "P4B3A013122",
+      "name": "P4B3A test unit"
+    },
+    {
+      "cid": "10",
+      "symbol": "P4B3A013647",
+      "name": "P4B3A test unit"
+    },
+    {
+      "cid": "16",
+      "symbol": "P4B3B590800",
+      "name": "P4B3B test unit"
+    },
+    {
+      "cid": "21",
+      "symbol": "P4B3B590800X",
+      "name": "server default fee"
+    },
+    {
+      "cid": "29",
+      "symbol": "N1B0T203917",
+      "name": "num1 default"
+    },
+    {
+      "cid": "31",
+      "symbol": "N1A0T204732",
+      "name": "num1 at floor"
+    },
+    {
+      "cid": "32",
+      "symbol": "N1B0T204732",
+      "name": "num1 default"
+    },
+    {
+      "cid": "35",
+      "symbol": "qap7a31l3k6",
+      "name": "QA p7-a fixture qap7a31l3k6"
+    },
+    {
+      "cid": "36",
+      "symbol": "qap7b1wtoqc",
+      "name": "QA p7-a fixture qap7b1wtoqc"
+    },
+    {
+      "cid": "399",
+      "symbol": "BTTC",
+      "name": "battcoin"
+    }
+  ],
+  "not_listed_count": 5,
+  "not_listed": [
+    {
+      "cid": "9",
+      "symbol": "P4B3A013122X",
+      "name": "D unit",
+      "status": "draft"
+    },
+    {
+      "cid": "15",
+      "symbol": "P4B3A013647X",
+      "name": "D unit",
+      "status": "draft"
+    },
+    {
+      "cid": "22",
+      "symbol": "QAB30929T185356Z",
+      "name": "QA B3 currency",
+      "status": "draft"
+    },
+    {
+      "cid": "27",
+      "symbol": "QAB4",
+      "name": "qab4 qab429191832",
+      "status": "draft"
+    },
+    {
+      "cid": "28",
+      "symbol": "N1A0T203917",
+      "name": "num1 below",
+      "status": "draft"
+    }
+  ],
+  "cid_types": [
+    "string"
+  ]
+}

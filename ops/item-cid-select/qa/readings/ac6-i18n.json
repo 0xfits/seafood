@@ -1,0 +1,228 @@
+{
+  "ac": "AC6",
+  "at": "2026-10-19T00:58:52.044Z",
+  "per_locale": {
+    "zh": {
+      "head_flat_key_count": 1106,
+      "parent_flat_key_count": 1106,
+      "worktree_flat_key_count": 1106,
+      "worktree_equals_head": false,
+      "worktree_keys_differing_from_head": [
+        "jobs.cid",
+        "jobs.cidNote"
+      ],
+      "count_delta": 0,
+      "item_cid_head": "币种",
+      "item_cid_parent": "币种编号",
+      "item_cid_changed": true,
+      "item_cidNote_head": "请从下拉框选择计价币种",
+      "item_cidNote_parent": "币种编号请手动填写；社区积分 $ 填 1。",
+      "item_cidNote_changed": true,
+      "jobs_cid_head": "币种编号",
+      "jobs_cid_parent": "币种编号",
+      "jobs_cid_unchanged": true,
+      "jobs_cidNote_head": "币种编号：社区积分 $ 填 1",
+      "jobs_cidNote_parent": "币种编号：社区积分 $ 填 1",
+      "jobs_cidNote_unchanged": true,
+      "added_keys_vs_parent": [],
+      "removed_keys_vs_parent": [],
+      "changed_keys_vs_parent": [
+        "item.cid",
+        "item.cidNote"
+      ]
+    },
+    "en": {
+      "head_flat_key_count": 1106,
+      "parent_flat_key_count": 1106,
+      "worktree_flat_key_count": 1106,
+      "worktree_equals_head": false,
+      "worktree_keys_differing_from_head": [
+        "jobs.cid",
+        "jobs.cidNote"
+      ],
+      "count_delta": 0,
+      "item_cid_head": "Currency",
+      "item_cid_parent": "Currency id",
+      "item_cid_changed": true,
+      "item_cidNote_head": "Select the currency from the dropdown.",
+      "item_cidNote_parent": "Enter the currency id manually; use 1 for community points ($).",
+      "item_cidNote_changed": true,
+      "jobs_cid_head": "Currency id",
+      "jobs_cid_parent": "Currency id",
+      "jobs_cid_unchanged": true,
+      "jobs_cidNote_head": "Currency id: enter 1 for community points ($).",
+      "jobs_cidNote_parent": "Currency id: enter 1 for community points ($).",
+      "jobs_cidNote_unchanged": true,
+      "added_keys_vs_parent": [],
+      "removed_keys_vs_parent": [],
+      "changed_keys_vs_parent": [
+        "item.cid",
+        "item.cidNote"
+      ]
+    },
+    "hk": {
+      "head_flat_key_count": 1106,
+      "parent_flat_key_count": 1106,
+      "worktree_flat_key_count": 1106,
+      "worktree_equals_head": false,
+      "worktree_keys_differing_from_head": [
+        "jobs.cid",
+        "jobs.cidNote"
+      ],
+      "count_delta": 0,
+      "item_cid_head": "幣種",
+      "item_cid_parent": "幣種編號",
+      "item_cid_changed": true,
+      "item_cidNote_head": "請從下拉框選擇幣種。",
+      "item_cidNote_parent": "幣種編號請手動填寫；社區積分 $ 填 1。",
+      "item_cidNote_changed": true,
+      "jobs_cid_head": "幣種編號",
+      "jobs_cid_parent": "幣種編號",
+      "jobs_cid_unchanged": true,
+      "jobs_cidNote_head": "幣種編號：社區積分 $ 填 1",
+      "jobs_cidNote_parent": "幣種編號：社區積分 $ 填 1",
+      "jobs_cidNote_unchanged": true,
+      "added_keys_vs_parent": [],
+      "removed_keys_vs_parent": [],
+      "changed_keys_vs_parent": [
+        "item.cid",
+        "item.cidNote"
+      ]
+    },
+    "vn": {
+      "head_flat_key_count": 1106,
+      "parent_flat_key_count": 1106,
+      "worktree_flat_key_count": 1106,
+      "worktree_equals_head": false,
+      "worktree_keys_differing_from_head": [
+        "jobs.cid",
+        "jobs.cidNote"
+      ],
+      "count_delta": 0,
+      "item_cid_head": "Tiền tệ",
+      "item_cid_parent": "Mã tiền tệ",
+      "item_cid_changed": true,
+      "item_cidNote_head": "Chọn tiền tệ từ danh sách.",
+      "item_cidNote_parent": "Nhập mã tiền tệ bằng tay; dùng 1 cho điểm cộng đồng ($).",
+      "item_cidNote_changed": true,
+      "jobs_cid_head": "Mã tiền tệ",
+      "jobs_cid_parent": "Mã tiền tệ",
+      "jobs_cid_unchanged": true,
+      "jobs_cidNote_head": "Mã tiền tệ: nhập 1 cho điểm cộng đồng ($).",
+      "jobs_cidNote_parent": "Mã tiền tệ: nhập 1 cho điểm cộng đồng ($).",
+      "jobs_cidNote_unchanged": true,
+      "added_keys_vs_parent": [],
+      "removed_keys_vs_parent": [],
+      "changed_keys_vs_parent": [
+        "item.cid",
+        "item.cidNote"
+      ]
+    }
+  },
+  "key_sets": {
+    "per_locale_count": {
+      "zh": 1106,
+      "en": 1106,
+      "hk": 1106,
+      "vn": 1106
+    },
+    "all_equal": true,
+    "pairwise_diff_counts": {
+      "zh-en": {
+        "only_left": 0,
+        "only_right": 0,
+        "size_delta": 0,
+        "sample_left": [],
+        "sample_right": []
+      },
+      "zh-hk": {
+        "only_left": 0,
+        "only_right": 0,
+        "size_delta": 0,
+        "sample_left": [],
+        "sample_right": []
+      },
+      "zh-vn": {
+        "only_left": 0,
+        "only_right": 0,
+        "size_delta": 0,
+        "sample_left": [],
+        "sample_right": []
+      },
+      "en-hk": {
+        "only_left": 0,
+        "only_right": 0,
+        "size_delta": 0,
+        "sample_left": [],
+        "sample_right": []
+      },
+      "en-vn": {
+        "only_left": 0,
+        "only_right": 0,
+        "size_delta": 0,
+        "sample_left": [],
+        "sample_right": []
+      },
+      "hk-vn": {
+        "only_left": 0,
+        "only_right": 0,
+        "size_delta": 0,
+        "sample_left": [],
+        "sample_right": []
+      }
+    }
+  },
+  "diff_values": {},
+  "jobs_untouched": {
+    "zh": {
+      "jobs_key_count_head": 45,
+      "jobs_key_count_parent": 45,
+      "jobs_changed_keys": 0,
+      "jobs_changed_sample": []
+    },
+    "en": {
+      "jobs_key_count_head": 45,
+      "jobs_key_count_parent": 45,
+      "jobs_changed_keys": 0,
+      "jobs_changed_sample": []
+    },
+    "hk": {
+      "jobs_key_count_head": 45,
+      "jobs_key_count_parent": 45,
+      "jobs_changed_keys": 0,
+      "jobs_changed_sample": []
+    },
+    "vn": {
+      "jobs_key_count_head": 45,
+      "jobs_key_count_parent": 45,
+      "jobs_changed_keys": 0,
+      "jobs_changed_sample": []
+    }
+  },
+  "verdict_details": {
+    "item_cid_changed_all4": true,
+    "item_cidNote_changed_all4": true,
+    "jobs_untouched_all4": true,
+    "keycount_delta_zero_all4": true,
+    "keysets_equal_all4": true
+  },
+  "changed_keys_only_item_two_keys": {
+    "zh": [
+      "item.cid",
+      "item.cidNote"
+    ],
+    "en": [
+      "item.cid",
+      "item.cidNote"
+    ],
+    "hk": [
+      "item.cid",
+      "item.cidNote"
+    ],
+    "vn": [
+      "item.cid",
+      "item.cidNote"
+    ]
+  },
+  "verdict": "PASS"
+}

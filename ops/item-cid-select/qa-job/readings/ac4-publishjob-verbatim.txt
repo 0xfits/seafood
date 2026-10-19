@@ -1,0 +1,15 @@
+publishJob verbatim equal to 1d9b415^: True | bytes: 457 457
+publishJob verbatim equal to 9087c51 (HEAD): True
+
+job-api.js whole-file diff 1d9b415^..9087c51: +8 / -0 lines
+added lines (should be ONLY the fetchCurrencies wrapper block):
++
++/**
++ * 币种列表（**公开只读** · `GET /api/currencies`）。**无鉴权闸**（未登录也返回 200）⇒ 发布页
++ * 首屏即可渲染选项，不必等登录态。返回 = 行数组，行键集冻结 = **恰三键** `cid` / `symbol` / `name`
++ * （只含 `status='listed'`，按 `cid` 升序；后台字段不外泄）。**读面无键面**（无幂等键）。
++ * ★ 与 `pages/item/item-api.js` 的同名读口**各自包装同一条路径**（两条线不跨线 import）。
++ */
++export const fetchCurrencies = (user) => getJson('/api/currencies', user)
+
+deleted lines: (none)

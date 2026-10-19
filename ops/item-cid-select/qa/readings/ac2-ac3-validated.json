@@ -1,0 +1,167 @@
+{
+  "ac2": {
+    "ac": "AC2",
+    "measured_at": "2026-10-19T00:56:12.461Z",
+    "db_source": "public.currency via @neondatabase/serverless (read-only SELECT)",
+    "api_row_count": 11,
+    "db_listed_row_count": 11,
+    "counts_equal": true,
+    "set_equal": true,
+    "only_in_api": [],
+    "only_in_db_listed": [],
+    "db_total": 16,
+    "db_status_counts": {
+      "listed": 11,
+      "draft": 5
+    },
+    "draft_cids_checked": [
+      "9",
+      "15",
+      "22",
+      "27",
+      "28"
+    ],
+    "draft_cids_present_in_api": [],
+    "draft_symbols_present_in_api": [],
+    "api_cid_types": [
+      "string"
+    ],
+    "display_label_formula": "symbol + (name ? \" · \" + name : \"\")  [no cid]",
+    "labels": [
+      "$ · 平台积分",
+      "P4B3A013122 · P4B3A test unit",
+      "P4B3A013647 · P4B3A test unit",
+      "P4B3B590800 · P4B3B test unit",
+      "P4B3B590800X · server default fee",
+      "N1B0T203917 · num1 default",
+      "N1A0T204732 · num1 at floor",
+      "N1B0T204732 · num1 default",
+      "qap7a31l3k6 · QA p7-a fixture qap7a31l3k6",
+      "qap7b1wtoqc · QA p7-a fixture qap7b1wtoqc",
+      "BTTC · battcoin"
+    ],
+    "label_residue": [
+      {
+        "cid": "1",
+        "label": "$ · 平台积分",
+        "equals_formula": true,
+        "id_marker_hits": [],
+        "standalone_cid_token": false
+      },
+      {
+        "cid": "4",
+        "label": "P4B3A013122 · P4B3A test unit",
+        "equals_formula": true,
+        "id_marker_hits": [],
+        "standalone_cid_token": false
+      },
+      {
+        "cid": "10",
+        "label": "P4B3A013647 · P4B3A test unit",
+        "equals_formula": true,
+        "id_marker_hits": [],
+        "standalone_cid_token": false
+      },
+      {
+        "cid": "16",
+        "label": "P4B3B590800 · P4B3B test unit",
+        "equals_formula": true,
+        "id_marker_hits": [],
+        "standalone_cid_token": false
+      },
+      {
+        "cid": "21",
+        "label": "P4B3B590800X · server default fee",
+        "equals_formula": true,
+        "id_marker_hits": [],
+        "standalone_cid_token": false
+      },
+      {
+        "cid": "29",
+        "label": "N1B0T203917 · num1 default",
+        "equals_formula": true,
+        "id_marker_hits": [],
+        "standalone_cid_token": false
+      },
+      {
+        "cid": "31",
+        "label": "N1A0T204732 · num1 at floor",
+        "equals_formula": true,
+        "id_marker_hits": [],
+        "standalone_cid_token": false
+      },
+      {
+        "cid": "32",
+        "label": "N1B0T204732 · num1 default",
+        "equals_formula": true,
+        "id_marker_hits": [],
+        "standalone_cid_token": false
+      },
+      {
+        "cid": "35",
+        "label": "qap7a31l3k6 · QA p7-a fixture qap7a31l3k6",
+        "equals_formula": true,
+        "id_marker_hits": [],
+        "standalone_cid_token": false
+      },
+      {
+        "cid": "36",
+        "label": "qap7b1wtoqc · QA p7-a fixture qap7b1wtoqc",
+        "equals_formula": true,
+        "id_marker_hits": [],
+        "standalone_cid_token": false
+      },
+      {
+        "cid": "399",
+        "label": "BTTC · battcoin",
+        "equals_formula": true,
+        "id_marker_hits": [],
+        "standalone_cid_token": false
+      }
+    ],
+    "verdict": "PASS"
+  },
+  "ac3": {
+    "ac": "AC3",
+    "measured_at": "2026-10-19T00:56:12.461Z",
+    "url": "http://localhost:5788/api/currencies",
+    "request_headers": "Authorization header explicitly blanked (-H \"Authorization:\")",
+    "http_code": 200,
+    "size_download": 723,
+    "body_md5": "recorded in ac3-curl-w.txt run",
+    "success_true": true,
+    "message": "Currency list (public)",
+    "top_level_keys": [
+      "data",
+      "message",
+      "success"
+    ],
+    "data_is_array": true,
+    "row_count": 11,
+    "row_key_sets_uniq": [
+      "cid,name,symbol"
+    ],
+    "row_key_counts_uniq": [
+      3
+    ],
+    "exactly_three_keys": true,
+    "cid_json_type": [
+      "string"
+    ],
+    "ascending_by_cid": true,
+    "cids": [
+      "1",
+      "4",
+      "10",
+      "16",
+      "21",
+      "29",
+      "31",
+      "32",
+      "35",
+      "36",
+      "399"
+    ],
+    "verdict": "PASS"
+  }
+}

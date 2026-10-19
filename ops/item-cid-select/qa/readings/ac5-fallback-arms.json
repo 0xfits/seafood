@@ -1,0 +1,129 @@
+{
+  "ac": "AC5",
+  "at": "2026-10-19T00:57:43.449Z",
+  "positive_control_ref": "ac1-ac2-ac4-browser-probe.json (real backend: 11 options)",
+  "arms": [
+    {
+      "arm": "arm1_http500",
+      "injected_response": "fulfill500",
+      "request_hits_observed": 2,
+      "selectCount": 1,
+      "legacyInputCount": 0,
+      "optionCount": 1,
+      "optionValues": [
+        "1"
+      ],
+      "optionTexts": [
+        "$"
+      ],
+      "selectedValue": "1",
+      "submitPresent": true,
+      "submitDisabled": false,
+      "formPresent": true,
+      "rootChildCount": 2,
+      "emptyStateText": "form",
+      "console_errors": {
+        "total": 2,
+        "unique": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
+      },
+      "page_errors": {
+        "total": 0,
+        "list": []
+      },
+      "expect": {
+        "optionCount": 1,
+        "optionValues": [
+          "1"
+        ],
+        "optionTexts": [
+          "$"
+        ],
+        "submitDisabled": false
+      },
+      "verdict": "PASS"
+    },
+    {
+      "arm": "arm2_network_abort",
+      "injected_response": "abort",
+      "request_hits_observed": 2,
+      "selectCount": 1,
+      "legacyInputCount": 0,
+      "optionCount": 1,
+      "optionValues": [
+        "1"
+      ],
+      "optionTexts": [
+        "$"
+      ],
+      "selectedValue": "1",
+      "submitPresent": true,
+      "submitDisabled": false,
+      "formPresent": true,
+      "rootChildCount": 2,
+      "emptyStateText": "form",
+      "console_errors": {
+        "total": 2,
+        "unique": [
+          "Failed to load resource: net::ERR_FAILED"
+        ]
+      },
+      "page_errors": {
+        "total": 0,
+        "list": []
+      },
+      "expect": {
+        "optionCount": 1,
+        "optionValues": [
+          "1"
+        ],
+        "optionTexts": [
+          "$"
+        ],
+        "submitDisabled": false
+      },
+      "verdict": "PASS"
+    },
+    {
+      "arm": "arm3_empty_array",
+      "injected_response": "empty",
+      "request_hits_observed": 2,
+      "selectCount": 1,
+      "legacyInputCount": 0,
+      "optionCount": 1,
+      "optionValues": [
+        "1"
+      ],
+      "optionTexts": [
+        "$"
+      ],
+      "selectedValue": "1",
+      "submitPresent": true,
+      "submitDisabled": false,
+      "formPresent": true,
+      "rootChildCount": 2,
+      "emptyStateText": "form",
+      "console_errors": {
+        "total": 0,
+        "unique": []
+      },
+      "page_errors": {
+        "total": 0,
+        "list": []
+      },
+      "expect": {
+        "optionCount": 1,
+        "optionValues": [
+          "1"
+        ],
+        "optionTexts": [
+          "$"
+        ],
+        "submitDisabled": false
+      },
+      "verdict": "PASS"
+    }
+  ],
+  "all_pass": true
+}
