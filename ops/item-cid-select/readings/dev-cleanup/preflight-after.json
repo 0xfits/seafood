@@ -1,0 +1,236 @@
+{
+ "project": {
+  "p": "quiet-math-65207667",
+  "b": "br-soft-lake-b3iv9tli"
+ },
+ "log_rows": 16,
+ "actor_uid_1": "1",
+ "currencies": [
+  {
+   "cid": "1",
+   "symbol": "$",
+   "name": "平台积分",
+   "status": "listed",
+   "owner_uid": "0"
+  },
+  {
+   "cid": "4",
+   "symbol": "P4B3A013122",
+   "name": "P4B3A test unit",
+   "status": "delisted",
+   "owner_uid": "970001"
+  },
+  {
+   "cid": "9",
+   "symbol": "P4B3A013122X",
+   "name": "D unit",
+   "status": "draft",
+   "owner_uid": "970001"
+  },
+  {
+   "cid": "10",
+   "symbol": "P4B3A013647",
+   "name": "P4B3A test unit",
+   "status": "delisted",
+   "owner_uid": "970001"
+  },
+  {
+   "cid": "15",
+   "symbol": "P4B3A013647X",
+   "name": "D unit",
+   "status": "draft",
+   "owner_uid": "970001"
+  },
+  {
+   "cid": "16",
+   "symbol": "P4B3B590800",
+   "name": "P4B3B test unit",
+   "status": "delisted",
+   "owner_uid": "970001"
+  },
+  {
+   "cid": "21",
+   "symbol": "P4B3B590800X",
+   "name": "server default fee",
+   "status": "delisted",
+   "owner_uid": "970001"
+  },
+  {
+   "cid": "22",
+   "symbol": "QAB30929T185356Z",
+   "name": "QA B3 currency",
+   "status": "draft",
+   "owner_uid": "970001"
+  },
+  {
+   "cid": "27",
+   "symbol": "QAB4",
+   "name": "qab4 qab429191832",
+   "status": "draft",
+   "owner_uid": "970001"
+  },
+  {
+   "cid": "28",
+   "symbol": "N1A0T203917",
+   "name": "num1 below",
+   "status": "draft",
+   "owner_uid": "970001"
+  },
+  {
+   "cid": "29",
+   "symbol": "N1B0T203917",
+   "name": "num1 default",
+   "status": "delisted",
+   "owner_uid": "970001"
+  },
+  {
+   "cid": "31",
+   "symbol": "N1A0T204732",
+   "name": "num1 at floor",
+   "status": "delisted",
+   "owner_uid": "970001"
+  },
+  {
+   "cid": "32",
+   "symbol": "N1B0T204732",
+   "name": "num1 default",
+   "status": "delisted",
+   "owner_uid": "970001"
+  },
+  {
+   "cid": "35",
+   "symbol": "qap7a31l3k6",
+   "name": "QA p7-a fixture qap7a31l3k6",
+   "status": "delisted",
+   "owner_uid": "910311"
+  },
+  {
+   "cid": "36",
+   "symbol": "qap7b1wtoqc",
+   "name": "QA p7-a fixture qap7b1wtoqc",
+   "status": "delisted",
+   "owner_uid": "910311"
+  },
+  {
+   "cid": "399",
+   "symbol": "BTTC",
+   "name": "battcoin",
+   "status": "listed",
+   "owner_uid": "0"
+  }
+ ],
+ "refs": [
+  {
+   "cid": "1",
+   "listings": "25",
+   "accounts": "36",
+   "market_orders": "0",
+   "ledger_rows": "417"
+  },
+  {
+   "cid": "4",
+   "listings": "0",
+   "accounts": "3",
+   "market_orders": "9",
+   "ledger_rows": "19"
+  },
+  {
+   "cid": "9",
+   "listings": "0",
+   "accounts": "0",
+   "market_orders": "0",
+   "ledger_rows": "0"
+  },
+  {
+   "cid": "10",
+   "listings": "0",
+   "accounts": "0",
+   "market_orders": "4",
+   "ledger_rows": "0"
+  },
+  {
+   "cid": "15",
+   "listings": "0",
+   "accounts": "0",
+   "market_orders": "0",
+   "ledger_rows": "0"
+  },
+  {
+   "cid": "16",
+   "listings": "0",
+   "accounts": "3",
+   "market_orders": "5",
+   "ledger_rows": "9"
+  },
+  {
+   "cid": "21",
+   "listings": "0",
+   "accounts": "3",
+   "market_orders": "7",
+   "ledger_rows": "11"
+  },
+  {
+   "cid": "22",
+   "listings": "0",
+   "accounts": "0",
+   "market_orders": "0",
+   "ledger_rows": "0"
+  },
+  {
+   "cid": "27",
+   "listings": "0",
+   "accounts": "0",
+   "market_orders": "0",
+   "ledger_rows": "0"
+  },
+  {
+   "cid": "28",
+   "listings": "0",
+   "accounts": "0",
+   "market_orders": "0",
+   "ledger_rows": "0"
+  },
+  {
+   "cid": "29",
+   "listings": "0",
+   "accounts": "0",
+   "market_orders": "0",
+   "ledger_rows": "0"
+  },
+  {
+   "cid": "31",
+   "listings": "0",
+   "accounts": "0",
+   "market_orders": "0",
+   "ledger_rows": "0"
+  },
+  {
+   "cid": "32",
+   "listings": "0",
+   "accounts": "0",
+   "market_orders": "0",
+   "ledger_rows": "0"
+  },
+  {
+   "cid": "35",
+   "listings": "0",
+   "accounts": "2",
+   "market_orders": "0",
+   "ledger_rows": "49"
+  },
+  {
+   "cid": "36",
+   "listings": "0",
+   "accounts": "1",
+   "market_orders": "0",
+   "ledger_rows": "3"
+  },
+  {
+   "cid": "399",
+   "listings": "0",
+   "accounts": "1",
+   "market_orders": "0",
+   "ledger_rows": "1"
+  }
+ ]
+}

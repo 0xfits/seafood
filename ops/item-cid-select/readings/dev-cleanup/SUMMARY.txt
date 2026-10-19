@@ -1,0 +1,6 @@
+dev currency cleanup 2026-10-19 (Zang, Kevin directive ②清理)
+project=quiet-math-65207667 (dev, 自证)
+delisted 9 fixture cids: 4,10,16,21,29,31,32,35,36 (listed→delisted, 单语句原子 + currency_status_log 7→16 行)
+kept listed: cid=1 $ 平台积分; cid=399 BTTC battcoin
+API /api/currencies after: rows=2
+side effects disclosed: market_order/account 留痕不动; 夹具 listing 引用=0; 其他会话对夹具币的探测会读到 delisted

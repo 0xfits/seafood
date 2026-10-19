@@ -1,0 +1,51 @@
+{
+ "at": "2026-10-19T02:15:06.416Z",
+ "pages": [
+  {
+   "name": "item",
+   "pageerrors": [],
+   "consoleErrors": [],
+   "dom": {
+    "select": 1,
+    "hook": "item-select-cid",
+    "options": 2,
+    "firstText": "$ · 平台积分",
+    "lastText": "BTTC · battcoin",
+    "legacyInputs": 0,
+    "rect": {
+     "x": 25,
+     "w": 198,
+     "h": 44
+    },
+    "viewportW": 390,
+    "scrollOverflow": 0,
+    "fontPx": "13px",
+    "touchTargetOK": true
+   },
+   "pickedValue": "399"
+  },
+  {
+   "name": "jobs",
+   "pageerrors": [],
+   "consoleErrors": [],
+   "dom": {
+    "select": 1,
+    "hook": "jobs-select-cid",
+    "options": 2,
+    "firstText": "$ · 平台积分",
+    "lastText": "BTTC · battcoin",
+    "legacyInputs": 0,
+    "rect": {
+     "x": 25,
+     "w": 175,
+     "h": 44
+    },
+    "viewportW": 390,
+    "scrollOverflow": 0,
+    "fontPx": "13px",
+    "touchTargetOK": true
+   },
+   "pickedValue": "399"
+  }
+ ]
+}
