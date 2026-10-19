@@ -1235,6 +1235,12 @@
       "MSG_RATE_LIMITED": "发消息太频繁，请稍后再试"
     }
   },
+  "sellerCredit": {
+    "excellent": "卖家信用优秀",
+    "good": "卖家信用良好",
+    "new": "新卖家",
+    "normal": "卖家信用一般"
+  },
   "tg": {
     "err": {
       "TG_NOT_CONFIGURED": "通知服务暂未配置",

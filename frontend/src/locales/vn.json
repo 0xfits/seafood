@@ -1235,6 +1235,12 @@
       "MSG_RATE_LIMITED": "Gửi quá nhanh, vui lòng thử lại sau"
     }
   },
+  "sellerCredit": {
+    "excellent": "Người bán uy tín",
+    "good": "Người bán tốt",
+    "new": "Người bán mới",
+    "normal": "Người bán trung bình"
+  },
   "tg": {
     "err": {
       "TG_NOT_CONFIGURED": "Dịch vụ thông báo chưa được cấu hình",

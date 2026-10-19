@@ -165,7 +165,9 @@ describe('HomePage', () => {
     expect(await screen.findByRole('heading', { name: '奖励回退 B' })).toBeInTheDocument()
 
     await waitFor(() => {
-      expect(screen.getByText('已兑换')).toBeInTheDocument()
+      // ★ 2026-10-19 改锚（合法移除）：「已兑换」状态徽章（claimed ⇒ statusText）随卡片改版整块移除，
+      //   该正向断言反向化 —— claimed 状态识别（legacy 请求恢复）仍由上游映射承重，卡面不再渲染状态文案。
+      expect(screen.queryByText('已兑换')).not.toBeInTheDocument()
     })
 
     expect(getAuthHeaders).toHaveBeenCalledWith({

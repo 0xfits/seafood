@@ -1,0 +1,31 @@
+{
+  "topic": "卡改版 · 卖家打码钱包地址二轮再简短（星号化）",
+  "date": "2026-10-19",
+  "ruling": "Kevin：①再简短一些，希望用星号，而不是省略号 → 单行助手收紧为 前4 + ** + 后2（8 字符）",
+  "single_source_unchanged": "详情 getPrizeSellerView 与 feed seller.nickname（database.ts listBrands）均走 messages-service.ts maskWalletAddress，本改动只动助手一行",
+  "before": {
+    "impl": "evm.length >= 10 ? `${evm.slice(0, 6)}${'*'.repeat(6)}${evm.slice(-4)}` : evm",
+    "format": "前6 + 6星 + 后4（18 字符）",
+    "sample": "0x1234******abcd",
+    "fixture_sample": "0x1234567890abcdef1234567890ABCDEF12 → 0x1234******EF12",
+    "fallback": "长度 < 10 原样返回"
+  },
+  "after": {
+    "impl": "evm.length >= 8 ? `${evm.slice(0, 4)}**${evm.slice(-2)}` : evm",
+    "format": "前4 + ** + 后2（8 字符）",
+    "sample": "0x12**cd",
+    "fixture_sample": "0x1234567890abcdef1234567890ABCDEF12 → 0x12**12",
+    "fallback": "长度 < 8 原样返回（兜底保留）"
+  },
+  "files_touched": [
+    "backend-ts/src/messages-service.ts（maskWalletAddress 一行 + 函数注释同步：0x12**cd 形态、兜底阈值 8）",
+    "frontend/src/test/unit/reward-card-resize.test.jsx（4 处 nickname/断言等值换 0x12**12；⑤ 组 it 标题与 2 条 msgSrc 源码锚改新实现字面）"
+  ],
+  "residual_scan": "grep 旧格式字面（0x1234*/repeat(6)）于 frontend/src 与 backend-ts/src 零命中；Header/utils.js 的 profile `...` 切片与本单源无关，未动",
+  "gates": {
+    "frontend_build": "exit 0（vite ✓ built in 1.82s）",
+    "test_unit": "62 文件 / 598 例 全绿（通过数与改前锚点持平，无例数变化）",
+    "backend_tsc": "npx tsc --noEmit exit 0"
+  },
+  "not_done_by_instruction": "不 commit、不 push、不改 docs"
+}

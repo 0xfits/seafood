@@ -8203,6 +8203,7 @@ CONSTRAINT admin_refund_audit_log_idem_uniq   UNIQUE (idempotency_key, result)  
 - 响应**顶层增** `seller: {uid: number, nickname: string, avatar: null}`：`uid` = `listing.seller_uid`（`0015:117` 现取已有）；`nickname` = **EVM 掩码派生** `0x1234…abcd`（前 6 + `…` + 后 4；`users` 无昵称列，**不为此建列**，一句话可改）；`avatar` = `null` 占位（前端渐变占位图既有口径）。
 - **向后兼容**（纯增键）· **零隐私出口**（不含联系方式 / 完整地址 / handle）；**渲染面零改动**（design `T94`「不渲染卖家行」维持，读口先行；消费 = 另裁）。
 > **★ 勘误留痕（2026-10-19 · Kevin 商品卡改版连带 · 勘误级就地改，不升版）**：上行 `nickname` 掩码口径「**前 6 + `…` + 后 4**」**作废** ⇒ 现行 = **`maskWalletAddress(evm) = evm.slice(0,6) + '*'.repeat(6) + evm.slice(-4)`**（前 6 + **6 个星号** + 后 4，例 `0x1234******abcd`；派生逻辑现位于 `messages-service.ts:623` 一带，详情卖家名与首页 feed 卖家名**同源共用**）。**作废原因** = Kevin 2026-10-19 商品卡改版第 4 条（卡底卖家栏）连带统一脱敏定式 ——「丽***L」式中文昵称口径**不采**（`users` 无昵称列，昵称恒为 EVM 掩码派生）。**上行字面逐字保留**；`avatar` 字段同步由恒 `null` 改读 `users.avatar_url`（迁移 `0052_users_avatar_url.sql`，null ⇒ 前端占位）—— 数据侧面 = `data-layer.spec` §40.7，契约面 = `design-system.spec` v1.25 §26 + `master-plan` §5.428。
+> **★ 再收口（2026-10-19 · Kevin 改口径 · 勘误级就地改，不升版）**：上行「前 6 + **6 个星号** + 后 4」6 星定式**作废** ⇒ **再收口：以 `0x`+前 2 位+`**`+末 2 位为准（Kevin 2026-10-19）**（例 `0x12**cd`；适用面不变 —— 详情卖家名与首页 feed 卖家名同源共用）。**上行字面逐字保留。**
 
 ### 41.4 authz 矩阵（写死）
 

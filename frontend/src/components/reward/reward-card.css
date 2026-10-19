@@ -46,3 +46,132 @@
   font-weight: 700;
   color: var(--sf-price-num-fg);
 }
+
+/* ============================================================================
+ * ★ 2026-10-19 商品卡改版（Kevin 四条指令 + 第 4 条卖家栏）—— 固定高布局
+ * ----------------------------------------------------------------------------
+ * 结构：.sf-reward-card > Card(.sf-reward-inner, 恒高 412 + flex column + padding 0)
+ *        > .sf-reward-media（240 通栏裁切图）> .sf-reward-body（中部 flex-1 = 124）
+ *        > .sf-reward-seller（卡底卖家栏 48 通栏）。
+ * 高度恒 412 = 图 240 + 中部 124 + 卖家栏 48（**任何内容组合不变**；溢出由卡体
+ * overflow-hidden 兜底裁切）。几何常量只落本文件，不用 Tailwind 任意值类。
+ * ★ `padding: 0` / 各覆盖规则均为**未分层**自定义样式 ⇒ 层序压过 @layer utilities 的
+ *   Tailwind 类（Card 基座 p-6/p-4、CardHeader 基座 pb-4），不依赖打包顺序与具体性。
+ * ========================================================================== */
+
+.sf-reward-card .sf-reward-inner {
+  height: 412px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 预览图：卡顶通栏，固定 240 高；原图任意比例 ⇒ cover + center 居中裁切；
+   卡体 overflow-hidden + rounded-lg ⇒ 圆角只落卡顶两角。 */
+.sf-reward-media {
+  flex: 0 0 240px;
+  height: 240px;
+  position: relative;
+  overflow: hidden;
+}
+
+.sf-reward-media-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* 中部（412 − 240 − 48 = 124）：内容顶部堆叠、底部自然留白；描述是唯一可缩项 */
+.sf-reward-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 16px;
+}
+
+/* CardHeader 基座 pb-4(16px) 收窄为 8px：给描述留出 3 行预算（10+36+8+60+10 = 124） */
+.sf-reward-body .sf-reward-header {
+  padding-bottom: 8px;
+}
+
+.sf-reward-body > * {
+  flex-shrink: 0;
+}
+
+.sf-reward-body > .sf-reward-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.sf-reward-content > * {
+  flex-shrink: 0;
+}
+
+/* 标题区：固定两行盒高（text-lg × leading-none = 18px × 2 = 36px），单行标题下方留白跨卡对齐 */
+.sf-reward-title {
+  height: 2.25rem;
+}
+
+/* 描述：唯一可收缩弹性项（空间不足缩盒；line-clamp-3 + overflow hidden 兜底）
+   —— 放在 `.sf-reward-content > *` 之后，同具体性靠后者胜出 ⇒ 缩盒权生效 */
+.sf-reward-desc {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* 卡底卖家栏：恒 48px、通栏；两端对齐。参考图 = 左头像+昵称 / 右信用胶囊（无图标） */
+.sf-reward-seller {
+  flex: 0 0 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+}
+
+.sf-reward-seller-id {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* 头像 24px 圆：无图 ⇒ 灰底 + 掩码名首字符（常态，avatar_url 存量全 NULL） */
+.sf-reward-seller-avatar {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  background: #EEF0F2;
+  color: #6B7280;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.sf-reward-seller-avatar-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 脱敏昵称：灰色、单行截断（窄卡不挤胶囊） */
+.sf-reward-seller-name {
+  color: #6B7280;
+  font-size: 14px;
+  line-height: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}

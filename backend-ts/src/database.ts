@@ -6,6 +6,9 @@ import { PLATFORM_UID, SYSTEM_CURRENCY_CID, postEvent, type LedgerEventEntryInpu
 // **同事务**内「迁 `submitted→disputed`（既有白名单边）→ 调既有 `job_post_event`（资金腿 + 终态）
 // → 写 `job_arbitration_log`」⇒ 复用 `db.ts` 的交互式事务（R55/R56）；商品下架无账务 ⇒ 仍单语句。
 import { txQuery, withTransaction, type TxClient } from './db';
+// ★ 2026-10-19 商品卡改版（Kevin 第 4 条）：feed 行 `seller` 键与详情卖家视图**同源**取
+//   （星号打码助手 / 信用档位 / 均星归一，定义在 messages-service —— 它不回依 database，无循环）。
+import { maskWalletAddress, creditFromAvg, toRatingAvg, type SellerView } from './messages-service';
 
 // 本地凭据在 .env.local，先加载它、再补 .env（dotenv 默认不覆盖已存在的变量，故 .env.local 优先）
 dotenv.config({ path: '.env.local' });
@@ -1168,6 +1171,9 @@ export interface BrandRecord {
   description_vn: string;
   /** P6-TR-1b 读侧翻译覆盖度：所有可译字段 × en/vn/hk 全 ready ⇒ 'ready'；一个都没有 ⇒ 'pending'；否则 'partial'。 */
   i18n_status: I18nStatus;
+  /** ★ 2026-10-19 商品卡改版（Kevin 第 4 条）：加性键（feed 行键 45→46；详情行经 `getPrizeSellerView`
+   *  于路由层合成同构对象 ⇒ 详情顶层键数不变）。形状 = `SellerView`（uid/nickname/avatar/credit）。 */
+  seller?: SellerView;
 }
 
 export type PrizeRecord = BrandRecord;
@@ -1529,6 +1535,22 @@ const normalizeBrand = (
     claims_count: issuedQuantity,
     activated_count: redeemedQuantity,
   };
+  // ★ 2026-10-19 商品卡改版（Kevin 第 4 条）：feed 行加性键 `seller`（行键 45→46）——
+  //   `nickname` = 星号打码钱包地址（`maskWalletAddress`，与详情 `getPrizeSellerView` 单源共用）；
+  //   `avatar` = `users.avatar_url`（迁移 0052；null ⇒ 前端灰底占位头像）；
+  //   `credit` = 卖家收到评分均星档位（服务端算好下发：无评分 ⇒ 'new'（≠ 排序中性 3 星），
+  //   ≥4.5 ⇒ 'excellent' / ≥3.5 ⇒ 'good' / 其余 ⇒ 'normal'；前端不本地算）。
+  //   仅当行携带卖家取数列（`listBrands` 专有 LEFT JOIN）时构建；详情行不带这些列 ⇒
+  //   详情 `seller` 仍由 `getPrizeSellerView` 在路由层合成（`index.ts` 顶层 `{ ...prize, seller }`），
+  //   两处形状一致，详情顶层键数不变。
+  if (row.seller_evm !== undefined) {
+    record.seller = {
+      uid: toNumberValue(getValue(row, 'seller_uid')),
+      nickname: maskWalletAddress(toStringValue(row.seller_evm)),
+      avatar: toStringValue(row.seller_avatar_url) || null,
+      credit: creditFromAvg(toRatingAvg(row.seller_rating_avg)),
+    } satisfies SellerView;
+  }
   // P6-TR-1b：`name_*`/`description_*` 由 applyI18n 生成（有 ready 译文用译文，否则回落源文；含 i18n_status）
   applyI18n('listing', String(record.bID), record, i18nIndex);
   return record as unknown as BrandRecord;
@@ -2624,6 +2646,11 @@ export class DatabaseService {
           0::int AS activated_count,
           0::int AS current_shard_supply,
           0::int AS free_shards_distributed,
+          u.evm AS seller_evm,
+          u.avatar_url AS seller_avatar_url,
+          -- 均星**裸值**（不 COALESCE）：credit 档位需区分「无评分（⇒ 'new'）」与「均 3 星（⇒ 'normal'）」；
+          -- score 里的 COALESCE（中性 3 星）是排序口径，两者**独立**、不得互相替代。
+          (SELECT avg(r.stars)::float8 FROM public.rating AS r WHERE r.ratee_uid = l.seller_uid) AS seller_rating_avg,
           (
             ${FEED_RECENCY_WEIGHT}::float8
               * (1.0 / (1.0 + GREATEST((EXTRACT(EPOCH FROM (now() - l.time_created)) / 86400.0)::float8, 0.0)))
@@ -2636,6 +2663,7 @@ export class DatabaseService {
                 )
           ) AS score
         FROM listing AS l
+        LEFT JOIN public.users AS u ON u.uid = l.seller_uid
         WHERE l.status = 'listed'
       ) AS f
       ORDER BY f.score DESC, f.time_created DESC, f.listing_id DESC

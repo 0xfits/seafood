@@ -1235,6 +1235,12 @@
       "MSG_RATE_LIMITED": "發消息太頻繁，請稍後再試"
     }
   },
+  "sellerCredit": {
+    "excellent": "賣家信用優秀",
+    "good": "賣家信用良好",
+    "new": "新賣家",
+    "normal": "賣家信用一般"
+  },
   "tg": {
     "err": {
       "TG_NOT_CONFIGURED": "通知服務暫未配置",

@@ -597,18 +597,52 @@ export const totalUnread = async (
   return { ok: true as const, unread_total: Number(rows[0]?.unread_total ?? 0) };
 };
 
-// ---------------------------------------------------------------- F19 读口扩展（route 册 §41.3 · 零新路由 · 零 DDL）
+// ---------------------------------------------------------------- F19 读口扩展（route 册 §41.3 · 零新路由）
+/**
+ * ★ 2026-10-19 Kevin 裁定（二轮再简短）：卖家显示名 = **星号打码钱包地址**（`0x12**cd` 形态，8 字符；
+ *   一轮「前 6 + 6 星 + 后 4」与更早「前 6 + `…` + 后 4」省略号式均作废；route 册 §41.3 旧字面待 Jing 勘误）。
+ *   单源助手：`getPrizeSellerView`（详情）与 feed 行 `seller.nickname`（`database.ts listBrands`）同源共用。
+ *   兜底保留：`evm` 长度不足 8 ⇒ 原样返回。
+ */
+export const maskWalletAddress = (evm: string): string => (
+  evm.length >= 8 ? `${evm.slice(0, 4)}**${evm.slice(-2)}` : evm
+);
+
+/** 卖家信用档位（服务端算好下发，前端不本地算）：
+ *  无任何评分 ⇒ `'new'`（新卖家 —— **≠ 排序口径的中性 3 星**：标签独立于 score 公式）；
+ *  均星 ≥4.5 ⇒ `'excellent'`；≥3.5 ⇒ `'good'`；其余 ⇒ `'normal'`。
+ *  均星取 `rating` 表 `ratee_uid` 聚合（**不区分 direction**，与 listBrands score 同源取数）。 */
+export type SellerCredit = 'new' | 'normal' | 'good' | 'excellent';
+
+export const creditFromAvg = (avg: number | null | undefined): SellerCredit => {
+  if (avg === null || avg === undefined || Number.isNaN(avg)) return 'new';
+  if (avg >= 4.5) return 'excellent';
+  if (avg >= 3.5) return 'good';
+  return 'normal';
+};
+
+/** 卖家视图形状（feed 行 `seller` 键 与 详情顶层 `seller` 对象同构）： */
+export type SellerView = { uid: number; nickname: string; avatar: string | null; credit: SellerCredit };
+
+/** 卖家均星读数（pg `float8` ⇒ number；`numeric` 兜底 ⇒ 归一 Number）。无评分行 ⇒ null。 */
+export const toRatingAvg = (value: unknown): number | null => {
+  if (value === null || value === undefined || value === '') return null;
+  const n = Number(value);
+  return Number.isNaN(n) ? null : n;
+};
+
 /**
  * `GET /api/prize/:bID` 顶层 `seller` 对象取数口：
- *   `uid` = `listing.seller_uid`（0015 既有列，零 DDL）；`nickname` = EVM 掩码派生
- *   （前 6 + `…` + 后 4；users 无昵称列，不为此建列）；`avatar` = null 占位。
+ *   `uid` = `listing.seller_uid`（0015 既有列）；`nickname` = `maskWalletAddress(evm)`（星号打码，单源助手）；
+ *   `avatar` = `users.avatar_url`（0052 新列；null ⇒ 前端占位头像）；`credit` = 卖家收到评分均星档位（见上）。
  * 零隐私出口：不含联系方式 / 完整地址 / handle（掩码即全部出口）。
  */
 export const getPrizeSellerView = async (
   bID: number,
-): Promise<MessagingVerbResult<{ seller: { uid: number; nickname: string; avatar: null } }>> => {
-  const rows = await readQuery<{ uid: number; evm: string }>(
-    `SELECT l.seller_uid AS uid, u.evm
+): Promise<MessagingVerbResult<{ seller: SellerView }>> => {
+  const rows = await readQuery<{ uid: number; evm: string; avatar_url: string | null; rating_avg: number | string | null }>(
+    `SELECT l.seller_uid AS uid, u.evm, u.avatar_url,
+            (SELECT avg(r.stars)::float8 FROM public.rating AS r WHERE r.ratee_uid = l.seller_uid) AS rating_avg
        FROM public.listing l
        JOIN public.users u ON u.uid = l.seller_uid
       WHERE l.listing_id = $1
@@ -620,8 +654,13 @@ export const getPrizeSellerView = async (
     return msgFail(404, 'MSG_LISTING_NOT_FOUND', { ref: 'listing', listing_id: bID });
   }
   const evm = String(row.evm ?? '');
-  const nickname = evm.length >= 10 ? `${evm.slice(0, 6)}…${evm.slice(-4)}` : evm;
-  return { ok: true as const, seller: { uid: Number(row.uid), nickname, avatar: null } };
+  const seller: SellerView = {
+    uid: Number(row.uid),
+    nickname: maskWalletAddress(evm),
+    avatar: row.avatar_url ?? null,
+    credit: creditFromAvg(toRatingAvg(row.rating_avg)),
+  };
+  return { ok: true as const, seller };
 };
 
 // ---------------------------------------------------------------- 后台通知（§41.7 · waitUntil 体例 · 失败不回滚不改响应）

@@ -1426,7 +1426,7 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 **E. i18n 死键清单（现取 · 不删、挂 `B40`）**：**死** = `rewardCard.limited`（唯一消费点 = HEAD `:102` 限量徽章 → 移除面）、`common.claimedUnit`（HEAD `:176` 领取行 → 移除面）；**留活** = `rewardCard.insufficient` / `claimNow` / `common.claimed`（CTA 三态在保留面；`common.claimed` 另有 `TaskPage.jsx:131`）、`rewardCard.timeLimited`（剩余时间行在保留面）—— 派单原列五键，现取复核两死四活；`homePage.rewardOutOfStock` 已于 F13（2026-10-12）删除、状态不变。本笔**不删任何键**（避免键数连锁），清理另立单。
 
-**F. 规范冲突勘误（状态改写式 · 旧句一字未删）**：① design §22.11 `Q5`（`:2587`）「稀有度图标保留」作废（行后勘误行已插；装饰光斑半句仍有效）；② route 册 §41.3（`:8203`）「前 6 + `…` + 后 4」作废 ⇒ 6 星定式（`:8204` 后勘误留痕行已插、勘误级不升版）；③ `p6-miscfix` 的 `statusText` 映射（`HomePage.jsx:124`）**保留但卡片不再消费** —— 登记「映射保留、消费点移除」，非缺陷。
+**F. 规范冲突勘误（状态改写式 · 旧句一字未删）**：① design §22.11 `Q5`（`:2587`）「稀有度图标保留」作废（行后勘误行已插；装饰光斑半句仍有效）；② route 册 §41.3（`:8203`）「前 6 + `…` + 后 4」作废 ⇒ 6 星定式（`:8204` 后勘误留痕行已插、勘误级不升版）；②′ **再收口（同日 · Kevin「①再简短一些，希望用星号」）**：掩码定式再收紧 = **`0x` + 前 2 位 + `**` + 末 2 位**（例 `0x12**cd`；实现已同步、`frontend` 门套 62 文件 598 例绿）；本节 A／F 及 design 册 §26 各处「前 6 + 6 星」旧形态**一并作废，以本条为准**；③ `p6-miscfix` 的 `statusText` 映射（`HomePage.jsx:124`）**保留但卡片不再消费** —— 登记「映射保留、消费点移除」，非缺陷。
 
 **G. 现取自证与边界（编制时点 = 2026-10-19 · HEAD `12a94de`）**：i18n base 128/1110/4440（python 现算）；`sellerCredit` 四语 0 命中；backend `avatar` 零命中（列未建，`0052` = 契约号）；`reward-card.css` 48 行且尚无 412/240 常量；工作区 `M frontend/src/components/reward/RewardCard.jsx` = 实现单未提交面（非本单写面）。本笔**零代码 / 零迁移落盘 / 零服务启停**；挂账 = `B40`（死键清理）、`B41`（头像上传能力待立单）；SPEC-NOTE = `ops/card-resize/SPEC-NOTE.md`。**四册 + route + data-layer numstat 删除列 = 0（纯追加）· 不 push**。
 

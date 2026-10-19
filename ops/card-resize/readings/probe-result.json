@@ -1,0 +1,956 @@
+{
+  "verdict": "PASS",
+  "errors": [],
+  "results": [
+    {
+      "tag": "1440/light/fixture",
+      "pass": true,
+      "shots": [],
+      "checks": [
+        {
+          "name": "card-h-412-all",
+          "pass": true,
+          "detail": "412,412,412,412,412,412"
+        },
+        {
+          "name": "media-h-240-all",
+          "pass": true,
+          "detail": "media rows=6/6"
+        },
+        {
+          "name": "img-fullbleed",
+          "pass": true,
+          "detail": "imgW=[207.33,207.33,207.33,207.34,207.33,207.33] innerW=[209.33,209.33,209.33,209.34,209.33,209.33]"
+        },
+        {
+          "name": "object-fit-cover",
+          "pass": true,
+          "detail": "cover,cover,cover,cover,cover,cover"
+        },
+        {
+          "name": "seller-h-48-all",
+          "pass": true,
+          "detail": "48,48,48,48,48,48"
+        },
+        {
+          "name": "avatar-24-all",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "tier-text-match",
+          "pass": true,
+          "detail": "卖家信用优秀|卖家信用良好|新卖家|卖家信用一般|卖家信用优秀|新卖家"
+        },
+        {
+          "name": "tier-class-match",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "nickname-mask",
+          "pass": true,
+          "detail": "0xaaaa******aaa1|0xbbbb******bbb2|0xcccc******ccc3|0xdddd******ddd4|0xeeee******eee5|0xffff******fff6"
+        },
+        {
+          "name": "no-full-addr",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "badge-claim-count-0",
+          "pass": true,
+          "detail": "{\"库存不足\":0,\"可兑换\":0,\"已兑换\":0,\"人已领取\":0,\"限量\":0}"
+        },
+        {
+          "name": "grid-cols-6",
+          "pass": true,
+          "detail": "cols=6"
+        },
+        {
+          "name": "no-overflow-x",
+          "pass": true,
+          "detail": "overflowX=0"
+        }
+      ],
+      "cards": [
+        {
+          "innerH": 412,
+          "innerW": 209.33,
+          "mediaH": 240,
+          "mediaW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "卖家信用优秀",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-orange-100 text-orange-600",
+          "nickname": "0xaaaa******aaa1"
+        },
+        {
+          "innerH": 412,
+          "innerW": 209.33,
+          "mediaH": 240,
+          "mediaW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "卖家信用良好",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-blue-50 text-blue-600",
+          "nickname": "0xbbbb******bbb2"
+        },
+        {
+          "innerH": 412,
+          "innerW": 209.33,
+          "mediaH": 240,
+          "mediaW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "新卖家",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-gray-100 text-gray-400",
+          "nickname": "0xcccc******ccc3"
+        },
+        {
+          "innerH": 412,
+          "innerW": 209.34,
+          "mediaH": 240,
+          "mediaW": 207.34,
+          "imgH": 240,
+          "imgW": 207.34,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 207.34,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "卖家信用一般",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-gray-100 text-gray-500",
+          "nickname": "0xdddd******ddd4"
+        },
+        {
+          "innerH": 412,
+          "innerW": 209.33,
+          "mediaH": 240,
+          "mediaW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "卖家信用优秀",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-orange-100 text-orange-600",
+          "nickname": "0xeeee******eee5"
+        },
+        {
+          "innerH": 412,
+          "innerW": 209.33,
+          "mediaH": 240,
+          "mediaW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "新卖家",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-gray-100 text-gray-400",
+          "nickname": "0xffff******fff6"
+        }
+      ],
+      "forbidden": {
+        "库存不足": 0,
+        "可兑换": 0,
+        "已兑换": 0,
+        "人已领取": 0,
+        "限量": 0
+      },
+      "cols": 6,
+      "overflowX": 0
+    },
+    {
+      "tag": "1440/dark/fixture",
+      "pass": true,
+      "shots": [],
+      "checks": [
+        {
+          "name": "card-h-412-all",
+          "pass": true,
+          "detail": "412,412,412,412,412,412"
+        },
+        {
+          "name": "media-h-240-all",
+          "pass": true,
+          "detail": "media rows=6/6"
+        },
+        {
+          "name": "img-fullbleed",
+          "pass": true,
+          "detail": "imgW=[207.33,207.33,207.33,207.34,207.33,207.33] innerW=[209.33,209.33,209.33,209.34,209.33,209.33]"
+        },
+        {
+          "name": "object-fit-cover",
+          "pass": true,
+          "detail": "cover,cover,cover,cover,cover,cover"
+        },
+        {
+          "name": "seller-h-48-all",
+          "pass": true,
+          "detail": "48,48,48,48,48,48"
+        },
+        {
+          "name": "avatar-24-all",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "tier-text-match",
+          "pass": true,
+          "detail": "卖家信用优秀|卖家信用良好|新卖家|卖家信用一般|卖家信用优秀|新卖家"
+        },
+        {
+          "name": "tier-class-match",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "nickname-mask",
+          "pass": true,
+          "detail": "0xaaaa******aaa1|0xbbbb******bbb2|0xcccc******ccc3|0xdddd******ddd4|0xeeee******eee5|0xffff******fff6"
+        },
+        {
+          "name": "no-full-addr",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "badge-claim-count-0",
+          "pass": true,
+          "detail": "{\"库存不足\":0,\"可兑换\":0,\"已兑换\":0,\"人已领取\":0,\"限量\":0}"
+        },
+        {
+          "name": "grid-cols-6",
+          "pass": true,
+          "detail": "cols=6"
+        },
+        {
+          "name": "no-overflow-x",
+          "pass": true,
+          "detail": "overflowX=0"
+        }
+      ],
+      "cards": [
+        {
+          "innerH": 412,
+          "innerW": 209.33,
+          "mediaH": 240,
+          "mediaW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "卖家信用优秀",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-orange-100 text-orange-600",
+          "nickname": "0xaaaa******aaa1"
+        },
+        {
+          "innerH": 412,
+          "innerW": 209.33,
+          "mediaH": 240,
+          "mediaW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "卖家信用良好",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-blue-50 text-blue-600",
+          "nickname": "0xbbbb******bbb2"
+        },
+        {
+          "innerH": 412,
+          "innerW": 209.33,
+          "mediaH": 240,
+          "mediaW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "新卖家",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-gray-100 text-gray-400",
+          "nickname": "0xcccc******ccc3"
+        },
+        {
+          "innerH": 412,
+          "innerW": 209.34,
+          "mediaH": 240,
+          "mediaW": 207.34,
+          "imgH": 240,
+          "imgW": 207.34,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 207.34,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "卖家信用一般",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-gray-100 text-gray-500",
+          "nickname": "0xdddd******ddd4"
+        },
+        {
+          "innerH": 412,
+          "innerW": 209.33,
+          "mediaH": 240,
+          "mediaW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "卖家信用优秀",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-orange-100 text-orange-600",
+          "nickname": "0xeeee******eee5"
+        },
+        {
+          "innerH": 412,
+          "innerW": 209.33,
+          "mediaH": 240,
+          "mediaW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "新卖家",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-gray-100 text-gray-400",
+          "nickname": "0xffff******fff6"
+        }
+      ],
+      "forbidden": {
+        "库存不足": 0,
+        "可兑换": 0,
+        "已兑换": 0,
+        "人已领取": 0,
+        "限量": 0
+      },
+      "cols": 6,
+      "overflowX": 0
+    },
+    {
+      "tag": "1536/light/fixture",
+      "pass": true,
+      "shots": [
+        "/Users/kevin/bistro/seafood/ops/card-resize/shots/fixture-1536-light.png"
+      ],
+      "checks": [
+        {
+          "name": "card-h-412-all",
+          "pass": true,
+          "detail": "412,412,412,412,412,412"
+        },
+        {
+          "name": "media-h-240-all",
+          "pass": true,
+          "detail": "media rows=6/6"
+        },
+        {
+          "name": "img-fullbleed",
+          "pass": true,
+          "detail": "imgW=[223.33,223.33,223.33,223.34,223.33,223.33] innerW=[225.33,225.33,225.33,225.34,225.33,225.33]"
+        },
+        {
+          "name": "object-fit-cover",
+          "pass": true,
+          "detail": "cover,cover,cover,cover,cover,cover"
+        },
+        {
+          "name": "seller-h-48-all",
+          "pass": true,
+          "detail": "48,48,48,48,48,48"
+        },
+        {
+          "name": "avatar-24-all",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "tier-text-match",
+          "pass": true,
+          "detail": "卖家信用优秀|卖家信用良好|新卖家|卖家信用一般|卖家信用优秀|新卖家"
+        },
+        {
+          "name": "tier-class-match",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "nickname-mask",
+          "pass": true,
+          "detail": "0xaaaa******aaa1|0xbbbb******bbb2|0xcccc******ccc3|0xdddd******ddd4|0xeeee******eee5|0xffff******fff6"
+        },
+        {
+          "name": "no-full-addr",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "badge-claim-count-0",
+          "pass": true,
+          "detail": "{\"库存不足\":0,\"可兑换\":0,\"已兑换\":0,\"人已领取\":0,\"限量\":0}"
+        },
+        {
+          "name": "grid-cols-6",
+          "pass": true,
+          "detail": "cols=6"
+        },
+        {
+          "name": "no-overflow-x",
+          "pass": true,
+          "detail": "overflowX=0"
+        }
+      ],
+      "cards": [
+        {
+          "innerH": 412,
+          "innerW": 225.33,
+          "mediaH": 240,
+          "mediaW": 223.33,
+          "imgH": 240,
+          "imgW": 223.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 223.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "卖家信用优秀",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-orange-100 text-orange-600",
+          "nickname": "0xaaaa******aaa1"
+        },
+        {
+          "innerH": 412,
+          "innerW": 225.33,
+          "mediaH": 240,
+          "mediaW": 223.33,
+          "imgH": 240,
+          "imgW": 223.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 223.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "卖家信用良好",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-blue-50 text-blue-600",
+          "nickname": "0xbbbb******bbb2"
+        },
+        {
+          "innerH": 412,
+          "innerW": 225.33,
+          "mediaH": 240,
+          "mediaW": 223.33,
+          "imgH": 240,
+          "imgW": 223.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 223.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "新卖家",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-gray-100 text-gray-400",
+          "nickname": "0xcccc******ccc3"
+        },
+        {
+          "innerH": 412,
+          "innerW": 225.34,
+          "mediaH": 240,
+          "mediaW": 223.34,
+          "imgH": 240,
+          "imgW": 223.34,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 223.34,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "卖家信用一般",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-gray-100 text-gray-500",
+          "nickname": "0xdddd******ddd4"
+        },
+        {
+          "innerH": 412,
+          "innerW": 225.33,
+          "mediaH": 240,
+          "mediaW": 223.33,
+          "imgH": 240,
+          "imgW": 223.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 223.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "卖家信用优秀",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-orange-100 text-orange-600",
+          "nickname": "0xeeee******eee5"
+        },
+        {
+          "innerH": 412,
+          "innerW": 225.33,
+          "mediaH": 240,
+          "mediaW": 223.33,
+          "imgH": 240,
+          "imgW": 223.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 223.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "新卖家",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-gray-100 text-gray-400",
+          "nickname": "0xffff******fff6"
+        }
+      ],
+      "forbidden": {
+        "库存不足": 0,
+        "可兑换": 0,
+        "已兑换": 0,
+        "人已领取": 0,
+        "限量": 0
+      },
+      "cols": 6,
+      "overflowX": 0
+    },
+    {
+      "tag": "1536/dark/fixture",
+      "pass": true,
+      "shots": [],
+      "checks": [
+        {
+          "name": "card-h-412-all",
+          "pass": true,
+          "detail": "412,412,412,412,412,412"
+        },
+        {
+          "name": "media-h-240-all",
+          "pass": true,
+          "detail": "media rows=6/6"
+        },
+        {
+          "name": "img-fullbleed",
+          "pass": true,
+          "detail": "imgW=[223.33,223.33,223.33,223.34,223.33,223.33] innerW=[225.33,225.33,225.33,225.34,225.33,225.33]"
+        },
+        {
+          "name": "object-fit-cover",
+          "pass": true,
+          "detail": "cover,cover,cover,cover,cover,cover"
+        },
+        {
+          "name": "seller-h-48-all",
+          "pass": true,
+          "detail": "48,48,48,48,48,48"
+        },
+        {
+          "name": "avatar-24-all",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "tier-text-match",
+          "pass": true,
+          "detail": "卖家信用优秀|卖家信用良好|新卖家|卖家信用一般|卖家信用优秀|新卖家"
+        },
+        {
+          "name": "tier-class-match",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "nickname-mask",
+          "pass": true,
+          "detail": "0xaaaa******aaa1|0xbbbb******bbb2|0xcccc******ccc3|0xdddd******ddd4|0xeeee******eee5|0xffff******fff6"
+        },
+        {
+          "name": "no-full-addr",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "badge-claim-count-0",
+          "pass": true,
+          "detail": "{\"库存不足\":0,\"可兑换\":0,\"已兑换\":0,\"人已领取\":0,\"限量\":0}"
+        },
+        {
+          "name": "grid-cols-6",
+          "pass": true,
+          "detail": "cols=6"
+        },
+        {
+          "name": "no-overflow-x",
+          "pass": true,
+          "detail": "overflowX=0"
+        }
+      ],
+      "cards": [
+        {
+          "innerH": 412,
+          "innerW": 225.33,
+          "mediaH": 240,
+          "mediaW": 223.33,
+          "imgH": 240,
+          "imgW": 223.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 223.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "卖家信用优秀",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-orange-100 text-orange-600",
+          "nickname": "0xaaaa******aaa1"
+        },
+        {
+          "innerH": 412,
+          "innerW": 225.33,
+          "mediaH": 240,
+          "mediaW": 223.33,
+          "imgH": 240,
+          "imgW": 223.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 223.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "卖家信用良好",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-blue-50 text-blue-600",
+          "nickname": "0xbbbb******bbb2"
+        },
+        {
+          "innerH": 412,
+          "innerW": 225.33,
+          "mediaH": 240,
+          "mediaW": 223.33,
+          "imgH": 240,
+          "imgW": 223.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 223.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "新卖家",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-gray-100 text-gray-400",
+          "nickname": "0xcccc******ccc3"
+        },
+        {
+          "innerH": 412,
+          "innerW": 225.34,
+          "mediaH": 240,
+          "mediaW": 223.34,
+          "imgH": 240,
+          "imgW": 223.34,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 223.34,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "卖家信用一般",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-gray-100 text-gray-500",
+          "nickname": "0xdddd******ddd4"
+        },
+        {
+          "innerH": 412,
+          "innerW": 225.33,
+          "mediaH": 240,
+          "mediaW": 223.33,
+          "imgH": 240,
+          "imgW": 223.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 223.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "卖家信用优秀",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-orange-100 text-orange-600",
+          "nickname": "0xeeee******eee5"
+        },
+        {
+          "innerH": 412,
+          "innerW": 225.33,
+          "mediaH": 240,
+          "mediaW": 223.33,
+          "imgH": 240,
+          "imgW": 223.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 223.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "新卖家",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-gray-100 text-gray-400",
+          "nickname": "0xffff******fff6"
+        }
+      ],
+      "forbidden": {
+        "库存不足": 0,
+        "可兑换": 0,
+        "已兑换": 0,
+        "人已领取": 0,
+        "限量": 0
+      },
+      "cols": 6,
+      "overflowX": 0
+    },
+    {
+      "tag": "1440/light/real",
+      "pass": true,
+      "shots": [],
+      "checks": [
+        {
+          "name": "card-h-412-all",
+          "pass": true,
+          "detail": "412,412,412,412,412,412,412,412,412"
+        },
+        {
+          "name": "media-h-240-all",
+          "pass": true,
+          "detail": "media rows=9/9"
+        },
+        {
+          "name": "img-fullbleed",
+          "pass": true,
+          "detail": "imgW=[207.33,207.33,207.33,207.34,207.33,207.33,207.33,207.33,207.33] innerW=[209.33,209.33,209.33,209.34,209.33,209.33,209.33,209.33,209.33]"
+        },
+        {
+          "name": "object-fit-cover",
+          "pass": true,
+          "detail": "cover,cover,cover,cover,cover,cover,cover,cover,cover"
+        },
+        {
+          "name": "seller-h-48-all",
+          "pass": true,
+          "detail": "48,48,48,48,48,48,48,48,48"
+        },
+        {
+          "name": "avatar-24-all",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "nickname-mask-real",
+          "pass": true,
+          "detail": "0x59f9******09b0|0x3748******6eb9|0x114e******365a|0x6483******ad72|0x99a7******8f74|0x9700******0000|0xe4b8******f66b|0xe4b8******f66b|0xe4b8******f66b"
+        },
+        {
+          "name": "no-full-addr",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "badge-claim-count-0",
+          "pass": true,
+          "detail": "{\"库存不足\":0,\"可兑换\":0,\"已兑换\":0,\"人已领取\":0,\"限量\":0}"
+        },
+        {
+          "name": "grid-cols-6",
+          "pass": true,
+          "detail": "cols=6"
+        },
+        {
+          "name": "no-overflow-x",
+          "pass": true,
+          "detail": "overflowX=0"
+        },
+        {
+          "name": "detail-seller-name-match",
+          "pass": true,
+          "detail": "{\"bid\":\"76\",\"cardNick\":\"0x59f9******09b0\",\"cardTier\":\"新卖家\",\"detailNick\":\"0x59f9******09b0\",\"detailUid\":970213,\"detailCredit\":\"new\"}"
+        },
+        {
+          "name": "detail-credit-match",
+          "pass": true,
+          "detail": "credit=new cardTier=新卖家"
+        },
+        {
+          "name": "real-credit-new",
+          "pass": true,
+          "detail": "新卖家|新卖家|新卖家|新卖家|新卖家|新卖家|新卖家|新卖家|新卖家"
+        }
+      ],
+      "cards": [
+        {
+          "innerH": 412,
+          "innerW": 209.33,
+          "mediaH": 240,
+          "mediaW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "新卖家",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-gray-100 text-gray-400",
+          "nickname": "0x59f9******09b0"
+        },
+        {
+          "innerH": 412,
+          "innerW": 209.33,
+          "mediaH": 240,
+          "mediaW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "新卖家",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-gray-100 text-gray-400",
+          "nickname": "0x3748******6eb9"
+        },
+        {
+          "innerH": 412,
+          "innerW": 209.33,
+          "mediaH": 240,
+          "mediaW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "新卖家",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-gray-100 text-gray-400",
+          "nickname": "0x114e******365a"
+        },
+        {
+          "innerH": 412,
+          "innerW": 209.34,
+          "mediaH": 240,
+          "mediaW": 207.34,
+          "imgH": 240,
+          "imgW": 207.34,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 207.34,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "新卖家",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-gray-100 text-gray-400",
+          "nickname": "0x6483******ad72"
+        },
+        {
+          "innerH": 412,
+          "innerW": 209.33,
+          "mediaH": 240,
+          "mediaW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "新卖家",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-gray-100 text-gray-400",
+          "nickname": "0x99a7******8f74"
+        },
+        {
+          "innerH": 412,
+          "innerW": 209.33,
+          "mediaH": 240,
+          "mediaW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "新卖家",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-gray-100 text-gray-400",
+          "nickname": "0x9700******0000"
+        },
+        {
+          "innerH": 412,
+          "innerW": 209.33,
+          "mediaH": 240,
+          "mediaW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "新卖家",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-gray-100 text-gray-400",
+          "nickname": "0xe4b8******f66b"
+        },
+        {
+          "innerH": 412,
+          "innerW": 209.33,
+          "mediaH": 240,
+          "mediaW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "新卖家",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-gray-100 text-gray-400",
+          "nickname": "0xe4b8******f66b"
+        },
+        {
+          "innerH": 412,
+          "innerW": 209.33,
+          "mediaH": 240,
+          "mediaW": 207.33,
+          "imgH": 240,
+          "imgW": 207.33,
+          "objectFit": "cover",
+          "sellerH": 48,
+          "sellerW": 207.33,
+          "avatarW": 24,
+          "avatarH": 24,
+          "tierText": "新卖家",
+          "tierClass": "inline-flex items-center rounded-full font-medium px-2.5 py-1 text-xs bg-gray-100 text-gray-400",
+          "nickname": "0xe4b8******f66b"
+        }
+      ],
+      "forbidden": {
+        "库存不足": 0,
+        "可兑换": 0,
+        "已兑换": 0,
+        "人已领取": 0,
+        "限量": 0
+      },
+      "cols": 6,
+      "overflowX": 0
+    }
+  ]
+}

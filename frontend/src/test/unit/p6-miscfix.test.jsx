@@ -72,22 +72,28 @@ beforeEach(() => {
 })
 afterEach(() => cleanup())
 
-describe('① 首页闲置列表面：状态文案查表（四语 + 缺省兜底 + 原始枚举不得进用户面）', () => {
-  it('四语各自渲染本地化状态文案（判负：四语取值互不相同）', async () => {
-    const seen = {}
+describe('① 首页闲置列表面：状态徽章已移除（Kevin 2026-10-19 卡片改版）——状态文案/原始枚举均不得进用户面', () => {
+  // ★ 2026-10-19 改锚（合法移除）：原断言「四语状态文案渲染在卡上」的唯一消费点 = RewardCard 卡头状态徽章
+  //   （`<Badge>{reward.statusText}</Badge>`），该徽章随卡片改版整块移除 ⇒ 正向断言反向化：
+  //   状态文案（可兑换/库存不足等）**不再出现**在首页任何位置；「原始枚举不得进用户面」负向口径原样保留。
+  const feedReady = async (container) => {
+    await waitFor(() => expect(container.querySelector('[data-sf-m="feed-grid"]')).not.toBeNull())
+    await waitFor(() => expect(container.querySelector('[data-sf-m="reward-card"]')).not.toBeNull())
+  }
+
+  it('四语状态文案（可兑换/库存不足）不再渲染（原状态徽章消费点已删）', async () => {
     for (const lang of ['zh', 'hk', 'en', 'vn']) {
       H.lang = lang; H.i18n.resolvedLanguage = lang; H.i18n.language = lang
       H.feed = [
-        { bID: 5, name: 'x', points: 3, stores_count: 2 },   // => 可兑换
-        { bID: 6, name: 'x', points: 3, stores_count: 0 },   // => 库存不足
+        { bID: 5, name: 'x', points: 3, stores_count: 2 },   // 旧口径 => 可兑换
+        { bID: 6, name: 'x', points: 3, stores_count: 0 },   // 旧口径 => 库存不足
       ]
       const { container } = inRouter(<HomePage />)
-      await waitFor(() => expect(container.textContent).toContain(TABLES[lang].common.redeemable))
-      expect(container.textContent).toContain(TABLES[lang].common.outOfStock)
-      seen[lang] = `${TABLES[lang].common.redeemable}|${TABLES[lang].common.outOfStock}`
+      await feedReady(container)
+      expect(container.textContent).not.toContain(TABLES[lang].common.redeemable)
+      expect(container.textContent).not.toContain(TABLES[lang].common.outOfStock)
       cleanup()
     }
-    expect(new Set(Object.values(seen)).size).toBe(4)   // 四语两两可区分
   })
 
   it('判负：原始状态枚举（available/locked/claimed）不得进用户面', async () => {
@@ -97,18 +103,19 @@ describe('① 首页闲置列表面：状态文案查表（四语 + 缺省兜底
       { bID: 6, name: 'x', points: 3, stores_count: 0 },
     ]
     const { container } = inRouter(<HomePage />)
-    await waitFor(() => expect(container.textContent).toContain(TABLES.en.common.redeemable))
-    // 注：'available'/'claimed' 会与合法英文文案（`homePage.noTasks` / `common.claimedUnit`）撞车 ⇒ 不入禁用集
+    await feedReady(container)
+    // 注：'available'/'claimed' 会与合法英文文案（`homePage.noTasks`）撞车 ⇒ 不入禁用集（原注保留）
     for (const raw of ['locked', 'outOfStock', 'redeemable', 'sunset-value']) {
       expect(container.textContent).not.toContain(raw)
     }
   })
 
-  it('缺失 stores_count => 维持既有口径（库存不足兜底：不空白、不原始枚举）', async () => {
+  it('缺失 stores_count => 不渲染状态文案、不泄漏原始枚举（原「库存不足兜底」正向断言随徽章移除改锚）', async () => {
     H.lang = 'zh'; H.i18n.resolvedLanguage = 'zh'; H.i18n.language = 'zh'
     H.feed = [{ bID: 8, name: 'x', points: 3 }]
     const { container } = inRouter(<HomePage />)
-    await waitFor(() => expect(container.textContent).toContain(TABLES.zh.common.outOfStock))
+    await feedReady(container)
+    expect(container.textContent).not.toContain(TABLES.zh.common.outOfStock)
     expect(container.textContent).not.toContain('locked')
   })
 

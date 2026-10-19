@@ -1,0 +1,25 @@
+PROBE CRASH: page.waitForSelector: Timeout 20000ms exceeded.
+Call log:
+  - waiting for locator('[data-sf-m="reward-card"]') to be visible
+
+    at settle (/Users/kevin/bistro/seafood/ops/card-resize/probe-card-geometry.mjs:96:14)
+    at runPass (/Users/kevin/bistro/seafood/ops/card-resize/probe-card-geometry.mjs:167:9)
+    at async main (/Users/kevin/bistro/seafood/ops/card-resize/probe-card-geometry.mjs:244:20)
+FAIL 1440/light/fixture cards=6
+   ✗ badge-claim-count-0: {"库存不足":0,"可兑换":0,"已兑换":1,"人已领取":0,"限量":1}
+FAIL 1440/dark/fixture cards=6
+   ✗ badge-claim-count-0: {"库存不足":0,"可兑换":0,"已兑换":1,"人已领取":0,"限量":1}
+FAIL 1536/light/fixture cards=6
+   ✗ badge-claim-count-0: {"库存不足":0,"可兑换":0,"已兑换":1,"人已领取":0,"限量":1}
+FAIL 1536/dark/fixture cards=6
+   ✗ badge-claim-count-0: {"库存不足":0,"可兑换":0,"已兑换":1,"人已领取":0,"限量":1}
+FAIL 1440/light/real cards=9
+   ✗ badge-claim-count-0: {"库存不足":0,"可兑换":0,"已兑换":1,"人已领取":0,"限量":1}
+   ✗ detail-seller-name-match: {"cardNick":"0x59f9******09b0","detailContains":false,"cardTier":"新卖家"}
+VERDICT=FAIL passes=5 pageErrors=0 → ops/card-resize/readings/probe-result.json
+PASS 1440/light/fixture cards=6
+PASS 1440/dark/fixture cards=6
+PASS 1536/light/fixture cards=6
+PASS 1536/dark/fixture cards=6
+PASS 1440/light/real cards=9
+VERDICT=PASS passes=5 pageErrors=0 → ops/card-resize/readings/probe-result.json

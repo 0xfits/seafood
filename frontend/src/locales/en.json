@@ -1235,6 +1235,12 @@
       "MSG_RATE_LIMITED": "Sending too fast. Please try later"
     }
   },
+  "sellerCredit": {
+    "excellent": "Trusted seller",
+    "good": "Good standing",
+    "new": "New seller",
+    "normal": "Average standing"
+  },
   "tg": {
     "err": {
       "TG_NOT_CONFIGURED": "Notifications are not configured yet",
