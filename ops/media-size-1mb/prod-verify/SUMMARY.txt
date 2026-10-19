@@ -1,0 +1,9 @@
+上传图片上限 1MiB · 生产终验（2026-10-19）
+push = 4b36f33..19875e7（含 ffa3635 实现 + 19875e7 复验证据）；迁移先行：生产 schema 0050→0051（PENDING 空）
+
+同版证明：js c79cd6e6fa336aef index-1EJi3VaF.js (494,264B) == 本地 HEAD 构建逐字；css 415fa31f 未变
+marker：item.imageTooLarge=1 · zh「单张图片不能超过 1MB」=1 · en「1MB or smaller」=1
+接口：POST /api/media 无鉴权 401；GET /api/media/1 404；/api/health ok=true schema=0051
+390 档：首页卡占位图 naturalWidth=320；/item/1 详情占位；三页零异常
+边界证据（dev 同版本代码实测，见 ops/media-size-1mb/qa）：1,048,576B=200 / 1,048,577B=400 MEDIA_SIZE_EXCEEDED(details.max_bytes=1048576) / DB CHECK 23514
+诚实披露：生产无真实上传 E2E（需真用户登录；prod media 0 行）
