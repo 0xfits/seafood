@@ -1,0 +1,66 @@
+[
+ {
+  "theme": "light",
+  "pageerrors": [],
+  "consoleErrors": [],
+  "m": [
+   {
+    "tagPresent": true,
+    "tagFirstChild": true,
+    "bg": "rgb(255, 230, 15)",
+    "fg": "rgb(32, 32, 32)",
+    "fs": "12px",
+    "radius": "2px",
+    "titleH": 48,
+    "cardH": 392,
+    "overflow": 0
+   },
+   {
+    "tagPresent": false,
+    "tagFirstChild": true,
+    "titleH": 48,
+    "cardH": 392,
+    "overflow": 0
+   },
+   {
+    "tagPresent": false,
+    "tagFirstChild": true,
+    "titleH": 48,
+    "cardH": 392,
+    "overflow": 0
+   }
+  ]
+ },
+ {
+  "theme": "dark",
+  "pageerrors": [],
+  "consoleErrors": [],
+  "m": [
+   {
+    "tagPresent": true,
+    "tagFirstChild": true,
+    "bg": "rgb(255, 230, 15)",
+    "fg": "rgb(32, 32, 32)",
+    "fs": "12px",
+    "radius": "2px",
+    "titleH": 48,
+    "cardH": 392,
+    "overflow": 0
+   },
+   {
+    "tagPresent": false,
+    "tagFirstChild": true,
+    "titleH": 48,
+    "cardH": 392,
+    "overflow": 0
+   },
+   {
+    "tagPresent": false,
+    "tagFirstChild": true,
+    "titleH": 48,
+    "cardH": 392,
+    "overflow": 0
+   }
+  ]
+ }
+]

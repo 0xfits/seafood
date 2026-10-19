@@ -1,0 +1,10 @@
+商品分类 · 生产终验（2026-10-20）
+push = 336ae2a..26576d3（4 提交：acfaa0b 后端 / 8f05866 规范 / 1eecbb7 前端 / 26576d3 质检）
+
+同版证明：js ed2ec85d4c787250 index-DKwYoDGj.js (499,953B) / css 9f88507f3c3568b7 index-DNTm1wEg.css (126,966B)
+          prod sha256 == 本地 HEAD 构建逐字；CSS 含 sf-reward-ship-tag ×1
+读口（生产）：/api/prize/all = 48 键（item_type 在场，现全 null）；/api/prize/7 = 47 键
+真浏览器（1536 日档/夜档，注入 3 卡：PhysicalFreeShip / Digital / PhysicalBuyerShip）：
+  仅 PhysicalFreeShip 有标签且为标题行第一子元素；
+  bg rgb(255,230,15) / fg rgb(32,32,32) / 12px / 圆角 2px；标题行 48、卡高 392；零溢出零异常。
+生产数据未新增（存量 item_type 全 NULL = 未分类，不显示标签）。
