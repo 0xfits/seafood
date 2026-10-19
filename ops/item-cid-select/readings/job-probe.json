@@ -1,0 +1,191 @@
+{
+  "url": "http://localhost:5787/task/new",
+  "at": "2026-10-19T00:58:39.101Z",
+  "fakeSession": {
+    "storageKeys": [
+      "user",
+      "token"
+    ],
+    "tokenPayloadExp": 4102444800,
+    "realCredentials": false
+  },
+  "steps": {
+    "shape": {
+      "select_jobsSelectCid": 1,
+      "legacy_jobsInputCid_any": 0,
+      "select_tagName": "SELECT",
+      "select_required": true,
+      "optionsInCidSelect": 11,
+      "selectsOnPage_total": 1,
+      "labelText": "币种",
+      "labelContainsNumericId": false,
+      "noteText": "请从下拉框选择悬赏币种",
+      "computedStyle": {
+        "minHeight": "34px",
+        "width": "511.5px",
+        "background": "rgb(255, 255, 255)",
+        "borderRadius": "8px",
+        "fontSize": "13px",
+        "appearance": "auto"
+      },
+      "rootChildCount": 2,
+      "primaryButton": {
+        "text": "发布招工",
+        "disabled": false
+      }
+    },
+    "options": {
+      "count": 11,
+      "values": [
+        "1",
+        "4",
+        "10",
+        "16",
+        "21",
+        "29",
+        "31",
+        "32",
+        "35",
+        "36",
+        "399"
+      ],
+      "texts": [
+        "$ · 平台积分",
+        "P4B3A013122 · P4B3A test unit",
+        "P4B3A013647 · P4B3A test unit",
+        "P4B3B590800 · P4B3B test unit",
+        "P4B3B590800X · server default fee",
+        "N1B0T203917 · num1 default",
+        "N1A0T204732 · num1 at floor",
+        "N1B0T204732 · num1 default",
+        "qap7a31l3k6 · QA p7-a fixture qap7a31l3k6",
+        "qap7b1wtoqc · QA p7-a fixture qap7b1wtoqc",
+        "BTTC · battcoin"
+      ],
+      "selectedValue": "1",
+      "selectedText": "$ · 平台积分",
+      "bareNumericPrefix": [],
+      "anyTextStartsWithDigit": []
+    },
+    "negative_control": {
+      "before": {
+        "select": 1,
+        "legacy": 0
+      },
+      "during": {
+        "select": 1,
+        "legacy": 1
+      },
+      "after": {
+        "select": 1,
+        "legacy": 0
+      },
+      "probe_is_sensitive": true
+    },
+    "change": {
+      "target": "4",
+      "applied": true,
+      "domValue": "4",
+      "domSelectedText": "P4B3A013122 · P4B3A test unit"
+    },
+    "submit_payload": {
+      "rawKeys": [
+        "cid",
+        "reward",
+        "title",
+        "description",
+        "headcount",
+        "create_key"
+      ],
+      "cid": 4,
+      "cid_typeof": "number",
+      "expected_selected": "4",
+      "cid_matches_selected": true,
+      "cid_is_not_currency_text": true,
+      "reward": "7",
+      "headcount": "2",
+      "title": "QA 探针任务（未真发）",
+      "has_create_key": true
+    },
+    "status_after_submit": {
+      "phase": "ok",
+      "text": "招工已发布并托管酬金 · #987654"
+    }
+  },
+  "api": {
+    "log": [
+      {
+        "path": "/api/role-names",
+        "method": "GET",
+        "hit": "stubbed-noise-isolation",
+        "status": 200
+      },
+      {
+        "path": "/api/admin/me",
+        "method": "GET",
+        "hit": "stubbed-noise-isolation",
+        "status": 200
+      },
+      {
+        "path": "/api/messages/unread-count",
+        "method": "GET",
+        "hit": "stubbed-noise-isolation",
+        "status": 200
+      },
+      {
+        "path": "/api/role-names",
+        "method": "GET",
+        "hit": "stubbed-noise-isolation",
+        "status": 200
+      },
+      {
+        "path": "/api/admin/me",
+        "method": "GET",
+        "hit": "stubbed-noise-isolation",
+        "status": 200
+      },
+      {
+        "path": "/api/messages/unread-count",
+        "method": "GET",
+        "hit": "stubbed-noise-isolation",
+        "status": 200
+      },
+      {
+        "path": "/api/currencies",
+        "method": "GET",
+        "hit": "real-backend",
+        "status": 200,
+        "rowCount": 11
+      },
+      {
+        "path": "/api/currencies",
+        "method": "GET",
+        "hit": "real-backend",
+        "status": 200,
+        "rowCount": 11
+      },
+      {
+        "path": "/api/job",
+        "method": "POST",
+        "hit": "stubbed-captured (zero business write)",
+        "status": 200
+      }
+    ]
+  },
+  "writes": [
+    {
+      "path": "/api/job",
+      "method": "POST",
+      "postData": "{\"cid\":4,\"reward\":\"7\",\"title\":\"QA 探针任务（未真发）\",\"description\":\"\",\"headcount\":\"2\",\"create_key\":\"cli:74d4256c-f62a-4a7f-ae07-4ea9fb1dd837\"}",
+      "contentType": "application/json"
+    }
+  ],
+  "console": {
+    "error_total": 0,
+    "unique": []
+  },
+  "pageerrors": {
+    "total": 0,
+    "list": []
+  }
+}
