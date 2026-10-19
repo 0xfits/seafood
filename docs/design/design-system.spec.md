@@ -3392,3 +3392,46 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 5. **若要保 412**：图片需 **260**（`412 − 152 = 260`）⇒ 与 Kevin「图片 240」冲突 ⇒ **待定**（`OPEN-ITEMS B42`）；本版不裁 260。
 6. **落点**：四行结构与类名落 `reward-card.css` / `RewardCard.jsx`（实现单）；**零新主题 token / 零 `STRUCT` / 零 PROV 改指**（240/48/32/24/392 属几何常量，承 §24「颜色以外不进主题层」）。探针锚 = Kevin 逐字类名 + 既有 `data-sf-m="reward-card-seller"`；其余行如新增钩子须为**加性** `reward-card-image` / `reward-card-title` / `reward-card-service` / `reward-card-price`（**不得改类名**）。
 7. **现取自证（编制时点 2026-10-19）**：i18n 四语各 `top 129 / flat 1114`（python 现算，节点 `1114 × 4 = 4456`）；dev `/api/prize/all?limit=1` 行键 **46**；`listing_favorite` 表 `0047` 在场（计数源）；注册点 **110**（get 49 / post 57 / put 0 / delete 3 / patch 1）⇒ **零新路由**。★ **并行实现单披露**：编制时点工作区已见实现面 `M`（`database.ts` 的 `wants` / 四语 `rewardCard.wants` / `RewardCard.jsx` + 新 `truncate.js`），**非本单写面**；故「46 / 1114」为**编制时点读数**，判据一律以**契约数 47 / 1115 / 4460** 为准。**未做**：§26.11.5 九条 AC 一条未跑；实现与 i18n 计数前推归并行实现单；本笔零代码、零迁移、不 push。
+
+#### 26.11.7 实现回写与生产终验（2026-10-19 · **追加式回写、不升版** · 实现 `38dcbe5` / F1 `dca495e` / 质检 `49a7d99` / 生产 `1f3f9de`）
+
+> **性质**：本节只回写**实现期实数与生产读数**。§26.11.0–26.11.6 的契约条文（盒高 48 / 内容盒 152 / 卡高 392 / 判负 9 条）**一字未改**；本节新增的是「怎么落成的、实测是多少、哪里偏离」。契约面旧字面（`412` / `224` / 15px 系）全部保留。
+
+1. **实现落点**：`frontend/src/components/reward/RewardCard.jsx`（四行结构 + 稳定类 `sf-reward-card-body`）· `reward-card.css`（几何与字号）· 新增 `truncate.js`（按显示宽截断）· `backend-ts/src/database.ts`（feed 加性键 `wants`）· 四语 `rewardCard.wants`。
+
+2. **标题字号 = `14px`（实数 · 契约只冻盒高、未给字号）**：1440 档卡内宽实测 **207.33**（契约 **224** 为目标值；差 = 六列栅格子像素 + 卡体 2×1px 边框）⇒ `.row1-wrap-title { padding: 0 10px }` 后文本可用 **≈187**；`font-size: 15px` 时「24 汉字 + `...`」实测 `scrollHeight > 48`（**溢到第三行**）。落 **`font-size: 14px` + `line-height: 24px`**（`2 × 24 = 48` 与盒高逐字相等，187px 两行容下 24 汉字 + `...`）。**截断口径不变**：仍按 **48 显示宽单位** + 字面 `...`，由 `truncateByWidth(text, 48)` 前置截断（**不依赖 CSS 行数裁剪**）。实测：24 汉字不截（48 单位）/ 25 汉字 ⇒ 前 24 + `...`（51 显示单位）/ 60 拉丁 ⇒ 48 拉丁 + `...`（无 `…`）；5 夹具卡 × 四组合 `scrollHeight` **全 48**、尾点 Range 盒在行盒内（bottom 976 ≤ 980、right 613.3 ≤ 711.0）。
+
+3. **卡高 392 实算**：`240（图）+ 48 + 32 + 24 + 48 = 392`。**392 是内容盒分配** ⇒ 卡体**不得再加 1px 实边框**（`border-box` 下 2px 会把它压成 390，见 4）。
+
+4. **F1 修法（实边框 → `outline` inset · 不占布局）**：Card 基座恒带 `.border`（1px 实边框）⇒ 修前 **内容盒 390** / `.content` **150** / 卖家行底边 **−1**（被 `overflow:hidden` 裁掉 2px）。**卡体 `rect` 高两态都是 392** ⇒ 卡高判据若只取 rect 则对该缺陷**零分辨力**（首轮几何判据即因此漏它）。修法：
+
+```css
+.sf-reward-card .sf-reward-card-body {
+  border: 0;                       /* 不吃 2px 布局 */
+  outline: 1px solid #e5e7eb;      /* 视觉等同原 border-gray-200 */
+  outline-offset: -1px;
+}
+```
+
+   修后：内容盒 **392** / `.content` **152** / 卖家行底边 **0** / 计算边框 **0px/0px**。**不用 `box-shadow`**（卡体已有 `hover:shadow-lg`，会被该工具类覆盖）；`.sf-reward-card` 前缀保具体性 (0,2,0)，压过 `@layer utilities` 的 `.border` 且不依赖打包顺序。**负控**：把 `border:0` 改回 `1px solid #e5e7eb` ⇒ **20 红**；恢复 ⇒ **189 绿 / 0 红**（同探针同缺陷必红必绿）。
+
+5. **稀有度彩色环副作用（登记 · 未改）**：`RewardCard.jsx:84-85` 的 `border-yellow-400`（`legendary`）/ `border-purple-400`（`epic`）**依赖 1px 实边框着色** ⇒ `border:0` 后**彩色环不再绘制**，现为统一浅灰 `#e5e7eb` inset outline。**要彩色环** = 在同一规则内按类接管 `outline-color`（仍不占布局）—— **未做，待 Kevin**（`OPEN-ITEMS B43`）。稀有度**图标**已于 v1.25 §22.11 `Q5` 作废；卡内徽章 `bg-yellow-400 / bg-purple-400 / bg-blue-400`（`:89-94`）仍在 ⇒ 稀有度**辨识未丢**。
+
+6. **行高 / 内容盒现取表（真浏览器 · 1440 / 1536 × 日/夜 × 5 夹具卡 + 真 feed 9 卡）**：
+
+| 量 | 契约 | 修前（F1 态） | 修后（现行） |
+|---|---|---|---|
+| 卡体 `rect` 高 | 392 | 392 | **392** |
+| `.sf-reward-inner` `clientHeight`（内容盒） | 392 | 390 | **392** |
+| `.content` 盒高 | 152 | 150 | **152** |
+| 行高 title / service / price / seller | 48 / 32 / 24 / 48 | 48 / 32 / 24 / 48 | **48 / 32 / 24 / 48** |
+| 图容器高 | 240 | 240 | **240** |
+| 卡内宽（1440 / 1536） | 224（目标） | 207.33 / 223.33 | **209.33 / 225.33** |
+| 卖家行底边 − 内容盒底边 | 0 | **−1**（被裁） | **0** |
+| 计算 `border-top/bottom-width` | 0（禁实边框） | 1px / 1px | **0px / 0px** |
+
+   注：卡内宽 209.33 / 225.33 与 224 的差 = 六列栅格子像素 + outline 不占宽 ⇒ **判负不盯卡内宽**（承 §26.11.6）；行高、图高、卡高为判负面。
+
+7. **生产终验读数（`ops/card-rows/prod-verify/`）**：同版 sha256 逐字（js **`13a6b63c…`** 497,255 B / css **`7a86f0b8…`** 126,007 B）· **1440 / 1536 两档 × 7 卡**逐卡：卡高 **392** · 图 **240** · 行高 **48 / 32 / 24 / 48** · gift 图标 **0** · 横向溢出 **0** · `pageerror` / console error **0** · 价格行形如 `$20人想要`（左价右「n人想要」、两端对齐）。**诚实边界**：① 生产探针只记 `vw`、**无 theme 字段** ⇒ **夜档生产未单测**（日/夜四组合由本地质检 `rows-qa.json` 覆盖，`distinctHeights=[392]`）；② 生产标题均未超 48 单位（`titleEndsDots=false` 全部）⇒ **截断行为由 dev 夹具取证**，非生产读数。
+
+8. **判负口径增补（只增不改 §26.11.5 九条）**：探针侧加两条**实现约束** —— (a) 卡体计算 **`border-top-width` / `border-bottom-width` 必须 0**（实边框 ⇒ 内容盒 390 ⇒ 判负）；(b) 卡高判据取 **`.sf-reward-inner` `clientHeight = 392` + 卖家行 `rect` 底边 = 内容盒底边（±0.5）**，**不得只取卡体 `rect`**（两态同值、无分辨力）。
