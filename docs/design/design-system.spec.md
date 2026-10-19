@@ -3626,3 +3626,12 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 - **未做（本笔零代码 · 明账）**：卡面标签与发布页两控件**均未实现**、**未跑任何探针 / 单测 / 浏览器实测**；i18n **5 键**未落盘、12 个计数测试文件未前推；`item_type` 未落库（data §40.8、迁移 `0053` 未写）。九条 AC + 本节五条判负**一条未跑**。
 - **★ 自我披露（口径变更轨迹 · 不藏）**：本节**落笔中间态**曾按派单原文写作「发布页必选 **3 选 1**（`Digital` / `PhysicalFreeShip` / `PhysicalBuyerShip`）单控件」；**Kevin 在本单执行中追加更正**为 **2 + 2 两控件**（数字/实物 × 包邮/不包邮）⇒ 本册按更正版落定（§26.12.4）。**存储枚举三值不变**、`item_type` 仍是载荷唯一字段、卡面判负 #15–#18 **一字未动**；中间态未入库 ⇒ `git diff` 无「删行」、无历史留痕可查，**故在此登记**。
 - **连带**：master **§5.435 + 版本行 v0.352** · route **§49.11 续登** · data **§40.8** · 交付件 `ops/item-type/SPEC-NOTE.md`。**design 不升版**（承 §26.10 / §26.11.7 / §26.11.8 / §26.11.9 / §26.11.9.1 体例：裁定面与契约续登不升版）。本笔**只写 `docs/**` + `ops/item-type/**`**，零代码、零迁移、零测试改动、**不 push**；`git diff --numstat` 删除列 **0**（纯追加）。
+
+#### 26.12.7 上线收口 · `vertical-align: baseline`（2026-10-20 · 追加 · **不升版** · 旧字面逐字保留）
+
+> **以本段为准**：`.sf-reward-ship-tag` 的 `vertical-align` **取 `baseline`**（落盘 `frontend/src/components/reward/reward-card.css:159`）；**§26.12.1「盒」行所写的 `middle` 于现行读法作废**（该行字面**逐字保留、一字不删**，只在本节改写状态）。判据不变 —— 只认 `row1-wrap-title` `offsetHeight` **48** 与卡总高 **392**（§26.12.5 **#16**），实测 1536 日/夜双档两值均成立、横向溢出 0。
+
+- **裁定依据**：「包邮」盒 **16px < 行盒 24px** ⇒ `baseline` 与 `middle` **都不抬行**；`baseline` 使标签与标题**同基线**贴齐，观感与参考图一致（**目视结论，非机读项**）。⇒ **不改落盘、不改判负**：`vertical-align` 的具体取值仍属 §26.12.5 的**读数登记项**（「只要求不抬行」），**不作判负项**、不入 #15–#19。
+- **旧字面处置（逐字）**：§26.12.1 表「盒」行 `vertical-align: middle` **保留原文**；要判现行合规只读本节 —— 「以本段为准」。
+- **第二处口径差（同批登记）**：**空串口径** —— `ops/item-type/SPEC-NOTE.md` **§5.1 第 1 项**记「落盘：空串 ⇒ `null`」，现行 `normalizeItemType` **先 `trim` 再闭集判定** ⇒ `""` / `"   "` **均 `400`**（`LEDGER_AMOUNT_INVALID` / `reason=NOT_IN_CLOSED_SET` / `allowed` 三值 / 零行写入）⇒ **与 §26.12.4 契约一致，差额结案**（旧记逐字保留）。
+- **连带**：master **§5.436 + 版本行 v0.353** · `docs/OPEN-ITEMS.md` **`B44`**（发布页未新增 `item.typeRequired` 错误键）· 交付件 `ops/item-type/SPEC-NOTE-closure.md`。**本笔零代码 / 零测试改动 / 零 HTTP 实测**，只写 `docs/**` 与 `ops/item-type/**`，**纯追加删行 0**、**不 push**。
