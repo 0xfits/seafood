@@ -7,6 +7,8 @@ import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import { withPanelParams } from '../../shell/messages-panel-routing'
 import { contentStatus, pickLocalized } from '../../i18n-content'
 import TranslatingBadge from '../../components/i18n/TranslatingBadge'
+// 媒体单前端阶段 A：详情面板真图优先（media_urls[0]），无媒体 ⇒ 机械鱼占位（T94 勘误：真图填原几何盒）。
+import { PLACEHOLDER_IMAGE } from '../../assets/placeholder'
 import { buyListing, createListingBuyTracker, fetchListingDetail, listingBuyFingerprint } from './item-api'
 // v1.17 §20.2 T100：「聊一聊」第 3 格 = 站内信 `POST /api/messages/conversations`（自然幂等、前端不供键）。
 import { openConversation } from '../../messages-api'
@@ -202,6 +204,8 @@ const ItemDetailPage = () => {
     && String(myUid) === String(sellerUid)
   const title = pickLocalized(row, 'title', lang) || pickLocalized(row, 'name', lang) || t('item.detail')
   const description = pickLocalized(row, 'description', lang) || ''
+  // 媒体单前端阶段 A：详情面板图 = 真图（media_urls[0]）> 机械鱼占位；alt 复用本地化标题（零新 i18n 键）。
+  const detailImage = row.media_urls?.[0] || PLACEHOLDER_IMAGE
 
   // P7-E 小尾巴批-β ①：listing 状态**不得原样渲染枚举**。已知取值 ⇒ 四语标签；未知 ⇒ 本地化兜底（`item.statusLabel.unknown`）；
   //   原值留 `title`/`data-sf-status`（仅排查用）。缺省/空串 ⇒ 维持既有口径 = `-`（与列表「缺失 ⇒ 已上架」**不同**）。
@@ -251,7 +255,12 @@ const ItemDetailPage = () => {
               <form onSubmit={onBuy} data-sf-m="item-buy-form">
                 {/* 详情面板：渐变占位图 + 描述 + 库存 + meta 组（R-A）+ 数量输入 */}
                 <div className="sf-item-panel" data-sf-m="item-detail">
-                  <div className="sf-item-thumb" data-sf-m="item-detail-thumb" />
+                  <img
+                    className="sf-item-thumb"
+                    data-sf-m="item-detail-thumb"
+                    src={detailImage}
+                    alt={title}
+                  />
                   <p className="sf-item-meta">{String(description)}</p>
                   <p className="sf-item-meta">{t('item.stock')}{` ${String(row.stock ?? '-')}`}</p>
                   <div className="sf-item-meta-group">

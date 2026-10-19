@@ -1115,6 +1115,8 @@ export interface BrandRecord {
   description: string;
   image_url: string;
   url_image: string;
+  /** 媒体单前端阶段 A：`listing.media_urls` 读侧透出（媒体 URL 数组，真图 `/api/media/:id`；无媒体 ⇒ 空数组）。 */
+  media_urls: string[];
   points: number;
   market_floor_points: number;
   duration_seconds: number;
@@ -1481,6 +1483,8 @@ const normalizeBrand = (
     description: toStringValue(getValue(row, 'description')),
     image_url: imageUrl,
     url_image: imageUrl,
+    // 媒体单前端阶段 A：`listing` 表已带 `media_urls`（l.* 直取），归一层原先丢弃 ⇒ 补透出（纯增键、向后兼容）。
+    media_urls: toStringArrayValue(getValue(row, 'media_urls')),
     points: toNumberValue(getValue(row, 'points', 'price')),
     market_floor_points: marketFloorPoints,
     duration_seconds: durationSeconds,

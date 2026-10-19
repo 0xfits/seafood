@@ -106,7 +106,13 @@
 
 /* 缩略占位：渐变取主题 token（不影响几何），高度取结构常量（两档同值） */
 .sf-item-thumb {
+  /* 媒体单前端阶段 A：占位盒由 div 渐变改为 <img>（真图 media_urls[0] / 机械鱼占位同盒）。
+     几何盒不动（T94 勘误：真图填原几何盒）：高/描边/圆角沿用原值；补 img 形态属性
+     （块级占满 + object-fit 裁切）。background 沿用 = 加载中/加载失败时露出原底色。 */
+  display: block;
+  width: 100%;
   height: var(--sf-st-card-thumb-h);
+  object-fit: cover;
   border: var(--sf-st-stroke-w-thin) solid var(--sf-thumb-border);
   border-radius: var(--sf-st-radius-btna);
   background: var(--sf-thumb-1);

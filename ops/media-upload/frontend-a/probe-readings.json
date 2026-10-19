@@ -1,0 +1,413 @@
+{
+  "probe": "probe-phase-a.mjs · 媒体单前端阶段 A（占位图资产 + media_urls 接线）",
+  "startedAt": "2026-10-19T03:53:41.787Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "fixture": {
+    "png": "1x1 PNG at /api/media/1",
+    "prizeRow": {
+      "bID": 1,
+      "listing_id": 1,
+      "name": "深海拾遗 · 探针夹具",
+      "title": "深海拾遗 · 探针夹具",
+      "description": "QA 探针夹具行：内存自截响应，非真库行。",
+      "points": 120,
+      "price": 120,
+      "stock": 5,
+      "status": "listed",
+      "stores_count": 3,
+      "claims_count": 0,
+      "symbol": "",
+      "image_url": "",
+      "url_image": "",
+      "media_urls": "<mode-dependent>"
+    }
+  },
+  "pngBytes": 70,
+  "cells": [
+    {
+      "label": "home_390_placeholder",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "mode": "placeholder",
+      "url": "http://sf.local/",
+      "totalImgs": 5,
+      "placeholderCount": 1,
+      "placeholderSrcs": [
+        "/assets/placeholder-item-ChYVGMSM.webp"
+      ],
+      "placeholderNatural": [
+        320
+      ],
+      "realCount": 0,
+      "realNatural": [],
+      "thumb": null,
+      "thumbHVar": null,
+      "assetHits": [
+        {
+          "pathname": "/assets/placeholder-item-ChYVGMSM.webp",
+          "status": 200,
+          "contentType": "image/webp"
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED"
+      ],
+      "verdict": {
+        "hasPlaceholder": true,
+        "decodes320": true,
+        "noReal": true,
+        "thumbPlaceholderOk": true,
+        "thumbBoxMatchesVar": true,
+        "noPageError": true,
+        "pass": true
+      }
+    },
+    {
+      "label": "detail_390_placeholder",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "mode": "placeholder",
+      "url": "http://sf.local/item/1",
+      "totalImgs": 5,
+      "placeholderCount": 1,
+      "placeholderSrcs": [
+        "/assets/placeholder-item-ChYVGMSM.webp"
+      ],
+      "placeholderNatural": [
+        320
+      ],
+      "realCount": 0,
+      "realNatural": [],
+      "thumb": {
+        "src": "/assets/placeholder-item-ChYVGMSM.webp",
+        "alt": "深海拾遗 · 探针夹具",
+        "naturalWidth": 320,
+        "complete": true,
+        "box": {
+          "w": 276,
+          "h": 150
+        },
+        "objectFit": "cover",
+        "display": "block"
+      },
+      "thumbHVar": "150px",
+      "assetHits": [
+        {
+          "pathname": "/assets/placeholder-item-ChYVGMSM.webp",
+          "status": 200,
+          "contentType": "image/webp"
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED"
+      ],
+      "verdict": {
+        "hasPlaceholder": true,
+        "decodes320": true,
+        "noReal": true,
+        "thumbPlaceholderOk": true,
+        "thumbBoxMatchesVar": true,
+        "noPageError": true,
+        "pass": true
+      }
+    },
+    {
+      "label": "home_390_real",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "mode": "real",
+      "url": "http://sf.local/",
+      "totalImgs": 5,
+      "placeholderCount": 0,
+      "placeholderSrcs": [],
+      "placeholderNatural": [],
+      "realCount": 1,
+      "realNatural": [
+        1
+      ],
+      "thumb": null,
+      "thumbHVar": null,
+      "assetHits": [],
+      "pageErrors": [],
+      "consoleErrors": [
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED"
+      ],
+      "verdict": {
+        "hasReal": true,
+        "decodesPng1x1": true,
+        "noPlaceholder": true,
+        "thumbRealOk": true,
+        "noPageError": true,
+        "pass": true
+      }
+    },
+    {
+      "label": "detail_390_real",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "mode": "real",
+      "url": "http://sf.local/item/1",
+      "totalImgs": 5,
+      "placeholderCount": 0,
+      "placeholderSrcs": [],
+      "placeholderNatural": [],
+      "realCount": 1,
+      "realNatural": [
+        1
+      ],
+      "thumb": {
+        "src": "/api/media/1",
+        "alt": "深海拾遗 · 探针夹具",
+        "naturalWidth": 1,
+        "complete": true,
+        "box": {
+          "w": 276,
+          "h": 150
+        },
+        "objectFit": "cover",
+        "display": "block"
+      },
+      "thumbHVar": "150px",
+      "assetHits": [],
+      "pageErrors": [],
+      "consoleErrors": [
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED"
+      ],
+      "verdict": {
+        "hasReal": true,
+        "decodesPng1x1": true,
+        "noPlaceholder": true,
+        "thumbRealOk": true,
+        "noPageError": true,
+        "pass": true
+      }
+    },
+    {
+      "label": "home_1440_placeholder",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "mode": "placeholder",
+      "url": "http://sf.local/",
+      "totalImgs": 5,
+      "placeholderCount": 1,
+      "placeholderSrcs": [
+        "/assets/placeholder-item-ChYVGMSM.webp"
+      ],
+      "placeholderNatural": [
+        320
+      ],
+      "realCount": 0,
+      "realNatural": [],
+      "thumb": null,
+      "thumbHVar": null,
+      "assetHits": [
+        {
+          "pathname": "/assets/placeholder-item-ChYVGMSM.webp",
+          "status": 200,
+          "contentType": "image/webp"
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED"
+      ],
+      "verdict": {
+        "hasPlaceholder": true,
+        "decodes320": true,
+        "noReal": true,
+        "thumbPlaceholderOk": true,
+        "thumbBoxMatchesVar": true,
+        "noPageError": true,
+        "pass": true
+      }
+    },
+    {
+      "label": "detail_1440_placeholder",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "mode": "placeholder",
+      "url": "http://sf.local/item/1",
+      "totalImgs": 5,
+      "placeholderCount": 1,
+      "placeholderSrcs": [
+        "/assets/placeholder-item-ChYVGMSM.webp"
+      ],
+      "placeholderNatural": [
+        320
+      ],
+      "realCount": 0,
+      "realNatural": [],
+      "thumb": {
+        "src": "/assets/placeholder-item-ChYVGMSM.webp",
+        "alt": "深海拾遗 · 探针夹具",
+        "naturalWidth": 320,
+        "complete": true,
+        "box": {
+          "w": 1370,
+          "h": 150
+        },
+        "objectFit": "cover",
+        "display": "block"
+      },
+      "thumbHVar": "150px",
+      "assetHits": [
+        {
+          "pathname": "/assets/placeholder-item-ChYVGMSM.webp",
+          "status": 200,
+          "contentType": "image/webp"
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED"
+      ],
+      "verdict": {
+        "hasPlaceholder": true,
+        "decodes320": true,
+        "noReal": true,
+        "thumbPlaceholderOk": true,
+        "thumbBoxMatchesVar": true,
+        "noPageError": true,
+        "pass": true
+      }
+    },
+    {
+      "label": "home_1440_real",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "mode": "real",
+      "url": "http://sf.local/",
+      "totalImgs": 5,
+      "placeholderCount": 0,
+      "placeholderSrcs": [],
+      "placeholderNatural": [],
+      "realCount": 1,
+      "realNatural": [
+        1
+      ],
+      "thumb": null,
+      "thumbHVar": null,
+      "assetHits": [],
+      "pageErrors": [],
+      "consoleErrors": [
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED"
+      ],
+      "verdict": {
+        "hasReal": true,
+        "decodesPng1x1": true,
+        "noPlaceholder": true,
+        "thumbRealOk": true,
+        "noPageError": true,
+        "pass": true
+      }
+    },
+    {
+      "label": "detail_1440_real",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "mode": "real",
+      "url": "http://sf.local/item/1",
+      "totalImgs": 5,
+      "placeholderCount": 0,
+      "placeholderSrcs": [],
+      "placeholderNatural": [],
+      "realCount": 1,
+      "realNatural": [
+        1
+      ],
+      "thumb": {
+        "src": "/api/media/1",
+        "alt": "深海拾遗 · 探针夹具",
+        "naturalWidth": 1,
+        "complete": true,
+        "box": {
+          "w": 1370,
+          "h": 150
+        },
+        "objectFit": "cover",
+        "display": "block"
+      },
+      "thumbHVar": "150px",
+      "assetHits": [],
+      "pageErrors": [],
+      "consoleErrors": [
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED",
+        "Failed to load resource: net::ERR_FAILED"
+      ],
+      "verdict": {
+        "hasReal": true,
+        "decodesPng1x1": true,
+        "noPlaceholder": true,
+        "thumbRealOk": true,
+        "noPageError": true,
+        "pass": true
+      }
+    }
+  ],
+  "allPass": true
+}

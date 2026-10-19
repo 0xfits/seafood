@@ -83,7 +83,8 @@ const HomePage = () => {
         status: isClaimed ? 'claimed' : storesCount > 0 ? 'available' : 'locked',
         statusText: isClaimed ? t('common.redeemed') : storesCount > 0 ? t('common.redeemable') : t('common.outOfStock'),
         rarity: prize.points > 5000 ? 'epic' : prize.points > 2000 ? 'rare' : 'common',
-        image: prize.image_url || prize.url_image || PLACEHOLDER_IMAGE, // P6-MISC-FIX ⑤：原 '/placeholder.jpg' 仓库内不存在
+        // 媒体单前端阶段 A：真图优先（media_urls[0]）> 旧字段 > 机械鱼占位（assets/placeholder）
+        image: prize.media_urls?.[0] || prize.image_url || prize.url_image || PLACEHOLDER_IMAGE,
         claimed: prize.claims_count || 0,
         total: (prize.claims_count || 0) + storesCount,
         limited: Boolean(prize.gift_limit || prize.time_end),

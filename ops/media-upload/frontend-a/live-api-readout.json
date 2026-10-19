@@ -1,0 +1,22 @@
+{
+  "capturedAt": "2026-10-19T11:55:56.335720",
+  "instance": "dev backend 5788 (panel sid seafood-api, restarted pid 42608 after database.ts edit)",
+  "health_schema_version": "0050",
+  "GET /api/prize/all": {
+    "rows_returned": 3,
+    "row_keys_include_media_urls": true,
+    "first_row_bID": 1,
+    "first_row_media_urls": [
+      "p4b2c://a.png"
+    ],
+    "total_keys_per_row": 45
+  },
+  "GET /api/prize/1": {
+    "has_media_urls": true,
+    "media_urls_value": [
+      "p4b2c://a.png"
+    ],
+    "bID": 1
+  },
+  "note": "media_urls 为纯增键（旧行为不变）；dev 夹具行的 p4b2c://a.png 是既有 dev 数据（P4B2C 批遗留），非本批写入。"
+}
