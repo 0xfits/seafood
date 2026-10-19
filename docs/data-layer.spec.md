@@ -1,5 +1,6 @@
 # 海鲜市场 · P3 数据层口径（Data Layer Spec）
 
+> **文档状态（最新）**：**v0.38**（2026-10-20；**本次 = 「商品分类枚举落库：`listing.item_type text` 可空 + 三值 CHECK（`Digital` / `PhysicalFreeShip` / `PhysicalBuyerShip`）+ **存量不回填（`NULL` = 未分类）** · 迁移 `0053_listing_item_type.sql` 内容契约（实现单创建 · apply 由 Zang）」—— 新增 §40.8；§1–§40.7 一字未动；纯追加删行 0**）· 姊妹册 = `route-layer.spec` **§49.11 续登**（写口 `POST /api/listing` 可选 `item_type` · 非法 400 · 读口加性键 feed 48 / 详情 47 · 注册点仍 110）+ `design-system.spec` **§26.12**（包邮标签）+ `master-plan` **§5.435 + 版本行 v0.352** + 交付件 `ops/item-type/SPEC-NOTE.md`。**`DL` 编号域零改动**（仍 `DL1..DL157`，不新增 `DL` 条 —— 本节以 `IT-*` 承载）；**章节编号未重排**（追加为 **§40.8**）。
 > **文档状态（最新）**：**v0.37**（2026-10-19；**本次 = 「`users` 头像列契约：迁移 `0052_users_avatar_url.sql`（`avatar_url text` 可空 · 无写入口）+ `seller.avatar` 改读该列 + `maskWalletAddress` 星号定式连带」—— 新增 §40.7；§1–§40.6 一字未动；纯追加删行 0**）· 姊妹册 = `design-system.spec` v1.25 §26 + `master-plan` §5.428 + `route-layer.spec` §41.3 勘误
 > **文档状态（最新）**：**v0.36**（2026-10-19；**本次 = 「体积硬顶收口 2MiB ⇒ 1MiB：`0051_media_size_cap_1mb.sql` 落盘形态 + `0050` 自检 ⑦ 旧值留痕」** —— **只增不改 · 追加式**、**`DL*` 条文与 §21–§40.5 一字未动**、旧写法**不静默重写**（§40.1 的 `≤ 2MiB` 与 §40.5 的 `<= 2097152` **逐字保留**、读法以 §40.6 为准）。**依据** = 实现 `ffa3635` 落盘迁移 `0051`（**81 行**：`DROP CONSTRAINT IF EXISTS media_size_bytes_check` ⇒ `ADD CONSTRAINT media_size_bytes_check CHECK (size_bytes > 0 AND size_bytes <= 1048576)` + `DO $$` 自检三面〔含 `1048576` / 旧上限 `2097152` 零残留 / 无 `>1MiB` 存量行〕· 幂等 · 零 `BEGIN`/`COMMIT`）+ QA `D1`/`D2`（`pg_constraint` 现取含 `1048576`、`2097152` 零命中；`INSERT 1048577` ⇒ **23514** 零留行）+ 生产 `/api/health`（`schema_version = "0051"`）⇒ 正文 = **§40.6**。**`DL` 编号域零改动**（仍 `DL1..DL157`，不新增 `DL` 条）；**章节编号未重排**（追加为 **§40.6**）。**范围** = **只写本册**（零代码 / 零库写 / 零 HTTP / 未跑门）；姊妹册 = `route-layer.spec` **v2.41 §48.9** + `master-plan` **§5.424** + 交付件 `ops/media-size-1mb/SPEC-NOTE-closure.md`。**★ 头注留痕（诚实登记）**：紧邻其下的 **v0.35** 行仍带「文档状态（最新）」字样 —— 受「只追加 / `git diff --numstat` 删除列 = 0」硬口径约束，**未改写该行** ⇒ 以文件最上方的本行（v0.36）为现行版。
 > **文档状态（最新）**：**v0.35**（2026-10-19；**本次 = 「媒体上传单实现回写：`0050_media_store.sql` 落盘形态 + 两库 apply 态」** —— **只增不改 · 追加式**、**`DL*` 条文与 §21–§40.4 一字未动**、旧写法**不静默重写**。**依据** = 实现单 `a6d718d` 落盘迁移 + 生产 `/api/health` 现取（`schema_version = "0050"` · `ok:true`）+ QA `AC1`（`schema_migration` 顶 `0050` 恰 1 行 · 结构 **14/14** · 既有表 `ALTER`/`DROP`/`UPDATE`/`DELETE`/`INSERT` = 0）⇒ 正文 = **§40.5**。**`DL` 编号域零改动**（仍 `DL1..DL157`，不新增 `DL` 条）；**章节编号未重排**（追加为 **§40.5**）。**范围** = **只写本册**（零代码 / 零库写 / 零 HTTP / 未跑门）；姊妹册 = `route-layer.spec` **v2.40 §48.8**（同批实现回写）+ `master-plan` **§5.423**（四段闭环）+ `OPEN-ITEMS` **v2.42**（`B33`/`B34` 仍挂账）。**★ 头注留痕（诚实登记）**：紧邻其下的 **v0.34** 行仍带「文档状态（最新）」字样 —— 受「只追加 / `git diff --numstat` 删除列 = 0」硬口径约束，**未改写该行** ⇒ 以文件最上方的本行（v0.35）为现行版。
@@ -5017,3 +5018,72 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_users_tg_user_id
 - **写入口：无。** 本契约明确「无写入口」—— 头像**上传/展示能力不存在**、待立单（`OPEN-ITEMS B41`）；本列只把存储位先让出来（列先行的低风险形态）。
 - **不变式冲击**：无 NOT NULL / 无 FK / 无默认 ⇒ 零冲击既有读写；`schema_version` 0051 → 0052（apply 后现取）。
 - **诚实边界**：本节编制时点迁移文件**未落盘**（实现单创建）；apply 前置三条（`neon.project_id` / `schema_migration` 顶 / 目标列不存在）照 §40.5 体例。
+
+### 40.8 `listing.item_type` 列契约（商品分类枚举 · 2026-10-20 · 迁移 `0053_listing_item_type.sql` · 实现单创建 / apply 由 Zang）
+
+> **本节性质**：**只登记新列契约 + 三值闭集 + 存量语义**；§40.1–§40.7 一字未改、旧写法不静默重写。**`DL` 编号域零改动**（仍 `DL1..DL157`，本节以 `IT-*` 承载、**不新增 `DL` 条**）；**章节编号未重排**（追加为 **§40.8**）。**依据** = Kevin 2026-10-20 需求（逐字转引自本单派单；**原始会话未入仓** ⇒ 与 Kevin 原话若有出入，以 Kevin 一句话为准，见 §40.8 A 脚注）。姊妹册 = `route-layer.spec` **§49.11 续登** + `design-system.spec` **§26.12** + `master-plan` **§5.435**。
+
+**A. 列契约（冻结）**
+
+| 项 | 值 | 说明 |
+|---|---|---|
+| 表 / 列 | `public.listing.item_type` | 既有表**加列**，不建新表 |
+| 类型 | `text` | 不设长度上限（三值最长 `PhysicalBuyerShip` = 17 字符；不写 `varchar(n)` 以免将来加值要改类型） |
+| 可空性 | **可空**（**不加** `NOT NULL`） | 存量与「未分类」都需要 `NULL` ⇒ **不得**加 `NOT NULL` |
+| 默认值 | **零默认**（等价 `DEFAULT NULL`） | 缺省即未分类；**不得**写 `DEFAULT 'Digital'` 之类（会把「没说」变成「说了」） |
+| 约束 | **恰 1 条** `CHECK (item_type IS NULL OR item_type IN ('Digital','PhysicalFreeShip','PhysicalBuyerShip'))`，具名 `listing_item_type_check` | `NULL` 必须放行（存量 + 未分类）；三值**大小写敏感** |
+| 语义 | 商品分类（`Digital` 虚拟 / `PhysicalFreeShip` 实物包邮 / `PhysicalBuyerShip` 实物买家付运费） | **不是**物流字段、**不是**运费金额；卡面只消费 `PhysicalFreeShip` |
+| 索引 | **零索引** | `item_type` 不进任何 `WHERE` / `ORDER BY`（§40.8 D）⇒ 建索引 = 无消费方 |
+| 写入面 | **唯一** = `POST /api/listing`（创建口，见 route §49.11） | 编辑口 / 状态口**均不写**该列 |
+| 读取面 | feed 行 + 详情 `data`（加性键，见 route §49.11） | 原样下发三值字面或 `null`，**服务端不翻译** |
+
+- **脚注（依据披露）**：本节引用的 Kevin 需求文字为本单派单转引（「商品分类枚举 `ItemType { Digital, PhysicalFreeShip, PhysicalBuyerShip }`；其中 `PhysicalFreeShip` 在卡片上显示中文标签【包邮】…」），**非原始会话逐字入仓**。
+
+**B. 三值闭集（大小写敏感 · 唯一读法）**
+
+| 值（逐字） | 语义 | 卡面 |
+|---|---|---|
+| `Digital` | 虚拟 / 数码类（无实物物流） | **不显示**标签 |
+| `PhysicalFreeShip` | 实物 · **卖家包邮** | **显示「包邮」标签**（唯一显示值，design §26.12） |
+| `PhysicalBuyerShip` | 实物 · 买家承担运费 | **不显示**标签 |
+| `NULL` | **未分类**（存量 / 未填） | **不显示**标签 |
+
+- **非法值举例（写口 400 / 库侧 `23514` 两道闸）**：`digital`、`DIGITAL`、`physical_free_ship`、`free`、`包邮`、`''`（空串）、`0`、`true`、任意其它字符串。**闭集外零容忍**（不做大小写归一、不做别名映射 —— 归一化会让「同一语义两个值」进库，将来统计分叉）。
+- **`NULL` ≠ `Digital`**：可见结果相同（都不显示标签），**语义不等**（`NULL` = 未分类、可被将来管理面筛出补录；`Digital` = 已明确表态）。**不得**把 `NULL` 回填成 `Digital`。
+- **UI 2 + 2 分解不改存储形态**：发布页拆成「数字/实物」+「包邮/不包邮」两控件（design §26.12.4），三者合成后仍是**本表三值之一**；**库里不存在「运费」列 / 字段**，服务端只认 `item_type`（route §49.11 ⑤）—— 引用「`shipping` 字段」的口径一律作废。
+
+**C. 迁移内容契约（`0053_listing_item_type.sql`）**
+
+- **加列**：`ALTER TABLE public.listing ADD COLUMN IF NOT EXISTS item_type text;` —— 可空、零默认、**零 DML**（无 `UPDATE` / `INSERT` / `DELETE`；**存量不回填**）。
+- **加约束（幂等形态，承 §40.6 A 体例）**：先 `ALTER TABLE public.listing DROP CONSTRAINT IF EXISTS listing_item_type_check;` 再 `ALTER TABLE public.listing ADD CONSTRAINT listing_item_type_check CHECK (item_type IS NULL OR item_type IN ('Digital','PhysicalFreeShip','PhysicalBuyerShip'));` —— **显式命名 + 先删后加** ⇒ 反复 apply 落**同一终态**、库内**恰 1 条**、不会新旧并存（列内联 CHECK 由 PostgreSQL 自动命名 = `<表>_<列>_check`，显式名与之一致，承 `0051` 同名复用先例）。
+- **尾部 `DO $$` 自检（四面 · 任一不成立 ⇒ `RAISE` ⇒ 整迁移回滚、不写 `schema_migration` 行）**：① 列在场且 `information_schema.columns.is_nullable = 'YES'`（防被加 `NOT NULL`）；② 约束在场且 `pg_get_constraintdef(oid)` 含**三值字面全部**（`Digital` / `PhysicalFreeShip` / `PhysicalBuyerShip`）——防「值漏一个 / 只加列没加闸」；③ **全表 `item_type IS NOT NULL` 行数 = 0**（**fail-loud**：存量被回填 = 契约被违，须先对账再 apply）；④ 列与约束**各恰 1**（幂等重跑读数不变）。
+- **事务**：文件内**零 `BEGIN`/`COMMIT`**（`scripts/migrate.ts` 逐文件包事务并在同事务内写版本行）。
+- **零索引 / 零触发器 / 零视图**：不建索引（无消费方）、不加 append-only 触发器（该表非留痕面）、不建视图。
+- **apply 后外部闭环**：`/api/health` 的 `schema_version` 翻 **`0053`** + `schema_migration` 顶部 = `0053`；`listing` **列数 13 → 14**（现取口径 = §40.5 QA 抽查读数 `listing 13`）。
+- **先 apply 后 push** 铁律不变（承 v0.32 / v0.33 口径）。
+
+**D. 存量语义与读法（不回填 · 唯一解释）**
+
+- 存量行（编制时点 dev `listing` 行数**未取** ⇒ `NOT_MEASURED`）一律落 `NULL`；**不设默认、不写 `UPDATE`、不做启发式回填** —— 标题 / 描述无结构化分类信息，按价格 / 图片 / 关键字猜 = **造数据**，比留 `NULL` 更坏。
+- `NULL` 的读法 = **未分类**：卡片不显示任何标签（design §26.12.3 显示矩阵），**绝不显示「包邮」**。
+- 将来补录（管理面按 `NULL` 筛选、人工逐个指定）= **另立单**；本节不授权任何回填路径。
+
+**E. 对既有不变式的冲击 + 未测项（诚实边界 · 禁填 0/空）**
+
+- **冲击 = 0**：无 `NOT NULL` / 无 FK / 无默认 / 无触发器 / 零 DML / 零 `DROP` / 零既有列改动；`ledger_*` 与资金不变式、`DL*` 条文全不涉及；读写口形状只**加**一个键（route §49.11）。
+- **未测项（全部 `NOT_MEASURED` · 归实现单 / 质检单）**：① `0053` 文件编制时点**未落盘**（**收笔时点已由并行实现单落盘，见 §40.8 F**）；② 两库（dev `quiet-math-65207667` / 生产）**均未 apply**，`schema_migration` 顶未取；③ `CHECK` 兜底（`INSERT` 非法值 ⇒ `23514`、零留行）**未实测**；④ 存量行数与 `item_type IS NULL` 计数**未取**；⑤ `/api/health` `schema_version` 编制时点现取 = **`0052`**（**不是** 0053 —— 迁移尚未写）。
+
+**F. 并行实现单现取（2026-10-20 收笔时点 · **本单不背书**）**
+
+> **触发**：本单收笔前发现并行实现单已**落盘** `backend-ts/migrations/0053_listing_item_type.sql`（**82 行** · 未提交）+ 改动 `backend-ts/src/{listing-service,database,index}.ts`（未提交）。以下只**登记差额**，§40.8 A–E 契约字面**一字未改**；采信顺序承 §40.5/§40.6 体例 = **落盘形态为准、契约字面留痕**。
+
+| # | 项 | 本节契约（A–C） | 落盘现取 | 处置 |
+|---|---|---|---|---|
+| 1 | 幂等写法 | 先 `DROP CONSTRAINT IF EXISTS` 再 `ADD CONSTRAINT` | `DO $$ … IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname='listing_item_type_check' AND conrelid='public.listing'::regclass) THEN ADD …` | **终态等价**（库内恰 1 条、可反复 apply）；以落盘为准，契约写法留痕 |
+| 2 | 约束字面 | 三值 `IN ('Digital','PhysicalFreeShip','PhysicalBuyerShip')` + `IS NULL` 放行 | **逐字一致**（`:28`） | 无差额 |
+| 3 | 自检 ③ | `item_type IS NOT NULL` 行数 = **0**（拦「存量被回填」） | **非法值行数 = 0**（`IS NOT NULL AND NOT IN (三值)`） | **差额（落盘松一档）**：合法值回填**不会红**。契约仍 = 存量不回填（由「迁移零 DML + 人工纪律」保证），**不擅改自检**；要收紧 = 实现单改 SQL 或另立迁移，本册登记即可 |
+| 4 | 附加自检 | ① 列在场 + 可空 | ① 列在场 + **`data_type='text'`** + 可空；② 三值 + **`IS NULL`** 必须在 `pg_get_constraintdef` 内 | 落盘**更严**，采纳 |
+| 5 | 列 / 数据 | `ADD COLUMN IF NOT EXISTS item_type text` · 零 DML | 逐字一致（`:15`），全文件**零 `UPDATE`/`DELETE`/`INSERT`** | 无差额 |
+
+- **apply 态（现取 · 收笔时点）**：**未 apply** —— dev `/api/health` `schema_version` 仍 = **`0052`**；生产库读数与 `schema_migration` 顶仍 `NOT_MEASURED`。
+- **未做的读数**：`CHECK` 兜底 `23514` 实测、存量行数、`item_type IS NULL` 计数 —— **仍未取**（表未改）。
