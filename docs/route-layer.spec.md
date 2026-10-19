@@ -425,6 +425,10 @@
 > **状态：v2.41（上限收口 · **单张媒体硬顶 2MiB ⇒ 1MiB（= 1,048,576 B）** —— **只改「上限」这一条数值**，§48.2 / §48.4 #2 / §48.8 的 `2MiB` 字面**逐字保留**（§48.2 段末追加 1 行指针）：★★ **契约变更 = `POST /api/media` 解码后 `≤ 1,048,576`**（`MEDIA_MAX_BYTES` `index.ts:3680` 现取）· ★ **边界判据是 `>` 不是 `>=`**（恰 1,048,576 ⇒ **200**；1,048,577 ⇒ **400 `MEDIA_SIZE_EXCEEDED`** + `details = {decoded_bytes, max_bytes:1048576}`，**非 413**）· ★ **客户端 16 档降级链**（质量 `[0.82,0.72,0.62,0.5]` × 边长 `[1280,1120,960,832]`，全超 ⇒ 该张拒收 + `item.imageTooLarge`）· ★ **注册点仍 110**（`p7b-03` **37/37**）· ★ 键数 **flat 1109⇒1110 / 四语节点 4436⇒4440 / `item` 52⇒53 / top 128 不变** · 正文 = **§48.9**）（**只追加 · §1–§48.8 一字未动（§48.2 仅追加 1 行指针）** · 本笔零代码（只写 `docs/**`））** · 作者角色 = **Jing（Specifier · 制度员）** · 单号 = **JING-SPEC-MEDIA-RT-1MB**
 > **v2.41 修订入口**：逐条 delta → 依据锚点 → 改动点 = **本册 §48.9**（**不建独立 delta 件**，承 v2.29 / v2.30 / v2.32 / v2.35–v2.40 先例）；姊妹册 = `data-layer.spec` **v0.36 §40.6** + `master-plan` **§5.424** + 实现 `ffa3635` + 质检 `19875e7`。
 > **★★ v2.41 本单要点（先说结论，不含糊）**：① 上限**只改数值、不改形状**（超限仍 **400** + R107 + `MEDIA_*` 借码；`413` 只属「请求体撞 `express.json` 4mb」）；② **三层同口径**（handler 常量 / DB CHECK / 客户端编码上限）；③ 客户端降级 = 质量档 × 边长档交叉 **16 档**，**全超才拒收**（不拿超限图去撞服务端）；④ **注册点与错误码闭集零变化**（110 / 33 码账本不动）；⑤ `2MiB` 旧字面**一处不删**，只在 §48.2 追加指针行。
+> **状态：v2.42（综合排序契约冻结 · **首页 / 商品列表「综合排序」—— 只换排序轴、不换行形状**：★★ `score = 0.8×recency + 0.2×rating`（`recency = 1/(1+age_days)` · `rating = COALESCE(卖家收到评分均值, 3.0)/5` · `ORDER BY score DESC, time_created DESC, listing_id DESC`）· 作用面 = `listBrands` 共用的 `/api/home` 与 `/api/prize/all` · **零新路由（注册点 110）· 零迁移 · 零响应键变化（`score` 排他派生列不下发）** · 分页仍位置分页、语义不变 · 正文 = **§49**）（**只追加 · §1–§48.9 一字未动** · 本笔零代码（只写 `docs/**` + `ops/feed-ranking/SPEC-NOTE.md`））** · 作者角色 = **Jing（Specifier · 制度员）** · 单号 = **JING-SPEC-FEED-RANK**
+> **v2.42 修订入口**：逐条 delta → 依据锚点 → 改动点 = **本册 §49**（**不建独立 delta 件**，承 v2.29 / v2.30 / v2.32 / v2.35–v2.41 先例）；姊妹册 = `master-plan` **§5.425** + `OPEN-ITEMS`（`B35` / `B36`）+ 交付件 `ops/feed-ranking/SPEC-NOTE.md`。**凡与本册 §49 冲突处，一律以现盘为准**（被登记面 = Kevin 2026-10-19 定稿 + 实现单在改未提交）。
+> **★★ v2.42 本单要点（先说结论，不含糊）**：① **只换排序轴、不换行形状**（`score` 只在子查询里参与 `ORDER BY`，不进响应行）；② **旧口径缺陷逐条写明**（`ORDER BY listing_id` 升序 + `LIMIT` ⇒ 新发永远排队尾；dev 26 件时首页只取 `[1..8]`、新发 `76` 不可见）；③ **权重 / 中性分 = 具名常量**（`FEED_RECENCY_WEIGHT` / `FEED_RATING_WEIGHT` / `FEED_RATING_NEUTRAL_STARS`）⇒ **配置化另立单、不动 `app_config` 合法键**；④ **三级 tie-break 全确定**（`score DESC, time_created DESC, listing_id DESC` ⇒ 全序无并列）；⑤ **分页语义不变**（`skip/limit` 缺省与上下限一字未改）；⑥ **判负 6 条**（首条非最新 / 两次请求异序 / `score` 漏进响应 / 注册点 111 / 分页重漏 / 两口不同序）。
+
 > **v2.19 修订入口**：逐条 delta → 依据锚点 → 改动点 = `docs/audit/route-layer-v2.19-delta.md`（**同批姊妹册** = `docs/audit/data-layer-v0.26-delta.md` + `docs/audit/commission-v0.4-delta.md`）。**凡与 Zang 裁定冲突处，一律以 Zang 裁定为准**（本单为 P9⑤ 契约冻结；**未改写任何裁定、未发明任何路径 / 数值 / 权限键 / 文案值**）。**★ 姊妹册（同批）**：`docs/commission.spec.md` **v0.4 §19** + `docs/data-layer.spec.md` **v0.26 §34**，**本册不重抄其条文、只指路**。
 > **★★ v2.19 本单要点（先说结论，不含糊）**：① **零新用户面口**（邀请奖励 = 结算腿，无独立读 / 动作口）；② **后台配置面复用**（费率 + 6 项权重矩阵）；③ **注册点 `87 → 87`（+0）**；④ **权限键 11 键内（零增删）**；⑤ **错误码零新增 + `R107`**；⑥ **真生效四段（①③④ 段）**；⑦ **连带门改版**（`p8-s2` 8 键 / 守卫常量 / 页字段面随 `R-9-1` ⇒ 归实现单）。
 
@@ -9166,3 +9170,87 @@ for v in get post put delete patch; do printf "%s " "$v"; grep -cE "^app\.$v\(" 
 | 5 | 注册点复算 | **`regs === 110`** | 109 / 111 判负 |
 
 **自证与未做项（诚实边界）**：本笔只写 `docs/**` + `ops/media-size-1mb/SPEC-NOTE-closure.md`，`backend-ts/**` / `frontend/**` **零改动**；`git diff --numstat` **删除列 = 0**（§48.2 只追加 1 行指针）。**未做**：① 生产**真上传 E2E**（需真用户登录 · 生产 `media` 表 **0 行**）⇒ 1MiB / 1MiB+1 边界**只在 dev 同版本代码实测**，生产仅验 `401` / `404` / 占位渲染 / 同版 sha256 证明；② `media.err.*` 四语键仍未补（400 文案走 R107 英文 `message`，前端未消费）；③ `B33` 孤儿 media 清理 / `B34` 上传防刷限速**仍挂账**。
+
+---
+
+## §49 ★★ **综合排序契约**：`score = 0.8×recency + 0.2×rating`（`/api/home` 与 `/api/prize/all` 共用 `listBrands`）（**v2.42 新增 · 本节只追加 · 依据 = Kevin 2026-10-19 定稿「首页 / 商品列表改综合排序：发布时间权重最大，额外权重给到发布者的评价分数，后续完善算法」**）
+
+> **本节 = 排序轴的唯一现行契约**。本册此前**无任何排序条文**（`grep -n 'ORDER BY listing_id' docs/route-layer.spec.md` 现取命中 **0**）⇒ 不存在「旧句作废」问题，**删除行 0**；旧实现口径（`ORDER BY l.listing_id` 升序）在代码注释与 `ops/feed-ranking/SPEC-NOTE.md` 留痕。
+> **实现面状态（编制时点 · 必须披露）**：`backend-ts/src/database.ts` 现为 **`M`（未提交）** —— 实现单（Kong）正在改同一函数。本册只登记**契约**；行号一律标「编制时点现取」，**行号随实现漂移时以符号名 `listBrands` / 常量名为锚**。
+
+### 49.1 作用面（哪些口 · 零新路由）
+
+| # | 对外读口 | 调用链（编制时点现取） | 参数口径（本单不动） |
+|---|---|---|---|
+| 1 | `GET /api/prize/all` | `index.ts:605` → `DatabaseService.listPrizes(skip, limit)`（`database.ts:4514`）→ `listBrands`（`database.ts:2590`） | `getPagination(req)`：`skip / limit` 照旧 |
+| 2 | `GET /api/home` | `index.ts:913` → `listPrizes(0, prizeLimit)`（`index.ts:932`） | `prize_limit` **缺省 8 / 上限 16**（`index.ts:914-915`）；`task_limit` 缺省 6 / 上限 12（**`job` 轴排序未动**） |
+
+- **唯一改动点 = `listBrands` 的 `ORDER BY`**；两读口**共用同一函数** ⇒ 不得为任一口单开排序分支（判负 #6）。
+- **零新路由**：注册点 **`110`**（get **49** / post **57** / put 0 / delete 3 / patch 1；`grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts` 现取）⇒ 写成 **111** 即判负。
+- **零迁移 / 零 DDL / 零新错误码 / 零新幂等键 / 零资金腿**。
+
+### 49.2 公式与常量（冻结 · v1）
+
+```text
+score   = FEED_RECENCY_WEIGHT × recency + FEED_RATING_WEIGHT × rating
+recency = 1 / (1 + age_days)      age_days = GREATEST((now() − l.time_created) / 86400, 0)
+rating  = COALESCE(avg(r.stars) WHERE r.ratee_uid = l.seller_uid, FEED_RATING_NEUTRAL_STARS) / 5
+ORDER BY score DESC, l.time_created DESC, l.listing_id DESC
+```
+
+| 常量 | 值 | 语义 | 现取落点 |
+|---|---|---|---|
+| `FEED_RECENCY_WEIGHT` | **0.8** | 发布时间权重（**最大项**） | `database.ts:565` |
+| `FEED_RATING_WEIGHT` | **0.2** | 卖家评价权重 | `database.ts:566` |
+| `FEED_RATING_NEUTRAL_STARS` | **3.0** | 无评分中性分（五星中位 ⇒ 不奖不罚） | `database.ts:567` |
+| 分母 `5` | **5.0** | `stars numeric(5,4)` 值域 `0…5`（`0031:72` CHECK `rating_stars_rng`） | SQL 字面量 `5.0` |
+
+- **三条硬约束**：① 权重 / 中性分**只许以具名常量出现**，SQL 侧引用同源常量（**不得散落 `0.8` / `0.2` / `3.0` 字面量**）；② **v1 = 代码常量**，配置化**另立单**（`OPEN-ITEMS` `B36`）；③ **不动 `app_config` 合法键**（`LEGAL_APP_CONFIG_KEYS` 零改动）—— 排序参数**不是**配置项，不得为它开键。
+- **数值语义（代入中性 3.0 ⇒ 评分项恒 0.12）**：新发 `0.8 + 0.12 = 0.92` · 1 天 `0.4 + 0.12 = 0.52` · 7 天 `0.1 + 0.12 = 0.22` · 30 天 `≈ 0.0256 + 0.12 ≈ 0.146`；满 5 星卖家 `+0.2`（上限 1.0）、0 星卖家 `−0.12`。**评分只做同档微调、压不过时效**（`0.2 < 0.8`）。
+- **聚合轴 = `ratee_uid`，不分 `direction`**（`direction` 四值闭集只区分谁评谁，不影响「该卖家收到的分」）；**无任何评分行 ⇒ 中性 3.0**（不是 0、不是 NULL 排序）。
+
+### 49.3 确定性 tie-break 与分页语义
+
+- **三级键全确定**：`score DESC, time_created DESC, listing_id DESC`。`listing_id` 是 PK（唯一）⇒ **全序无并列**；同一时间戳（同事务插入多行 `DEFAULT now()` 可同值）由 `time_created DESC` 拆、再同由 `listing_id DESC` 兜底 ⇒ **不存在「同分随机」**。
+- **两次请求同序**：`now()` 在**单条语句内恒定**（PG 事务开始时刻）；时点整体后移对每行 `recency` 同向递减，且 `recency` 对 `time_created` **严格单调** ⇒ 相对序不变（同库态下评分项亦不变）⇒ 连续两次请求**必须逐位同序**（判负 #2）。
+- **分页语义不变**：仍是**位置分页**（`LIMIT ${limit} OFFSET ${skip}`），`skip / limit` 缺省与上下限**一字未改**。
+  - **已知性质（非本单引入、不在本单修）**：位置分页在「翻页期间有新发布插入」时会跨页重复 / 漏项（窗口滑动）—— 旧口径同样存在 ⇒ 挂 `OPEN-ITEMS` `B35`，若要做稳定翻页须改**游标分页 = 另一单**。
+- **响应行键集不变**：`score` 是**排他派生列**（只在子查询参与 `ORDER BY`；`normalizeBrand`（`database.ts:1438`）逐键显式构造输出、无 `...row` 展开）⇒ **不得下发**（判负 #3；dev 现取行键 **45**、`score` 零命中）。
+
+### 49.4 判负（6 条 · 质检必带）
+
+| # | 输入 / 探针 | 期望 | 判负 |
+|---|---|---|---|
+| 1 | `GET /api/home` 的 `data.prizes[0]`（**`rating` 表 0 行的库况**） | = `time_created` 最大的 listing（dev 现取 `76`） | 首条非最新 ⇒ 判负 |
+| 1′ | 同 #1 但**库内已有评分行** | 对全量行按 §49.2 **逐条复算 `score`**，与响应顺序**逐位相等** | 任一位不等 ⇒ 判负（★#1 的「最新在首」只在「评分全中性」等价条件下成立，**不得**当无条件判据） |
+| 2 | 同库态连续两次（间隔 ≥1s）请求同一 `skip/limit` | `bID` 数组**逐位相同** | 顺序不同 ⇒ 判负 |
+| 3 | 任一行 JSON 键集 | 与改前键集**逐键相同**（现取 **45 键**）；`score` **零命中** | 出现 `score`（或任何新键）⇒ 判负 |
+| 4 | 注册点复算 | `regs === 110` | 111 / 109 ⇒ 判负 |
+| 5 | `?skip=0&limit=8` 与 `?skip=8&limit=8`（同库态、无插入） | 交集 **∅**、并集 **16** 行 | 重复 / 缺行 ⇒ 判负 |
+| 6 | `/api/prize/all?limit=8` 与 `/api/home`（`prize_limit` 缺省 8） | 前 8 条 `bID` **逐位相同** | 不一致 ⇒ 判负（证明两读口共用 `listBrands`、未开分支） |
+
+### 49.5 旧口径缺陷根因（现取 · 写作依据）
+
+- **旧实现**：`ORDER BY l.listing_id`（**升序**）+ `LIMIT` ⇒ 「越早发布越靠前」⇒ **新发布永远排队尾**；首页 `prize_limit` 缺省 8 ⇒ 只看得见最早 8 件。
+- **dev 现取（2026-10-19 · `listing` 26 行）**：`listing_id` 全集 = `[1..24, 71, 76]`；旧查询 `ORDER BY listing_id LIMIT 8 OFFSET 0` ⇒ `[1..8]`；新发 **`76`**（`seller_uid = 970213` · `time_created = 2026-10-19 04:55:51.714191+00`）在首页**第 1 页永不可见**。
+- **归因二分（诚实）**：① **代码口径缺陷** = 排序轴选错（本节修的是它）；② **环境误认** = 报障那次发布落在 **dev 库**（生产库无该行；`dev / 生产` 库分离是既有口径）—— **不属代码缺陷**、本单不改环境口径。
+
+### 49.6 索引与性能（现取 · 本单不加索引）
+
+- `rating` 表**已存在**（`0031_rating_and_order_event.sql:56`）且索引**已就位**：`idx_rating_ratee_time (ratee_uid, time_created DESC)`、`idx_rating_target`、PK、两条 UNIQUE（dev `pg_indexes` 现取 5 条）。
+- 卖家轴聚合 = `WHERE r.ratee_uid = l.seller_uid`（相关子查询）⇒ **走 `idx_rating_ratee_time` 前导列**，**无需单列 `ratee_uid` 索引**（复合索引前导列可检索）。
+- **今日 `rating` 0 行**（dev 现取 `count(*) = 0`；生产同为空表 ⇒ **转引派单背景、本笔未连生产验证**）⇒ 聚合每次至多扫 0 行、`COALESCE` 恒落中性分 ⇒ **评分项对全体等值**，当前表现 = **严格发布时间倒序**。
+- 上量后的真问题 = 「每行一次聚合」+「全表排序」，**不是缺索引** ⇒ 另立单评估（`OPEN-ITEMS` `B36`），**本单零 DDL**。
+
+### 49.7 现取自证（编制时点）
+
+| 项 | 读数 |
+|---|---|
+| 注册点 | **110**（get 49 / post 57 / put 0 / delete 3 / patch 1） |
+| `rating` 行数（dev） | **0** |
+| `rating` 索引（dev） | `idx_rating_ratee_time` / `idx_rating_target` / `rating_pk` / `rating_once_uniq` / `rating_idem_uniq`（5） |
+| 作用面函数 | `listBrands`（`database.ts:2590`）← `listPrizes`（`:4514`）← 两读口（`index.ts:605` / `:932`） |
+| 迁移 | **0** |
+| 本笔改动 | 只写 `docs/**` + `ops/feed-ranking/SPEC-NOTE.md`；三册 `git diff --numstat` **删除列 = 0** |
+
+**未做（诚实边界）**：本节只冻结契约，**未实现、未质检、未上线**（实现归 Kong；编制时点 `database.ts` 为 `M` 未提交）；生产库 `rating` 行数与生产排序**未实测**（本笔不连生产）；前端「排序切换」UI **未登记、未做**。
