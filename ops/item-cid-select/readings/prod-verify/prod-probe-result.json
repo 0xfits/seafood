@@ -1,0 +1,57 @@
+{
+ "at": "2026-10-19T01:27:06.669Z",
+ "pages": [
+  {
+   "path": "/",
+   "pageerrors": [],
+   "consoleErrors": [],
+   "rootChildren": 2,
+   "rootText": "Seafood 海鲜市场 | 社区任务 | 市场 | 订单 | 语言 | 注册 | 登录 | 欢迎来到 Jinli Club |  | 参与任务，赚取$，兑换精彩奖励 |  | 立即注册 | 发布闲置 | 热门任",
+   "hooks": {
+    "itemSelect": 0,
+    "jobsSelect": 0,
+    "legacyItem": 0,
+    "legacyJobs": 0
+   }
+  },
+  {
+   "path": "/item/new",
+   "pageerrors": [],
+   "consoleErrors": [],
+   "rootChildren": 2,
+   "rootText": "Seafood 海鲜市场 | 社区任务 | 市场 | 订单 | 语言 | 注册 | 登录 | 请先登录 | 简体中文 | English | 粤语 | Tiếng Việt |  | © 2024-2026 Ab",
+   "hooks": {
+    "itemSelect": 0,
+    "jobsSelect": 0,
+    "legacyItem": 0,
+    "legacyJobs": 0
+   }
+  },
+  {
+   "path": "/task/new",
+   "pageerrors": [],
+   "consoleErrors": [],
+   "rootChildren": 2,
+   "rootText": "Seafood 海鲜市场 | 社区任务 | 市场 | 订单 | 语言 | 注册 | 登录 | 请先登录 | 简体中文 | English | 粤语 | Tiếng Việt |  | © 2024-2026 Ab",
+   "hooks": {
+    "itemSelect": 0,
+    "jobsSelect": 0,
+    "legacyItem": 0,
+    "legacyJobs": 0
+   }
+  },
+  {
+   "path": "/item/1",
+   "pageerrors": [],
+   "consoleErrors": [],
+   "rootChildren": 2,
+   "rootText": "Seafood 海鲜市场 | 社区任务 | 市场 | 订单 | 语言 | 注册 | 登录 | $ | 1 | 单价 | VPN月卡 |  | 物品编号 #1 · - |  | VPN 使用权一个月 |  | 库存 - |  | 闲置",
+   "hooks": {
+    "itemSelect": 0,
+    "jobsSelect": 0,
+    "legacyItem": 0,
+    "legacyJobs": 0
+   }
+  }
+ ]
+}

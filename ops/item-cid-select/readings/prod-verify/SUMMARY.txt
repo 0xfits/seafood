@@ -1,0 +1,7 @@
+same_version_proof
+JS  7f03960e0da7a1eb  prod == local HEAD(c62ac45)
+CSS 5eb062edac683032 prod == local HEAD(c62ac45)
+markers: item-select-cid=1 jobs-select-cid=1 /api/currencies=1 legacy=0/0
+currencies: 200 rows=2 keys=3 BTTC prod cid=4 (dev=21, 各库行集不同)
+health: schema_version=0049 (无迁移, 不变) task/all=3 prize/all=4
+probe: 4 pages / 0 pageerror / 0 console error
