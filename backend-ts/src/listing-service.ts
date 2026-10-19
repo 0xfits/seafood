@@ -90,6 +90,39 @@ export const resolveListingCreateKey = (
   return { ok: true, key: provided, derived: false };
 };
 
+// ---- 商品分类枚举（迁移 0053；Kevin 第 5 条）--------------------------------
+// 闭集唯一真源 = `migrations/0053_listing_item_type.sql` 的 CHECK（'Digital' /
+// 'PhysicalFreeShip' / 'PhysicalBuyerShip'）；本常量与之逐字一致，仅作**入参闸**（不落库、不派生）。
+// 语义：Digital = 虚拟/数字商品 · PhysicalFreeShip = 实物包邮 · PhysicalBuyerShip = 实物买家付运费。
+export const ITEM_TYPES = ['Digital', 'PhysicalFreeShip', 'PhysicalBuyerShip'] as const;
+export type ItemType = (typeof ITEM_TYPES)[number];
+
+/**
+ * `item_type` 入参规范化（§3.2 形状闸，体例对齐仓内闭集闸 `compliance-review-service` /
+ * `currency-review-service`）：未传 / `null` ⇒ `null`（= 未分类，存量行同义）；
+ * **空串 / 闭集外 / 非字符串 / 大小写不符 ⇒ 400** `LEDGER_AMOUNT_INVALID` + `details.field='listing.item_type'`
+ * + `reason`（`NOT_A_STRING` / `NOT_IN_CLOSED_SET` + `provided`/`allowed`）——零新错误码（33 码闭集不动）。
+ */
+export const normalizeItemType = (
+  raw: unknown,
+): { ok: true; value: ItemType | null } | { ok: false; err: VerbErr } => {
+  if (raw === undefined || raw === null) return { ok: true, value: null };
+  if (typeof raw !== 'string') return { ok: false, err: shapeError('listing.item_type', 'NOT_A_STRING') };
+  const text = raw.trim();
+  if (!(ITEM_TYPES as readonly string[]).includes(text)) {
+    return {
+      ok: false,
+      err: fail(
+        400,
+        'LEDGER_AMOUNT_INVALID',
+        { field: 'listing.item_type', reason: 'NOT_IN_CLOSED_SET', provided: text, allowed: [...ITEM_TYPES] },
+        'Request shape is invalid',
+      ),
+    };
+  }
+  return { ok: true, value: text as ItemType };
+};
+
 // ---- 入参规范化（§3.2：形状非法 ⇒ 400；金额 = 最小单位整数，§4.4-9）----------
 type IntOk = { ok: true; value: number };
 type IntErr = { ok: false; err: VerbErr };
@@ -170,6 +203,8 @@ export const createListing = async (params: {
   title?: unknown;
   description?: unknown;
   mediaUrls?: unknown;
+  /** 商品分类（迁移 0053）：闭集 `ItemType`，未传 ⇒ null（未分类）。仅创建时定，编辑/状态迁移不可改。 */
+  itemType?: unknown;
   createKeyRaw?: unknown;
 }): Promise<VerbResult> => {
   const uidErr = reservedUidGate(Number(params.sellerUid), 'listing.seller_uid');
@@ -185,6 +220,9 @@ export const createListing = async (params: {
   if (!description.ok) return description.err;
   const mediaUrls = toOptionalUrls(params.mediaUrls);
   if (!mediaUrls.ok) return mediaUrls.err;
+  // §3.2 形状闸：分类只允许三值闭集（非法 ⇒ 400，**早于**任何 DB 调用）
+  const itemType = normalizeItemType(params.itemType);
+  if (!itemType.ok) return itemType.err;
   const title = typeof params.title === 'string' ? params.title : (params.title === undefined || params.title === null ? '' : null);
   if (title === null) return shapeError('listing.title', 'NOT_A_STRING');
 
@@ -202,8 +240,16 @@ export const createListing = async (params: {
     title,
     description: description.value || '',
     mediaUrls: mediaUrls.value || [],
+    itemType: itemType.value,
     createKey: resolvedKey.key,
   });
+
+  // ★ 幂等指纹口径（迁移 0053 选择）：`item_type` **不进**指纹 —— 指纹字段集沿用既有 6 字段
+  //   （`seller_uid, cid, price, title, description, media_urls`，见 `fingerprintOf` 上方注释：可重构不变子集、
+  //   仓库面无指纹列）。理由：① 指纹集是**创建幂等判据**的冻结口径，扩列会把「同键同请求重放」的判定面改宽，
+  //   影响的是**既有** create_key 的语义（本单不该动）；② 分类**创建后不可变**（编辑/PATCH 均不写该列），
+  //   同键重投带不同 item_type 属客户端误用 ⇒ 落 `replay`（200）并回**库内**真值 + `idempotent_replay: true`，
+  //   客户端可据此发现分歧，无静默写入错误；③ 若要 409 判负，需另单扩指纹（须同批改 `fingerprintOf` 与比对数组）。
 
   if (write.outcome === 'existing') {
     if (fingerprintOf(write.row) !== JSON.stringify([Number(params.sellerUid), cid.value, price.value, title, description.value || '', mediaUrls.value || []])) {

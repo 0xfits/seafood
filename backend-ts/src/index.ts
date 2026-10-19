@@ -2721,6 +2721,8 @@ app.post('/api/listing', async (req, res) => {
       title: body.title,
       description: body.description,
       mediaUrls: body.media_urls,
+      // 商品分类（迁移 0053）：可选 `item_type`，闭集三值；未传 ⇒ null（未分类）。闸在服务层（非法 ⇒ 400）。
+      itemType: body.item_type,
       createKeyRaw: body.create_key,
     });
     if (!result.ok) return sendVerbError(res, result);

@@ -1132,6 +1132,11 @@ export interface BrandRecord {
   url_image: string;
   /** 媒体单前端阶段 A：`listing.media_urls` 读侧透出（媒体 URL 数组，真图 `/api/media/:id`；无媒体 ⇒ 空数组）。 */
   media_urls: string[];
+  /** ★ 2026-10-20 商品分类枚举（迁移 0053）：`listing.item_type` 读侧透出。
+   *   闭集 `ItemType` = 'Digital' | 'PhysicalFreeShip' | 'PhysicalBuyerShip'；
+   *   **存量行 NULL**（= 未分类，前端不显示标签）⇒ 本键恒在场、值为 `string | null`（不是缺键）。
+   *   feed（`listBrands`）与详情（`getBrandById`）同源 `l.*` ⇒ 两口**各 +1 键**（feed 47→48、详情 46→47）。 */
+  item_type: string | null;
   points: number;
   market_floor_points: number;
   duration_seconds: number;
@@ -1507,6 +1512,10 @@ const normalizeBrand = (
     url_image: imageUrl,
     // 媒体单前端阶段 A：`listing` 表已带 `media_urls`（l.* 直取），归一层原先丢弃 ⇒ 补透出（纯增键、向后兼容）。
     media_urls: toStringArrayValue(getValue(row, 'media_urls')),
+    // ★ 2026-10-20 商品分类枚举（迁移 0053）：feed 与详情同源 `l.*` ⇒ 两口各 +1 键
+    //   （feed 47→48、详情 46→47）。值为闭集三字面量之一或 NULL（= 未分类 / 列未迁移时的兜底）；
+    //   **恒在场**（不按行缺列选择性省略）——分类是**行属性**不是卖家/聚合派生面，前端按 null 判「无标签」。
+    item_type: toStringValue(getValue(row, 'item_type')) || null,
     points: toNumberValue(getValue(row, 'points', 'price')),
     market_floor_points: marketFloorPoints,
     duration_seconds: durationSeconds,
@@ -3586,7 +3595,9 @@ export class DatabaseService {
     return (rows[0] as { value?: unknown } | undefined)?.value ?? null;
   }
 
-  /** P1-a 上架：幂等 = `listing.create_key` UNIQUE（同键 ⇒ `existing`，由 service 判重放 / 冲突） */
+  /** P1-a 上架：幂等 = `listing.create_key` UNIQUE（同键 ⇒ `existing`，由 service 判重放 / 冲突）
+   *  ★ 2026-10-20 商品分类枚举（迁移 0053）：`itemType` 可选（`null` = 未分类）；分类**只在创建时定**，
+   *  编辑（`updateListingRow`）与状态迁移都不写该列 ⇒ 本函数是 `item_type` 的**唯一写点**。 */
   static async createListingRow(input: {
     sellerUid: number;
     cid: number;
@@ -3595,25 +3606,26 @@ export class DatabaseService {
     title: string;
     description: string;
     mediaUrls: string[];
+    itemType: string | null;
     createKey: string;
   }): Promise<{ outcome: 'inserted' | 'existing'; row: RawRow }> {
     const sql = getSql();
     const rows = extractRows(await sql`
       WITH existing AS (
-        SELECT listing_id, seller_uid, cid, price, stock, title, description, media_urls, status, create_key
+        SELECT listing_id, seller_uid, cid, price, stock, title, description, media_urls, item_type, status, create_key
         FROM public.listing
         WHERE create_key = ${input.createKey}::text
       ),
       ins AS (
-        INSERT INTO public.listing (seller_uid, cid, price, stock, title, description, media_urls, status, create_key)
-        SELECT ${input.sellerUid}::bigint, ${input.cid}::bigint, ${input.price}::bigint, ${input.stock}::int, ${input.title}::text, ${input.description}::text, ${input.mediaUrls}::text[], 'draft', ${input.createKey}::text
+        INSERT INTO public.listing (seller_uid, cid, price, stock, title, description, media_urls, item_type, status, create_key)
+        SELECT ${input.sellerUid}::bigint, ${input.cid}::bigint, ${input.price}::bigint, ${input.stock}::int, ${input.title}::text, ${input.description}::text, ${input.mediaUrls}::text[], ${input.itemType}::text, 'draft', ${input.createKey}::text
         WHERE NOT EXISTS (SELECT 1 FROM existing)
-        RETURNING listing_id, seller_uid, cid, price, stock, title, description, media_urls, status, create_key, 'inserted'::text AS outcome
+        RETURNING listing_id, seller_uid, cid, price, stock, title, description, media_urls, item_type, status, create_key, 'inserted'::text AS outcome
       )
-      SELECT i.listing_id, i.seller_uid, i.cid, i.price, i.stock, i.title, i.description, i.media_urls, i.status, i.create_key, i.outcome
+      SELECT i.listing_id, i.seller_uid, i.cid, i.price, i.stock, i.title, i.description, i.media_urls, i.item_type, i.status, i.create_key, i.outcome
       FROM ins AS i
       UNION ALL
-      SELECT e.listing_id, e.seller_uid, e.cid, e.price, e.stock, e.title, e.description, e.media_urls, e.status, e.create_key, 'existing'::text
+      SELECT e.listing_id, e.seller_uid, e.cid, e.price, e.stock, e.title, e.description, e.media_urls, e.item_type, e.status, e.create_key, 'existing'::text
       FROM existing AS e
     `);
     const row = rows[0] || null;

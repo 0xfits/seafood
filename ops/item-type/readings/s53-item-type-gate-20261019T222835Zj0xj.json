@@ -1,0 +1,516 @@
+{
+  "run": "20261019T222835Zj0xj",
+  "name": "s53-item-type-gate",
+  "at": "2026-10-19T22:28:42.319Z",
+  "script": "scripts/s53-00-item-type-gate.ts",
+  "live": {
+    "feed": {
+      "rows": 9,
+      "keyCounts": [
+        48
+      ],
+      "itemTypePresent": true,
+      "itemTypeValues": [
+        "null"
+      ]
+    },
+    "detail": {
+      "bID": 76,
+      "db_layer_keys": 46,
+      "http_top_keys": 47,
+      "item_type": null,
+      "seller_in_route": true
+    }
+  },
+  "preflight": {
+    "state": "PRE_APPLY",
+    "max_applied": "0052",
+    "pending": [
+      "0053"
+    ],
+    "column": null,
+    "constraint_def": null,
+    "rows_with_item_type": 0
+  },
+  "dry_run": {
+    "result": {
+      "first_run": "ok",
+      "second_run": "ok",
+      "column": {
+        "data_type": "text",
+        "is_nullable": "YES"
+      },
+      "constraint_def": "CHECK (((item_type IS NULL) OR (item_type = ANY (ARRAY['Digital'::text, 'PhysicalFreeShip'::text, 'PhysicalBuyerShip'::text]))))",
+      "probe_listing_id": "1",
+      "writes": [
+        {
+          "value": "Digital",
+          "ok": true,
+          "sqlstate": null
+        },
+        {
+          "value": "PhysicalFreeShip",
+          "ok": true,
+          "sqlstate": null
+        },
+        {
+          "value": "PhysicalBuyerShip",
+          "ok": true,
+          "sqlstate": null
+        },
+        {
+          "value": "Bogus",
+          "ok": false,
+          "sqlstate": "23514"
+        }
+      ]
+    },
+    "rolled_back": true,
+    "error": null
+  },
+  "migration": {
+    "file": "backend-ts/migrations/0053_listing_item_type.sql",
+    "bytes": 3437,
+    "sha256": "3b93769b2f93847961f45654357d4d38f3466fd16bf2a3cff65ef21a564d9c23"
+  },
+  "unit": [
+    {
+      "id": "U1-Digital",
+      "what": "闭集值 `Digital` ⇒ 通过且原值透出",
+      "pass": true,
+      "reading": "Digital"
+    },
+    {
+      "id": "U1-PhysicalFreeShip",
+      "what": "闭集值 `PhysicalFreeShip` ⇒ 通过且原值透出",
+      "pass": true,
+      "reading": "PhysicalFreeShip"
+    },
+    {
+      "id": "U1-PhysicalBuyerShip",
+      "what": "闭集值 `PhysicalBuyerShip` ⇒ 通过且原值透出",
+      "pass": true,
+      "reading": "PhysicalBuyerShip"
+    },
+    {
+      "id": "U2-undefined",
+      "what": "未传 / undefined ⇒ null（未分类）",
+      "pass": true,
+      "reading": "null"
+    },
+    {
+      "id": "U2-null",
+      "what": "未传 / null ⇒ null（未分类）",
+      "pass": true,
+      "reading": "null"
+    },
+    {
+      "id": "U2-空串",
+      "what": "未传 / 空串 ⇒ null（未分类）",
+      "pass": true,
+      "reading": "null"
+    },
+    {
+      "id": "U3-小写 digital",
+      "what": "小写 digital ⇒ 400 NOT_IN_CLOSED_SET（大小写敏感）",
+      "pass": true,
+      "reading": {
+        "status": 400,
+        "code": "LEDGER_AMOUNT_INVALID",
+        "reason": "NOT_IN_CLOSED_SET"
+      }
+    },
+    {
+      "id": "U3-空格包裹仍合法",
+      "what": "空格包裹仍合法 ⇒ 通过（trim 后闭集命中）",
+      "pass": true,
+      "reading": "Digital"
+    },
+    {
+      "id": "U4-枚举外 Physical",
+      "what": "枚举外 Physical ⇒ 400（NOT_IN_CLOSED_SET + field=listing.item_type + allowed 闭集）",
+      "pass": true,
+      "reading": {
+        "status": 400,
+        "code": "LEDGER_AMOUNT_INVALID",
+        "details": {
+          "field": "listing.item_type",
+          "reason": "NOT_IN_CLOSED_SET",
+          "allowed": [
+            "Digital",
+            "PhysicalFreeShip",
+            "PhysicalBuyerShip"
+          ]
+        }
+      }
+    },
+    {
+      "id": "U4-数字 123",
+      "what": "数字 123 ⇒ 400（NOT_A_STRING + field=listing.item_type + allowed 闭集）",
+      "pass": true,
+      "reading": {
+        "status": 400,
+        "code": "LEDGER_AMOUNT_INVALID",
+        "details": {
+          "field": "listing.item_type",
+          "reason": "NOT_A_STRING"
+        }
+      }
+    },
+    {
+      "id": "U5-Digital",
+      "what": "createListing 三值之一 `Digital` ⇒ 200 且写入口收到 itemType='Digital'（原样落库，不派生）",
+      "pass": true,
+      "reading": {
+        "createCalls": 1,
+        "itemType": "Digital",
+        "view": "Digital"
+      }
+    },
+    {
+      "id": "U5-PhysicalFreeShip",
+      "what": "createListing 三值之一 `PhysicalFreeShip` ⇒ 200 且写入口收到 itemType='PhysicalFreeShip'（原样落库，不派生）",
+      "pass": true,
+      "reading": {
+        "createCalls": 1,
+        "itemType": "PhysicalFreeShip",
+        "view": "PhysicalFreeShip"
+      }
+    },
+    {
+      "id": "U5-PhysicalBuyerShip",
+      "what": "createListing 三值之一 `PhysicalBuyerShip` ⇒ 200 且写入口收到 itemType='PhysicalBuyerShip'（原样落库，不派生）",
+      "pass": true,
+      "reading": {
+        "createCalls": 1,
+        "itemType": "PhysicalBuyerShip",
+        "view": "PhysicalBuyerShip"
+      }
+    },
+    {
+      "id": "U6",
+      "what": "未传 item_type ⇒ 写入口收到 null（= 未分类，存量行同义）",
+      "pass": true,
+      "reading": {
+        "itemType": null
+      }
+    },
+    {
+      "id": "U7-Digital2",
+      "what": "非法 item_type=`Digital2` ⇒ 400 NOT_IN_CLOSED_SET 且 DB 调用 0 次（闸在 currencyGate 之前）",
+      "pass": true,
+      "reading": {
+        "status": 400,
+        "code": "LEDGER_AMOUNT_INVALID",
+        "reason": "NOT_IN_CLOSED_SET",
+        "gateCalls": 0,
+        "createCalls": 0
+      }
+    },
+    {
+      "id": "U7-physicalfreeship",
+      "what": "非法 item_type=`physicalfreeship` ⇒ 400 NOT_IN_CLOSED_SET 且 DB 调用 0 次（闸在 currencyGate 之前）",
+      "pass": true,
+      "reading": {
+        "status": 400,
+        "code": "LEDGER_AMOUNT_INVALID",
+        "reason": "NOT_IN_CLOSED_SET",
+        "gateCalls": 0,
+        "createCalls": 0
+      }
+    },
+    {
+      "id": "U7-physical",
+      "what": "非法 item_type=` physical` ⇒ 400 NOT_IN_CLOSED_SET 且 DB 调用 0 次（闸在 currencyGate 之前）",
+      "pass": true,
+      "reading": {
+        "status": 400,
+        "code": "LEDGER_AMOUNT_INVALID",
+        "reason": "NOT_IN_CLOSED_SET",
+        "gateCalls": 0,
+        "createCalls": 0
+      }
+    },
+    {
+      "id": "U8",
+      "what": "同键重放（指纹 6 字段一致、本次未传分类）⇒ 200 replay=true 且 view.item_type = 库内值（披露：分类不进指纹）",
+      "pass": true,
+      "reading": {
+        "replay": true,
+        "item_type": "PhysicalBuyerShip"
+      }
+    }
+  ],
+  "checks": [
+    {
+      "id": "A0",
+      "what": "迁移文件 `0053_listing_item_type.sql` 在场（编号现取 = 最大 0052 + 1）",
+      "pass": true,
+      "reading": "/Users/kevin/bistro/seafood/backend-ts/migrations/0053_listing_item_type.sql"
+    },
+    {
+      "id": "A1",
+      "what": "加列：`ALTER TABLE public.listing ADD COLUMN IF NOT EXISTS item_type text`",
+      "pass": true,
+      "reading": "hit=true"
+    },
+    {
+      "id": "A2",
+      "what": "三值 CHECK 逐字（Digital / PhysicalFreeShip / PhysicalBuyerShip）+ 允许 NULL",
+      "pass": true,
+      "reading": "ok"
+    },
+    {
+      "id": "A3",
+      "what": "约束名 `listing_item_type_check` + 幂等守卫（先查 `pg_constraint` 且 `conrelid = public.listing::regclass`，再 ADD）",
+      "pass": true,
+      "reading": "pg_constraint=true conrelid_scope=true"
+    },
+    {
+      "id": "A4",
+      "what": "文件内**不写**事务控制 BEGIN;/COMMIT;（DO 块内的 PL/pgSQL `BEGIN … END` 与 0052 同族，非事务控制）",
+      "pass": true,
+      "reading": "tx_control_hits=0 do_blocks=2"
+    },
+    {
+      "id": "A5",
+      "what": "尾部 DO 自检 7 项（列在场 / 类型 text / 可空 / 约束在场 / 定义含三值 / 定义允许 NULL / 表内非法值 0 行）",
+      "pass": true,
+      "reading": "hits=7/7"
+    },
+    {
+      "id": "A6",
+      "what": "不回填：文件内**无** `UPDATE public.listing` / `SET item_type` / `DEFAULT`（存量行保持 NULL）",
+      "pass": true,
+      "reading": "update=false default=false"
+    },
+    {
+      "id": "A7",
+      "what": "历史迁移零改动（git 工作树 migrations/ 下唯一变动 = 新增 0053；0050-0052 一字未动）",
+      "pass": true,
+      "reading": "[\"?? backend-ts/migrations/0053_listing_item_type.sql\"]"
+    },
+    {
+      "id": "B1",
+      "what": "`POST /api/listing` 透传 `body.item_type`（index.ts）",
+      "pass": true,
+      "reading": "ok"
+    },
+    {
+      "id": "B2",
+      "what": "INSERT 列 + INSERT SELECT + RETURNING + 两臂 SELECT 均带 `item_type`（5 处）",
+      "pass": true,
+      "reading": "hits=5"
+    },
+    {
+      "id": "B3",
+      "what": "编辑/状态迁移**不写**该列（`updateListingRow` 段内 item_type 命中 = 0；`updateListing` 签名无 itemType）",
+      "pass": true,
+      "reading": "upd_row_item_type_hits=0"
+    },
+    {
+      "id": "B4",
+      "what": "`PATCH /api/listing/:id` 只收 `to_status`/`status`（分类不可改）",
+      "pass": true,
+      "reading": "ok"
+    },
+    {
+      "id": "B5",
+      "what": "服务层闭集常量与迁移 CHECK 逐字一致（三值 + 顺序）",
+      "pass": true,
+      "reading": "[\"Digital\",\"PhysicalFreeShip\",\"PhysicalBuyerShip\"]"
+    },
+    {
+      "id": "B6",
+      "what": "幂等指纹字段集未改（`fingerprintOf` 仍 6 字段，item_type 不进指纹）",
+      "pass": true,
+      "reading": "field_set=6 fields=seller_uid,cid,price,title,description,media_urls"
+    },
+    {
+      "id": "U1-Digital",
+      "what": "闭集值 `Digital` ⇒ 通过且原值透出",
+      "pass": true,
+      "reading": "Digital"
+    },
+    {
+      "id": "U1-PhysicalFreeShip",
+      "what": "闭集值 `PhysicalFreeShip` ⇒ 通过且原值透出",
+      "pass": true,
+      "reading": "PhysicalFreeShip"
+    },
+    {
+      "id": "U1-PhysicalBuyerShip",
+      "what": "闭集值 `PhysicalBuyerShip` ⇒ 通过且原值透出",
+      "pass": true,
+      "reading": "PhysicalBuyerShip"
+    },
+    {
+      "id": "U2-undefined",
+      "what": "未传 / undefined ⇒ null（未分类）",
+      "pass": true,
+      "reading": "null"
+    },
+    {
+      "id": "U2-null",
+      "what": "未传 / null ⇒ null（未分类）",
+      "pass": true,
+      "reading": "null"
+    },
+    {
+      "id": "U2-空串",
+      "what": "未传 / 空串 ⇒ null（未分类）",
+      "pass": true,
+      "reading": "null"
+    },
+    {
+      "id": "U3-小写 digital",
+      "what": "小写 digital ⇒ 400 NOT_IN_CLOSED_SET（大小写敏感）",
+      "pass": true,
+      "reading": "{\"status\":400,\"code\":\"LEDGER_AMOUNT_INVALID\",\"reason\":\"NOT_IN_CLOSED_SET\"}"
+    },
+    {
+      "id": "U3-空格包裹仍合法",
+      "what": "空格包裹仍合法 ⇒ 通过（trim 后闭集命中）",
+      "pass": true,
+      "reading": "Digital"
+    },
+    {
+      "id": "U4-枚举外 Physical",
+      "what": "枚举外 Physical ⇒ 400（NOT_IN_CLOSED_SET + field=listing.item_type + allowed 闭集）",
+      "pass": true,
+      "reading": "{\"status\":400,\"code\":\"LEDGER_AMOUNT_INVALID\",\"details\":{\"field\":\"listing.item_type\",\"reason\":\"NOT_IN_CLOSED_SET\",\"allowed\":[\"Digital\",\"PhysicalFreeShip\",\"PhysicalBuyerShip\"]}}"
+    },
+    {
+      "id": "U4-数字 123",
+      "what": "数字 123 ⇒ 400（NOT_A_STRING + field=listing.item_type + allowed 闭集）",
+      "pass": true,
+      "reading": "{\"status\":400,\"code\":\"LEDGER_AMOUNT_INVALID\",\"details\":{\"field\":\"listing.item_type\",\"reason\":\"NOT_A_STRING\"}}"
+    },
+    {
+      "id": "U5-Digital",
+      "what": "createListing 三值之一 `Digital` ⇒ 200 且写入口收到 itemType='Digital'（原样落库，不派生）",
+      "pass": true,
+      "reading": "{\"createCalls\":1,\"itemType\":\"Digital\",\"view\":\"Digital\"}"
+    },
+    {
+      "id": "U5-PhysicalFreeShip",
+      "what": "createListing 三值之一 `PhysicalFreeShip` ⇒ 200 且写入口收到 itemType='PhysicalFreeShip'（原样落库，不派生）",
+      "pass": true,
+      "reading": "{\"createCalls\":1,\"itemType\":\"PhysicalFreeShip\",\"view\":\"PhysicalFreeShip\"}"
+    },
+    {
+      "id": "U5-PhysicalBuyerShip",
+      "what": "createListing 三值之一 `PhysicalBuyerShip` ⇒ 200 且写入口收到 itemType='PhysicalBuyerShip'（原样落库，不派生）",
+      "pass": true,
+      "reading": "{\"createCalls\":1,\"itemType\":\"PhysicalBuyerShip\",\"view\":\"PhysicalBuyerShip\"}"
+    },
+    {
+      "id": "U6",
+      "what": "未传 item_type ⇒ 写入口收到 null（= 未分类，存量行同义）",
+      "pass": true,
+      "reading": "{\"itemType\":null}"
+    },
+    {
+      "id": "U7-Digital2",
+      "what": "非法 item_type=`Digital2` ⇒ 400 NOT_IN_CLOSED_SET 且 DB 调用 0 次（闸在 currencyGate 之前）",
+      "pass": true,
+      "reading": "{\"status\":400,\"code\":\"LEDGER_AMOUNT_INVALID\",\"reason\":\"NOT_IN_CLOSED_SET\",\"gateCalls\":0,\"createCalls\":0}"
+    },
+    {
+      "id": "U7-physicalfreeship",
+      "what": "非法 item_type=`physicalfreeship` ⇒ 400 NOT_IN_CLOSED_SET 且 DB 调用 0 次（闸在 currencyGate 之前）",
+      "pass": true,
+      "reading": "{\"status\":400,\"code\":\"LEDGER_AMOUNT_INVALID\",\"reason\":\"NOT_IN_CLOSED_SET\",\"gateCalls\":0,\"createCalls\":0}"
+    },
+    {
+      "id": "U7-physical",
+      "what": "非法 item_type=` physical` ⇒ 400 NOT_IN_CLOSED_SET 且 DB 调用 0 次（闸在 currencyGate 之前）",
+      "pass": true,
+      "reading": "{\"status\":400,\"code\":\"LEDGER_AMOUNT_INVALID\",\"reason\":\"NOT_IN_CLOSED_SET\",\"gateCalls\":0,\"createCalls\":0}"
+    },
+    {
+      "id": "U8",
+      "what": "同键重放（指纹 6 字段一致、本次未传分类）⇒ 200 replay=true 且 view.item_type = 库内值（披露：分类不进指纹）",
+      "pass": true,
+      "reading": "{\"replay\":true,\"item_type\":\"PhysicalBuyerShip\"}"
+    },
+    {
+      "id": "U9",
+      "what": "桩已回收（两静态方法逐字还原到原型方法）",
+      "pass": true,
+      "reading": "restored"
+    },
+    {
+      "id": "R1",
+      "what": "feed（`listBrands`）行键**恰 48**（47→48，加性 1 键）",
+      "pass": true,
+      "reading": "rows=9 keyCounts=[48]"
+    },
+    {
+      "id": "R2",
+      "what": "feed 每行 `item_type` **键恒在场**（值 = 闭集或 null，非缺键）",
+      "pass": true,
+      "reading": "present=true values=[\"null\"]"
+    },
+    {
+      "id": "R3",
+      "what": "详情顶层**恰 47 键**（46→47；DB 归一器 45→46，路由层 `{ ...prize, seller }` +1 复算）",
+      "pass": true,
+      "reading": "bID=76 db_layer=46 http_top=47"
+    },
+    {
+      "id": "R4",
+      "what": "详情两口 `item_type` 同键同值（feed 行 vs 详情归一器，均取 `listing.item_type`）",
+      "pass": true,
+      "reading": "{\"feed\":null,\"detail_db\":null,\"detail_http\":null}"
+    },
+    {
+      "id": "P1",
+      "what": "preflight 版本面：已应用最大 = 0052，PENDING = [0053]（0053 排在队首；本脚本**不 apply**）",
+      "pass": true,
+      "reading": "state=PRE_APPLY max=0052 pending=[\"0053\"]"
+    },
+    {
+      "id": "P2",
+      "what": "preflight 目标面：`listing.item_type` **尚不存在**、约束尚未建（= 迁移待 apply 的正确前态）",
+      "pass": true,
+      "reading": "column=absent constraint=0"
+    },
+    {
+      "id": "P3",
+      "what": "存量行零回填：item_type 非空行数 = 0（期望 0；列未迁移时记 N/A=0）",
+      "pass": true,
+      "reading": "rows_with_item_type=0"
+    },
+    {
+      "id": "Q1",
+      "what": "迁移**干跑**（inRollbackTx）首跑 + 重跑均无报错（尾部自检 7 项通过 = 首跑成功的前提）",
+      "pass": true,
+      "reading": "first=ok second=ok err=null"
+    },
+    {
+      "id": "Q2",
+      "what": "干跑后列 = text/可空 + 约束定义含三值（事务内可见，ROLLBACK 后零残留）",
+      "pass": true,
+      "reading": "{\"column\":{\"data_type\":\"text\",\"is_nullable\":\"YES\"},\"def\":\"CHECK (((item_type IS NULL) OR (item_type = ANY (ARRAY['Digital'::text, 'PhysicalFreeShip'::text, 'PhysicalBuyerShip'::text]))))\"}"
+    },
+    {
+      "id": "Q3",
+      "what": "闭集闸实证（事务内）：三值写入 200/OK、非法值 `Bogus` 被 CHECK 拒（SQLSTATE 23514）",
+      "pass": true,
+      "reading": "[{\"value\":\"Digital\",\"ok\":true,\"sqlstate\":null},{\"value\":\"PhysicalFreeShip\",\"ok\":true,\"sqlstate\":null},{\"value\":\"PhysicalBuyerShip\",\"ok\":true,\"sqlstate\":null},{\"value\":\"Bogus\",\"ok\":false,\"sqlstate\":\"23514\"}]"
+    },
+    {
+      "id": "Q4",
+      "what": "干跑**零残留**：事务一律 ROLLBACK（版本表无 0053 行、列未落盘 —— 由 P1/P2 的 PRE_APPLY 读数交叉印证）",
+      "pass": true,
+      "reading": "rolled_back=true"
+    }
+  ],
+  "summary": {
+    "total": 44,
+    "passed": 44,
+    "failed": 0,
+    "red": []
+  }
+}
