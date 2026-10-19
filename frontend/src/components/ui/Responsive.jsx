@@ -29,7 +29,8 @@ const ResponsiveGrid = ({
   md = 2,
   lg = 3,
   xl = 4,
-  gap = 6 
+  gap = 6,
+  ...rest
 }) => {
   const gridClasses = {
     1: 'grid-cols-1',
@@ -57,6 +58,7 @@ const ResponsiveGrid = ({
         gapClasses[gap],
         className
       )}
+      {...rest}
     >
       {children}
     </div>

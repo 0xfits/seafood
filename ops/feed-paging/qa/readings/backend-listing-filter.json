@@ -1,0 +1,162 @@
+{
+  "at": "2026-10-19T05:33:28.341Z",
+  "env": {
+    "neon_project_id": "quiet-math-65207667",
+    "api": "http://localhost:5788"
+  },
+  "db": {
+    "by_status": {
+      "draft": 15,
+      "listed": 9,
+      "delisted": 2
+    },
+    "total": 26,
+    "listed_ids": [
+      13,
+      14,
+      15,
+      18,
+      19,
+      23,
+      24,
+      71,
+      76
+    ],
+    "not_listed": [
+      {
+        "bID": 1,
+        "status": "draft"
+      },
+      {
+        "bID": 2,
+        "status": "draft"
+      },
+      {
+        "bID": 3,
+        "status": "draft"
+      },
+      {
+        "bID": 4,
+        "status": "draft"
+      },
+      {
+        "bID": 5,
+        "status": "draft"
+      },
+      {
+        "bID": 6,
+        "status": "draft"
+      },
+      {
+        "bID": 7,
+        "status": "delisted"
+      },
+      {
+        "bID": 8,
+        "status": "draft"
+      },
+      {
+        "bID": 9,
+        "status": "draft"
+      },
+      {
+        "bID": 10,
+        "status": "draft"
+      },
+      {
+        "bID": 11,
+        "status": "draft"
+      },
+      {
+        "bID": 12,
+        "status": "draft"
+      },
+      {
+        "bID": 16,
+        "status": "delisted"
+      },
+      {
+        "bID": 17,
+        "status": "draft"
+      },
+      {
+        "bID": 20,
+        "status": "draft"
+      },
+      {
+        "bID": 21,
+        "status": "draft"
+      },
+      {
+        "bID": 22,
+        "status": "draft"
+      }
+    ]
+  },
+  "http": {
+    "GET /api/prize/all?skip=0&limit=36": {
+      "status": 200,
+      "success": true,
+      "count": 9,
+      "bIDs": [
+        76,
+        71,
+        24,
+        23,
+        19,
+        18,
+        15,
+        14,
+        13
+      ]
+    },
+    "GET /api/prize/all?skip=36&limit=36": {
+      "status": 200,
+      "success": true,
+      "count": 0,
+      "bIDs": []
+    },
+    "GET /api/home?task_limit=6&prize_limit=8": {
+      "status": 200,
+      "count": 8,
+      "bIDs": [
+        76,
+        71,
+        24,
+        23,
+        19,
+        18,
+        15,
+        14
+      ]
+    },
+    "GET /api/home?task_limit=6&prize_limit=16": {
+      "status": 200,
+      "count": 9,
+      "bIDs": [
+        76,
+        71,
+        24,
+        23,
+        19,
+        18,
+        15,
+        14,
+        13
+      ]
+    }
+  },
+  "non_listed_leaks": {
+    "prize_all_p0": [],
+    "prize_all_p1": [],
+    "home_prize_limit8": [],
+    "home_prize_limit16": []
+  },
+  "checks": {
+    "prize_all_equals_db_listed": true,
+    "prize_all_second_page_empty": true,
+    "home_prizes_all_listed": true,
+    "zero_non_listed_leak": true
+  },
+  "all_pass": true
+}

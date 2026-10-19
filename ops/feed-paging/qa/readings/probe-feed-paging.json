@@ -1,0 +1,295 @@
+{
+  "at": "2026-10-19T05:32:52.729Z",
+  "real_listed": {
+    "status": 200,
+    "success": true,
+    "rows": [
+      76,
+      71,
+      24,
+      23,
+      19,
+      18,
+      15,
+      14,
+      13
+    ]
+  },
+  "real": [
+    {
+      "arm": "real",
+      "viewport": "390x844",
+      "base": "http://localhost:5800",
+      "listed_api": {
+        "status": 200,
+        "success": true,
+        "count": 9,
+        "bIDs": [
+          76,
+          71,
+          24,
+          23,
+          19,
+          18,
+          15,
+          14,
+          13
+        ]
+      },
+      "first_screen_cards": 9,
+      "first_screen_equal_listed": true,
+      "cards_not_in_listed_api": [],
+      "before_scroll": {
+        "sentinel": true,
+        "end": true,
+        "loading": false,
+        "retry": false,
+        "requests": [
+          "/api/prize/all?skip=0&limit=36",
+          "/api/prize/all?skip=0&limit=36"
+        ]
+      },
+      "after_scroll": {
+        "cards": 9,
+        "ids": 9,
+        "end": true,
+        "loading": false,
+        "retry": false,
+        "requests": [
+          "/api/prize/all?skip=0&limit=36",
+          "/api/prize/all?skip=0&limit=36"
+        ]
+      },
+      "scroll_sent_no_extra_request": true,
+      "strictmode_dev_double_mount": true,
+      "pageerror_count": 0,
+      "pageerror": [],
+      "console_error_count": 0,
+      "console_errors": [],
+      "window_error_count": 0,
+      "window_errors": []
+    },
+    {
+      "arm": "real",
+      "viewport": "1440x900",
+      "base": "http://localhost:5787",
+      "listed_api": {
+        "status": 200,
+        "success": true,
+        "count": 9,
+        "bIDs": [
+          76,
+          71,
+          24,
+          23,
+          19,
+          18,
+          15,
+          14,
+          13
+        ]
+      },
+      "first_screen_cards": 9,
+      "first_screen_equal_listed": true,
+      "cards_not_in_listed_api": [],
+      "before_scroll": {
+        "sentinel": true,
+        "end": true,
+        "loading": false,
+        "retry": false,
+        "requests": [
+          "/api/prize/all?skip=0&limit=36",
+          "/api/prize/all?skip=0&limit=36"
+        ]
+      },
+      "after_scroll": {
+        "cards": 9,
+        "ids": 9,
+        "end": true,
+        "loading": false,
+        "retry": false,
+        "requests": [
+          "/api/prize/all?skip=0&limit=36",
+          "/api/prize/all?skip=0&limit=36"
+        ]
+      },
+      "scroll_sent_no_extra_request": true,
+      "strictmode_dev_double_mount": true,
+      "pageerror_count": 0,
+      "pageerror": [],
+      "console_error_count": 0,
+      "console_errors": [],
+      "window_error_count": 0,
+      "window_errors": []
+    }
+  ],
+  "paged": [
+    {
+      "arm": "paged",
+      "viewport": "390x844",
+      "base": "http://localhost:5800",
+      "fixture": {
+        "page_rows": {
+          "0": 36,
+          "36": 36,
+          "72": 10
+        },
+        "expected_unique": 80
+      },
+      "requests": [
+        {
+          "skip": 0,
+          "limit": 36
+        },
+        {
+          "skip": 0,
+          "limit": 36
+        },
+        {
+          "skip": 36,
+          "limit": 36
+        },
+        {
+          "skip": 72,
+          "limit": 36
+        }
+      ],
+      "skip_order": [
+        0,
+        36,
+        72
+      ],
+      "skip_counts": {
+        "0": 2,
+        "36": 1,
+        "72": 1
+      },
+      "request_sequence_ok": true,
+      "strictmode_dev_double_mount": true,
+      "steps": [
+        {
+          "step": "first-screen",
+          "cards": 36,
+          "requests": 2
+        },
+        {
+          "step": "scroll-1",
+          "cards": 70,
+          "requests": 3,
+          "end": false
+        },
+        {
+          "step": "scroll-2",
+          "cards": 80,
+          "requests": 4,
+          "end": true
+        }
+      ],
+      "monotonic": true,
+      "final": {
+        "cards": 80,
+        "unique_ids": 80,
+        "duplicate_ids": 0,
+        "sentinel": true,
+        "end": true,
+        "loading": false,
+        "retry": false
+      },
+      "pageerror_count": 0,
+      "pageerror": [],
+      "console_error_count": 0,
+      "console_errors": [],
+      "window_error_count": 0,
+      "window_errors": []
+    },
+    {
+      "arm": "paged",
+      "viewport": "1440x900",
+      "base": "http://localhost:5787",
+      "fixture": {
+        "page_rows": {
+          "0": 36,
+          "36": 36,
+          "72": 10
+        },
+        "expected_unique": 80
+      },
+      "requests": [
+        {
+          "skip": 0,
+          "limit": 36
+        },
+        {
+          "skip": 0,
+          "limit": 36
+        },
+        {
+          "skip": 36,
+          "limit": 36
+        },
+        {
+          "skip": 72,
+          "limit": 36
+        }
+      ],
+      "skip_order": [
+        0,
+        36,
+        72
+      ],
+      "skip_counts": {
+        "0": 2,
+        "36": 1,
+        "72": 1
+      },
+      "request_sequence_ok": true,
+      "strictmode_dev_double_mount": true,
+      "steps": [
+        {
+          "step": "first-screen",
+          "cards": 36,
+          "requests": 2
+        },
+        {
+          "step": "scroll-1",
+          "cards": 70,
+          "requests": 3,
+          "end": false
+        },
+        {
+          "step": "scroll-2",
+          "cards": 80,
+          "requests": 4,
+          "end": true
+        }
+      ],
+      "monotonic": true,
+      "final": {
+        "cards": 80,
+        "unique_ids": 80,
+        "duplicate_ids": 0,
+        "sentinel": true,
+        "end": true,
+        "loading": false,
+        "retry": false
+      },
+      "pageerror_count": 0,
+      "pageerror": [],
+      "console_error_count": 0,
+      "console_errors": [],
+      "window_error_count": 0,
+      "window_errors": []
+    }
+  ],
+  "verdict": {
+    "real": {
+      "390x844": true,
+      "1440x900": true
+    },
+    "paged": {
+      "390x844": true,
+      "1440x900": true
+    }
+  },
+  "all_pass": true
+}

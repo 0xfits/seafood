@@ -2606,6 +2606,13 @@ export class DatabaseService {
     //   `score` 是**排他派生列**：`normalizeBrand` 逐键显式列举输出（无 spread）⇒ 不会漏进响应行。
     //   性能注记：`rating` 现 0 行且 `ratee_uid` 无单列索引（`idx_rating_ratee_time` 是 `(ratee_uid, time_created DESC)`
     //   复合索引，前导列可用 ⇒ 子查询仍走索引）—— 真上量后另立单评估，本单不加索引。
+    //
+    // ★ FEED-PAGING-v1（2026-10-19）：**只列可展示商品** —— `WHERE l.status = 'listed'`。
+    //   修前本函数不过滤 status ⇒ dev 库 26 行里 15 行 `draft` + 2 行 `delisted` 会漏进列表
+    //   （用户面出现未上架 / 已下架商品）。本函数同时供 `/api/home` 与 `/api/prize/all`
+    //   ⇒ 两个读口同批生效（**行为变更**：draft/delisted 不再出现在任何列表读口）。
+    //   详情读口 `getBrandById` **不过滤**（下架商品详情仍可查看），本单不动。
+    //   分页语义不变（LIMIT/OFFSET 不变、排序轴不变）；零新路由 / 零迁移 / 零 DDL。
     const rows = extractRows(await sql`
       SELECT
         f.*
@@ -2629,6 +2636,7 @@ export class DatabaseService {
                 )
           ) AS score
         FROM listing AS l
+        WHERE l.status = 'listed'
       ) AS f
       ORDER BY f.score DESC, f.time_created DESC, f.listing_id DESC
       LIMIT ${limit} OFFSET ${skip}

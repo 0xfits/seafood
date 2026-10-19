@@ -70,7 +70,7 @@ describe('HomePage', () => {
         ]
       }
 
-      if (url === '/api/prize/all?limit=8') {
+      if (url === '/api/prize/all?skip=0&limit=36') {
         return [
           {
             bID: 2,
@@ -96,7 +96,7 @@ describe('HomePage', () => {
       expect.objectContaining({ signal: expect.any(AbortSignal) }),
     )
     expect(fetchApiJson).toHaveBeenCalledWith(
-      '/api/prize/all?limit=8',
+      '/api/prize/all?skip=0&limit=36',
       expect.objectContaining({ signal: expect.any(AbortSignal) }),
     )
     expect(toast.error).not.toHaveBeenCalled()
@@ -131,7 +131,7 @@ describe('HomePage', () => {
         ]
       }
 
-      if (url === '/api/prize/all?limit=8') {
+      if (url === '/api/prize/all?skip=0&limit=36') {
         return [
           {
             bID: 7,

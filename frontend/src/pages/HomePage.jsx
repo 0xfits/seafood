@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
@@ -28,8 +28,35 @@ import { buildLocalizedPath, getLanguageFromUrl } from '../utils'
 //     渲染点迁至 /profile 我的交易-我买到的（组件 `./item/MyOrdersPanel` 保留复用，三写动作仍可达）。
 //   ★ 原 `/reward`、`/listing*` 路由已随本单**硬删**（不 301）；卡片动作由「领取」改为「查看详情」（`item.viewDetail`）。
 // ============================================================================
+/**
+ * FEED-PAGING-v1（2026-10-19 · Kevin 指令）
+ *   首页商品 = **统一分页读口** `GET /api/prize/all?skip=<n>&limit=36`：
+ *     ① 首屏 36 条（= 6 行 × 6 列，列数单另行裁定，本单只管数据面）；
+ *     ② 滚到底继续 36/页，**直到某页返回 < 36（或空）**即终止；
+ *     ③ 按 `bID` 去重（综合排序稳定，但分页期间新发商品插队会让相邻页出现重叠行）；
+ *     ④ 失败即停：保留已加载行 + 「重试」按钮，**不自动重试**（避免无限重试打后端）。
+ *   `/api/home` 仍用于 tasks / user_points / claimed_prize_ids（响应形状不动），
+ *   **其 `prizes` 字段不再被首页消费** ⇒ 不存在「8 条聚合口」与「36 条分页口」两份实现。
+ */
+const FEED_PAGE_SIZE = 36
+
+/** 逐页并入 + 按 bID 去重（同一 bID 在后续页重复出现时保留首见行） */
+const mergeRewardPage = (prev, incoming) => {
+  const seen = new Set(prev.map((row) => row.bID ?? row.listing_id))
+  const merged = [...prev]
+  for (const row of incoming) {
+    const key = row.bID ?? row.listing_id
+    if (key == null || key === '' || seen.has(key)) continue
+    seen.add(key)
+    merged.push(row)
+  }
+  return merged
+}
+
 const HomePage = () => {
   const HOME_TASK_LIMIT = 6
+  // 聚合口 `/api/home` 的 `prize_limit` 参数**保留**（响应形状与其它消费不动）；
+  // ★ 但首页商品**不再消费**该字段 —— 见下方 FEED_PAGING 口径。
   const HOME_REWARD_LIMIT = 8
   const navigate = useNavigate()
   const location = useLocation()
@@ -40,11 +67,24 @@ const HomePage = () => {
   const [tasks, setTasks] = useState([])
   const [rewards, setRewards] = useState([])
   const [loading, setLoading] = useState(true)
+  // ★ FEED-PAGING-v1 分页态：`feedLoadingMore` = 下一页在飞；`feedHasMore` = 还有下一页；
+  //   `feedError` = 某页失败（**失败即停**：不自动重试、只给按钮）
+  const [feedLoadingMore, setFeedLoadingMore] = useState(false)
+  const [feedHasMore, setFeedHasMore] = useState(true)
+  const [feedError, setFeedError] = useState(false)
   const [userPoints, setUserPoints] = useState(0)
   const [selectedTask, setSelectedTask] = useState(null)
   const [openActiveModal, setOpenActiveModal] = useState(false)
   // 分类筛选（并入自 `RewardPage`）：all / limited / highValue / claimed
   const [itemFilter, setItemFilter] = useState('all')
+
+  // 分页游标 / 并发闸 / sentinel 锚点。游标只在**请求成功后**前推 ⇒ 失败重试复用同一 skip。
+  const feedSkipRef = useRef(0)
+  const feedHasMoreRef = useRef(true)
+  const feedInFlightRef = useRef(false)
+  const feedCtxRef = useRef(null)
+  const feedSentinelRef = useRef(null)
+  const feedLoadMoreRef = useRef(null)
 
   const getCurrentLang = () => {
     const pathParts = location.pathname.split('/')
@@ -102,16 +142,35 @@ const HomePage = () => {
     const controller = new AbortController()
     const { signal } = controller
 
-    const loadLegacyHomePayload = async () => {
-      const [taskRows, prizeRows] = await Promise.all([
-        fetchApiJson(`/api/task/all?limit=${HOME_TASK_LIMIT}`, { signal }),
-        fetchApiJson(`/api/prize/all?limit=${HOME_REWARD_LIMIT}`, { signal }),
-      ])
+    // 每次（路由 / 身份变化）都从头分页；游标、并发闸、分页态一并复位
+    feedSkipRef.current = 0
+    feedHasMoreRef.current = true
+    feedInFlightRef.current = false
+    setRewards([])
+    setFeedHasMore(true)
+    setFeedError(false)
+    setFeedLoadingMore(false)
+    setLoading(true)
+
+    // 本次运行的上下文（供 sentinel 触发的 `loadMore` 读取；卸载时置 cancelled ⇒ 迟到响应一律丢弃）
+    const ctx = { signal, cancelled: false, lang: 'zh', claimedIds: new Set() }
+    feedCtxRef.current = ctx
+
+    const fetchFeedPage = async (skip) => {
+      const rows = await fetchApiJson(
+        `/api/prize/all?skip=${skip}&limit=${FEED_PAGE_SIZE}`,
+        { signal },
+      )
+      return Array.isArray(rows) ? rows : []
+    }
+
+    // 聚合口不可用时的逐口回落（**只回落 tasks / claimed ids / points**；商品仍走分页口）
+    const loadLegacyHomeMeta = async () => {
+      const taskRows = await fetchApiJson(`/api/task/all?limit=${HOME_TASK_LIMIT}`, { signal })
 
       if (!isAuthenticated || !user?.uID) {
         return {
           tasks: taskRows,
-          prizes: prizeRows,
           claimed_prize_ids: [],
           user_points: 0,
         }
@@ -124,37 +183,50 @@ const HomePage = () => {
 
       return {
         tasks: taskRows,
-        prizes: prizeRows,
         claimed_prize_ids: (claimedPrizeItems || []).map((prizeItem) => prizeItem.bID),
         user_points: asset?.points || 0,
       }
     }
 
     const loadData = async () => {
-      setLoading(true)
       try {
-        const lang = getCurrentLang()
+        const currentLang = getCurrentLang()
+        ctx.lang = currentLang
         const headers = isAuthenticated ? getAuthHeaders(user) : undefined
-        let homePayload
 
-        try {
-          homePayload = await fetchApiJson(
-            `/api/home?task_limit=${HOME_TASK_LIMIT}&prize_limit=${HOME_REWARD_LIMIT}`,
-            { headers, signal },
-          )
-        } catch (homeError) {
+        // 聚合口（tasks / points / claimed ids）与**首屏 36 条**并行；任一失败各自独立处置：
+        //   聚合口失败 ⇒ 既有逐口回落（再失败才 toast）；首屏商品页失败 ⇒ 列表区出「重试」。
+        const metaTask = fetchApiJson(
+          `/api/home?task_limit=${HOME_TASK_LIMIT}&prize_limit=${HOME_REWARD_LIMIT}`,
+          { headers, signal },
+        ).catch(async (homeError) => {
           console.warn('Home aggregate endpoint failed, falling back to legacy requests:', homeError)
-          homePayload = await loadLegacyHomePayload()
-        }
+          return loadLegacyHomeMeta()
+        })
+        const firstPageTask = fetchFeedPage(0).then(
+          (rows) => ({ ok: true, rows }),
+          (error) => ({ ok: false, error }),
+        )
 
+        const homePayload = await metaTask
+        const firstPage = await firstPageTask
         if (cancelled) return
 
-        const taskRows = homePayload?.tasks || []
-        const prizeRows = homePayload?.prizes || []
         const claimedPrizeIds = new Set(homePayload?.claimed_prize_ids || [])
-        setTasks(mapTasksForHome(taskRows, lang))
-        setRewards(mapRewardsForHome(prizeRows, lang, claimedPrizeIds))
+        ctx.claimedIds = claimedPrizeIds
+        setTasks(mapTasksForHome(homePayload?.tasks || [], currentLang))
         setUserPoints(homePayload?.user_points || 0)
+
+        if (firstPage.ok) {
+          feedSkipRef.current = firstPage.rows.length
+          setRewards(mergeRewardPage([], mapRewardsForHome(firstPage.rows, currentLang, claimedPrizeIds)))
+          const hasMore = firstPage.rows.length >= FEED_PAGE_SIZE
+          feedHasMoreRef.current = hasMore
+          setFeedHasMore(hasMore)
+        } else {
+          console.error('Load feed error:', firstPage.error)
+          setFeedError(true)
+        }
       } catch (error) {
         if (!cancelled) {
           console.error('Load data error:', error)
@@ -165,12 +237,62 @@ const HomePage = () => {
       }
     }
 
+    // ★ 下一页：同一时刻**只允许一个在飞**（并发防重）；返回 < 36 ⇒ 终止。
+    const loadMore = async () => {
+      if (cancelled || ctx.cancelled) return
+      if (feedInFlightRef.current || !feedHasMoreRef.current) return
+      feedInFlightRef.current = true
+      setFeedLoadingMore(true)
+      setFeedError(false)
+      try {
+        const rows = await fetchFeedPage(feedSkipRef.current)
+        if (cancelled || ctx.cancelled) return
+        feedSkipRef.current += rows.length
+        setRewards((prev) => mergeRewardPage(prev, mapRewardsForHome(rows, ctx.lang, ctx.claimedIds)))
+        const hasMore = rows.length >= FEED_PAGE_SIZE
+        feedHasMoreRef.current = hasMore
+        setFeedHasMore(hasMore)
+      } catch (error) {
+        // 失败即停：不自动重试，交给「重试」按钮（复用同一 skip）
+        if (!cancelled && !ctx.cancelled) {
+          console.error('Load more feed error:', error)
+          setFeedError(true)
+        }
+      } finally {
+        feedInFlightRef.current = false
+        if (!cancelled && !ctx.cancelled) setFeedLoadingMore(false)
+      }
+    }
+    feedLoadMoreRef.current = loadMore
+
     loadData()
     return () => {
       cancelled = true
+      ctx.cancelled = true
+      feedInFlightRef.current = false
       controller.abort()
     }
   }, [isAuthenticated, location.pathname, user?.uID, user?.token, user?.access_token])
+
+  // 底部 sentinel 观察器：**只在「已出列表 ∧ 还有下一页 ∧ 无错误 ∧ 首屏已完成」时挂载**，卸载即 disconnect。
+  // 依赖里带 `rewards.length` ⇒ 一页落地后重挂：若 sentinel 仍在视口内（列表未铺满屏）会立刻再取下一页，
+  // 直到某页返回 < 36（自然终止）。★ 不读 `window.innerWidth` / `matchMedia`（外壳禁令口径）。
+  useEffect(() => {
+    if (loading || feedError || !feedHasMore) return undefined
+    const node = feedSentinelRef.current
+    if (!node || typeof IntersectionObserver === 'undefined') return undefined
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return
+        const loadMore = feedLoadMoreRef.current
+        if (typeof loadMore === 'function') loadMore()
+      },
+      { rootMargin: '320px 0px' },
+    )
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [loading, feedError, feedHasMore, rewards.length])
 
   const handleTaskAction = (task) => {
     setSelectedTask(task)
@@ -183,6 +305,13 @@ const HomePage = () => {
     const id = reward?.bID ?? reward?.listing_id ?? reward?.id
     if (id == null || id === '') return
     navigate(buildLocalizedPath(lang, `/item/${id}`))
+  }
+
+  // 「重试」按钮：**只在用户点**时才重发（失败即停口径，绝不自动循环重试）；复用同一 skip。
+  const handleFeedRetry = () => {
+    setFeedError(false)
+    const loadMore = feedLoadMoreRef.current
+    if (typeof loadMore === 'function') loadMore()
   }
 
   // ★ v1.20 §22 `T112`（整卡可点击）：卡片链接目标 —— 与 `handleRewardAction` 同一 id 口径，
@@ -313,9 +442,11 @@ const HomePage = () => {
 
             {filteredRewards.length > 0 ? (
               <StaggerContainer>
-                <ResponsiveGrid sm={1} md={2} lg={4} gap={6}>
+                {/* 首屏 / 已加载商品容器（受测钩子 `feed-grid`；卡数 = 子节点卡数） */}
+                <ResponsiveGrid sm={1} md={2} lg={4} gap={6} data-sf-m="feed-grid">
                   {filteredRewards.map((reward, index) => (
-                    <FadeIn key={reward.bID} delay={index * 100}>
+                    // 36+ 条时不再逐条累加延迟（原 `index*100` 到第 36 条要等 3.5s 才显形）
+                    <FadeIn key={reward.bID} delay={Math.min(index, 8) * 100}>
                       <RewardCard
                         reward={reward}
                         to={rewardPath(reward)}
@@ -328,12 +459,47 @@ const HomePage = () => {
                   ))}
                 </ResponsiveGrid>
               </StaggerContainer>
+            ) : feedError ? (
+              <Card variant="inactive">
+                <CardContent className="text-center py-8">
+                  <p className="text-gray-500" data-sf-m="feed-error">{t('uiCommon.loadFailed')}</p>
+                  <Button variant="secondary" size="sm" className="mt-4" data-sf-m="feed-retry" onClick={handleFeedRetry}>
+                    {t('uiError.retry')}
+                  </Button>
+                </CardContent>
+              </Card>
             ) : (
               <Card variant="inactive">
                 <CardContent className="text-center py-8">
                   <p className="text-gray-500">{t('item.empty')}</p>
                 </CardContent>
               </Card>
+            )}
+
+            {/* ★ 无限加载锚点：IntersectionObserver 监听本节点 ⇒ 进视口即取下一页（36/页，<36 终止）。
+                失败即停（不自动重试）⇒ 出「重试」按钮，复用同一 skip。到底 ⇒ 出「没有更多数据了」。 */}
+            {rewards.length > 0 && (
+              <div
+                ref={feedSentinelRef}
+                data-sf-m="feed-sentinel"
+                aria-live="polite"
+                className="mt-6 flex flex-col items-center gap-3"
+              >
+                {feedLoadingMore && (
+                  <div data-sf-m="feed-loading" className="text-sm text-gray-500">{t('loading')}</div>
+                )}
+                {feedError && (
+                  <div className="flex flex-col items-center gap-2">
+                    <span className="text-sm text-red-600" data-sf-m="feed-error">{t('uiCommon.loadFailed')}</span>
+                    <Button variant="secondary" size="sm" data-sf-m="feed-retry" onClick={handleFeedRetry}>
+                      {t('uiError.retry')}
+                    </Button>
+                  </div>
+                )}
+                {!feedHasMore && !feedError && !feedLoadingMore && (
+                  <div data-sf-m="feed-end" className="text-sm text-gray-400">{t('uiCommon.noMoreData')}</div>
+                )}
+              </div>
             )}
           </section>
         </SlideUp>
