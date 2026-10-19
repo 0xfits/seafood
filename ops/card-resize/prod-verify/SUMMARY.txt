@@ -1,0 +1,13 @@
+商品卡改版 · 生产终验（2026-10-19）
+push = 12a94de..937b861（3 提交，含实现 d37a813 + 质检 937b861 前身）；迁移先行：生产 schema 0051→0052（users.avatar_url）
+
+同版证明：js 14eb3c5dab5279b8 index-DXq98gqt.js (497,271B) / css df93ff44c0bcd0a3 index-DiTWfu5R.css (125,431B)
+          prod sha256 == 本地 HEAD 构建逐字
+
+真浏览器（1536 档，--host-resolver-rules 绕本机 DNS 劫持）：
+  首页 7 卡（生产 listed 全量 = 4 旧 + 3 新，Kevin 已在生产重发/新发）
+  卡高 = 412 ×7（恒定，逐卡量测）
+  预览图 = 240 高 × 223 宽（卡宽）× 7，object-fit cover；naturalWidth 320=占位 / 960·612=真实上传图
+  卖家栏 = 48 高 ×7；掩码 0x** 形态全部命中（0x59**b0 等）；信用标签「新卖家」（rating 0 行，符合档位规则）
+  gift 图标 = 0 · 状态徽章 = 0 · pageerror=0 · console error=0
+诚实边界：信用「优秀/良好/一般」三档生产不可见（无评分数据）；头像为占位（无头像系统能力）

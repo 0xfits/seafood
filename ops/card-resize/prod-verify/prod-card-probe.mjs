@@ -1,0 +1,25 @@
+import { createRequire } from 'node:module';
+const require = createRequire('/Users/kevin/bistro/seafood/frontend/package.json');
+const { chromium } = require('playwright');
+const EXE = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const browser = await chromium.launch({ executablePath: EXE, args: ['--host-resolver-rules=MAP 0xseafood.com 76.76.21.21', '--ignore-certificate-errors'] });
+const ctx = await browser.newContext({ viewport: { width: 1536, height: 960 } });
+const page = await ctx.newPage();
+const out = { at: new Date().toISOString(), pageerrors: [], consoleErrors: [] };
+page.on('pageerror', (e) => out.pageerrors.push(String(e).slice(0, 120)));
+page.on('console', (m) => { if (m.type() === 'error') out.consoleErrors.push(m.text().slice(0, 80)); });
+await page.goto('https://0xseafood.com/', { waitUntil: 'networkidle', timeout: 30000 });
+await page.waitForTimeout(900);
+out.m = await page.evaluate(() => {
+  const grid = document.querySelector('[data-sf-m="feed-grid"]');
+  const cards = [...(grid?.children || [])];
+  const heights = cards.map((c) => Math.round(c.getBoundingClientRect().height));
+  const media = [...document.querySelectorAll('.sf-reward-media-img')].map((i) => ({ h: Math.round(i.getBoundingClientRect().height), w: Math.round(i.getBoundingClientRect().width), nw: i.naturalWidth }));
+  const sellers = [...document.querySelectorAll('[data-sf-m="reward-card-seller"]')].map((s) => ({ h: Math.round(s.getBoundingClientRect().height), text: s.innerText.replace(/\n/g, ' ').slice(0, 40) }));
+  const gift = document.querySelectorAll('.lucide-gift').length;
+  const badges = [...document.querySelectorAll('[data-sf-m="reward-card"] [class*=Badge], [data-sf-m="reward-card"] span[class*=badge]')].length;
+  const masksOk = sellers.every((s) => /0x[0-9a-f]{2}\*\*[0-9a-f]{2}/i.test(s.text));
+  return { cards: cards.length, heights, media, sellers, gift, badges, masksOk };
+});
+await browser.close();
+console.log(JSON.stringify(out, null, 1));
