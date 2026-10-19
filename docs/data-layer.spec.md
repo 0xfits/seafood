@@ -1,5 +1,6 @@
 # 海鲜市场 · P3 数据层口径（Data Layer Spec）
 
+> **文档状态（最新）**：**v0.34**（2026-10-19；**本次 = 「媒体上传单契约冻结：新表 `public.media` DDL 契约 + 迁移 `0050_media_store.sql` 内容契约（**实现单创建 · apply 由 Zang · 先 apply 后 push**）」** —— **只增不改 · 追加式**、**`DL*` 条文与 §21–§39 一字未动、章节编号未重排**、旧写法**不静默重写**。**依据** = **Kevin 2026-10-19 三裁定**（存储 = **A「Neon 存图」**〔`bytea`，否决 Vercel Blob；决策链 = Neon 0.5GB/$0.35 每GB·月 vs Blob 1GB/$10 每GB·月、Hobby 硬顶不能买超额、50GB/月量级两边都≈$19-20〕/ 张数 ≤4 卡用第一张 / 占位 = 机械鱼图 **320×320 q25 WebP ≈12.6KB**〔12,616 B · sha256 `df33258e…be74ec` 落盘现取 · Kevin 拍板放弃 10KB 线换画质〕）⇒ 正文 = **§40**。**`DL` 编号域零改动**（仍 `DL1..DL157`，不新增 `DL` 条 —— 本节以 §40 承载）；**章节编号未重排**（新内容向后追加为 **§40**）。**范围** = **只写本册**（零代码 / 零迁移文件 / 零库写 / 零 HTTP / 未跑任何门）；姊妹册正文 = `route-layer.spec` **v2.39 §48** + `master-plan` **§5.422**（Jing · 单号 **JING-SPEC-MEDIA-DL**）。**★ 头注留痕（诚实登记）**：紧邻其下的 **v0.33** 行仍带「文档状态（最新）」字样 —— 受「只追加 / `git diff --numstat` 删除列 = 0」硬口径约束，**未改写该行** ⇒ 以文件最上方的本行（v0.34）为现行版。
 > **文档状态（最新）**：**v0.33**（2026-10-14；**本次 = 「本地入库批次登记 tg-bind-v2：迁移 `0048_telegram_bind_request.sql` 表登记（后端 commit `6714401`）」** —— **只增不改 · 追加式**、**`DL*` 条文与 §21–§38 一字未动、章节编号未重排**、旧写法**不静默重写**。**依据** = 本仓本地未推送提交 `6714401` 现取（登记性回写 · 零裁定新增）：**迁移文件已由实现单创建并入库**（`backend-ts/migrations/0048_telegram_bind_request.sql`，**107 行**；commit 自述**未 apply** ⇒ **push 前必须先 apply**，「先 apply 后 push」铁律不变）⇒ 本节登记其**现取事实**（非冻结新契约 —— 逐列逐约束以落盘迁移文件为准，正文 = **§39**）。**表 = `public.telegram_bind_request`**（6 列：`req_id` bigserial PK / `code` varchar(12) NOT NULL **UNIQUE** / `tg_user_id` bigint NOT NULL / `iat` DEFAULT now() / `exp` NOT NULL = iat+600 秒 / `consumed_at` 可空；+ 限速索引 `(tg_user_id, iat)`；无 FK `users`）。**`DL` 编号域零改动**（仍 `DL1..DL157`，不新增 `DL` 条）；**章节编号未重排**（新内容向后追加为 **§39**）。**范围** = **只写本册 + 改后快照 `docs/versions/data-layer.spec.v0.33.md`**；姊妹册正文 = `route-layer.spec` **v2.33 §43**（Jing · 单号 **JING-SPEC-TGBINDV2-DL**）。**★ 头注留痕（诚实登记）**：紧邻其下的 **v0.32** 行仍带「文档状态（最新）」字样 —— 受「只追加 / `git diff --numstat` 删除列 = 0」硬口径约束，**未改写该行** ⇒ 以文件最上方的本行（v0.33）为现行版。**★ 范围** = **零代码 / 零迁移文件改动 / 零库写 / 零 HTTP / 不动生产数据 / 未跑任何门**。
 > **文档状态（最新）**：**v0.32**（2026-10-12；**本次 = 「A5 收口 · 站内信最小闭环 + Telegram bot 绑定/通知一步到位 —— `conversation` / `message` 两表 DDL 契约 + `users` +2 列 + 未读计数读口 + 频次上限数据面 + 迁移 `0045`/`0046` 内容契约」** —— **只增不改 · 追加式**、**`DL*` 条文与 §21–§37 一字未动、章节编号未重排**、旧写法**不静默重写**。**依据** = **Kevin 2026-10-12 逐字「直接 A+C」**（站内信最小闭环 + Telegram bot 绑定/通知一步到位，不走分期；询价意向单/计数 `D2`/`D4` **不在本单**、继续挂账 = `F17`）+ **Zang 结构裁定 1–9 逐字**（per-listing 会话 / append-only message / 双语一行通知 / 隐私红线只存 `tg_user_id` / code 绑定流 / 防刷 20 条·天·会话 / keyset 禁 OFFSET / env-gated 降级 / 不做清单），出处 = `docs/OPEN-ITEMS.md` `A5` 行（commit `3ae743e`）。**★ `F19` 并入**：详情读口 `seller` 对象 = **读口扩展**，库面**零改动**（`listing.seller_uid` 已存在，`0015_listing.sql:117`）。**迁移内容契约** = **本册只冻内容 · 迁移文件由实现单创建 · apply 需 Kevin 授权**（生产 = 新库；本地 dev 5788 连的是旧库存档 ≠ 生产）。**`DL` 编号域零改动**（仍 `DL1..DL157`，**不新增 `DL` 条** —— 本节以 `A5-DL-*` 承载）；**章节编号未重排**（新内容向后追加为 **§38**）。**范围** = **只写本册 + 改后快照 `docs/versions/data-layer.spec.v0.32.md` + delta 件 `docs/audit/data-layer-v0.32-delta.md`**；姊妹册正文 = `route-layer.spec` **v2.31 §41** + `design-system.spec` **v1.17 §20**（Jing · 单号 **JING-SPEC-A5-DL**）。**★ 头注留痕（诚实登记）**：紧邻其下的 **v0.31** 行仍带「文档状态（最新）」字样 —— 受「只追加 / `git diff --numstat` 删除列 = 0」硬口径约束，**未改写该行** ⇒ 以文件最上方的本行（v0.32）为现行版。**★ 范围** = **零代码 / 零迁移文件 / 零库写 / 零 HTTP / 不动生产数据 / 未跑任何门**。
 > **文档状态（最新）**：**v0.31**（2026-10-04；**本次 = 「S24 A1 定值落册：上市保证金金额 = `50000`」** —— **只增不改 · 追加式**、**`DL*` 条文与 §21–§36 一字未动、章节编号未重排**、旧写法**不静默重写**：① **A1 定值**（Kevin 2026-10-04 定档 · 依据 = `docs/seafood.master-plan.md` **§5.339** `:1419-1430` A1 行逐字「保证金 = **`50000`**」）：**上市保证金金额 = `50000`** —— **语义不变**（**主导真源**仍 = `app_config` 键 `listing_deposit_policy`（本册 §23.1 `AK2`）；常量 `CURRENCY_LIST_DEPOSIT_FLOOR = 50000` 仍为 **fail-closed 兜底**）；本册各处「**待 Kevin 定值**」标记 ⇒ **读作已定值（旧行一字未改 · 逐处见 §37）**；② **A2 连带登记**（本册 §20 `AN10` `:1079` 现取「`0023:161-162` 常量旁 `-- TODO: Kevin 定值` ⇒ 日累计上限 `1000000`」）⇒ **读作已定值**（唯一真值在 DB 编排函数；依据 = §5.339 A2 行）；③ 本节追加于本册末行之后；④ **改后快照** = `docs/versions/data-layer.spec.v0.31.md`（`cmp` 逐字节 = 0）；**delta** = `docs/audit/data-layer-v0.31-delta.md`。**★ 头注留痕（诚实登记）**：紧邻其下的 **v0.30** 行仍带「文档状态（最新）」字样 —— 受「只追加 / `git diff --numstat` 删除列 = 0」硬口径约束，**未改写该行** ⇒ 以文件最上方的本行（v0.31）为现行版。**★ 范围** = **只写本册**（零代码 / 零迁移 / 零库写 / 零 HTTP / **不写 `app_config` 行** / 不动生产数据）。
@@ -4921,4 +4922,40 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_users_tg_user_id
 - **未测项（全部 `NOT_MEASURED` · 禁填 0/空）**：`0048` 未在任何库 apply（dev/生产两库状态未现取）；apply 后 `schema_migration` 行数未现取（本单零库连、不发明计数）；防刷闸在多实例（Vercel）下的实际效果未测（进程内冷却/滑窗占位实现，限速索引仅承查询期派生计数）；门套未跑。
 - **快照 + 自证**：改前 **4885 行 / 907,746 B**（HEAD `b7733de` 现取）；改后 **4922 行 / 914,301 B**；`git diff --numstat docs/data-layer.spec.md` = **37+/0−**（**删除列 = 0** ✅）；快照 `docs/versions/data-layer.spec.v0.33.md`（`cmp=0` 自证，提交前实测）+ 未改代码自证（本单只写本册 + 快照，零代码 / 零迁移文件改动）。
 - **★勘误留痕（不升版 · 2026-10-14 · **同日二次勘误**）**：短码长度**二次裁定 6 → 8 位纯数字（`0`-`9`，含 0/1）**（Kevin 2026-10-14 二次裁定；**承首次裁定 8→6 位，现 6 位口径作废**）。本节处置：§39.1 `code` 列描述改述为「服务层签发恒 **8 位纯数字**（0-9）」、旧字集描述（剔 `0/O/1/I`）据二次裁定**就地作废**；§39.2 COMMENT 引文保留迁移 `0048` 冻结原文、紧随更新勘误注（**引文一字未改**）。**本行不升版、不动版本表**（**选择依据**：承本册同日勘误级先例 —— 8→6 位当时即不升版、以节末留痕承载；本次同为同日勘误级、零新增契约面 ⇒ 不立新版号）；改后快照 `docs/versions/data-layer.spec.v0.33.md` 同步重制（`cmp=0` 保持）。
+
+---
+
+## §40 ★★ v0.34 · 媒体上传单契约冻结：新表 `public.media`（内容寻址去重 · `bytea` 存图）+ 迁移 `0050_media_store.sql` 内容契约（**实现单创建 · apply 由 Zang**）（**本节只追加 · §21–§39 一字未动** · 依据 = Kevin 2026-10-19 三裁定 · **实现未落 ⇒ 本节 = 契约冻结，非落盘迁移登记** · 姊妹册 = `route-layer.spec` v2.39 §48 + `master-plan` §5.422）
+
+### 40.1 表 `public.media` 契约（7 列 + 去重键）
+
+| 列 | 契约（冻结） | 说明 |
+|---|---|---|
+| `media_id` | **identity PK** | 内容行主键；具体 identity 语法（`GENERATED ALWAYS/BY DEFAULT`）以落盘迁移为准 |
+| `sha256` | **char(64)** | 内容摘要（hex）；与 `size_bytes` 组成去重键 |
+| `content_type` | **CHECK IN (`image/webp`, `image/jpeg`, `image/png`)** | 三值闭集；路由侧先魔数校验 fail-loud（route §48.2）再入库 |
+| `bytes` | **bytea** | 图片字节本体（**A = Neon 存图**：不落对象存储、不落 `frontend/public`） |
+| `size_bytes` | **int CHECK ≤ 2MiB（= 2,097,152）** | 与路由侧 ≤2MiB 闸同构；双层闸（DB CHECK 兜底） |
+| `owner_uid` | **FK `users`** | 上传者；`ON DELETE` 行为以落盘迁移为准（本节不冻结） |
+| `time_created` | 时间列 | 默认值 / 精度以落盘迁移为准 |
+
+- **去重键（冻结）**：**`UNIQUE(sha256, size_bytes)`** —— 内容寻址去重；同字节重复上传 ⇒ 路由侧命中后**返回既有 `media_id`**、不落新行（route §48.2）。
+- **零动既有表**：本迁移**只建新表**，不改任何既有表 / 函数 / 视图（加法式迁移）；`listing.media_urls` 不动（其继续以引用字符串形态存 `'/api/media/<id>'`，不存字节）。
+
+### 40.2 写入面与生命周期
+
+- **唯一写路径 = `POST /api/media`**（route §48.2：`requireActor` + 魔数 fail-loud + ≤2MiB + sha256 去重）；**本表无更新 / 无删除口**（一期；删除策略 = `B33` 挂账）。
+- **引用面**：`listing.media_urls` 承 url 字符串 `'/api/media/<id>'`；**孤儿形态** = 上传成功但发布取消 / 失败 ⇒ `media` 行存在而零 `listing` 引用 —— **清理策略挂账 = `B33`**（OPEN-ITEMS，不阻塞本单）。
+- **读取面**：`GET /api/media/:id` 公开（route §48.3）；行只读、immutable 缓存语义与「内容寻址不可变」一致。
+
+### 40.3 迁移内容契约（`0050_media_store.sql`）
+
+- **文件由实现单创建**；apply 由 Zang；**先 apply 后 push** 铁律不变（承 v0.32/v0.33 口径）；`migrate.ts` 逐文件包事务 ⇒ 文件内不写 `BEGIN`/`COMMIT`。
+- 命名与内容**逐列以上表为准**；`UNIQUE(sha256,size_bytes)` 与 `content_type` CHECK 为**必须项**；其余索引（如 `owner_uid`）归实现单裁量。
+- apply 后外部闭环：`/api/health` 的 `schema_version` 翻 **`0050`** + `schema_migration` 顶部 = `0050`。
+
+### 40.4 对既有不变式的冲击 + 未测项（诚实边界）
+
+- **冲击 = 0**（零动既有表；新表无触发器 / 无 `ledger_post_event` 关联 / 无资金语义；`DL1..DL157` 不涉及）。
+- **未测项（全部 `NOT_MEASURED` · 禁填 0/空）**：`0050` 未创建、未 apply（两库状态未现取）；`media` 表行数未取；去重 / CHECK / FK 行为未测（表未建）；路由两口未实跑（route §48.7 同口径）。
 

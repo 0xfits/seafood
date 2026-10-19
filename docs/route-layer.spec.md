@@ -414,6 +414,10 @@
 > ⑤ **locale 只改值**：`jobs.cid` / `jobs.cidNote` 四语同改、**键数不变**（现取键集基线 `128 / 1106 / 4424` 逐字不动）；`item.cid` / `item.cidNote`（v2.37 已改）**本批不动**；`jobs.*` 其余键一字不动。
 > ⑥ **只追加 + 零迁移 + 零代码**：`git diff --numstat docs/route-layer.spec.md` **删除列 = 0**；**无迁移**（无 DDL / 无库写 / 无 HTTP 实测）；本节与 §47.8 只写 `docs/**`。
 
+> **状态：v2.39（契约冻结 · **媒体上传两口 + 新表 `public.media` 落册（实现未落 ⇒ 本版 = 契约登记，注册点数字为目标态）**：★★ **新对外路由两口入册**（`POST /api/media`：`requireActor` · JSON `{content_type,data_base64}` · 类型魔数校验 fail-loud · ≤2MiB · sha256 去重命中返既有 id · 成功 `data={url:'/api/media/<id>'}`；`GET /api/media/:id`：**公开** · `Cache-Control: public, immutable` · miss `404 R107`）+ **★ 注册点 `108 → 110`（+2）**（逐 verb 目标态 = get 48→**49** / post 56→**57** / put 0 / delete 3 / patch 1；`AC10-2` 冻结面 `108 → 110` 同批前推、归实现单）+ **★ 依据 = Kevin 2026-10-19 三裁定**（存储 = A「Neon 存图」· 张数 ≤4 卡用第一张 · 占位 = 机械鱼图 **320×320 q25 WebP ≈12.6KB**〔12,616 B · Kevin 拍板放弃 10KB 线换画质〕）+ **零资金动作 / 零幂等键**（去重 = 表级 `UNIQUE(sha256,size_bytes)`，非 `cli:`/`biz:` 族）+ 姊妹册 = `data-layer.spec` **v0.34 §40** + `master-plan` **§5.422**）（**只追加 · §1–§47 一字未动** · 零代码 · 迁移 `0050` 未创建 · 库面未连 · 零 HTTP · 零套件）** · 作者角色 = **Jing（Specifier · 制度员）** · 单号 = **JING-SPEC-MEDIA-RT**
+> **v2.39 修订入口**：逐条 delta → 依据锚点 → 改动点 = **本册 §48**（契约冻结登记；**本单不建独立 delta 件**，承 v2.29 / v2.30 / v2.32 / v2.35–v2.38 先例）。**凡与实现落盘后现盘冲突处，一律以现盘为准**（实现归 Kong · 质检归 Neng · 本版登记面 = Kevin 裁定 + 契约冻结）。
+> **★★ v2.39 本单要点（先说结论，不含糊）**：① **两口契约逐字**（§48.2 / §48.3）；② **判负六条**（§48.4：无 Authorization 上传 ⇒ **401** · >2MiB ⇒ **400** · `content_type` 超闭集 ⇒ **400** · GET miss ⇒ **404 R107** · 公开 GET ⇒ **200 + immutable 头** · 同字节重传 ⇒ 返既有 id）；③ **注册点 `108 → 110` 逐 verb**（§48.5）；④ **数据面正典** = `data-layer.spec` v0.34 §40（迁移 `0050_media_store.sql`）；⑤ **前端面**（§48.6：≤4 张 · 客户端压缩 · 失败即取消发布 · `media_urls` 写口零改 · image 槽 = `media_urls[0] || 占位`）。
+
 > **v2.19 修订入口**：逐条 delta → 依据锚点 → 改动点 = `docs/audit/route-layer-v2.19-delta.md`（**同批姊妹册** = `docs/audit/data-layer-v0.26-delta.md` + `docs/audit/commission-v0.4-delta.md`）。**凡与 Zang 裁定冲突处，一律以 Zang 裁定为准**（本单为 P9⑤ 契约冻结；**未改写任何裁定、未发明任何路径 / 数值 / 权限键 / 文案值**）。**★ 姊妹册（同批）**：`docs/commission.spec.md` **v0.4 §19** + `docs/data-layer.spec.md` **v0.26 §34**，**本册不重抄其条文、只指路**。
 > **★★ v2.19 本单要点（先说结论，不含糊）**：① **零新用户面口**（邀请奖励 = 结算腿，无独立读 / 动作口）；② **后台配置面复用**（费率 + 6 项权重矩阵）；③ **注册点 `87 → 87`（+0）**；④ **权限键 11 键内（零增删）**；⑤ **错误码零新增 + `R107`**；⑥ **真生效四段（①③④ 段）**；⑦ **连带门改版**（`p8-s2` 8 键 / 守卫常量 / 页字段面随 `R-9-1` ⇒ 归实现单）。
 
@@ -9047,4 +9051,61 @@ for v in get post put delete patch; do printf "%s " "$v"; grep -cE "^app\.$v\(" 
   - 挂账：`grep -n '任务页.*币种\|币种.*任务页\|jobs.*cid' docs/OPEN-ITEMS.md` = **0 命中**。
 - **零代码自证**：本单 commit 只含 `docs/**` + `ops/item-cid-select/**` ⇒ `backend-ts/**` / `frontend/**` **零改动**；**库面零连接**、**零 HTTP 实测**（实现 / 验收归 Kong 与 Neng）。
 - **未做项（显式登记，不冒充已做）**：① `docs/versions/route-layer.spec.v2.38.md` **未建**（快照重制归版本收口单）；② `/task/new` 的 DOM / 网络层判据**未由本单实跑**（Jing 不跑前后端门套）；③ 四语精确字面**未由本单落笔**（实现单落笔后回写）；④ 商品页口径**本批未复验**（归 Neng 的既质检面）。
+
+---
+
+## §48 ★★ v2.39 · 媒体上传两口契约冻结：`POST /api/media`（上传）+ `GET /api/media/:id`（公开读取）+ 数据面正典指针（`data-layer.spec` v0.34 §40 · 迁移 `0050_media_store.sql`）—— **注册点 108 → 110**（post 56 → 57 / get 48 → 49 · `p7b-03` `AC10-2` 同批前推）（**本节只追加 · §1–§47 一字未动** · 依据 = **Kevin 2026-10-19 三裁定**（存储 = A「Neon 存图」/ 张数 ≤4 卡用第一张 / 占位 = 机械鱼图）· **实现未落 ⇒ 本节 = 契约冻结登记，注册点数字为目标态** · 零代码 · 零迁移文件 · 库面未连 · 零 HTTP · 零套件）
+
+### 48.1 裁定依据与范围
+
+- **Kevin 三裁定（逐字转达）**：① 存储 = **A「Neon 存图」**（否决 B「Vercel Blob」）；② **张数 ≤4、卡用第一张**；③ **占位 = 机械鱼图，首页卡与详情页都用**（原附「压缩到 10KB 以下」⇒ Kevin 2026-10-19 再裁定 **320×320 q25 WebP ≈12.6KB（放弃 10KB 线换画质）**）。
+- **决策链 A/B 成本对比（拍板依据，原样登记）**：A = Neon（`bytea`）免费 **0.5GB** / 超 **$0.35 每GB·月**；B = Vercel Blob 免费 **1GB** / 超 **$10 每GB·月**；Hobby 档两档存储均**硬顶、不能购买超额**；**50GB/月量级两边都 ≈$19-20** ⇒ 裁 A。
+- **范围**：本节只冻**路由契约**；表 DDL 正典 = `data-layer.spec` **v0.34 §40**（`UNIQUE(sha256,size_bytes)` 内容去重 · 零动既有表）；台账 = `master-plan` **§5.422**；OPEN-ITEMS 挂账 `B33`/`B34`。
+
+### 48.2 `POST /api/media`（上传 · 写口）
+
+| 项 | 契约（冻结） |
+|---|---|
+| 鉴权 | `requireActor`（**无 Authorization / 无效会话 ⇒ `401`**，承全站 401 语义） |
+| 请求体 | JSON `{ content_type, data_base64 }`（`data_base64` = 图片字节 base64） |
+| 类型闭集 | `content_type` ∈ **`{image/webp, image/jpeg, image/png}`**；**解码后做魔数（magic bytes）校验 fail-loud** —— 声明与实际字节不符 / 超闭集 ⇒ **`400`**（魔数校验不通过不得入库） |
+| 体积闸 | 解码后 **≤2MiB（= 2,097,152 字节）** ⇒ 超限 **`400`**；`size_bytes` 列 CHECK 同构（data §40.1，双层闸） |
+| 去重 | `sha256`（char 64）+ `size_bytes` 命中 `UNIQUE(sha256,size_bytes)` ⇒ **返回既有 `media_id`**（同字节重复上传不落新行） |
+| 成功响应 | `data` = **`{ url: '/api/media/<id>' }`**（逐字契约；`<id>` = 十进制 `media_id`） |
+| 失败响应 | 走既有 `sendInfraMapped`（R107 · 503 族）；**400 具体借码归实现单按既有体例取（承「400 借 `LEDGER_AMOUNT_INVALID`」先例）、随质检回写** —— 本节只冻**状态码与 fail-loud 语义** |
+| 资金 / 幂等 | **零资金动作、零幂等键**（去重 = 表级 UNIQUE，非 `cli:`/`biz:` 族；同字节重传 = 返既有 id 的幂等语义） |
+
+### 48.3 `GET /api/media/:id`（公开读口）
+
+- **无鉴权闸**（公开）；命中 ⇒ **`200`** + 二进制体 + `Content-Type` = 入库 `content_type` + **`Cache-Control: public, max-age=31536000, immutable`**（内容寻址 ⇒ 不可变缓存语义）。
+- **miss（无该 id）⇒ `404`** 走 `sendRefNotFound`（**R107** 统一 404 口径）。
+- 只读零写；`media_id` 非数字路径段 ⇒ 同 R107 统一 404（承 §3 detail-miss 口径）。
+
+### 48.4 判负清单（质检必带）
+
+| # | 输入 | 期望 | 判负 |
+|---|---|---|---|
+| 1 | 无 `Authorization` 头 `POST /api/media` | **`401`** | 200 / 403 / 503 均判负 |
+| 2 | 解码后 >2MiB | **`400`** | 入库成功判负 |
+| 3 | `content_type` 超闭集（如 `image/gif`）或与魔数不符 | **`400`** | 入库成功判负 |
+| 4 | `GET /api/media/:id` 不存在的 id | **`404`**（R107） | 200 / 500 判负 |
+| 5 | 公开 `GET`（无任何头）命中既有 id | **`200` + `Cache-Control` 含 `immutable`** | 缺 immutable 头判负 |
+| 6 | 同字节二次上传 | 返回**既有** `media_id`、行数不增 | 新增行判负 |
+
+### 48.5 注册点 108 → 110（逐 verb · 目标态）
+
+- **改前现取（本单开工时点）**：`grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts` = **108** = get **48** / post **56** / put 0 / delete 3 / patch 1。
+- **改后目标态**：get **49**（+1 `GET /api/media/:id`）/ post **57**（+1 `POST /api/media`）/ put 0 / delete 3 / patch 1 = **110**。
+- **门 `p7b-03` `AC10-2`**：冻结面 `regs === 108` ⇒ **`regs === 110`**（同批前推、归实现单；门现值 108 = 契约前推前的正常态，实现落盘即同批改门）。
+
+### 48.6 前端面契约（发布页图片）
+
+- 发布页可选图片 **≤4**；客户端压缩（长边 ≤1280 · WebP ≤300KB）；**上传失败 ⇒ 发布取消、明确报错、不留半截商品**（不允许「字节已传、商品未建」的悬空态继续提交）。
+- **`media_urls` 写口零改**：`POST /api/listing` 载荷键集不变（本就收 `media_urls`）；≤4 张全部入载荷、**卡与详情 image 槽取 `media_urls[0]`**。
+- **image 槽回落**：`media_urls[0] || 机械鱼占位`（首页卡 + 详情页同口径；`design-system.spec` T94 勘误随本批落）；占位资产 = **320×320 q25 WebP = 12,616 bytes**（sha256 `df33258e964447072486b376dfd3936d9c99ca89d8d69022cb4c9fac70be74ec` 落盘现取；**Kevin 拍板放弃 10KB 线换画质**）。
+
+### 48.7 自证与未做项（诚实边界）
+
+- **零代码**：本节只写 `docs/**`；`backend-ts/**` / `frontend/**` 未动（实现归 Kong）；**迁移 `0050_media_store.sql` 未创建**（实现单建，apply 由 Zang，**先 apply 后 push**）。
+- **未做项**：① 门 `AC10-2` 未改（归实现单同批）；② 两口均未实跑（零 HTTP）；③ 四语键面未动（若实现需新文案键 ⇒ 触发 13 文件硬编计数前推，另行登记）；④ `media` 表行数 / 去重行为未测（表未建）。
 
