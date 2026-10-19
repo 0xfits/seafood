@@ -1,0 +1,95 @@
+{
+ "at": "2026-10-19T05:46:32.858Z",
+ "arms": [
+  {
+   "vw": 1024,
+   "pageerrors": [],
+   "consoleErrors": [],
+   "m": {
+    "gridClass": "sf-grid sf-feed",
+    "columns": 4,
+    "cards": 4,
+    "firstCardTitle": "库存不足",
+    "firstCardHref": "/item/4",
+    "containerW": 1024,
+    "containerLeft": 0,
+    "maxW": "1536px",
+    "overflow": 0,
+    "sentinel": 1,
+    "end": 1
+   }
+  },
+  {
+   "vw": 1280,
+   "pageerrors": [],
+   "consoleErrors": [],
+   "m": {
+    "gridClass": "sf-grid sf-feed",
+    "columns": 6,
+    "cards": 4,
+    "firstCardTitle": "库存不足",
+    "firstCardHref": "/item/4",
+    "containerW": 1280,
+    "containerLeft": 0,
+    "maxW": "1536px",
+    "overflow": 0,
+    "sentinel": 1,
+    "end": 1
+   }
+  },
+  {
+   "vw": 1440,
+   "pageerrors": [],
+   "consoleErrors": [],
+   "m": {
+    "gridClass": "sf-grid sf-feed",
+    "columns": 6,
+    "cards": 4,
+    "firstCardTitle": "库存不足",
+    "firstCardHref": "/item/4",
+    "containerW": 1440,
+    "containerLeft": 0,
+    "maxW": "1536px",
+    "overflow": 0,
+    "sentinel": 1,
+    "end": 1
+   }
+  },
+  {
+   "vw": 1536,
+   "pageerrors": [],
+   "consoleErrors": [],
+   "m": {
+    "gridClass": "sf-grid sf-feed",
+    "columns": 6,
+    "cards": 4,
+    "firstCardTitle": "库存不足",
+    "firstCardHref": "/item/4",
+    "containerW": 1536,
+    "containerLeft": 0,
+    "maxW": "1536px",
+    "overflow": 0,
+    "sentinel": 1,
+    "end": 1
+   }
+  },
+  {
+   "vw": 1920,
+   "pageerrors": [],
+   "consoleErrors": [],
+   "m": {
+    "gridClass": "sf-grid sf-feed",
+    "columns": 6,
+    "cards": 4,
+    "firstCardTitle": "库存不足",
+    "firstCardHref": "/item/4",
+    "containerW": 1536,
+    "containerLeft": 192,
+    "maxW": "1536px",
+    "overflow": 0,
+    "sentinel": 1,
+    "end": 1
+   }
+  }
+ ]
+}

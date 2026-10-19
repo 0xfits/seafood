@@ -1,0 +1,14 @@
+排序 + 分页 + 6列/1536 · 生产终验（2026-10-19）
+push = b10f3d6..f97252d（7 提交）；本批零迁移（schema 仍 0051）
+
+同版证明：js e18004923837fed7 index-BdkQSoB8.js (496,937B) / css ab4520e87a630616 index-bzxNYmoV.css (124,262B)
+          prod sha256 == 本地 HEAD 构建逐字
+CSS marker：min-width:1280px · repeat(6,minmax(0,1fr)) ×2 · --sf-st-shell-max-w:1536px
+JS marker：feed-sentinel=1 · feed-grid=1 · prize/all?skip=1
+真浏览器五档（1024/1280/1440/1536/1920）：
+  列数 = 4 / 6 / 6 / 6 / 6（≥1280 起 6 列）
+  容器实宽 = 1024/1280/1440/1536/1536（1920 档居中 left=192，maxW=1536px）
+  横向溢出 = 0 · pageerror=0 · console error=0
+  首卡 href=/item/4（生产最新一件，综合排序首条）；卡片 4 = 生产 listed 全量
+  feed-sentinel 在场、feed-end 在场（≤36 条 ⇒ 首屏即到底，终止正确）
+生产库：4 件全 listed（Kevin 尚未在生产重发，重发后会直接排首位）
