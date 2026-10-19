@@ -1,0 +1,139 @@
+{
+  "url": "http://localhost:5787/item/new",
+  "at": "2026-10-19T00:53:17.492Z",
+  "steps": [
+    {
+      "step": "read-select",
+      "selectCount": 1,
+      "legacyCidInputCount": 0,
+      "legacyCidInputCountAll": 0,
+      "optionCount": 11,
+      "selectedValue": "1",
+      "optionTexts": [
+        "$ · 平台积分",
+        "P4B3A013122 · P4B3A test unit",
+        "P4B3A013647 · P4B3A test unit",
+        "P4B3B590800 · P4B3B test unit",
+        "P4B3B590800X · server default fee",
+        "N1B0T203917 · num1 default",
+        "N1A0T204732 · num1 at floor",
+        "N1B0T204732 · num1 default",
+        "qap7a31l3k6 · QA p7-a fixture qap7a31l3k6",
+        "qap7b1wtoqc · QA p7-a fixture qap7b1wtoqc",
+        "BTTC · battcoin"
+      ],
+      "optionValues": [
+        "1",
+        "4",
+        "10",
+        "16",
+        "21",
+        "29",
+        "31",
+        "32",
+        "35",
+        "36",
+        "399"
+      ],
+      "labelText": "币种",
+      "formPresent": true,
+      "submitDisabled": false
+    },
+    {
+      "step": "change-selection",
+      "selectedValue": "4",
+      "expected": "4",
+      "optionTextAtSelected": "P4B3A013122 · P4B3A test unit"
+    }
+  ],
+  "consoleErrors": {
+    "total": 676,
+    "unique": [
+      {
+        "message": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "count": 676
+      }
+    ],
+    "note": "假 token 打其它鉴权读口必 401（探针环境性噪声；与本单断言无关，页面已用 removeItem 护栏保持登录态）"
+  },
+  "api": {
+    "url": "http://localhost:5787/api/currencies",
+    "status": 200,
+    "requestHasAuthorization": true,
+    "success": true,
+    "rowCount": 11,
+    "firstRowKeys": [
+      "cid",
+      "name",
+      "symbol"
+    ],
+    "rows": [
+      {
+        "cid": "1",
+        "symbol": "$",
+        "name": "平台积分"
+      },
+      {
+        "cid": "4",
+        "symbol": "P4B3A013122",
+        "name": "P4B3A test unit"
+      },
+      {
+        "cid": "10",
+        "symbol": "P4B3A013647",
+        "name": "P4B3A test unit"
+      },
+      {
+        "cid": "16",
+        "symbol": "P4B3B590800",
+        "name": "P4B3B test unit"
+      },
+      {
+        "cid": "21",
+        "symbol": "P4B3B590800X",
+        "name": "server default fee"
+      },
+      {
+        "cid": "29",
+        "symbol": "N1B0T203917",
+        "name": "num1 default"
+      },
+      {
+        "cid": "31",
+        "symbol": "N1A0T204732",
+        "name": "num1 at floor"
+      },
+      {
+        "cid": "32",
+        "symbol": "N1B0T204732",
+        "name": "num1 default"
+      },
+      {
+        "cid": "35",
+        "symbol": "qap7a31l3k6",
+        "name": "QA p7-a fixture qap7a31l3k6"
+      },
+      {
+        "cid": "36",
+        "symbol": "qap7b1wtoqc",
+        "name": "QA p7-a fixture qap7b1wtoqc"
+      },
+      {
+        "cid": "399",
+        "symbol": "BTTC",
+        "name": "battcoin"
+      }
+    ]
+  },
+  "checks": {
+    "select 存在且唯一": true,
+    "手填 input 计数 = 0": true,
+    "option 数 = 接口行数": true,
+    "接口 200 且 success": true,
+    "行键恰三键": true,
+    "默认选中 1": true,
+    "可换选（受控）": true,
+    "选项文本 = `symbol · name`（不显示编号）": true
+  },
+  "verdict": "PASS"
+}

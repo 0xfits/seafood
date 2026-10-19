@@ -3203,6 +3203,26 @@ export class DatabaseService {
   }
 
   // ==========================================================================================
+  // 商品发布页币种下拉（Kevin 2026-10-19）· 读口 `GET /api/currencies` 的 DB 侧取数
+  //   公开只读（无鉴权闸）：只列 `status = 'listed'` 的币种，供 `item-select-cid` 选项使用。
+  //   data 行键集自本单起冻结 = **恰三键**：cid / symbol / name（**不**外泄 owner_uid /
+  //   deposit_amount 一类后台字段，与 §23.2 的后台读口区分开）。
+  //   ★ 只读（只 `SELECT`）；零写、零 DDL；**不得**借读口补写（`DL23` 同向）。
+  // ==========================================================================================
+  static async listListedCurrencies(): Promise<RawRow[]> {
+    const rows = await runSql(
+      `SELECT c.cid AS cid,
+              c.symbol AS symbol,
+              c.name AS name
+         FROM public.currency AS c
+        WHERE c.status = 'listed'
+        ORDER BY c.cid`,
+      [],
+    );
+    return rows;
+  }
+
+  // ==========================================================================================
   // 批 8⑤（`route-layer.spec` v2.10 §25.2）· 读口 `GET /api/admin/listing` 的 DB 侧取数
   //   data 键集自 §25.2 起冻结（承 `§24.8(b)`）：listing_id / seller_uid / cid / price / stock /
   //   title / status / time_created。只读（只 `SELECT`）；非法 `status` 由**服务层**判 `400`，

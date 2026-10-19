@@ -2329,6 +2329,25 @@ app.post('/api/admin/points/adjust', async (req, res) => {
 });
 
 // ============================================================================
+// 商品发布页币种下拉（Kevin 2026-10-19 · 公开只读）· 读口 `GET /api/currencies`
+//   · **无鉴权闸**（公开只读；发布页未登录也要能渲染选项 ⇒ 不得挂 `requireActor` /
+//     `requireAdmin`）——与 `GET /api/admin/currency`（闸 = `review_tasks`）**两个口**；
+//   · `data` = 行数组，行键集**自本单起冻结 = 恰三键**：cid / symbol / name
+//     （`database.ts listListedCurrencies`：只 `SELECT`，`status = 'listed'`，`ORDER BY cid`）；
+//   · 只读：零写、零 DDL、无幂等键（读口无副作用）；
+//   · 失败 ⇒ `sendInfraMapped`（R107 既有分类器；**零新增错误码**）；
+//   · 注册点 **107 → 108**（逐 verb 分解 get 47 → 48、post 56、delete 3、patch 1）。
+// ============================================================================
+app.get('/api/currencies', async (_req, res) => {
+  try {
+    const rows = await DatabaseService.listListedCurrencies();
+    return sendSuccess(res, rows, 'Currency list (public)');
+  } catch (error) {
+    return sendInfraMapped(res, 'currencies.list', error);
+  }
+});
+
+// ============================================================================
 // P4-B3a（§1.1:147-148 · §4.2 C1/C2 · §7-3）：币种面**真资金**编排（首批真资金动作）
 //   · C1 `POST /api/currency`：建自定义积分单位，收 `currency_create_fee` → `-1`（消耗）
 //   · C2 `POST /api/currency/:cid/list`：上市，收上市费（同 kind）+ 保证金 `listing_deposit`（冻结 HOLD）

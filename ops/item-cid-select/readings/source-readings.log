@@ -1,0 +1,41 @@
+# source-level readings — 2026-10-19T00:53:37Z — HEAD e0a6ee3
+
+$ grep -rn "item-input-cid" frontend/src
+frontend/src/test/unit/publish-item-cid-select.test.jsx:5: *   ① 渲染 `select[data-sf-m="item-select-cid"]`，且 `[data-sf-m="item-input-cid"]` **计数 = 0**；
+frontend/src/test/unit/publish-item-cid-select.test.jsx:59:const cidInputs = (container) => container.querySelectorAll('[data-sf-m="item-input-cid"]')
+frontend/src/test/unit/publish-item-cid-select.test.jsx:85:  it('① 渲染 `select[data-sf-m="item-select-cid"]`，且 `item-input-cid` 计数 = 0', async () => {
+frontend/src/test/unit/publish-item-cid-select.test.jsx:95:    expect(container.querySelector('input[inputmode="numeric"][data-sf-m="item-input-cid"]')).toBeNull()
+frontend/src/pages/item/PublishItemPage.jsx:26:// 币种字段（Kevin 2026-10-19）：`item-input-cid`（手填编号）⇒ `item-select-cid`（下拉选择）。
+
+$ grep -rn "item-select-cid" frontend/src
+frontend/src/test/unit/publish-item-cid-select.test.jsx:5: *   ① 渲染 `select[data-sf-m="item-select-cid"]`，且 `[data-sf-m="item-input-cid"]` **计数 = 0**；
+frontend/src/test/unit/publish-item-cid-select.test.jsx:58:const cidSelect = (container) => container.querySelector('select[data-sf-m="item-select-cid"]')
+frontend/src/test/unit/publish-item-cid-select.test.jsx:85:  it('① 渲染 `select[data-sf-m="item-select-cid"]`，且 `item-input-cid` 计数 = 0', async () => {
+frontend/src/pages/item/PublishItemPage.jsx:26:// 币种字段（Kevin 2026-10-19）：`item-input-cid`（手填编号）⇒ `item-select-cid`（下拉选择）。
+frontend/src/pages/item/PublishItemPage.jsx:174:                <select className="sf-item-input" data-sf-m="item-select-cid" value={form.cid} onChange={setField('cid')} required>
+
+$ grep -rn "jobs-input-cid" frontend/src   # 发布任务页本单不改（应仍在）
+frontend/src/pages/jobs/PublishJobPage.jsx:115:                <input className="sf-jobs-input" data-sf-m="jobs-input-cid" value={form.cid} onChange={setField('cid')} inputMode="numeric" required />
+
+$ grep -n "data-sf-m" frontend/src/pages/jobs/PublishJobPage.jsx | grep cid
+115:                <input className="sf-jobs-input" data-sf-m="jobs-input-cid" value={form.cid} onChange={setField('cid')} inputMode="numeric" required />
+
+$ git status --porcelain frontend/src/pages/item/item.css   # 本单未改 CSS
+(empty above = item.css 未改动；select 复用既有 .sf-item-input 规则体)
+
+$ 四语 item.cid / item.cidNote / jobs.cid（只改值、键数不动）
+zh: item.cid='币种' item.cidNote='请从下拉框选择计价币种' | jobs.cid='币种编号' (未改) | item keys=49 jobs keys=45 top=128
+en: item.cid='Currency' item.cidNote='Select the currency from the dropdown.' | jobs.cid='Currency id' (未改) | item keys=49 jobs keys=45 top=128
+hk: item.cid='幣種' item.cidNote='請從下拉框選擇幣種。' | jobs.cid='幣種編號' (未改) | item keys=49 jobs keys=45 top=128
+vn: item.cid='Tiền tệ' item.cidNote='Chọn tiền tệ từ danh sách.' | jobs.cid='Mã tiền tệ' (未改) | item keys=49 jobs keys=45 top=128
+
+$ build 产物名（frontend/dist）
+frontend/dist/assets/index-CfFASwXH.js
+frontend/dist/assets/index-DnoMyxQu.css
+
+$ grep -cE "^app\.(get|post|put|delete|patch)\(" backend-ts/src/index.ts
+108
+   3 app.delete(
+  48 app.get(
+   1 app.patch(
+  56 app.post(

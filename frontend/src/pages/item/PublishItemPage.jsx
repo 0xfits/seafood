@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
@@ -6,6 +6,7 @@ import { useAuth } from '../../auth-context'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import {
   createListingPublishTracker,
+  fetchCurrencies,
   listingPublishFingerprint,
   publishListing,
   setListingStatus,
@@ -21,15 +22,63 @@ import './item.css'
 // 金额口径：`price` = **A 类供给侧自主出价**（§4.8.1：客户端出价、路由层零计算）⇒ 允许前端填、原样透传。
 // 失败态：走 R107 链（`error.message` 已是字符串）⇒ 页面不会出现 `[object Object]`。
 // 后端面一字不动（`/api/listing*` 路径名不变）。
+//
+// 币种字段（Kevin 2026-10-19）：`item-input-cid`（手填编号）⇒ `item-select-cid`（下拉选择）。
+//   选项来源 = `GET /api/currencies`（**公开只读**；只列 `status='listed'`，行键 cid/symbol/name）
+//   ⇒ 自建币种单位是产品既有能力，**前端不得硬编码币种清单**。
+//   显示文本 = `${symbol}${name ? ' · ' + name : ''}`（**不显示编号**）；默认 `'1'`（平台 $，与旧默认一致）。
+//   加载失败 / 空列表 ⇒ **回退仅 $（cid 1）一项**，表单照常可提交（不白屏、不禁用提交、零新增文案键）。
 // ============================================================================
+const DEFAULT_CID = '1'
+
+/** 回退选项（接口失败 / 空列表时唯一可用项）：平台 `$`，`cid = 1`，无 name。 */
+const FALLBACK_CURRENCIES = [{ cid: 1, symbol: '$', name: '' }]
+
+/** 币种选项显示文本：`symbol · name`；**不显示编号**（`cid` 只作 value）。 */
+const currencyLabel = (row) => {
+  const symbol = String(row?.symbol ?? '')
+  const name = typeof row?.name === 'string' ? row.name : ''
+  return `${symbol}${name ? ` · ${name}` : ''}`
+}
+
 const PublishItemPage = () => {
   const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
   const { isAuthenticated, user } = useAuth()
-  const [form, setForm] = useState({ cid: '1', price: '', stock: '1', title: '', description: '' })
+  const [form, setForm] = useState({ cid: DEFAULT_CID, price: '', stock: '1', title: '', description: '' })
   const [state, setState] = useState({ phase: 'idle', message: '' })
+  const [currencies, setCurrencies] = useState(FALLBACK_CURRENCIES)
   const tracker = useMemo(() => createListingPublishTracker(), [])
+
+  // 币种选项：挂载时取一次（公开读口 ⇒ 无 token 也返回）。任一路失败都**回退 $**、绝不拦提交。
+  useEffect(() => {
+    let cancelled = false
+    fetchCurrencies(user)
+      .then((rows) => {
+        if (cancelled) return
+        const list = Array.isArray(rows)
+          ? rows.filter((row) => row && row.cid !== undefined && row.cid !== null && String(row.cid) !== '')
+          : []
+        if (!list.length) {
+          setCurrencies(FALLBACK_CURRENCIES)
+          return
+        }
+        setCurrencies(list)
+        // 默认值不在返回列表里 ⇒ 选第一项（否则 select 会停在空值、提交 `Number('')` = 0）。
+        setForm((prev) => (
+          list.some((row) => String(row.cid) === String(prev.cid))
+            ? prev
+            : { ...prev, cid: String(list[0].cid) }
+        ))
+      })
+      .catch(() => {
+        if (!cancelled) setCurrencies(FALLBACK_CURRENCIES)
+      })
+    return () => { cancelled = true }
+    // 刻意只跑一次（挂载时）：选项来源是公开只读面，不随登录态变化而重取。
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const setField = (key) => (event) => setForm((prev) => ({ ...prev, [key]: event.target.value }))
 
@@ -122,7 +171,11 @@ const PublishItemPage = () => {
               </label>
               <label className="sf-item-field">
                 <span className="sf-item-label">{t('item.cid')}</span>
-                <input className="sf-item-input" data-sf-m="item-input-cid" value={form.cid} onChange={setField('cid')} inputMode="numeric" required />
+                <select className="sf-item-input" data-sf-m="item-select-cid" value={form.cid} onChange={setField('cid')} required>
+                  {currencies.map((row) => (
+                    <option key={String(row.cid)} value={String(row.cid)}>{currencyLabel(row)}</option>
+                  ))}
+                </select>
               </label>
               <label className="sf-item-field sf-item-field-wide">
                 <span className="sf-item-label">{t('item.description')}</span>

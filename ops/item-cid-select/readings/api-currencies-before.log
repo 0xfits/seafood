@@ -1,0 +1,17 @@
+# pre-change control reading (before GET /api/currencies exists)
+# date: 2026-10-19T00:48:47Z
+# HEAD: ab8b4f8
+
+$ grep -cE "^app\.(get|post|put|delete|patch)\(" backend-ts/src/index.ts
+107
+
+$ per-verb
+   3 app.delete(
+  47 app.get(
+   1 app.patch(
+  56 app.post(
+
+$ curl -s -o body -w "%{http_code}" localhost:5788/api/currencies
+http_code=404
+body:
+{"error":{"code":"LEDGER_REF_NOT_FOUND","message":"Referenced object not found","i18n_key":"ledger.err.LEDGER_REF_NOT_FOUND","details":{"ref_type":"endpoint","ref_id":"/api/currencies","reason":"route_not_found"}}}

@@ -1,0 +1,139 @@
+# p7b-03 offline gates — 2026-10-19T00:50:44Z — HEAD ab8b4f8
+# registry pre-check:
+regs=108
+   3 app.delete(
+  48 app.get(
+   1 app.patch(
+  56 app.post(
+
+{
+ "saved": "/Users/kevin/bistro/seafood/backend-ts/.p7b-artifacts/p7b-03-offline-gates-20261019T005044Zuk8y.json",
+ "summary": {
+  "total": 37,
+  "passed": 37,
+  "failed": 0,
+  "red": []
+ },
+ "cases": [
+  {
+   "id": "AC13-1",
+   "got": "seller",
+   "status": 200,
+   "code": null,
+   "authDomain": null,
+   "expect": "seller",
+   "pass": true
+  },
+  {
+   "id": "AC13-2",
+   "got": "admin",
+   "status": 200,
+   "code": null,
+   "authDomain": null,
+   "expect": "admin",
+   "pass": true
+  },
+  {
+   "id": "AC13-2b",
+   "got": "admin",
+   "status": 200,
+   "code": null,
+   "authDomain": null,
+   "expect": "admin",
+   "pass": true
+  },
+  {
+   "id": "AC13-3",
+   "got": "ACTOR_NOT_ALLOWED",
+   "status": 403,
+   "code": "AUTH_FORBIDDEN",
+   "authDomain": true,
+   "expect": "ACTOR_NOT_ALLOWED",
+   "pass": true
+  },
+  {
+   "id": "AC13-4",
+   "got": "ACTOR_NOT_ALLOWED",
+   "status": 403,
+   "code": "AUTH_FORBIDDEN",
+   "authDomain": true,
+   "expect": "ACTOR_NOT_ALLOWED",
+   "pass": true
+  },
+  {
+   "id": "AC13-5",
+   "got": "PERMISSION_NOT_GRANTED",
+   "status": 403,
+   "code": "AUTH_FORBIDDEN",
+   "authDomain": true,
+   "expect": "PERMISSION_NOT_GRANTED",
+   "pass": true
+  },
+  {
+   "id": "AC13-6",
+   "got": "ACTOR_NOT_ALLOWED",
+   "status": 403,
+   "code": "AUTH_FORBIDDEN",
+   "authDomain": true,
+   "expect": "ACTOR_NOT_ALLOWED",
+   "pass": true
+  }
+ ],
+ "ac14": [
+  {
+   "injected": "53300",
+   "code": "LEDGER_TX_TIMEOUT",
+   "http": 503
+  },
+  {
+   "injected": "XX000",
+   "code": "LEDGER_TX_TIMEOUT",
+   "http": 503
+  },
+  {
+   "injected": "58030",
+   "code": "LEDGER_TX_TIMEOUT",
+   "http": 503
+  }
+ ]
+}
+GATE_EXIT=0
+
+# ---- per-check readings (from backend-ts/.p7b-artifacts/p7b-03-offline-gates-20261019T005044Zuk8y.json) ----
+AC13-1     pass=True  reading=got=seller status=200 code=null
+AC13-2     pass=True  reading=got=admin status=200 code=null
+AC13-2b    pass=True  reading=got=admin status=200 code=null
+AC13-3     pass=True  reading=got=ACTOR_NOT_ALLOWED status=403 code=AUTH_FORBIDDEN
+AC13-3-shape pass=True  reading={"status":403,"code":"AUTH_FORBIDDEN","reason":"ACTOR_NOT_ALLOWED","authDomain":true}
+AC13-4     pass=True  reading=got=ACTOR_NOT_ALLOWED status=403 code=AUTH_FORBIDDEN
+AC13-4-shape pass=True  reading={"status":403,"code":"AUTH_FORBIDDEN","reason":"ACTOR_NOT_ALLOWED","authDomain":true}
+AC13-5     pass=True  reading=got=PERMISSION_NOT_GRANTED status=403 code=AUTH_FORBIDDEN
+AC13-5-shape pass=True  reading={"status":403,"code":"AUTH_FORBIDDEN","reason":"PERMISSION_NOT_GRANTED","authDomain":true}
+AC13-6     pass=True  reading=got=ACTOR_NOT_ALLOWED status=403 code=AUTH_FORBIDDEN
+AC13-6-shape pass=True  reading={"status":403,"code":"AUTH_FORBIDDEN","reason":"ACTOR_NOT_ALLOWED","authDomain":true}
+AC13-NEG-1 pass=True  reading=mutant got=DENIED_NOT_ADMIN
+AC13-NEG-2 pass=True  reading=mutant got=admin
+AC13-NEG-3 pass=True  reading=const AUTH_REASONS = ['ACTOR_NOT_ALLOWED', 'NOT_ADMIN', 'PERMISSION_NOT_GRANTED']
+AC13-NEG-4 pass=True  reading=reasons=["ACTOR_NOT_ALLOWED","ACTOR_NOT_ALLOWED","PERMISSION_NOT_GRANTED","ACTOR_NOT_ALLOWED"]
+AC13-NEG-5 pass=True  reading=notadmin_in_fn=-1 ac13_6=ACTOR_NOT_ALLOWED
+AC13-NEG-6 pass=True  reading=const actorDenied = (reason: 'ACTOR_NOT_ALLOWED' | 'PERMISSION_NOT_GRANTED', actorUid: number, sellerUid: number): VerbE
+AC14-cls-53300 pass=True  reading={"code":"LEDGER_TX_TIMEOUT","http":503}
+AC14-cls-XX000 pass=True  reading={"code":"LEDGER_TX_TIMEOUT","http":503}
+AC14-cls-58030 pass=True  reading={"code":"LEDGER_TX_TIMEOUT","http":503}
+AC12-s1    pass=True  reading=pos=-1
+AC12-s2    pass=True  reading=pos=1112
+AC12-s3    pass=True  reading=pos=1937
+AC14-s1    pass=True  reading=pos=-1
+AC14-s2    pass=True  reading=exc=1153 ld011=1178
+Z3-s1      pass=True  reading=pos=-1
+Z4b-s1     pass=True  reading=pos=-1
+H4-s1      pass=True  reading=pos=328
+Z3-s2      pass=True  reading=ok
+AC15-s3    pass=True  reading=exc=1153 rejected_insert=2191
+AC10-1     pass=True  reading=codes=33
+AC10-2     pass=True  reading=registration_points=108
+AC10-3     pass=True  reading=ok
+AC10-4     pass=True  reading=ok
+AC10-5     pass=True  reading=code_refs service=-1 index=-1 (comment_refs service=1)
+AC10-6     pass=True  reading=ok
+AC10-7     pass=True  reading=seller_or_admin/false

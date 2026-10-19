@@ -57,6 +57,13 @@ export const fetchListingDetail = (listingId, user) => getJson(`/api/prize/${lis
 /** 我的商品订单（**买家轴**：`listing_order.buyer_uid = me`；行键 `gID`=order_id、`bID`=listing_id）。 */
 export const fetchMyListingOrders = (user) => getJson('/api/prize-item', user)
 
+/**
+ * 币种列表（**公开只读** · `GET /api/currencies`）。**无鉴权闸**（未登录也返回 200）⇒ 发布页
+ * 首屏即可渲染选项，不必等登录态。返回 = 行数组，行键集冻结 = **恰三键** `cid` / `symbol` / `name`
+ * （只含 `status='listed'`，按 `cid` 升序；后台字段不外泄）。**读面无键面**（无幂等键）。
+ */
+export const fetchCurrencies = (user) => getJson('/api/currencies', user)
+
 // ---- 写面 -------------------------------------------------------------------
 /**
  * P1 商品上架（直 DML · 无分录）。`price` = A 类**供给侧自主出价**（§4.8.1 ⇒ 客户端可填、原样透传，路由层零计算）。

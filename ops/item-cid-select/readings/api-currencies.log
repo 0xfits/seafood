@@ -1,0 +1,43 @@
+# GET /api/currencies — public read probe (NO Authorization header) — 2026-10-19T00:51:16Z
+# dev backend: seafood-api @ localhost:5788 (restarted pid per 5555 api) — HEAD ab8b4f8
+
+$ curl -s -D duri.headers -o api-currencies.body -w "%{http_code} %{size_download}" localhost:5788/api/currencies
+http_code=200 size_download=723
+
+--- response headers ---
+HTTP/1.1 200 OK
+Content-Security-Policy: default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests
+Cross-Origin-Opener-Policy: same-origin
+Cross-Origin-Resource-Policy: same-origin
+Origin-Agent-Cluster: ?1
+Referrer-Policy: no-referrer
+Strict-Transport-Security: max-age=15552000; includeSubDomains
+X-Content-Type-Options: nosniff
+X-DNS-Prefetch-Control: off
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Permitted-Cross-Domain-Policies: none
+X-XSS-Protection: 0
+Access-Control-Allow-Origin: *
+Access-Control-Expose-Headers: X-Session-Token
+Content-Type: application/json; charset=utf-8
+Content-Length: 723
+ETag: W/"2d3-EPvmmEUPAksQ1W0Lk14bhK2UiJs"
+Date: Mon, 19 Oct 2026 00:51:17 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+--- raw body ---
+{"success":true,"message":"Currency list (public)","data":[{"cid":"1","symbol":"$","name":"平台积分"},{"cid":"4","symbol":"P4B3A013122","name":"P4B3A test unit"},{"cid":"10","symbol":"P4B3A013647","name":"P4B3A test unit"},{"cid":"16","symbol":"P4B3B590800","name":"P4B3B test unit"},{"cid":"21","symbol":"P4B3B590800X","name":"server default fee"},{"cid":"29","symbol":"N1B0T203917","name":"num1 default"},{"cid":"31","symbol":"N1A0T204732","name":"num1 at floor"},{"cid":"32","symbol":"N1B0T204732","name":"num1 default"},{"cid":"35","symbol":"qap7a31l3k6","name":"QA p7-a fixture qap7a31l3k6"},{"cid":"36","symbol":"qap7b1wtoqc","name":"QA p7-a fixture qap7b1wtoqc"},{"cid":"399","symbol":"BTTC","name":"battcoin"}]}
+--- assertions ---
+success == True            : True
+message                    : 'Currency list (public)'
+data is list               : True
+row count                  : 11
+row key sets (unique)      : [('cid', 'name', 'symbol')]
+all rows exactly 3 keys    : True
+contains cid=1             : True
+cid list (ascending)       : [1, 4, 10, 16, 21, 29, 31, 32, 35, 36, 399]
+cid strictly ascending     : True
+no Authorization sent      : True (curl command had no -H Authorization)
+VERDICT                    : PASS

@@ -1,0 +1,14 @@
+# 只读 DB 对照（证明 `status='listed'` 过滤真的生效）
+# DB 身份: {'project': 'quiet-math-65207667', 'db': 'neondb'} （dev 库 quiet-math/neondb —— 与生产不是同一份，行数不可比）
+# 语句: SELECT cid, symbol, status FROM public.currency ORDER BY cid  （只读，零写）
+
+DB 全量行数            : 16
+DB status='listed' 行数: 11  -> [1, 4, 10, 16, 21, 29, 31, 32, 35, 36, 399]
+DB 非 listed 行数      : 5 -> [(9, 'draft'), (15, 'draft'), (22, 'draft'), (27, 'draft'), (28, 'draft')]
+GET /api/currencies 行数: 11 -> [1, 4, 10, 16, 21, 29, 31, 32, 35, 36, 399]
+
+API 集合 == DB listed 集合        : True
+API 集合 ∩ DB 非 listed 集合 = ∅  : True
+被过滤掉的 draft cid 出现在 API 里 : []
+
+VERDICT: PASS
