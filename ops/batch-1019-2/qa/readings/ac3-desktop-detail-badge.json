@@ -1,0 +1,58 @@
+{
+ "generatedAt": "2026-10-19T02:51:44.227Z",
+ "armC_desktop1440_guest": {
+  "url": "http://localhost:5800/",
+  "tabCountInDom": 5,
+  "keysInDom": [
+   "home",
+   "shard",
+   "sell",
+   "messages",
+   "profile"
+  ],
+  "tabbar": {
+   "exists": true,
+   "classes": "sf-tabbar",
+   "display": "none"
+  },
+  "pageErrors": []
+ },
+ "armD_detail390_item1": {
+  "url": "http://localhost:5800/item/1",
+  "tabCountInDom": 5,
+  "tabbar": {
+   "exists": true,
+   "classes": "sf-tabbar is-detail",
+   "display": "none"
+  },
+  "isDetailClass": true,
+  "bodySnippet": "Seafood 海鲜市场 加载中... 简体中文 English 粤语 Tiếng Việt © 2024-2026 Abbey Quant & Jinli Club. 保留所有权利。 本网站支持简体中文、英文、粤语和越南语。 联系我们：contact@jinli.club",
+  "pageErrors": []
+ },
+ "codeDiff_9c8a460_BottomTabBar": {
+  "changed_lines": [
+   "-import { useAuth } from '../auth-context'",
+   "-import { isNavItemActive, navPathInLang, visibleNavItems } from './nav'",
+   "+import { SHELL_NAV_ITEMS, isNavItemActive, navPathInLang } from './nav'",
+   "-// （docs/design/style-preview.html:169-174）。与顶栏复用同一份 SHELL_NAV_ITEMS 与同一可见性规则。",
+   "+// （docs/design/style-preview.html:169-174）。底栏恒 5 格（含未登录；`/profile` 保护由路由层",
+   "+// ProtectedRoute 承担 —— 见 shell/nav.js 2026-10-19 留痕，本组件不读登录态）。",
+   "-  const { isAuthenticated } = useAuth()",
+   "-  const items = visibleNavItems(isAuthenticated)",
+   "+  const items = SHELL_NAV_ITEMS"
+  ],
+  "badge_related_lines_touched": [],
+  "note": "diff 仅：import 行（-useAuth/-visibleNavItems → +SHELL_NAV_ITEMS）、注释块 2 行、-const { isAuthenticated } = useAuth()、items 来源 visibleNavItems(isAuthenticated)→SHELL_NAV_ITEMS；未读角标（useUnreadCount / unreadBadgeText / 角标 span 渲染块）零 diff 行触碰"
+ },
+ "verdict": {
+  "desktop_display_none": true,
+  "desktop_dom_tabs_5_attached_wait": true,
+  "desktop_keys_exact": true,
+  "detail_is_detail_class": true,
+  "detail_display_none": true,
+  "detail_dom_tabs_5": true,
+  "badge_logic_untouched_in_diff": true,
+  "zero_pageerror_desktop_detail": true,
+  "all_pass": true
+ }
+}

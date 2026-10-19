@@ -1,0 +1,22 @@
+{
+ "generatedAt": "2026-10-19T02:51:44.227Z",
+ "armH_home390_guest": {
+  "url": "http://localhost:5800/",
+  "rootInnerHTMLLength": 49310,
+  "pageErrors": []
+ },
+ "git_log_origin_main_dotdot_head": [
+  "9c8a460 fix(seafood): 底栏【我的】未登录不渲染修复——恒 5 格（含未登录）",
+  "a7f0dbc fix(seafood): 招工页币种提示四语对齐——zh 去「悬赏」限定",
+  "a0a464f chore(seafood): dev 库 QA 夹具币清理（Kevin 指令②）—— 9 cid listed→delisted + currency_status_log 7→16（平台币 $ / BTTC 保留 · 原子单语句 · 预检/读数入库 · BTTC cid dev=399 勘误依据）"
+ ],
+ "merge_base_origin_main": "9adcfccbf86047256c09244f2c2a19965afba66c",
+ "e0a6ee3_is_ancestor_of_origin_main": true,
+ "verdict": {
+  "root_non_empty": true,
+  "zero_pageerror": true,
+  "unpushed_commits_listed": true,
+  "contains_expected_3": true,
+  "all_pass": true
+ }
+}

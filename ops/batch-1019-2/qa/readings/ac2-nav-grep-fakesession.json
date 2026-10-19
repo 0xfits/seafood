@@ -1,0 +1,99 @@
+{
+ "generatedAt": "2026-10-19T02:51:44.227Z",
+ "grep": {
+  "cmd": "grep -rn 'visibleNavItems\\|requiresAuth' frontend/src",
+  "hit_count": 4,
+  "hits": [
+   {
+    "file": "frontend/src/test/unit/theme-shell-isomorphism.test.jsx",
+    "line": 108,
+    "content": "// 前版曾断言「未登录不含 profile」（visibleNavItems 过滤已废）⇒ 现口径：key 集恒 5。",
+    "occurrence_in_comment": true,
+    "kind": "full_line_comment"
+   },
+   {
+    "file": "frontend/src/test/unit/v15-nav-floatmenu.test.jsx",
+    "line": 92,
+    "content": "expect(fifth.key).toBe('profile') // requiresAuth 字段已废（2026-10-19：底栏恒 5 格，保护在路由层）",
+    "occurrence_in_comment": true,
+    "kind": "trailing_comment"
+   },
+   {
+    "file": "frontend/src/shell/nav.js",
+    "line": 17,
+    "content": "//   （`key` / `path` 仍 `profile`，逐字不动；当时的 `requiresAuth` 字段已随 2026-10-19 单删除，见下方留痕）；**`me` 键已删**（避免两键同义）。",
+    "occurrence_in_comment": true,
+    "kind": "full_line_comment"
+   },
+   {
+    "file": "frontend/src/shell/nav.js",
+    "line": 30,
+    "content": "//   前版曾有 `requiresAuth: true` 字段 + `visibleNavItems(isAuthenticated)` 过滤 ⇒ 未登录底栏只剩 4 格；",
+    "occurrence_in_comment": true,
+    "kind": "full_line_comment"
+   }
+  ],
+  "all_occurrences_in_comment": true,
+  "production_code_position_hits": [],
+  "production_files_hits": [
+   {
+    "file": "frontend/src/shell/nav.js",
+    "line": 17,
+    "content": "//   （`key` / `path` 仍 `profile`，逐字不动；当时的 `requiresAuth` 字段已随 2026-10-19 单删除，见下方留痕）；**`me` 键已删**（避免两键同义）。",
+    "occurrence_in_comment": true,
+    "kind": "full_line_comment"
+   },
+   {
+    "file": "frontend/src/shell/nav.js",
+    "line": 30,
+    "content": "//   前版曾有 `requiresAuth: true` 字段 + `visibleNavItems(isAuthenticated)` 过滤 ⇒ 未登录底栏只剩 4 格；",
+    "occurrence_in_comment": true,
+    "kind": "full_line_comment"
+   }
+  ],
+  "note": "4 命中：nav.js:17/:30 为留痕注释（全行）；theme-shell-isomorphism.test.jsx:108 全行注释；v15-nav-floatmenu.test.jsx:92 为代码行的行尾注释（token 只出现在 // 之后）。代码位置出现 0 处；生产文件（nav.js）命中 2 处均为 AC 明文允许的留痕注释。"
+ },
+ "nav_js_fact": "shell/nav.js 现源：SHELL_NAV_ITEMS 5 项（profile 无 requiresAuth 字段）；无 visibleNavItems 导出",
+ "bottom_tab_bar_fact": "shell/BottomTabBar.jsx:40 `const items = SHELL_NAV_ITEMS`（恒染、不读登录态、无 useAuth import）",
+ "armB_fake_session": {
+  "url": "http://localhost:5800/",
+  "tabs": [
+   {
+    "key": "home",
+    "href": "/",
+    "label": "海鲜市场"
+   },
+   {
+    "key": "shard",
+    "href": "/exchange",
+    "label": "市场"
+   },
+   {
+    "key": "sell",
+    "href": "/item/new",
+    "label": "卖闲置"
+   },
+   {
+    "key": "messages",
+    "href": "/messages",
+    "label": "消息"
+   },
+   {
+    "key": "profile",
+    "href": "/profile",
+    "label": "我的"
+   }
+  ],
+  "tabCount": 5,
+  "sessionPersisted": true,
+  "pageErrors": []
+ },
+ "verdict": {
+  "fake_session_tabCount_is5": true,
+  "fake_session_keys_exact": true,
+  "fake_session_persisted": true,
+  "production_refs_zero": true,
+  "fake_session_zero_pageerror": true,
+  "all_pass": true
+ }
+}

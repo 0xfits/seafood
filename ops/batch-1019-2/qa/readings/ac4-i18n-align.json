@@ -1,0 +1,65 @@
+{
+ "generatedAt": "2026-10-19T02:51:44.227Z",
+ "jobs_cidNote_current": {
+  "zh": "请从下拉框选择币种",
+  "en": "Select the currency from the dropdown.",
+  "hk": "請從下拉框選擇幣種。",
+  "vn": "Chọn tiền tệ từ danh sách."
+ },
+ "zh_expected": "请从下拉框选择币种",
+ "hk_expected": "請從下拉框選擇幣種。",
+ "flat_key_counts": {
+  "zh": 1106,
+  "en": 1106,
+  "hk": 1106,
+  "vn": 1106
+ },
+ "four_lang_nodes": 4424,
+ "pairwise_symdiff": {
+  "zh-en": 0,
+  "zh-hk": 0,
+  "zh-vn": 0,
+  "en-hk": 0,
+  "en-vn": 0,
+  "hk-vn": 0
+ },
+ "pairwise_all_zero": true,
+ "keysets_identical_4_langs": true,
+ "top_level_key_counts": {
+  "zh": 128,
+  "en": 128,
+  "hk": 128,
+  "vn": 128
+ },
+ "git_show_a7f0dbc_stat_files": [
+  "frontend/src/locales/zh.json",
+  "ops/item-cid-select/REPORT-align.md",
+  "ops/item-cid-select/readings/align-cidnote.json",
+  "ops/item-cid-select/readings/align-gates.log",
+  "ops/item-cid-select/readings/align-probe.json"
+ ],
+ "zh_json_diff_lines": [
+  "-    \"cidNote\": \"请从下拉框选择悬赏币种\",",
+  "+    \"cidNote\": \"请从下拉框选择币种\","
+ ],
+ "note": "a7f0dbc 生产代码面改动 = 仅 frontend/src/locales/zh.json（1+/1-）；同提交其余 4 文件均为 ops/item-cid-select/ 证据件（REPORT/readings），非代码",
+ "verdict": {
+  "zh_is_new_value": true,
+  "zh_no_reward_word": true,
+  "hk_is_expected": true,
+  "en_generic": true,
+  "vn_generic": true,
+  "pairwise_diff_zero": true,
+  "stat_code_change_only_zh": true,
+  "all_pass": true
+ },
+ "code_face_files": [
+  "frontend/src/locales/zh.json"
+ ],
+ "evidence_files": [
+  "ops/item-cid-select/REPORT-align.md",
+  "ops/item-cid-select/readings/align-cidnote.json",
+  "ops/item-cid-select/readings/align-gates.log",
+  "ops/item-cid-select/readings/align-probe.json"
+ ]
+}

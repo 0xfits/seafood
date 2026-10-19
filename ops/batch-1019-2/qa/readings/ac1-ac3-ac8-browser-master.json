@@ -1,0 +1,151 @@
+{
+  "generatedAt": "2026-10-19T02:51:44.227Z",
+  "entry": "http://localhost:5800",
+  "arms": {
+    "A_guest390_itemnew": {
+      "urlBeforeClick": "http://localhost:5800/item/new",
+      "tabs": [
+        {
+          "key": "home",
+          "href": "/",
+          "label": "海鲜市场"
+        },
+        {
+          "key": "shard",
+          "href": "/exchange",
+          "label": "市场"
+        },
+        {
+          "key": "sell",
+          "href": "/item/new",
+          "label": "卖闲置"
+        },
+        {
+          "key": "messages",
+          "href": "/messages",
+          "label": "消息"
+        },
+        {
+          "key": "profile",
+          "href": "/profile",
+          "label": "我的"
+        }
+      ],
+      "tabCount": 5,
+      "negativeControl": {
+        "countInjected": 6,
+        "countRemoved": 5
+      },
+      "clickProfile": {
+        "urlAfterClick": "http://localhost:5800/login",
+        "loginGuide": {
+          "url": "/login",
+          "urlHasLogin": true,
+          "textHasWalletPhrase": true,
+          "inputCountObservationOnly": 0,
+          "snippet": "Seafood 海鲜市场 JINLI CLUB 连接钱包继续探索 使用现有钱包签名即可登录，完成后会返回你刚才访问的页面。 钱包签名登录 连接你的 EVM 钱包，并完成一次签名验证即可登录。 尚未连接钱包 请连接一个 EVM 钱包地址 登录只会请求一次签名，不会发起链上交易，也不会消耗 gas。 当前环境未检测到 MetaMask 或 OKX Wallet。安装钱包扩展后刷新页面即可继续。 连接钱包 签名登录 说明 钱包登录只会请求一次"
+        }
+      },
+      "pageErrors": []
+    },
+    "A2_guest390_en": {
+      "url": "http://localhost:5800/en",
+      "tabs": [
+        {
+          "key": "home",
+          "href": "/en/",
+          "label": "Seafood Market"
+        },
+        {
+          "key": "shard",
+          "href": "/en/exchange",
+          "label": "Market"
+        },
+        {
+          "key": "sell",
+          "href": "/en/item/new",
+          "label": "Sell"
+        },
+        {
+          "key": "messages",
+          "href": "/en/messages",
+          "label": "Messages"
+        },
+        {
+          "key": "profile",
+          "href": "/en/profile",
+          "label": "Me"
+        }
+      ],
+      "tabCount": 5,
+      "pageErrors": []
+    },
+    "B_fakeSession390_home": {
+      "url": "http://localhost:5800/",
+      "tabs": [
+        {
+          "key": "home",
+          "href": "/",
+          "label": "海鲜市场"
+        },
+        {
+          "key": "shard",
+          "href": "/exchange",
+          "label": "市场"
+        },
+        {
+          "key": "sell",
+          "href": "/item/new",
+          "label": "卖闲置"
+        },
+        {
+          "key": "messages",
+          "href": "/messages",
+          "label": "消息"
+        },
+        {
+          "key": "profile",
+          "href": "/profile",
+          "label": "我的"
+        }
+      ],
+      "tabCount": 5,
+      "sessionPersisted": true,
+      "pageErrors": []
+    },
+    "C_desktop1440_home": {
+      "url": "http://localhost:5800/",
+      "tabCountInDom": 5,
+      "keysInDom": [
+        "home",
+        "shard",
+        "sell",
+        "messages",
+        "profile"
+      ],
+      "tabbar": {
+        "exists": true,
+        "classes": "sf-tabbar",
+        "display": "none"
+      },
+      "pageErrors": []
+    },
+    "D_detail390_item1": {
+      "url": "http://localhost:5800/item/1",
+      "tabCountInDom": 5,
+      "tabbar": {
+        "exists": true,
+        "classes": "sf-tabbar is-detail",
+        "display": "none"
+      },
+      "isDetailClass": true,
+      "bodySnippet": "Seafood 海鲜市场 加载中... 简体中文 English 粤语 Tiếng Việt © 2024-2026 Abbey Quant & Jinli Club. 保留所有权利。 本网站支持简体中文、英文、粤语和越南语。 联系我们：contact@jinli.club",
+      "pageErrors": []
+    },
+    "H_home390_guest": {
+      "url": "http://localhost:5800/",
+      "rootInnerHTMLLength": 49310,
+      "pageErrors": []
+    }
+  }
+}

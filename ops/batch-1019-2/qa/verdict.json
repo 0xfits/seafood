@@ -1,0 +1,77 @@
+{
+ "task": "BATCH-1019-2 · 独立质检（不采信自报）—— 底栏恒 5 格(9c8a460) / zh 对齐(a7f0dbc) / dev 夹具币清理(a0a464f)",
+ "generated_at": "2026-10-19T02:51:44.227Z",
+ "scope": {
+  "head": "9c8a460062d0b946b5ec0b0b13b35566b0b14f58",
+  "worktree_clean": true,
+  "unpushed": 3,
+  "entry": "http://localhost:5800（h5-preview → vite dev 5787 → api 5788）",
+  "db": "Neon dev quiet-math-65207667（backend-ts/.env.local dotenv.parse 显式构造，禁吃 process.env）"
+ },
+ "discipline": "零库写（全 SELECT）/ 零真登录 / 零真发布 / 不 commit 不 push / 判负对照与灵敏度自证随读数落盘",
+ "ruler_corrections": "首轮 AC2/AC4 判 FAIL 为质检尺子自身取数 bug（行尾注释误判为代码引用；stat 文件名前缀漏配），修正后重判为 PASS；两处修正均非放宽判据，过程留痕于对应 reading 的 verdict 注记",
+ "ac": [
+  {
+   "id": "AC1",
+   "name": "形态（游客）：5800 同源入口 390×844 未登录 tabbar 恰 5 格含 profile、href 语言前缀正确、点「我的」落钱包签名登录引导、零 pageerror、判负对照注入 6→移除 5",
+   "verdict": "PASS",
+   "reading": "readings/ac1-guest-shape.json（master: readings/ac1-ac3-ac8-browser-master.json 臂A/A2）",
+   "falsifier": "tabCount≠5 或缺 profile 或 zh href 含语言前缀或 en profile href≠/en/profile，即判负；判负对照注入≠6/移除≠5 ⇒ 尺子失灵也判负。实测：5 格 keys=[home,shard,sell,messages,profile]，zh href=[/，/exchange，/item/new，/messages，/profile]，en=[/en/，/en/exchange，/en/item/new，/en/messages，/en/profile]（home=/en/ 为 navPathInLang 对 path='' 的既有输出，前缀正确）；点「我的」→ /login 且页面含「连接钱包/使用现有钱包签名即可登录」（input=0，恰证钱包签名页无表单、input 判据不可用）；pageerror=0；注入假 profile=6、移除=5。"
+  },
+  {
+   "id": "AC2",
+   "name": "形态（登录态）：假会话 5 格不变；grep visibleNavItems|requiresAuth 于 frontend/src 生产码零引用（仅注释留痕）",
+   "verdict": "PASS",
+   "reading": "readings/ac2-nav-grep-fakesession.json",
+   "falsifier": "假会话 tabCount≠5 即判负；grep 任一 token 出现在代码位置（注释外）即判负。实测：假会话 5 格 keys 同集、sessionPersisted=true（/api/** 503 拦截防 401 清会话）、pageerror=0；grep 4 命中全部在注释内（nav.js:17/:30 全行留痕注释；theme-shell-isomorphism.test.jsx:108 全行注释；v15-nav-floatmenu.test.jsx:92 行尾注释）——代码位置 0 处、生产码文件 0 处。【首轮 FAIL 为质检尺子 bug：把行尾注释里的 token 误判为代码引用，修正后重判，判据未放宽（新增 occurrence_in_comment 精确分类）】"
+  },
+  {
+   "id": "AC3",
+   "name": "桌面/详情页不回归：1440 档 .sf-tabbar display=none 且 DOM 恒 5 tabs（attached 等待）；/item/1 详情 is-detail 隐藏；messages 角标逻辑未动（BottomTabBar diff 仅 items 来源与注释）",
+   "verdict": "PASS",
+   "reading": "readings/ac3-desktop-detail-badge.json",
+   "falsifier": "desktop display≠none 或 DOM≠5 即判负；详情无 is-detail 或 display≠none 即判负；BottomTabBar diff 触碰 unread/Badge 相关行即判负。实测：1440 display=none + DOM 5 tabs（keysInDom 全对）；/item/1 classes=sf-tabbar is-detail、display=none、DOM 5 tabs；diff 角标相关行=0（diff 仅 import 行、注释 2 行、-useAuth 消费、items 来源改 SHELL_NAV_ITEMS）。"
+  },
+  {
+   "id": "AC4",
+   "name": "对齐：四语 jobs.cidNote 现取（zh=新值去「悬赏」、hk=請從下拉框選擇幣種。、en/vn 通用句）；a7f0dbc 代码面仅 locales/zh.json；四语拍平键数两两差 0",
+   "verdict": "PASS",
+   "reading": "readings/ac4-i18n-align.json",
+   "falsifier": "zh 仍含「悬赏」或 hk/en/vn 非预期值即判负；拍平键数任一两两差≠0 即判负；a7f0dbc 触碰 locales/zh.json 以外任何代码文件即判负。实测：四语现值全对（1106×4=4424 节点、对称差全 0、键集逐语相同、顶层键 128×4）；git show --stat 共 5 文件 = 代码面恰 frontend/src/locales/zh.json（1+/1-）+ ops/item-cid-select 证据件 4 个。【首轮 FAIL 为质检尺子 bug：文件名等值判断漏了 frontend/ 前缀，修正后重判，判据未放宽】"
+  },
+  {
+   "id": "AC5",
+   "name": "清理（只读 DB 自证）：project=quiet-math-65207667；listed 恰 2（$/BTTC）；currency_status_log=16 且末 9 行 delisted+memo 含 dev cleanup；审计行与 currency 行 9/9 对应",
+   "verdict": "PASS",
+   "reading": "readings/ac5-db-cleanup.json（探针 qa/probe-db-cleanup.mjs）",
+   "falsifier": "project_id≠quiet-math-65207667 即判负（连错库）；listed≠2 或符号非 $/BTTC 即判负；log≠16 或末 9 行任一 to_status≠delisted 或 memo 缺 dev cleanup 即判负；9 cids 任一 currency.status≠delisted 即判负。实测：全 true；currency 16 行 = listed 2 + delisted 9（恰夹具 cids [4,10,16,21,29,31,32,35,36]）+ draft 5（cid 9/15/22/27/28，与 item-cid-select QA 存量读数一致）；连接串 backend-ts/.env.local dotenv.parse 显式构造、processEnvLeakKeys=[]；全部语句 SELECT。"
+  },
+  {
+   "id": "AC6",
+   "name": "读口：GET localhost:5788/api/currencies 无 Authorization ⇒ 200 rows=2 行键恰三键",
+   "verdict": "PASS",
+   "reading": "readings/ac6-currencies-verified.json（原始体 readings/ac6-currencies.json + readings/ac6-currencies.headers）",
+   "falsifier": "非 200 或 success≠true 即判负；行数≠2 或任一行键数≠3 或键集≠{cid,symbol,name} 即判负。实测：200、success=true、rows=2（cid 1=$/平台积分、cid 399=BTTC/battcoin）、行键恰 [cid,name,symbol]×2。"
+  },
+  {
+   "id": "AC7",
+   "name": "门套（HEAD 自跑）：build exit 0 + 产物名；test:unit 全绿记数；与 9c8a460 报的 59/568 对照",
+   "verdict": "PASS",
+   "reading": "readings/ac7-gates.json（原始日志 readings/gates.log，HEAD=9c8a460）",
+   "falsifier": "BUILD_EXIT≠0 或 TEST_EXIT≠0 或 Test Files/Tests 低于 59/568 即判负。实测：BUILD_EXIT=0（✓ built in 1.96s，产物 index-DAobK5Jq.js / index-DnoMyxQu.css 与 dist/index.html 引用逐字同名）；Test Files 59 passed (59)、Tests 568 passed (568)、TEST_EXIT=0，与 9c8a460 自报 59/568 持平。log 内 HOME_UNREGISTERED 行 = 用例回退路径 console 噪声，非失败。"
+  },
+  {
+   "id": "AC8",
+   "name": "回归：/ 首页游客态 #root 非空零 pageerror；git log origin/main..HEAD 逐条列出（含 e0a6ee3 后全部未推提交）",
+   "verdict": "PASS",
+   "reading": "readings/ac8-home-guest-git.json",
+   "falsifier": "#root innerHTML=0 或 pageerror>0 即判负；origin/main..HEAD 缺三条之一即判负。实测：rootInnerHTMLLength=49310、pageerror=0；未推提交恰 3 条（9c8a460/a7f0dbc/a0a464f，逐字列出）；merge-base=9adcfcc，e0a6ee3 为 origin/main 祖先 ⇒ e0a6ee3 之后的未推提交 = 恰这 3 条。"
+  }
+ ],
+ "summary": {
+  "total": 8,
+  "PASS": 8,
+  "FAIL": 0,
+  "NOT_MEASURED": 0
+ }
+}

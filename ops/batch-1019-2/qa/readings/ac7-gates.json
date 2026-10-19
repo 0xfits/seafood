@@ -1,0 +1,34 @@
+{
+ "generatedAt": "2026-10-19T02:51:44.227Z",
+ "log": "readings/gates.log",
+ "head_at_run": "9c8a460",
+ "build": {
+  "exit": "0",
+  "built_in": "1.96s",
+  "artifacts": [
+   "index-DAobK5Jq.js",
+   "index-DnoMyxQu.css"
+  ],
+  "html_refs_same": true
+ },
+ "test_unit": {
+  "exit": "0",
+  "test_files": "59",
+  "tests": "568"
+ },
+ "compare_9c8a460_report": {
+  "reported": "59 files / 568 tests",
+  "measured_files": "59",
+  "measured_tests": "568",
+  "equal": true
+ },
+ "console_noise_note": "gates.log 内 'HOME_UNREGISTERED' 行 = vitest 用例的 console 噪声（home 聚合回退路径夹具），非失败（Test Files/Tests 全 passed）",
+ "verdict": {
+  "build_exit_0": true,
+  "test_exit_0": true,
+  "test_files_59": true,
+  "tests_568": true,
+  "matches_9c8a460_59_568": true,
+  "all_pass": true
+ }
+}

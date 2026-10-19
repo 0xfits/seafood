@@ -1,0 +1,98 @@
+{
+ "generatedAt": "2026-10-19T02:51:44.227Z",
+ "entry": "http://localhost:5800",
+ "viewport": "390x844",
+ "scope": "游客态 @5800 同源入口 /item/new + /en；零真登录、判负对照为纯 DOM 注入（页面内、不持久）",
+ "armA_guest_itemnew": {
+  "urlBeforeClick": "http://localhost:5800/item/new",
+  "tabs": [
+   {
+    "key": "home",
+    "href": "/",
+    "label": "海鲜市场"
+   },
+   {
+    "key": "shard",
+    "href": "/exchange",
+    "label": "市场"
+   },
+   {
+    "key": "sell",
+    "href": "/item/new",
+    "label": "卖闲置"
+   },
+   {
+    "key": "messages",
+    "href": "/messages",
+    "label": "消息"
+   },
+   {
+    "key": "profile",
+    "href": "/profile",
+    "label": "我的"
+   }
+  ],
+  "tabCount": 5,
+  "negativeControl": {
+   "countInjected": 6,
+   "countRemoved": 5
+  },
+  "clickProfile": {
+   "urlAfterClick": "http://localhost:5800/login",
+   "loginGuide": {
+    "url": "/login",
+    "urlHasLogin": true,
+    "textHasWalletPhrase": true,
+    "inputCountObservationOnly": 0,
+    "snippet": "Seafood 海鲜市场 JINLI CLUB 连接钱包继续探索 使用现有钱包签名即可登录，完成后会返回你刚才访问的页面。 钱包签名登录 连接你的 EVM 钱包，并完成一次签名验证即可登录。 尚未连接钱包 请连接一个 EVM 钱包地址 登录只会请求一次签名，不会发起链上交易，也不会消耗 gas。 当前环境未检测到 MetaMask 或 OKX Wallet。安装钱包扩展后刷新页面即可继续。 连接钱包 签名登录 说明 钱包登录只会请求一次"
+   }
+  },
+  "pageErrors": []
+ },
+ "armA2_guest_en": {
+  "url": "http://localhost:5800/en",
+  "tabs": [
+   {
+    "key": "home",
+    "href": "/en/",
+    "label": "Seafood Market"
+   },
+   {
+    "key": "shard",
+    "href": "/en/exchange",
+    "label": "Market"
+   },
+   {
+    "key": "sell",
+    "href": "/en/item/new",
+    "label": "Sell"
+   },
+   {
+    "key": "messages",
+    "href": "/en/messages",
+    "label": "Messages"
+   },
+   {
+    "key": "profile",
+    "href": "/en/profile",
+    "label": "Me"
+   }
+  ],
+  "tabCount": 5,
+  "pageErrors": []
+ },
+ "criterion_note": "登录引导判据 = URL 含 /login 或 页面出现连接钱包文案（本站登录=钱包签名页、无表单；input 计数仅作 observation 记录，不作判据 —— 本轮实测 input=0，若误用「有 input」当判据将恒判负）",
+ "verdict": {
+  "tabCount_is5": true,
+  "keys_exact": true,
+  "zh_hrefs_exact": true,
+  "profile_tab_present": true,
+  "en_tabs_5": true,
+  "en_profile_href_is_/en/profile": true,
+  "en_hrefs_all_prefixed": true,
+  "negative_control_inject6_remove5": true,
+  "click_profile_lands_login_guide": true,
+  "zero_pageerror": true,
+  "all_pass": true
+ }
+}

@@ -1,0 +1,40 @@
+{
+ "generatedAt": "2026-10-19T02:51:44.227Z",
+ "request": "GET http://localhost:5788/api/currencies（curl 未发送任何 Authorization 头）",
+ "http_code": 200,
+ "top_level_keys": [
+  "data",
+  "message",
+  "success"
+ ],
+ "success": true,
+ "row_count": 2,
+ "row_key_sets": [
+  "cid,name,symbol"
+ ],
+ "row_key_counts": [
+  3
+ ],
+ "rows": [
+  {
+   "cid": "1",
+   "symbol": "$",
+   "name": "平台积分"
+  },
+  {
+   "cid": "399",
+   "symbol": "BTTC",
+   "name": "battcoin"
+  }
+ ],
+ "headers_file": "readings/ac6-currencies.headers",
+ "verdict": {
+  "http_200": true,
+  "success_true": true,
+  "rows_is_2": true,
+  "row_keys_exactly_3": true,
+  "row_keys_cid_symbol_name": true,
+  "rows_usd_bttc": true,
+  "all_pass": true
+ }
+}

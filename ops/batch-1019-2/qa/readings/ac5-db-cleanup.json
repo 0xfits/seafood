@@ -1,0 +1,521 @@
+{
+  "generatedAt": "2026-10-19T02:49:54.388Z",
+  "connSource": "backend-ts/.env.local via dotenv.parse (explicit构造, 未吃 process.env)",
+  "processEnvLeakKeys": [],
+  "statements": "all SELECT (read-only)",
+  "identity": {
+    "project_id": "quiet-math-65207667",
+    "branch_id": "br-soft-lake-b3iv9tli",
+    "db_name": "neondb"
+  },
+  "currencyRowCount": 16,
+  "currencyAll": [
+    {
+      "cid": 1,
+      "symbol": "$",
+      "name": "平台积分",
+      "status": "listed",
+      "listed_at": "2026-09-29T01:15:27.684Z"
+    },
+    {
+      "cid": 4,
+      "symbol": "P4B3A013122",
+      "name": "P4B3A test unit",
+      "status": "delisted",
+      "listed_at": "2026-09-29T17:35:45.967Z"
+    },
+    {
+      "cid": 9,
+      "symbol": "P4B3A013122X",
+      "name": "D unit",
+      "status": "draft",
+      "listed_at": null
+    },
+    {
+      "cid": 10,
+      "symbol": "P4B3A013647",
+      "name": "P4B3A test unit",
+      "status": "delisted",
+      "listed_at": "2026-09-29T17:37:37.496Z"
+    },
+    {
+      "cid": 15,
+      "symbol": "P4B3A013647X",
+      "name": "D unit",
+      "status": "draft",
+      "listed_at": null
+    },
+    {
+      "cid": 16,
+      "symbol": "P4B3B590800",
+      "name": "P4B3B test unit",
+      "status": "delisted",
+      "listed_at": "2026-09-29T18:10:18.625Z"
+    },
+    {
+      "cid": 21,
+      "symbol": "P4B3B590800X",
+      "name": "server default fee",
+      "status": "delisted",
+      "listed_at": "2026-09-29T18:10:39.430Z"
+    },
+    {
+      "cid": 22,
+      "symbol": "QAB30929T185356Z",
+      "name": "QA B3 currency",
+      "status": "draft",
+      "listed_at": null
+    },
+    {
+      "cid": 27,
+      "symbol": "QAB4",
+      "name": "qab4 qab429191832",
+      "status": "draft",
+      "listed_at": null
+    },
+    {
+      "cid": 28,
+      "symbol": "N1A0T203917",
+      "name": "num1 below",
+      "status": "draft",
+      "listed_at": null
+    },
+    {
+      "cid": 29,
+      "symbol": "N1B0T203917",
+      "name": "num1 default",
+      "status": "delisted",
+      "listed_at": "2026-09-30T12:41:10.445Z"
+    },
+    {
+      "cid": 31,
+      "symbol": "N1A0T204732",
+      "name": "num1 at floor",
+      "status": "delisted",
+      "listed_at": "2026-09-30T12:47:43.010Z"
+    },
+    {
+      "cid": 32,
+      "symbol": "N1B0T204732",
+      "name": "num1 default",
+      "status": "delisted",
+      "listed_at": "2026-09-30T12:47:45.333Z"
+    },
+    {
+      "cid": 35,
+      "symbol": "qap7a31l3k6",
+      "name": "QA p7-a fixture qap7a31l3k6",
+      "status": "delisted",
+      "listed_at": "2026-10-02T07:09:40.871Z"
+    },
+    {
+      "cid": 36,
+      "symbol": "qap7b1wtoqc",
+      "name": "QA p7-a fixture qap7b1wtoqc",
+      "status": "delisted",
+      "listed_at": "2026-10-02T07:09:41.046Z"
+    },
+    {
+      "cid": 399,
+      "symbol": "BTTC",
+      "name": "battcoin",
+      "status": "listed",
+      "listed_at": "2026-10-17T04:22:35.920Z"
+    }
+  ],
+  "listed": [
+    {
+      "cid": 1,
+      "symbol": "$",
+      "name": "平台积分",
+      "status": "listed",
+      "listed_at": "2026-09-29T01:15:27.684Z"
+    },
+    {
+      "cid": 399,
+      "symbol": "BTTC",
+      "name": "battcoin",
+      "status": "listed",
+      "listed_at": "2026-10-17T04:22:35.920Z"
+    }
+  ],
+  "delisted": [
+    {
+      "cid": 4,
+      "symbol": "P4B3A013122",
+      "name": "P4B3A test unit",
+      "status": "delisted",
+      "listed_at": "2026-09-29T17:35:45.967Z"
+    },
+    {
+      "cid": 10,
+      "symbol": "P4B3A013647",
+      "name": "P4B3A test unit",
+      "status": "delisted",
+      "listed_at": "2026-09-29T17:37:37.496Z"
+    },
+    {
+      "cid": 16,
+      "symbol": "P4B3B590800",
+      "name": "P4B3B test unit",
+      "status": "delisted",
+      "listed_at": "2026-09-29T18:10:18.625Z"
+    },
+    {
+      "cid": 21,
+      "symbol": "P4B3B590800X",
+      "name": "server default fee",
+      "status": "delisted",
+      "listed_at": "2026-09-29T18:10:39.430Z"
+    },
+    {
+      "cid": 29,
+      "symbol": "N1B0T203917",
+      "name": "num1 default",
+      "status": "delisted",
+      "listed_at": "2026-09-30T12:41:10.445Z"
+    },
+    {
+      "cid": 31,
+      "symbol": "N1A0T204732",
+      "name": "num1 at floor",
+      "status": "delisted",
+      "listed_at": "2026-09-30T12:47:43.010Z"
+    },
+    {
+      "cid": 32,
+      "symbol": "N1B0T204732",
+      "name": "num1 default",
+      "status": "delisted",
+      "listed_at": "2026-09-30T12:47:45.333Z"
+    },
+    {
+      "cid": 35,
+      "symbol": "qap7a31l3k6",
+      "name": "QA p7-a fixture qap7a31l3k6",
+      "status": "delisted",
+      "listed_at": "2026-10-02T07:09:40.871Z"
+    },
+    {
+      "cid": 36,
+      "symbol": "qap7b1wtoqc",
+      "name": "QA p7-a fixture qap7b1wtoqc",
+      "status": "delisted",
+      "listed_at": "2026-10-02T07:09:41.046Z"
+    }
+  ],
+  "statusLogCount": 16,
+  "statusLogAll": [
+    {
+      "log_id": 1,
+      "cid": 4,
+      "from_status": "draft",
+      "to_status": "listed",
+      "actor_uid": 970001,
+      "memo": "currency_list_deposit:4",
+      "time_created": "2026-09-29T17:35:45.967Z"
+    },
+    {
+      "log_id": 2,
+      "cid": 10,
+      "from_status": "draft",
+      "to_status": "listed",
+      "actor_uid": 970001,
+      "memo": "currency_list_deposit:10",
+      "time_created": "2026-09-29T17:37:37.496Z"
+    },
+    {
+      "log_id": 3,
+      "cid": 16,
+      "from_status": "draft",
+      "to_status": "listed",
+      "actor_uid": 970001,
+      "memo": "currency_list_deposit:16",
+      "time_created": "2026-09-29T18:10:18.625Z"
+    },
+    {
+      "log_id": 4,
+      "cid": 21,
+      "from_status": "draft",
+      "to_status": "listed",
+      "actor_uid": 970001,
+      "memo": "currency_list_deposit:21",
+      "time_created": "2026-09-29T18:10:39.430Z"
+    },
+    {
+      "log_id": 5,
+      "cid": 29,
+      "from_status": "draft",
+      "to_status": "listed",
+      "actor_uid": 970001,
+      "memo": "currency_list_deposit:29",
+      "time_created": "2026-09-30T12:41:10.445Z"
+    },
+    {
+      "log_id": 6,
+      "cid": 31,
+      "from_status": "draft",
+      "to_status": "listed",
+      "actor_uid": 970001,
+      "memo": "currency_list_deposit:31",
+      "time_created": "2026-09-30T12:47:43.010Z"
+    },
+    {
+      "log_id": 7,
+      "cid": 32,
+      "from_status": "draft",
+      "to_status": "listed",
+      "actor_uid": 970001,
+      "memo": "currency_list_deposit:32",
+      "time_created": "2026-09-30T12:47:45.333Z"
+    },
+    {
+      "log_id": 78,
+      "cid": 10,
+      "from_status": "listed",
+      "to_status": "delisted",
+      "actor_uid": 1,
+      "memo": "dev cleanup: QA fixture currency delisted (Kevin 2026-10-19 directive; platform coins $/BTTC kept; no business listings referenced)",
+      "time_created": "2026-10-19T02:14:33.278Z"
+    },
+    {
+      "log_id": 79,
+      "cid": 4,
+      "from_status": "listed",
+      "to_status": "delisted",
+      "actor_uid": 1,
+      "memo": "dev cleanup: QA fixture currency delisted (Kevin 2026-10-19 directive; platform coins $/BTTC kept; no business listings referenced)",
+      "time_created": "2026-10-19T02:14:33.278Z"
+    },
+    {
+      "log_id": 80,
+      "cid": 16,
+      "from_status": "listed",
+      "to_status": "delisted",
+      "actor_uid": 1,
+      "memo": "dev cleanup: QA fixture currency delisted (Kevin 2026-10-19 directive; platform coins $/BTTC kept; no business listings referenced)",
+      "time_created": "2026-10-19T02:14:33.278Z"
+    },
+    {
+      "log_id": 81,
+      "cid": 21,
+      "from_status": "listed",
+      "to_status": "delisted",
+      "actor_uid": 1,
+      "memo": "dev cleanup: QA fixture currency delisted (Kevin 2026-10-19 directive; platform coins $/BTTC kept; no business listings referenced)",
+      "time_created": "2026-10-19T02:14:33.278Z"
+    },
+    {
+      "log_id": 82,
+      "cid": 29,
+      "from_status": "listed",
+      "to_status": "delisted",
+      "actor_uid": 1,
+      "memo": "dev cleanup: QA fixture currency delisted (Kevin 2026-10-19 directive; platform coins $/BTTC kept; no business listings referenced)",
+      "time_created": "2026-10-19T02:14:33.278Z"
+    },
+    {
+      "log_id": 83,
+      "cid": 31,
+      "from_status": "listed",
+      "to_status": "delisted",
+      "actor_uid": 1,
+      "memo": "dev cleanup: QA fixture currency delisted (Kevin 2026-10-19 directive; platform coins $/BTTC kept; no business listings referenced)",
+      "time_created": "2026-10-19T02:14:33.278Z"
+    },
+    {
+      "log_id": 84,
+      "cid": 32,
+      "from_status": "listed",
+      "to_status": "delisted",
+      "actor_uid": 1,
+      "memo": "dev cleanup: QA fixture currency delisted (Kevin 2026-10-19 directive; platform coins $/BTTC kept; no business listings referenced)",
+      "time_created": "2026-10-19T02:14:33.278Z"
+    },
+    {
+      "log_id": 85,
+      "cid": 35,
+      "from_status": "listed",
+      "to_status": "delisted",
+      "actor_uid": 1,
+      "memo": "dev cleanup: QA fixture currency delisted (Kevin 2026-10-19 directive; platform coins $/BTTC kept; no business listings referenced)",
+      "time_created": "2026-10-19T02:14:33.278Z"
+    },
+    {
+      "log_id": 86,
+      "cid": 36,
+      "from_status": "listed",
+      "to_status": "delisted",
+      "actor_uid": 1,
+      "memo": "dev cleanup: QA fixture currency delisted (Kevin 2026-10-19 directive; platform coins $/BTTC kept; no business listings referenced)",
+      "time_created": "2026-10-19T02:14:33.278Z"
+    }
+  ],
+  "last9": [
+    {
+      "log_id": 78,
+      "cid": 10,
+      "from_status": "listed",
+      "to_status": "delisted",
+      "actor_uid": 1,
+      "memo": "dev cleanup: QA fixture currency delisted (Kevin 2026-10-19 directive; platform coins $/BTTC kept; no business listings referenced)",
+      "time_created": "2026-10-19T02:14:33.278Z"
+    },
+    {
+      "log_id": 79,
+      "cid": 4,
+      "from_status": "listed",
+      "to_status": "delisted",
+      "actor_uid": 1,
+      "memo": "dev cleanup: QA fixture currency delisted (Kevin 2026-10-19 directive; platform coins $/BTTC kept; no business listings referenced)",
+      "time_created": "2026-10-19T02:14:33.278Z"
+    },
+    {
+      "log_id": 80,
+      "cid": 16,
+      "from_status": "listed",
+      "to_status": "delisted",
+      "actor_uid": 1,
+      "memo": "dev cleanup: QA fixture currency delisted (Kevin 2026-10-19 directive; platform coins $/BTTC kept; no business listings referenced)",
+      "time_created": "2026-10-19T02:14:33.278Z"
+    },
+    {
+      "log_id": 81,
+      "cid": 21,
+      "from_status": "listed",
+      "to_status": "delisted",
+      "actor_uid": 1,
+      "memo": "dev cleanup: QA fixture currency delisted (Kevin 2026-10-19 directive; platform coins $/BTTC kept; no business listings referenced)",
+      "time_created": "2026-10-19T02:14:33.278Z"
+    },
+    {
+      "log_id": 82,
+      "cid": 29,
+      "from_status": "listed",
+      "to_status": "delisted",
+      "actor_uid": 1,
+      "memo": "dev cleanup: QA fixture currency delisted (Kevin 2026-10-19 directive; platform coins $/BTTC kept; no business listings referenced)",
+      "time_created": "2026-10-19T02:14:33.278Z"
+    },
+    {
+      "log_id": 83,
+      "cid": 31,
+      "from_status": "listed",
+      "to_status": "delisted",
+      "actor_uid": 1,
+      "memo": "dev cleanup: QA fixture currency delisted (Kevin 2026-10-19 directive; platform coins $/BTTC kept; no business listings referenced)",
+      "time_created": "2026-10-19T02:14:33.278Z"
+    },
+    {
+      "log_id": 84,
+      "cid": 32,
+      "from_status": "listed",
+      "to_status": "delisted",
+      "actor_uid": 1,
+      "memo": "dev cleanup: QA fixture currency delisted (Kevin 2026-10-19 directive; platform coins $/BTTC kept; no business listings referenced)",
+      "time_created": "2026-10-19T02:14:33.278Z"
+    },
+    {
+      "log_id": 85,
+      "cid": 35,
+      "from_status": "listed",
+      "to_status": "delisted",
+      "actor_uid": 1,
+      "memo": "dev cleanup: QA fixture currency delisted (Kevin 2026-10-19 directive; platform coins $/BTTC kept; no business listings referenced)",
+      "time_created": "2026-10-19T02:14:33.278Z"
+    },
+    {
+      "log_id": 86,
+      "cid": 36,
+      "from_status": "listed",
+      "to_status": "delisted",
+      "actor_uid": 1,
+      "memo": "dev cleanup: QA fixture currency delisted (Kevin 2026-10-19 directive; platform coins $/BTTC kept; no business listings referenced)",
+      "time_created": "2026-10-19T02:14:33.278Z"
+    }
+  ],
+  "correspondence": [
+    {
+      "cid": 4,
+      "symbol": "P4B3A013122",
+      "currencyStatus": "delisted"
+    },
+    {
+      "cid": 10,
+      "symbol": "P4B3A013647",
+      "currencyStatus": "delisted"
+    },
+    {
+      "cid": 16,
+      "symbol": "P4B3B590800",
+      "currencyStatus": "delisted"
+    },
+    {
+      "cid": 21,
+      "symbol": "P4B3B590800X",
+      "currencyStatus": "delisted"
+    },
+    {
+      "cid": 29,
+      "symbol": "N1B0T203917",
+      "currencyStatus": "delisted"
+    },
+    {
+      "cid": 31,
+      "symbol": "N1A0T204732",
+      "currencyStatus": "delisted"
+    },
+    {
+      "cid": 32,
+      "symbol": "N1B0T204732",
+      "currencyStatus": "delisted"
+    },
+    {
+      "cid": 35,
+      "symbol": "qap7a31l3k6",
+      "currencyStatus": "delisted"
+    },
+    {
+      "cid": 36,
+      "symbol": "qap7b1wtoqc",
+      "currencyStatus": "delisted"
+    }
+  ],
+  "checks": {
+    "project_id_is_dev_quiet_math": true,
+    "listed_count_is_2": true,
+    "listed_rows_are_usd_bttc": true,
+    "status_log_count_is_16": true,
+    "last9_all_to_status_delisted": true,
+    "last9_all_memo_dev_cleanup": true,
+    "correspondence_9_of_9": true
+  },
+  "observations": {
+    "last9_distinct_cids": [
+      4,
+      10,
+      16,
+      21,
+      29,
+      31,
+      32,
+      35,
+      36
+    ],
+    "last9_cids_equal_expected_fixtures": true,
+    "currency_delisted_cid_set": [
+      4,
+      10,
+      16,
+      21,
+      29,
+      31,
+      32,
+      35,
+      36
+    ],
+    "delisted_set_equals_audit_set": true,
+    "currencyRowCount": 16
+  },
+  "verdict": true
+}
