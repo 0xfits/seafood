@@ -119,31 +119,49 @@ const compressImage = async (file) => {
 }
 
 
-// ---- 商品分类（迁移 0053 · Kevin 2026-10-20「2 + 2 两控件」） -------------------
-// 控件 A「商品分类」2 选 1（数字商品 / 实物商品）· 控件 B「运费」2 选 1（包邮 / 不包邮）。
-// **载荷唯一字段** = `item_type`（后端闭集三值 PascalCase，route §49.11 ②）：
-//   digital                ⇒ `Digital`
+// ---- 商品分类（迁移 0054 四值闭集 · Kevin 2026-10-20「发布页级联 2 + 2 + 2」） -----
+// 级联三控件（二级按一级分支**互斥渲染**、各自必选）：
+//   一级「商品分类」2 选 1：数字商品 / 实物商品（恒渲染）
+//   二级（数字分支）「发货方式」2 选 1：自动发货 / 手动发货
+//   二级（实物分支）「运费」2 选 1：包邮 / 不包邮
+// **载荷唯一字段** = `item_type`（后端闭集四值 PascalCase，route §49.11 ② / data §40.8.1）：
+//   digital  + auto        ⇒ `DigitalAutoDeliver`
+//   digital  + manual      ⇒ `DigitalManualDeliver`
 //   physical + free        ⇒ `PhysicalFreeShip`
 //   physical + buyer       ⇒ `PhysicalBuyerShip`
-// 联动（design §26.12.4 · 判负 #19）：分类 = 数字 ⇒ **运费控件不渲染**（不是 display:none）
-//   且其值**重置为空**（防 stale 值带进载荷）；分类未选 / 实物未选运费 ⇒ **阻止提交**（不发 `''`，
-//   后端把空串判 400）。提示复用既有键（`uiError.badRequest`）+ 选项行高亮 + `aria-invalid`
-//   —— **零新文案键**（i18n 计数冻结 5 键：top 130 / flat 1120 / nodes 4480）。
+// ★ **绝不发裸 `Digital`**（0054 起裸值退役 = 闭集外 ⇒ 后端 400）。
+// 联动（design §26.12.8 · 判负 #19）：切换一级 ⇒ **二级值一律清空**（两个二级值都清，防 stale 进载荷）；
+//   数字分支**不渲染**运费控件、实物分支**不渲染**交付控件（不是 display:none）。
+//   一级未选 / 二级未选 ⇒ **阻止提交**（零网络调用，不发 `''`，后端把空串判 400）。
+//   提示复用既有键（`uiError.badRequest`）+ 组高亮 + `aria-invalid` —— **零新文案键**。
+//   i18n 本单 +2 键（`itemType.autoDeliver` / `itemType.manualDeliver`）⇒ top 130 / flat 1122 / nodes 4488。
 const TYPE_OPTIONS = [
   { value: 'digital', labelKey: 'itemType.digital' },
   { value: 'physical', labelKey: 'itemType.physical' },
 ]
+/** 数字分支的二级控件（交付方式）。 */
+const DELIVER_OPTIONS = [
+  { value: 'auto', labelKey: 'itemType.autoDeliver' },
+  { value: 'manual', labelKey: 'itemType.manualDeliver' },
+]
+/** 实物分支的二级控件（运费承担方）。 */
 const SHIP_OPTIONS = [
   { value: 'free', labelKey: 'itemType.freeShip' },
   { value: 'buyer', labelKey: 'itemType.buyerShip' },
 ]
 
-/** 两控件 ⇒ 单字段 `item_type`（三值闭集；未选 / 实物未选运费 ⇒ `null`，由提交闸拦截）。 */
-const toItemType = (type, ship) => {
-  if (type === 'digital') return 'Digital'
-  if (type !== 'physical') return null
-  if (ship === 'free') return 'PhysicalFreeShip'
-  if (ship === 'buyer') return 'PhysicalBuyerShip'
+/** 级联选择 ⇒ 单字段 `item_type`（四值闭集；任一级未选 / 二级缺项 ⇒ `null`，由提交闸拦截）。 */
+const toItemType = (type, deliver, ship) => {
+  if (type === 'digital') {
+    if (deliver === 'auto') return 'DigitalAutoDeliver'
+    if (deliver === 'manual') return 'DigitalManualDeliver'
+    return null
+  }
+  if (type === 'physical') {
+    if (ship === 'free') return 'PhysicalFreeShip'
+    if (ship === 'buyer') return 'PhysicalBuyerShip'
+    return null
+  }
   return null
 }
 
@@ -153,10 +171,11 @@ const PublishItemPage = () => {
   const navigate = useNavigate()
   const { isAuthenticated, user } = useAuth()
   const [form, setForm] = useState({ cid: DEFAULT_CID, price: '', stock: '1', title: '', description: '' })
-  // 商品分类两控件（'' = 未选；initial 空 ⇒ 必选未选不可提交）
+  // 商品分类级联三控件（'' = 未选；initial 空 ⇒ 必选未选不可提交）
   const [itemTypeSel, setItemTypeSel] = useState('')
+  const [deliverSel, setDeliverSel] = useState('')
   const [shipSel, setShipSel] = useState('')
-  const [miss, setMiss] = useState({ type: false, ship: false })
+  const [miss, setMiss] = useState({ type: false, deliver: false, ship: false })
   const [images, setImages] = useState([])
   const [imageNotice, setImageNotice] = useState('')
   const [state, setState] = useState({ phase: 'idle', message: '' })
@@ -195,14 +214,21 @@ const PublishItemPage = () => {
 
   const setField = (key) => (event) => setForm((prev) => ({ ...prev, [key]: event.target.value }))
 
-  /** 控件 A 选分类：切换即清运费值（数字商品 ⇒ 运费不适用，**不得**留 stale 值进载荷）。 */
+  /** 一级「商品分类」：切换即**清空两个二级值**（分支切换 ⇒ stale 值不得进载荷）。 */
   const pickItemType = (value) => () => {
     setItemTypeSel(value)
-    if (value !== 'physical') setShipSel('')
-    setMiss({ type: false, ship: false })
+    setDeliverSel('')
+    setShipSel('')
+    setMiss({ type: false, deliver: false, ship: false })
   }
 
-  /** 控件 B 选运费（仅 `physical` 时渲染）。 */
+  /** 二级（数字分支）「发货方式」：仅 `digital` 时渲染。 */
+  const pickDeliver = (value) => () => {
+    setDeliverSel(value)
+    setMiss((prev) => ({ ...prev, deliver: false }))
+  }
+
+  /** 二级（实物分支）「运费」：仅 `physical` 时渲染。 */
   const pickShipping = (value) => () => {
     setShipSel(value)
     setMiss((prev) => ({ ...prev, ship: false }))
@@ -231,18 +257,19 @@ const PublishItemPage = () => {
     event.preventDefault()
     if (state.phase === 'loading') return
 
-    // ⓪ 商品分类闸（必选；实物 + 运费必选）——**先于**图片上传与任何网络调用：
-    //    未选 ⇒ 阻止提交（不发 `item_type: ''`，后端把空串判 400）；提示复用既有键 + 行高亮。
+    // ⓪ 商品分类级联闸（一级必选 + 分支二级必选）——**先于**图片上传与任何网络调用：
+    //    未选 ⇒ 阻止提交（不发 `item_type: ''`，后端把空串判 400）；提示复用既有键 + 组高亮。
     const nextMiss = {
       type: !itemTypeSel,
+      deliver: itemTypeSel === 'digital' && !deliverSel,
       ship: itemTypeSel === 'physical' && !shipSel,
     }
-    if (nextMiss.type || nextMiss.ship) {
+    if (nextMiss.type || nextMiss.deliver || nextMiss.ship) {
       setMiss(nextMiss)
       setState({ phase: 'error', message: t('uiError.badRequest') })
       return
     }
-    setMiss({ type: false, ship: false })
+    setMiss({ type: false, deliver: false, ship: false })
     setState({ phase: 'loading', message: t('jobs.submitting') })
 
     // ① 先逐张上传（顺序）：任一张失败 ⇒ **取消发布**（不调 publishListing，绝不产生半截商品）。
@@ -269,9 +296,10 @@ const PublishItemPage = () => {
         title: form.title.trim(),
         description: form.description.trim(),
         mediaUrls,
-        // 单字段三值（`Digital` / `PhysicalFreeShip` / `PhysicalBuyerShip`）——
-        // **不发** `shipping` / `free_ship` 之类第二字段（后端不认，route §49.11 ②）
-        itemType: toItemType(itemTypeSel, shipSel),
+        // 单字段四值（`DigitalAutoDeliver` / `DigitalManualDeliver` / `PhysicalFreeShip` / `PhysicalBuyerShip`）——
+        // **不发** `shipping` / `free_ship` 之类第二字段（后端不认，route §49.11 ②）；
+        // **绝不发裸 `Digital`**（0054 起已退役 = 闭集外 ⇒ 400）。
+        itemType: toItemType(itemTypeSel, deliverSel, shipSel),
         createKey,
         user,
       })
@@ -383,8 +411,37 @@ const PublishItemPage = () => {
                 ))}
               </div>
 
-              {/* 控件 B = 运费 2 选 1（**条件必选**）：**仅** 分类 = 实物商品时渲染。
-                  数字商品 ⇒ 整个控件不渲染（不是 display:none）且值已被清空 ⇒ 不参与载荷。
+              {/* 二级（数字分支）「发货方式」2 选 1（**条件必选**）：**仅** 分类 = 数字商品时渲染。
+                  实物分支 ⇒ 整个控件不渲染（不是 display:none）且值已被清空 ⇒ 不参与载荷。
+                  钩子：组容器 `item-select-deliver` + 选项 `item-input-deliver-auto` / `item-input-deliver-manual`。 */}
+              {itemTypeSel === 'digital' ? (
+                <div
+                  className={`sf-item-field sf-item-field-wide sf-item-choice${miss.deliver ? ' sf-item-choice-miss' : ''}`}
+                  data-sf-m="item-select-deliver"
+                  data-sf-miss={miss.deliver ? '1' : undefined}
+                  role="radiogroup"
+                  aria-required="true"
+                  aria-invalid={miss.deliver ? 'true' : undefined}
+                >
+                  {DELIVER_OPTIONS.map((option) => (
+                    <label className="sf-item-choice-opt" key={option.value}>
+                      <input
+                        className="sf-item-choice-input"
+                        type="radio"
+                        name="item_deliver"
+                        value={option.value}
+                        data-sf-m={`item-input-deliver-${option.value}`}
+                        checked={deliverSel === option.value}
+                        onChange={pickDeliver(option.value)}
+                      />
+                      <span className="sf-item-choice-text">{t(option.labelKey)}</span>
+                    </label>
+                  ))}
+                </div>
+              ) : null}
+
+              {/* 二级（实物分支）「运费」2 选 1（**条件必选**）：**仅** 分类 = 实物商品时渲染。
+                  数字分支 ⇒ 整个控件不渲染（不是 display:none）且值已被清空 ⇒ 不参与载荷。
                   钩子：组容器 `item-select-ship` + 选项 `item-input-ship-free` / `item-input-ship-buyer`。 */}
               {itemTypeSel === 'physical' ? (
                 <div

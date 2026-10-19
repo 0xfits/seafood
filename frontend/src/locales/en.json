@@ -1255,6 +1255,8 @@
   "itemType": {
     "digital": "Digital goods",
     "physical": "Physical goods",
+    "autoDeliver": "Auto-delivery",
+    "manualDeliver": "Manual delivery",
     "freeShip": "Free shipping",
     "buyerShip": "Buyer pays shipping"
   }

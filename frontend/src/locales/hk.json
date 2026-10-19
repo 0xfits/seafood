@@ -1255,6 +1255,8 @@
   "itemType": {
     "digital": "數字商品",
     "physical": "實物商品",
+    "autoDeliver": "自動發貨",
+    "manualDeliver": "手動發貨",
     "freeShip": "包郵",
     "buyerShip": "不包郵"
   }

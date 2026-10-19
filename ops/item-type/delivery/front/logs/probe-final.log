@@ -1,0 +1,2 @@
+[probe] PASS · checks 44/44
+[probe] out = ops/item-type/delivery/front/readings/probe-four-values.json

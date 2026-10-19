@@ -23,6 +23,9 @@
      符号与数字同色（#FF4D00 亮橙红）；「{n}人想要」浅灰 #999999。 */
   --sf-reward-price-fg: #FF4D00;
   --sf-reward-wants-fg: #999999;
+  /* ★ 2026-10-20 卡面第二枚标签（「自动发货」绿底）：**卡片局部常量**，不进主题 token 层
+     （未改 tokens.js TOKEN_KEYS / 未改 theme-tokens.css；与「包邮」黄底同位置、只差底色）。 */
+  --sf-reward-tag-auto-bg: #4ADE80;
 }
 
 /* 价格分组（`$` + 数字）：同行 + 同基线 + 左对齐；去框 / 去底 / 去内边距（参考图「背后无框无底」） */
@@ -154,6 +157,27 @@
   line-height: 16px;
   height: 16px;
   border-radius: 2px;   /* 近方角 · 非胶囊/非按钮 */
+  padding: 0 4px;
+  margin-right: 4px;    /* 与标题文字间距 4px */
+  vertical-align: baseline;
+  white-space: nowrap;
+}
+
+/* row1 · 第二枚贴纸「自动发货」（design §26.12.8 · Kevin 2026-10-20「两枚标签同位置、只差底色」）：
+   **仅** `item_type === 'DigitalAutoDeliver'` 渲染，位置 = 标题文字**之前**的第一个 inline 节点。
+   几何与「包邮」黄标**逐条相同**（12px / 700 / 16px 盒 / 16 行高 / 2px 圆角 / 0 4px 内边距 /
+   4px 右间距 / inline-block / baseline / nowrap）；**唯一差异 = 底色**：绿 `#4ADE80`
+   （卡内局部常量 `--sf-reward-tag-auto-bg`，不进主题 token 层）；字色同为 `--sf-btna-fg`（#202020）。
+   16 高 < 行盒 24 ⇒ 不抬行（row1 恒 48 / 卡高恒 392）。 */
+.sf-reward-card .sf-reward-auto-tag {
+  display: inline-block;
+  background: var(--sf-reward-tag-auto-bg);
+  color: var(--sf-btna-fg);
+  font-size: 12px;      /* §13 / T79 「可见文本 ≥12px」下限 */
+  font-weight: 700;
+  line-height: 16px;
+  height: 16px;
+  border-radius: 2px;   /* 近方角 · 非胶囊/非按钮（与黄标一致） */
   padding: 0 4px;
   margin-right: 4px;    /* 与标题文字间距 4px */
   vertical-align: baseline;

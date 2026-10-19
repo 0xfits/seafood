@@ -1,0 +1,3 @@
+[probe] FAIL · checks 42/44
+[probe] FAILED: A13_greenBg, N2_restored_greenAgain
+[probe] out = ops/item-type/delivery/front/readings/probe-negative-control-yellow.json

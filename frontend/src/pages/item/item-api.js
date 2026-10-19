@@ -68,8 +68,9 @@ export const fetchCurrencies = (user) => getJson('/api/currencies', user)
 /**
  * P1 商品上架（直 DML · 无分录）。`price` = A 类**供给侧自主出价**（§4.8.1 ⇒ 客户端可填、原样透传，路由层零计算）。
  * `createKey` = 前端提供的 `cli:` 键（服务端缺键会派生，见文件头 ①）。
- * `itemType` = 商品分类（迁移 0053 · 可选）：闭集三值 `Digital` / `PhysicalFreeShip` /
- *   `PhysicalBuyerShip`，**原样逐字**发 `item_type`（未分类 ⇒ `null`）；**不发**第二分类字段。
+ * `itemType` = 商品分类（迁移 0054 四值闭集 · 承 0053 · 可选）：`DigitalAutoDeliver` /
+ *   `DigitalManualDeliver` / `PhysicalFreeShip` / `PhysicalBuyerShip`（裸 `Digital` 已退役）；
+ *   **原样逐字**发 `item_type`（未分类 ⇒ `null`）；**不发**第二分类字段。
  *   `''` 属非法（后端 400 `LEDGER_AMOUNT_INVALID` + `reason=NOT_IN_CLOSED_SET`）⇒ 调用方须先过前端必选闸。
  */
 export const publishListing = ({ cid, price, stock, title, description, mediaUrls, itemType = null, createKey, user }) => {

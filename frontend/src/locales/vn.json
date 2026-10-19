@@ -1255,6 +1255,8 @@
   "itemType": {
     "digital": "Hàng kỹ thuật số",
     "physical": "Hàng vật lý",
+    "autoDeliver": "Giao hàng tự động",
+    "manualDeliver": "Giao hàng thủ công",
     "freeShip": "Miễn phí vận chuyển",
     "buyerShip": "Người mua trả phí vận chuyển"
   }

@@ -83,8 +83,10 @@ const statusNode = (container) => container.querySelector('[data-sf-m="item-stat
 const submitForm = (container) => {
   fireEvent.change(container.querySelector('[data-sf-m="item-input-title"]'), { target: { value: '测试商品' } })
   fireEvent.change(container.querySelector('[data-sf-m="item-input-price"]'), { target: { value: '7' } })
-  // 商品分类（2026-10-20）：必选闸 ⇒ 统一选「数字商品」（运费控件随之不渲染）
+  // 商品分类（2026-10-20 级联 2+2+2 · 迁移 0054 四值）：一级 + 分支二级均必选闸
+  // ⇒ 统一选「数字商品 + 自动发货」（数字分支 ⇒ 运费控件随之不渲染）
   fireEvent.click(container.querySelector('[data-sf-m="item-input-type-digital"]'))
+  fireEvent.click(container.querySelector('[data-sf-m="item-input-deliver-auto"]'))
   fireEvent.click(container.querySelector('[data-sf-m="item-primary"]'))
 }
 

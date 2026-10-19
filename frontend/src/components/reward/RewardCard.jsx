@@ -121,12 +121,18 @@ const RewardCard = ({
             className="row1-wrap-title line-clamp-2"
             data-sf-m="reward-card-title"
           >
-            {/* 「包邮」贴纸（design §26.12.1 · Kevin 2026-10-20）：**仅** `item_type === 'PhysicalFreeShip'`
-                渲染，且必须是 `row1-wrap-title` 内**标题文字之前**的第一个 inline 节点
-                （`Digital` / `PhysicalBuyerShip` / `NULL` 一律不渲染 —— `PhysicalBuyerShip` 显示「包邮」= 误导）。
-                盒 16px < 行盒 24px ⇒ 不抬行（行高恒 48 / 卡高恒 392）；色值只取既有 `--sf-btna-*`（零新 token）。 */}
+            {/* 分类贴纸（design §26.12.1 / §26.12.8 · Kevin 2026-10-20「两枚标签同位置、只差底色」）：
+                两枚标签**同位置同几何**（`row1-wrap-title` 内**标题文字之前**的首个 inline 节点），只差底色：
+                  · `PhysicalFreeShip` ⇒ 黄底「包邮」（`t('item.freeShipping')`，`--sf-btna-bg` #FFE60F）
+                  · `DigitalAutoDeliver` ⇒ 绿底「自动发货」（`t('itemType.autoDeliver')`，局部常量 #4ADE80）
+                `DigitalManualDeliver` / `PhysicalBuyerShip` / `NULL` ⇒ **不渲染任何标签**。
+                两态互斥（`item_type` 单值）⇒ 结构上不可能同时出现两枚。盒 16px < 行盒 24px ⇒ 不抬行
+                （行高恒 48 / 卡高恒 392）。 */}
             {reward.item_type === 'PhysicalFreeShip' ? (
               <span className="sf-reward-ship-tag" data-sf-m="reward-card-ship-tag">{t('item.freeShipping')}</span>
+            ) : null}
+            {reward.item_type === 'DigitalAutoDeliver' ? (
+              <span className="sf-reward-auto-tag" data-sf-m="reward-card-auto-tag">{t('itemType.autoDeliver')}</span>
             ) : null}
             {titleText}
             {/* 「翻译中」小标（TR-2）：`i18n_status ∈ {pending, partial}` 且非 zh 档才渲染 */}

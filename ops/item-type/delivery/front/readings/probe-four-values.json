@@ -1,0 +1,846 @@
+{
+  "probe": "probe-four-values.mjs · 商品分类四值（0054）前端",
+  "startedAt": "2026-10-19T23:06:28.840Z",
+  "origin": "http://sf.local",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "fixtures": {
+    "feed": [
+      {
+        "bID": 901,
+        "item_type": "PhysicalFreeShip"
+      },
+      {
+        "bID": 902,
+        "item_type": "DigitalAutoDeliver"
+      },
+      {
+        "bID": 903,
+        "item_type": "DigitalManualDeliver"
+      },
+      {
+        "bID": 904,
+        "item_type": "PhysicalBuyerShip"
+      },
+      {
+        "bID": 905,
+        "item_type": null
+      }
+    ],
+    "api": "context.route 内存自截（零后端 / 零库写）"
+  },
+  "expectations": {
+    "yellowBg": "rgb(255, 230, 15)",
+    "greenBg": "rgb(74, 222, 128)",
+    "fg": "rgb(32, 32, 32)",
+    "fontSize": "12px",
+    "row1H": 48,
+    "cardH": 392
+  },
+  "states": {
+    "feed": {
+      "cardCount": 5,
+      "yellowCount": 1,
+      "greenCount": 1,
+      "totalCount": 2,
+      "rows": [
+        {
+          "bID": "901",
+          "titleText": "包邮实木书桌 九成新·包邮",
+          "row1H": 48,
+          "cardH": 392,
+          "yellow": {
+            "text": "包邮",
+            "isFirstChild": true,
+            "bg": "rgb(255, 230, 15)",
+            "fg": "rgb(32, 32, 32)",
+            "fontSize": "12px",
+            "fontWeight": "700",
+            "lineHeight": "16px",
+            "radius": "2px",
+            "paddingY": "0px",
+            "paddingX": "4px",
+            "marginRight": "4px",
+            "display": "inline-block",
+            "verticalAlign": "baseline",
+            "w": 27.2,
+            "h": 16
+          },
+          "green": null
+        },
+        {
+          "bID": "902",
+          "titleText": "自动发货设计素材合集·自动发货",
+          "row1H": 48,
+          "cardH": 392,
+          "yellow": null,
+          "green": {
+            "text": "自动发货",
+            "isFirstChild": true,
+            "bg": "rgb(74, 222, 128)",
+            "fg": "rgb(32, 32, 32)",
+            "fontSize": "12px",
+            "fontWeight": "700",
+            "lineHeight": "16px",
+            "radius": "2px",
+            "paddingY": "0px",
+            "paddingX": "4px",
+            "marginRight": "4px",
+            "display": "inline-block",
+            "verticalAlign": "baseline",
+            "w": 46.41,
+            "h": 16
+          }
+        },
+        {
+          "bID": "903",
+          "titleText": "在线课程·手动发货",
+          "row1H": 48,
+          "cardH": 392,
+          "yellow": null,
+          "green": null
+        },
+        {
+          "bID": "904",
+          "titleText": "旧款胶片相机·运费自付",
+          "row1H": 48,
+          "cardH": 392,
+          "yellow": null,
+          "green": null
+        },
+        {
+          "bID": "905",
+          "titleText": "未分类的闲置物品",
+          "row1H": 48,
+          "cardH": 392,
+          "yellow": null,
+          "green": null
+        }
+      ]
+    },
+    "feedNegativeControl": {
+      "duringNegativeControl": "rgb(255, 230, 15)",
+      "afterRestore": "rgb(74, 222, 128)"
+    },
+    "combos": {
+      "B1_digital_auto": {
+        "typeSel": "digital",
+        "secondSel": "auto",
+        "secondGroup": "deliver",
+        "expect": "DigitalAutoDeliver",
+        "initial": {
+          "typeGroup": 1,
+          "deliverGroup": 0,
+          "shipGroup": 0,
+          "deliverChecked": [],
+          "shipChecked": [],
+          "typeAriaInvalid": null,
+          "deliverAriaInvalid": null,
+          "shipAriaInvalid": null,
+          "typeMissClass": false,
+          "deliverMissClass": false,
+          "shipMissClass": false,
+          "statusPhase": "idle",
+          "statusText": null
+        },
+        "afterType": {
+          "typeGroup": 1,
+          "deliverGroup": 1,
+          "shipGroup": 0,
+          "deliverChecked": [
+            false,
+            false
+          ],
+          "shipChecked": [],
+          "typeAriaInvalid": null,
+          "deliverAriaInvalid": null,
+          "shipAriaInvalid": null,
+          "typeMissClass": false,
+          "deliverMissClass": false,
+          "shipMissClass": false,
+          "statusPhase": "idle",
+          "statusText": null
+        },
+        "fired": true,
+        "listingPostCount": 1,
+        "item_type": "DigitalAutoDeliver",
+        "payloadKeys": [
+          "cid",
+          "price",
+          "stock",
+          "title",
+          "description",
+          "media_urls",
+          "item_type",
+          "create_key"
+        ],
+        "secondFieldKeys": [],
+        "mediaPostCount": 0
+      },
+      "B2_digital_manual": {
+        "typeSel": "digital",
+        "secondSel": "manual",
+        "secondGroup": "deliver",
+        "expect": "DigitalManualDeliver",
+        "initial": {
+          "typeGroup": 1,
+          "deliverGroup": 0,
+          "shipGroup": 0,
+          "deliverChecked": [],
+          "shipChecked": [],
+          "typeAriaInvalid": null,
+          "deliverAriaInvalid": null,
+          "shipAriaInvalid": null,
+          "typeMissClass": false,
+          "deliverMissClass": false,
+          "shipMissClass": false,
+          "statusPhase": "idle",
+          "statusText": null
+        },
+        "afterType": {
+          "typeGroup": 1,
+          "deliverGroup": 1,
+          "shipGroup": 0,
+          "deliverChecked": [
+            false,
+            false
+          ],
+          "shipChecked": [],
+          "typeAriaInvalid": null,
+          "deliverAriaInvalid": null,
+          "shipAriaInvalid": null,
+          "typeMissClass": false,
+          "deliverMissClass": false,
+          "shipMissClass": false,
+          "statusPhase": "idle",
+          "statusText": null
+        },
+        "fired": true,
+        "listingPostCount": 1,
+        "item_type": "DigitalManualDeliver",
+        "payloadKeys": [
+          "cid",
+          "price",
+          "stock",
+          "title",
+          "description",
+          "media_urls",
+          "item_type",
+          "create_key"
+        ],
+        "secondFieldKeys": [],
+        "mediaPostCount": 0
+      },
+      "B3_physical_free": {
+        "typeSel": "physical",
+        "secondSel": "free",
+        "secondGroup": "ship",
+        "expect": "PhysicalFreeShip",
+        "initial": {
+          "typeGroup": 1,
+          "deliverGroup": 0,
+          "shipGroup": 0,
+          "deliverChecked": [],
+          "shipChecked": [],
+          "typeAriaInvalid": null,
+          "deliverAriaInvalid": null,
+          "shipAriaInvalid": null,
+          "typeMissClass": false,
+          "deliverMissClass": false,
+          "shipMissClass": false,
+          "statusPhase": "idle",
+          "statusText": null
+        },
+        "afterType": {
+          "typeGroup": 1,
+          "deliverGroup": 0,
+          "shipGroup": 1,
+          "deliverChecked": [],
+          "shipChecked": [
+            false,
+            false
+          ],
+          "typeAriaInvalid": null,
+          "deliverAriaInvalid": null,
+          "shipAriaInvalid": null,
+          "typeMissClass": false,
+          "deliverMissClass": false,
+          "shipMissClass": false,
+          "statusPhase": "idle",
+          "statusText": null
+        },
+        "fired": true,
+        "listingPostCount": 1,
+        "item_type": "PhysicalFreeShip",
+        "payloadKeys": [
+          "cid",
+          "price",
+          "stock",
+          "title",
+          "description",
+          "media_urls",
+          "item_type",
+          "create_key"
+        ],
+        "secondFieldKeys": [],
+        "mediaPostCount": 0
+      },
+      "B4_physical_buyer": {
+        "typeSel": "physical",
+        "secondSel": "buyer",
+        "secondGroup": "ship",
+        "expect": "PhysicalBuyerShip",
+        "initial": {
+          "typeGroup": 1,
+          "deliverGroup": 0,
+          "shipGroup": 0,
+          "deliverChecked": [],
+          "shipChecked": [],
+          "typeAriaInvalid": null,
+          "deliverAriaInvalid": null,
+          "shipAriaInvalid": null,
+          "typeMissClass": false,
+          "deliverMissClass": false,
+          "shipMissClass": false,
+          "statusPhase": "idle",
+          "statusText": null
+        },
+        "afterType": {
+          "typeGroup": 1,
+          "deliverGroup": 0,
+          "shipGroup": 1,
+          "deliverChecked": [],
+          "shipChecked": [
+            false,
+            false
+          ],
+          "typeAriaInvalid": null,
+          "deliverAriaInvalid": null,
+          "shipAriaInvalid": null,
+          "typeMissClass": false,
+          "deliverMissClass": false,
+          "shipMissClass": false,
+          "statusPhase": "idle",
+          "statusText": null
+        },
+        "fired": true,
+        "listingPostCount": 1,
+        "item_type": "PhysicalBuyerShip",
+        "payloadKeys": [
+          "cid",
+          "price",
+          "stock",
+          "title",
+          "description",
+          "media_urls",
+          "item_type",
+          "create_key"
+        ],
+        "secondFieldKeys": [],
+        "mediaPostCount": 0
+      }
+    },
+    "switchClears": {
+      "picked": {
+        "typeGroup": 1,
+        "deliverGroup": 0,
+        "shipGroup": 1,
+        "deliverChecked": [],
+        "shipChecked": [
+          true,
+          false
+        ],
+        "typeAriaInvalid": null,
+        "deliverAriaInvalid": null,
+        "shipAriaInvalid": null,
+        "typeMissClass": false,
+        "deliverMissClass": false,
+        "shipMissClass": false,
+        "statusPhase": "idle",
+        "statusText": null
+      },
+      "switched": {
+        "typeGroup": 1,
+        "deliverGroup": 1,
+        "shipGroup": 0,
+        "deliverChecked": [
+          false,
+          false
+        ],
+        "shipChecked": [],
+        "typeAriaInvalid": null,
+        "deliverAriaInvalid": null,
+        "shipAriaInvalid": null,
+        "typeMissClass": false,
+        "deliverMissClass": false,
+        "shipMissClass": false,
+        "statusPhase": "idle",
+        "statusText": null
+      },
+      "afterSubmit": {
+        "typeGroup": 1,
+        "deliverGroup": 1,
+        "shipGroup": 0,
+        "deliverChecked": [
+          false,
+          false
+        ],
+        "shipChecked": [],
+        "typeAriaInvalid": null,
+        "deliverAriaInvalid": "true",
+        "shipAriaInvalid": null,
+        "typeMissClass": false,
+        "deliverMissClass": true,
+        "shipMissClass": false,
+        "statusPhase": "error",
+        "statusText": "请求参数错误"
+      },
+      "listingPostsBefore": 0,
+      "listingPostsAfter": 0
+    },
+    "D1_gate_noType": {
+      "typeSel": null,
+      "listingPosts": 0,
+      "mediaPosts": 0,
+      "state": {
+        "typeGroup": 1,
+        "deliverGroup": 0,
+        "shipGroup": 0,
+        "deliverChecked": [],
+        "shipChecked": [],
+        "typeAriaInvalid": "true",
+        "deliverAriaInvalid": null,
+        "shipAriaInvalid": null,
+        "typeMissClass": true,
+        "deliverMissClass": false,
+        "shipMissClass": false,
+        "statusPhase": "error",
+        "statusText": "请求参数错误"
+      }
+    },
+    "D2_gate_noDeliver": {
+      "typeSel": "digital",
+      "listingPosts": 0,
+      "mediaPosts": 0,
+      "state": {
+        "typeGroup": 1,
+        "deliverGroup": 1,
+        "shipGroup": 0,
+        "deliverChecked": [
+          false,
+          false
+        ],
+        "shipChecked": [],
+        "typeAriaInvalid": null,
+        "deliverAriaInvalid": "true",
+        "shipAriaInvalid": null,
+        "typeMissClass": false,
+        "deliverMissClass": true,
+        "shipMissClass": false,
+        "statusPhase": "error",
+        "statusText": "请求参数错误"
+      }
+    },
+    "D3_gate_noShip": {
+      "typeSel": "physical",
+      "listingPosts": 0,
+      "mediaPosts": 0,
+      "state": {
+        "typeGroup": 1,
+        "deliverGroup": 0,
+        "shipGroup": 1,
+        "deliverChecked": [],
+        "shipChecked": [
+          false,
+          false
+        ],
+        "typeAriaInvalid": null,
+        "deliverAriaInvalid": null,
+        "shipAriaInvalid": "true",
+        "typeMissClass": false,
+        "deliverMissClass": false,
+        "shipMissClass": true,
+        "statusPhase": "error",
+        "statusText": "请求参数错误"
+      }
+    }
+  },
+  "checks": {
+    "A1_cardCount_5": {
+      "pass": true,
+      "detail": 5
+    },
+    "A2_yellowCount_1": {
+      "pass": true,
+      "detail": 1
+    },
+    "A3_greenCount_1": {
+      "pass": true,
+      "detail": 1
+    },
+    "A4_totalTagCount_2": {
+      "pass": true,
+      "detail": 2
+    },
+    "A5_PhysicalFreeShip_yellowOnly": {
+      "pass": true,
+      "detail": {
+        "yellow": true,
+        "green": false,
+        "text": "包邮"
+      }
+    },
+    "A6_DigitalAutoDeliver_greenOnly": {
+      "pass": true,
+      "detail": {
+        "green": true,
+        "yellow": false,
+        "text": "自动发货"
+      }
+    },
+    "A7_DigitalManualDeliver_noTag": {
+      "pass": true
+    },
+    "A8_PhysicalBuyerShip_noTag": {
+      "pass": true
+    },
+    "A9_NULL_noTag": {
+      "pass": true
+    },
+    "A10_yellowIsFirstChild": {
+      "pass": true
+    },
+    "A11_greenIsFirstChild": {
+      "pass": true
+    },
+    "A12_yellowBg": {
+      "pass": true,
+      "detail": "rgb(255, 230, 15)"
+    },
+    "A13_greenBg": {
+      "pass": true,
+      "detail": "rgb(74, 222, 128)"
+    },
+    "A14_textColor_black": {
+      "pass": true,
+      "detail": {
+        "yellow": "rgb(32, 32, 32)",
+        "green": "rgb(32, 32, 32)"
+      }
+    },
+    "A15_fontSize_12": {
+      "pass": true,
+      "detail": {
+        "yellow": "12px",
+        "green": "12px"
+      }
+    },
+    "A16_row1_48": {
+      "pass": true,
+      "detail": {
+        "free": 48,
+        "auto": 48
+      }
+    },
+    "A17_card_392": {
+      "pass": true,
+      "detail": {
+        "free": 392,
+        "auto": 392
+      }
+    },
+    "A18_geometryIdentical": {
+      "pass": true,
+      "detail": {
+        "diff": [],
+        "yellow": {
+          "text": "包邮",
+          "isFirstChild": true,
+          "bg": "rgb(255, 230, 15)",
+          "fg": "rgb(32, 32, 32)",
+          "fontSize": "12px",
+          "fontWeight": "700",
+          "lineHeight": "16px",
+          "radius": "2px",
+          "paddingY": "0px",
+          "paddingX": "4px",
+          "marginRight": "4px",
+          "display": "inline-block",
+          "verticalAlign": "baseline",
+          "w": 27.2,
+          "h": 16
+        },
+        "green": {
+          "text": "自动发货",
+          "isFirstChild": true,
+          "bg": "rgb(74, 222, 128)",
+          "fg": "rgb(32, 32, 32)",
+          "fontSize": "12px",
+          "fontWeight": "700",
+          "lineHeight": "16px",
+          "radius": "2px",
+          "paddingY": "0px",
+          "paddingX": "4px",
+          "marginRight": "4px",
+          "display": "inline-block",
+          "verticalAlign": "baseline",
+          "w": 46.41,
+          "h": 16
+        }
+      }
+    },
+    "N1_negativeControl_turnsRed": {
+      "pass": true,
+      "detail": {
+        "observed": "rgb(255, 230, 15)",
+        "expectWouldFail": "rgb(74, 222, 128)"
+      }
+    },
+    "N2_restored_greenAgain": {
+      "pass": true,
+      "detail": "rgb(74, 222, 128)"
+    },
+    "B1_digital_auto_payload": {
+      "pass": true,
+      "detail": {
+        "got": "DigitalAutoDeliver",
+        "want": "DigitalAutoDeliver"
+      }
+    },
+    "B1_digital_auto_noBareDigital": {
+      "pass": true,
+      "detail": "DigitalAutoDeliver"
+    },
+    "B1_digital_auto_noSecondField": {
+      "pass": true,
+      "detail": []
+    },
+    "B1_digital_auto_branchExclusive": {
+      "pass": true,
+      "detail": {
+        "deliverGroup": 1,
+        "shipGroup": 0
+      }
+    },
+    "B2_digital_manual_payload": {
+      "pass": true,
+      "detail": {
+        "got": "DigitalManualDeliver",
+        "want": "DigitalManualDeliver"
+      }
+    },
+    "B2_digital_manual_noBareDigital": {
+      "pass": true,
+      "detail": "DigitalManualDeliver"
+    },
+    "B2_digital_manual_noSecondField": {
+      "pass": true,
+      "detail": []
+    },
+    "B2_digital_manual_branchExclusive": {
+      "pass": true,
+      "detail": {
+        "deliverGroup": 1,
+        "shipGroup": 0
+      }
+    },
+    "B3_physical_free_payload": {
+      "pass": true,
+      "detail": {
+        "got": "PhysicalFreeShip",
+        "want": "PhysicalFreeShip"
+      }
+    },
+    "B3_physical_free_noBareDigital": {
+      "pass": true,
+      "detail": "PhysicalFreeShip"
+    },
+    "B3_physical_free_noSecondField": {
+      "pass": true,
+      "detail": []
+    },
+    "B3_physical_free_branchExclusive": {
+      "pass": true,
+      "detail": {
+        "deliverGroup": 0,
+        "shipGroup": 1
+      }
+    },
+    "B4_physical_buyer_payload": {
+      "pass": true,
+      "detail": {
+        "got": "PhysicalBuyerShip",
+        "want": "PhysicalBuyerShip"
+      }
+    },
+    "B4_physical_buyer_noBareDigital": {
+      "pass": true,
+      "detail": "PhysicalBuyerShip"
+    },
+    "B4_physical_buyer_noSecondField": {
+      "pass": true,
+      "detail": []
+    },
+    "B4_physical_buyer_branchExclusive": {
+      "pass": true,
+      "detail": {
+        "deliverGroup": 0,
+        "shipGroup": 1
+      }
+    },
+    "B0_initial_noSecondGroup": {
+      "pass": true,
+      "detail": {
+        "B1_digital_auto": {
+          "d": 0,
+          "s": 0
+        },
+        "B2_digital_manual": {
+          "d": 0,
+          "s": 0
+        },
+        "B3_physical_free": {
+          "d": 0,
+          "s": 0
+        },
+        "B4_physical_buyer": {
+          "d": 0,
+          "s": 0
+        }
+      }
+    },
+    "C1_switch_clearsShipValue": {
+      "pass": true,
+      "detail": {
+        "pickedShip": [
+          true,
+          false
+        ],
+        "switchedShipGroup": 0
+      }
+    },
+    "C2_switch_clearsDeliverValue": {
+      "pass": true,
+      "detail": [
+        false,
+        false
+      ]
+    },
+    "C3_staleNotInPayload_zeroRequest": {
+      "pass": true,
+      "detail": {
+        "before": 0,
+        "after": 0,
+        "deliverAriaInvalid": "true"
+      }
+    },
+    "D1_gate_noType_zeroRequests": {
+      "pass": true,
+      "detail": {
+        "typeSel": null,
+        "listingPosts": 0,
+        "mediaPosts": 0,
+        "state": {
+          "typeGroup": 1,
+          "deliverGroup": 0,
+          "shipGroup": 0,
+          "deliverChecked": [],
+          "shipChecked": [],
+          "typeAriaInvalid": "true",
+          "deliverAriaInvalid": null,
+          "shipAriaInvalid": null,
+          "typeMissClass": true,
+          "deliverMissClass": false,
+          "shipMissClass": false,
+          "statusPhase": "error",
+          "statusText": "请求参数错误"
+        }
+      }
+    },
+    "D2_gate_noDeliver_zeroRequests": {
+      "pass": true,
+      "detail": {
+        "typeSel": "digital",
+        "listingPosts": 0,
+        "mediaPosts": 0,
+        "state": {
+          "typeGroup": 1,
+          "deliverGroup": 1,
+          "shipGroup": 0,
+          "deliverChecked": [
+            false,
+            false
+          ],
+          "shipChecked": [],
+          "typeAriaInvalid": null,
+          "deliverAriaInvalid": "true",
+          "shipAriaInvalid": null,
+          "typeMissClass": false,
+          "deliverMissClass": true,
+          "shipMissClass": false,
+          "statusPhase": "error",
+          "statusText": "请求参数错误"
+        }
+      }
+    },
+    "D3_gate_noShip_zeroRequests": {
+      "pass": true,
+      "detail": {
+        "typeSel": "physical",
+        "listingPosts": 0,
+        "mediaPosts": 0,
+        "state": {
+          "typeGroup": 1,
+          "deliverGroup": 0,
+          "shipGroup": 1,
+          "deliverChecked": [],
+          "shipChecked": [
+            false,
+            false
+          ],
+          "typeAriaInvalid": null,
+          "deliverAriaInvalid": null,
+          "shipAriaInvalid": "true",
+          "typeMissClass": false,
+          "deliverMissClass": false,
+          "shipMissClass": true,
+          "statusPhase": "error",
+          "statusText": "请求参数错误"
+        }
+      }
+    },
+    "D4_gate_reusesExistingKey": {
+      "pass": true,
+      "detail": [
+        "请求参数错误",
+        "请求参数错误",
+        "请求参数错误"
+      ]
+    }
+  },
+  "notes": [],
+  "pageErrors": [],
+  "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+  ],
+  "verdict": "PASS",
+  "failedChecks": []
+}

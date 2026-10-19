@@ -1132,9 +1132,10 @@ export interface BrandRecord {
   url_image: string;
   /** 媒体单前端阶段 A：`listing.media_urls` 读侧透出（媒体 URL 数组，真图 `/api/media/:id`；无媒体 ⇒ 空数组）。 */
   media_urls: string[];
-  /** ★ 2026-10-20 商品分类枚举（迁移 0053）：`listing.item_type` 读侧透出。
-   *   闭集 `ItemType` = 'Digital' | 'PhysicalFreeShip' | 'PhysicalBuyerShip'；
-   *   **存量行 NULL**（= 未分类，前端不显示标签）⇒ 本键恒在场、值为 `string | null`（不是缺键）。
+  /** ★ 2026-10-20 商品分类枚举（迁移 0054 换集 · 承 0053）：`listing.item_type` 读侧透出。
+   *   闭集 `ItemType` = 'DigitalAutoDeliver' | 'DigitalManualDeliver' | 'PhysicalFreeShip' | 'PhysicalBuyerShip'
+   *   （裸 `Digital` 已退役 = 闭集外）；**存量行 NULL**（= 未分类，前端不显示标签）
+   *   ⇒ 本键恒在场、值为 `string | null`（不是缺键）。
    *   feed（`listBrands`）与详情（`getBrandById`）同源 `l.*` ⇒ 两口**各 +1 键**（feed 47→48、详情 46→47）。 */
   item_type: string | null;
   points: number;
