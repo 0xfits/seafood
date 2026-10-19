@@ -394,6 +394,15 @@
 > ③ **cron = `2` 条 + Hobby 精度约束**：`vercel.json` `crons` = `0 18 * * *`（`/api/translate/backfill`，既有未动）+ **`30 18 * * *`（本口 · 新增）**；Hobby 官方口径 = **100 条/项目** · **每条每天最多 1 次** · **触发落在指定小时窗口内（`±59 min` · 非准点）** ⇒ **文案不得声称「准时 / 18:30 整触发」**。
 > ④ **注册点 `106 → 107`**（逐 verb 现取 = **get 47 / post 56 / put 0 / delete 3 / patch 1**）；离线门 `p7b-03` 的 **`AC10-2`** 同批前推（`backend-ts/scripts/p7b-03-offline-gates.ts:150`）。
 > ⑤ **`D1` 待裁（登 `docs/OPEN-ITEMS.md`）+ 只追加**：漂移时 **HTTP 仍 `200`**（body `data.ok=false` + **一条** `console.error('[recon] …')`）⇒ **Vercel 面板不红**、**无人看日志则可能长期无人处置** —— 本册**不得写成「已告警」**；`git diff --numstat docs/route-layer.spec.md` **删除列 = 0**。
+> **状态：v2.37（已完成 · **「发布商品页币种改下拉选择器」+ 新公开只读口 `GET /api/currencies` 落册**：★★ **新对外路由入册**（**仅 GET** · **无鉴权闸** · `data` = 行数组 · 行键集 **恰 `{cid, symbol, name}`** · **仅 `status='listed'`** · `ORDER BY cid` · **只读零写** · 失败走 `sendInfraMapped` 既有 503 分类器 · **零新增错误码**）+ **★ 注册点 `107 → 108`**（逐 verb 现取 = get **47 → 48** / post 56 / put 0 / delete 3 / patch 1）+ **★ 前端消费面冻结**（`/item/new` 币种字段 = `<select data-sf-m="item-select-cid">`；**旧钩子 `item-input-cid` 不得存在**；选项文本 = `symbol · name`（**不显示编号**）；默认 `$`（cid 1）；列表失败 / 为空回退仅 `$` 一项、表单仍可提交；提交 `cid` 仍为数字、`POST /api/listing` 形状一字不变）+ **★ locale 只改值**（`item.cid` / `item.cidNote` 四语同改、**键数不变**；`jobs.*` 不动）；**本节只追加 · §1–§46 一字未动 · 零迁移 · 零代码（实现面归 Kong）**）** · 作者角色 = **Jing（Specifier · 制度员）**
+> **v2.37 修订入口**：逐条 delta → 依据锚点 → 改动点 = **本册 §47**（登记性回写；**本单不建独立 delta 件**，承 v2.29 / v2.30 / v2.32 / v2.35 / v2.36 先例）。**凡与实现现盘冲突处，一律以现盘为准**（被登记面 = 同批实现单：`backend-ts/src/index.ts` 的 `GET /api/currencies` 注册行 + `DatabaseService.listListedCurrencies`）。
+> **★★ v2.37 本单要点（先说结论，不含糊）**：
+> ① **Kevin 指令逐字（2026-10-19）**：「在发布商品的时候，【币种编号】一栏，不要输入编号，而是要在下拉框中选择币种。」⇒ 该指令同时产生**两个契约面** —— 读口（§47.1 / §47.2）+ 表单形态（§47.3）；**不是**「只改 UI」。
+> ② **读口 = `GET /api/currencies`（公开只读）**：**无鉴权闸**（不挂 `requireActor` / `requireAdmin`）；`data` = 行数组、行键集**恰三键** `{cid, symbol, name}`；仅 `status='listed'`；`ORDER BY cid`；**零写零 DDL**；成功 = 既有 `sendSuccess`（body `{success, message, data}`）、失败 = 既有 `sendInfraMapped`（R107 · 503 族）；**零新增错误码 / 零新幂等键**。
+> ③ **注册点 `107 → 108`**：逐 verb 现取 = **get 47 → 48 / post 56 / put 0 / delete 3 / patch 1**；与既有 `GET /api/admin/currency`（闸 = `review_tasks`）**是两个口、不得合并**（前者公开、后者后台）。
+> ④ **前端面**：`/item/new` 币种字段 = 下拉；**`item-input-cid` 不得存在**、**`item-select-cid` 必须在场**；选项文本 = `symbol · name`（**不显示编号**）；默认 `$`（cid 1）；列表加载失败或为空 ⇒ 回退仅 `$` 一项、**表单仍可提交**；提交载荷 `cid` 仍为**数字**、`POST /api/listing` **形状一字不变**。
+> ⑤ **locale 只改值**：`item.cid` / `item.cidNote` 四语同改、**键数不变**（键集基线不动）；`jobs.cid` / `jobs.cidNote`（发布任务页）**本单不动**。
+> ⑥ **只追加 + 零迁移**：`git diff --numstat docs/route-layer.spec.md` **删除列 = 0**；**无迁移**（纯只读查询、零 DDL）；判负口径见 §47.6。
 
 > **v2.19 修订入口**：逐条 delta → 依据锚点 → 改动点 = `docs/audit/route-layer-v2.19-delta.md`（**同批姊妹册** = `docs/audit/data-layer-v0.26-delta.md` + `docs/audit/commission-v0.4-delta.md`）。**凡与 Zang 裁定冲突处，一律以 Zang 裁定为准**（本单为 P9⑤ 契约冻结；**未改写任何裁定、未发明任何路径 / 数值 / 权限键 / 文案值**）。**★ 姊妹册（同批）**：`docs/commission.spec.md` **v0.4 §19** + `docs/data-layer.spec.md` **v0.26 §34**，**本册不重抄其条文、只指路**。
 > **★★ v2.19 本单要点（先说结论，不含糊）**：① **零新用户面口**（邀请奖励 = 结算腿，无独立读 / 动作口）；② **后台配置面复用**（费率 + 6 项权重矩阵）；③ **注册点 `87 → 87`（+0）**；④ **权限键 11 键内（零增删）**；⑤ **错误码零新增 + `R107`**；⑥ **真生效四段（①③④ 段）**；⑦ **连带门改版**（`p8-s2` 8 键 / 守卫常量 / 页字段面随 `R-9-1` ⇒ 归实现单）。
@@ -8789,3 +8798,116 @@ CONSTRAINT admin_refund_audit_log_idem_uniq   UNIQUE (idempotency_key, result)  
 - **零代码自证**：本单 commit 的 `git show --stat` 只含 `docs/**` + `ops/recon-route-registration/**` ⇒ `backend-ts/**` / `frontend/**` / `vercel.json` **零改动**；**库面零连接**（读数全部转引 `ops/recon-cron/**` 已落盘产物）。
 - **未做项（显式登记，不冒充已做）**：① `docs/versions/route-layer.spec.v2.36.md` **未建**（快照重制归版本收口单）；② **首次生产回执未取**（待次日 UTC 18:30 窗口后）；③ `D3` 的**生产侧**口径复核未做（仅 dev 实测）；④ `D1` **未裁**（待 Kevin）。
 - **未发明项**：路径 / 方法集 / 状态码 / 回执键集 / 基线常量 `{'1':'2000000','21':'1'}` / 注册点 107 的逐 verb 分解 / 行号 / 生产对拍值 —— **全部可回溯至本节引用的现取命令、文件行或 `ops/recon-cron/**` 读数**。
+
+---
+
+## §47 ★★ v2.37 · **「发布商品页币种改下拉选择器」+ 新公开只读口 `GET /api/currencies`**（**仅 GET · 无鉴权闸 · `data` 行键集恰三键 · 只读零写**）+ **注册点 107 → 108** + **前端 `item-select-cid` 必须在场 / 旧 `item-input-cid` 不得存在** + **四语 `item.cid*` 只改值**（**本节只追加 · §1–§46 一字未动** · 依据 = **Kevin 2026-10-19 逐字指令** + 同批实现单现盘 · **登记性回写 · 零裁定新增 · 零代码 · 零迁移 · 零 HTTP · 零套件**）
+
+> **本节性质（写死）**：① **只追加** —— `git diff --numstat docs/route-layer.spec.md` **删除列 = 0**（承 §42.7 / §43.6 / §44.8 / §45.4 / §46.7 同族）；② **不改任何既有条文**（§1.8 清单 / §2 前端契约 / §3 错误语义 / §10.7 注册点基线 / §28.2 / §45 / §46 全部一字未动）；③ **不新开裁定** —— 只把「**Kevin 已下指令 + 同批实现已落盘**」的两件事写成本册可判负条文；④ **读口归属 = 产品面**（**公开只读**，**不是**运维口、**不是**后台口）—— 与 §46 的 ops-only 口相反：本口**无 `CRON_SECRET`、无 `actor`、允许匿名**。
+> **为什么必须登记（仓规）**：**新增对外路由 = 必须入本册**（§1.8 纪律 · Zang §5.85）。该口若不入册 ⇒ 「已实现·未注册清单」与**注册点基线**（§10.7 / 门 `AC10-2`）**双向漂移**（一个说没有、一个说 108）；且发布页下拉**依赖它渲染选项**（无选项 ⇒ 表单不可用），属**用户可见功能**，不得只登记在实现报告里。
+> **归类（写死）**：**公开只读口**（public-read）—— 允许匿名访问是**契约**而不是疏漏：发布页在**未登录态也要渲染选项**（登录是提交时才要求）。**任何「加 `requireActor` / 加 `requireAdmin` / 加分页 / 加写能力」的改法 = 范围扩张 ⇒ 判负**（§47.6 #1 / #11）。
+
+### 47.0 性质、范围与被登记面（现取）
+
+| 项 | 值 |
+|---|---|
+| **路径 / 方法** | **`GET /api/currencies`**（**仅 GET**；同路径其它 verb 未注册） |
+| **鉴权** | **无鉴权闸** —— 不挂 `requireActor` / `requireAdmin` / `CRON_SECRET`；**匿名可读**（契约，非疏漏） |
+| **与既有口的关系** | 与 `GET /api/admin/currency`（`backend-ts/src/index.ts` 现取**注册行在后台族**、闸 = `review_tasks`）**是两个口**：前者公开且**只出三键**，后者后台且出运营字段 ⇒ **不得合并、不得互替**；发布页**只许**消费公开口 |
+| **`data` 形状** | **行数组**（不是 `{items:[…]}` / 不是 `{rows:[…]}`）；每行键集**恰** `{cid, symbol, name}`（**三键、不多不少**） |
+| **行集** | **仅 `status='listed'` 的 `currency` 行**（`draft` / `frozen` / `delisted` **一律不返回**） |
+| **排序** | **`ORDER BY cid`**（升序；实现侧在 SQL 内，非前端排序） |
+| **写入面** | **零写**：只 `SELECT`；**零 DDL / 零迁移 / 零新表 / 零新列** |
+| **成功体例** | 既有 `sendSuccess` ⇒ body `{success, message, data}`（**不得新造外层键**） |
+| **失败体例** | 既有 `sendInfraMapped`（R107 分类器 · 503 族）⇒ **零新增错误码**；本口**无 400 面**（无入参） |
+| **幂等键** | **无**（读口无副作用、不参与 §4.5 幂等契约） |
+| **迁移** | **零**（纯只读查询） |
+| **前端消费面** | `/item/new`（发布商品页）币种字段 = 下拉；**唯一消费点**（`/item/new` 之外本单未接；发布任务页 `/jobs/publish` **仍未接** ⇒ §47.5） |
+| **本册写面** | 只写 `docs/**`（本册 §47 + 顶部 v2.37 块 + 姊妹册 `design-system.spec` §15.2 勘误 + `seafood.master-plan.md` §5.418）；**`backend-ts/**` / `frontend/**` 归 Kong** |
+
+### 47.1 读口契约（写死 · 五条）
+
+1. **方法 / 路径**：**`GET /api/currencies`** —— **仅 GET**；不得有 `POST` / `PUT` / `PATCH` / `DELETE` 同路径。
+2. **无闸**：**不挂任何鉴权中间件**。`Authorization` 头**缺失 / 非法 / 过期**一律**不影响**本口（不得 401；→ §47.6 #1）。
+3. **`data` = 行数组 · 行键集冻结**：每行 **恰** `cid`（数字）/ `symbol`（字符串）/ `name`（字符串）**三键**；**多键即判负**（防运营字段外泄：`owner_uid` / `deposit_amount` / `total_supply` / `status` 一类**不得出现**）。**少键亦判负**（前端依赖三键拼选项文本 `symbol · name`）。
+4. **行集与顺序**：`WHERE status='listed'` + `ORDER BY cid`。**不得**在前端二次过滤 `status`（读口已结构化保证）；**不得**把 `frozen` / `delisted` 当「可发布币种」。
+5. **只读零写 + 错误面**：**零写**（不得借读口补写：`DL23` 同向）；成功走 `sendSuccess`、异常走 `sendInfraMapped`（既有 503 分类器）；**零新增错误码 / 零新 `details.reason` / 零新幂等键**。
+
+### 47.2 注册点 107 → 108（逐 verb · 现取）
+
+**口令（本册唯一口径 · 与 §40.2 / §46.5 同一条命令）**：
+
+```
+grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts
+```
+
+| 时点 | 合计 | get | post | put | delete | patch |
+|---|---:|---:|---:|---:|---:|---:|
+| **改前（本单基线）** | **107** | 47 | 56 | 0 | 3 | 1 |
+| **改后（现取）** | **108** | **48** | 56 | 0 | 3 | 1 |
+
+- **+1 = 恰一条 GET**（`GET /api/currencies` 的 `app.get(` 注册行），其余四个 verb **逐项不变**（post 56 / put 0 / delete 3 / patch 1）。
+- **归因**：本单**无删除 / 无改动词**；注册点 +1 **全部**来自这一条新 GET 注册行。
+- **连锁门**：离线门 `p7b-03` 的 **`AC10-2`** 冻结面须同批前推为 **`regs === 108`**（门文件 `backend-ts/scripts/p7b-03-offline-gates.ts` **归实现单**，本册零代码）。
+- **不得**按 brief / 报告里的旧数字抄写：**登记前必须现取**（本表两行均为本单现取读数）。
+
+### 47.3 前端消费面（`/item/new` · 写死 · 可判负）
+
+| 项 | 契约 |
+|---|---|
+| **字段形态** | 币种字段 = **下拉选择器**（`<select>`），**不是**数字输入框。**旧钩子 `item-input-cid` 不得存在**（下拉落地后仍在 = 判负）。 |
+| **钩子名** | **`data-sf-m="item-select-cid"`**，且**必须在场**（缺失 = 判负）。同表单其余钩子（`item-input-title` / `item-input-price` / `item-input-stock` / `item-input-note` / `item-form` / `item-primary`）**本单不动**。 |
+| **选项文本** | **`symbol · name`**（如 `$ · 平台积分`）；**`name` 为空时仅 `symbol`**（回退项 `$` 即此形）；**不显示编号**（`cid` 只做 `value`，不进可见文案）。 |
+| **默认值** | **`$`（cid 1）** 为默认选中项。 |
+| **回退态（承重）** | 列表**加载失败**或**为空** ⇒ 回退为**仅 `$` 一项**；**表单仍可提交**（不得因读口失败而禁用提交按钮 / 不得弹阻断性错误）。 |
+| **提交载荷** | `cid` 仍为**数字**（`Number(value)`）；`POST /api/listing` **请求体形状一字不变**（键集 / 类型 / 幂等键口径全部不动）。 |
+| **范围** | 只改 `/item/new`（`frontend/src/pages/item/PublishItemPage.jsx`）。**`/jobs/publish`（`PublishJobPage.jsx`）本单不动** ⇒ 其 `jobs.cid` / `jobs.cidNote` 与 `cid` 手填形态保持原样（§47.5）。 |
+
+### 47.4 locale 口径（只改值 · 键数不变）
+
+- **改**：`item.cid` / `item.cidNote` —— **四语同改**（zh / en / hk / vn），**只改值、键数不变**（键名不增不减；键集基线 `128 / 1104 / 4416` 一类计数**不受影响**）。
+- **语义要求（可判负）**：`item.cidNote` **不得再含「手动填写 / 手填 / typed by hand / 請手動填寫 / nhập … bằng tay」一类手填语义**（该语义 = 旧形态文案，**随 `item-input-cid` 下线**）。
+- **不动**：`jobs.cid` / `jobs.cidNote`（发布任务页）**本单不动**；`jobs.*` 其余键一字不动。
+- **不发明文案值**：四语具体字面 = **实现单落笔**（本册只冻结「不得含手填语义 + 键数不变」两条；精确字面以实现现盘为准，落盘后回写指针）。姊妹册勘误 = `docs/design/design-system.spec.md` §15.2 第 18 / 19 行（「值不动」口径作废）。
+
+### 47.5 既有登记处置（本单现取 · 逐处）
+
+| # | 位置 | 旧字面（摘要 · 逐字保留于原处） | 本单处置 |
+|--:|---|---|---|
+| 1 | `frontend/src/pages/jobs/PublishJobPage.jsx:13`（**代码注释**） | 「币种：`cid` 手填（平台 $ = 1）—— **币种读口未注册**（已注册表内无 `GET /api/currency*`）⇒ 不作为读面依赖，登记见报告。」 | **自本批起部分过时**：公开读口**已存在**（`GET /api/currencies`）；但**发布任务页仍未接**（`jobs.cid` 仍手填）⇒ 注释中「未注册」一句已不成立、「不作为读面依赖」对**任务页**仍成立。**代码注释归 Kong 域**（Jing 不改代码）；本册只登记口径。 |
+| 2 | `docs/audit/p4-b4c-ii-a-jobs-profile.md:145` / `:155` | 「币种列表/详情读口 **未注册**（`GET /api/currency*` 不在 65 行路径表内）⇒ 发布面 `cid` 手填」 | **历史时点读数**（审计件不改、不删）；**现状**以本册 §47 为准。 |
+| 3 | `docs/audit/p8-p6-recon.md:76` | 「本单 `grep -rn "/api/currency" frontend/src` = 1 命中，且为注释」 | 同上 = **历史时点**；本批后该 grep 结果将变化（前端将出现真实消费点）。 |
+| 4 | `docs/design/design-system.spec.md` §15.2 第 18 / 19 行 | 「`listings.cidNote` → `item.cidNote` ｜币种编号请手动填写；社区积分 $ 填 1。｜键名改（**值不动**）」 | **同批勘误**（状态改写式：旧句逐字保留 + 「作废 · 以本段为准」+ 新断言 `item-input-cid` 不得存在 / `item-select-cid` 必须在场）。 |
+| 5 | `docs/OPEN-ITEMS.md` | — | **零命中**（检索式见 §47.7）：本册与台账内**无**「币种读口未注册」类挂账行 ⇒ **无状态可改写**，不新增挂账（本口已落地，非未闭环项）。 |
+
+### 47.6 判负口径（任一条命中即判红 · 可证伪）
+
+| # | 判负条件 | 判法 |
+|--:|---|---|
+| 1 | 无 `Authorization` 头请求 `GET /api/currencies` **非 `200`**（401 / 403 / 404 / 500） | 空头 `curl` 一次；断言 `status=200` 且 body `success=true` |
+| 2 | 返回行中出现 `status≠'listed'` 的币种 | 库内取一个 `draft`/`frozen`/`delisted` 的 `cid`，断言**不在**返回集合内 |
+| 3 | 任一行键集**多于** `{cid, symbol, name}`（出现 `status` / `owner_uid` / `deposit_amount` / `total_supply` 等） | `Object.keys(row).sort().join(',') === 'cid,name,symbol'` 逐行断言 |
+| 4 | 行键**少于**三键 | 同上逐行断言（少键同样红） |
+| 5 | `data` 不是**数组**（包成 `{items:[…]}` / `{rows:[…]}`） | `Array.isArray(body.data) === true` |
+| 6 | 顺序**不是** `cid` 升序 | 对 `data.map(r=>r.cid)` 断言严格递增 |
+| 7 | `/item/new` 仍存在 `[data-sf-m="item-input-cid"]` | 真浏览器 DOM 查询，计数必须 **= 0** |
+| 8 | `/item/new` **缺** `select[data-sf-m="item-select-cid"]` | 计数必须 **≥ 1**（且 `tagName === 'SELECT'`） |
+| 9 | 选项文本**含编号**（如 `1 · $ · 平台积分` / `#1`） | 逐项断言文本 = `symbol` 或 `symbol + ' · ' + name`（**不得出现数字编号前缀 / `cid` 值**） |
+| 10 | 列表失败 / 为空时 `$` 选项**不在**，或**提交被阻断** | 拦截接口置 500 / 返回 `[]` ⇒ 断言选项数 = 1 且 `$` 选中、提交按钮 `disabled=false` |
+| 11 | 提交载荷 `cid` **非数字**，或 `POST /api/listing` 请求体键集变化 | 抓请求体：`typeof cid === 'number'` + 键集与改前逐字相同 |
+| 12 | 读口产生**任何写**（`ledger_entry` / `account` / `currency` 行数变化，或审计行 +1） | 调用前后同一只读盘点两次对拍，差异必须为 **0** |
+| 13 | 新增**错误码** / 新 `details.reason` / 新幂等键 | 闭集普查（`LEDGER_*` 33 码不动；§4.5 键表不动） |
+| 14 | `item.cid` / `item.cidNote` **键数**变化（增/删键），或 `jobs.cid*` 被改 | 四语逐文件键集相等 + `jobs.*` 逐键逐值不变 |
+| 15 | `item.cidNote` 仍含「手动填写 / 手填」语义 | 四语正则 `手动填写|手填|by hand|手動填寫|bằng tay` 命中数必须 **= 0** |
+
+### 47.7 自证（改后现取）与未做项
+
+- **纯追加**：`git diff --numstat docs/route-layer.spec.md` = **`122 0`**（**删除行 = 0**）。
+- **版本锚点**：`grep -c '^> \*\*状态：v2.37'` = **恰 1**；**节号锚点**：`grep -c '^## §47 '` = **恰 1**（前值最大节号 = §46 ⇒ 本节 = §47，**无跳号**）。
+- **位置自证**：v2.37 块**紧随 v2.36 块 ⑤ 行之后**（承 §45 / §46「两处版本记录同批入库」先例）；`§47` **接在本册末行**（§46.7 之后，`---` 分隔）。
+- **注册点现取**：`grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts` = **108**（get 48 / post 56 / put 0 / delete 3 / patch 1）；改前 = **107**（get 47）。
+- **检索式（第 47.5 行 5 的「零命中」依据）**：`grep -n '币种读口未注册\|GET /api/currency' docs/OPEN-ITEMS.md` = **0 命中**。
+- **零代码自证**：本单 commit 只含 `docs/**` + `ops/item-cid-select/**` ⇒ `backend-ts/**` / `frontend/**` **零改动**；**库面零连接**（读口实测归实现 / 质检单）。
+- **未做项（显式登记，不冒充已做）**：① `docs/versions/route-layer.spec.v2.37.md` **未建**（快照重制归版本收口单）；② 读口 / 前端**未由本单实跑**（Jing 不跑前后端门套 ⇒ 归 Kong 与 Neng）；③ 四语精确字面**未由本单落笔**（实现单落笔后回写）；④ 发布任务页**未接**读口（本单范围外）。
+- **未发明项**：路径 / 方法集 / 行键集 / 状态过滤值 `'listed'` / 排序键 / 钩子名 / 注册点数字 —— **全部可回溯至 Kevin 指令 + 实现现盘 + 本节引用的现取命令**。
+
