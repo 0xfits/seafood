@@ -418,6 +418,10 @@
 > **v2.39 修订入口**：逐条 delta → 依据锚点 → 改动点 = **本册 §48**（契约冻结登记；**本单不建独立 delta 件**，承 v2.29 / v2.30 / v2.32 / v2.35–v2.38 先例）。**凡与实现落盘后现盘冲突处，一律以现盘为准**（实现归 Kong · 质检归 Neng · 本版登记面 = Kevin 裁定 + 契约冻结）。
 > **★★ v2.39 本单要点（先说结论，不含糊）**：① **两口契约逐字**（§48.2 / §48.3）；② **判负六条**（§48.4：无 Authorization 上传 ⇒ **401** · >2MiB ⇒ **400** · `content_type` 超闭集 ⇒ **400** · GET miss ⇒ **404 R107** · 公开 GET ⇒ **200 + immutable 头** · 同字节重传 ⇒ 返既有 id）；③ **注册点 `108 → 110` 逐 verb**（§48.5）；④ **数据面正典** = `data-layer.spec` v0.34 §40（迁移 `0050_media_store.sql`）；⑤ **前端面**（§48.6：≤4 张 · 客户端压缩 · 失败即取消发布 · `media_urls` 写口零改 · image 槽 = `media_urls[0] || 占位`）。
 
+> **状态：v2.40（实现回写 · **§48 两口已落盘、已上线 —— 只补「实现现取细节」，契约本体一字未改**：★★ **启用性改动 `express.json` 100kb → 4mb**（`index.ts:134` 现取；2MiB 解码 ≈ 2.80MB base64 ⇒ 不改则两口不可用、§48.4 #2 判负探针到不了 handler）· ★ **`MEDIA_*` 四码定档**（`MEDIA_CONTENT_TYPE_INVALID` / `MEDIA_BASE64_INVALID` / `MEDIA_SIZE_EXCEEDED` / `MEDIA_MAGIC_MISMATCH`；`MEDIA_ERROR_CODES` 集中定义于 `index.ts:3644`、i18n 指针域 `media.err.*`，**不进** `ledger-errors.ts` 33 码账本闭集）· ★ 成功体**实际键集 = `{url, media_id, sha256, size_bytes, deduplicated}`**（**⊇** §48.2 冻结最小集 `{url}`，`url` 逐字不变）· ★ 404 **两分支同走** `sendRefNotFound(res,'media',idRaw,'media_not_found')`（R107；路径段 `^[1-9]\d*$` ⇒ `0` 与非数字同落 404；`MEDIA_*` **只覆盖 POST 400 族**）· ★ 注册点**现取 110**（get **49** / post **57** / put 0 / delete 3 / patch 1）、`p7b-03` `AC10-2` 已同批前推 · ★ **观察项 N6** = 3MiB 载荷先撞 4mb ⇒ **413**（契约拒收成立、形状与 400 分叉；合同内 ≤2MiB 仍 `400`）· 正文 = **§48.8**）（**只追加 · §1–§48.7 一字未动** · 本笔零代码（只写 `docs/**`））** · 作者角色 = **Jing（Specifier · 制度员）** · 单号 = **JING-SPEC-MEDIA-RT-IMPL**
+> **v2.40 修订入口**：逐条 delta → 依据锚点 → 改动点 = **本册 §48.8**（实现回写；**不建独立 delta 件**，承 v2.29 / v2.30 / v2.32 / v2.35–v2.39 先例）。**凡与本节冲突处，一律以现盘为准**（被登记面 = 实现单 `a6d718d` + 生产终验 `e6b0bf7`）。
+> **★★ v2.40 本单要点（先说结论，不含糊）**：① **契约没动** —— §48.1–§48.7 逐字保留，本节只补「实现怎么落」；② **一处启用性改动**单列（`express.json` 4mb，全局解析上限放宽，各路由自身闸不受影响）；③ **借码落定**（四码 `MEDIA_*` 纯新增域，账本 33 码闭集不动）与 **404 不开新码**（复用 R107）；④ **六条判负已实跑全绿**（401 / 400×3 / 404 / immutable / 去重）；⑤ **N6 登记为观察项**（413 属传输层诚实语义，非缺陷、不改契约）。
+
 > **v2.19 修订入口**：逐条 delta → 依据锚点 → 改动点 = `docs/audit/route-layer-v2.19-delta.md`（**同批姊妹册** = `docs/audit/data-layer-v0.26-delta.md` + `docs/audit/commission-v0.4-delta.md`）。**凡与 Zang 裁定冲突处，一律以 Zang 裁定为准**（本单为 P9⑤ 契约冻结；**未改写任何裁定、未发明任何路径 / 数值 / 权限键 / 文案值**）。**★ 姊妹册（同批）**：`docs/commission.spec.md` **v0.4 §19** + `docs/data-layer.spec.md` **v0.26 §34**，**本册不重抄其条文、只指路**。
 > **★★ v2.19 本单要点（先说结论，不含糊）**：① **零新用户面口**（邀请奖励 = 结算腿，无独立读 / 动作口）；② **后台配置面复用**（费率 + 6 项权重矩阵）；③ **注册点 `87 → 87`（+0）**；④ **权限键 11 键内（零增删）**；⑤ **错误码零新增 + `R107`**；⑥ **真生效四段（①③④ 段）**；⑦ **连带门改版**（`p8-s2` 8 键 / 守卫常量 / 页字段面随 `R-9-1` ⇒ 归实现单）。
 
@@ -9109,3 +9113,22 @@ for v in get post put delete patch; do printf "%s " "$v"; grep -cE "^app\.$v\(" 
 - **零代码**：本节只写 `docs/**`；`backend-ts/**` / `frontend/**` 未动（实现归 Kong）；**迁移 `0050_media_store.sql` 未创建**（实现单建，apply 由 Zang，**先 apply 后 push**）。
 - **未做项**：① 门 `AC10-2` 未改（归实现单同批）；② 两口均未实跑（零 HTTP）；③ 四语键面未动（若实现需新文案键 ⇒ 触发 13 文件硬编计数前推，另行登记）；④ `media` 表行数 / 去重行为未测（表未建）。
 
+### 48.8 实现回写（2026-10-19 · `a6d718d` 现盘 · 契约本体一字未改）
+
+> **本节只登记「实现怎么落」的现取细节**；§48.1–§48.7 的契约字面**一字未改**（措辞冲突处以现盘为准）。**登记时点** = HEAD `e6b0bf7`（`origin/main = cda9acf`）；**该两口已上线**，生产读数见 `ops/media-upload/prod-verify/`。
+
+| # | 面 | 实现现取（逐字/逐值） | 与 §48 契约的关系 |
+|---|---|---|---|
+| 1 | 请求体上限 | `app.use(express.json({ limit: '4mb' }))`（`backend-ts/src/index.ts:134` 现取）；**改前 = 缺省 `100kb`** | **契约未写、实现必需**：`data_base64` 为解码后 ≤2MiB 的 base64 文本（2MiB ≈ **2.80MB**）+ JSON 信封；100kb 下连前端 ≤300KB 压图（≈405KB 请求体）都落 **413**，§48.4 #2 的「解码后 >2MiB ⇒ 400」判负探针**到不了 handler** ⇒ 属「使契约可用」的**启用性改动**，单列明示。全局影响 = 解析层上限放宽；各路由自身形状/金额闸不受影响 |
+| 2 | 400 族借码（§48.2 授权实现单裁量处） | **四码定档**：`MEDIA_CONTENT_TYPE_INVALID` / `MEDIA_BASE64_INVALID` / `MEDIA_SIZE_EXCEEDED` / `MEDIA_MAGIC_MISMATCH` —— 集中定义于 `MEDIA_ERROR_CODES`（`index.ts:3644` 现取）；错误体 = R107 形状；i18n 指针域 `media.err.<CODE>` | **落实 §48.2「400 具体借码归实现单」**；★ **不碰** `ledger-errors.ts` 的 **33 码账本闭集**（media 面纯新增域） |
+| 3 | 成功体实际键集 | `sendSuccess(res, { url: '/api/media/<id>', media_id, sha256, size_bytes, deduplicated })`（`index.ts:3725-3731` 现取） | **⊇ §48.2 冻结最小集 `{url}`**：`url` 逐字不变（`/api/media/<十进制 id>`），其余四键为**向后兼容的附加**（`deduplicated` = 同字节重传命中既有行的机读标记） |
+| 4 | 404 两分支 | `GET /api/media/:id`：① 路径段不匹配 `^[1-9]\d*$`（含 `0`、负数、非数字）；② 查库 miss —— **两分支同走** `sendRefNotFound(res, 'media', idRaw, 'media_not_found')` = **R107**（`code = LEDGER_REF_NOT_FOUND`） | 逐字落实 §48.3；★ **`MEDIA_*` 只覆盖 POST 400 族、不开 `MEDIA_*` 404 码** |
+| 5 | 基础设施异常 | `POST` ⇒ `sendInfraMapped(res, 'media.upload', …)`；`GET` ⇒ `sendInfraMapped(res, 'media.get', …)`（**503 族**） | 落实 §48.2「失败响应走既有 `sendInfraMapped`」 |
+| 6 | 缓存头 | 命中面逐字 `Cache-Control: public, max-age=31536000, immutable` + `Content-Type` = 入库 `content_type` | 与 §48.3 冻结字面**逐字相同** |
+| 7 | 注册点 | `grep -cE '^app\.(get\|post\|put\|delete\|patch)\(' backend-ts/src/index.ts` = **110** = get **49** / post **57** / put 0 / delete 3 / patch 1（`POST` 在 `:3682` / `GET` 在 `:3737`）；`p7b-03` `AC10-2` 冻结面已同批前推 **110** | §48.5 的**目标态已成现态**（108 → 110 兑现，`p7b-03` 37/37 绿） |
+
+**判负六条的实跑结果（质检 `cda9acf` · 8/8 AC PASS · `ops/media-upload/qa/verdict.json`）**：#1 无头 ⇒ **401**；#2 2.5MiB ⇒ **400 `MEDIA_SIZE_EXCEEDED`**；#3 gif ⇒ **400 `MEDIA_CONTENT_TYPE_INVALID`**、魔数不符 ⇒ **400 `MEDIA_MAGIC_MISMATCH`**、非法 base64 ⇒ **400 `MEDIA_BASE64_INVALID`**；#4 miss ⇒ **404 R107**；#5 公开 GET ⇒ **200 + `immutable`**；#6 同字节重传 ⇒ `deduplicated:true` 且 `media_id` 相同、DB 该 sha256 恰 1 行。
+
+**★ 观察项 N6（登记 · 非缺陷 · 不改契约）**：**3MiB 载荷**（base64 ≈ **4.19MB**）**先撞 `express.json` 的 4mb ⇒ HTTP `413`**，而非 §48.4 #2 的 `400`。**判定**：契约层「拒收」成立（零入库、零半截数据），**分叉仅在形状**（传输层闸先于业务层闸）。**口径写死**：**合同内载荷（解码后 ≤2MiB）一律 `400 MEDIA_SIZE_EXCEEDED`**；**超出传输上限的体落 `413` 属诚实语义**（不得为了「统一 400」把 `express.json` 抬到无界）。若将来改判，须同时改本节 + §48.2 体积闸行 + §48.4 #2，并补 `413` 用例。
+
+**自证与未做项**：本笔只写 `docs/**`（+ `ops/media-upload/SPEC-NOTE-closure.md`），`backend-ts/**` / `frontend/**` **零改动**（`git diff --numstat` 删除列 = 0）；**未做**：`media.err.*` 四语键未补（前端未消费该域文案，400 文案仍走 R107 英文 `message`）；生产 `media` 表 **0 行** ⇒ **真图读取面生产未实测**（生产只验 `GET /api/media/1 ⇒ 404` 与占位分支，真图面读数在 dev 侧 AC3/AC6）。
