@@ -27,6 +27,7 @@
 > **★ 勘误（2026-10-19 · 第二单「发布任务页币种同改下拉」· §15.2 A 表 `jobs.cid*` **零命中** · 勘误级不升版 · 本单只写 `docs/**`）**：**依据 = Kevin 2026-10-19 追加指令逐字两条**「① 发布任务页（悬赏）同样的修改。② 下拉文本不带编号」+ 同批契约（正典 = 姊妹册 `docs/route-layer.spec.md` **v2.38 §47.8**）。**① 表体零命中（检索式写死）**：`grep -n 'jobs\.cid\|jobs\.cidNote' docs/design/design-system.spec.md` ⇒ 仅命中**版本头两行 + §15.2 上一段勘误**的叙述文字；**A 表体（第 1389–1408 行）内 `jobs.` 命中 = 0** ⇒ **表内无 `jobs.cid` / `jobs.cidNote` 行可勘**（不虚构行号、不改表体）。**② 旧句处置**：上一段勘误的第 ④ 项「`jobs.cid` / `jobs.cidNote`（发布任务页）**本单不动**」**自本段起作废 · 以本段为准**（旧句逐字保留，不删不改）。**③ 现行口径（写死）** = `jobs.cid` / `jobs.cidNote` **只改值、键数不变**（四语 zh / en / hk / vn 同改）；`jobs.cidNote` **不得再含手填 / 编号提示语义**（「填 1 / 填寫 / 手填 / enter 1 / nhập 1」）；**字段形态（可判负）** = `/task/new` 币种字段**必须是 `<select data-sf-m="jobs-select-cid">`**、**旧钩子 `jobs-input-cid` 不得存在**；选项文本 = `symbol · name`（**不带编号**）；默认 `$`（cid 1）、cid 1 不在列表 ⇒ 选首项；列表加载失败或为空 ⇒ 仅 `$` 一项且**表单仍可提交**；提交 `cid` 仍为数字、`POST /api/job` 形状一字不变。**④ 页面对称**：`/task/new` 与 `/item/new` **同形**（`<select>` + 同一读口 `GET /api/currencies` + 同一文案规则），差异仅钩子前缀（`jobs-` / `item-`）与页面壳类（`.sf-jobs-*` / `.sf-item-*`）。**⑤ 本册不改 token / 不改表单几何 / 不新增 `T` 规则**（沿用既有 `.sf-jobs-*` 家族；若实现需新类，归实现单并回写）。**⑥ 落点 = 版本头（本行）+ §15.2 A 表后追加本段**；**未动 `frontend/**` / `backend-ts/**` / `docs/design/style-preview.html`（真源零改动）**。
 > **★ 勘误（2026-10-19 · 第三单「媒体上传单」连带：`T94` 渐变占位图条款 + `T80` requiresAuth/恒 5 格 + 底栏①文案微单 · 勘误级不升版 · 本单只写 `docs/**`）**：**依据 = Kevin 2026-10-19 三裁定**（存储 = A「Neon 存图」/ 张数 ≤4 卡用第一张 / 占位 = 机械鱼图）+ 同批缺陷单 `9c8a460`（底栏恒 5 格）；契约正典 = `route-layer.spec` **v2.39 §48** + `data-layer.spec` **v0.34 §40** + `master-plan` **§5.422**。**① `T94` 勘误（状态改写式 · 旧句逐字保留）**：§19.2 `T94` 行「③ 详情面板（**渐变占位图** + 描述 + 库存 + 数量输入）」中的「渐变占位图」**形态限定自本勘误起作废 · 以本段为准** —— 现行口径 = 详情面板 image 槽 = **`media_urls[0] || 机械鱼占位`**（**渲染面允许真图 / 占位图填充原几何盒**，几何盒与槽位不变；媒体上传单落地前维持占位渲染）；§19.4/§19.5 涉「渐变占位图」字面同此读法。**② `T80` 勘误（状态改写式 · 旧句逐字保留）**：`T80` 行与 v1.7 补注中「`我的`→`/profile`（key `profile`，**`requiresAuth`**）」「**`requiresAuth` 仍 `true`**」的**可见性语义自本勘误起作废 · 以本段为准** —— `requiresAuth` 字段已随 `9c8a460` **废除**（`shell/nav.js` 删 `visibleNavItems` + 去 profile `requiresAuth`；生产码 `grep 'visibleNavItems|requiresAuth'` 零引用、仅注释留痕）；现行口径 = **底栏恒 5 格、含未登录**（`BottomTabBar` 恒染 `SHELL_NAV_ITEMS`；未登录点【我的】走既有钱包签名登录引导；详情页 `is-detail` 隐藏面不变）；三测试改锚 = `theme-shell-isomorphism` / `route-exchange-rename` / `v15-nav-floatmenu:92`（`fifth.requiresAuth` ⇒ `fifth.key==='profile'`）。**③ 底栏①文案微单（进行中）**：`home` 键值四语改短（**海鲜 / 海鮮 / Seafood / Hải sản**，键数不变）；§14.10 B / v1.6 注的「海鲜市场」= 旧值字面留痕，实现 commit 落盘后本册以现行值为准（消费点唯一 = `frontend/src/shell/nav.js:20`）。**④ 本册零 token / 零几何 / 零真源改动**（占位资产属图片资源、非主题 token）；**未动 `frontend/**` / `backend-ts/**` / `docs/design/style-preview.html`**。**现取基线 = HEAD `9c8a460`。**
 > **★ 现行版 = v1.24（2026-10-19 · Kevin「宽度与列数」两项口径 · 新增 §25 + 规则 `T121` + 三项结构常量链 · 只追加 + 就地指针 · 本单只写 `docs/**`）**：**① 容器最大宽 = `1536px`**（结构常量 `shell-max-w` `1440px ⇒ 1536px`）。**Kevin 今日口径（逐字）**：「容器最大宽 **1536px**」；**「1500 不是标准宽度」已当面说明** ⇒ **`1500` 不再是候选值**（承 §22.11 `Q8`「保持 `1440px` · 另立单」⇒ **本版取代该口径**，**`Q8` 原行一字未删**、其后追加指针行）。**② 列数断点（写死）** = **视口 `≥1280px` ⇒ 6 列** · **`768–1279px` ⇒ 4 列** · **`<768px` 手机档不变**（现取 d `2` / n `1`，**是否也调 2/2 待 Kevin** ⇒ `OPEN-ITEMS` `B38`）；**夜档 `feed-cols` 由 `3` 统一为 `4`**（与日档一致 —— 回归「列数属断点层、**不得按主题变**」的既有口径，见 `EXCLUDED_FROM_THEME` 该行 why）。**③ 落点约束（写死）**：`frontend/src/shell/shell.css` **只允许唯一 `767` 断点块**（现取 `@media` 计数 = **1** · `shell.css:185`）⇒ **`1280` 的 6 列规则落 `frontend/src/styles.css` 顶层 `@media (min-width:1280px)`**（承 §14 桌面 gutter「断点规则落 `styles.css`、`shell.css` 一字不动」先例），且**只覆盖 `.sf-grid` 的 `grid-template-columns`**。**④ 三件同步链（缺一即判负）**：`docs/design/style-preview.html` **纯追加**真源块（`max-width:1536px` 行 + `repeat(6,minmax(0,1fr))` 行 + 夜档 `repeat(4,…)` 行）⇒ `frontend/src/theme/tokens.js` 的 `STRUCT` / `STRUCT_PROV` **重指**（`shell-max-w` · `feed-cols.n` · **新键 `feed-cols-xl`**）⇒ `frontend/src/theme/theme-tokens.css` **用既有生成器重生成**（先跑零漂移 `cmp = 0` 自证）。**⑤ 零 i18n / 零颜色 / 不动 `TOKEN_KEYS`**（只动 `STRUCT`：**改 2 键值 + 改 1 个 PROV 指针 + 新增 1 键**）。**改动 = 版本头（本行）+ §12 表 v1.24 行 + §22.11 `Q8` 行后**新行**（指针，原行一字未动）+ §25（新）**；**本册只写 `docs/**`**；**未动 `frontend/**`**（值表 / 生成物 / 样式归实现单 —— 本笔 = **契约冻结，实现待发**）；**未启停任何服务**；**未 `git add -A` · 本单 commit 仅含 `docs/**` + `ops/feed-6col/**` · 未 push**。**★ 编号勘误（必须披露）**：派单写「新增记 **`T104`**」，而 **`T104` 已被 v1.19 §21（消息面板化 `T104`–`T108`）占用**（现取 `grep -n 'T104' docs/design/design-system.spec.md` 命中 §21 规则表）⇒ **本册按「数字现取」顺延为 `T121`**（现取最大 `T120` = §24），**派单编号字面保留于此**。
+> **★ 现行版 = v1.25（2026-10-19 · Kevin「商品卡固定尺寸」四条逐字 · 新增 §26 + 规则 `T122` + `Q5` 勘误 + route 册 `§41.3` 勘误指针 · 只追加 + 就地留痕 · 本单只写 `docs/**`）**：**① Kevin 四条原话（逐字见 §26.0）** = 尺寸固定约 252×412、卡高不得变化 ／ 移除【库存不足】与【0 人已领取 0】两提示及其前置礼物图标 ／ 卡最上方商品预览图 240×240（原图按比例裁切后显示）／ 卡底 224×48 发布者信息（左 24px 圆头像 + 灰色脱敏昵称、右橙色信用胶囊无图标）。**② 冻结契约（§26.1 `T122`）** = **卡高恒 412px**（不随内容）· **预览图 = 卡顶通栏 × 固定高 240px、`object-fit:cover` 居中裁切**（原图任意比例）· **412 内部分配 = 240（图）+ 48（卖家栏）+ 中部 flex-1**（标题 clamp-2 + `$` 价格块 + 描述 clamp，溢出隐藏）。**③ 移除** = `statusText` 状态徽章全态（库存不足/可兑换/已兑换）+ 前置稀有度图标（`getRarityIcon` 整函数）+ 卡底「N 人已领取 / 总数」行（含 `Gift`）+ `limited` 限量徽章（同行一并）。**④ 保留** = 整卡链接（`T112`/`T113`）、`$` 价格块（`r9-93`）、描述 clamp、剩余时间行（条件）、CTA 逻辑（`actionLabelKey` 路径逐字不变）、稀有度光斑。**⑤ `Q5` 勘误（状态改写）** = §22.11 `Q5` 已裁行「稀有度图标（`getRarityIcon`）…保留」**图标部分作废**（行后勘误行已插、旧句一字未删）；**装饰光斑保留不变**。**⑥ 卖家栏数据面** = 昵称 = `maskWalletAddress(evm)`（前 6 + `******` 6 星 + 后 4，例 `0x1234******abcd`；route `§41.3`「`…` 掩码」口径同步勘误、旧句保留）· 头像 = 迁移 `0052_users_avatar_url.sql` 的 `users.avatar_url`（可空；null ⇒ 灰底 + 掩码首字符占位）· 信用档位 = `rating` 按 `ratee_uid` 均星四档（≥4.5 优秀 / ≥3.5 良好 / <3.5 一般 / 无评分新卖家），**独立于排序公式**。**⑦ 后端 / i18n 增量（契约数 · 随实现单）** = `listBrands` 行增 `seller{uid,nickname,avatar,credit}`（feed 行键 45→46；详情 `seller` 加 `credit`、顶层仍 46）+ i18n 新命名空间 `sellerCredit` 4 键（top 128→129 / flat 1110→1114 / 四语节点 4440→4456；base = 编制时点现取 128/1110/4440）。**⑧ 零新主题 token / 零 `STRUCT` / 零 PROV 改指 / `style-preview.html` 零改动**（412/240/48/24 属几何常量，承 §24「颜色以外不进主题层」先例落 `reward-card.css`；信用胶囊色值本版不锁）。**改动 = 版本头（本行）+ §12 表 v1.25 行 + §22.11 `Q5` 行后勘误行 + §26（新）**；**本笔零代码**（编制时点工作区另有实现单未提交面 `M frontend/src/components/reward/RewardCard.jsx`，非本单写面）；**未启停任何服务**；**未 `git add -A` · commit 仅含本单 `docs/**` + `ops/card-resize/**` · 未 push**。
 
 > **★ v1.10 姊妹册（同批交付）** = `docs/route-layer.spec.md` **v2.28 §38**（`/item` 家族 + 旧路由硬删 + 「前端概念名 ⇄ 后端路径名」映射表）；本册只承载 **形态 / 入口集合 / 可达性 AC / 合并页口径 / i18n 删改留表**，**不重抄**。
 > **v1.5 口径来源（逐字）**：Kevin 2026-10-11 定档 ①方案 A·UI 先行（不动后端）②右悬浮菜单仅桌面档显示、H5 隐藏 ③消息模块占位（后续接驳 X/推特私信）④客服/反馈做弹窗模板位；**＋ Kevin 当日两条连锁更正**（`Zang` 转达）：**(A)** 底栏第二项 = **「市场」→ `/exchange`**（key `shard`，图标 `Store`；**不再新建 `/nearby` 占位页、`nearby` 键不新增**）**(B)** `T76` 去重按新底栏集合重算（**`exchange` 继续排除、`reward`/`task` 恢复**）。
@@ -838,6 +839,7 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 | **v1.22** | 2026-10-17 | **Kevin「`/item/:id` 操作栏 goofish 形态」裁定落册（只追加 + 就地留痕 · 本单只写 `docs/**` + `frontend/src/theme/**` + 本单读数）**：**① 本轮唯一新增 2 个颜色 token** —— `--sf-cta-solid-bg` 日 `#202020` / 夜 `#EDEFF2`、`--sf-cta-solid-fg` 日 `#FFFFFF` / 夜 `#0A0A0A`（**夜档成对反相**：夜档深页上深底会消失 ⇒ 亮底深字；亮底色值与 `--sf-title-fg` 夜档同源；日档底色取既有 ink 家族 `--sf-btna-fg` 同值，**不引入第二套墨色**）。**② 其余全部复用既有 token、零新增** —— `聊一聊` = `--sf-btna-bg` / `--sf-btna-fg`（日夜同值 `#FFE60F` / `#202020`）；`收藏` = `--sf-btnalt-bg` / `--sf-btnalt-fg` / `--sf-btnalt-border`（夜档自带反相）。**③ 新增 §24 + 规则 `T120`** —— 三段结构（组合条 2 段 + 留白 + 独立收藏）· 组合条内部占比 `聊一聊 58% / 立即购买 42%`（±1 个百分点）· 组合条与收藏**留白 > 0** · **两端半圆 + 中缝直角**（中缝 4 角 = 0）· 收藏 = 独立胶囊 · **两档几何逐值相等**（颜色以外不进主题层）· 几何常量落页面局部 `--sf-l-*`（承 `T98`，**不进 `STRUCT`**）。**④ 四处同动读数** —— 真源尾部纯追加 `<section id="item-actionbar-ref-v122">`（**1103 行 / 93,949 B / md5 `7b8780af…0490a5` ⇒ 1172 行 / 102,653 B / md5 `a17919a4…013753`**；`numstat = 69 0`）· `tokens.js` 两档键 **110 ⇒ 112**（同索引 `107` / `108`；`numstat = 12 0`）· `PROV` 新指 **1130 / 1133 行** · `theme-tokens.css` 生成器重生成（先跑零漂移 `cmp = 0`）**8,155 ⇒ 8,275 B**（`numstat = 4 0`）。**⑤ 断言影响 = 零计数常量前推** —— 仓内 token 计数断言全为下限 / 包含式 ⇒ **未改任何测试文件**。**⑥ 未动面** —— `frontend/src/pages/item/**` / `ItemDetailPage` / `shell.css` / `data-sf-region` 集合 / `--sf-l-actionbar-h`(60px) / 任何既有 token 值 / §1–§23 与真源 1–1103 行：**一字未改**。**⑦ 挂账** —— 「收藏」无数据承载 / 无收藏接口 ⇒ 接后端 vs 视觉按钮**待裁**（§24.6 第 1 项）。**未 `git add -A` · 未 commit · 未 push。** |
 | **v1.23** | 2026-10-17 | **「首页商品卡片动作胶囊下线」勘误单（只追加 + 状态改写 · 旧字面逐字保留 · 本单只写 `docs/**` + 本单读数）**：**① Kevin 指令** = 「首页商品卡片移除『查看详情』胶囊」（实现 = `RewardCard.jsx` 的 `actionLabelKey` 存在时动作胶囊**整块不渲染**）。**② 口径改写（取代 `T112` 的 CTA 子条）** = **首页卡片不渲染动作胶囊** · **入口由整卡链接承载**（卡根单一 `<a>`，`href` = `buildLocalizedPath(lang,'/item/'+id)`）· **卡内交互元素计数仍 = 0** · **钩子 `reward-card-view` 随胶囊下线**。**③ 落点** = §22.2 `T112` 后勘误段 · §22.6「CTA 形态」取代行 · §22.9 `AC-3 · v1.23 勘误注` · §22.12 `6-勘误（v1.23）` · `docs/OPEN-ITEMS.md` `F32` 状态改写（+ 头部 v2.40 块）。**④ 读数** = 首页卡内 `reward-card-view` **4 → 0**（1440 / 390 同）· 卡根 `a[href]` 仍在 · 卡内交互元素 `0 → 0` · 末行子元素 `2 → 1` · 点标题仍跳 `/item/3041` · 门套 **57 files / 554 tests 前后不变** · CSS 零变化。**⑤ 零变化面** = 零新 token / 零 `STRUCT` / 零 CSS / 零真源（`style-preview.html` 一字未动）/ i18n 零新增零删除（`item.viewDetail` 键保留不删）。**未 `git add -A` · 未 commit · 未 push。** |
 | **v1.24** | 2026-10-19 | **Kevin「宽度与列数」两项口径落册（新增 §25 + 规则 `T121` + 三项结构常量链 · 只追加 + 就地指针 · 本单只写 `docs/**`）**：**① 容器最大宽 `1536px`**（`shell-max-w` `1440px ⇒ 1536px`；**「1500 不是标准宽度」已当面说明** ⇒ `1500` 退出候选；承 §22.11 `Q8`「保持 `1440px`」⇒ **被本版取代**、原行一字未删 + 追加指针行）。**② 列数断点 = `≥1280 ⇒ 6` / `768–1279 ⇒ 4` / `<768` 手机档不变**（现 d `2` / n `1` ⇒ 是否调 2/2 挂 `B38`）+ **夜档 `feed-cols` `3 ⇒ 4` 统一**（回归「列数不得按主题变」）。**③ 落点约束 = `shell.css` 只许唯一 `767` 块**（现取 `@media` 计数 `1`）⇒ `1280` 的 6 列规则落 **`src/styles.css` 顶层 `@media (min-width:1280px)`**（承 §14 gutter 先例），只覆盖 `.sf-grid` 的 `grid-template-columns`。**④ 三件链** = `style-preview.html` 纯追加真源块（`max-width:1536px` / `repeat(6,…)` / 夜档 `repeat(4,…)`）⇒ `tokens.js` `STRUCT`/`STRUCT_PROV` 重指（**新键 `feed-cols-xl: 6`** + `shell-max-w` + `feed-cols.n`）⇒ `theme-tokens.css` 重生成（先零漂移 `cmp=0`）。**⑤ 零 i18n / 零颜色 / `TOKEN_KEYS` 不动**；**实现待发（笔 2）**。**★ 编号勘误**：派单写 `T104`，但 `T104` 已被 v1.19 §21 占用 ⇒ 顺延 **`T121`**。 |
+| **v1.25** | 2026-10-19 | **Kevin「商品卡固定尺寸」四条逐字落册（新增 §26 + 规则 `T122` + `Q5` 勘误 + route `§41.3` 勘误指针 + data-layer §40.7 · 只追加 + 状态改写 · 本单只写 `docs/**`）**：**① 卡高恒 412**（不随内容；`252` 为测量近似、宽随 `T121` 六列网格 ≈225 @1536）。**② 预览图** = 卡顶通栏 × 高 240 · `object-fit:cover` 居中裁切 · 图源 `media_urls[0] > image_url > url_image > placeholder-item.webp`（机械鱼占位同规格同裁切）。**③ 移除** = 状态徽章（`statusText` 全态 + `getRarityIcon`/`Gift`）·「N 人已领取 / 总数」行 · `limited` 徽章。**④ 保留** = 整卡链接 / `$` 价格块 / 描述 clamp / 剩余时间行（条件）/ CTA（`actionLabelKey` 路径逐字不变）/ 稀有度光斑。**⑤ 卖家栏 48** = 24px 圆头像（`users.avatar_url`〔迁移 `0052`〕null ⇒ 灰底 + 掩码首字符占位）+ `maskWalletAddress` 星号掩码昵称（灰色）+ 右侧信用胶囊（无图标 · 色值不锁）；信用四档由 `rating` 按 `ratee_uid` 均星派生（≥4.5 优秀 / ≥3.5 良好 / <3.5 一般 / 无评分新卖家）、**独立于排序公式**。**⑥ 后端 / i18n** = feed 行键 45→46（`seller` 加性键）· 详情 `seller`+`credit`（顶层仍 46）· `sellerCredit` 4 键（top 129 / flat 1114 / nodes 4456）· 迁移 `0052_users_avatar_url.sql`（无写入口，头像上传另立单）。**⑦ 死键（不删、挂 `B40`）** = `rewardCard.limited` / `common.claimedUnit`；**留活** = `insufficient` / `claimNow` / `claimed` / `timeLimited`（保留面消费）。**⑧ 判负 7 条**（§26.7：卡高≠412 / 图高≠240 / 非 cover / 徽章或领取行出现 / 卖家栏缺失或≠48 / 档位不符 / 明文 EVM）。**⑨ `Q5` 稀有度图标口径作废**（旧句保留 + 行后勘误行）；**route `§41.3`「`…` 掩码」作废 ⇒ 6 星定式**；`statusText` 映射保留、消费点移除。**本笔零代码 · 删行 0 · 未 push**。 |
 
 
 ### 与上游文件的关系（只读，本册未改一字）
@@ -2585,6 +2587,7 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 | # | 裁定 | 写死内容（逐条 · 不得自选） |
 |---|---|---|
 | **`Q5`** | **已裁 = 候选 (a)** | `frontend/src/components/reward/RewardCard.jsx` 的 `variant={reward.variant \|\| 'primary'}` ⇒ 缺省**改 `'default'`**（`ui/Card.jsx:10` = `bg-white border-gray-200`）。**不得改 `ui/Card.jsx` 的变体表**（该件多面共用，且 `Card.test.jsx:17-19` 正冻结 `primary` 的 `bg-yellow-50 border-yellow-200` ⇒ 改表即红）。**另**：`RewardCard.jsx` 的**稀有度渐变底类同批去掉** —— `bg-gradient-to-br from-yellow-50 to-yellow-100`（legendary）与 `bg-gradient-to-br from-purple-50 to-purple-100`（epic）；**稀有度图标（`getRarityIcon`）与 `absolute` 装饰光斑（`opacity-20 blur-xl` 圆）保留**（前者是信息载体、后者是既有效果项，均不涉「黄色落点」）。 |
+| **`Q5` ❗ 勘误（v1.25 · 2026-10-19）** | **图标半句作废 · 其余维持** | Kevin 2026-10-19 商品卡改版四条（§26.0）要求**移除状态徽章及其前置礼物图标** ⇒ 上行「**稀有度图标（`getRarityIcon`）与 `absolute` 装饰光斑（`opacity-20 blur-xl` 圆）保留**」中**图标部分作废**：`getRarityIcon` 整函数 + 其默认 `Gift` 图标随状态徽章一并移除（import 清理归实现单）；**装饰光斑保留**（该半句仍有效）。`variant='default'`（候选 a）与上行其余写死内容**不受影响**。**现行口径以 §26（`T122`）为准**；上行字面逐字保留（本册只追加口径）。 |
 | **`Q6`** | **已裁 = 候选 (a)（只留阴影）** | 去 `hover="glow"`（其 `hover:shadow-xl hover:ring-2 hover:ring-yellow-200` 含**黄环** `ring-yellow-200`）⇒ 改 **`hover="none"`** + `className` 追加 **`hover:shadow-lg`**；**不位移**（不得引入 `-translate-y-*`、不得改用 `lift` 变体）。**不动 `ui/Card.jsx` 的 hover 变体表**（`none` 已是既有档）。 |
 | **`Q7`** | **已裁 = 候选 (a) + 暂定标注** | 夜档 `--sf-surface-bg` **保留 `#101114`**；**PROV 不变**（仍 `docs/design/style-preview.html:1073` ⇒ `tokens.js` 的 `surface-bg.n = [1073,'background:#101114']`）；**同时标注为「暂定值」** —— 随下条「夜档另议」**另立单复核**（与夜档页底 `#0B0C0E` 仅差 ΔRGB(5,5,6)，分层可辨性**未定案**）。 |
 | **`Q8`** | **已裁 = 不动** | `--sf-st-shell-max-w` **保持 `1440px`**（`tokens.js:391` + `STRUCT_PROV['shell-max-w'] = [85,'max-width:1440px']` **一字不动**）；Kevin「约 1500 像素」**按描述性近似**处置 ⇒ **零几何改动**。若日后要真 `1500px` ⇒ **另立单**（须同步 `STRUCT_PROV`，溯源硬门）。 |
@@ -3182,3 +3185,92 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 - **`ResponsiveGrid` 的 JS 断点仍在**（9 处调用点）—— 归 `B39`，本批不修。
 - **1280 档观感未另评** —— 质检只取几何读数（列数 / 宽度 / 溢出 / 卡内截断），**「1280 档是否偏窄」属观感，不预设合格**。
 - **6 列作用域** = 仅首页商品网格（`.sf-feed`）；**任何其它网格要 6 列须另立单**，本节不扩面。
+
+## §26 ★★ v1.25 · **商品卡固定尺寸契约**：卡高恒 `412` · 卡顶通栏预览图高 `240`（cover 居中裁切）· 移除状态徽章 / 领取行 / 限量徽章 · 卡底卖家信息栏 `48` —— 规则 **`T122`** + `Q5` 勘误 + route 册 `§41.3` 勘误指针（**本节只追加 · §1–§25 一字未动** · 依据 = **Kevin 2026-10-19 四条逐字**（§26.0）· **本笔零代码：契约冻结，实现归并行实现单**）
+
+### 26.0 依据（Kevin 四条逐字 · 编制时点 2026-10-19）
+
+- ① 「尺寸固定为大约 252*412。不要出现卡片高度变化的情况。」
+- ② 「移除【库存不足】提示，移除【0 人已领取 0】提示。以及这两个文字标签前方的代表礼物的图标，都移除掉。」
+- ③ 「卡片内的最上方放置商品的预览图片，图片尺寸具体为 240 像素 x240 像素，由于比例不同，预览图片需要在原图的基础上裁剪然后显示。」
+- ④ 「商品卡片底部 224×48 显示发布者信息（参考图：左 24px 圆头像 + 灰色脱敏昵称『丽***L』式；右橙色胶囊标签『卖家信用优秀』，浅橙底橙字无图标）。」
+- **口径订正（同日追加 · 覆盖 ④ 的昵称示例）**：脱敏昵称**不取「丽***L」中文昵称式** —— 现役口径 = **星号打码钱包地址** `maskWalletAddress(evm) = evm.slice(0,6) + '*'.repeat(6) + evm.slice(-4)`（例 `0x1234******abcd`）；④ 其余字面（24px 圆头像 / 灰色 / 右侧橙色胶囊无图标）不变。
+- **`252` 与 `224` 的口径**：两者均为 Kevin **测量近似**，**判负不盯这两个字面**（§26.7）—— 卡宽随 `T121` 六列网格派生（实测锚 ≈225px @1536，见 §25 / master §5.427），卖家栏宽 = **占满卡内宽**（224 ≈ 该内宽实测近似）。若日后要求精确 252：两条路 = 容器加大（≈1624 档，随 gap / 页边距现算）**或改 5 列** —— **已向 Kevin 说明、一句话可改**，本版不裁。
+
+### 26.1 `T122` 条文（写死 · 逐条可判负）
+
+- **a. 卡高恒 `412px`**：`RewardCard` 渲染高度在任何内容 / 任何档位下恒等 412（`getBoundingClientRect().height === 412`）；**不随标题行数 / 描述长度 / 图片有无变化**。落点 = `reward-card.css` 的 `.sf-reward-inner`（flex column + `height:412px` + `overflow:hidden`）。
+- **b. 预览图**：卡内**第一个子元素**、**通栏**（占满卡内宽、无侧 padding）· **固定高 `240px`** · `object-fit:cover; object-position:center`（原图任意比例 ⇒ 居中裁切，不拉伸不变形）· 图源 = `image`（`HomePage.jsx:127` 现取链 = `media_urls[0] > image_url > url_image > PLACEHOLDER_IMAGE` 机械鱼占位 `placeholder-item.webp`），无图 / 占位同规格同裁切；圆角只落卡顶两角（卡体 `overflow-hidden`）。
+- **c. 412 内部分配**：240（图）+ 48（卖家栏，贴卡底）+ 中部 `flex:1`（标题 `clamp-2` + `$` 价格块 + 描述 clamp + 剩余时间行〔条件〕，**溢出隐藏** —— 中部内容不得撑高卡片）。
+- **d. 卖家信息栏**：高 `48px`、占满卡内宽、贴卡底；左 = 头像 `24px` 圆 + 昵称（灰色 · `maskWalletAddress` 星号打码形态）；右 = 信用胶囊（**无图标** · 浅橙底橙字；**具体色值本版不锁** —— Kevin 未给 hex：若引入新色值须走「真源追加 + PROV」四件链，若用既有 Tailwind 橙阶须在质检读数具名登记）。
+- **e. 头像**：`users.avatar_url`（新迁移 `0052_users_avatar_url.sql`：`ALTER TABLE public.users ADD COLUMN IF NOT EXISTS avatar_url text` · 可空 · 零写数据 · `0051` 历史文件不动 + `DO $$` 自检；**无写入口**，头像上传另立单 ⇒ `OPEN-ITEMS B41`）非空 ⇒ 显示真图（cover 圆形）；null/空 ⇒ **恒占位**：灰底圆 + 掩码名首字符。
+
+### 26.2 移除清单（逐项 · 锚 = HEAD `12a94de` 版 `RewardCard.jsx` 行号，行号会漂）
+
+| # | 移除对象 | 改前锚（HEAD 时点） | 现取状态 |
+|---|---|---|---|
+| 1 | 状态徽章行 `statusText` 全态（库存不足 / 可兑换 / 已兑换） | `:96-99`（`getRarityIcon` 调用 + `{reward.statusText}`） | 编制时点工作区已见移除（实现单进行中） |
+| 2 | `getRarityIcon` 整函数（稀有度默认图标 `Gift` 等） | `:44-50`（def；HEAD `:6` import 的 `Gift/Star/Crown` 随之失义，import 清理归实现单） | 同上 |
+| 3 | 卡底「N 人已领取 / 总数」行（含前置 `Gift` 图标） | `:175-176`（`{reward.claimed \|\| 0} {t('common.claimedUnit')}`） | 同上 |
+| 4 | `limited` 限量徽章（与徽章行同行 ⇒ 一并移除） | `:100-103`（`reward.limited && … t('rewardCard.limited')`） | 同上 |
+
+- **连带登记（HomePage）**：`HomePage.jsx:124` 的 `statusText` 映射逻辑**保留**（`p6-miscfix` 面），但卡片**不再消费** ⇒ 登记「**映射保留、消费点移除**」（映射仍进归一对象，非死码、非缺陷）。
+
+### 26.3 保留清单（逐项 · 本单不动面）
+
+| # | 保留对象 | 契约锚 |
+|---|---|---|
+| 1 | 整卡链接（单一 `<a>`/`<Link>` + 无 Router 回落） | `T112` / `T113`（`i18n-batch-b2.test.jsx:154/158/170` 不变） |
+| 2 | `$` 价格块（符号 span 恰 1） | `T110` + `r9-93-points-symbol`（`>$</span>` 恰 1 · `USAGE_FILES` 计数 1 不变） |
+| 3 | 描述 clamp（`line-clamp-3`）+ 标题 `clamp-2` | 现状保留 |
+| 4 | 剩余时间行（条件 `reward.time_end && status==='available'`，含 `t('rewardCard.timeLimited')`） | 现状保留（故 `timeLimited` **非死键**，§26.8） |
+| 5 | CTA 逻辑（`actionLabelKey` 路径逐字不变：`reward-card-claim` / `onClaim` / 三态文案 `insufficient / claimed / claimNow`） | v1.23 勘误 + 组件注释口径 |
+| 6 | 稀有度**装饰光斑**（`opacity-20 blur-xl` 圆） | §22.11 `Q5` 该半句仍有效（§26.6） |
+
+### 26.4 卖家栏数据面（`seller` 对象契约）
+
+- **昵称** = `maskWalletAddress(evm)`：`evm.slice(0,6) + '*'.repeat(6) + evm.slice(-4)`（16 字符定长形态，例 `0x1234******abcd`）。**现取**：`messages-service.ts:623` 现行 = 前 6 + `…`（省略号）+ 后 4 ⇒ **实现单改星号定式**；详情卖家名与首页 feed 卖家名**同源共用**该派生。**route 册 `§41.3` 的「前 6 + `…` + 后 4」字面同步勘误**（旧句保留 + 勘误留痕行，route 册 `:8204` 后）。`users` 表**现取无 nickname 列**（`messages-service.ts:603-604` 既有注释）⇒ 昵称恒为掩码派生、无明文昵称可泄。
+- **头像** = `users.avatar_url`（§26.1e）；null ⇒ 前端占位。
+- **信用档位** = `rating` 按 `ratee_uid` 均星（聚合口径与排序 v1 同源）：`≥4.5 ⇒ excellent「卖家信用优秀」` / `≥3.5 ⇒ good「卖家信用良好」` / `<3.5 ⇒ normal「卖家信用一般」` / **无评分 ⇒ new「新卖家」**。★ **标签档位独立于排序公式**（排序无评分仍按中性 3.0，route 册 `§49.2` 不动）。
+
+### 26.5 后端 / i18n 增量（契约数 · 随实现单同批落地 · 本笔零代码）
+
+- `listBrands`（`database.ts`）每行**加性**增 `seller = {uid, nickname, avatar, credit}` ⇒ **feed 行键 45 → 46**；详情行（`GET /api/prize/:bID`）已有 `seller`（46 键）⇒ `seller` 内加 `credit`、**顶层仍 46**。route 册响应键集登记随实现单同批。
+- i18n 新命名空间 `sellerCredit` 4 键（excellent / good / normal / new，四语同补）：**top 128→129 / flat 1110→1114 / 四语节点 4440→4456**（base = 编制时点现取 128/1110/4440，python 现算）⇒ 触发 i18n 计数前推家族（约 13 文件，清单现取法见 §21.7）。
+- `data-layer.spec` 的 `users.avatar_url` 列登记 = **§40.7**（本批同册落）；迁移 apply 由 Zang（实现单创建文件）。
+
+### 26.6 规范冲突勘误（状态改写式 · 旧句一字未删）
+
+1. **§22.11 `Q5`**（本版已在该行后插勘误行）：「稀有度图标（`getRarityIcon`）…保留」**图标部分作废**，以 §26 为准；**装饰光斑保留**半句仍有效。
+2. **route 册 `§41.3`**（`:8203`）：「前 6 + `…` + 后 4」**作废** ⇒ 现行 = 前 6 + `******`（6 星）+ 后 4（`maskWalletAddress`）；route 册已插勘误留痕行（勘误级不升版）。
+3. **i18n 死键**：见 §26.8 —— **本版不删任何键**（避免键数连锁），死键清理挂 `OPEN-ITEMS B40`。
+
+### 26.7 判负 / AC（7 条 · 质检必带）
+
+| # | 探针 | 期望（违反即判负） |
+|---|---|---|
+| 1 | 任意内容态（长标题 / 长描述 / 有图无图）下卡片渲染高度 | **恒 = 412**（≠412 即判负） |
+| 2 | 预览图元素高度 / 裁切 | **= 240** 且 `object-fit:cover` 居中（高≠240 / 非 cover 即判负） |
+| 3 | 徽章 / 领取行 | 卡内**不得存在** `statusText` 渲染点、「人已领取」文案（`common.claimedUnit`）、`limited` 徽章（任一出现即判负） |
+| 4 | 卖家栏 | **存在**且高 = 48（缺失或 ≠48 即判负） |
+| 5 | 信用档位 | 与夹具评分逐档相符（excellent / good / normal / new 四臂；不符即判负） |
+| 6 | 昵称形态 | `0x******abcd` 掩码形态（出现明文 EVM 全量即判负） |
+| 7 | 图非 cover 裁切 / 拉伸变形 | cover 居中（`object-position:center`；变形即判负） |
+
+### 26.8 i18n 死键清单（现取 · 2026-10-19 · 不删、挂 `B40`）
+
+| 键 | 现取消费点 | 判定 |
+|---|---|---|
+| `rewardCard.limited` | 仅 `RewardCard.jsx` 限量徽章（HEAD `:102`）→ 移除面 | **死**（移除落地后无消费点） |
+| `common.claimedUnit` | 仅 `RewardCard.jsx` 领取行（HEAD `:176`）→ 移除面 | **死**（同上） |
+| `rewardCard.insufficient` / `claimNow` | CTA 三态（HEAD `:200/:203`）→ **保留面** | **活**（派单原列五键，现取复核留活） |
+| `common.claimed` | CTA 三态（HEAD `:202`）+ `TaskPage.jsx:131` → 保留面 | **活**（他处仍消费，现取已核） |
+| `rewardCard.timeLimited` | 剩余时间行（HEAD `:169`）→ **保留面** | **活**（若后续裁「剩余时间行」移除再入死键清单） |
+| `homePage.rewardOutOfStock` | — | **状态不变**：F13（2026-10-12）已删、四语现取无此键，不涉本单 |
+
+### 26.9 落点约束 / 断言影响 / 现取自证 / 未做
+
+- **零新主题 token / 零 `STRUCT` / 零 PROV 改指 / `style-preview.html` 零改动**：412/240/48/24 属几何常量，承 §24「颜色以外不进主题层」先例落 `reward-card.css`；信用胶囊**不锁色值**（§26.1d）—— 若实现单引入新颜色值才触发真源四件链（另记）。
+- **断言影响（现取点名）**：`r9-93-points-symbol`（`>$</span>` 恰 1 / `USAGE_FILES` 计数 1）与 `i18n-batch-b2`（无 Router 裸渲染不抛错 / 无 `<a href>`）**零改锚**；引用 `statusText` / `claimedUnit` 渲染的测试（现取 `grep -rln 'statusText\|claimedUnit' frontend/src/test/unit` = `i18n-batch-b2` / `i18n-batch-b3` / `r9-93` / `p6-miscfix` / `r9-90`）属**改锚面**（实现单同批前推）；i18n 计数前推家族（`sellerCredit` +4 键）随实现单。
+- **现取自证（编制时点 = 2026-10-19 · HEAD `12a94de`）**：i18n base top **128** / flat **1110** / 四语节点 **4440**（python 现算）；`sellerCredit` 四语 0 命中；backend `avatar` 零命中（列未建，`0052` = 契约号）；`reward-card.css` 48 行且尚无 412/240 常量（实现进行中）；工作区 `M frontend/src/components/reward/RewardCard.jsx` = 实现单未提交面（非本单写面）。
+- **未做 / 诚实边界**：本笔零代码、零迁移落盘（`0052` 文件由实现单创建、apply 由 Zang）；§26.7 的 7 条 AC **一条未跑**；`B40`（死键清理）与 `B41`（头像上传能力待立单）挂 `OPEN-ITEMS`；信用胶囊色值未锁（待实现单读数或 Kevin 给色值）。SPEC-NOTE = `ops/card-resize/SPEC-NOTE.md`。
