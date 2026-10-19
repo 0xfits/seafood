@@ -2157,6 +2157,49 @@ const loadI18nIndex = async (entityType: string, entityIds: string[]): Promise<I
   return index;
 };
 
+// ============================================================================
+// 媒体上传存储面（route-layer.spec v2.39 §48 / data-layer.spec v0.34 §40 · 迁移 0050）：
+// 唯一写路径 = `createMedia`（POST /api/media 交入；内容寻址去重键 UNIQUE(sha256, size_bytes)
+// 承重）· 唯一读路径 = `getMediaById`（公开读口 GET /api/media/:id 交入）。本表无更新 / 无删除口
+// （一期 §40.2；清理策略 = B33 挂账）。bytea 以 hex 字符串 + 服务端 `decode(…,'hex')` 绑定
+// （驱动无关：neon http / ws 两路径都收纯字符串参数，不经 Buffer 参数序列化路径）。
+// ============================================================================
+
+export interface MediaUploadRecord {
+  media_id: number;
+  sha256: string;
+  content_type: string;
+  size_bytes: number;
+  owner_uid: number;
+  time_created: string;
+}
+
+export interface MediaBinaryRecord {
+  media_id: number;
+  content_type: string;
+  bytes: Buffer;
+}
+
+/** bytea 归一化：pg 二进制路径回 Buffer / Uint8Array；文本路径回 `\x<hex>`（pgwire 文本格式）。 */
+const normalizeBytea = (value: unknown): Buffer => {
+  if (Buffer.isBuffer(value)) return value;
+  if (value instanceof Uint8Array) return Buffer.from(value);
+  if (typeof value === 'string') {
+    const hex = value.startsWith('\\x') || value.startsWith('\\X') ? value.slice(2) : value;
+    if (hex.length % 2 === 0 && /^[0-9a-fA-F]*$/.test(hex)) return Buffer.from(hex, 'hex');
+  }
+  throw new Error('media.bytes column did not return binary data');
+};
+
+const normalizeMediaUploadRow = (row: RawRow): MediaUploadRecord => ({
+  media_id: toNumberValue(getValue(row, 'media_id')),
+  sha256: String(getValue(row, 'sha256')),
+  content_type: String(getValue(row, 'content_type')),
+  size_bytes: toNumberValue(getValue(row, 'size_bytes')),
+  owner_uid: toNumberValue(getValue(row, 'owner_uid')),
+  time_created: String(getValue(row, 'time_created')),
+});
+
 export class DatabaseService {
   static async getNextUserId(): Promise<number> {
     const sql = getSql();
@@ -6843,6 +6886,73 @@ export class DatabaseService {
     }
 
     return normalizePrizeItem(row);
+  }
+
+  /**
+   * 媒体上传（POST /api/media · route-layer.spec v2.39 §48.2 / data-layer.spec v0.34 §40 · 迁移 0050）：
+   * 内容寻址去重的唯一权威 = `media` 表级 `UNIQUE(sha256, size_bytes)`（0050 承重墙）。单语句三态：
+   *   · 'inserted'  —— 新落一行；
+   *   · 'existing'  —— 撞去重键 ⇒ 取既有行（同字节重传不落第二行，同 createFavoriteRow 手法；
+   *     同一语句内各部分共用同一快照 ⇒ 两分支不会重复出 row）。
+   * 路由侧 fail-loud（content_type 闭集 / base64 严格解码 / ≤2MiB / 魔数一致）先于本函数；
+   * DB 侧 CHECK（content_type 闭集 / size_bytes ∈ (0, 2MiB]）为第二层兜底（§40.1 双层闸口径）。
+   */
+  static async createMedia(input: {
+    sha256: string;
+    contentType: string;
+    bytes: Buffer;
+    sizeBytes: number;
+    ownerUid: number;
+  }): Promise<{ outcome: 'inserted' | 'existing'; row: MediaUploadRecord }> {
+    const sql = getSql();
+    const rows = extractRows(await sql`
+      WITH ins AS (
+        INSERT INTO public.media (sha256, content_type, bytes, size_bytes, owner_uid)
+        VALUES (${input.sha256}::char(64), ${input.contentType}::text, decode(${input.bytes.toString('hex')}, 'hex'),
+                ${input.sizeBytes}::int, ${input.ownerUid}::bigint)
+        ON CONFLICT (sha256, size_bytes) DO NOTHING
+        RETURNING media_id, sha256, content_type, size_bytes, owner_uid, time_created, 'inserted'::text AS outcome
+      )
+      SELECT i.media_id, i.sha256, i.content_type, i.size_bytes, i.owner_uid, i.time_created, i.outcome
+      FROM ins AS i
+      UNION ALL
+      SELECT e.media_id, e.sha256, e.content_type, e.size_bytes, e.owner_uid, e.time_created, 'existing'::text AS outcome
+      FROM public.media AS e
+      WHERE e.sha256 = ${input.sha256}::char(64)
+        AND e.size_bytes = ${input.sizeBytes}::int
+    `);
+    const row = rows[0];
+    if (!row) {
+      throw new Error('media insert returned no row');
+    }
+    const outcome = String(getValue(row, 'outcome'));
+    return {
+      outcome: outcome === 'existing' ? 'existing' : 'inserted',
+      row: normalizeMediaUploadRow(row),
+    };
+  }
+
+  /**
+   * 媒体读取（GET /api/media/:id · route-layer.spec v2.39 §48.3）：公开读口，只取二进制与
+   * content_type；miss ⇒ null（路由层落 404 R107 `sendRefNotFound`）。只读零写。
+   */
+  static async getMediaById(mediaId: number): Promise<MediaBinaryRecord | null> {
+    const sql = getSql();
+    const rows = extractRows(await sql`
+      SELECT media_id, content_type, bytes
+      FROM public.media
+      WHERE media_id = ${mediaId}::bigint
+      LIMIT 1
+    `);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+    return {
+      media_id: toNumberValue(getValue(row, 'media_id')),
+      content_type: String(getValue(row, 'content_type')),
+      bytes: normalizeBytea(getValue(row, 'bytes')),
+    };
   }
 
   static buildAdminAccess(

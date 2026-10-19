@@ -128,7 +128,10 @@ app.use(helmet());
 // P9-AUTH-RENEWAL：续期走**响应头** `X-Session-Token`（零新路由）。同源生产 / 本地 vite 代理都不需要
 // expose，但跨源场景（真机走 LAN 反代之外的直连、外部调用方）只有显式 expose 才能读到它 ⇒ 零成本加上。
 app.use(cors({ exposedHeaders: ['X-Session-Token'] }));
-app.use(express.json());
+// 媒体上传（route-layer.spec v2.39 §48.2）：`data_base64` = 解码后 ≤2MiB 的 base64 文本
+// （2MiB ≈ 2.80MB base64 + JSON 信封）⇒ 传输层上限 4mb。缺省 100kb 连前端 ≤300KB 的正常
+// 压缩图（≈405KB 请求体）都会 413，>2MiB 的业务闸（400 MEDIA_SIZE_EXCEEDED）在 handler 内判。
+app.use(express.json({ limit: '4mb' }));
 
 /**
  * P6-TR-1c-A：写路径翻译挂载 —— **前台**确保 pending 行存在（读侧 `i18n_status` 立即有据可依），
@@ -3621,6 +3624,133 @@ app.post('/api/telegram/webhook', async (req, res) => {
     console.error('[telegram.webhook] internal error (responded 200 per Telegram retry semantics):',
       error instanceof Error ? error.message : 'ERROR');
     return res.status(200).json({});
+  }
+});
+
+// ============================================================================
+// 媒体上传两口（route-layer.spec v2.39 §48 / data-layer.spec v0.34 §40 · 表 public.media = 0050）：
+//   · POST /api/media —— requireActor（§48.4 #1 无凭证 ⇒ 401）；content_type 三值闭集；base64
+//     严格解码（非法 ⇒ 400）；解码后 ≤2MiB（超 ⇒ 400）；魔数与声明类型一致（fail-loud，
+//     §48.2「魔数校验不通过不得入库」）；sha256 去重命中 ⇒ 返既有 media_id + deduplicated:true。
+//   · GET /api/media/:id —— 公开无闸（§48.3）；命中 200 + Content-Type + immutable 缓存；miss /
+//     非数字 id ⇒ 404 走既有 sendRefNotFound（R107 统一 404 口径，承 §48.3 冻结）。
+//   · 基础设施异常一律走既有 sendInfraMapped（R107 · 503 族，§48.2「失败响应」行）。
+//   · MEDIA_* 错误码 = 本域 400 族，集中定义于下（i18n 指针域 `media.err.*`；**不进**
+//     ledger-errors.ts 的 33 码账本闭集 —— 媒体面零资金语义；400 具体借码 = §48.2 归实现单
+//     按既有体例取，随质检回写）。
+// ============================================================================
+
+/** POST 400 族错误码（本域集中定义 · 语义见逐条注释；不触碰 ledger-errors.ts 账本码闭集） */
+const MEDIA_ERROR_CODES = {
+  /** content_type 缺失 / 非字符串 / 超三值闭集 {image/webp, image/jpeg, image/png} ⇒ 400 */
+  MEDIA_CONTENT_TYPE_INVALID: 'media content_type must be one of image/webp, image/jpeg, image/png',
+  /** data_base64 缺失 / 非字符串 / 非 RFC 4648 严格 base64（字符集 · 4 字符组 · padding）/ 解码为空 ⇒ 400 */
+  MEDIA_BASE64_INVALID: 'media data_base64 must be a non-empty strict base64 string',
+  /** 解码后字节数 > 2MiB（= 2,097,152，§48.2 体积闸；0050 的 DB CHECK 同构兜底）⇒ 400 */
+  MEDIA_SIZE_EXCEEDED: 'media payload exceeds 2MiB after base64 decode',
+  /** 解码字节魔数与声明 content_type 不一致（webp = RIFF….WEBP / jpeg = FF D8 FF / png = 89 50 4E 47）⇒ 400 */
+  MEDIA_MAGIC_MISMATCH: 'media bytes do not match the declared content_type',
+} as const;
+
+type MediaErrorCode = keyof typeof MEDIA_ERROR_CODES;
+
+const MEDIA_CONTENT_TYPES = ['image/webp', 'image/jpeg', 'image/png'] as const;
+type MediaContentType = (typeof MEDIA_CONTENT_TYPES)[number];
+
+/** R107 形状错误体（同 ledgerErrorBody 形状；i18n 指针域 `media.err.<CODE>`，四语键随前端单补） */
+const sendMediaBadRequest = (res: Response, code: MediaErrorCode, details: Record<string, unknown>) =>
+  res.status(400).json({
+    error: {
+      code,
+      message: MEDIA_ERROR_CODES[code],
+      i18n_key: `media.err.${code}`,
+      details,
+    },
+  });
+
+/** 魔数判据（fail-loud，§48.2）：webp = RIFF….WEBP（12 字节头）/ jpeg = FF D8 FF / png = 89 50 4E 47 */
+const MEDIA_MAGIC_CHECKS: Record<MediaContentType, (bytes: Buffer) => boolean> = {
+  'image/webp': (b) => b.length >= 12 && b.subarray(0, 4).toString('latin1') === 'RIFF' && b.subarray(8, 12).toString('latin1') === 'WEBP',
+  'image/jpeg': (b) => b.length >= 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff,
+  'image/png': (b) => b.length >= 4 && b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47,
+};
+
+/** RFC 4648 严格 base64：字符集闭集 + 恰 4 字符组 + padding 恰法（Buffer.from(…, 'base64') 是宽松的 ⇒ 必须先过本闸） */
+const STRICT_BASE64_RE = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
+const MEDIA_MAX_BYTES = 2 * 1024 * 1024; // 2MiB = 2,097,152（§48.2 / §40.1 同构）
+
+app.post('/api/media', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  try {
+    const body = (req.body || {}) as Record<string, unknown>;
+
+    // ① content_type 三值闭集（§48.4 #3：超闭集 ⇒ 400）
+    const contentType = typeof body.content_type === 'string' ? body.content_type : '';
+    if (!(MEDIA_CONTENT_TYPES as readonly string[]).includes(contentType)) {
+      return sendMediaBadRequest(res, 'MEDIA_CONTENT_TYPE_INVALID', { content_type: contentType || null });
+    }
+
+    // ② base64 严格解码（非法 ⇒ 400；解码为空同样非法）
+    const dataBase64 = typeof body.data_base64 === 'string' ? body.data_base64 : '';
+    if (!dataBase64 || !STRICT_BASE64_RE.test(dataBase64)) {
+      return sendMediaBadRequest(res, 'MEDIA_BASE64_INVALID', { data_base64_chars: dataBase64.length });
+    }
+    const bytes = Buffer.from(dataBase64, 'base64');
+    if (bytes.length === 0) {
+      return sendMediaBadRequest(res, 'MEDIA_BASE64_INVALID', { data_base64_chars: dataBase64.length });
+    }
+
+    // ③ 体积闸：解码后 ≤2MiB（§48.4 #2 超 ⇒ 400；0050 的 size_bytes CHECK 同构兜底）
+    if (bytes.length > MEDIA_MAX_BYTES) {
+      return sendMediaBadRequest(res, 'MEDIA_SIZE_EXCEEDED', { decoded_bytes: bytes.length, max_bytes: MEDIA_MAX_BYTES });
+    }
+
+    // ④ 魔数 fail-loud：声明类型与实际字节不一致 ⇒ 400（§48.2「魔数校验不通过不得入库」）
+    if (!MEDIA_MAGIC_CHECKS[contentType as MediaContentType](bytes)) {
+      return sendMediaBadRequest(res, 'MEDIA_MAGIC_MISMATCH', { content_type: contentType, decoded_bytes: bytes.length });
+    }
+
+    // ⑤ 入库（sha256 去重：同字节重传返既有 id，§48.4 #6；size_bytes = 解码后字节数）
+    const sha256 = createHash('sha256').update(bytes).digest('hex');
+    const result = await DatabaseService.createMedia({
+      sha256,
+      contentType,
+      bytes,
+      sizeBytes: bytes.length,
+      ownerUid: actor.user.uID,
+    });
+
+    return sendSuccess(res, {
+      url: `/api/media/${result.row.media_id}`,
+      media_id: result.row.media_id,
+      sha256: result.row.sha256,
+      size_bytes: result.row.size_bytes,
+      deduplicated: result.outcome === 'existing',
+    });
+  } catch (error) {
+    return sendInfraMapped(res, 'media.upload', error);
+  }
+});
+
+app.get('/api/media/:id', async (req, res) => {
+  const idRaw = String(req.params.id ?? '');
+  // §48.3：非数字路径段 / miss ⇒ R107 统一 404（既有 sendRefNotFound；承 §3 detail-miss 口径）
+  if (!/^[1-9]\d*$/.test(idRaw)) {
+    return sendRefNotFound(res, 'media', idRaw, 'media_not_found');
+  }
+  try {
+    const media = await DatabaseService.getMediaById(Number(idRaw));
+    if (!media) {
+      return sendRefNotFound(res, 'media', idRaw, 'media_not_found');
+    }
+    // 内容寻址 ⇒ 不可变缓存语义（§48.3 冻结字面：public, max-age=31536000, immutable）
+    res.setHeader('Content-Type', media.content_type);
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    return res.status(200).send(media.bytes);
+  } catch (error) {
+    return sendInfraMapped(res, 'media.get', error);
   }
 });
 

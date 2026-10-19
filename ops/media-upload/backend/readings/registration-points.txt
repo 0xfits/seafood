@@ -1,0 +1,9 @@
+media-upload 后端 · 注册点读数（开工现取 vs 落盘后）
+
+开工（ff493d6 · 改前）：
+  grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts = 108 = get 48 / post 56 / put 0 / delete 3 / patch 1
+
+落盘后（本单工作区）：= 110 = get 49 / post 57 / put 0 / delete 3 / patch 1
+  目标态（route-layer.spec v2.39 §48.5）= get 49 / post 57 / put 0 / delete 3 / patch 1 ⇒ 达标
+
+两数来源：开工/收尾各一次 grep 逐 verb 计数（行首零缩进口径，与 p7b-03 AC10-2 同口径）。
