@@ -1,0 +1,46 @@
+{
+  "taken_at": "2026-10-19T05:26:35.898Z",
+  "fixture": {
+    "idempotency_key": "feqa20261019:f1513c7e-22cc-49e7-97f6-0c02056058b9",
+    "rating_id": 404
+  },
+  "cleanup_method": "single DO $$ block: DISABLE TRIGGER trg_rating_append_only / trg_rating_no_truncate -> DELETE WHERE idempotency_key LIKE feqa20261019:% -> ENABLE both",
+  "rating_count_before": 1,
+  "fixture_rows_before": 1,
+  "rating_count_after": 0,
+  "fixture_rows_after": 0,
+  "triggers_before": [
+    {
+      "tgname": "trg_rating_append_only",
+      "tgenabled": "O"
+    },
+    {
+      "tgname": "trg_rating_no_truncate",
+      "tgenabled": "O"
+    }
+  ],
+  "triggers_after": [
+    {
+      "tgname": "trg_rating_append_only",
+      "tgenabled": "O"
+    },
+    {
+      "tgname": "trg_rating_no_truncate",
+      "tgenabled": "O"
+    }
+  ],
+  "guard_after_cleanup": {
+    "delete_statement_allowed": true,
+    "note": "no rows matched ⇒ trigger not exercised"
+  },
+  "checks": {
+    "count_before_1": true,
+    "fixture_before_1": true,
+    "count_after_0": true,
+    "fixture_after_0": true,
+    "trigger_append_only_enabled_O": true,
+    "trigger_no_truncate_enabled_O": true,
+    "triggers_restored_identical": true
+  },
+  "verdict": "PASS"
+}

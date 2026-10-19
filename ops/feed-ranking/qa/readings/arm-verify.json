@@ -1,0 +1,295 @@
+{
+  "taken_at": "2026-10-19T05:26:20.721Z",
+  "arm_seller": 970101,
+  "arm_listing_count": 12,
+  "max_arm_deviation_from_0_08": 1.3877787807814457e-17,
+  "max_non_arm_deviation_from_0": 2.7755575615628914e-17,
+  "arm_sample": [
+    {
+      "id": 1,
+      "seller": 970101,
+      "recency": 0.048450686325011,
+      "stars_actual": 5,
+      "score_actual": 0.23876054906000882,
+      "score_counterfactual_neutral": 0.1587605490600088,
+      "delta": 0.08000000000000002
+    },
+    {
+      "id": 2,
+      "seller": 970101,
+      "recency": 0.04845071661243368,
+      "stars_actual": 5,
+      "score_actual": 0.23876057328994696,
+      "score_counterfactual_neutral": 0.15876057328994694,
+      "delta": 0.08000000000000002
+    },
+    {
+      "id": 3,
+      "seller": 970101,
+      "recency": 0.04845073186290949,
+      "stars_actual": 5,
+      "score_actual": 0.2387605854903276,
+      "score_counterfactual_neutral": 0.1587605854903276,
+      "delta": 0.08000000000000002
+    }
+  ],
+  "other_sample": [
+    {
+      "id": 14,
+      "seller": 7,
+      "recency": 0.04889436812466094,
+      "stars_actual": 3,
+      "score_actual": 0.15911549449972875,
+      "score_counterfactual_neutral": 0.15911549449972875,
+      "delta": 0
+    },
+    {
+      "id": 15,
+      "seller": 7,
+      "recency": 0.048894373669220136,
+      "stars_actual": 3,
+      "score_actual": 0.1591154989353761,
+      "score_counterfactual_neutral": 0.1591154989353761,
+      "delta": 0
+    },
+    {
+      "id": 13,
+      "seller": 7,
+      "recency": 0.04889436169268166,
+      "stars_actual": 3,
+      "score_actual": 0.15911548935414532,
+      "score_counterfactual_neutral": 0.15911548935414532,
+      "delta": 0
+    }
+  ],
+  "order_baseline": [
+    76,
+    71,
+    24,
+    23,
+    22,
+    21,
+    20,
+    19,
+    18,
+    17,
+    16,
+    15,
+    14,
+    13,
+    12,
+    11,
+    10,
+    9,
+    8,
+    7,
+    6,
+    5,
+    4,
+    3,
+    2,
+    1
+  ],
+  "order_with_rating": [
+    76,
+    71,
+    12,
+    11,
+    10,
+    9,
+    8,
+    7,
+    6,
+    5,
+    4,
+    3,
+    2,
+    1,
+    24,
+    23,
+    22,
+    21,
+    20,
+    19,
+    18,
+    17,
+    16,
+    15,
+    14,
+    13
+  ],
+  "api_order_with_rating": [
+    76,
+    71,
+    12,
+    11,
+    10,
+    9,
+    8,
+    7,
+    6,
+    5,
+    4,
+    3,
+    2,
+    1,
+    24,
+    23,
+    22,
+    21,
+    20,
+    19,
+    18,
+    17,
+    16,
+    15,
+    14,
+    13
+  ],
+  "arm_ranks_before": [
+    {
+      "id": 12,
+      "rank": 15
+    },
+    {
+      "id": 11,
+      "rank": 16
+    },
+    {
+      "id": 10,
+      "rank": 17
+    },
+    {
+      "id": 9,
+      "rank": 18
+    },
+    {
+      "id": 8,
+      "rank": 19
+    },
+    {
+      "id": 7,
+      "rank": 20
+    },
+    {
+      "id": 6,
+      "rank": 21
+    },
+    {
+      "id": 5,
+      "rank": 22
+    },
+    {
+      "id": 4,
+      "rank": 23
+    },
+    {
+      "id": 3,
+      "rank": 24
+    },
+    {
+      "id": 2,
+      "rank": 25
+    },
+    {
+      "id": 1,
+      "rank": 26
+    }
+  ],
+  "arm_ranks_after": [
+    {
+      "id": 12,
+      "rank": 3
+    },
+    {
+      "id": 11,
+      "rank": 4
+    },
+    {
+      "id": 10,
+      "rank": 5
+    },
+    {
+      "id": 9,
+      "rank": 6
+    },
+    {
+      "id": 8,
+      "rank": 7
+    },
+    {
+      "id": 7,
+      "rank": 8
+    },
+    {
+      "id": 6,
+      "rank": 9
+    },
+    {
+      "id": 5,
+      "rank": 10
+    },
+    {
+      "id": 4,
+      "rank": 11
+    },
+    {
+      "id": 3,
+      "rank": 12
+    },
+    {
+      "id": 2,
+      "rank": 13
+    },
+    {
+      "id": 1,
+      "rank": 14
+    }
+  ],
+  "other_relative_before": [
+    76,
+    71,
+    24,
+    23,
+    22,
+    21,
+    20,
+    19,
+    18,
+    17,
+    16,
+    15,
+    14,
+    13
+  ],
+  "other_relative_after": [
+    76,
+    71,
+    24,
+    23,
+    22,
+    21,
+    20,
+    19,
+    18,
+    17,
+    16,
+    15,
+    14,
+    13
+  ],
+  "checks": {
+    "rating_row_present_once": true,
+    "arm_rows_count_12": true,
+    "arm_delta_exactly_0_08_within_1e_12": true,
+    "non_arm_delta_exactly_0_within_1e_12": true,
+    "api_order_equals_oracle_with_rating": true,
+    "order_actually_changed_vs_baseline": true,
+    "other_rows_relative_order_unchanged": true,
+    "arm_rows_relative_order_unchanged": true,
+    "arm_block_contiguous": true,
+    "arm_block_moved_into_top3_slot": true,
+    "score_not_in_api_rows": true
+  },
+  "verdict": "PASS"
+}

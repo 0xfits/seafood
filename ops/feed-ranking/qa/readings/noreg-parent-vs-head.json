@@ -1,0 +1,50 @@
+{
+  "taken_at": "2026-10-19T05:27:54.653Z",
+  "parent_commit": "c8a62f7 (HEAD~1)",
+  "head_commit": "0fe454a",
+  "parent_home_ids": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "head_home_ids": [
+    76,
+    71,
+    24,
+    23,
+    22,
+    21,
+    20,
+    19
+  ],
+  "home_order_changed": true,
+  "list_row_keyset_identical": true,
+  "list_row_key_count": {
+    "parent": 45,
+    "head": 45
+  },
+  "list_row_score_present": {
+    "parent": false,
+    "head": false
+  },
+  "detail_row_keyset_identical": true,
+  "detail_row_key_count": {
+    "parent": 46,
+    "head": 46
+  },
+  "detail_row_score_present": {
+    "parent": false,
+    "head": false
+  },
+  "detail_extra_key": "seller (F19 · index.ts:681 sendSuccess({...prize, seller}) — 与本单无关，父版即 46)",
+  "different_list_keys_p": [],
+  "different_list_keys_n": [],
+  "detail_keys_identical_diff_p": [],
+  "detail_keys_diff_n": [],
+  "verdict": "PASS"
+}

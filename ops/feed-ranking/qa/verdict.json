@@ -1,0 +1,65 @@
+{
+  "task": "综合排序 v1（0fe454a）独立质检",
+  "qa": "Neng 独立质检（迭代上限未写收尾件）⇒ verdict/REPORT 由 Zang 依盘上读数手工聚合，断言未改、失败项未删",
+  "head": "10ef6b1",
+  "summary": {
+    "PASS": 6,
+    "FAIL": 0,
+    "NOT_MEASURED": 0
+  },
+  "acs": [
+    {
+      "id": "AC1",
+      "name": "首条=最新 + 确定性",
+      "verdict": "PASS",
+      "reading": "readings/api-baseline.json, readings/api-post-cleanup.json",
+      "note": "dev /api/home 顺序 76,71,24,23,22,21,20,19（修前为 1..8）；/api/prize/all?limit=60 全 26 行同序；间隔 1.1s 两次逐位相同；两读口前 8 逐位相同",
+      "falsifier": "首条非最新或两次请求顺序不同即判负"
+    },
+    {
+      "id": "AC2",
+      "name": "公式 oracle 对拍 + score 不泄漏",
+      "verdict": "PASS",
+      "reading": "readings/oracle-*.json, readings/noreg-parent-vs-head.json",
+      "note": "自写 SQL oracle（CTE+LEFT JOIN，不引用实现代码）26 行 score 与全序与 API 逐位相等；响应行键 45、score 零命中；父版 c8a62f7 独立 worktree+5789 实测改前 [1..8] → 改后 [76,...] ⇒ 根因修复坐实",
+      "falsifier": "任一位顺序不符或 score 出现在响应行即判负"
+    },
+    {
+      "id": "AC3",
+      "name": "评分权重判负臂",
+      "verdict": "PASS",
+      "reading": "readings/*-with-rating.json",
+      "note": "插 1 条 5 星（卖家 970101）⇒ score 精确 +0.08（最大偏差 1.4e-17）；该卖家 12 件从 rank 15–26 升到 3–14 连续块，其余相对序不变；rating append-only 直删被 P0001 拒（自证）；DO 块 disable→delete→enable 回收 1→0、触发器 O；回收后顺序与基线逐位同",
+      "falsifier": "分数增量非 +0.08 或相对序错乱即判负"
+    },
+    {
+      "id": "AC4",
+      "name": "分页语义",
+      "verdict": "PASS",
+      "reading": "readings/pagination-*.json",
+      "note": "skip0/8 与 skip8/8 交集 ∅、并集 16、页内无重；limit=1 = 全序首位 76",
+      "falsifier": "交集非空或重/漏即判负"
+    },
+    {
+      "id": "AC5",
+      "name": "门套（干净 worktree）",
+      "verdict": "PASS",
+      "reading": "readings/gate-head-*.log",
+      "note": "build exit 0；test:unit 60 文件/577 例全过；backend tsc --noEmit exit 0；p7b-03 37/37 regs=110",
+      "falsifier": "任一门红或 regs≠110 即判负"
+    },
+    {
+      "id": "AC6",
+      "name": "不回归",
+      "verdict": "PASS",
+      "reading": "readings/ui-390-head.json",
+      "note": "/api/prize/1 父版与现版键集逐字相同（**46 键**，含既有 seller；派单写 45 为笔误，已更正）；/api/currencies 2 行；/api/media/999 404；390 档 #root 非空、8 卡、首卡 VPN/href /item/76、零异常",
+      "falsifier": "键集变化或页面异常即判负"
+    }
+  ],
+  "ruler_notes": [
+    "派单 AC6 写「详情行 45 键」有误：现盘 46 键（45 + F19 seller），父版同样 46 ⇒ 非回归，以现取为准",
+    "并行 WIP（分账单未提交半成品）曾令 dev 5787 首页白屏（useRef is not defined），质检已把 390 判据改到干净 worktree；该 FAIL 读数保留为 readings/ui-390-home-dev5787-dirtywc.json（登记噪声，非产品缺陷）",
+    "5788 当时仍跑排序版代码（未含 status='listed' 过滤）⇒ 质检读数为 26 行口径"
+  ]
+}

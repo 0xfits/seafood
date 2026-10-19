@@ -1,0 +1,50 @@
+{
+  "taken_at": "2026-10-19T05:29:29.785Z",
+  "url": "http://localhost:5790/",
+  "viewport": {
+    "width": 390,
+    "height": 844,
+    "isMobile": true,
+    "hasTouch": true
+  },
+  "api_first": {
+    "bID": 76,
+    "name": "VPN"
+  },
+  "observed": {
+    "rootInnerHtmlLen": 46121,
+    "rootTextLen": 1368,
+    "cardCount": 8,
+    "firstCardHref": "/item/76",
+    "firstCardTitleText": "VPN",
+    "firstCardFullText": "库存不足\nVPN\n$\n2\n\n一个月的使用期，速度非常棒！\n\nVPN\n0\n0 人已领取\n0",
+    "cardTitles": [
+      "VPN",
+      "sf14qa 测试商品（质检夹具·勿购）",
+      "qa7b fixture listing",
+      "p7b fixture listing",
+      "海鲜礼盒TR1C测试：虾蟹双拼-tr1c01015659",
+      "海鲜礼盒TR1C测试：虾蟹双拼-tr1c01015554",
+      "海鲜礼盒TR1C测试：虾蟹双拼-tr1c01015515",
+      "海鲜礼盒测试丙：虾蟹双拼"
+    ],
+    "bodyIncludesApiTitle": true,
+    "docScrollWidthDelta": 0,
+    "viewport": {
+      "w": 390,
+      "h": 844
+    }
+  },
+  "page_errors": [],
+  "console_errors": [],
+  "checks": {
+    "http_200": true,
+    "root_not_empty": true,
+    "cards_present": true,
+    "first_card_is_api_first_listing": true,
+    "api_first_title_found_on_page": true,
+    "first_card_href_points_to_item_detail": true,
+    "zero_pageerror": true
+  },
+  "verdict": "PASS"
+}

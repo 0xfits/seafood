@@ -1,0 +1,321 @@
+
+> jinli-frontend@0.0.0 test:unit
+> vitest run src/test/unit
+
+
+ RUN  v0.34.6 /Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend
+
+ ✓ src/test/unit/ui-barrel-exports.test.js  (5 tests) 564ms
+stderr | src/test/unit/dashboard-page.test.jsx > DashboardPage > reloads pending review endpoints after approving a submission
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+stderr | src/test/unit/i18n-batch-b4b.test.jsx > P6-I18N-LIT-B4b · en 档渲染英文（后台剩余 5 个面） > PermissionsManagement（en 档）：页头 / 说明 / 徽标 / 成员区 / 兜底描述 全走英文
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+stderr | src/test/unit/tg-bind-qr.test.jsx > tg-bind-v2 · 扫码主路径（QR + 打开链接 + 短码 confirm） > ① 有 bot_username ⇒ 扫码面板渲染：QR SVG + t.me 链接（新开、无 start 载荷）+ 输入 + 确认；旧长码路径折叠为次入口
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+stderr | src/test/unit/theme-shell-isomorphism.test.jsx > 应用外壳 · 骨架同构（横竖屏同一套 DOM） > 区域顺序恒定：shell → 顶栏 → 路由容器 → 页脚 → 底部 tab
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+stderr | src/test/unit/theme-shell-isomorphism.test.jsx > 应用外壳 · 骨架同构（横竖屏同一套 DOM） > 顶栏与底栏「分家」：底栏=nav 五项（含 home）· 桌面左 nav=Header menuItems 三项（各自独立断言）
+Failed to load user points: TypeError: Failed to parse URL from /api/user/asset/1
+[90m    at node:internal/deps/undici/undici:14976:13[39m
+    at loadUserPoints [90m(/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend/[39msrc/components/Header.jsx:78:26[90m)[39m
+    at loadSession [90m(/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend/[39msrc/components/Header.jsx:64:7[90m)[39m {
+  [cause]: TypeError: Invalid URL: /api/user/asset/1
+      at new URLImpl (/Users/kevin/bistro/seafood/frontend/node_modules/[4mjsdom[24m/node_modules/[4mwhatwg-url[24m/lib/URL-impl.js:20:13)
+      at Object.exports.setup (/Users/kevin/bistro/seafood/frontend/node_modules/[4mjsdom[24m/node_modules/[4mwhatwg-url[24m/lib/URL.js:54:12)
+      at new URL (/Users/kevin/bistro/seafood/frontend/node_modules/[4mjsdom[24m/node_modules/[4mwhatwg-url[24m/lib/URL.js:115:22)
+  [90m    at new Request (node:internal/deps/undici/undici:9804:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:10533:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:14974:10)[39m
+  [90m    at fetch (node:internal/bootstrap/web/exposed-window-or-worker:72:12)[39m
+      at loadUserPoints [90m(/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend/[39msrc/components/Header.jsx:78:32[90m)[39m
+      at loadSession [90m(/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend/[39msrc/components/Header.jsx:64:13[90m)[39m
+}
+
+stderr | src/test/unit/theme-shell-isomorphism.test.jsx > 应用外壳 · 骨架同构（横竖屏同一套 DOM） > 底栏恒 5 格（含未登录；/profile 保护由路由层 ProtectedRoute 承担 —— 2026-10-19 缺陷单改锚）
+Failed to load user points: TypeError: Failed to parse URL from /api/user/asset/1
+[90m    at node:internal/deps/undici/undici:14976:13[39m
+    at loadUserPoints [90m(/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend/[39msrc/components/Header.jsx:78:26[90m)[39m
+    at loadSession [90m(/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend/[39msrc/components/Header.jsx:64:7[90m)[39m {
+  [cause]: TypeError: Invalid URL: /api/user/asset/1
+      at new URLImpl (/Users/kevin/bistro/seafood/frontend/node_modules/[4mjsdom[24m/node_modules/[4mwhatwg-url[24m/lib/URL-impl.js:20:13)
+      at Object.exports.setup (/Users/kevin/bistro/seafood/frontend/node_modules/[4mjsdom[24m/node_modules/[4mwhatwg-url[24m/lib/URL.js:54:12)
+      at new URL (/Users/kevin/bistro/seafood/frontend/node_modules/[4mjsdom[24m/node_modules/[4mwhatwg-url[24m/lib/URL.js:115:22)
+  [90m    at new Request (node:internal/deps/undici/undici:9804:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:10533:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:14974:10)[39m
+  [90m    at fetch (node:internal/bootstrap/web/exposed-window-or-worker:72:12)[39m
+      at loadUserPoints [90m(/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend/[39msrc/components/Header.jsx:78:32[90m)[39m
+      at loadSession [90m(/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend/[39msrc/components/Header.jsx:64:13[90m)[39m
+}
+
+stderr | src/test/unit/dashboard-page.test.jsx > DashboardPage > reloads pending review endpoints after approving a submission
+Warning: An update to DashboardPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at DashboardPage (/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend/src/pages/DashboardPage.jsx:53:39)
+    at Router (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: An update to DashboardPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at DashboardPage (/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend/src/pages/DashboardPage.jsx:53:39)
+    at Router (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: An update to DashboardPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at DashboardPage (/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend/src/pages/DashboardPage.jsx:53:39)
+    at Router (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: An update to DashboardPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at DashboardPage (/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend/src/pages/DashboardPage.jsx:53:39)
+    at Router (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+stderr | src/test/unit/r9-batt-meter.test.jsx > ① BattMeter 逐点态（10 点 × 10%；full=floor(batt/10)、rem>=5 ⇒ 第 full+1 点半电） > batt=+0 ⇒ +0 满 / [] 半 / 10 空
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+stderr | src/test/unit/r9-batt-meter.test.jsx > ③ R-9-83 签到入口可发现性 > BattCheckinPanel：无账户（fetchBatt ⇒ null）⇒ 10 点全空 + 数字 0，不崩
+Warning: An update to BattCheckinPanel inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at BattCheckinPanel (/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend/src/components/BattCheckinPanel.jsx:28:42)
+    at Router (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+ ✓ src/test/unit/dashboard-page.test.jsx  (3 tests) 236ms
+stderr | src/test/unit/listing-market.test.jsx > 商品线 · 接线契约 > 首页（= 唯一列表）：调用已注册读面并渲染空态，无 [object Object]
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+Home aggregate endpoint failed, falling back to legacy requests: Error: HOME_UNREGISTERED
+    at Proxy.<anonymous> [90m(/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend/[39msrc/test/unit/listing-market.test.jsx:156:54[90m)[39m
+    at Proxy.mockCall (file:///Users/kevin/bistro/seafood/frontend/node_modules/[4m@vitest/spy[24m/dist/index.js:50:17)
+    at Proxy.spy (file:///Users/kevin/bistro/seafood/frontend/node_modules/[4mtinyspy[24m/dist/index.js:42:80)
+    at loadData [90m(/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend/[39msrc/pages/HomePage.jsx:141:31[90m)[39m
+    at [90m/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend/[39msrc/pages/HomePage.jsx:168:5
+    at commitHookEffectListMount (/Users/kevin/bistro/seafood/frontend/node_modules/[4mreact-dom[24m/cjs/react-dom.development.js:23189:26)
+    at commitPassiveMountOnFiber (/Users/kevin/bistro/seafood/frontend/node_modules/[4mreact-dom[24m/cjs/react-dom.development.js:24970:11)
+    at commitPassiveMountEffects_complete (/Users/kevin/bistro/seafood/frontend/node_modules/[4mreact-dom[24m/cjs/react-dom.development.js:24930:9)
+    at commitPassiveMountEffects_begin (/Users/kevin/bistro/seafood/frontend/node_modules/[4mreact-dom[24m/cjs/react-dom.development.js:24917:7)
+    at commitPassiveMountEffects (/Users/kevin/bistro/seafood/frontend/node_modules/[4mreact-dom[24m/cjs/react-dom.development.js:24905:3)
+
+ ✓ src/test/unit/r9-batt-meter.test.jsx  (18 tests) 279ms
+ ✓ src/test/unit/theme-shell-isomorphism.test.jsx  (20 tests) 350ms
+ ✓ src/test/unit/tg-bind-qr.test.jsx  (5 tests) 305ms
+stdout | src/test/unit/i18n-batch-b4b.test.jsx > P6-I18N-LIT-B4b · 四语 locale 键集 + 类级断言脚本读数 > 新增 137 键四语齐备、非空串；四文件拍平键集逐文件相等（B5 末批 + 批 7-A + 批 7-D + P7-E + P9③ + P9④ + 8⑥ + R-9-88 后 v1.5 Δ+20 ⇒ top=128 / flat=1070）
+[B4b] locale 键数读数 {"zh":{"top":128,"flat":1110},"en":{"top":128,"flat":1110},"hk":{"top":128,"flat":1110},"vn":{"top":128,"flat":1110}} 本批新增键数 = [33m137[39m
+
+ ✓ src/test/unit/i18n-batch-b4b.test.jsx  (11 tests) 420ms
+stderr | src/test/unit/listing-market.test.jsx > 商品线 · 接线契约 > 详情页：购买提交的是 /api/listing/1/buy 且 body 无金额字段
+Warning: An update to ItemDetailPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at ItemDetailPage (/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend/src/pages/item/ItemDetailPage.jsx:36:42)
+    at RenderedRoute (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:539:7)
+    at Routes (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1273:7)
+    at Router (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: An update to ItemDetailPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at ItemDetailPage (/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend/src/pages/item/ItemDetailPage.jsx:36:42)
+    at RenderedRoute (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:539:7)
+    at Routes (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1273:7)
+    at Router (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: An update to ItemDetailPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at ItemDetailPage (/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend/src/pages/item/ItemDetailPage.jsx:36:42)
+    at RenderedRoute (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:539:7)
+    at Routes (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1273:7)
+    at Router (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: An update to ItemDetailPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at ItemDetailPage (/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend/src/pages/item/ItemDetailPage.jsx:36:42)
+    at RenderedRoute (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:539:7)
+    at Routes (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1273:7)
+    at Router (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+stderr | src/test/unit/listing-market.test.jsx > 审核面准入（S17a 队列页「已登录即可」；S18 发布页入口链接同口径） > S17a 已登录普通发布者（无 review_tasks）：审核页**不再**收敛为无权限 ⇒ 发起队列读（过滤真源在后端）
+Warning: An update to JobReviewPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at JobReviewPage (/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend/src/pages/jobs/JobReviewPage.jsx:23:42)
+    at Router (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: An update to JobReviewPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at JobReviewPage (/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend/src/pages/jobs/JobReviewPage.jsx:23:42)
+    at Router (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+stderr | src/test/unit/listing-market.test.jsx > 审核面准入（S17a 队列页「已登录即可」；S18 发布页入口链接同口径） > S17a 已登录 admin（review_tasks）：审核页取队列（零回归）
+Warning: An update to JobReviewPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at JobReviewPage (/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend/src/pages/jobs/JobReviewPage.jsx:23:42)
+    at Router (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: An update to JobReviewPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at JobReviewPage (/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend/src/pages/jobs/JobReviewPage.jsx:23:42)
+    at Router (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+ ✓ src/test/unit/listing-market.test.jsx  (19 tests) 305ms
+stderr | src/test/unit/i18n-batch-b5.test.jsx > P6-I18N-LIT-B5 · en 档渲染英文（组件库 + 开发预览页） > Advanced（en 档）：搜索/日期占位、筛选面板、分页 全走英文（`prev`/`next` 为既有键）
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+stderr | src/test/unit/i18n-batch-b5.test.jsx > P6-I18N-LIT-B5 · en 档渲染英文（组件库 + 开发预览页） > ThemePreviewPage：演示数据为 language 不变式（en 档与 zh 档逐字相同）
+Warning: An update to ThemePreviewPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at ThemePreviewPage (/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend/src/pages/ThemePreviewPage.jsx:22:39)
+    at Router (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+stderr | src/test/unit/i18n-batch-b5.test.jsx > P6-I18N-LIT-B5 · 必做① `SystemSettings` 待保存值与界面语言无关（可判负） > zh 档与 en 档的 `defaults.siteDescription`（待保存值）必须相同且为空串
+Warning: An update to SystemSettings inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at SystemSettings (/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-head-fe/frontend/src/pages/admin/SystemSettings.jsx:32:39)
+    at Router (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+stdout | src/test/unit/i18n-batch-b5.test.jsx > P6-I18N-LIT-B5 · 四语 locale 键集（本批新增 uiCommon 12 / uiError 23） > 四文件拍平键集逐文件相等（v1.5 Δ+20 ⇒ top=128 / flat=1070）；新键四语齐备、非空、en/vn 零 CJK
+[B5] locale 键数读数 {"zh":{"top":128,"flat":1110},"en":{"top":128,"flat":1110},"hk":{"top":128,"flat":1110},"vn":{"top":128,"flat":1110}}
+
+ ✓ src/test/unit/i18n-batch-b5.test.jsx  (14 tests) 728ms
+stderr | src/test/unit/listing-publish-redirect.test.jsx > 上架成功 ⇒ 自动跳该商品详情页（小需求单 · Kevin 2026-10-11） > ① zh（无前缀）：成功且已 listed ⇒ navigate 到带语言前缀的 /item/<id>，且**先 toast 后跳**
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+stderr | src/test/unit/lang-path-redirect.test.jsx > 语言前缀规范化重定向（防御层） > 把 /hk/vn 自愈为 /hk 并渲染主体内容
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+ ✓ src/test/unit/listing-publish-redirect.test.jsx  (9 tests) 265ms
+ ✓ src/test/unit/lang-path-redirect.test.jsx  (32 tests) 723ms
+exit=143

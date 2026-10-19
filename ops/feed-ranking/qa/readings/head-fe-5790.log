@@ -1,0 +1,7 @@
+Re-optimizing dependencies because vite config has changed
+
+  VITE v5.4.20  ready in 243 ms
+
+  ➜  Local:   http://localhost:5790/
+  ➜  Network: use --host to expose
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`

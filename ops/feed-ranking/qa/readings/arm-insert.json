@@ -1,0 +1,35 @@
+{
+  "taken_at": "2026-10-19T05:25:54.947Z",
+  "db": {
+    "project_id": "quiet-math-65207667",
+    "db": "neondb",
+    "branch": "br-soft-lake-b3iv9tli"
+  },
+  "idempotency_key": "feqa20261019:f1513c7e-22cc-49e7-97f6-0c02056058b9",
+  "ratee_uid": 970101,
+  "rater_uid": 1,
+  "target": {
+    "type": "listing",
+    "id": 12
+  },
+  "stars": 5,
+  "rating_count_before": 0,
+  "rating_count_after_insert": 1,
+  "inserted_row": {
+    "rating_id": "404",
+    "rater_uid": "1",
+    "ratee_uid": "970101",
+    "target_type": "listing",
+    "target_id": "12",
+    "direction": "customer_to_vendor",
+    "stars": "5.0000",
+    "idempotency_key": "feqa20261019:f1513c7e-22cc-49e7-97f6-0c02056058b9",
+    "time_created": "2026-10-19T05:25:54.578Z"
+  },
+  "direct_delete_attempt": {
+    "blocked": true,
+    "code": "P0001",
+    "message": "rating is append-only: DELETE forbidden (rating_id=404)"
+  },
+  "rating_count_after_blocked_delete": 1
+}
