@@ -9378,3 +9378,115 @@ ORDER BY score DESC, l.time_created DESC, l.listing_id DESC
 > **★ §49.11 续登（2026-10-20 · 商品分类枚举 `item_type` · **同 v2.43 契约的加性续登、不升版** · 纯追加）**：**① 写口（唯一）** = `POST /api/listing`（`backend-ts/src/index.ts:2710` · service `src/listing-service.ts:164` `createListing`）body **可选字段 `item_type`**（逐字 snake_case，与 `media_urls` / `create_key` 同风格）：闭集三值 `Digital` / `PhysicalFreeShip` / `PhysicalBuyerShip`（**大小写敏感**）；**字段缺省** 或 **显式 `null`** ⇒ 落 `NULL`（未分类，**不报错**）；**空串 / 闭集外字符串 / 非字符串 / 大小写不符 ⇒ `400`** —— 沿用既有 shape 借码 = **`LEDGER_AMOUNT_INVALID`**（`details = {field:'listing.item_type', reason:'NOT_IN_ENUM'}`；借码现取落点 = `listing-service.ts:61-62` 的 `shapeError`）⇒ **零新错误码**（`ledger-errors.ts` 33 码闭集不动；实现单若改用别的既有码，须在本册同版续登留痕、不得新增码）。**② 类型 = 创建时一次性（改类无写口）**：`PATCH /api/listing/:listingId`（状态迁移 · `index.ts:2765`）与 `POST /api/listing/:listingId`（编辑 · `index.ts:2737`）**均不接受 `item_type`** —— body 出现即**静默忽略**（不 400、不落库、不参与响应）；判负：任何后续写把已落库类型改掉。改类型 = **另立单**（本册不授权）。**③ 幂等指纹不动**：`create_key` 指纹仍 = 现取 6 项（`seller_uid,cid,price,title,description,media_urls`；`listing-service.ts:151-159` `fingerprintOf`）**不纳入 `item_type`** ⇒ 同键重投携带不同类型时**幂等返回首落行**（类型以首落为准）、**不 409**；要「同键异类型 ⇒ 409」= 一句话可改（指纹 +1 项，须同改对应单测 + 本册续登）。**④ 读口（加性键，不升版）**：`GET /api/prize/all` 行键 **47 → 48**；`GET /api/prize/:bID` 的 `data` 键 **46 → 47**；键名 = **`item_type`**，值 = 三值字面**或 `null`**，**原样下发、服务端不翻译**（中文「包邮」由前端 `t('item.freeShipping')` 渲染，承「枚举/错误码不下发文案」同口径）。**现取自证（编制时点 2026-10-20）**：dev `GET /api/prize/all?limit=1` 行键 = **47**（键集含 `wants`）、`GET /api/prize/76` 的 `data` 键 = **46**、`/api/health` `schema_version` = **`0052`**。**⑤ 零新路由 / 零新幂等键 / 零新错误码**，注册点仍 **110**（get **49** / post **57** / put 0 / delete 3 / patch 1；`grep -cE '^app\.(get|post\|put\|delete\|patch)\(' backend-ts/src/index.ts` 现取 = 110）；分页与排序（§49 / §49.8）一字不动，`item_type` **不进排序公式 / 不进分页判据 / 不作过滤条件**（按类型筛 = 另立单，且须先有索引 —— data §40.8 A 零索引）。**⑥ 迁移面不在本册**：新列契约 = `0053_listing_item_type.sql`（data **§40.8**）；本册零迁移、零 HTTP 实测、零库写。**⑦ 发布页 2 + 2 合成单字段（Kevin 2026-10-20 追加更正）**：前端拆「数字/实物」+「包邮/不包邮」两控件，**合成后只发 `item_type`**（`digital` ⇒ `Digital`；`physical` + `free` ⇒ `PhysicalFreeShip`；`physical` + `buyer` ⇒ `PhysicalBuyerShip`；选数字时运费控件**不渲染、不进载荷**）；服务端**不接收** `shipping` / `free_ship` 等第二字段（出现即**忽略**，不入库、不回显）—— **服务端唯一真值 = `item_type`**（前端闸只是体验闸，不得作为数据真值；绕过前端直发三值仍按 ① 校验）。**⑧ 并行实现单差额登记（2026-10-20 收笔时点 · 未提交 · 本册不背书）**：实现单已改 `listing-service.ts` / `database.ts` / `index.ts`（未提交），与本册字面比对如下 —— **(a) 空串口径冲突（唯一实质差额）**：落盘 `normalizeItemType` 把**未传 / `null` / 空串**一律归一为 `null`（`listing-service.ts:101` 注释与实现），本册 ① 契约 = 「**空串 ⇒ 400**」⇒ **两者互斥**；本册**不擅自改契约**，交 Zang/Kevin 一句话定：取落盘（「空串 = 未填」= 宽松、发布页未选不会撞 400）或取契约（严格 fail-loud，须实现单改）；**(b) reason 字面**：落盘 = `NOT_IN_CLOSED_SET` + `allowed:[三值]`，本册写 `NOT_IN_ENUM` ⇒ **以落盘为准**（非冻结字面，`details.field` 两处一致）；**(c) 指纹不纳入 `item_type`**：落盘 `listing-service.ts:247-251` **与本册 ③ 一致**（同键重投返回库内真值 + `idempotent_replay:true`）；**(d) 读侧**：落盘 `database.ts:1518` 已透出 `item_type`，但 dev 运行进程**未载入新码**（收笔时点现取 feed 仍 **47**、键集无 `item_type`）⇒ **48 / 47 的实测待重启后现取**（`NOT_MEASURED`，本册不预填）。契约面 = design **§26.12** + master **§5.435 + 版本行 v0.352** + data **§40.8** + `ops/item-type/SPEC-NOTE.md`。
 
 > **★ §49.11.1 续登（2026-10-20 · 数字商品再分两类〔`DigitalAutoDeliver` / `DigitalManualDeliver`〕· `Digital` 退役 · **同 v2.43 契约的加性续登、不升版** · 纯追加 · §49.11 全文逐字保留、冲突以本段为准 · 头注版本块不改写）**：**① 写口闭集换四值** = `POST /api/listing`（`backend-ts/src/index.ts` 创建口 · service `src/listing-service.ts` `createListing`）的 **可选字段 `item_type`** 合法集由三值换 **`DigitalAutoDeliver` / `DigitalManualDeliver` / `PhysicalFreeShip` / `PhysicalBuyerShip`**（大小写敏感、无归一，承 §49.11 ①）；**`Digital` 是退役值 ⇒ `400`**，走同一 shape 借码 **`LEDGER_AMOUNT_INVALID`**（`details.reason = 'NOT_IN_CLOSED_SET'`、`allowed` = **四值**、`field = 'listing.item_type'`；落盘体例承 §49.11 ⑧(b)「以落盘为准」）⇒ **零新错误码**（`ledger-errors.ts` 33 码闭集不动）；**字段缺省** 或 **显式 `null`** ⇒ 落 `NULL`（未分类、**不报错**，不变）；**空串 / 空白 / 小写 / 闭集外（含 `Digital`）⇒ `400`**（不变；空串口径承 `design §26.12.7` 第二处口径差 = `trim` 后判闭集）。**② 类型仍创建时一次性（改类无写口）**：`PATCH /api/listing/:listingId` 与 `POST /api/listing/:listingId`（编辑）**均不接受 `item_type`**，body 出现即**静默忽略**（不 400、不落库、不参与响应）；「数字 ⇒ 实物」或「自动 ⇒ 手动」的改类 = **另立单**（本册不授权）。**③ 幂等指纹不动**：`create_key` 指纹仍 **6 项**（`seller_uid,cid,price,title,description,media_urls`）**不纳入 `item_type`** ⇒ 同键重投携带不同四值时**幂等返回首落行**（类型以首落为准）、**不 409**（不变）。**④ 读口：键数不变（换值不换键）**：`GET /api/prize/all` 行键仍 **48**、`GET /api/prize/:bID` 的 `data` 仍 **47**（**本段不新增键**）；键名仍 **`item_type`**，值 = **四字面之一或 `null`**，**原样下发、服务端不翻译**（**两枚卡面标签均由前端渲染**：`PhysicalFreeShip` ⇒ `t('item.freeShipping')`【包邮】、**`DigitalAutoDeliver` ⇒ `t('itemType.autoDeliver')`【自动发货】**（**复用既有键、不新增文案键**，design §26.12.8 D），承「枚举/错误码不下发文案」同口径）；**判负 = 读口出现 `Digital`**（存量无该值、新写入不可能）**或键数漂移 48→49 / 47→48**。**⑤ 零新路由 / 零新幂等键 / 零新错误码 / 零迁移面**：注册点仍 **110**（get **49** / post **57** / put 0 / delete 3 / patch 1 —— 现取 `grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts` = **110**）；分页与排序（§49 / §49.8）一字不动，`item_type` **不进排序公式 / 不进分页判据 / 不作过滤条件**（按类型筛 = 另立单，且须先有索引 —— data §40.8 A 零索引）；迁移 = **`0054_item_type_delivery_split.sql`**（data **§40.8.1**），**本册零迁移、零 HTTP 实测、零库写**。**⑥ 发布页 = 2 + 2 + 2 三控件合成单字段**（design **§26.12.8**）：一级「数字商品 / 实物商品」（值 `digital` / `physical`，**仅 UI 分组、不是存储值**）+ 数字二级「自动发货 / 手动发货」（值 `auto` / `manual`）+ 实物二级「包邮 / 不包邮」（值 `free` / `buyer`）；映射 `digital + auto ⇒ DigitalAutoDeliver` / `digital + manual ⇒ DigitalManualDeliver` / `physical + free ⇒ PhysicalFreeShip` / `physical + buyer ⇒ PhysicalBuyerShip`；**切换一级分支必须清空二级值**（含未渲染那个），**服务端仍不接收** `shipping` / `deliver` / `free_ship` 等第二字段（出现即**忽略**，不入库、不回显）—— **服务端唯一真值 = `item_type`**（前端闸只是体验闸）。**⑦ 判负（本段新增 · 与 §49.11 判负并存）**：(a) 写 `Digital` 得 **200** / 落库成功 ⇒ 判负；(b) 读口载荷出现 `Digital` ⇒ 判负；(c) 行键 / `data` 键数不是 **48 / 47** ⇒ 判负；(d) 载荷出现 `item_type` 以外的分类字段而服务端**接受**之 ⇒ 判负；(e) 四值中任一值写入 ⇒ **400**（闭集被误缩）⇒ 判负。契约面 = data **§40.8.1** + design **§26.12.8** + master **§5.437 / 版本行 v0.354** + `ops/item-type/delivery/SPEC-NOTE.md`。
+
+---
+
+### 49.12 发布列表行内动作（`PATCH /api/listing/:listingId` **双模式** · `GET /api/listing/mine` **加性键 8→10** · **零新 API 路由**）· 2026-10-20 · **同 v2.43 契约的加性续登、不升版** · 纯追加
+
+> **依据** = Kevin 2026-10-20 定档（`/profile/trades/published` 行内加【降价】【编辑】；【编辑】⇒ 独立页 `/item/:id/edit`，复用发布页表单并预填，可改 **标题 / 描述 / 价格 / 库存 / 图片 / 分类（`item_type` 级联）**；【降价】⇒ 行内弹窗输入新价、**必须低于当前价**、改完**当场刷新该行价格**（不跳页）；按钮**仅 `draft` 与 `listed`**，`sold`/`delisted` 只读无按钮；后端**零新路由**）。**原始会话未入仓**，逐字转引自本单派单 ⇒ 与 Kevin 原话若有出入以 Kevin 一句话为准。**本册零代码 / 零 HTTP 实测 / 零库写 / 零迁移**；实现面差额逐条登记在 §49.12.9，不预填未测读数。
+
+#### 49.12.1 作用面（三条面 · 零新 API 路由）
+
+| 面 | 现取锚点（2026-10-20 · HEAD `6f88cce`） | 本段契约 |
+|---|---|---|
+| 写口（唯一 · 双模式） | `PATCH /api/listing/:listingId`（`backend-ts/src/index.ts:2769`；service `transitionListingStatus` `listing-service.ts:337`） | **扩为双模式**：字段模式（§49.12.2）／状态模式（§49.12.3）／互斥（§49.12.4） |
+| 读口（卖家轴） | `GET /api/listing/mine`（`index.ts:2847` · `DatabaseService.listListingsBySeller` `database.ts:2793`，SELECT 列在 `:2796-2804`） | 行**加性键 `description` / `item_type`** ⇒ 行键 **8 → 10**（§49.12.6） |
+| 前端页面路由 | `frontend/src/App.jsx:107-108`（`item/new` / `item/:itemId`） | **新增 1 条页面路由 `item/:itemId/edit`**（§49.12.7）；**不计入 API 注册点** |
+
+- **零新 API 路由（硬）**：注册点仍 **110**（get **49** / post **57** / put 0 / delete 3 / patch 1；现取 `grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts` = **110**）；`p7b-03` 的 `registration_points` 仍 **110**（**不得 +1** —— 页面路由不计入该计数）。
+- **零新迁移**：列集不变（`description` / `item_type` 均已存在，`item_type` 由 `0054` 定型）⇒ `schema_version` 仍 **0054**、本册零 DDL。
+- **零新错误码**：全部**借既有码**（矩阵见 §49.12.5）；`ledger-errors.ts` **33 码闭集不动**。
+- **不写账本（硬）**：字段模式任何字段（**含 `price`**）不得产生 `ledger_entry` / `ledger_post_event` / `account` 行；现取 `updateListing`（`listing-service.ts:273-336`）**无任何账本调用**，本段**保持此性质**。判负见 §49.12.8 #3。
+
+#### 49.12.2 字段模式（`mode = fields`）
+
+**判定** = body 含**任一**可改字段键（`title` / `description` / `price` / `stock` / `media_urls` / `item_type`）且**不含** `to_status`/`status`（同时含 ⇒ §49.12.4 互斥 400）。
+
+| 字段（逐字 snake_case） | 现取校验（`listing-service.ts:273-336`） | 失败形态（借码 = `LEDGER_AMOUNT_INVALID` · 400） |
+|---|---|---|
+| `title` | `toOptionalText`（字符串） | `{field:'listing.title', reason:'NOT_A_STRING'}` |
+| `description` | `toOptionalText` | `{field:'listing.description', reason:'NOT_A_STRING'}` |
+| `price` | `toBigIntLike(..., 'listing.price', 1)` ⇒ **整数、≥ 1** | `{field:'listing.price', reason:'NOT_AN_INTEGER' \| 'NEGATIVE_OR_NON_INTEGER' \| 'OUT_OF_RANGE'}` |
+| `stock` | `toBigIntLike(..., 'listing.stock', 0)` ⇒ **整数、≥ 0** | `{field:'listing.stock', reason:'NOT_AN_INTEGER' \| 'NEGATIVE_OR_NON_INTEGER'}` |
+| `media_urls` | `toOptionalUrls`（字符串数组） | `{field:'listing.media_urls', reason:'NOT_A_STRING_ARRAY'}` |
+| `item_type` | 承 §49.11.1 ①：**闭集四值**（`DigitalAutoDeliver` / `DigitalManualDeliver` / `PhysicalFreeShip` / `PhysicalBuyerShip`、大小写敏感、`null` ⇒ `NULL`） | `{field:'listing.item_type', reason:'NOT_IN_CLOSED_SET', allowed:[四值]}`（以落盘字面为准，承 §49.11.1 ⑧(b)） |
+
+- **★ 与 §49.11.1 ② 的取代关系（旧文逐字保留、不删）**：§49.11.1 ② 原文 = 「`PATCH /api/listing/:listingId` 与 `POST /api/listing/:listingId`（编辑口）**均不接受 `item_type`**，body 出现即**静默忽略**」；**本段取代该条的 `PATCH` 半句** ⇒ 自本段起 **`PATCH` 字段模式接受 `item_type`**（校验与创建口同源）；**`POST /api/listing/:listingId` 仍不接受（静默忽略，旧文对该口继续全额有效）**。理由 = Kevin 定档「编辑页可改分类」∧「零新路由」⇒ 只能由 `PATCH` 承接。
+- **实现面必改点（现取差额 D-1 · 承重）**：`DatabaseService.updateListingRow`（`database.ts:3642-3650`）**入参无 `itemType`**，且同文件 `:3601` 注释写死「`item_type` 的唯一写点 = `createListingRow`」⇒ 字段模式接 `item_type` **必须**同时改 `updateListingRow` 的 SQL 与 `updateListing` 的解析层；**只改 `index.ts` ⇒ 静默丢字段**（判负 #6）。
+- **两写口一致性（硬）**：字段模式与既有编辑口 `POST /api/listing/:listingId`（`index.ts:2741` · `updateListing`）**必须复用同一 service 校验** ⇒ 除 `item_type` 面外，同一 body 在两口得到的字段集、错误码、`details.reason` **逐字一致**（判负 #7）。
+- **状态闸（现取）**：`delisted` 终态 ⇒ 409 `LEDGER_CURRENCY_INVALID_TRANSITION` `{field:'listing.status', reason:'LISTING_STATE_INVALID', terminal:'delisted'}`；`stock` 变更现取**仅 `listed` 允许**（`outcome = 'stock_requires_listed'` ⇒ 409 `{field:'listing.stock', reason:'listing_stock_change_requires_listed'}`）。
+- **★ `stock` 差额（待裁 · 本册不擅自放宽）**：Kevin 口径 = 编辑页可改库存；`draft` 行按**现取**服务层改 `stock` 会 409。两条路：**(a)** 实现单把 `updateListingRow` 的 `stock_requires_listed` 分支放宽为「`stock` 非空 ⇒ 须 `status ∈ {draft, listed}`」—— 本册**倾向 (a)**、但**不冻结**；**(b)** UI 在 `draft` 行禁用库存输入、仅 `listed` 可改。**取 (b) 须在本册同版续登**；未裁前实现单按 (a) 执行并留痕。
+- **翻译重置（硬 · 与现取不同）**：`title` / `description` **实际变化**才把翻译重置回 `pending`；**现取** `index.ts:2760` 的 `enqueueListingTranslation(result.view, true)` 是**无条件** `reset=true` ⇒ 实现单须改为「先取旧值比对、仅实际变化才 reset」（差额 D-2）。判负 #8。
+- **归属**：非卖家 ⇒ 403 `AUTH_FORBIDDEN` `{reason:'ACTOR_NOT_ALLOWED', ref_type:'listing', ref_id:'<id>'}`；`listing` 不存在 ⇒ 404 `LEDGER_REF_NOT_FOUND` `{ref_type:'listing', ref_id:'<id>'}`（现取 `gone404` 口）。
+
+#### 49.12.3 状态模式（`mode = status`）
+
+- **判定** = body 含 `to_status` **或** `status`（别名，承 §4.2 P1 与 `index.ts:2778` 现值）且**不含**任何可改字段。
+- 语义**逐字不变**（`transitionListingStatus` `listing-service.ts:337`）：目标态必填、白名单唯一真源 = DB 函数 `listing_status_transition_ok`；非法转移 ⇒ 409 `LEDGER_CURRENCY_INVALID_TRANSITION` `{field:'listing.status', reason:'LISTING_STATE_INVALID', from, to, listing_id}`；`toStatus` 非字符串 ⇒ 400 `{field:'listing.status', reason:'NOT_A_STRING'}`。
+- 状态模式**不重置翻译**（`index.ts:2784` 现值即如此，保持不变）。
+
+#### 49.12.4 互斥矩阵（本段核心 · 两条互斥 + 两条皆无）
+
+| body 形态 | 判定 | 期望 | 现值（2026-10-20） |
+|---|---|---|---|
+| 仅可改字段（≥1，无 `to_status`/`status`） | 字段模式 | **200** + 更新后 `view` | **未实现**（现 `PATCH` 只读状态） |
+| 仅 `to_status` 或 `status` | 状态模式 | **200** + 更新后 `view` | 现行（§49.12.3） |
+| **字段 ∧ 状态 同现** | — | **400** `LEDGER_AMOUNT_INVALID` `{field:'listing.request', reason:'BOTH_MODES'}` | **未实现** |
+| **两者皆无**（空 body / 全 `undefined` / 仅无关键） | — | **400** `LEDGER_AMOUNT_INVALID` `{field:'listing', reason:'NO_EDITABLE_FIELD'}` | 字段模式侧现取即此码（`listing-service.ts:306-308`）；状态模式侧现取 = `{field:'listing.status', reason:'NOT_A_STRING'}` ⇒ **本段统一为 `NO_EDITABLE_FIELD`**（差额 D-3） |
+
+- **互斥闸位置（硬）**：判定**必须在 `index.ts` 派发前完成**（两分支各自**只调一个** service）；**不得**先调 service 再回退重试（否则状态模式会先撞 `NOT_A_STRING`、字段模式会先跑一次状态 shape 校验 ⇒ 留下双写痕迹）。判负 #9。
+- **`BOTH_MODES` 不得回显任何字段值**：`details` 只允许 `field` / `reason` + 可选 `present: ['title','to_status']`（**键名数组**）；出现 `title`/`price` 的**值** ⇒ 判负 #10。
+
+#### 49.12.5 错误码矩阵（借码 · 零新码）
+
+| 场景 | HTTP | code（借码） | `details.reason` 等 |
+|---|---|---|---|
+| 无 token / 签名错 / 用户不存在 | 401 | `AUTH_UNAUTHORIZED` | —（`sendAuthError` 既有形状） |
+| 非卖家写 | 403 | `AUTH_FORBIDDEN` | `ACTOR_NOT_ALLOWED` |
+| `:listingId` 非正整数 / 商品不存在 | 404 | `LEDGER_REF_NOT_FOUND` | `ref_type:'listing'`, `ref_id` |
+| 字段形态非法（6 字段任一） | 400 | `LEDGER_AMOUNT_INVALID` | 见 §49.12.2 表 |
+| 双模式同现 | 400 | `LEDGER_AMOUNT_INVALID` | `field:'listing.request'`, `BOTH_MODES` |
+| 两模式皆无 | 400 | `LEDGER_AMOUNT_INVALID` | `field:'listing'`, `NO_EDITABLE_FIELD` |
+| 状态转移非法 / `delisted` 终态 | 409 | `LEDGER_CURRENCY_INVALID_TRANSITION` | `LISTING_STATE_INVALID` |
+| `draft` 改 `stock`（未裁前） | 409 | `LEDGER_CURRENCY_INVALID_TRANSITION` | `listing_stock_change_requires_listed` |
+| 基础设施异常 | 503 | 既有 §14 分类器 | — |
+
+#### 49.12.6 `GET /api/listing/mine` 行加性键
+
+- **键集 8 → 10**。现取（`database.ts:2796-2804`）8 列 = `listing_id` / `title` / `price` / `cid` / `status` / `stock` / `media_urls` / `time_created`（映射函数 `normalizeListingMineRow`，`database.ts:1601`）。
+- **新增 2 键**：**`description`**（原样下发；库内 `NULL` 时不得编造文案，落 `null` 或空串**以映射函数现状口径为准**）· **`item_type`**（四字面之一或 `null`，**原样下发、服务端不翻译**，承 §49.11.1 ④；卡面标签仍由前端渲染）。
+- **不变（硬）**：`WHERE seller_uid = me` **全状态行**（含 `draft` / `sold` / `delisted` —— 行内按钮的可见性由**前端按 `status` 判**，读口不筛）；`ORDER BY l.listing_id DESC`；`LIMIT/OFFSET` 分页口径；`data` 为**数组**（非 `{rows,total}`）。
+- 判负 #11：行键 ≠ **10** / 出现未登记键 / `item_type` 被翻译成中文 / 排序或分页位移。
+
+#### 49.12.7 前端页面路由（`/item/:id/edit`）
+
+- **新增 1 条页面路由**（`App.jsx` 内层 `<Routes>`，**须声明在 `item/:itemId` 之前**，避免匹配歧义）；**不计入** `registration_points`（该计数只统计后端 `app.<verb>(`）。
+- 页面消费 = 发布页表单的**同源组件**（`frontend/src/pages/item/PublishItemPage.jsx`；现取表单钩子 `item-form` / `item-input-title` / `item-input-price` / `item-input-stock` / `item-select-cid` / `item-select-type` / `item-select-deliver` / `item-select-ship` / `item-input-note` / `item-images`）⇒ **预填不得漏字段**（design §26.13 判负 #29/#30）。
+- 保存 ⇒ **单次** `PATCH` 字段模式（**不得**先打 `POST` 编辑口再补 `PATCH`；两次写请求 ⇒ 判负 #13）。成功后回 `/item/:id`（详情）**或** `/profile/trades/published`（列表），二选一由实现定，但**不得留在编辑页**。
+- **只读行**（`sold` / `delisted`）直接命中该 URL ⇒ 渲染**只读提示 + 回列表入口**（**不得**渲染可提交表单）。
+- 未登录 / 非本人商品 ⇒ 复用既有 `ProtectedRoute` 与详情页归属口径（本段不新造鉴权面）。
+
+#### 49.12.8 判负（#1–#13 · 质检必带；与 §49.11 / §49.11.1 判负**并存、只增不改**）
+
+| # | 探针 | 违反即判负 |
+|---|---|---|
+| **1** | 双模式同现（`{price: 1, to_status: 'listed'}`） | 非 **400 `BOTH_MODES`**（含 200 / 409 / 只改字段 / 只改状态任一） |
+| **2** | 两模式皆无（`{}` 与 `{foo: 1}`） | 非 **400 `NO_EDITABLE_FIELD`**（含 `NOT_A_STRING` 残留、含 200 空操作） |
+| **3** | 改价腿净写审计（`ledger_entry` / `ledger_post_event` / `account` 前后行数 + md5） | 任一表出现新行或余额变化 |
+| **4** | 改价后读 `listing.price` | 未变化 / ≠ 请求值（含被四舍五入、被写成字符串） |
+| **5** | 非卖家打字段模式 | 非 403 `ACTOR_NOT_ALLOWED`（含「借 404 掩盖」） |
+| **6** | 编辑页改分类后读 `mine` 行 | `item_type` 未变（`updateListingRow` 未接 `item_type` ⇒ 静默丢字段） |
+| **7** | 同 body 分别打 `PATCH`（字段模式）与 `POST /api/listing/:listingId` | 校验/错误字面不一致（除 `item_type` 面外） |
+| **8** | 翻译面：仅改 `price`/`stock` 后读 `content_translation` | 对应行被重置回 `pending`（应**不动**）；反向：改 `title` 后仍非 `pending` ⇒ 亦判负 |
+| **9** | 互斥闸位置（抓包 + 行 `time_updated`） | 状态请求出现「先 400 后 200」的双打、或字段请求出现中间态 409 |
+| **10** | `BOTH_MODES` 响应体 | 回显任何字段**值**（`title` / `price` 字面） |
+| **11** | `GET /api/listing/mine` 行键 | ≠ **10** / 出现未登记键 / `item_type` 被翻译 / 排序分页位移 |
+| **12** | 注册点数（`p7b-03`） | `registration_points ≠ 110`（页面路由被误计入后端注册点） |
+| **13** | 编辑页保存的请求计数 | 一次保存发出 **2 次**写请求（`POST` + `PATCH`），或成功后仍停留在编辑页 |
+
+#### 49.12.9 现取自证 + 未做（明账）
+
+- **现取（2026-10-20 · HEAD `6f88cce` = `origin/main`、工作区干净）**：注册点 **110**（get **49** / post **57** / put 0 / delete 3 / patch 1）· `PATCH` 现值**只读状态**（`index.ts:2769-2780`，body ∈ `{to_status, status}`）· `mine` SELECT **8 列**（`database.ts:2796-2804`）· `updateListing` 字段集 **5 项**（无 `item_type`，`listing-service.ts:273-283`）· `updateListingRow` 入参 **5 项**（`database.ts:3642-3650`）· `shapeError` ⇒ 400 `LEDGER_AMOUNT_INVALID`（`listing-service.ts:61-62`）· `stateConflict` ⇒ 409 `LEDGER_CURRENCY_INVALID_TRANSITION`（`listing-service.ts:55-56`）。
+- **未做（`NOT_MEASURED` · 本册不预填）**：双模式派发、`item_type` 写入、`description`/`item_type` 读口下发、`/item/:id/edit` 页面、行内降价弹窗 —— **均未实现**；**零 HTTP 实测 / 零库写 / 零迁移**；§49.12.8 十三条**一条未跑**。
+- **待裁一条**：`draft` 行改 `stock`（§49.12.2 ★ 差额，本册倾向 (a) 放开、不冻结）。
+- 契约面 = design **§26.13** + master **§5.439 / 版本行 v0.356** + `ops/published-actions/SPEC-NOTE.md`；**本册不升版**（承 §49.10 / §49.11 加性续登体例）。

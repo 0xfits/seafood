@@ -3722,3 +3722,113 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 - **连带**：master **§5.437 + 版本行 v0.354** · data **§40.8.1** · route **§49.11.1** · 交付件 `ops/item-type/delivery/SPEC-NOTE.md`。本笔**只写 `docs/**` + `ops/item-type/delivery/**`**，零代码、零迁移文件、零测试改动、**不 push**；`git diff --numstat` **删除列 0**（纯追加）。
 
 - **★ 实测锁值（2026-10-20 · 上线后现取 · **以本段为准**）**：绿标 `DigitalAutoDeliver` 的底色 **`rgb(74, 222, 128)`**（= `#4ADE80` → `reward-card.css:28` 局部常量 `--sf-reward-tag-auto-bg`）＋ 字色 **`rgb(32, 32, 32)`**（= `#202020`，与黄标同黑）**已实测锁定**；**1536 日档 / 1536 夜档 / 390 手机档三档同值**，同测黄标 `rgb(255, 230, 15)` 亦三档同值。两枚标签均 `.row1-wrap-title` 的**首子元素**（`first_el = true`）、几何逐项相等（`12px` / `700` / `16px` 盒 / `2px` 圆角 / `padding:0 4px` / `margin-right:4px` / `inline-block` / `nowrap` / `vertical-align: baseline`，即 `padding` 与间距实测为 `4px`、圆角 `2px`）——**唯一差异 = 底色**；`row1` **48** / 卡 **392** / 溢出 **0** / `pageerror`·`console` 各 **0**。⇒ 判负 **#23 / #24** 的期望值即本段实测基线（`rgb(74, 222, 128)` 与「首子元素 + 行 48 + 卡 392」），**色值集合仍为「黄底 + 绿底 + 黑字」三者、不得出现第三色**（§26.12.5 #17 的例外面**不扩**）。取证 = `ops/item-type/delivery/prod-verify/prod-probe.json`（5 卡夹具 = 四类型 + `NULL` × 三档全绿）+ 独立质检 `ops/item-type/delivery/qa/verdict.json` AC3（1536 真页 **15 卡**：黄 1 / 绿 1 / 余臂无标签）。**本册不升版**（承 §26.12.8 体例）。
+
+---
+
+### 26.13 发布列表行内动作（【降价】/【编辑】· 行结构 = **链接区 + 动作区** · 降价弹窗 · 编辑页 `/item/:id/edit`）· 2026-10-20 · **加性续登、不升版** · 纯追加
+
+> **依据** = Kevin 2026-10-20 定档（`/profile/trades/published` 行内加【降价】【编辑】；【编辑】⇒ 独立页 `/item/:id/edit` 复用发布页表单并预填；【降价】⇒ 行内弹窗、**必须低于当前价**、改完**当场刷新该行价格**；按钮**仅 `draft`/`listed`**，`sold`/`delisted` 只读无按钮）。**契约面同源** = route **§49.12**（`PATCH` 双模式 / `mine` 加性键 / 零新 API 路由）。本节只冻结**可见性、结构、按钮与弹层的判据**；组件内部类名与文案键名属读数登记项（§26.13.8）。
+
+#### 26.13.1 现状（现取 · 必须改的那一处）
+
+- 现取 `frontend/src/pages/ProfilePage.jsx:138-156`：`published` 行 = **整行 `<Link className="sf-prof-row" data-sf-m="trades-published-item" to="/item/<id>">`**，内含 `.sf-prof-row-title`（标题）+ `.sf-prof-row-meta`（`$价格 · 库存 n · 状态`）。行样式 = `frontend/src/pages/profile.css:101-130`（`display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px`，**无写死高度**、高度由内容与内边距驱动）。
+- ⇒ 本节唯一的结构性变更 = **「整行 Link」→「链接区 + 动作区」**；理由是硬性的：**`<button>` 不得嵌在 `<a>` 内**（非法结构 + 点击必然冒泡跳转）。
+
+#### 26.13.2 行结构（硬）
+
+```
+<div class="sf-prof-row sf-prof-row--act" data-sf-m="trades-published-item">      ← 行容器（钩子留在此层）
+  <a class="sf-prof-row-link" data-sf-m="trades-published-link">                  ← 链接区（原整行 Link 的语义）
+     <span class="sf-prof-row-title">…</span><span class="sf-prof-row-meta">…</span>
+  </a>
+  <div class="sf-prof-actions" data-sf-m="trades-published-actions">              ← 动作区（仅 draft/listed 渲染）
+     <button data-sf-m="trades-published-price">【降价】</button>
+     <button data-sf-m="trades-published-edit">【编辑】</button>
+  </div>
+</div>
+```
+
+- **`data-sf-m="trades-published-item"` 必须留在行容器**（现取存量断言锚 = `frontend/src/test/unit/sf14-profile-views.test.jsx` 命中该钩子）⇒ 允许的改锚**只有「从 `<Link>` 改到行容器」这一层**，**钩子名不得改**（判负 #32）。
+- 链接区**必须仍是 `<a>`/`<Link>`**（可键盘聚焦、可新窗打开），**不得**改成 `div + onClick`；链接区 `flex:1; min-width:0`（标题 ellipsis 口径不变）。
+- 动作区**不得**嵌在链接区内部；点任一按钮**不得**触发跳转（判负 #31）；动作区 `flex:none; display:flex; align-items:center; gap:8px; white-space:nowrap`。
+- **行高口径**：现取行高**内容驱动、未写死**；动作区按钮高于文字行时会成为最高 flex 子项 ⇒ 行高按按钮抬升。**允许行高变化**（Kevin 未冻结行高），但须满足：① 同一 `status` 的行高**全列表一致**；② `≤767` 档 `scrollWidth == clientWidth`（零横向溢出）；③ 行高与按钮实高**由实现单现取读数登记**（本册不预填数值）。
+- 空态/错误态（`trades-published-empty` / `phase=error`）**零改动**。
+
+#### 26.13.3 可见性矩阵（硬 · 仅 `draft`/`listed` 有按钮）
+
+| `status` | 动作区 | 【降价】 | 【编辑】 |
+|---|---|---|---|
+| `draft` | 渲染 | 有 | 有 |
+| `listed` | 渲染 | 有 | 有 |
+| `sold` | **不渲染** | — | — |
+| `delisted` | **不渲染** | — | — |
+| 未知值 / `null` | **不渲染**（fail-closed） | — | — |
+
+- 判负 #25：`sold` / `delisted` 行出现**任一**按钮（含 `disabled` 仍可见、含 `opacity:0`/`visibility:hidden` 的占位、含仅 CSS 隐藏但 DOM 在场）。
+- 口径：可见性**只按 `row.status` 判**，不按库存、价格、`item_type` 或「是否本人」猜补（`mine` 口恒本人行）。
+
+#### 26.13.4 两按钮（沿用既有**次按钮** token · 零新 token）
+
+- **颜色/描边/字重一律取既有次按钮口径**：`.btn.btn-a-alt`（或同取 `--sf-btnalt-bg` / `--sf-btnalt-fg` / `--sf-btnalt-border` 的等价类；现取 `frontend/src/styles.css:345-349` + `theme/tokens.js:138-140` 日档 / `:259-262` 夜档）· `font-weight:600` · `border-radius` 沿用该家族。
+- **高度不强制 34**：`--sf-st-h-btna` 只在 `.btn.btn-a*` 上生效；行内动作按钮允许 **28（保持行高不变）** 或 **34（行高随之上抬）** 二选一，**但同一列表内必须一致**，且按 §26.13.2「行高口径 ③」登记实测值。
+- 文案：【编辑】**复用** `t('common.edit')`（现取 `frontend/src/locales/zh.json` `common.edit` =「编辑」）；【降价】**新增 1 键**（建议 `item.lowerPrice`、四语齐备）⇒ **不得留裸中文**、**不得复用语义不符的既有键**；**键名不冻结**（§26.13.8）。
+- **零新 token（硬）**：不得新增 `TOKEN_KEYS` / `theme-tokens.css` / `STRUCT_PROV` 条目；按钮不得引入**第三个色值**（承 §26.12.5 #17 的色值面；黄/绿标签的面不受本节影响）。判负 #33。
+- **手机档触达（承 `T77`）**：`≤767` 两按钮 `min-height/min-width ≥ 44px`（`min-height:44px` 等**包在既有 767 块内**；**不得改** `--sf-st-h-btna`、**不得新增断点类型**）；桌面档**几何零变化**（除新增动作区自身占位）。
+
+#### 26.13.5 降价弹窗（**行内选择弹层** or **modal** · 形态二选一、行为不自由）
+
+| 项 | 要求（硬） |
+|---|---|
+| 载体 | 行内弹层 / modal **二选一皆可**；**不得跳页**、**不得**用 `window.prompt`/`alert` |
+| 可访问 | `role="dialog"` + `aria-modal="true"` + `aria-labelledby`；ESC 关闭；打开时焦点入输入框；关闭后焦点回触发按钮 |
+| 内容 | **现价（只读展示）** + 输入框（`inputMode="numeric"`）+【确认】+【取消】 |
+| **提交闸（硬）** | **新价必须是整数且 `1 ≤ 新价 < 现价`**；**等值（= 现价）与加价（> 现价）一律不可提交** |
+| 非法态 | 【确认】**`disabled`** **且**出现**内联提示** `data-sf-m="trades-lower-price-error"` —— **两者缺一即判负**（只置灰无提示 = 用户不知道为什么） |
+| 提交 | **单次** `PATCH /api/listing/:listingId`，body **仅** `{ price }`（单字段 ⇒ 字段模式，承 route §49.12.2）；**不得**夹带 `to_status` |
+| 成功 | 该行价格文本**当场**变为新价（**不跳页、不整表重取、不刷新浏览器**），弹层关闭；**行内即时更新 = 唯一合格形态** |
+| 失败 | 弹层**不关**、错误落在弹层内（同锚或并列锚）；**不得**静默吞错、不得只 `console` |
+| 并发 | 提交中【确认】置 `disabled`（防双击双写） |
+
+- **最小价口径（登记 · 与 Kevin 字面差）**：Kevin 原话「必须低于当前价（**≥0.01**）」；**现取** `listing.price` 为**整数 bigint**（`toBigIntLike(..., 'listing.price', 1)` ⇒ 小数入参 400 `NOT_AN_INTEGER`）、`cid=1` `decimals = 0` ⇒ 本节读作「**整数且 `1 ≤ 新价 < 现价`**」（即「至少差一个最小计价单位」）。真要落到 `0.01` = 改列类型 + 引入小数计价 ⇒ **另立单**，本册不授权。前端闸**必须与后端同口径**：前端若放行小数 ⇒ 提交必 400（判负 #26 家族）。
+- **弹层不得承载其它编辑**（只改价；改标题/描述/图片 ⇒ 走编辑页）——混装 ⇒ 判负 #35。
+
+#### 26.13.6 编辑页 `/item/:id/edit`
+
+- **表单同源（硬）**：必须复用发布页表单（`frontend/src/pages/item/PublishItemPage.jsx` 的字段集、钩子与校验），**不得另写一套**（复制一份 ⇒ 修一处漏一处）。判负 #34。
+- **预填 6 项不漏（硬）**：`title` / `description` / `price` / `stock` / **图片**（`media_urls`：顺序保留、缩略图数 = URL 数）/ **`item_type` 级联三控件**（一级 `digital|physical` + 二级 `auto|manual` 或 `free|buyer` **由 `item_type` 反推**；`NULL` ⇒ 一级未选、二级不渲染）。任一项落成空值/默认值 ⇒ 判负 #29。
+- **禁猜补**：`item_type = NULL` 时**不得**替用户默认选一个值（承 data §40.8 E「`NULL` = 未分类、禁猜补」）⇒ 判负 #30。
+- 标题与提交按钮用「编辑」语义（复用 `common.edit`），**不得**仍写「发布」。
+- 保存 ⇒ **单次** `PATCH` 字段模式；成功后离开编辑页（回 `/item/:id` 或回 `/profile/trades/published`，二选一由实现定）；**不得**留在编辑页且列表不刷新。
+- **只读行**：`sold` / `delisted` 行直达该 URL ⇒ **只读提示 + 回列表入口**，**不得**渲染可提交表单（判负 #35）。
+
+#### 26.13.7 判负（**#25–#35** · 与 §26.12.5 #15–#19、§26.12.8 A-E #20–#24 **并存、只增不改**）
+
+| # | 探针 | 期望（违反即判负） |
+|---|---|---|
+| **25** | 行状态矩阵：`draft` / `listed` / `sold` / `delisted` / `null` 五行 | `sold` / `delisted`（及未知值）行出现**任一**按钮（可见、`disabled` 可见、CSS 隐藏但 DOM 在场）⇒ **判负** |
+| **26** | 弹窗输入 = 现价（等值）与 = 现价 + 1（加价） | 【确认】可点 / 请求发出 / 后端 200 ⇒ **判负**（两种都必须被前端闸拦下） |
+| **27** | 弹窗输入 `0` / `-1` / `1.5` / 空 / 非数字 | 可提交 ⇒ **判负**（且后端同口径 400） |
+| **28** | 合法降价提交成功后的**行内**价格文本（不刷新页面、不跳页） | 价格**未变**，或必须整页刷新/重进列表才变 ⇒ **判负** |
+| **29** | 编辑页预填对拍（6 项：`title`/`description`/`price`/`stock`/`media_urls`/`item_type`） | 任一字段为空值/默认值/与库内值不等（含图片数不符、顺序被打乱）⇒ **判负** |
+| **30** | `item_type` 级联预填（四值各一行 + `NULL` 一行） | 级联未反推（一级/二级与库内值不符）**或** `NULL` 被替用户默认选中 ⇒ **判负** |
+| **31** | 点击【降价】/【编辑】后的 URL 与 history 长度 | 触发整行跳转到 `/item/:id`（冒泡未拦）⇒ **判负**；动作区嵌在 `<a>` 内 ⇒ **判负** |
+| **32** | 钩子面：`trades-published-item` 的宿主节点 | 钩子被改名，或不在**行容器**上（如挂在按钮/链接区）⇒ 存量断言无法最小改锚 ⇒ **判负** |
+| **33** | 两按钮的 `getComputedStyle` + `tokens.js` / `theme-tokens.css` 增量 | 出现**第三个色值**、或新增 token 条目、或按钮不用 `--sf-btnalt-*` 三色 ⇒ **判负** |
+| **34** | 编辑页字段实现来源（组件树 / 钩子集） | 另写一套表单（字段钩子与发布页不同源、或校验逻辑复制一份）⇒ **判负**；保存发出 **2 次**写请求 ⇒ **判负** |
+| **35** | `sold`/`delisted` 行直达 `/item/:id/edit`；降价弹层内的字段面 | 渲染可提交表单 ⇒ **判负**；弹层内出现价格以外的可编辑字段 ⇒ **判负** |
+
+- **原判负不废**：§26.12.5 #15–#19、§26.12.8 E #20–#24 **继续全额有效**；本节 #33 与 #17（色值面）**同一口径**、只把作用面扩到动作区按钮。
+
+#### 26.13.8 读数登记项（不判负）
+
+- 弹层形态（行内弹层 / modal）、弹层宽与圆角、内联提示的位置（输入框上方/下方）。
+- 两按钮的**先后顺序**（【降价】在前或【编辑】在前皆可，**同页必须一致**）。
+- 类名后缀（`sf-prof-actions` / `sf-prof-row-link` / `sf-prof-row--act` 仅为建议）：要求**可检索、不与既有类冲突、不新造 `data-sf-m` 家族前缀**。
+- 【降价】文案键名（`item.lowerPrice` 仅为建议）；i18n 计数（top / flat / nodes）**由实现单现取**，**本册不预填**。
+- 编辑页标题文案与按钮文案的最终字面。
+
+#### 26.13.9 未做（本笔零代码 · 明账）
+
+- **未实现**：行结构改造、两按钮、降价弹层、`/item/:id/edit` 页面 —— 一行代码未写；**未跑任何浏览器实测 / 单测 / 截图**；§26.13.7 十一位判负**一条未跑**。
+- **未取得**：行高与按钮实高的现取读数（`draft`/`listed` 两态、`390`/`1536` 两档）、新增文案键的四语计数 —— 均标 `NOT_MEASURED`，本册不预填。
+- **连带**：route **§49.12** · master **§5.439 + 版本行 v0.356** · 交付件 `ops/published-actions/SPEC-NOTE.md`。本笔**只写 `docs/**` 与 `ops/published-actions/**`**，零代码、零迁移、零测试改动、**不 push**；`git diff --numstat` **删除列 0**（纯追加）。**本册不升版**（承 §26.12 / §26.12.8 加性续登体例）。
