@@ -78,3 +78,12 @@
 - **现取（2026-10-20 · HEAD `09943ba`）**：regs **111**（get 50 / post 57 / put 0 / delete 3 / patch 1）· 迁移末位盘上 **`0061_listing_allow_multi_buy.sql`**（untracked 未提交）、`0062` 零命中 · `requireAdmin`（`index.ts:480`，34 处）· `manage_tasks` 在权限闭集（`database.ts:21`）· 迁移链无名为 `task` 的表 · **DB 面 `NOT_MEASURED`**（本环境连不上 Neon）。
 - **未做（`NOT_MEASURED` · 本册不预填）**：`0062` 未落盘 / 两库未 apply / 七路由未注册 / **118 为预计值未回填** / 状态机与覆盖 upsert 未实现 / 页面与 i18n 零代码 / 判负三族一条未跑；**零代码 / 零迁移文件 / 零库写 / 零 HTTP 实测**。
 - **本笔** = 只写 `docs/data-layer.spec.md`（§40.14）、`docs/route-layer.spec.md`（§49.18）、`docs/design/design-system.spec.md`（§26.19）、`docs/seafood.master-plan.md`（§5.446 ＋ 版本行 v0.363）、本文件五件；`git diff --numstat` **删除列 = 0**；`git reset -q` 后只 add 自己路径、**不 push**。
+
+## 6. prediction 追加登记（Kevin 2026-10-20 同日指令 · 2026-10-20 追加 · 原始会话未入仓 ⇒ 出入以 Kevin 一句话为准）
+
+- **payload 形状**：`subtask.payload`（prediction 专用）= 恰四键 `{ option_a, option_b, prize_amount, deadline }` —— prize 单位**恒 `$`**、选项**恰两枚非空**、`deadline` 必填；回填键 `correct_option ∈ {'a','b'}`（settle 口独占写、创建写口禁带、**零新列**，五表形状不变）。
+- **用户侧**：`subtask_proof.payload` = `{ choice: 'a'|'b' }`；`UNIQUE(subtask_id, uid)` ⇒ **一人一票不可改**（prediction 重提 = 拒绝 409 —— 类型级例外，通用「重提覆盖 200」与 #57 / CP-N2 字面对 prediction 不适用）。
+- **状态机扩展**：prediction 子任务 **`open → deadline_reached → settled`**（读时派生、零新列零定时器；settled 需 `correct_option ∈ {a,b}`，一次性封板；`deadline_reached` 起投票关闭 —— 本单裁定建议形，一句话可改）。
+- **结算分发**：管理员口 **`POST /api/campaign/subtask/:subtaskId/settle`**（body `correct_option`，闸 `manage_tasks`）= 回填 ＋ 一次性分发**同一事务**：每个选对用户台账各入 `floor(prize ÷ 正确人数)`，**余数归平台收入**（既有整数分账纪律）；奖池不预扣不冻结（一句话可改）；正确人数 = 0 ⇒ 整笔归平台收入（建议形待 Kevin 确认）；重复 settle ⇒ 409 防二次分发。**注册点 118 → 119（预计 +1：post 61）**，`p7b-03` `AC10-2` 随 119 前推。
+- **判负（新增三族）**：data §40.14.8 **CP-PN1…PN4**（奖池非 $ / 选项 ≠2 / 截止前回填 / 重复投票）· route §49.18.6 **#61–#64**（同四条 ＋ 重复分发）· design §26.19.5 **#77–#78**（三选项 / 自由文本）。
+- **落点**：data §40.14.8 / route §49.18.6 / design §26.19.5 / master §5.446 **G.** 行；本笔纯追加删行 **0**、只写 `docs/**` ＋ 本文件、commit **不 push**。

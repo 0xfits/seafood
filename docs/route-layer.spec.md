@@ -10108,6 +10108,19 @@ ORDER BY score DESC, l.time_created DESC, l.listing_id DESC
 - **现取（2026-10-20 · HEAD `09943ba` · 工作区非干净 12 路径，属并行多件购买/item-id 面，与本单无关）**：注册点 **111**（get 50 / post 57 / put 0 / delete 3 / patch 1）· 迁移末位盘上 **`0061_listing_allow_multi_buy.sql`**（untracked、未提交），`0062` 零命中 · `requireAdmin` 在册（`index.ts:480`，34 处调用）· 权限键闭集含 `manage_tasks`（`database.ts:21`）· 现行迁移链无任何名为 `task` 的表（grep 现取 0）· 旧路由族坐标 `:707`/`:721`/`:1116`/`:1132`/`:1172`/`:1227`/`:2194`–`:2229`/`:2623` 起。
 - **未做（`NOT_MEASURED` · 本册不预填）**：`0062` 未落盘 / 两库未 apply / 七路由未注册 / **118 为预计值未回填** / 计数变体未裁 / 判负 #54–#60 与 CP-N1…N6、#70–#76 一条未跑；**零 HTTP 实测 / 零库写 / 零代码**。本笔只写 `docs/**` ＋ `ops/campaign/**`，**不 push**。
 
+#### 49.18.6 prediction（预测）机制（投票复用 R3 ＋ 结算新口 R8 · **注册点 118 → 119（预计 +1）** · 追加于本节末、不新开节 · 依据 = Kevin 2026-10-20 prediction 五点契约，逐字转引自派单，**原始会话未入仓 ⇒ 出入以 Kevin 一句话为准**）
+
+- **用户投票 = 复用 R3 proof 口，零新口**：`POST /api/campaign/subtask/:subtaskId/proof`，`type=prediction` 时 payload 校验 = 单键 **`{ choice: 'a'|'b' }`**（data `CP-P3`；越值/多键/缺键 ⇒ 400 借码）；**重提 = 拒绝 409**（一人一票不可改，data `CP-P4` —— **#57 通用字面对 prediction 不适用**：prediction 重提 409 = 正确表现，返回 200 = 重复投票放行 ⇒ #64 判负）。
+- **结算 = 新管理员口 R8**：**`POST /api/campaign/subtask/:subtaskId/settle`**（`:subtaskId` 谓词同 R3：`subtask_id OR snowflake_id` 单语句）· 闸 `requireAdmin(manage_tasks)`（401/403 承既有）· body = **`{ correct_option: 'a'|'b' }`**（缺键/越值 ⇒ 400 借码）· 闸链 = subtask 存在（404）→ `type=prediction`（非 prediction ⇒ 400 借码）→ 未回填 → **`now ≥ deadline`**（deadline 前 ⇒ 409 借码 reason `prediction_deadline_not_reached`）→ 结算 = 回填 `correct_option` ＋ 一次性分发**同一事务**（data `CP-P5` / `CP-P6`：`floor(prize ÷ 正确人数)` 入选对用户台账、余数归平台收入）；已 settled ⇒ 409 `prediction_already_settled`（防二次分发）。
+- **注册点（预计）**：R8 = post +1 ⇒ **118 → 119**（get 52 / post **61** / put 0 / delete 3 / patch 3；承 §49.18.2 逐 verb 相加）；回填硬判据同前（实现后现取逐字）；`p7b-03` 的 `AC10-2` 常量随 **119** 前推（实现单回填时对数，本单不动）。
+- **错误码（零新码 · 33 码闭集不动）**：401 既有 auth / 403 `AUTH_FORBIDDEN`＋`ACTOR_NOT_ALLOWED` / 404 reason `campaign_not_found` / 400 借 `LEDGER_AMOUNT_INVALID`（reason 建议 `prediction_payload_shape` / `prediction_choice_shape`，字面回填可调）/ 409 借 `LEDGER_INSUFFICIENT_BALANCE`（reason 建议 `prediction_vote_locked` / `prediction_deadline_passed` / `prediction_deadline_not_reached` / `prediction_already_settled`）—— reason 字符串**不进**闭集（承 §49.18.3 体例）。
+- **判负（#61–#64 · 承 #54–#60 家族只增不改）**：
+  1. **#61 奖池非 $**：prediction payload 出现非 `$` 单位语义（加币种键 / 单位换义）⇒ 判负。
+  2. **#62 选项 ≠ 2**：prediction payload 选项 ≠ 恰两枚非空（写口未 400 或读出错形状）⇒ 判负。
+  3. **#63 截止前回填**：`now < deadline` 时 R8 返回 200（或已产生分发台账）⇒ 判负。
+  4. **#64 重复投票 / 重复分发**：prediction 同键重提返回 200、choice 被改写、或 R8 重放产生**第二笔**分发台账 ⇒ 判负（一次性 = 分发台账恰一拨）。
+- **未做（`NOT_MEASURED` · 本册不预填）**：R8 未注册 / **119 为预计值未回填** / payload 类型级校验未实现 / 判负 #61–#64 一条未跑；零代码 / 零 HTTP 实测 / 零库写。
+
 ### 49.19 项目（打工/工资体系）七面路由（公开 2 ＋ 用户 4 ＋ 管理员 1 · **注册点 111 → 125（两级预计：§49.18 的 +7 亦未注册，回填前不冒充实测）** · 配置写零新路由 · 零新错误码）· 2026-10-20 · **v2.46**（新路由 ⇒ 升版；**头注不改写**，承 §49.15 / §49.18 体例）· 纯追加
 
 > **依据**：Kevin 2026-10-20 四点 clarify（逐字转引自本单派单，**原始会话未入仓** ⇒ 出入以 Kevin 一句话为准）—— ① 活跃/离线 = 近 1 小时内任意登录态请求（2/时 vs 1/时，逐小时桶落地承 data §40.15.3）；② 电量只在被招工期间累积（从 `hired_at` 起算）；③ 原 H5【招工】入口文案改【任务】（design §26.20.1 承接）；④ 建项目费 = 创建者 $ 扣款入平台收入、`app_config` 键 `project_create_fee` 默认 10000 可改。**姊妹面** = `data-layer.spec` **§40.15**（四表 ＋ 两既有面 `PR-1…PR-9`）＋ `design-system.spec` **§26.20** ＋ `master-plan` **§5.447 / v0.364** ＋ `ops/project/SPEC-NOTE.md`。**本单零代码**（契约冻结，实现归并行后端单）。

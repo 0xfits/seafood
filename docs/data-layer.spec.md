@@ -5791,6 +5791,24 @@ CONSTRAINT listing_item_code_shape_ck CHECK (
 - **CP-N6 seed 漏行/多行**：`subtask_type` ≠ 恰 **5** 行，或 `label`/`sort` 与 `40.14.3` 表不一致，或出现 `poll` ⇒ 判负。
 - **未做（`NOT_MEASURED` · 本册不预填）**：`0062` 未落盘 / 两库未 apply / 七路由未注册 / 状态机与覆盖 upsert 未实现 / 判负 CP-N1…N6 与 route #54–#60、design #70–#76 一条未跑；**零代码 / 零迁移文件 / 零库写 / 零 HTTP 实测 / 不 push**。
 
+#### 40.14.8 prediction（预测）机制契约（`CP-P1`…`CP-P7` ＋ 判负 `CP-PN1`…`CP-PN4` · 追加于本节末、不新开节 · 依据 = Kevin 2026-10-20 prediction 五点契约，逐字转引自派单，**原始会话未入仓 ⇒ 出入以 Kevin 一句话为准**）
+
+> **类型级例外声明**：本段对 `prediction` 类型**定向覆盖** `40.14.4` 的通用 proof 面 —— 通用四族 payload 映射（`prediction ⇒ answers`）与「重提覆盖 last-write-wins」对 prediction **不适用**（旧字面逐字保留可检索；prediction 以本段为准）。其余四类（`x_verify` / `onchain_snapshot` / `survey` / `quiz`）不受影响。
+
+- **CP-P1 子任务载荷形状（prediction 专用）**：`subtask.payload` = 恰四键闭集 **`{ option_a, option_b, prize_amount, deadline }`** —— `option_a` / `option_b` = **非空字符串恰两枚**（三枚/一枚/空串/数组形态 ⇒ 400）；`prize_amount` = 正整数，**单位恒 `$`**（**不设币种键**，带 `currency`/单位类键 ⇒ 400）；`deadline` = 必填 timestamptz（ISO 串，写口校验可解析）。缺键/未知键/形状不合 ⇒ 400 借码（承 `40.14.4` payload 闸 ＋ §49.18.3 借码体例）。
+- **CP-P2 回填键 `correct_option`（结算专用、零新列）**：payload 闭集之外唯一合法键 = **`correct_option`**，值域 **`{'a','b'}`**；**创建写口禁带**（带 ⇒ 400 `NOT_SUPPORTED`）、**settle 结算口独占写**（route §49.18.6 R8）。载体 = payload 内键 ⇒ **五表列契约 CP-1…CP-5 一字不动、迁移 `0062` 形状不变**；实现单若裁定改列承载 ⇒ 计数变体一句话可改，回填登记。
+- **CP-P3 用户侧凭证形状**：`subtask_proof.payload`（prediction）= **单键 `{ choice: 'a'|'b' }`**（越值/多键/缺键 ⇒ 400）。
+- **CP-P4 一人一票不可改（类型级例外）**：`UNIQUE (subtask_id, uid)` 对 prediction = **首票即定**；同键重提 = **拒绝**（409 借码，建议 reason `prediction_vote_locked`，回填可调）—— 与 `40.14.4` 通用「重提覆盖 200」**方向相反**；**CP-N2 / route #57 的通用字面对 prediction 不适用**（prediction 重提 409 = 正确表现，返回 200 = 重复投票放行 ⇒ CP-PN4）。
+- **CP-P5 状态机扩展（prediction 子任务生命周期）**：**`open → deadline_reached → settled`**，三态**读时派生、零新列零定时器**（承 CP-6「零定时器」纪律）：`open` = 未回填 ∧ `now < deadline`；`deadline_reached` = 未回填 ∧ `now ≥ deadline`；`settled` = `correct_option ∈ {'a','b'}` 已回填（**一次性封板**：落定后不可改写，重复 settle ⇒ 409 `prediction_already_settled`，防二次分发）。`deadline_reached` 起投票关闭（R3 拒新投票，409 借码，建议 reason `prediction_deadline_passed` —— 本单裁定建议形，一句话可改）。
+- **CP-P6 结算分发（一次性）**：结算动作 = 管理员/项目方回填正确选项后**一次性分发**，**回填与分发同一事务**（回填成功而分发失败 = 账实分裂 ⇒ 判负）；向每个选对用户的积分台账各入 **`floor(prize_amount ÷ 正确人数)`**；**余数（`prize_amount − floor × 正确人数`）归平台收入**（按仓内既有整数分账纪律：floor ＋ 余数进平台，不零花）。**奖池不预扣不冻结**（分发时由平台收入承付直接入账；「预扣托管」另单挂账需 Kevin 口径，一句话可改）；**正确人数 = 0** ⇒ 整笔归平台收入（余数规则的极限形态，本单建议形，待 Kevin 一句话确认、不阻塞）。
+- **CP-P7 分发幂等性（结构保证而非重放）**：分发行以 settle 事务内逐用户插入为**唯一写入口**；无「补发」动作 —— 漏发走管理员积分通道另案，禁按 proof 重算补发（防二次分发）。
+- **判负（`CP-PN1`…`CP-PN4` · 与 CP-N1…N6 并存、只增不改）**：
+  - **CP-PN1 奖池非 $**：prediction payload 出现非 `$` 单位语义（加币种键 / `prize_amount` 改名换义）⇒ 判负。
+  - **CP-PN2 选项 ≠ 2**：选项 ≠ 恰两枚非空（三选项 / 单选项 / 空串 / 数组 / 键名漂移）⇒ 判负（写口应 400）。
+  - **CP-PN3 截止前回填答案**：`now < deadline` 时回填 `correct_option` 返回 200（或已分发）⇒ 判负（应 409；settled 只许 deadline 后）。
+  - **CP-PN4 重复投票放行**：prediction 同键重提返回 200（覆盖 choice 或新增行）⇒ 判负（一人一票不可改）。
+- **未做（`NOT_MEASURED` · 本册不预填）**：CP-P1…P7 未实现 / settle 口未注册 / 分发未落台账 / 判负 CP-PN1…PN4 一条未跑；本笔零代码 / 零迁移文件改动 / 零库写 / 零 HTTP 写。
+
 ## §40.15 ★★ v0.45 · 项目（打工/工资体系）六面契约：四张新表 `project` ＋ `project_worker` ＋ `project_wage_claim` ＋ `user_activity_hour` ＋ `app_config` 新键 `project_create_fee` ＋ 台账/batt 衔接面 · 迁移 `0063_project_jobs.sql`（**预计** · 0062 已被 §40.14 占用）（**本节只追加 · §1–§40.14 一字未动** · 依据 = Kevin 2026-10-20 四点 clarify「① 活跃/离线判定 = 近 1 小时内有任意登录态请求 = 活跃（2/时），否则离线（1/时）；② 电量**只在被招工期间累积**（未招工不累积，被招后从入职时刻起算）；③ 原 H5【招工】入口文案改为【任务】；④ 建项目费：从创建者 $ 余额扣、走既有积分台账入平台收入，费额存 `app_config` 键 `project_create_fee`（默认 10000，管理员可改）」 · 迁移由实现单落盘 / apply 由 Zang · 零代码 / 零迁移文件改动 / 零库写 / 零 HTTP 写）
 
 > **本节性质**：**只追加**（§40.14 全文逐字保留；**头注版本块不改写**，承 §40.8.1–§40.14「加性续登、不改头注」体例，以本行 **`v0.45`** 为现行版读数）。`DL` 编号域**零改动**（仍 `DL1..DL157`），`EL-*` / `ID-*` / `MB-*` / `CP-*` **零改动**；本节以 **`PR-*`** 承载。**姊妹册** = `route-layer.spec` **§49.19**（七口路由矩阵 · v2.46 新路由升版）＋ `design-system.spec` **§26.20**（招工→任务文案 ＋ 项目页面骨架）＋ `master-plan` **§5.447 / 版本行 v0.364** ＋ `ops/project/SPEC-NOTE.md`。**计数披露**：派单称「六表」，实为新表 **4** 张 ＋ 既有面 **2** 处（`app_config` 键面、ledger/batt 台账衔接面），本节按实数落册、不虚增。

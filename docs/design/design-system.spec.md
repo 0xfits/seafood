@@ -4314,6 +4314,15 @@ showEdit     = isAuthenticated && (isOwner || canEditAny) && statusEditable
 - **落点**：新页面 CSS 落页面级文件（`pages/campaign/…` 建议形）；**零 `TOKEN_KEYS` 变更**（免四处 PROV，承 §26.18.7）。
 - **未实现/未测**：两条页面路由、两形态骨架、i18n 键 —— **一行代码未写**；判负 #70–#76 一条未跑；零截图、零 HTTP 实测、零库写。本笔只写 `docs/**` ＋ `ops/campaign/**`，**不 push**；`git diff --numstat` **删除列 = 0**。
 
+#### 26.19.5 prediction（预测）子任务 UI 形态（建议形 · 零实现 · 追加于本节末、不新开节）
+
+- **形态四件**（详情页子任务卡内的 prediction 卡，承 26.19.1 两级结构）：① **题目** = `subtask.title`（＋ `content` 长文行）；② **两枚选项大按钮** = `payload.option_a` / `payload.option_b` 各一枚（**恰两枚、同构等权**，触控目标 **≥44**（≤767 档承 §13）；点击 = 提交 `{choice:'a'|'b'}`，**提交后锁定为已选态、不可再点不可改**（一人一票，data `CP-P4`））；③ **截止时间行** = `payload.deadline` 本地时区格式化（禁 ISO 直出，承 #72）；④ **结算后（settled）** = **正确选项高亮标记** ＋ **个人输赢**（选对 ⇒ 「+N」瓜分额；选错 ⇒ 未中奖态；**N = 服务端派生**（建议 settle/读口透出 `payout`），前端**禁按公式自算金额**（承「客户端只读、永不本地算」纪律））。`deadline_reached` 未 settled 态 = 展示「已截止 · 待结算」（建议键，禁静默无呈现）。
+- **i18n**：建议键族 `campaign.prediction.*`（`deadlineRow` / `voteLocked` / `awaitSettle` / `winLabel` / `loseLabel` 等）⇒ **零键落地**、计数 `NOT_MEASURED`，落地后现取回填（基线现取 = §26.19.2 行）。
+- **判负（#77–#78 · 承 #70–#76 家族只增不改）**：
+  1. **#77 三选项**：渲染三枚及以上选项 ⇒ 判负（数据源 payload 恰 `option_a`/`option_b`、UI 恰两枚大按钮）。
+  2. **#78 自由文本**：选项渲染成自由文本输入（`<input>`/`<textarea>` 填空形态）⇒ 判负（投票 = 二选一按钮，非填空）。
+- **未做**：零实现（本节为形态预留，实现单可调）；判负 #77–#78 一条未跑；零截图 / 零 i18n 键 / 零代码。
+
 ## §26.20 【招工】→【任务】文案变更登记 ＋ 项目（打工/工资体系）页面骨架预留：`/project` ＋ `/project/create` ＋ `/project/:ref` ＋ `/project/mine`（H5/Web 两形态 · **零实现、零 token、零 i18n 键落地**）（2026-10-20 · **加性续登、不升版**（承 §26.12–§26.19 体例）· 纯追加）
 
 > **依据**：Kevin 2026-10-20 四点 clarify 之③「原 H5【招工】入口文案改为【任务】」＋ 打工/工资体系四点定案（①②④ 落 data §40.15 / route §49.19）。**本节 = 文案变更登记 ＋ 骨架预留 ＋ 判负**（页面路由建议形、区块语义、判负），**一行前端代码未写**（实现归并行前端单）。**连带** = `data-layer.spec` §40.15（四表）· `route-layer.spec` §49.19（七口 · 页面路由不计注册点）· `master-plan` §5.447 ＋ 版本行 v0.364 · `ops/project/SPEC-NOTE.md`。
