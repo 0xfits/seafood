@@ -1,0 +1,179 @@
+/* /wage · 领工资（Kevin 2026-10-20 需求②）
+ *
+ * 纪律（与 jobs.css / item.css 同族）：
+ *   · 颜色一律取主题 token（--sf-*，日/夜只差值）；几何取结构常量（--sf-st-*，两档同值）
+ *     ⇒ 切档只变颜色、rect 逐值相等；
+ *   · 本文件**不写**任何按主题分支的规则（无 [data-theme] 选择器、无 matchMedia）；
+ *   · 断点沿用全站唯一 767（≤767 = 一列 + 触控目标 ≥44）；列数本身交给 auto-fill，
+ *     两档之间不新增骨架、不做 JS 宽度判定；
+ *   · 不挂 `.sf-btn` 家族基类（该家族的清单与几何另有冻结断言）⇒ 本页动作按钮用页内
+ *     `.sf-wage-btn`，颜色仍逐槽取同一批 token。
+ */
+
+.sf-wage-page {
+  --sf-w-ctl-h: 34px;
+}
+
+.sf-wage-head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: var(--sf-st-feed-gap-m);
+}
+
+.sf-wage-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--sf-st-feed-gap-m);
+  align-items: start;
+}
+
+.sf-wage-card {
+  padding: 13px 14px;
+  gap: 10px;
+}
+
+.sf-wage-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.sf-wage-card-title {
+  color: var(--sf-title-fg);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.sf-wage-status {
+  flex: none;
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-tag-border);
+  border-radius: var(--sf-st-radius-btna);
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sf-wage-status.is-open {
+  background: var(--sf-btna-bg);
+  border-color: var(--sf-btna-border);
+  color: var(--sf-btna-fg);
+}
+
+.sf-wage-status.is-closed {
+  background: var(--sf-tag-bg);
+  color: var(--sf-tag-fg);
+}
+
+.sf-wage-card-desc {
+  margin: 0;
+  color: var(--sf-meta-fg);
+  font-size: 13px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.sf-wage-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  color: var(--sf-meta-fg);
+  font-size: 13px;
+}
+
+.sf-wage-pay {
+  color: var(--sf-title-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.sf-wage-pay-extra {
+  margin-left: 6px;
+  color: var(--sf-meta-fg);
+}
+
+.sf-wage-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.sf-wage-in-service {
+  color: var(--sf-meta-fg);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sf-wage-btn {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--sf-w-ctl-h, 34px);
+  padding: 8px var(--sf-st-padx-btna);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-btna);
+  background: var(--sf-panel-bg);
+  color: var(--sf-title-fg);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.sf-wage-btn.is-primary {
+  background: var(--sf-btna-bg);
+  border-color: var(--sf-btna-border);
+  color: var(--sf-btna-fg);
+}
+
+.sf-wage-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.sf-wage-hint {
+  color: var(--sf-meta-fg);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.sf-wage-hint.is-warn {
+  color: var(--sf-down-fg);
+}
+
+.sf-wage-notice {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.sf-wage-notice.is-ok {
+  color: var(--sf-up-fg);
+}
+
+.sf-wage-notice.is-err {
+  color: var(--sf-down-fg);
+}
+
+.sf-wage-login {
+  align-items: flex-start;
+}
+
+.sf-wage-login p {
+  margin: 0;
+  color: var(--sf-meta-fg);
+}
+
+/* 手机档：主要动作触控目标 ≥44（全站口径；只在此单断点内抬高，桌面几何不受影响） */
+@media (max-width: 767px) {
+  .sf-wage-btn {
+    min-height: 44px;
+  }
+}

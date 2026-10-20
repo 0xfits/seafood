@@ -13,6 +13,10 @@ import ThemePreviewPage from './pages/ThemePreviewPage'
 import MessagesPage from './pages/MessagesPage'
 // 签到与活动独立页（Kevin 2026-10-14 · 需求③）：电量卡 + 签到区从 /profile 迁出成页。
 import ActivitiesPage from './pages/ActivitiesPage'
+// 领工资（Kevin 2026-10-20 · 需求②）：右侧悬浮菜单第二位入口的落点页。
+// 消费 /api/project/all（招募中/已截止项目 + my_role）、/api/project/<id>/apply、/api/project/<id>/claim；
+// 未登录不跳转，页内给登录提示（登录引导的既有口径不变）。
+import WagePage from './pages/wage/WagePage'
 
 // 招工线（P4-B4c-ii-a）：页面挂在既有 `task` 路由族下（任务中心 = 招工列表，见 §1 #9【保留·改接】）。
 // 路由名全部由**已注册 API 路径**派生（/api/job[/<id>]、/api/task-progress/<id>），不自造新域名。
@@ -125,6 +129,10 @@ const LangShell = () => {
             本轮新增页面路由 = 恰 1 条 `/messages`（LangShell 内层相对段）；X（推特）私信接驳位预留；
             **不得**增 `/nearby`（已由 Kevin 当日变更取代）。 */}
         <Route path="messages" element={<MessagesPage />} />
+
+        {/* 领工资（Kevin 2026-10-20 需求②）：内层相对段 ⇒ 四语前缀同现有写法（/en/wage 等）。
+            入口 = 右侧悬浮菜单第二位；页面自身不包 ProtectedRoute（未登录 ⇒ 页内登录提示）。 */}
+        <Route path="wage" element={<WagePage />} />
 
         {/* 主题/骨架可交互预览件（地基单 4c-i；四语前缀下同样可达） */}
         <Route path="theme-preview" element={<ThemePreviewPage />} />

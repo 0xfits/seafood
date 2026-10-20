@@ -3,7 +3,8 @@
  *
  * 覆盖面（§14.7 判负清单的可测子集，设备档面见浏览器读数）：
  *   ① 底栏（H5）五项 label/href（含四语前缀）
- *   ② 右侧悬浮菜单：五项上→下 / 链接目标 / 三弹窗开关（遮罩 + ESC）/ 反馈弹窗不发起任何提交请求
+ *   ② 右侧悬浮菜单：五项上→下（含 2026-10-20 改版：第二位【领工资】/wage、反馈项已移除）/ 链接目标 /
+ *      两弹窗开关（遮罩 + ESC）/ 反馈钩子与模板位全仓零残留
  *   ③ 悬浮菜单可见性口径：shell.css 桌面默认 display:flex、≤767 唯一断点块内 display:none（唯一 @media）
  *   ④ `/messages` 路由可达（四语前缀）；悬浮菜单挂在 AppShell 中（data-sf-m="floatmenu"）
  *
@@ -122,37 +123,51 @@ describe('v1.5 ① 底栏（H5）五项 label / href（含四语前缀）', () =
 })
 
 describe('v1.5 ② 右侧悬浮菜单（T81–T84）', () => {
-  it('五项上→下 = 卖闲置/消息/APP/反馈/客服，链接目标正确', () => {
+  // ★ 改锚（Kevin 2026-10-20 悬浮菜单改版）：五项 = 卖闲置 / **领工资（第二位，新）** / 消息 / APP / 客服；
+  //   【反馈】项连同其弹窗模板位**已移除** ⇒ 旧锚 ['sell','messages','app','feedback','support'] 前移为下值。
+  //   「先卖闲置、第二位领工资」是被点名的顺序口径，故此处逐位断言（不写成集合比较）。
+  it('五项上→下 = 卖闲置/领工资/消息/APP/客服（无反馈），链接目标正确', () => {
     const { container } = renderIn(<FloatingMenu />, '/')
     const menu = container.querySelector('[data-sf-m="floatmenu"]')
     expect(menu).not.toBeNull()
     const items = Array.from(menu.querySelectorAll('[data-sf-m="floatmenu-item"]'))
-    expect(items.map((el) => el.getAttribute('data-sf-fm'))).toEqual(['sell', 'messages', 'app', 'feedback', 'support'])
+    expect(items.map((el) => el.getAttribute('data-sf-fm'))).toEqual(['sell', 'wage', 'messages', 'app', 'support'])
     expect(items.map((el) => el.textContent.trim())).toEqual([
-      zh.sell, zh.messages, zh.app, zh.feedback, zh.support,
+      zh.sell, zh.wage.menuLabel, zh.messages, zh.app, zh.support,
     ])
-    // 前两项 = 链接（含语言前缀），后三项 = 按钮（开弹窗）
+    // 第二位 = 领工资（文案逐字）
+    expect(items[1].textContent.trim()).toBe('领工资')
+    // 前三项 = 链接（含语言前缀），后两项 = 按钮（开弹窗）
     expect(items[0].tagName).toBe('A')
     expect(items[0].getAttribute('href')).toBe('/item/new')
     expect(items[1].tagName).toBe('A')
-    expect(items[1].getAttribute('href')).toBe('/messages')
-    expect(items.slice(2).every((el) => el.tagName === 'BUTTON')).toBe(true)
-    // 单元间分隔线 = 4 条
+    expect(items[1].getAttribute('href')).toBe('/wage')
+    expect(items[2].tagName).toBe('A')
+    expect(items[2].getAttribute('href')).toBe('/messages')
+    expect(items.slice(3).every((el) => el.tagName === 'BUTTON')).toBe(true)
+    // 反馈项已移除：钩子与文案位全仓不再产出
+    expect(items.some((el) => el.getAttribute('data-sf-fm') === 'feedback')).toBe(false)
+    expect(menu.textContent).not.toContain(zh.feedback)
+    // 单元间分隔线 = 4 条（5 项 ⇒ 4 段）
     expect(menu.querySelectorAll('.sf-fm-div').length).toBe(4)
   })
 
-  it('四语前缀：/en 档下链接带 /en 前缀', () => {
+  it('四语前缀：/en 档下链接带 /en 前缀（含新增的 /en/wage）', () => {
     H.lang = 'en'
     const { container } = renderIn(<FloatingMenu />, '/en')
     const items = Array.from(container.querySelectorAll('[data-sf-m="floatmenu-item"]'))
     expect(items[0].getAttribute('href')).toBe('/en/item/new')
-    expect(items[1].getAttribute('href')).toBe('/en/messages')
+    expect(items[1].getAttribute('href')).toBe('/en/wage')
+    expect(items[2].getAttribute('href')).toBe('/en/messages')
+    expect(items[1].textContent.trim()).toBe(en.wage.menuLabel)
+    // 第二位 href 逐字含 /wage（本单 AC：新入口直达领工资页）
+    expect(items[1].getAttribute('href')).toContain('/wage')
   })
 
-  it('三弹窗：点开出现（role=dialog），关闭按钮可关；关后 DOM 无弹窗节点', () => {
+  it('两弹窗（APP/客服；反馈弹窗已随反馈项移除）：点开出现（role=dialog），关闭按钮可关；关后 DOM 无弹窗节点', () => {
     const { container } = renderIn(<FloatingMenu />, '/')
     const btn = (key) => container.querySelector(`[data-sf-fm="${key}"]`)
-    for (const [key, titleKey] of [['app', 'appModal'], ['feedback', 'feedbackModal'], ['support', 'supportModal']]) {
+    for (const [key, titleKey] of [['app', 'appModal'], ['support', 'supportModal']]) {
       act(() => { fireEvent.click(btn(key)) })
       const dialog = document.querySelector('[role="dialog"]')
       expect(dialog, key).not.toBeNull()
@@ -172,20 +187,26 @@ describe('v1.5 ② 右侧悬浮菜单（T81–T84）', () => {
     expect(document.querySelector('[role="dialog"]')).toBeNull()
   })
 
-  it('反馈弹窗不做任何提交请求（表单占位：readonly 输入 + disabled 提交 + 提示），且无 fetch', () => {
+  // ★ 改锚（2026-10-20 改版 · Kevin 逐字「移除【反馈】」）：原「反馈弹窗不发起提交」用例随该弹窗一并退役，
+  //   语义**不减弱**：改为「反馈项与它的弹窗模板位在 DOM 与源码里都不得再出现」的负断言（钩子 + 源码双面），
+  //   并保留「两个链接项点击不发起任何请求」这一条等价护栏（悬浮菜单打开本身零网络动作）。
+  it('反馈项与反馈弹窗模板位已移除（DOM 钩子 = 0 / 源码零残留 / 文案面不再引用）', () => {
+    const { container } = renderIn(<FloatingMenu />, '/')
+    expect(container.querySelector('[data-sf-fm="feedback"]')).toBeNull()
+    expect(container.querySelector('[data-sf-m="floatmenu-feedback-form"]')).toBeNull()
+    expect(container.querySelector('[data-sf-m="floatmenu-feedback-input"]')).toBeNull()
+    expect(container.querySelector('[data-sf-m="floatmenu-feedback-submit"]')).toBeNull()
+    // 源码面：FloatingMenu.jsx 内不再有 feedback 字样（弹窗模板位不许留死代码）
+    const src = read(path.join(SRC, 'shell/FloatingMenu.jsx'))
+    expect(src).not.toMatch(/feedback/i)
+    // 打开菜单本身零网络动作（两个链接项点击也不发请求）
     const fetchSpy = vi.fn()
     vi.stubGlobal('fetch', fetchSpy)
-    const { container } = renderIn(<FloatingMenu />, '/')
-    act(() => { fireEvent.click(container.querySelector('[data-sf-fm="feedback"]')) })
-    const dialog = document.querySelector('[role="dialog"]')
-    const input = dialog.querySelector('[data-sf-m="floatmenu-feedback-input"]')
-    expect(input.getAttribute('placeholder')).toBe(zh.feedbackModal.formPlaceholder)
-    expect(input.hasAttribute('readonly')).toBe(true)
-    const submit = dialog.querySelector('[data-sf-m="floatmenu-feedback-submit"]')
-    expect(submit.disabled).toBe(true)
-    expect(dialog.textContent).toContain(zh.feedbackModal.submitNote)
-    // 点击提交按钮也不发起请求
-    act(() => { fireEvent.click(submit) })
+    const second = renderIn(<FloatingMenu />, '/')
+    for (const key of ['sell', 'wage']) {
+      const link = second.container.querySelector(`[data-sf-fm="${key}"]`)
+      act(() => { fireEvent.click(link) })
+    }
     expect(fetchSpy).not.toHaveBeenCalled()
     vi.unstubAllGlobals()
   })
@@ -234,6 +255,9 @@ describe('v1.5 ④ /messages 路由可达 + 悬浮菜单挂载于 AppShell', () 
     const app = read(path.join(SRC, 'App.jsx'))
     expect(app).toContain('<Route path="messages" element={<MessagesPage />} />')
     expect(app).toContain("import MessagesPage from './pages/MessagesPage'")
+    // 本单新增：/wage 挂在同一内层（相对段 ⇒ 四语前缀由 LangShell 承担）；页面不包 ProtectedRoute
+    expect(app).toContain('<Route path="wage" element={<WagePage />} />')
+    expect(app).toContain("import WagePage from './pages/wage/WagePage'")
     expect(app).not.toContain('path="nearby"')
   })
 
