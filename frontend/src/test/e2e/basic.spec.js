@@ -14,7 +14,7 @@ test.describe('Jinli Club E2E Tests', () => {
     // Test navigation to tasks page
     await page.click('text=任务')
     await expect(page).toHaveURL(/.*tasks/)
-    await expect(page.locator('h1')).toContainText('任务中心')
+    await expect(page.locator('h1')).toContainText('悬赏中心')
 
     // Test navigation to rewards page
     await page.click('text=奖励')

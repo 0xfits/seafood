@@ -127,7 +127,7 @@ describe('批 7-A · 账本流水前端行为（真 zh locale + 可注入取数�
     await waitFor(() => expect(profileItems(container).length).toBe(3))
 
     const labels = profileItems(container).map((n) => n.querySelector('.sf-jobs-item-title')?.textContent)
-    expect(labels).toEqual(['转让', '任务报酬', '冻结'])
+    expect(labels).toEqual(['转让', '悬赏报酬', '冻结'])
     // 键名不得泄漏（缺键时 `t` 原样返回键名）
     expect(container.textContent).not.toContain('ledger.kind.')
     // 真文案来自 locale：与 zh 表逐字相等

@@ -79,11 +79,11 @@ describe('P6-I18N-LIT-B2 · en 档渲染英文文案（Task / Home / Profile）'
   })
   afterEach(() => { cleanup() })
 
-  it('TaskPage（/en/task）：标题 / 副标题 / 统计 / 分页 Tab / 卡片走英文，中文原文不出现', async () => {
+  it('TaskPage（/en/task）：标题 / 副标题（悬赏口径） / 统计 / 分页 Tab / 卡片走英文，中文原文不出现', async () => {
     render(<MemoryRouter initialEntries={['/en/task']}><TaskPage /></MemoryRouter>)
 
-    expect(await screen.findByText('Task Center')).toBeInTheDocument()
-    expect(screen.getByText('Complete tasks, earn points, unlock rewards')).toBeInTheDocument()
+    expect(await screen.findByText('Bounty Center')).toBeInTheDocument()
+    expect(screen.getByText('Join bounties, earn points, unlock rewards')).toBeInTheDocument()
     expect(screen.getByText('Available (1)')).toBeInTheDocument()
     expect(screen.getByText('To claim (0)')).toBeInTheDocument()
     expect(screen.getByText('Pending Verification (0)')).toBeInTheDocument()
@@ -93,7 +93,7 @@ describe('P6-I18N-LIT-B2 · en 档渲染英文文案（Task / Home / Profile）'
     expect(screen.getByText('Join now')).toBeInTheDocument()
     // 「翻译中」小标：en 档 + `i18n_status:"pending"` ⇒ 渲染
     expect(badgeEl()).not.toBeNull()
-    expect(screen.queryByText('任务中心')).toBeNull()
+    expect(screen.queryByText('悬赏中心')).toBeNull()
     expect(screen.queryByText('任务原文')).toBeNull()
   })
 
