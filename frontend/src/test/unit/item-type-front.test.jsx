@@ -173,6 +173,8 @@ describe('A · 发布页级联三控件 ⇒ 单字段 item_type（四值）', ()
     expect(q(container, 'item-input-ship-buyer')).not.toBeNull()
 
     fireEvent.click(q(container, 'item-input-ship-free'))
+    // ★ 成色四值（迁移 0057）：实物分支必选 ⇒ 否则提交闸先拦
+    fireEvent.click(q(container, 'item-input-condition-likeNew'))
     fillBasics(container)
     submit(container)
     await waitFor(() => expect(publishListing).toHaveBeenCalledTimes(1))
@@ -293,6 +295,8 @@ describe('B · 必选闸：一级未选 / 数字二级未选 / 实物二级未�
     expect(shipGroup(container).getAttribute('aria-invalid')).toBe('true')
 
     fireEvent.click(q(container, 'item-input-ship-buyer'))
+    // ★ 成色四值（迁移 0057）：实物分支必选 ⇒ 否则提交闸先拦
+    fireEvent.click(q(container, 'item-input-condition-minorWear'))
     submit(container)
     await waitFor(() => expect(publishListing).toHaveBeenCalledTimes(1))
     expect(lastPayload().itemType).toBe('PhysicalBuyerShip')

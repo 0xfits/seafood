@@ -1,0 +1,633 @@
+{
+  "generatedAt": "2026-10-20T04:27:28.719Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "fixtures": {
+    "mineRow": {
+      "listing_id": 501,
+      "item_type": "PhysicalFreeShip",
+      "condition": "LikeNew"
+    }
+  },
+  "cases": {
+    "h5_390": {
+      "initial": {
+        "url": "http://sf.local/item/new",
+        "lang": "zh-CN",
+        "overflowPx": 0,
+        "typeGroup": true,
+        "typeChecked": [],
+        "shipChecked": [],
+        "deliverCount": 0,
+        "condition": {
+          "groupPresent": false,
+          "role": null,
+          "ariaRequired": null,
+          "ariaInvalid": null,
+          "missClass": null,
+          "rect": null,
+          "radioCount": 0,
+          "values": [],
+          "labels": [],
+          "checkedValues": [],
+          "hookCount": 0,
+          "anyConditionHook": 0
+        },
+        "formPresent": true,
+        "statusPhase": "idle",
+        "statusText": ""
+      },
+      "physicalBranch": {
+        "url": "http://sf.local/item/new",
+        "lang": "zh-CN",
+        "overflowPx": 0,
+        "typeGroup": true,
+        "typeChecked": [
+          "physical"
+        ],
+        "shipChecked": [],
+        "deliverCount": 0,
+        "condition": {
+          "groupPresent": true,
+          "role": "radiogroup",
+          "ariaRequired": "true",
+          "ariaInvalid": null,
+          "missClass": false,
+          "rect": {
+            "x": 25,
+            "y": 660,
+            "w": 340,
+            "h": 51
+          },
+          "radioCount": 4,
+          "values": [
+            "BrandNewSealed",
+            "LikeNew",
+            "MinorWear",
+            "HeavyWear"
+          ],
+          "labels": [
+            "全新未拆封",
+            "几乎全新",
+            "细微磕碰划痕",
+            "严重磨损"
+          ],
+          "checkedValues": [],
+          "hookCount": 4,
+          "anyConditionHook": 5
+        },
+        "formPresent": true,
+        "statusPhase": "idle",
+        "statusText": ""
+      },
+      "digitalBranch": {
+        "url": "http://sf.local/item/new",
+        "lang": "zh-CN",
+        "overflowPx": 0,
+        "typeGroup": true,
+        "typeChecked": [
+          "digital"
+        ],
+        "shipChecked": [],
+        "deliverCount": 2,
+        "condition": {
+          "groupPresent": false,
+          "role": null,
+          "ariaRequired": null,
+          "ariaInvalid": null,
+          "missClass": null,
+          "rect": null,
+          "radioCount": 0,
+          "values": [],
+          "labels": [],
+          "checkedValues": [],
+          "hookCount": 0,
+          "anyConditionHook": 0
+        },
+        "formPresent": true,
+        "statusPhase": "idle",
+        "statusText": ""
+      },
+      "beforeSubmit": {
+        "url": "http://sf.local/item/new",
+        "lang": "zh-CN",
+        "overflowPx": 0,
+        "typeGroup": true,
+        "typeChecked": [
+          "physical"
+        ],
+        "shipChecked": [
+          "free"
+        ],
+        "deliverCount": 0,
+        "condition": {
+          "groupPresent": true,
+          "role": "radiogroup",
+          "ariaRequired": "true",
+          "ariaInvalid": null,
+          "missClass": false,
+          "rect": {
+            "x": 25,
+            "y": 660,
+            "w": 340,
+            "h": 51
+          },
+          "radioCount": 4,
+          "values": [
+            "BrandNewSealed",
+            "LikeNew",
+            "MinorWear",
+            "HeavyWear"
+          ],
+          "labels": [
+            "全新未拆封",
+            "几乎全新",
+            "细微磕碰划痕",
+            "严重磨损"
+          ],
+          "checkedValues": [
+            "LikeNew"
+          ],
+          "hookCount": 4,
+          "anyConditionHook": 5
+        },
+        "formPresent": true,
+        "statusPhase": "idle",
+        "statusText": ""
+      },
+      "submitWait": {
+        "postsBefore": 0,
+        "postsAfter": 1
+      },
+      "afterSubmit": {
+        "url": "http://sf.local/item/9001",
+        "lang": "zh-CN",
+        "overflowPx": 0,
+        "typeGroup": false,
+        "typeChecked": [],
+        "shipChecked": [],
+        "deliverCount": 0,
+        "condition": {
+          "groupPresent": false,
+          "role": null,
+          "ariaRequired": null,
+          "ariaInvalid": null,
+          "missClass": null,
+          "rect": null,
+          "radioCount": 0,
+          "values": [],
+          "labels": [],
+          "checkedValues": [],
+          "hookCount": 0,
+          "anyConditionHook": 0
+        },
+        "formPresent": false,
+        "statusPhase": null,
+        "statusText": null
+      },
+      "edit": {
+        "url": "http://sf.local/item/501/edit",
+        "lang": "zh-CN",
+        "overflowPx": 0,
+        "typeGroup": true,
+        "typeChecked": [
+          "physical"
+        ],
+        "shipChecked": [
+          "free"
+        ],
+        "deliverCount": 0,
+        "condition": {
+          "groupPresent": true,
+          "role": "radiogroup",
+          "ariaRequired": "true",
+          "ariaInvalid": null,
+          "missClass": false,
+          "rect": {
+            "x": 25,
+            "y": 660,
+            "w": 340,
+            "h": 51
+          },
+          "radioCount": 4,
+          "values": [
+            "BrandNewSealed",
+            "LikeNew",
+            "MinorWear",
+            "HeavyWear"
+          ],
+          "labels": [
+            "全新未拆封",
+            "几乎全新",
+            "细微磕碰划痕",
+            "严重磨损"
+          ],
+          "checkedValues": [
+            "LikeNew"
+          ],
+          "hookCount": 4,
+          "anyConditionHook": 5
+        },
+        "formPresent": true,
+        "statusPhase": "idle",
+        "statusText": ""
+      },
+      "editChanged": {
+        "url": "http://sf.local/item/501/edit",
+        "lang": "zh-CN",
+        "overflowPx": 0,
+        "typeGroup": true,
+        "typeChecked": [
+          "physical"
+        ],
+        "shipChecked": [
+          "free"
+        ],
+        "deliverCount": 0,
+        "condition": {
+          "groupPresent": true,
+          "role": "radiogroup",
+          "ariaRequired": "true",
+          "ariaInvalid": null,
+          "missClass": false,
+          "rect": {
+            "x": 25,
+            "y": 660,
+            "w": 340,
+            "h": 51
+          },
+          "radioCount": 4,
+          "values": [
+            "BrandNewSealed",
+            "LikeNew",
+            "MinorWear",
+            "HeavyWear"
+          ],
+          "labels": [
+            "全新未拆封",
+            "几乎全新",
+            "细微磕碰划痕",
+            "严重磨损"
+          ],
+          "checkedValues": [
+            "HeavyWear"
+          ],
+          "hookCount": 4,
+          "anyConditionHook": 5
+        },
+        "formPresent": true,
+        "statusPhase": "idle",
+        "statusText": ""
+      },
+      "editPatchWait": {
+        "patchesBefore": 1,
+        "patchesAfter": 2
+      }
+    },
+    "web_1536": {
+      "initial": {
+        "url": "http://sf.local/item/new",
+        "lang": "zh-CN",
+        "overflowPx": 0,
+        "typeGroup": true,
+        "typeChecked": [],
+        "shipChecked": [],
+        "deliverCount": 0,
+        "condition": {
+          "groupPresent": false,
+          "role": null,
+          "ariaRequired": null,
+          "ariaInvalid": null,
+          "missClass": null,
+          "rect": null,
+          "radioCount": 0,
+          "values": [],
+          "labels": [],
+          "checkedValues": [],
+          "hookCount": 0,
+          "anyConditionHook": 0
+        },
+        "formPresent": true,
+        "statusPhase": "idle",
+        "statusText": ""
+      },
+      "physicalBranch": {
+        "url": "http://sf.local/item/new",
+        "lang": "zh-CN",
+        "overflowPx": 0,
+        "typeGroup": true,
+        "typeChecked": [
+          "physical"
+        ],
+        "shipChecked": [],
+        "deliverCount": 0,
+        "condition": {
+          "groupPresent": true,
+          "role": "radiogroup",
+          "ariaRequired": "true",
+          "ariaInvalid": null,
+          "missClass": false,
+          "rect": {
+            "x": 35,
+            "y": 535,
+            "w": 1128,
+            "h": 34
+          },
+          "radioCount": 4,
+          "values": [
+            "BrandNewSealed",
+            "LikeNew",
+            "MinorWear",
+            "HeavyWear"
+          ],
+          "labels": [
+            "全新未拆封",
+            "几乎全新",
+            "细微磕碰划痕",
+            "严重磨损"
+          ],
+          "checkedValues": [],
+          "hookCount": 4,
+          "anyConditionHook": 5
+        },
+        "formPresent": true,
+        "statusPhase": "idle",
+        "statusText": ""
+      },
+      "digitalBranch": {
+        "url": "http://sf.local/item/new",
+        "lang": "zh-CN",
+        "overflowPx": 0,
+        "typeGroup": true,
+        "typeChecked": [
+          "digital"
+        ],
+        "shipChecked": [],
+        "deliverCount": 2,
+        "condition": {
+          "groupPresent": false,
+          "role": null,
+          "ariaRequired": null,
+          "ariaInvalid": null,
+          "missClass": null,
+          "rect": null,
+          "radioCount": 0,
+          "values": [],
+          "labels": [],
+          "checkedValues": [],
+          "hookCount": 0,
+          "anyConditionHook": 0
+        },
+        "formPresent": true,
+        "statusPhase": "idle",
+        "statusText": ""
+      },
+      "beforeSubmit": {
+        "url": "http://sf.local/item/new",
+        "lang": "zh-CN",
+        "overflowPx": 0,
+        "typeGroup": true,
+        "typeChecked": [
+          "physical"
+        ],
+        "shipChecked": [
+          "free"
+        ],
+        "deliverCount": 0,
+        "condition": {
+          "groupPresent": true,
+          "role": "radiogroup",
+          "ariaRequired": "true",
+          "ariaInvalid": null,
+          "missClass": false,
+          "rect": {
+            "x": 35,
+            "y": 535,
+            "w": 1128,
+            "h": 34
+          },
+          "radioCount": 4,
+          "values": [
+            "BrandNewSealed",
+            "LikeNew",
+            "MinorWear",
+            "HeavyWear"
+          ],
+          "labels": [
+            "全新未拆封",
+            "几乎全新",
+            "细微磕碰划痕",
+            "严重磨损"
+          ],
+          "checkedValues": [
+            "LikeNew"
+          ],
+          "hookCount": 4,
+          "anyConditionHook": 5
+        },
+        "formPresent": true,
+        "statusPhase": "idle",
+        "statusText": ""
+      },
+      "submitWait": {
+        "postsBefore": 1,
+        "postsAfter": 2
+      },
+      "afterSubmit": {
+        "url": "http://sf.local/item/9001",
+        "lang": "zh-CN",
+        "overflowPx": 0,
+        "typeGroup": false,
+        "typeChecked": [],
+        "shipChecked": [],
+        "deliverCount": 0,
+        "condition": {
+          "groupPresent": false,
+          "role": null,
+          "ariaRequired": null,
+          "ariaInvalid": null,
+          "missClass": null,
+          "rect": null,
+          "radioCount": 0,
+          "values": [],
+          "labels": [],
+          "checkedValues": [],
+          "hookCount": 0,
+          "anyConditionHook": 0
+        },
+        "formPresent": false,
+        "statusPhase": null,
+        "statusText": null
+      },
+      "edit": {
+        "url": "http://sf.local/item/501/edit",
+        "lang": "zh-CN",
+        "overflowPx": 0,
+        "typeGroup": true,
+        "typeChecked": [
+          "physical"
+        ],
+        "shipChecked": [
+          "free"
+        ],
+        "deliverCount": 0,
+        "condition": {
+          "groupPresent": true,
+          "role": "radiogroup",
+          "ariaRequired": "true",
+          "ariaInvalid": null,
+          "missClass": false,
+          "rect": {
+            "x": 35,
+            "y": 538,
+            "w": 1128,
+            "h": 34
+          },
+          "radioCount": 4,
+          "values": [
+            "BrandNewSealed",
+            "LikeNew",
+            "MinorWear",
+            "HeavyWear"
+          ],
+          "labels": [
+            "全新未拆封",
+            "几乎全新",
+            "细微磕碰划痕",
+            "严重磨损"
+          ],
+          "checkedValues": [
+            "LikeNew"
+          ],
+          "hookCount": 4,
+          "anyConditionHook": 5
+        },
+        "formPresent": true,
+        "statusPhase": "idle",
+        "statusText": ""
+      },
+      "editChanged": {
+        "url": "http://sf.local/item/501/edit",
+        "lang": "zh-CN",
+        "overflowPx": 0,
+        "typeGroup": true,
+        "typeChecked": [
+          "physical"
+        ],
+        "shipChecked": [
+          "free"
+        ],
+        "deliverCount": 0,
+        "condition": {
+          "groupPresent": true,
+          "role": "radiogroup",
+          "ariaRequired": "true",
+          "ariaInvalid": null,
+          "missClass": false,
+          "rect": {
+            "x": 35,
+            "y": 538,
+            "w": 1128,
+            "h": 34
+          },
+          "radioCount": 4,
+          "values": [
+            "BrandNewSealed",
+            "LikeNew",
+            "MinorWear",
+            "HeavyWear"
+          ],
+          "labels": [
+            "全新未拆封",
+            "几乎全新",
+            "细微磕碰划痕",
+            "严重磨损"
+          ],
+          "checkedValues": [
+            "HeavyWear"
+          ],
+          "hookCount": 4,
+          "anyConditionHook": 5
+        },
+        "formPresent": true,
+        "statusPhase": "idle",
+        "statusText": ""
+      },
+      "editPatchWait": {
+        "patchesBefore": 3,
+        "patchesAfter": 4
+      }
+    }
+  },
+  "postBodies": [
+    {
+      "cid": 1,
+      "price": "66",
+      "stock": "1",
+      "description": "FIXTURE 成色探针商品\n九成新 随手出",
+      "media_urls": [],
+      "item_type": "PhysicalFreeShip",
+      "item_condition": "LikeNew",
+      "create_key": "cli:1a157907e54-7ec7bb89"
+    },
+    {
+      "cid": 1,
+      "price": "66",
+      "stock": "1",
+      "description": "FIXTURE 成色探针商品\n九成新 随手出",
+      "media_urls": [],
+      "item_type": "PhysicalFreeShip",
+      "item_condition": "LikeNew",
+      "create_key": "cli:1a1579085cd-195bd5f7"
+    }
+  ],
+  "patchBodies": [
+    {
+      "listingId": 9001,
+      "body": {
+        "to_status": "listed"
+      }
+    },
+    {
+      "listingId": 501,
+      "body": {
+        "item_condition": "HeavyWear"
+      }
+    },
+    {
+      "listingId": 9001,
+      "body": {
+        "to_status": "listed"
+      }
+    },
+    {
+      "listingId": 501,
+      "body": {
+        "item_condition": "HeavyWear"
+      }
+    }
+  ],
+  "pageErrors": [],
+  "verdict": {
+    "pageErrorCount": 0,
+    "postCount": 2,
+    "patchCount": 4,
+    "h5_390": {
+      "physicalGroupShown": true,
+      "digitalZeroControls": true,
+      "selectedLikeNew": true,
+      "payloadLikeNew": true,
+      "editPrefillLikeNew": true,
+      "editPatchConditionOnly": true,
+      "zeroOverflow": true
+    },
+    "web_1536": {
+      "physicalGroupShown": true,
+      "digitalZeroControls": true,
+      "selectedLikeNew": true,
+      "payloadLikeNew": true,
+      "editPrefillLikeNew": true,
+      "editPatchConditionOnly": true,
+      "zeroOverflow": true
+    }
+  }
+}

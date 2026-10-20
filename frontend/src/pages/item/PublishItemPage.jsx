@@ -152,6 +152,33 @@ const SHIP_OPTIONS = [
   { value: 'buyer', labelKey: 'itemType.buyerShip' },
 ]
 
+// ---- 商品成色（迁移 0057 四值闭集 · route §49.14.3 / data §40.8.2） ------------
+// 载荷唯一字段 = `item_condition`（PascalCase 四值，**仅实物两分类允许非空**）：
+//   BrandNewSealed / LikeNew / MinorWear / HeavyWear
+// ★ 控件**仅实物分支**渲染（数字商品 / 未分类带值 ⇒ 后端 400 `ITEM_CONDITION_NOT_APPLICABLE`）
+//   ⇒ 切走实物时值一律清空（stale 不得进载荷），数字分支下 `item_condition` 字段缺省。
+// ★ 发布模式**实物下必选**（闸在 `onSubmit` 最前，零网络调用）；编辑模式**不强制补选**
+//   （存量实物行可能 `item_condition = NULL`，强制会连带锁死改价/改描述）。
+//   文案复用既有 `itemCondition.*` 四语键（本单**零新增 i18n 键**）。
+const CONDITION_OPTIONS = [
+  { value: 'BrandNewSealed', hook: 'brandNewSealed', labelKey: 'itemCondition.brandNewSealed' },
+  { value: 'LikeNew', hook: 'likeNew', labelKey: 'itemCondition.likeNew' },
+  { value: 'MinorWear', hook: 'minorWear', labelKey: 'itemCondition.minorWear' },
+  { value: 'HeavyWear', hook: 'heavyWear', labelKey: 'itemCondition.heavyWear' },
+]
+
+/** 成色四值闭集（`/api/listing/mine` 行键 `condition` 预填时的合法性判定）。 */
+const ITEM_CONDITIONS = CONDITION_OPTIONS.map((option) => option.value)
+
+/**
+ * 级联 + 成色 ⇒ 待上送成色：**仅实物两分类**允许非空（数字 / 未分类 ⇒ `null`）。
+ * 闭集外 / 缺值 ⇒ `null`（不猜补）。
+ */
+const toItemCondition = (type, condition) => {
+  if (type !== 'physical') return null
+  return ITEM_CONDITIONS.includes(String(condition ?? '')) ? String(condition) : null
+}
+
 /** 级联选择 ⇒ 单字段 `item_type`（四值闭集；任一级未选 / 二级缺项 ⇒ `null`，由提交闸拦截）。 */
 const toItemType = (type, deliver, ship) => {
   if (type === 'digital') {
@@ -196,7 +223,7 @@ const PublishItemPage = ({ mode = 'publish' }) => {
   //   `edit`（`/item/:itemId/edit`）= 同一表单**预填**自己的挂单（`GET /api/listing/mine` 取对应行），
   //     保存走**字段模式** `PATCH /api/listing/:listingId`（`updateListingFields`，**禁与 `to_status` 混传**）。
   // 三条编辑口径：
-  //   ① `cid` **只读**（后端字段模式不收 `cid` ⇒ 可改字段只 5 个：description/price/stock/media_urls/item_type）；
+  //   ① `cid` **只读**（后端字段模式不收 `cid` ⇒ 可改字段 6 个：description/price/stock/media_urls/item_type/item_condition）；
   //   ② 草稿（`status='draft'`）**库存输入禁用**（DL60：`stock` 变更仅 `listed` 可改否则 409
   //      `listing_stock_change_requires_listed`）＋ 提示 `item.draftStockLocked`；
   //   ③ `item_type` **反推级联**（四值 → 一级 + 二级；`NULL` ⇒ 三控件全空 = 未选，**不猜补**）。
@@ -210,7 +237,9 @@ const PublishItemPage = ({ mode = 'publish' }) => {
   const [itemTypeSel, setItemTypeSel] = useState('')
   const [deliverSel, setDeliverSel] = useState('')
   const [shipSel, setShipSel] = useState('')
-  const [miss, setMiss] = useState({ type: false, deliver: false, ship: false })
+  // 商品成色（仅实物分支渲染；'' = 未选。发布模式实物下必选，编辑模式可空 —— 存量行可能为 NULL）
+  const [conditionSel, setConditionSel] = useState('')
+  const [miss, setMiss] = useState({ type: false, deliver: false, ship: false, condition: false })
   const [images, setImages] = useState([])
   const [imageNotice, setImageNotice] = useState('')
   // 编辑模式：库内**既有图片**（`/api/media/<id>` 绝对路径），与本地新选图分开存
@@ -293,9 +322,13 @@ const PublishItemPage = ({ mode = 'publish' }) => {
         setItemTypeSel(cascade.type)
         setDeliverSel(cascade.deliver)
         setShipSel(cascade.ship)
+        // 成色预填：`/api/listing/mine` 行键 `condition`（P57 加性键，值 = 四值闭集字面量或 null）。
+        //   ★ 闭集外 / 缺键 ⇒ ''（未选），**不猜补**；实物行的 NULL 也保持未选（编辑不强制补选）。
+        const rawCondition = String(row.condition ?? '')
+        setConditionSel(ITEM_CONDITIONS.includes(rawCondition) ? rawCondition : '')
         setExistingMedia(Array.isArray(row.media_urls) ? row.media_urls.map((u) => String(u)) : [])
-        setSource({ ...row, item_type: row.item_type ?? null })
-        setMiss({ type: false, deliver: false, ship: false })
+        setSource({ ...row, item_type: row.item_type ?? null, condition: row.condition ?? null })
+        setMiss({ type: false, deliver: false, ship: false, condition: false })
         setLoadState({ phase: 'ready', message: '' })
       })
       .catch((error) => {
@@ -308,12 +341,14 @@ const PublishItemPage = ({ mode = 'publish' }) => {
 
   const setField = (key) => (event) => setForm((prev) => ({ ...prev, [key]: event.target.value }))
 
-  /** 一级「商品分类」：切换即**清空两个二级值**（分支切换 ⇒ stale 值不得进载荷）。 */
+  /** 一级「商品分类」：切换即**清空三个二级值**（分支切换 ⇒ stale 值不得进载荷）。
+   *  ★ 成色同批清空：数字 / 未分类带 `item_condition` 会被后端判 400 `ITEM_CONDITION_NOT_APPLICABLE`。 */
   const pickItemType = (value) => () => {
     setItemTypeSel(value)
     setDeliverSel('')
     setShipSel('')
-    setMiss({ type: false, deliver: false, ship: false })
+    setConditionSel('')
+    setMiss({ type: false, deliver: false, ship: false, condition: false })
   }
 
   /** 二级（数字分支）「发货方式」：仅 `digital` 时渲染。 */
@@ -326,6 +361,12 @@ const PublishItemPage = ({ mode = 'publish' }) => {
   const pickShipping = (value) => () => {
     setShipSel(value)
     setMiss((prev) => ({ ...prev, ship: false }))
+  }
+
+  /** 成色四选一（**仅实物分支**渲染）：选中即清缺选高亮。 */
+  const pickCondition = (value) => () => {
+    setConditionSel(value)
+    setMiss((prev) => ({ ...prev, condition: false }))
   }
 
   /** 选图：仅 image/*；超出 4 张忽略多余；逐张本地压缩后入列（失败的单张丢弃，不拦其余）。
@@ -376,11 +417,11 @@ const PublishItemPage = ({ mode = 'publish' }) => {
       || (!stockLocked && (!/^\d+$/.test(stockText) || Number(stockText) < 0))
       || deliverMiss || shipMiss
     ) {
-      setMiss({ type: false, deliver: deliverMiss, ship: shipMiss })
+      setMiss({ type: false, deliver: deliverMiss, ship: shipMiss, condition: false })
       setState({ phase: 'error', message: t('uiError.badRequest') })
       return
     }
-    setMiss({ type: false, deliver: false, ship: false })
+    setMiss({ type: false, deliver: false, ship: false, condition: false })
     setState({ phase: 'loading', message: t('jobs.submitting') })
 
     // ① 新选图逐张上传（既有图已在库内 ⇒ 不重传）；任一张失败 ⇒ 整次取消。
@@ -401,12 +442,15 @@ const PublishItemPage = ({ mode = 'publish' }) => {
     const nextMedia = [...existingMedia, ...uploaded]
     const prevMedia = Array.isArray(source.media_urls) ? source.media_urls.map((u) => String(u)) : []
     const nextType = toItemType(itemTypeSel, deliverSel, shipSel)
+    const nextCondition = toItemCondition(itemTypeSel, conditionSel)
     const patch = {}
     if (description !== String(source.description ?? '')) patch.description = description
     if (!sameText(priceText, source.price)) patch.price = Number(priceText)
     if (!stockLocked && !sameText(stockText, source.stock)) patch.stock = Number(stockText)
     if (JSON.stringify(nextMedia) !== JSON.stringify(prevMedia)) patch.media_urls = nextMedia
     if (nextType !== (source.item_type ?? null)) patch.item_type = nextType
+    // 成色（第 6 可改字段）：只在**实变**时上送；数字 / 未分类 ⇒ `null`（显式置 NULL 亦是合法终态）。
+    if (nextCondition !== (source.condition ?? null)) patch.item_condition = nextCondition
 
     // ③ 无变化 ⇒ 不往返（不打扰、也不产生空 patch 的 400 `NO_EDITABLE_FIELD`）
     if (!Object.keys(patch).length) {
@@ -442,19 +486,20 @@ const PublishItemPage = ({ mode = 'publish' }) => {
     }
     if (state.phase === 'loading') return
 
-    // ⓪ 商品分类级联闸（一级必选 + 分支二级必选）——**先于**图片上传与任何网络调用：
-    //    未选 ⇒ 阻止提交（不发 `item_type: ''`，后端把空串判 400）；提示复用既有键 + 组高亮。
+    // ⓪ 商品分类级联闸（一级必选 + 分支二级必选 + **实物分支成色必选**）——**先于**图片上传与任何网络调用：
+    //    未选 ⇒ 阻止提交（不发 `item_type: ''` / `item_condition: ''`，后端把空串判 400）；提示复用既有键 + 组高亮。
     const nextMiss = {
       type: !itemTypeSel,
       deliver: itemTypeSel === 'digital' && !deliverSel,
       ship: itemTypeSel === 'physical' && !shipSel,
+      condition: itemTypeSel === 'physical' && !conditionSel,
     }
-    if (nextMiss.type || nextMiss.deliver || nextMiss.ship) {
+    if (nextMiss.type || nextMiss.deliver || nextMiss.ship || nextMiss.condition) {
       setMiss(nextMiss)
       setState({ phase: 'error', message: t('uiError.badRequest') })
       return
     }
-    setMiss({ type: false, deliver: false, ship: false })
+    setMiss({ type: false, deliver: false, ship: false, condition: false })
 
     // ⓪b 描述必填（route §49.13.2：缺省 / `''` / 全空白 ⇒ 后端 400 `listing.description REQUIRED`）
     //     ⇒ 前端先拦（零网络调用）；提示复用既有键，不新增文案。
@@ -493,6 +538,8 @@ const PublishItemPage = ({ mode = 'publish' }) => {
         // **不发** `shipping` / `free_ship` 之类第二字段（后端不认，route §49.11 ②）；
         // **绝不发裸 `Digital`**（0054 起已退役 = 闭集外 ⇒ 400）。
         itemType: toItemType(itemTypeSel, deliverSel, shipSel),
+        // 成色（迁移 0057 四值闭集）：**仅实物两分类**带值；数字 / 未分类 ⇒ `null`（字段缺省）。
+        itemCondition: toItemCondition(itemTypeSel, conditionSel),
         createKey,
         user,
       })
@@ -702,6 +749,37 @@ const PublishItemPage = ({ mode = 'publish' }) => {
                         data-sf-m={`item-input-ship-${option.value}`}
                         checked={shipSel === option.value}
                         onChange={pickShipping(option.value)}
+                      />
+                      <span className="sf-item-choice-text">{t(option.labelKey)}</span>
+                    </label>
+                  ))}
+                </div>
+              ) : null}
+
+              {/* 成色四选一（**条件必选**）：**仅** 分类 = 实物商品时渲染（迁移 0057 四值闭集）。
+                  数字 / 未分类 ⇒ 整个控件不渲染（不是 display:none）且值已被清空 ⇒ 不参与载荷
+                  （后端：数字两分类带值 ⇒ 400 `ITEM_CONDITION_NOT_APPLICABLE`）。
+                  钩子：组容器 `item-select-condition` + 选项
+                  `item-input-condition-brandNewSealed` / `-likeNew` / `-minorWear` / `-heavyWear`。 */}
+              {itemTypeSel === 'physical' ? (
+                <div
+                  className={`sf-item-field sf-item-field-wide sf-item-choice${miss.condition ? ' sf-item-choice-miss' : ''}`}
+                  data-sf-m="item-select-condition"
+                  data-sf-miss={miss.condition ? '1' : undefined}
+                  role="radiogroup"
+                  aria-required="true"
+                  aria-invalid={miss.condition ? 'true' : undefined}
+                >
+                  {CONDITION_OPTIONS.map((option) => (
+                    <label className="sf-item-choice-opt" key={option.value}>
+                      <input
+                        className="sf-item-choice-input"
+                        type="radio"
+                        name="item_condition"
+                        value={option.value}
+                        data-sf-m={`item-input-condition-${option.hook}`}
+                        checked={conditionSel === option.value}
+                        onChange={pickCondition(option.value)}
                       />
                       <span className="sf-item-choice-text">{t(option.labelKey)}</span>
                     </label>

@@ -68,12 +68,15 @@ export const fetchCurrencies = (user) => getJson('/api/currencies', user)
 /**
  * P1 商品上架（直 DML · 无分录）。`price` = A 类**供给侧自主出价**（§4.8.1 ⇒ 客户端可填、原样透传，路由层零计算）。
  * `createKey` = 前端提供的 `cli:` 键（服务端缺键会派生，见文件头 ①）。
- * `itemType` = 商品分类（迁移 0054 四值闭集 · 承 0053 · 可选）：`DigitalAutoDeliver` /
+ *   `itemType` = 商品分类（迁移 0054 四值闭集 · 承 0053 · 可选）：`DigitalAutoDeliver` /
  *   `DigitalManualDeliver` / `PhysicalFreeShip` / `PhysicalBuyerShip`（裸 `Digital` 已退役）；
  *   **原样逐字**发 `item_type`（未分类 ⇒ `null`）；**不发**第二分类字段。
  *   `''` 属非法（后端 400 `LEDGER_AMOUNT_INVALID` + `reason=NOT_IN_CLOSED_SET`）⇒ 调用方须先过前端必选闸。
+ *   `itemCondition` = 商品成色（迁移 0057 四值闭集 · 可选）：`BrandNewSealed` / `LikeNew` /
+ *   `MinorWear` / `HeavyWear`；**仅实物两分类**允许非空（数字 / 未分类带值 ⇒ 400
+ *   `ITEM_CONDITION_NOT_APPLICABLE`）⇒ 调用方只在实物分支带上值，其余传 `null`（**字段缺省**）。
  */
-export const publishListing = ({ cid, price, stock, description, mediaUrls, itemType = null, createKey, user }) => {
+export const publishListing = ({ cid, price, stock, description, mediaUrls, itemType = null, itemCondition = null, createKey, user }) => {
   const body = {
     cid,
     price,
@@ -85,6 +88,8 @@ export const publishListing = ({ cid, price, stock, description, mediaUrls, item
   }
   // 分类只在**有值**时进载荷：未分类 ⇒ 字段缺省（服务端落 NULL，route §49.11 ② `字段缺省 ⇒ NULL`）。
   if (itemType) body.item_type = itemType
+  // 成色同体例：只在**有值**（= 实物分支且已选）时进载荷；数字 / 未分类 ⇒ 字段缺省（落 NULL）。
+  if (itemCondition) body.item_condition = itemCondition
   body.create_key = createKey
   return postJson('/api/listing', body, user)
 }
@@ -103,7 +108,8 @@ export const setListingStatus = (listingId, toStatus, user) =>
 
 /**
  * P1-b′ **字段编辑**（`PATCH /api/listing/:listingId` 的字段支 · route §49.12.2 / §49.13.3）。
- * `fields` 只允许 `description` / `price` / `stock` / `media_urls` / `item_type` 五键（**零 `title`**）；
+ * `fields` 只允许 `description` / `price` / `stock` / `media_urls` / `item_type` / `item_condition`
+ * 六键（**零 `title`**；`item_condition` = 迁移 0057 第 6 可改字段，数字 / 未分类 ⇒ `null`）；
  * **禁与 `to_status` 混传**（后端 400 `BOTH_MODES`）⇒ 本层刻意不提供合并入口，两个函数各管一支。
  * 返回行 = `GET /api/listing/mine` 同族（10 键）⇒ 调用方可行内整行替换。
  */
