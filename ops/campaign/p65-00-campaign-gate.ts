@@ -22,6 +22,11 @@
  *       凭证提交（通用类重提覆盖 200 且仍一行）· prediction 全链（截止前 settle 409 / 截止后投票 409 /
  *       重复投票 409 / 正确人数 0 ⇒ 整笔留平台 / floor 分发逐户对拍 + 余数进平台 / 重复 settle 409）·
  *       task 完成奖（未全完成 409；全完成 ⇒ 两币各一笔、幂等重放零新增）。
+ *   S17–S19 · **登录态加性面（零新路由 / 零新表）**：
+ *       S17 登录态详情每子任务 `my_proof` 键恒在场（回读到 payload 与 time_created，逐人 ballot 不同，未提交 ⇒ null）；
+ *       S18 未登录详情 `my_proof` / `my_outcome` **键缺省**（≠ null），且加性成立（登录态键集 = 匿名键集 ＋ 至多两键）；
+ *       S19 settled prediction 的 `my_outcome{choice,won,payout}` —— payout 与 settle `per_winner_amount`
+ *           及**台账逐户真到账**三方对拍（输家 0、未投票 null、未结算无键、无人选对 ⇒ 0；反事实赢家数 1 ⇒ 101 ≠ 50）。
  *   N · **三臂负控（判据必须可红）**：
  *       ① 去 `subtask_proof_uniq` ⇒ 同一人重复投票可入（第二行可现）⇒ S 臂「重复投票 409 + 恰一行」必红；
  *       ② 去 floor 余数规则（改 ceil 分发）⇒ 两户各 51 = 102 ≠ 奖池 101（超额发放、余数变负）⇒
@@ -55,6 +60,7 @@ import {
   USD_CID,
   createCampaignVerb,
   createTaskVerb,
+  derivePredictionOutcome,
   getCampaignByRef,
   grantTaskRewardVerb,
   isCampaignRef,
@@ -725,6 +731,98 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
       c1End.ok === true && verbOf(patchAfterEnd) === 409 && reasonOf(patchAfterEnd) === 'campaign_ended_frozen'
         && verbOf(taskAfterEnd) === 409 && verbOf(taskAddAfterEnd) === 409,
       JSON.stringify({ end: c1End.ok, campaign_patch: [verbOf(patchAfterEnd), reasonOf(patchAfterEnd)], task_patch: [verbOf(taskAfterEnd), reasonOf(taskAfterEnd)], task_add: [verbOf(taskAddAfterEnd), reasonOf(taskAddAfterEnd)] }));
+
+    // ==================================================================== S17–S19 · 登录态加性面（零新路由）
+    // 口径：**登录态** ⇒ 每子任务 `my_proof`（`null` = 未提交）＋ settled prediction 的 `my_outcome`；
+    //       **匿名** ⇒ 两键**缺省**（不是 null）⇒ 前端据「键是否在场」区分「匿名」与「未提交」。
+    const flatOf = (v: unknown) => ((v as { tasks?: Array<{ subtasks?: unknown[] }> } | null)?.tasks ?? [])
+      .flatMap((t) => ((t.subtasks ?? []) as Array<Record<string, unknown>>));
+    const subOf = (list: Array<Record<string, unknown>>, id: string) => list.find((s) => String(s.subtask_id) === id);
+    const detailU1 = await getCampaignByRef(C1, { includeDraft: true, viewerUid: U1 }, ex);
+    const detailU3 = await getCampaignByRef(C1, { includeDraft: true, viewerUid: U3 }, ex);
+    const flatU1 = flatOf(detailU1);
+    const flatU3 = flatOf(detailU3);
+    const xProofU1 = (subOf(flatU1, X_VERIFY)?.my_proof ?? null) as { payload: Record<string, unknown>; time_created: string | null } | null;
+    const predProofU1 = (subOf(flatU1, PRED_PAST)?.my_proof ?? null) as { payload: Record<string, unknown> } | null;
+    const predProofU3 = (subOf(flatU3, PRED_PAST)?.my_proof ?? null) as { payload: Record<string, unknown> } | null;
+    const surveyU1 = flatU1.find((s) => String(s.type_code) === 'survey');
+    ck.t('S17', '★登录态详情加性 `my_proof`：每子任务键**恒在场**（`null` = 未提交）· U1 通用凭证回读 screenshots 2 条 + `time_created` ISO · 投票 choice 逐人不同（U1 a / U3 b）· 未提交子任务 ⇒ `null`（非缺键）',
+      detailU1 !== null && flatU1.length > 0 && flatU1.every((s) => 'my_proof' in s)
+        && xProofU1 !== null && Number((xProofU1.payload.screenshots as unknown[] | undefined)?.length ?? -1) === 2
+        && typeof xProofU1.time_created === 'string' && !Number.isNaN(Date.parse(String(xProofU1.time_created)))
+        && predProofU1 !== null && String(predProofU1.payload.choice ?? '') === 'a'
+        && predProofU3 !== null && String(predProofU3.payload.choice ?? '') === 'b'
+        && surveyU1 !== undefined && surveyU1.my_proof === null,
+      JSON.stringify({
+        subtasks: flatU1.length, keys_all_present: flatU1.every((s) => 'my_proof' in s),
+        x_shots: (xProofU1?.payload.screenshots as unknown[] | undefined)?.length ?? null,
+        x_time: xProofU1?.time_created ?? null,
+        choice: { u1: predProofU1?.payload.choice ?? null, u3: predProofU3?.payload.choice ?? null },
+        unvoted: surveyU1 ? surveyU1.my_proof : 'no_survey',
+      }));
+
+    const detailAnon = await getCampaignByRef(C1, { includeDraft: false }, ex);
+    const detailAnonNull = await getCampaignByRef(C1, { includeDraft: false, viewerUid: null }, ex);
+    const flatAnon = flatOf(detailAnon);
+    const flatAnonNull = flatOf(detailAnonNull);
+    const anonBody = JSON.stringify(detailAnon ?? {});
+    const keysOf = (list: Array<Record<string, unknown>>) => list.map((s) => Object.keys(s).sort().join(','));
+    // 加性判据：登录态键集 = 匿名键集 ＋ 至多 {my_proof, my_outcome}（既有键一个不多一个不少）
+    const additiveOk = flatAnon.length === flatU1.length && flatAnon.every((s, i) => {
+      const base = new Set(Object.keys(s));
+      const extra = Object.keys(flatU1[i]).filter((k) => !base.has(k));
+      return extra.every((k) => k === 'my_proof' || k === 'my_outcome');
+    });
+    ck.t('S18', '★未登录详情**无** `my_proof` / `my_outcome` 键（缺省 ≠ null）· 显式 `viewerUid: null` 同形 · 加性成立：登录态键集 = 匿名键集 ＋ 至多两键（既有键零变化）',
+      detailAnon !== null && flatAnon.length > 0
+        && flatAnon.every((s) => !('my_proof' in s) && !('my_outcome' in s))
+        && !anonBody.includes('my_proof') && !anonBody.includes('my_outcome')
+        && detailAnonNull !== null && JSON.stringify(keysOf(flatAnonNull)) === JSON.stringify(keysOf(flatAnon))
+        && additiveOk,
+      JSON.stringify({
+        subtasks: flatAnon.length, anon_keys: keysOf(flatAnon)[0] ?? null,
+        has_my_proof: anonBody.includes('my_proof'), has_my_outcome: anonBody.includes('my_outcome'),
+        additive: additiveOk, same_shape: JSON.stringify(keysOf(flatAnonNull)) === JSON.stringify(keysOf(flatAnon)),
+      }));
+
+    // 到账额对拍：**按 settle 幂等键逐户汇总 `ledger_entry.delta`**（服务端真到账，不是算出来的）
+    const paidOf = async (uid: number, key: string): Promise<string> => String((await raw1<{ s: string }>(c,
+      `SELECT COALESCE(sum(delta), 0)::text AS s FROM public.ledger_entry
+        WHERE uid = $1::bigint AND (idempotency_key = $2::text OR idempotency_key LIKE $2::text || '#%')`,
+      [String(uid), key]))?.s ?? '');
+    const svPer = String(sv.per_winner_amount ?? '');
+    const u1Paid = await paidOf(U1, settleKey);
+    const u3Paid = await paidOf(U3, settleKey);
+    const detailU4 = await getCampaignByRef(C1, { includeDraft: true, viewerUid: U4 }, ex);
+    const flatU4 = flatOf(detailU4);
+    const out1 = subOf(flatU1, PRED_PAST)?.my_outcome as { choice?: string; won?: boolean; payout?: string } | null | undefined;
+    const out3 = subOf(flatU3, PRED_PAST)?.my_outcome as { choice?: string; won?: boolean; payout?: string } | null | undefined;
+    const out4Sub = subOf(flatU4, PRED_PAST);
+    const out4 = out4Sub?.my_outcome as { choice?: string; won?: boolean; payout?: string } | null | undefined;
+    const futureSub = subOf(flatU1, PRED_FUTURE);
+    const outZero = flatU3.find((s) => String(s.subtask_id) === ZERO_SUB)?.my_outcome as
+      { choice?: string; won?: boolean; payout?: string } | null | undefined;
+    // 灵敏度自证：同一人、赢家人数按 1 算 ⇒ payout 应变 101（≠ 实测 50）⇒ 判据对「赢家人数」敏感、payout 非写死
+    const cfPer = String(derivePredictionOutcome(
+      (subOf(flatU1, PRED_PAST)?.payload ?? {}) as Record<string, unknown>,
+      { payload: { choice: 'a' }, time_created: null },
+      1,
+    )?.payout ?? '');
+    ck.t('S19', '★`my_outcome` = `{choice, won, payout}` 且 **payout 对拍服务端真到账**：U1 选对 ⇒ won · payout 50 = settle `per_winner_amount` = 台账该户 +50 · U3 选错 ⇒ won false · payout 0 = 台账 0 · U4 未投票 ⇒ `null`（键在场）· 未结算 prediction 无该键 · 无人选对 ⇒ 输家 payout 0 · 反事实（赢家数 1）⇒ 101 ≠ 50（判据可红）',
+      detailU1 !== null && detailU3 !== null && detailU4 !== null
+        && out1 !== undefined && out1 !== null && String(out1.choice) === 'a' && out1.won === true
+        && String(out1.payout) === svPer && String(out1.payout) === u1Paid && BigInt(u1Paid) > 0n
+        && out3 !== undefined && out3 !== null && String(out3.choice) === 'b' && out3.won === false
+        && String(out3.payout) === '0' && u3Paid === '0'
+        && out4Sub !== undefined && 'my_outcome' in out4Sub && out4 === null
+        && futureSub !== undefined && !('my_outcome' in futureSub) && futureSub.prediction_state === 'open'
+        && outZero !== undefined && outZero !== null && outZero.won === false && String(outZero.payout) === '0'
+        && cfPer === '101' && cfPer !== String(out1.payout),
+      JSON.stringify({
+        u1: out1 ?? null, u3: out3 ?? null, u4: out4 === undefined ? 'missing' : out4,
+        zero_winner_arm: outZero ?? null, ledger: { u1: u1Paid, u3: u3Paid, per_winner: svPer },
+        unsettled_has_key: futureSub ? 'my_outcome' in futureSub : 'missing', counterfactual_per: cfPer,
+      }));
 
     // ==================================================================== N · 三臂负控
     // ① 去 UNIQUE ⇒ 同一人重复投票可入（第二行可现）；复 UNIQUE ⇒ 23505

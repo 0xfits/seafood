@@ -1,0 +1,25 @@
+{
+ "saved": "/Users/kevin/bistro/seafood/ops/campaign/readings/p65-campaign-gate-20261020T111012Zol9l.json",
+ "summary": {
+  "total": 42,
+  "passed": 42,
+  "failed": 0,
+  "red": []
+ },
+ "readings": {
+  "fixture_users": [
+   971001,
+   971002,
+   971003,
+   971004
+  ],
+  "fixture_money": {
+   "sec_cid": 418,
+   "platform_usd": "173659",
+   "u4_usd": "1000",
+   "platform_sec": "500",
+   "u4_sec": "500"
+  },
+  "committed_touch": "none (single rollback tx)"
+ }
+}

@@ -139,6 +139,23 @@ export const isCampaignRef = (ref: unknown): boolean =>
 // ============================================================================
 // 出参形状（bigint / numeric 一律字符串 —— route #60 / CP-N5）
 // ============================================================================
+/** 登录态附加：本人该子任务的凭证摘要（`subtask_proof` 单行投影；未登录 ⇒ 键缺省） */
+export interface MyProofView {
+  payload: Row;
+  time_created: string | null;
+}
+
+/**
+ * 登录态附加：prediction 已结算时本人的输赢。
+ * `payout` **由服务端按 settle 的同一条 floor 规则算出**（`floor(prize / 赢家人数)`；输 ⇒ `'0'`）
+ * ⇒ 前端**禁自算**，只展示（CP-P6 单一算式真源）。
+ */
+export interface MyOutcomeView {
+  choice: 'a' | 'b';
+  won: boolean;
+  payout: string;
+}
+
 export interface SubtaskView {
   subtask_id: string;
   snowflake_id: string;
@@ -154,6 +171,10 @@ export interface SubtaskView {
   prediction_state: PredictionState | null;
   time_created: string | null;
   time_updated: string | null;
+  /** **加性 · 仅登录态**：本人提交（`null` = 未提交）；匿名读口 ⇒ 键缺省（不是 `null`） */
+  my_proof?: MyProofView | null;
+  /** **加性 · 仅登录态 ∧ prediction ∧ settled**：本人输赢（未投票 ⇒ `null`）；匿名读口 ⇒ 键缺省 */
+  my_outcome?: MyOutcomeView | null;
 }
 
 export interface TaskView {
@@ -329,6 +350,28 @@ const asNonNegInt = (v: unknown): number | null => {
   if (!POSITIVE_INT_TEXT.test(text)) return null;
   const n = Number(text);
   return Number.isSafeInteger(n) && n >= 0 ? n : null;
+};
+
+/**
+ * prediction 输赢派生（**与 R8 settle 分发同一条 floor 算式** —— 单一真源，前端禁自算）。
+ * 未投票 / choice 越集 / 未结算 ⇒ `null`；payout 一律字符串（bigint 口径）。
+ */
+export const derivePredictionOutcome = (
+  payload: Row,
+  proof: MyProofView | null,
+  winnerCount: number,
+): MyOutcomeView | null => {
+  if (!proof) return null;
+  const choice = proof.payload.choice;
+  if (choice !== 'a' && choice !== 'b') return null;
+  const correct = payload[PREDICTION_CORRECT_OPTION_KEY];
+  if (correct !== 'a' && correct !== 'b') return null;
+  const prizeText = asPositiveIntText(payload.prize_amount);
+  const prize = prizeText === null ? 0n : BigInt(prizeText);
+  const winners = Number.isFinite(winnerCount) && winnerCount > 0 ? BigInt(Math.trunc(winnerCount)) : 0n;
+  const perWinner = winners > 0n ? prize / winners : 0n;
+  const won = choice === correct;
+  return { choice, won, payout: (won ? perWinner : 0n).toString() };
 };
 
 const asTitle = (v: unknown): string | null => {
@@ -771,12 +814,62 @@ export const listActiveCampaigns = async (ex?: TxClient): Promise<CampaignView[]
 };
 
 /**
+ * 登录态附加块（加性 —— 零新路由 / 零新表 / 零新查询面：两次只读、一次往返一层）：
+ * ① 本人在本活动全部子任务上的凭证（`(subtask_id, uid)` 唯一 ⇒ 每子任务至多一行）；
+ * ② 已结算 prediction 的赢家人数（与 settle 同口径：`proof.payload.choice = subtask.payload.correct_option`）。
+ * 未登录（`viewerUid` 缺省）⇒ 本函数不调用 ⇒ `my_proof` / `my_outcome` 两键**均缺省**。
+ */
+const attachViewerContext = async (view: CampaignView, viewerUid: number, ex?: TxClient): Promise<void> => {
+  const subtasks = view.tasks.flatMap((t) => t.subtasks);
+  if (!subtasks.length) return;
+
+  const proofRows = await readRows<Row>(
+    `SELECT subtask_id::text AS subtask_id, payload, time_created
+       FROM public.subtask_proof
+      WHERE uid = $1::bigint AND subtask_id = ANY($2::bigint[])`,
+    [String(viewerUid), subtasks.map((s) => s.subtask_id)],
+    ex,
+  );
+  const mine = new Map<string, MyProofView>();
+  for (const row of proofRows) {
+    mine.set(str(row.subtask_id), { payload: asObject(row.payload), time_created: iso(row.time_created) });
+  }
+
+  const settledIds = subtasks
+    .filter((s) => s.type_code === 'prediction' && s.prediction_state === 'settled')
+    .map((s) => s.subtask_id);
+  const winnerCounts = new Map<string, number>();
+  if (settledIds.length) {
+    const counted = await readRows<Row>(
+      `SELECT p.subtask_id::text AS subtask_id, count(*)::int AS winner_count
+         FROM public.subtask_proof AS p
+         JOIN public.subtask AS s ON s.subtask_id = p.subtask_id
+        WHERE p.subtask_id = ANY($1::bigint[])
+          AND p.payload->>'choice' = s.payload->>'correct_option'
+        GROUP BY p.subtask_id`,
+      [settledIds],
+      ex,
+    );
+    for (const row of counted) winnerCounts.set(str(row.subtask_id), int(row.winner_count));
+  }
+
+  for (const s of subtasks) {
+    const proof = mine.get(s.subtask_id) ?? null;
+    s.my_proof = proof;
+    if (s.type_code === 'prediction' && s.prediction_state === 'settled') {
+      s.my_outcome = derivePredictionOutcome(s.payload, proof, winnerCounts.get(s.subtask_id) ?? 0);
+    }
+  }
+};
+
+/**
  * R2 详情（单语句双形态：`campaign_id = $1 OR snowflake_id = $1`，一次往返 —— #60）。
  * `includeDraft=false`（公众）⇒ draft 活动返回 null（路由落 404，不泄露存在性）；draft 任务亦不嵌套。
+ * `viewerUid` 给出（登录态）⇒ 加性附加每子任务 `my_proof` 与 settled prediction 的 `my_outcome`。
  */
 export const getCampaignByRef = async (
   ref: string,
-  opts: { includeDraft: boolean },
+  opts: { includeDraft: boolean; viewerUid?: number | null },
   ex?: TxClient,
 ): Promise<CampaignView | null> => {
   if (!isCampaignRef(ref)) return null;
@@ -806,7 +899,13 @@ export const getCampaignByRef = async (
     )
     : [];
   const subtaskMap = groupSubtasks(subtaskRows);
-  return normalizeCampaignRow(campaign, taskRows.map((t) => normalizeTaskRow(t, subtaskMap.get(str(t.task_id)) ?? [])));
+  const view = normalizeCampaignRow(campaign, taskRows.map((t) => normalizeTaskRow(t, subtaskMap.get(str(t.task_id)) ?? [])));
+  // 登录态附加（匿名 / 非法 uid ⇒ 完全不附加，两键缺省 —— 与「key 缺省 vs null」的口径一致）
+  const viewerUid = opts.viewerUid;
+  if (typeof viewerUid === 'number' && Number.isSafeInteger(viewerUid) && viewerUid > 0) {
+    await attachViewerContext(view, viewerUid, ex);
+  }
+  return view;
 };
 
 // ============================================================================

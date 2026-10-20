@@ -4145,18 +4145,22 @@ app.patch('/api/project/:projectId', async (req, res) => {
 // 注册点 118 → 127（get +2 / post +5 / patch +2；put 0 / delete 0 不动）。
 // ============================================================================
 /**
- * 可选管理员判定（**不落 401/403**）：R2 的 draft 放宽 —— 「draft 对公众 404 / 对
- * `manage_tasks` 管理员 200」由同一读口按身份放宽实现（承 §49.15 体例）。
- * 判定谓词与 `requireAdmin(req,res,'manage_tasks')` 逐字同源（can_access_admin ∧ (is_admin ∨ 权限))。
+ * 详情读口的**可选身份**（零新路由）：R2 的 draft 放宽与登录态附加共用这一次 `resolveActor`。
+ * · `admin` ⇒ 「draft 对公众 404 / 对 `manage_tasks` 管理员 200」按身份放宽（承 §49.15 体例；
+ *   判定谓词与 `requireAdmin(req,res,'manage_tasks')` 逐字同源：can_access_admin ∧ (is_admin ∨ 权限)）；
+ * · `viewerUid` ⇒ 登录态附加 `my_proof` / `my_outcome`（匿名 ⇒ null ⇒ 两键缺省）。
+ * 身份解析失败 / 基础设施异常一律按「公众 + 无个人面」处理（保守、不落 401/403、不泄露存在性）。
  */
-const isOptionalCampaignAdmin = async (req: Request): Promise<boolean> => {
+const resolveOptionalCampaignViewer = async (req: Request): Promise<{ admin: boolean; viewerUid: number | null }> => {
   try {
     const resolved = await resolveActor(req);
-    if (isActorFailure(resolved)) return false;
-    return resolved.adminAccess.can_access_admin
+    if (isActorFailure(resolved)) return { admin: false, viewerUid: null };
+    const admin = resolved.adminAccess.can_access_admin
       && (resolved.adminAccess.is_admin || hasRequiredPermission(resolved, 'manage_tasks'));
+    const uid = Number(resolved.user?.uID);
+    return { admin, viewerUid: Number.isSafeInteger(uid) && uid > 0 ? uid : null };
   } catch {
-    return false; // 基础设施异常 ⇒ 保守按公众处理（不泄露 draft 存在性）
+    return { admin: false, viewerUid: null }; // 基础设施异常 ⇒ 保守按公众处理（不泄露 draft 存在性）
   }
 };
 
@@ -4175,8 +4179,9 @@ app.get('/api/campaign/:ref', async (req, res) => {
   if (!isCampaignRef(ref)) return sendRefNotFound(res, 'campaign', ref, 'campaign_not_found');
   try {
     // draft 对公众 = 404（不泄露存在性）；持 `manage_tasks` 的管理员 200（同一读口按身份放宽）
-    const admin = await isOptionalCampaignAdmin(req);
-    const view = await getCampaignByRef(ref, { includeDraft: admin });
+    // 登录态同一读口加性附加 `my_proof` / `my_outcome`（匿名 ⇒ 键缺省；零新路由）
+    const viewer = await resolveOptionalCampaignViewer(req);
+    const view = await getCampaignByRef(ref, { includeDraft: viewer.admin, viewerUid: viewer.viewerUid });
     if (!view) return sendRefNotFound(res, 'campaign', ref, 'campaign_not_found');
     return sendSuccess(res, view, 'Campaign detail (public)');
   } catch (error) {
