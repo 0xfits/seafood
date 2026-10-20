@@ -3985,3 +3985,45 @@ description（全文，落库不截）
 - **i18n 缺键（实现单同批新增 · 四语同补 · 计数断言按现取复算前推；现取 top 130 / flat 1129 / nodes 4516）**，建议键名（仅建议、定名后回写）：`item.message`=留言 · `item.views`=`{{n}}人浏览` · `item.platformSettled`=平台结算 · `itemCondition.brandNewSealed`=**全新未拆封** · `itemCondition.likeNew`=**几乎全新** · `itemCondition.minorWear`=**细微磕碰划痕** · `itemCondition.heavyWear`=**严重磨损**（成色四词 = Kevin 原文，**逐字入键值**）。
 - **钩子建议集**（落定后回写）：H5 `item-detail-seller-row` / `item-detail-price-row` / `item-detail-tag-core` / `item-detail-tags-secondary` / `item-detail-desc` / `item-detail-gallery` / `item-detail-msg-btn`；既有 `item-actionbar` / `item-chat-btn` / `item-buy-btn` / `fav-toggle` 保留；Web `item-detail-web-cols` / `item-detail-web-side`。
 - **连带**：route **§49.14** · data **§40.10** · `master-plan` **§5.441 + 版本行 v0.358** · `ops/item-detail/SPEC-NOTE.md`。本笔只写 `docs/**` 与 `ops/item-detail/**`，零代码 / 零迁移 / 零测试改动 / **不 push**；`git diff --numstat` **删除列 = 0**。**本册不升版**（承 §26.12.8 / §26.13 / §26.14 加性续登体例）。
+
+#### 26.15.9 实测锁定（2026-10-20 上线后生产实测 · 承 §26.15.1–§26.15.8 **只增不改** · 本节为**读数锁定**，与旧条文并存、以本节为准）
+
+**锁定前提（同版证明）**：push `0a564e2..8d9e48b` 上线后，本地 HEAD 构建产物与线上 HTML 引用**逐字同名** —— js `index-BUJFF7Ji.js` / css `index-DwgaiwBH.css` ⇒ 下列读数是**线上同版**读数（不是本地预览、不是 dev）。样本 = 生产 `/item/9`（`item_type=PhysicalFreeShip`、`condition=NULL`）；读数件 = `ops/item-detail/prod-verify/prod-bar.json` · `prod-detail.json` · `SUMMARY.txt`。
+
+**A. H5 底栏四件（390 档 · `position: fixed` + `bottom: 0` · 栏宽 390 · 四件**同高 44**）**
+
+| 序 | 钩名（`data-sf-m`） | 左缘–右缘 | 宽×高 | 底色 / 字色 |
+|---|---|---|---|---|
+| ① | `item-detail-msg-btn`（留言） | 12–48 | 36×44 | 透明 / `rgb(10,10,10)` |
+| ② | `fav-toggle`（收藏★） | 56–134 | 78×44 | 白 / `rgb(32,32,32)` |
+| ③ | `item-buy-btn`（立即购买） | 201–279 | 78×44 | 灰 `rgb(236,236,236)` / `rgb(32,32,32)` |
+| ④ | `item-chat-btn`（聊一聊） | 287–378 | 91×44 | 黄 `rgb(255,230,15)` / `rgb(32,32,32)` |
+
+- **分组冻结**：左组 = ①②（`sf-item-bar-left`）、右组 = ③④（`sf-item-bar-right` 内 `.sf-item-cta-group`）；**后两件右缘 378 / 378 逐值相等**（右对齐判据的承重读数）；**四件 `display:flex`、高 44 逐值相等**（承 §13 触控目标 ≥44 硬口径）。
+- **DOM 顺序恒 ③→④**（立即购买在前、聊一聊在后）；H5 视觉序与 DOM 同向；**Web 拼接序「聊一聊｜立即购买」由 ≥768 CSS `order` 翻转**，**不得靠改 DOM 顺序实现**（否则 H5 序反）。
+- 收藏钮**单行**（图标 18×18 与文字同行、不纵向堆叠）：根因曾是 Tailwind preflight 把 `svg` 置 `display:block` ⇒ 修法 = 底栏四件**通用基础规则**（`.sf-item-bar-msg` / `.sf-item-bar-fav` / `.sf-item-cta-group-seg` 各自 `display:inline-flex; align-items:center; gap; min-height:var(--sf-l-cta-h)`），**选择器必须单类 (0,1,0)**（复合 (0,2,0) 会反压 ≥768 块内同单类的 `.sf-item-bar-msg{display:none}` ⇒ 留言在 Web 复活）。
+
+**B. Web 档（1536 · 底栏 `position: static`、`bottom: auto`、容器宽 592）**
+
+- **留言 Web 隐藏**：`item-detail-msg-btn` 实测 `display:none`、rect 全 0（0–0 / 0×0）⇒ **不是靠不渲染**，是 `.sf-item-bar-msg{display:none}` 落 ≥768 块内（DOM 恒在 ⇒ 外壳同构断言不红）。
+- **拼接胶囊 = 单容器**：`.sf-item-cta-group` 一个容器内含 ③④ 两段（**924–1430**，合 506）：`item-chat-btn` 924–1019（宽 95，黄 `rgb(255,230,15)`）｜`item-buy-btn` 1019–1430（宽 411，黑 `rgb(32,32,32)` 底 + 白 `rgb(255,255,255)` 字）；**两段共边 1019 逐值相接**、圆角只在外侧两角。
+- **独立收藏胶囊**：`fav-toggle` **1438–1516**（宽 78、白底），与拼接组右缘 1430 的间隙 **8px** ⇒ **收藏不得并进拼接组**（判负 #52）。
+- 双档 `overflow = 0`、`pageerrors = []`、`consoleErrors = []`。
+
+**C. 两档差异一律纯 CSS（断点 = 767/768）**
+
+- 差异**全部**由 `pages/item/item.css` 的 `@media (max-width: 767px)` / `@media (min-width: 768px)` 两个块承载；**JS 侧零宽度读数**（`matchMedia` / `innerWidth` / `ResizeObserver` 一律不得用于切布局；`theme-shell-isomorphism` 全文扫描会判负）。
+- 同一条 DOM 在两档给出不同几何：底栏 `fixed|static`、留言 `flex|none`、拼接序 `DOM 序|order 翻转`、价格行右端读数 `H5 第三行|Web 价格行` —— 均为**同一份 React 树 + 不同 CSS**，无第二套组件。
+
+**D. 详情页数据/渲染读数（同版）**
+
+- 详情 **50 键**（`views` / `wants` / `condition` 三键均在场）；**一次挂载恰 1 条** `/api/prize/<id>` 请求（`prizeReqs = 1`，双档各 1）。
+- 价格 `rgb(255,77,0)` / `32px`（橙红大价，承卡面同源）；【包邮】黄 `rgb(255,230,15)`；`0人想要` + `N人浏览` 灰字。
+- `condition = NULL` ⇒ 核心标签区渲染【平台结算】（`item-detail-settle-tag` 在场、`item-detail-condition-tag` 缺席）⇒ **兜底臂实测成立**（不是只验「有签」）。
+
+**E. 判负追加（**#51–#54** · 与 #40–#50 **并存、只增不改**）**
+
+1. **#51 底栏几何锚失守**：H5（≤767）底栏非 `fixed` + `bottom:0`、四件任一件高 ≠44、或**后两件右缘不相等**（实测锚 378/378）⇒ 判负。
+2. **#52 拼接胶囊被拆 / 收藏混入**：Web 拼接组不是**单容器**（拆成两个独立胶囊）、或 `fav-toggle` 落进拼接组内（实测应独立在 1438–1516、与组右缘间隙 8px）⇒ 判负。
+3. **#53 留言 Web 未隐藏**：≥768 下 `item-detail-msg-btn` 仍可见（`display ≠ none`）⇒ 判负（反之**不得**用「不渲染 DOM」达成 ⇒ 同判）。
+4. **#54 断点由 JS 决定**：布局分档依赖 `matchMedia` / `innerWidth` / `ResizeObserver`（源码或产物命中）⇒ 判负。

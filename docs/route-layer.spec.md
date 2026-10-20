@@ -9645,3 +9645,59 @@ ORDER BY score DESC, l.time_created DESC, l.listing_id DESC
 - **现取（2026-10-20 · HEAD `c3e500a` · 工作区干净）**：注册点 **110**（get 49 / post 57 / put 0 / delete 3 / patch 1）· 迁移末位 **`0056`** · **详情口实测** `GET /api/prize/1`（dev 5788 · 只读一次）= 200 · `data` **47 键** · 无 `views`/`wants`/`condition` · 有 `seller`；feed 行 **48 键**（对拍差集恰 `wants`）· `PATCH` 可改字段现取 **5 项**（`description/price/stock/media_urls/item_type`）· mine **10 键** · 编辑页预填源 = mine（`PublishItemPage.jsx:268`）· `setPublicCache` = `public, s-maxage=30, swr=300`（`index.ts:202-204`）。
 - **未做（`NOT_MEASURED` · 本册不预填）**：`0057` 未落盘 / 两库未 apply；+1 未实现；`views` / `condition` 未透出；`item_condition` 三写口闸未实现；判负 #22–#28 **一条未跑**；零 HTTP 写 / 零库写。
 - **契约面** = `data-layer.spec` **§40.10**（双列迁移 / 自增语义 / 去重挂账 / 成色列语义）+ `design-system.spec` **§26.15** + `master-plan` **§5.441 / 版本行 v0.358** + `ops/item-detail/SPEC-NOTE.md`；**本册不升版**（承 §49.10–§49.13 加性续登体例）。
+
+#### 49.14.7 去重开关口径（`app_config.detail_view_dedup` · **代码默认 on、当前配置 off** · 加性续登）
+
+> 承 §49.14.2 硬 6「缓存张力」与 §49.14.3「去重挂账」：**去重已由挂账转实现**（迁移 `0058`），本节为**开关口径的契约真源**；旧条文（每次读 +1 / 去重挂账）逐字保留，适用面以本节为准。
+
+- **开关键** = `app_config` 行 `key = 'detail_view_dedup'`；**值必须是 jsonb 对象** `{"dedup":"on"|"off"}`（0017 的容器 CHECK 逼对象包裹 ⇒ 裸标量必拒；口径详见 data §40.10.9）。
+- **读法（唯一）** = `value->>'dedup'`：**每请求单行 SELECT**（`isDetailViewDedupEnabled`，与 `AK2` / `batt_policy` 同族、**无缓存**、无进程内 memo）⇒ 改配置行即生效、**无需发版**。
+- **判定（fail-safe 唯一真源 = `parseDetailViewDedupSwitch`）**：`trim().toLowerCase()` 归一后比对闭集 `on|off`；`'off'` ⇒ **false（不去重，逐字走 P57 旧口径）**；`'on'` ⇒ **true（去重）**；**其余一切 —— 缺行 / `dedup` 字段缺 / 值为 `null` / 非字符串 / 闭集外 —— 一律按 `on`（去重）** ⇒ **缺配置永不静默关闸**（Kevin 口径「代码默认 = 去重」；当前配置 = `off`）。
+- **两臂行为差**：`off` ⇒ 无条件自增、**不写日志**、**零访客 cookie/头读取**（零额外查询）；`on` ⇒ 先落 `listing_view_log`，仅 `rowCount = 1`（新访客 / 新一天）才自增，冲突 ⇒ **只读不增**。
+- **开关不进幂等指纹、不进翻译链、不新增错误码 / 路由**（注册点仍 **110**）。
+
+#### 49.14.8 `viewer_key` 三形态与去重键（`listing_view_log`）
+
+| 序 | 形态 | 取数 | 约束 |
+|---|---|---|---|
+| ① | `uid:<id>` | 请求带 Bearer ⇒ **纯验签**取 uid（**零查库**） | 登录态恒优先于匿名两形态 |
+| ② | `anon:<x-sf-viewer>` | 匿名请求头 `x-sf-viewer`（前端后续会带） | **128 字符上限**防灌表；超限按缺失处理 |
+| ③ | `anon:<sf_viewer>` | cookie `sf_viewer` 复用；缺失 ⇒ **发** `sf_viewer=<uuid4>`（`HttpOnly; SameSite=Lax; Max-Age=1 年`） | 发 cookie 的响应**不得进共享缓存**（见 §49.14.10） |
+
+- **去重键** = `listing_view_log_uniq (listing_id, viewer_key, view_day)`（`view_day date DEFAULT current_date`）⇒ **同 listing + 同 viewer + 同日唯一**；插入用 `INSERT … SELECT … WHERE EXISTS (listing) … ON CONFLICT ON CONSTRAINT listing_view_log_uniq DO NOTHING`。
+- **`view_day` 口径** = 库时区当日（`current_date`），跨日自动重置；**昨日夹具日不得抑制今天自增**（p58 门覆盖）。
+- 冲突分支走 `getPrizeDetailReadOnly`（**零自增**、键面与自增臂同形 49 + 路由层 `seller` ⇒ 50），语义 = 「今天已计过，只读」。
+
+#### 49.14.9 404 零日志 · fail-open · 只读臂（硬）
+
+1. **404 零日志**：`bID` 非法或行不存在 ⇒ 早退 `sendRefNotFound`，**不写 `listing_view_log`、不自增**；即便进到 SQL，`WHERE EXISTS (listing)` 亦 0 行 ⇒ 双重保险（p58 门实测：404 后日志行数与 `view_count` 双双不变）。
+2. **fail-open（硬）**：日志 INSERT 失败（锁等待 / 超时 / 连接抖动）⇒ **详情响应仍必须 200**，并按「新访客」落 P57 旧口径自增（计数面临时退化为不去重）；**禁止**把日志故障拖成 4xx/5xx，**禁止**跳过响应返回空。
+3. **只读臂零自增**：`getPrizeDetailReadOnly` 仅 SELECT，**不得**含 `UPDATE … view_count + 1`；全仓 `view_count = view_count + 1` **仍恰 1 处**（承 data §40.10.2 单写面）。
+4. **不区分访问者的旧口径仍有效**：`off` 臂卖家自看也计、刷新即再计（承 §49.14.2 硬 2）。
+
+#### 49.14.10 详情缓存头（**改判 · Kevin 2026-10-20 追加裁定**）
+
+- **改判事实**：详情口原挂 `setPublicCache`（`public, s-maxage=30, stale-while-revalidate=300`）⇒ **CDN 命中不回源 ⇒ 不落 origin ⇒ 浏览数不增**，且同一访客连读会出现**读数跳动**（生产实测 `views` **2 → 4 → 4**）⇒ 与「每次打开 +1」语义直接矛盾。
+- **裁定（以本段为准）**：`GET /api/prize/:bID` **无条件**改 `setPrivateNoStore` ⇒ `Cache-Control: private, no-store`；**不再**按分支保留 `setPublicCache`（原「仅新发 cookie 分支 no-store」收窄口径**作废**）。
+- **`Vary: Authorization` 口径澄清**：本路由**历史上不设**该头（既有 `Vary` 体例只在 `/api/home`，现取 `index.ts:1018`）⇒ **不要求**在详情口新增；`no-store` 已使缓存键区分失去意义。实施方如另加 `Vary` **不判负**，但**不得**以 `Vary` 替代 `no-store`（替代即判负 #29）。
+- **影响面（严格限定）**：**其余读口缓存一字不改** —— feed `/api/prize/all`、`/api/home`、`/api/task/all` 等**仍可公开缓存**（`public, s-maxage` 体例不动；feed 不含浏览数、不需要落 origin）。
+- **两条语义分开表述（不得混写）**：**详情浏览数 = 每次打开一次（受去重开关约束）**；**feed 列表仍可被共享缓存**。判「详情计数为何不涨」时先看该口响应头，**不要先怀疑开关或 DB**。
+- 代价登记（诚实）：详情口失去边缘缓存 ⇒ 每次打开回源（读放大）；以「计数正确 + 读数不跳」为优先，属 Kevin 已裁的取舍。
+
+#### 49.14.11 判负追加（**#29–#34** · 与 #22–#28 **并存、只增不改**）
+
+1. **#29 详情被共享缓存**：详情响应 `Cache-Control` 含 `public` 或 `s-maxage`（含仅某分支命中）⇒ 判负；以 `Vary: Authorization` 替代 `no-store` ⇒ 同判（`Vary` 本身**不是**判据）。
+2. **#30 开关 fail-safe 反了**：`detail_view_dedup` 缺行 / 缺 `dedup` 字段 / 非字符串 / 闭集外值时按 **off** 处理（应 **on**）⇒ 判负。
+3. **#31 开关读法不符**：读整行 JSON 后自造键名（非 `value->>'dedup'`）、或加了进程内缓存导致改配置行不即时生效 ⇒ 判负。
+4. **#32 404 留痕**：404 分支写了 `listing_view_log` 或自增了 `view_count` ⇒ 判负。
+5. **#33 fail-open 破**：日志写失败导致详情 4xx/5xx ⇒ 判负。
+6. **#34 viewer_key 形态错**：登录态未走 `uid:<id>`（例如同时落匿名键）、匿名头超 128 字符未按缺失处理、同日同 viewer 出现**两行**日志 ⇒ 判负。
+7. **#23 适用面收窄（不删旧条 · 以本处为准）**：旧 #23「连读两次第二次必 = 第一次 +1」**仅在**「开关 `off`」或「开关 `on` 且该 viewer 当日首次」时成立；**开关 `on` 且同 viewer 同日**第二次不增 = **正确行为**，不得判负。
+
+#### 49.14.12 实测锁定（2026-10-20 · 上线后 · 同版 `index-BUJFF7Ji.js` / `index-DwgaiwBH.css`）
+
+- **两库 `schema_version` = `0058`**（`0057` 双列 + `0058` 日志表 & 开关行）；注册点 **110**（get 49 / post 57 / put 0 / delete 3 / patch 1，现取复算）。
+- **键面实测**：详情 **50** 键（含 `views` / `wants` / `condition`）· feed **48** 不变 · `mine` **11** 键（+`condition`）。
+- **浏览计数实测**：`off`（当前配置）连读三次 **各 +1**；`on` 同 viewer 同日二次不涨、同日日志恰 1 行（p58 门 **29/29**）。
+- **门套**：p57 **40/40** · p58 **29/29** · `p7b-03` **37/37** `regs=110`。
+- **缓存改判的实施状态（诚实登记）**：§49.14.10 由**另单（P59）**实施；本笔落册时该改动**已在同工作树、未提交** —— `index.ts` 详情块已改**无条件** `setPrivateNoStore(res)`，且该块内 `setPublicCache(` / `mintedCookie` **零命中**，`resolveDetailViewViewerKey` 返回值收窄为 `viewerKey` 字符串（P58 的「发 cookie 二分」已删）。⇒ **判负 #29 以「详情响应头实测 `Cache-Control: private, no-store`」为唯一判据**，实施单的补测读数落 `ops/` 另件；本笔不 add 该代码件、不代其声明上线。

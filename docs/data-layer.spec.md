@@ -5356,3 +5356,26 @@ UPDATE public.listing
 #### 40.10.8 未测（`NOT_MEASURED` · 本册不预填）
 
 - `0057` 未落盘 / 两库未 apply；`+1` 未实现；`views` / `condition` 未透出；`item_condition` 写口闸未实现；判负（route §49.14.5 #22–#28）一条未跑；**零 HTTP 写 / 零库写 / 零代码**（本笔唯一 HTTP = 40.10.7 两条只读 GET）。
+
+#### 40.10.9 `app_config` 键口径（`detail_view_dedup` · 迁移 `0058` · `VC-7`）
+
+- **键名** = `detail_view_dedup`（`app_config.key` **唯一行**，`ON CONFLICT (key) DO NOTHING` ⇒ 反复 apply **不覆盖**运维翻转值）。
+- **值必须是 jsonb 对象**：`{"dedup":"on"}` / `{"dedup":"off"}`。**容器约束** = 0017 建立的 `app_config` 值域 CHECK（**jsonb 对象**）⇒ **裸标量一律被拒**（`'"off"'` 字符串 / `'off'` JSON 标量 / `'["off"]'` 数组均 `23514`），**键写在值里而不是顶替值**：合法形 `{"dedup":"off"}`、**非法形** `{"detail_view_dedup":"off"}`（等于把键名又抄了一遍、`->>'dedup'` 恒 null ⇒ 恒 fail-safe on）。
+- **读法单一真源** = `value->>'dedup'`（**不得** `value #>> '{}'`、不得整行 `JSON.parse` 后自造键）；判定闭集 `on|off`（`trim().toLowerCase()` 归一），**缺行 / 缺字段 / 非字符串 / 闭集外 ⇒ fail-safe `on`（去重）** —— 代码默认 = 去重、当前配置 = 不去重（承 route §49.14.7）。
+- **在册 ≠ 可写**：`app_config` 合法键白名单 **9 → 10**（新增本键），但 `validateAppConfigValue` **无其校验器** ⇒ 经 `/api/admin/settings` 写仍 **fail-closed 拒**；**开关只经「配置行 / 迁移」改**（一句话可改：给校验器即开 UI 写面，属另单）。
+- **值域登记**：`on` = 去重（同 listing + 同 viewer + 同日只计 1）；`off` = 不去重（P57 旧口径逐字）。**大小写敏感存储、读取归一**；写侧不得落 `ON` / `true` / `1` 一类别名（闭集外 ⇒ 读侧按 fail-safe `on`，行为反直觉）。
+
+#### 40.10.10 详情缓存头改判（`VC-8` · 原 §40.10.4「挂账」**结案**）
+
+- **原挂账**（§40.10.4 逐字保留）：详情口挂 `setPublicCache` ⇒ 边缘命中不回源 ⇒ 计数是**下界**；「是否改 `no-store`/`private`」= 挂账。
+- **结案（Kevin 2026-10-20 追加裁定 · 以本段为准）**：**详情口无条件 `setPrivateNoStore`**（`Cache-Control: private, no-store`；`Vary: Authorization` **不作要求** —— 本路由历史上不设该头、`no-store` 已使缓存键区分失去意义，见 route §49.14.10）；**其余读口（feed / task / home）缓存一字不改**。触发读数 = 生产实测 `views` **2 → 4 → 4**（CDN 命中致「打开不增 + 读数跳动」），与「每次打开 +1」自相矛盾。
+- **对计数语义的后果（正面）**：详情每次打开**必落 origin** ⇒ `view_count` 不再因边缘缓存欠计；**唯一仍存在的抑制因素 = 去重开关**（`on` 时同 viewer 同日只计 1）。⇒ 表述纪律：**「浏览量 = 每次打开一次（受去重开关约束）」**；**不得**再写「计数为下界（因 CDN）」，也**不得**把「feed 可公开缓存」与「详情不可共享缓存」混成一句。
+- **代价**：详情口失去 `s-maxage=30` 边缘缓存 ⇒ 读放大（每次打开一次 DB 读 + 一次计数写）；已裁接受。
+- **实施状态（诚实登记）**：实施为**另单（P59）**；本笔落册时该改动**已在同工作树、未提交**（详情块已无条件 `setPrivateNoStore`、块内 `setPublicCache` / `mintedCookie` 零命中）⇒ 其实测响应头读数与门套由该单补，**本笔不代其声明上线**；§40.10.4 的「下界」表述按本段读（旧行不改）。
+
+#### 40.10.11 运行态读数（2026-10-20 上线后 · 迁移 0058）
+
+- **两库 `schema_version` = `0058`**；`listing` 列数 **15**（`0057` 双列后守恒，`0058` 零改 `listing`）。
+- **`listing_view_log`**：5 列（`id` / `listing_id` / `viewer_key` / `view_day` / `time_created`，全 `NOT NULL`）· 具名 `listing_view_log_uniq (listing_id, viewer_key, view_day)` · 索引 `listing_view_log_listing_idx (listing_id)` · **零 FK**（历史商品删除不阻碍日志保留，尾部自检反断言 FK = 0）。
+- **开关当前值 = `{"dedup":"off"}`**（即**当前不去重**）；连读三次各 +1（生产 `/item/9` 实测）。
+- **键面**：详情 **50**（+`views` +`condition` +`wants`）· feed **48** 不变 · `mine` **11**（+`condition`）。
