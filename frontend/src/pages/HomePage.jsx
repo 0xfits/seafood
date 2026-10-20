@@ -6,6 +6,8 @@ import { useTranslation } from 'react-i18next'
 import { Button, Card, CardContent } from '../components/ui'
 import { TaskCard } from '../components/task/TaskCard'
 import { RewardCard } from '../components/reward/RewardCard'
+// ★ route §49.16：商品链接段统一取 `item_code`（缺失回落数字 id）。
+import { itemLinkId } from '../item-link'
 import { FadeIn, SlideUp, StaggerContainer } from '../components/ui/Motion'
 import { ResponsiveGrid, ResponsiveContainer } from '../components/ui/Responsive'
 import ActiveTaskModal from '../components/ActiveTaskModal'
@@ -306,9 +308,10 @@ const HomePage = () => {
 
   // ★ 合并单：卡片动作 = 「查看该闲置物品详情」（原 `/reward` 已硬删）。
   //   `RewardCard` 的 `actionLabelKey='item.viewDetail'` 同时**解禁**按钮（查看不受积分门槛约束）。
+  //   ★ route §49.16：链接段 = `item_code`（规范形），缺失回落数字 `listing_id`（旧读口降级）。
   const handleRewardAction = (reward) => {
-    const id = reward?.bID ?? reward?.listing_id ?? reward?.id
-    if (id == null || id === '') return
+    const id = itemLinkId(reward)
+    if (id == null) return
     navigate(buildLocalizedPath(lang, `/item/${id}`))
   }
 
@@ -322,8 +325,8 @@ const HomePage = () => {
   // ★ v1.20 §22 `T112`（整卡可点击）：卡片链接目标 —— 与 `handleRewardAction` 同一 id 口径，
   //   仍走**唯一构造器** `buildLocalizedPath`（`utils.js:115`）；id 缺失 ⇒ 不传 `to`（卡片回落非链接容器）。
   const rewardPath = (reward) => {
-    const id = reward?.bID ?? reward?.listing_id ?? reward?.id
-    return id == null || id === '' ? undefined : buildLocalizedPath(lang, '/item/' + id)
+    const id = itemLinkId(reward)
+    return id == null ? undefined : buildLocalizedPath(lang, '/item/' + id)
   }
 
   const FILTERS = [

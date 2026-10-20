@@ -3,6 +3,8 @@ import { Link, useInRouterContext } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Card } from '../ui/Card'
 import { buildLocalizedPath, cn } from '../../utils'
+// ★ route §49.16：卡片自身的回落链接段（调用方未传 `to` 时）同口径 —— `item_code` 优先。
+import { itemLinkId } from '../../item-link'
 import { contentStatus } from '../../i18n-content'
 import TranslatingBadge from '../i18n/TranslatingBadge'
 import { truncateByWidth, TITLE_MAX_UNITS } from './truncate'
@@ -63,8 +65,8 @@ const RewardCard = ({
   // 无 Router（既有裸渲染用例）⇒ `href = null` ⇒ 根元素回落 `<div>`（同 class / 同结构 / 无 `href`）。
   const inRouter = useInRouterContext()
   const lang = i18n?.resolvedLanguage || i18n?.language || 'zh'
-  const itemId = reward?.bID ?? reward?.listing_id ?? reward?.id
-  const href = to || (itemId != null && itemId !== '' ? buildLocalizedPath(lang, '/item/' + itemId) : null)
+  const itemId = itemLinkId(reward)
+  const href = to || (itemId != null ? buildLocalizedPath(lang, '/item/' + itemId) : null)
   const clickable = Boolean(href) && (Boolean(to) || inRouter)
   const Root = clickable ? (inRouter ? Link : 'a') : 'div'
   const rootLinkProps = clickable ? (inRouter ? { to: href } : { href }) : {}

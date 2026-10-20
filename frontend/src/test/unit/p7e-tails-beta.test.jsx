@@ -107,12 +107,14 @@ describe('① ListingDetailPage 状态查表（四语 + 未知兜底 + 缺省）
     expect(noteEl().getAttribute('title')).toBe('sunset-value')
   })
 
-  it('缺省 / 空串 ⇒ 维持既有口径 `-`（不留 data-sf-status）', async () => {
+  it('缺省 / 空串 ⇒ 维持既有口径 `-`（不留 data-sf-status）；物品编号改示 itemCode', async () => {
     for (const status of [undefined, null, '']) {
       setLang('zh')
-      fetchListingDetail.mockResolvedValue({ listing_id: 5, title: 'x', status })
+      // ★ 2026-10-20 §26.17：「物品编号」改示 itemCode（7 位字母数字），不再显示数字 id。
+      fetchListingDetail.mockResolvedValue({ listing_id: 5, item_code: 'A1b2C3d', title: 'x', status })
       renderDetail()
-      await waitFor(() => expect(noteText()).toContain('#5'))
+      await waitFor(() => expect(noteText()).toContain('A1b2C3d'))
+      expect(noteText()).not.toContain('#5')
       expect(noteText().endsWith('-')).toBe(true)
       expect(noteEl().getAttribute('data-sf-status')).toBeNull()
       cleanup()

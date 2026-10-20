@@ -10,6 +10,8 @@ import { FadeIn, SlideUp } from '../components/ui/Motion'
 import { ResponsiveContainer, ResponsiveGrid } from '../components/ui/Responsive'
 import { useTranslation } from 'react-i18next'
 import { buildLocalizedPath, formatEvmAddress, getLanguageFromUrl } from '../utils'
+// ★ route §49.16：商品详情链接段统一取 `item_code`（缺失回落数字 id）。
+import { itemLinkId } from '../item-link'
 import { contentStatus, pickLocalized } from '../i18n-content'
 import TranslatingBadge from '../components/i18n/TranslatingBadge'
 // P9②：电量卡 + 签到区（Kevin 2026-10-14 需求③：已迁出至独立页 /activities —— 本文件不再渲染）。
@@ -186,6 +188,9 @@ const PublishedList = ({ user, isAuthenticated, lang }) => {
       ) : (
         state.rows.map((row) => {
           const id = rowIdOf(row)
+          // ★ route §49.16：**详情链接**用 `item_code`（规范形，缺失回落数字 id）；
+          //   `id`（数字）继续承担行内动作 —— 【降价】PATCH / 【编辑】`/item/:id/edit` 端口只认数字。
+          const linkId = itemLinkId(row) || id
           // `row?.status`（可选链）取值：既避开「String(<obj>.<field> ?? …)」工程口径形态面（p4z 类级断言），
           //   也顺带把 canAct 与 data-sf-status 收到同一取值上
           const statusText = String(row?.status ?? '')
@@ -201,7 +206,7 @@ const PublishedList = ({ user, isAuthenticated, lang }) => {
               <Link
                 className="sf-prof-row"
                 data-sf-m="trades-published-link"
-                to={buildLocalizedPath(lang, `/item/${id}`)}
+                to={buildLocalizedPath(lang, `/item/${linkId}`)}
               >
                 <span className="sf-prof-row-title">{String(row.title ?? '-')}</span>
                 <span className="sf-prof-row-meta" data-sf-m="trades-published-price">
@@ -394,7 +399,8 @@ const FavoritesPane = ({ user, isAuthenticated, lang }) => {
             <Link
               className="sf-prof-row-title"
               data-sf-m="fav-item-link"
-              to={buildLocalizedPath(lang, `/item/${String(row.listing_id ?? row.bID)}`)}
+              // ★ route §49.16：收藏行读口**不含** `item_code`（不在四读口闭集内）⇒ 回落数字 id 属预期降级。
+              to={buildLocalizedPath(lang, `/item/${itemLinkId(row) ?? String(row.listing_id ?? row.bID ?? '-')}`)}
             >
               {String(row.title ?? '-')}
             </Link>

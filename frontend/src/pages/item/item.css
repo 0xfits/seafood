@@ -435,11 +435,8 @@
   font-size: var(--sf-l-detail-price-size);
 }
 
-.sf-item-meta-group {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
+/* ★ design §26.17.1 ②③（2026-10-20）：「闲置物品」标题 + 三段说明已随空壳容器一并删除
+   ⇒ 原 `.sf-item-meta-group` 规则同步移除（留死规则 = 下一轮误读成「该块仍在」）。 */
 
 .sf-item-actionbar {
   display: flex;

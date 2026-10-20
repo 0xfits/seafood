@@ -10,6 +10,8 @@ import TranslatingBadge from '../../components/i18n/TranslatingBadge'
 // 媒体单前端阶段 A：详情面板真图优先（media_urls[0]），无媒体 ⇒ 机械鱼占位（T94 勘误：真图填原几何盒）。
 import { PLACEHOLDER_IMAGE } from '../../assets/placeholder'
 import { buyListing, createListingBuyTracker, fetchListingDetail, listingBuyFingerprint } from './item-api'
+// ★ route §49.16：链接段取 `item_code`、写口取数字 `listing_id`（两口径分开，别混用）。
+import { itemNumericId } from '../../item-link'
 // ★ 0059 · 管理员代编能力（`/api/user` 的 `admin` 三键 · 与后端 `isListingEditAdminAccess` 同式）
 //   ⇒ 详情页【编辑】入口的可见性之一（本人 ∨ 管理员）。
 import { isListingEditAdmin, loadListingEditAdmin } from './item-edit-access'
@@ -85,6 +87,9 @@ const ItemDetailPage = () => {
   const { itemId } = useParams()
   const { isAuthenticated, user } = useAuth()
   const [detail, setDetail] = useState({ phase: 'loading', row: null, message: '' })
+  // ★ design §26.17.1（2026-10-20）：详情页「数量」输入框已删 ⇒ `quantity` 恒 `'1'`（state 位保留，
+  //   购买载荷形状零变化：仍是 `{quantity, create_key}`，`listingBuyFingerprint` 的入参位不删）。
+  //   §26.18.3 收窄：`allow_multi_buy === true ∧ cap ≥ 2` 时由购买弹层写入买家选定的 n，其余场景恒 `'1'`。
   const [quantity, setQuantity] = useState('1')
   const [buy, setBuy] = useState({ phase: 'idle', message: '' })
   // T100：第 3 格「聊一聊」的本地态（开会话请求的加载 / 失败；成功即离开本页，无需 ok 态）。
@@ -104,7 +109,12 @@ const ItemDetailPage = () => {
 
   // `?id=` 兼容：无 `/item/:itemId` 段（同路由 `item`）时取 query 的 `id`（同一组件两处挂载）
   const queryId = new URLSearchParams(location.search).get('id')
+  // ★ route §49.16：本段 **identity 双形态** —— `itemCode`（规范形，7 位码）或纯数字 `listing_id`（旧链接）。
+  //   读口 `GET /api/prize/:ref` 双形态 ⇒ 直接透传；但**写口 / 业务口**（收藏 / 会话 / 购买 / 编辑 PATCH）
+  //   只认数字 `listing_id` ⇒ 详情行就绪后取数字 id（`opId`），行未就绪时回落 URL 段（仅首屏事件兜底）。
   const id = itemId || queryId || ''
+  const numericId = detail.row ? itemNumericId(detail.row) : null
+  const opId = numericId || id
 
   // ---------------------------------------------------------------------------
   // ★ 详情读口去重（2026-10-20 独立质检缺陷 2）：**一次挂载 = 一次 `GET /api/prize/<id>`**
@@ -154,9 +164,22 @@ const ItemDetailPage = () => {
       .then((rows) => {
         if (!alive) return
         const list = Array.isArray(rows) ? rows : []
+        // ★ route §49.16：收藏列表行**不含** `item_code`，而 URL 段可能是码 ⇒ 成员判定按
+        //   「数字 id（详情行）∨ 码（详情行）∨ URL 原值」三选一，任一命中即已收藏。
+        const dr = detail.row || {}
+        const detailId = String(dr.listing_id ?? dr.bID ?? '')
+        const detailCode = dr.item_code == null ? '' : String(dr.item_code).trim()
+        const urlKey = String(id ?? '')
+        const matches = (row) => {
+          const rid = String(row?.listing_id ?? row?.bID ?? '')
+          const rcode = row?.item_code == null ? '' : String(row.item_code).trim()
+          if (detailId && rid && rid === detailId) return true
+          if (detailCode && rcode && rcode === detailCode) return true
+          return urlKey !== '' && rid !== '' && rid === urlKey
+        }
         setFav((prev) => ({
           ...prev,
-          favored: list.some((row) => String(row?.listing_id ?? row?.bID) === String(id)),
+          favored: list.some(matches),
         }))
       })
       .catch(() => {})
@@ -199,10 +222,10 @@ const ItemDetailPage = () => {
   const onBuy = async (event) => {
     event.preventDefault()
     if (buy.phase === 'loading') return
-    const createKey = tracker.keyFor(listingBuyFingerprint({ listingId: id, quantity }))
+    const createKey = tracker.keyFor(listingBuyFingerprint({ listingId: opId, quantity }))
     setBuy({ phase: 'loading', message: t('jobs.submitting') })
     try {
-      const view = await buyListing(id, { quantity: String(quantity).trim(), createKey, user })
+      const view = await buyListing(opId, { quantity: String(quantity).trim(), createKey, user })
       tracker.reset()
       setBuy({ phase: 'ok', message: `${t('item.buyOk')} · ${t('item.orderId')} #${view?.order_id ?? '-'}` })
       await load()
@@ -227,7 +250,7 @@ const ItemDetailPage = () => {
     }
     setChat({ phase: 'loading', message: '' })
     try {
-      const view = await openConversation(id, user)
+      const view = await openConversation(opId, user)
       setChat({ phase: 'idle', message: '' })
       navigate(withPanelParams(location, String(view?.conversation_id ?? '')))
     } catch (error) {
@@ -272,11 +295,11 @@ const ItemDetailPage = () => {
     const nextWants = (view) => (view && typeof view === 'object' && view.wants != null ? view.wants : null)
     try {
       if (fav.favored) {
-        const view = await removeFavorite(id, user)
+        const view = await removeFavorite(opId, user)
         setFav({ phase: 'idle', favored: false })
         applyWants(nextWants(view), -1)
       } else {
-        const view = await addFavorite(id, user)
+        const view = await addFavorite(opId, user)
         setFav({ phase: 'idle', favored: true })
         applyWants(nextWants(view), +1)
         toast.success(t('item.favoriteOk'))
@@ -316,6 +339,9 @@ const ItemDetailPage = () => {
   const viewsText = hasViews ? t('item.views', { n: String(row.views) }) : ''
   // ① 卖家行（#46：响应无 `seller` ⇒ 整行不渲染）。昵称 = 服务端 `maskWalletAddress` 单源掩码。
   const seller = row.seller || null
+  // ★ design §26.17.3：编号展示值 = 读口加性键 `item_code`（route §49.16 四读口恒为 string）。
+  //   码缺失 / 非字符串 ⇒ 空串（渲染侧落 `-`）；**绝不回落数字 `listing_id`**（同一行两种编号）。
+  const itemCode = row.item_code == null ? '' : String(row.item_code).trim()
 
   // P7-E 小尾巴批-β ①：listing 状态**不得原样渲染枚举**。已知取值 ⇒ 四语标签；未知 ⇒ 本地化兜底（`item.statusLabel.unknown`）；
   //   原值留 `title`/`data-sf-status`（仅排查用）。缺省/空串 ⇒ 维持既有口径 = `-`（与列表「缺失 ⇒ 已上架」**不同**）。
@@ -349,7 +375,9 @@ const ItemDetailPage = () => {
             {showEditLink ? (
               <Link
                 className="sf-item-edit-link"
-                to={root(`/item/${id}/edit`)}
+                // ★ route §49.16：编辑页的预填读口 `GET /api/listing/:listingId/edit` 与字段模式 PATCH
+                //   只认**数字** `listing_id` ⇒ 本入口用 `opId`（数字），**不得**用 URL 段（可能是 itemCode）。
+                to={root(`/item/${opId}/edit`)}
                 data-sf-m="item-edit-link"
               >
                 {t('common.edit')}
@@ -484,34 +512,22 @@ const ItemDetailPage = () => {
                     {descRest ? `\n${descRest}` : ''}
                   </p>
 
-                  {/* 物品编号 + 状态（既有 `.sf-item-note`：`item.listingId` + 四语状态签，原始枚举不进用户面） */}
+                  {/* 物品编号 + 状态（design §26.17.3：编号改示 `item_code`、**去 `#`**；
+                      码缺失 ⇒ `-`，**禁回落数字 `listing_id`**（同一行两种编号 ⇒ 用户与客服对不上账）。
+                      状态签仍在同一行：`data-sf-status` / `title` 属性一律不动。 */}
                   <p
                     className="sf-item-note"
                     data-sf-status={statusRaw || undefined}
                     title={statusRaw || undefined}
-                  >{`${t('item.listingId')} #${String(row.listing_id ?? row.bID ?? id ?? '-')} · ${statusText}`}</p>
+                  >{`${t('item.listingId')} ${itemCode || '-'} · ${statusText}`}</p>
 
-                  {/* 库存 + 数量（既有购买表单面：`onBuy` / quantity / create_key 逻辑零改动） */}
+                  {/* 库存行（§26.17.1 ①：数量输入框已删 ⇒ 购买恒 `quantity = '1'`；本行逐字保留） */}
                   <p className="sf-item-meta">{t('item.stock')}{` ${String(row.stock ?? '-')}`}</p>
-                  <label className="sf-item-field sf-item-qty-field">
-                    <span className="sf-item-label">{t('item.quantity')}</span>
-                    <input
-                      className="sf-item-input"
-                      data-sf-m="item-input-qty"
-                      value={quantity}
-                      onChange={(event) => setQuantity(event.target.value)}
-                      inputMode="numeric"
-                      required
-                    />
-                  </label>
 
-                  {/* 平台告知 meta 组（v1.15 R-A/R-F 既有四键：明细 / 结算 / 幂等告知 / 退款库存） */}
-                  <div className="sf-item-meta-group">
-                    <h2 className="sf-item-title">{t('item.line')}</h2>
-                    <p className="sf-item-meta">{t('item.priceServerNote')}</p>
-                    <p className="sf-item-meta">{t('item.buyNote')}</p>
-                    <p className="sf-item-meta">{t('item.refundStockNote')}</p>
-                  </div>
+                  {/* ★ design §26.17.1 ②③（2026-10-20）：原「闲置物品」标题 + 三段说明
+                      （`priceServerNote` / `buyNote` / `refundStockNote`）连同承载它们的外壳
+                      `.sf-item-meta-group` **整块删除** —— 留空壳 = 白占纵向间距（判负 #61）。
+                      键留在四语文件里（`item.line` / `item.refundStockNote` 仍被别处消费）。 */}
 
                   {/* ⑥ 底部操作栏（H5 ≤767 = fixed 四件栏；Web = 右栏操作区）：
                       左组【留言】【收藏】靠左 ‖ 右组【立即购买】【聊一聊】靠右（判负 #42/#47）。

@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
 import { useAuth } from '../../auth-context'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
+// ★ route §49.16：发布成功后跳详情的目标 = `item_code`（缺失回落数字 id）。
+import { itemLinkId } from '../../item-link'
 import { fetchMyListings } from '../../trades-api'
 import {
   createListingPublishTracker,
@@ -580,6 +582,9 @@ const PublishItemPage = ({ mode = 'publish' }) => {
       })
       tracker.reset()
       const listingId = created?.listing_id ?? created?.bID ?? null
+      // ★ route §49.16：跳转目标用**规范形** `/item/<itemCode>`（响应带 `item_code` 时）；
+      //   缺该键（旧后端 / 测试替身）⇒ 回落数字 id。`setListingStatus` 仍走数字 `listing_id`。
+      const linkId = itemLinkId(created) || (listingId == null ? null : String(listingId))
       // 上架 = 创建（draft）→ 迁移到 listed；两步都成功后商品才可购买
       let listed = false
       if (listingId) {
@@ -602,7 +607,7 @@ const PublishItemPage = ({ mode = 'publish' }) => {
       //           即时跳转（不引延时器）⇒ 无「未清理定时器」面，单测确定性也更高。
       if (listingId && listed) {
         toast.success(`${t('item.publishOk')} · #${listingId}`)
-        navigate(root(`/item/${listingId}`))
+        navigate(root(`/item/${linkId}`))
       }
     } catch (error) {
       setState({ phase: 'error', message: String(error?.message || t('error')) })
