@@ -1,0 +1,181 @@
+{
+ "base": "http://127.0.0.1:5788",
+ "project_id": "quiet-math-65207667",
+ "holders": [
+  {
+   "uid": "970213",
+   "bal": "1"
+  }
+ ],
+ "zero_batt_uid": 34,
+ "health": {
+  "http": 200,
+  "body": {
+   "ok": true,
+   "schema_version": "0066",
+   "time": "2026-10-20T12:20:40.937Z"
+  }
+ },
+ "batt": {
+  "http": 200,
+  "body": {
+   "success": true,
+   "message": "OK",
+   "data": {
+    "batt": 0,
+    "capBatt": 100,
+    "floorBatt": 0,
+    "acceptThresholdBatt": 9,
+    "canAccept": false,
+    "updated_at": "2026-10-19T00:44:28.013Z",
+    "bttc": {
+     "symbol": "₿",
+     "name": "BTTC",
+     "decimals": 0,
+     "status": "listed",
+     "totalSupply": "1",
+     "balance": "1",
+     "canMint": false,
+     "canBurn": true,
+     "policy": {
+      "mintBattCost": 100,
+      "mintFeeUsd": 1,
+      "burnBttcCost": 1,
+      "burnFeeUsd": 1,
+      "burnBattGain": 100
+     },
+     "source": "constant",
+     "usdBalance": "4291"
+    }
+   }
+  }
+ },
+ "balances": {
+  "http": 200,
+  "body": {
+   "success": true,
+   "message": "OK",
+   "data": [
+    {
+     "cid": 1,
+     "symbol": "$",
+     "name": "平台积分",
+     "balance": "4291"
+    },
+    {
+     "cid": 399,
+     "symbol": "₿",
+     "name": "BTTC",
+     "balance": "1"
+    }
+   ]
+  }
+ },
+ "balances_unauth": {
+  "http": 401,
+  "body": {
+   "error": {
+    "code": "AUTH_UNAUTHORIZED",
+    "message": "Authentication is required",
+    "i18n_key": "auth.err.AUTH_UNAUTHORIZED",
+    "details": {}
+   }
+  }
+ },
+ "mint_no_key": {
+  "http": 400,
+  "body": {
+   "error": {
+    "code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+    "message": "Idempotency key invalid",
+    "i18n_key": "ledger.err.LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+    "details": {
+     "field": "create_key",
+     "reason": "MISSING"
+    }
+   }
+  }
+ },
+ "mint_bad_key": {
+  "http": 400,
+  "body": {
+   "error": {
+    "code": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+    "message": "Idempotency key invalid",
+    "i18n_key": "ledger.err.LEDGER_IDEMPOTENCY_KEY_INVALID",
+    "details": {
+     "field": "create_key",
+     "reason": "PREFIX_REQUIRED"
+    }
+   }
+  }
+ },
+ "burn_no_key": {
+  "http": 400,
+  "body": {
+   "error": {
+    "code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+    "message": "Idempotency key invalid",
+    "i18n_key": "ledger.err.LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+    "details": {
+     "field": "create_key",
+     "reason": "MISSING"
+    }
+   }
+  }
+ },
+ "burn_bad_key": {
+  "http": 400,
+  "body": {
+   "error": {
+    "code": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+    "message": "Idempotency key invalid",
+    "i18n_key": "ledger.err.LEDGER_IDEMPOTENCY_KEY_INVALID",
+    "details": {
+     "field": "create_key",
+     "reason": "NOT_UUID"
+    }
+   }
+  }
+ },
+ "mint_insufficient": {
+  "http": 409,
+  "body": {
+   "error": {
+    "code": "LEDGER_INSUFFICIENT_BALANCE",
+    "message": "Insufficient batt",
+    "i18n_key": "ledger.err.LEDGER_INSUFFICIENT_BALANCE",
+    "details": {
+     "field": "batt",
+     "reason": "INSUFFICIENT_BATT",
+     "required": "100",
+     "available": "0"
+    }
+   }
+  }
+ },
+ "burn_insufficient": {
+  "http": 409,
+  "body": {
+   "error": {
+    "code": "LEDGER_INSUFFICIENT_BALANCE",
+    "message": "Insufficient BTTC",
+    "i18n_key": "ledger.err.LEDGER_INSUFFICIENT_BALANCE",
+    "details": {
+     "field": "balance",
+     "reason": "INSUFFICIENT_BTTC",
+     "required": "1",
+     "available": "0"
+    }
+   }
+  }
+ },
+ "db_platform_row": [
+  {
+   "cid": "399",
+   "symbol": "₿",
+   "name": "BTTC",
+   "is_platform_coin": true
+  }
+ ]
+}

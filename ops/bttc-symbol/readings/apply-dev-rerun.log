@@ -1,0 +1,765 @@
+{
+  "ok": true,
+  "applied_now": [
+    {
+      "version": "0001",
+      "name": "0001_ledger_core.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0002",
+      "name": "0002_user_identity.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0003",
+      "name": "0003_kind_close_set_20.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0004",
+      "name": "0004_ledger_post_event.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0005",
+      "name": "0005_ledger_event_root_key.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0006",
+      "name": "0006_user_to_users.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0007",
+      "name": "0007_referral_and_commission_policy.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0008",
+      "name": "0008_platform_revenue_job_fee.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0009",
+      "name": "0009_ledger_error_reverse_map_complete.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0010",
+      "name": "0010_referral_bind_protocol_guard.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0011",
+      "name": "0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0012",
+      "name": "0012_replay_pre_gate_before_balance_gate.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0013",
+      "name": "0013_job.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0014",
+      "name": "0014_job_flow.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0015",
+      "name": "0015_listing.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0016",
+      "name": "0016_market.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0017",
+      "name": "0017_platform_config.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0019",
+      "name": "0019_listing_deposit_platform_credit.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Wed Sep 30 2026 01:43:01 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0020",
+      "name": "0020_ledger_post_event_hold_family_drop_listing_deposit.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Wed Sep 30 2026 01:53:03 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0021",
+      "name": "0021_content_translation.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Thu Oct 01 2026 09:35:47 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0022",
+      "name": "0022_admin_permission_seed.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Fri Oct 02 2026 08:41:05 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0023",
+      "name": "0023_admin_points_audit_daily_cap.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Fri Oct 02 2026 09:58:54 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0024",
+      "name": "0024_admin_refund_audit.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Fri Oct 02 2026 16:01:41 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0025",
+      "name": "0025_currency_review_log.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sat Oct 03 2026 07:38:23 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0026",
+      "name": "0026_listing_review_log.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sat Oct 03 2026 08:29:15 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0027",
+      "name": "0027_job_arbitration_log.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sat Oct 03 2026 08:29:16 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0028",
+      "name": "0028_kind_close_set_21.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sat Oct 03 2026 10:36:54 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0029",
+      "name": "0029_batt_checkin.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sat Oct 03 2026 10:36:55 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0030",
+      "name": "0030_listing_order_status_extend.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sat Oct 03 2026 11:59:36 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0031",
+      "name": "0031_rating_and_order_event.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sat Oct 03 2026 11:59:37 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0032",
+      "name": "0032_kind_close_set_23.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sat Oct 03 2026 14:25:25 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0033",
+      "name": "0033_currency_platform_coin_flag.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sat Oct 03 2026 14:25:26 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0034",
+      "name": "0034_ledger_op_burn_and_supply.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sat Oct 03 2026 14:25:27 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0035",
+      "name": "0035_fee_rate_range_extend.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sat Oct 03 2026 16:23:12 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0036",
+      "name": "0036_commission_policy_p9_5.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sat Oct 03 2026 16:23:14 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0037",
+      "name": "0037_commission_conservation_m0.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sat Oct 03 2026 16:23:14 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0038",
+      "name": "0038_kind_close_set_24.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sat Oct 03 2026 16:23:15 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0039",
+      "name": "0039_admin_audit_console.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sat Oct 03 2026 17:50:08 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0040",
+      "name": "0040_backfill_signup_batt.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sat Oct 03 2026 18:09:13 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0041",
+      "name": "0041_job_headcount.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sat Oct 03 2026 22:06:14 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0042",
+      "name": "0042_job_settle_per_submission.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Oct 04 2026 07:56:47 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0043",
+      "name": "0043_truncate_guard.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Oct 04 2026 21:19:08 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0044",
+      "name": "0044_restore_listing_deposit_leg.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Wed Oct 07 2026 12:56:50 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0045",
+      "name": "0045_message_conversation.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Mon Oct 12 2026 18:25:27 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0046",
+      "name": "0046_telegram_binding.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Mon Oct 12 2026 18:25:28 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0047",
+      "name": "0047_listing_favorite.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Wed Oct 14 2026 10:41:11 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0048",
+      "name": "0048_telegram_bind_request.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Wed Oct 14 2026 14:47:06 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0049",
+      "name": "0049_seed_bttc_currency.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sat Oct 17 2026 12:22:35 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0050",
+      "name": "0050_media_store.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Mon Oct 19 2026 11:43:15 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0051",
+      "name": "0051_media_size_cap_1mb.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Mon Oct 19 2026 12:28:56 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0052",
+      "name": "0052_users_avatar_url.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Mon Oct 19 2026 14:45:00 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0053",
+      "name": "0053_listing_item_type.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Oct 20 2026 06:30:40 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0054",
+      "name": "0054_item_type_delivery_split.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Oct 20 2026 07:07:43 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0055",
+      "name": "0055_title_merge_into_description.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Oct 20 2026 09:18:07 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0056",
+      "name": "0056_drop_listing_title.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Oct 20 2026 09:30:07 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0057",
+      "name": "0057_listing_view_count.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Oct 20 2026 12:01:20 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0058",
+      "name": "0058_view_dedup_switch.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Oct 20 2026 12:01:21 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0059",
+      "name": "0059_listing_edit_log.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Oct 20 2026 13:13:37 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0060",
+      "name": "0060_item_code_snowflake.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Oct 20 2026 13:55:18 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0061",
+      "name": "0061_listing_allow_multi_buy.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Oct 20 2026 13:55:19 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0063",
+      "name": "0063_project_domain.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Oct 20 2026 19:14:42 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0064",
+      "name": "0064_seed_projects.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Oct 20 2026 19:14:43 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0065",
+      "name": "0065_campaign_hierarchy.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Oct 20 2026 19:14:44 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0066",
+      "name": "0066_bttc_symbol_rename.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Tue Oct 20 2026 20:18:58 GMT+0800 (China Standard Time)"
+    }
+  ],
+  "schema_version": "0066",
+  "schema_migration_rows": [
+    {
+      "version": "0001",
+      "name": "0001_ledger_core.sql"
+    },
+    {
+      "version": "0002",
+      "name": "0002_user_identity.sql"
+    },
+    {
+      "version": "0003",
+      "name": "0003_kind_close_set_20.sql"
+    },
+    {
+      "version": "0004",
+      "name": "0004_ledger_post_event.sql"
+    },
+    {
+      "version": "0005",
+      "name": "0005_ledger_event_root_key.sql"
+    },
+    {
+      "version": "0006",
+      "name": "0006_user_to_users.sql"
+    },
+    {
+      "version": "0007",
+      "name": "0007_referral_and_commission_policy.sql"
+    },
+    {
+      "version": "0008",
+      "name": "0008_platform_revenue_job_fee.sql"
+    },
+    {
+      "version": "0009",
+      "name": "0009_ledger_error_reverse_map_complete.sql"
+    },
+    {
+      "version": "0010",
+      "name": "0010_referral_bind_protocol_guard.sql"
+    },
+    {
+      "version": "0011",
+      "name": "0011_commission_assert_closure_and_referral_depth_guard.sql"
+    },
+    {
+      "version": "0012",
+      "name": "0012_replay_pre_gate_before_balance_gate.sql"
+    },
+    {
+      "version": "0013",
+      "name": "0013_job.sql"
+    },
+    {
+      "version": "0014",
+      "name": "0014_job_flow.sql"
+    },
+    {
+      "version": "0015",
+      "name": "0015_listing.sql"
+    },
+    {
+      "version": "0016",
+      "name": "0016_market.sql"
+    },
+    {
+      "version": "0017",
+      "name": "0017_platform_config.sql"
+    },
+    {
+      "version": "0019",
+      "name": "0019_listing_deposit_platform_credit.sql"
+    },
+    {
+      "version": "0020",
+      "name": "0020_ledger_post_event_hold_family_drop_listing_deposit.sql"
+    },
+    {
+      "version": "0021",
+      "name": "0021_content_translation.sql"
+    },
+    {
+      "version": "0022",
+      "name": "0022_admin_permission_seed.sql"
+    },
+    {
+      "version": "0023",
+      "name": "0023_admin_points_audit_daily_cap.sql"
+    },
+    {
+      "version": "0024",
+      "name": "0024_admin_refund_audit.sql"
+    },
+    {
+      "version": "0025",
+      "name": "0025_currency_review_log.sql"
+    },
+    {
+      "version": "0026",
+      "name": "0026_listing_review_log.sql"
+    },
+    {
+      "version": "0027",
+      "name": "0027_job_arbitration_log.sql"
+    },
+    {
+      "version": "0028",
+      "name": "0028_kind_close_set_21.sql"
+    },
+    {
+      "version": "0029",
+      "name": "0029_batt_checkin.sql"
+    },
+    {
+      "version": "0030",
+      "name": "0030_listing_order_status_extend.sql"
+    },
+    {
+      "version": "0031",
+      "name": "0031_rating_and_order_event.sql"
+    },
+    {
+      "version": "0032",
+      "name": "0032_kind_close_set_23.sql"
+    },
+    {
+      "version": "0033",
+      "name": "0033_currency_platform_coin_flag.sql"
+    },
+    {
+      "version": "0034",
+      "name": "0034_ledger_op_burn_and_supply.sql"
+    },
+    {
+      "version": "0035",
+      "name": "0035_fee_rate_range_extend.sql"
+    },
+    {
+      "version": "0036",
+      "name": "0036_commission_policy_p9_5.sql"
+    },
+    {
+      "version": "0037",
+      "name": "0037_commission_conservation_m0.sql"
+    },
+    {
+      "version": "0038",
+      "name": "0038_kind_close_set_24.sql"
+    },
+    {
+      "version": "0039",
+      "name": "0039_admin_audit_console.sql"
+    },
+    {
+      "version": "0040",
+      "name": "0040_backfill_signup_batt.sql"
+    },
+    {
+      "version": "0041",
+      "name": "0041_job_headcount.sql"
+    },
+    {
+      "version": "0042",
+      "name": "0042_job_settle_per_submission.sql"
+    },
+    {
+      "version": "0043",
+      "name": "0043_truncate_guard.sql"
+    },
+    {
+      "version": "0044",
+      "name": "0044_restore_listing_deposit_leg.sql"
+    },
+    {
+      "version": "0045",
+      "name": "0045_message_conversation.sql"
+    },
+    {
+      "version": "0046",
+      "name": "0046_telegram_binding.sql"
+    },
+    {
+      "version": "0047",
+      "name": "0047_listing_favorite.sql"
+    },
+    {
+      "version": "0048",
+      "name": "0048_telegram_bind_request.sql"
+    },
+    {
+      "version": "0049",
+      "name": "0049_seed_bttc_currency.sql"
+    },
+    {
+      "version": "0050",
+      "name": "0050_media_store.sql"
+    },
+    {
+      "version": "0051",
+      "name": "0051_media_size_cap_1mb.sql"
+    },
+    {
+      "version": "0052",
+      "name": "0052_users_avatar_url.sql"
+    },
+    {
+      "version": "0053",
+      "name": "0053_listing_item_type.sql"
+    },
+    {
+      "version": "0054",
+      "name": "0054_item_type_delivery_split.sql"
+    },
+    {
+      "version": "0055",
+      "name": "0055_title_merge_into_description.sql"
+    },
+    {
+      "version": "0056",
+      "name": "0056_drop_listing_title.sql"
+    },
+    {
+      "version": "0057",
+      "name": "0057_listing_view_count.sql"
+    },
+    {
+      "version": "0058",
+      "name": "0058_view_dedup_switch.sql"
+    },
+    {
+      "version": "0059",
+      "name": "0059_listing_edit_log.sql"
+    },
+    {
+      "version": "0060",
+      "name": "0060_item_code_snowflake.sql"
+    },
+    {
+      "version": "0061",
+      "name": "0061_listing_allow_multi_buy.sql"
+    },
+    {
+      "version": "0063",
+      "name": "0063_project_domain.sql"
+    },
+    {
+      "version": "0064",
+      "name": "0064_seed_projects.sql"
+    },
+    {
+      "version": "0065",
+      "name": "0065_campaign_hierarchy.sql"
+    },
+    {
+      "version": "0066",
+      "name": "0066_bttc_symbol_rename.sql"
+    }
+  ],
+  "public_base_tables": [
+    "account",
+    "admin_ops_audit_log",
+    "admin_permission",
+    "admin_refund_audit_log",
+    "admin_role",
+    "admin_role_permission",
+    "admin_user_role",
+    "app_config",
+    "batt_account",
+    "batt_entry",
+    "campaign",
+    "checkin_log",
+    "checkin_makeup_log",
+    "commission_policy",
+    "content_translation",
+    "conversation",
+    "currency",
+    "currency_review_log",
+    "currency_status_log",
+    "job",
+    "job_application",
+    "job_arbitration_log",
+    "job_submission",
+    "ledger_entry",
+    "ledger_owner",
+    "listing",
+    "listing_edit_log",
+    "listing_favorite",
+    "listing_order",
+    "listing_order_event",
+    "listing_review_log",
+    "listing_view_log",
+    "market_order",
+    "market_trade",
+    "media",
+    "message",
+    "project",
+    "project_wage_claim",
+    "project_worker",
+    "rating",
+    "referral",
+    "schema_migration",
+    "subtask",
+    "subtask_proof",
+    "subtask_type",
+    "task",
+    "telegram_bind_request",
+    "translation_cache",
+    "user_activity_hour",
+    "users"
+  ],
+  "public_base_table_count": 50
+}

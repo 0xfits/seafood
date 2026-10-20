@@ -29,6 +29,9 @@
  *   K  库面**活体**：`0032`/`0033`/`0034`/`0038` 结构指纹（kind 24 / kind_ok / −1 credit 8 / 列 / op 白名单含 burn + 双写 / `schema_migration` 48·0049）
  *      + ★★ 四段真链路（创建含豁免闸两读数 / 铸造含幂等重放与闸负读数 / 分解含封顶丢弃 / 配对不变式）+ 零残渣（`ROLLBACK`）
  *   L  四语 `bttcPanel` 键集逐语相等 + 六类工程口径泄漏 = 0 + `en`/`vn` 零 CJK
+ *   M  **`0066` 平台币定位口径**（静态面）：`database.ts` 不得再用 `symbol = 'BTTC'` 字面定位平台行
+ *      （一律 `is_platform_coin = true`）；迁移改名本体 + 幂等闸 + `cid` 不变自证 + 「平台行恰 1 行」
+ *      + 无重复 symbol 自检全在场。（Kevin 2026-10-20：**BTTC 是货币名称、₿ 是货币符号**；菜单显示符号。）
  */
 import * as fs from 'fs';
 import * as path from 'path';
@@ -68,6 +71,8 @@ const SQL_0032 = readSrc('backend-ts/migrations/0032_kind_close_set_23.sql');
 const SQL_0033 = readSrc('backend-ts/migrations/0033_currency_platform_coin_flag.sql');
 const SQL_0034 = readSrc('backend-ts/migrations/0034_ledger_op_burn_and_supply.sql');
 const SQL_0038 = readSrc('backend-ts/migrations/0038_kind_close_set_24.sql');
+// ★ `0066`（BTTC 口径订正：`symbol='₿'` / `name='BTTC'`）—— 平台币定位改按 `is_platform_coin`
+const SQL_0066 = readSrc('backend-ts/migrations/0066_bttc_symbol_rename.sql');
 const LOCALES: Record<string, Record<string, unknown>> = Object.fromEntries(
   ['zh', 'en', 'hk', 'vn'].map((l) => [l, JSON.parse(readSrc(`frontend/src/locales/${l}.json`)) as Record<string, unknown>]),
 );
@@ -327,6 +332,40 @@ const WL_0032_M1_CREDIT = (mWhitelist ? (mWhitelist[1].match(/'([a-z_]+)'/g) || 
 }
 
 // ============================================================================
+// M · 平台币定位口径（`0066` · Kevin 2026-10-20：**BTTC 是货币名称、₿ 是货币符号**）
+//   判据（静态面 · 零 DB）：`src/database.ts` 的平台币读 / 写路径一律按 **`is_platform_coin = true`**
+//   定位，**不得**回退成 `symbol` 字面（符号现役 `'₿'`、名称现役 `'BTTC'`；两张库 cid 不同：
+//   dev 399 / 生产 4 ⇒ 既不能写 cid、也不能拿 symbol 当主判据）。迁移面断言改名本体 +
+//   幂等闸 + `cid` 不变自证 + 「平台行恰 1 行」自检全部在场。
+// ============================================================================
+{
+  const symbolLookups = countOf(DATABASE_TS, /symbol = 'BTTC'/g);
+  const platformLookups = countOf(DATABASE_TS, /is_platform_coin = true/g);
+  t('M1', 'platformCoinLocate', symbolLookups === 0 && platformLookups >= 4,
+    "★ `src/database.ts` 平台币定位：`symbol = 'BTTC'` 字面 = **0** 处 · `is_platform_coin = true` **≥ 4** 处（`getBttcState` / `bttcMint` / `bttcBurn` / `ensureBttcCurrency` 四路径全走平台标记列）",
+    JSON.stringify({ symbol_lookups: symbolLookups, platform_lookups: platformLookups }));
+  selfTest('M1', 'platformCoinLocate',
+    (v) => (v as { symbol_lookups: number }).symbol_lookups === 0 && (v as { platform_lookups: number }).platform_lookups >= 4,
+    { symbol_lookups: 3, platform_lookups: 4 },
+    "把「仍有 3 处 `symbol = 'BTTC'` 字面定位」的读数喂入谓词 ⇒ 必须转红（证明判据锚的是字面计数，不是任意子串）");
+
+  const insertRenamed = /SELECT '₿'::text, 'BTTC'::text/.test(DATABASE_TS)
+    && /WHERE NOT EXISTS \(SELECT 1 FROM public\.currency AS c WHERE c\.is_platform_coin = true\)/.test(DATABASE_TS);
+  const renameBody = /UPDATE public\.currency\s+SET symbol = '₿',\s+name\s+= 'BTTC'\s+WHERE is_platform_coin = true\s+AND symbol = 'BTTC'/.test(SQL_0066);
+  const guards = /is_platform_coin = false/.test(SQL_0066)          // 目标符号不得被非平台行占用
+    && /v_cid_after IS DISTINCT FROM v_cid_before/.test(SQL_0066)   // cid 不变自证
+    && /v_platform_rows <> 1/.test(SQL_0066)                         // 平台行恰 1 行前置
+    && /HAVING count\(\*\) > 1/.test(SQL_0066);                      // 无重复 symbol 自检
+  t('M2', 'platformCoinLocate', insertRenamed && renameBody && guards,
+    "★ `0066` + 兑底插入：迁移本体 `UPDATE public.currency SET symbol = '₿', name = 'BTTC' WHERE is_platform_coin = true AND symbol = 'BTTC'`（幂等闸）· 自检含「平台行恰 1 行 / 目标符号未被非平台行占用 / cid 不变 / 无重复 symbol」· `ensureBttcCurrency` 兑底行 = `'₿'` + `'BTTC'` 且插入谓词走 `is_platform_coin = true`",
+    JSON.stringify({ insert_renamed: insertRenamed, rename_body: renameBody, guards }));
+  selfTest('M2', 'platformCoinLocate',
+    (v) => (v as { rename_body: boolean }).rename_body === true,
+    { insert_renamed: true, rename_body: false, guards: true },
+    '把「迁移里没有那条改名 UPDATE」的读数喂入谓词 ⇒ 必须转红');
+}
+
+// ============================================================================
 // I · `R-9-23` 钳制（纯函数 + 源码面）；DB leg 反事実直插见 K
 // ============================================================================
 {
@@ -518,8 +557,9 @@ const pendingApply: Array<{ leg: string; reason: string }> = [];
     // ★ S51 apply 后库面前推（出处 = 本批 apply `0044_restore_listing_deposit_leg.sql`；Zang 亲做）：库面 42 行/`0043` ⇒ **43 行/`0044`**（`0044` 重放 `0020`：hold 家族守卫去 `listing_deposit`）。
     // ★ A5 收口 apply 后库面前推（出处 = 本批 apply `0045_message_conversation.sql` + `0046_telegram_binding.sql`）：库面 43 行/`0044` ⇒ **45 行/`0046`**（站内信两表 DDL + Telegram 绑定列）。
     // ★ P9④ 载体行 seed apply 后库面前推（出处 = 本批 apply `0049_seed_bttc_currency.sql`；`0047`/`0048` 已分别 apply）：库面 47 行/`0048` ⇒ **48 行/`0049`**（seed `currency` 的 `symbol='BTTC'` 载体行 —— 修 `ensureBttcCurrency` 生产代码零调用点导致的死链：无行 ⇒ `getBttcState.status = null` ⇒ 前端 `bttcAvailable = false` ⇒ 铸造/分解按钮整块不渲染）。
-    t('K5', 'dbStructureLive', Number(sm[0].n) === 48 && String(sm[0].mx) === '0049',
-      '★ 迁移结构指纹：`schema_migration` = **48 行** · `max(version)` = **0049**（`0032`→…→`0049` 已 apply · `0043` TRUNCATE 守卫 · `0044` hold 守卫去 `listing_deposit` · 8⑥ 审计台权限键 · A5 站内信/Telegram 绑定 · tg-bind-v2 短码表 · `0049` BTTC 载体行 seed）', JSON.stringify(sm[0]));
+    // ★ `0066` 库面前推（出处 = 本批 apply `0066_bttc_symbol_rename.sql`；`0049`→`0065` 期间该常量未前推 ⇒ 存量滞后）：库面 63 行/`0065` ⇒ **64 行/`0066`**（平台币行口径订正：`symbol='₿'` / `name='BTTC'`）。
+    t('K5', 'dbStructureLive', Number(sm[0].n) === 64 && String(sm[0].mx) === '0066',
+      '★ 迁移结构指纹：`schema_migration` = **64 行** · `max(version)` = **0066**（`0032`→…→`0049` 已 apply · `0043` TRUNCATE 守卫 · `0044` hold 守卫去 `listing_deposit` · 8⑥ 审计台权限键 · A5 站内信/Telegram 绑定 · tg-bind-v2 短码表 · `0049` BTTC 载体行 seed · **`0066` 平台币改名 `symbol=₿`/`name=BTTC`**）', JSON.stringify(sm[0]));
     selfTest('K5', 'dbStructureLive', (v) => String(v) === '0038', '0034', '把「未 apply（0034）」喂入「0038」谓词 ⇒ 必须转红');
 
     // ---------------------------------------------------------------- 四段真链路（单事务 + 子步 SAVEPOINT + 末尾 ROLLBACK）
@@ -561,19 +601,21 @@ const pendingApply: Array<{ leg: string; reason: string }> = [];
       // ===================== ① BTTC 创建（`ensureBttcCurrency`）=====================
       const c1 = await DatabaseService.ensureBttcCurrency(tx);
       const c2 = await DatabaseService.ensureBttcCurrency(tx);
-      const rowNow = await oneOf(`SELECT cid::text, symbol, name, decimals::int, status, total_supply::text, is_platform_coin FROM public.currency WHERE symbol='BTTC'`);
+      // ★ `0066` 口径：定位平台币行一律按 `is_platform_coin = true`（符号现役 `'₿'`、名称现役
+      //   `'BTTC'`；cid 两张库不同 ⇒ 不写字面）。此处的直查也照同一口径，避免「门只认旧 symbol」。
+      const rowNow = await oneOf(`SELECT cid::text, symbol, name, decimals::int, status, total_supply::text, is_platform_coin FROM public.currency WHERE is_platform_coin = true`);
       const brief = (c: typeof c1): Record<string, unknown> | null => (c ? { cid: c.cid, symbol: c.symbol, decimals: c.decimals, status: c.status, is_platform_coin: c.is_platform_coin, inserted: c.inserted } : null);
       chains.create = {
         call1: brief(c1), call2: brief(c2),
         row_direct: { cid: String(rowNow.cid), symbol: String(rowNow.symbol), decimals: Number(rowNow.decimals), status: String(rowNow.status), is_platform_coin: rowNow.is_platform_coin === true },
       };
       t('KC1', 'bttcCreate',
-        String(rowNow.symbol) === 'BTTC' && Number(rowNow.decimals) === 0 && String(rowNow.status) === 'listed' && rowNow.is_platform_coin === true,
-        '★ ① BTTC 创建：`currency` 载体行 = `symbol=BTTC` / `decimals=0` / `status=listed` / `is_platform_coin=true`（`R-9-40`）', JSON.stringify(chains.create));
+        String(rowNow.symbol) === '₿' && String(rowNow.name) === 'BTTC' && Number(rowNow.decimals) === 0 && String(rowNow.status) === 'listed' && rowNow.is_platform_coin === true,
+        '★ ① BTTC 创建：`currency` 载体行 = `symbol=₿` / `name=BTTC` / `decimals=0` / `status=listed` / `is_platform_coin=true`（`R-9-40` · `0066` 口径）', JSON.stringify(chains.create));
       const cc = c2 ?? c1;
-      t('KC2', 'bttcCreate', !!cc && cc.symbol === 'BTTC' && cc.decimals === 0 && cc.status === 'listed' && cc.is_platform_coin === true,
-        '★ `ensureBttcCurrency` 取数（幂等确保态 · 第二次调用）返回 `symbol=BTTC`/`decimals=0`/`status=listed`/`is_platform_coin=true`', JSON.stringify(chains.create));
-      t('KC1b', 'bttcCreate', c1 !== null && c1.symbol === 'BTTC' && c1.is_platform_coin === true && c1.decimals === 0 && c1.status === 'listed',
+      t('KC2', 'bttcCreate', !!cc && cc.symbol === '₿' && cc.name === 'BTTC' && cc.decimals === 0 && cc.status === 'listed' && cc.is_platform_coin === true,
+        '★ `ensureBttcCurrency` 取数（幂等确保态 · 第二次调用）返回 `symbol=₿`/`name=BTTC`/`decimals=0`/`status=listed`/`is_platform_coin=true`', JSON.stringify(chains.create));
+      t('KC1b', 'bttcCreate', c1 !== null && c1.symbol === '₿' && c1.name === 'BTTC' && c1.is_platform_coin === true && c1.decimals === 0 && c1.status === 'listed',
         '★ `R-9-45` 回归判据：`ensureBttcCurrency` **首次调用**（本次插入那一次）返回**确定值**（`ins RETURNING` 同名取回 + 逐列 `COALESCE` 兜底）⇒ 首调**非空**且 = 载体行（原缺陷 `F-α` 已被本判据覆盖，去修 ⇒ 必红）', JSON.stringify({ first_call: brief(c1) }));
       findings.push({
         id: 'F-α', severity: 'minor', status: c1 === null ? 'open' : 'resolved',
@@ -722,8 +764,8 @@ const pendingApply: Array<{ leg: string; reason: string }> = [];
       const st = await DatabaseService.getBttcState(TEST_UID, tx);
       const stR = { symbol: st.symbol, status: st.status, totalSupply: st.totalSupply, balance: st.balance, usdBalance: st.usdBalance, batt: st.batt, canMint: st.canMint, canBurn: st.canBurn, source: st.source };
       chains.getBttcStateRow = stR;
-      t('KGS1', 'bttcStateLive', st.symbol === 'BTTC' && st.totalSupply === '0' && st.balance === '0' && st.canBurn === false && st.canMint === true,
-        '★ `getBttcState` 活体（**有行**）：`symbol=BTTC` · 分解后 BTTC 持仓 `0` / 供应量 `0` ⇒ `canBurn=false`（无持仓）；`canMint=true`（分解 `+burnBattGain` 封顶后 `batt=100 ≥ mintBattCost=100` 且 `$=2 ≥ 1` ⇒ 派生布尔即时重算）', JSON.stringify(stR));
+      t('KGS1', 'bttcStateLive', st.symbol === '₿' && st.name === 'BTTC' && st.totalSupply === '0' && st.balance === '0' && st.canBurn === false && st.canMint === true,
+        '★ `getBttcState` 活体（**有行**）：`symbol=₿` / `name=BTTC`（`0066` 口径）· 分解后 BTTC 持仓 `0` / 供应量 `0` ⇒ `canBurn=false`（无持仓）；`canMint=true`（分解 `+burnBattGain` 封顶后 `batt=100 ≥ mintBattCost=100` 且 `$=2 ≥ 1` ⇒ 派生布尔即时重算）', JSON.stringify({ ...stR, name: st.name }));
       const st0 = await DatabaseService.getBttcState(TEST_UID_EMPTY, tx);
       const st0R = { balance: st0.balance, usdBalance: st0.usdBalance, batt: st0.batt };
       chains.getBttcStateNoRow = st0R;
@@ -744,10 +786,12 @@ const pendingApply: Array<{ leg: string; reason: string }> = [];
     selfTest('K9', 'zeroResidue', (v) => eqJson((v as { before?: unknown }).before, (v as { after?: unknown }).after), { before, after: { currency: -1 } },
       '把「前后不一致」的行数喂入零残渣谓词 ⇒ 必须转红');
 
-    const bttcAfter = Number((await readQuery<{ n: string }>(`SELECT count(*)::int AS n FROM public.currency WHERE symbol='BTTC'`))[0].n);
+    // ★ `0066`：创建链的「零残渣」判据改按平台标记列计数 —— seed 行（`0049`）本就在场，
+    //   判据语义 = 「本链**未新增**平台行」（计数恒 1），不再是「全表无 BTTC 行」。
+    const bttcAfter = Number((await readQuery<{ n: string }>(`SELECT count(*)::int AS n FROM public.currency WHERE is_platform_coin = true`))[0].n);
     dbConnections += 1;
-    t('K10', 'zeroResidue', bttcAfter === 0,
-      '★ 回滚后 `currency` **无 `symbol=BTTC` 行**（创建链未落盘 · ROLLBACK 复原）', JSON.stringify({ bttc_rows_after: bttcAfter }));
+    t('K10', 'zeroResidue', bttcAfter === 1,
+      '★ 回滚后 `currency` 平台币行（`is_platform_coin = true`）仍恰 **1** 行（创建链未新增行 · ROLLBACK 复原；别再按 `symbol` 字面计数 —— 符号现役 `₿`）', JSON.stringify({ platform_rows_after: bttcAfter }));
   } catch (e) {
     t('K0', 'dbStructure', false, '库面 leg 连通（readQuery / 事务）', String((e as Error)?.message || e).slice(0, 200));
   }

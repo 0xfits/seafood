@@ -1,0 +1,20 @@
+const fs=require('fs');const crypto=require('crypto');
+const {createRequire}=require('module');
+const req=createRequire('/Users/kevin/bistro/seafood/backend-ts/package.json');
+const {neon}=req('@neondatabase/serverless');const dotenv=req('dotenv');
+const p=dotenv.parse(fs.readFileSync('/Users/kevin/bistro/seafood/backend-ts/.env.local'));
+const url=p.DATABASE_URL_UNPOOLED||p.POSTGRES_URL_NON_POOLING||p.DATABASE_URL;
+const sql=neon(url);
+const txt=fs.readFileSync('/Users/kevin/bistro/seafood/backend-ts/migrations/0066_bttc_symbol_rename.sql','utf8');
+const sha=crypto.createHash('sha256').update(txt,'utf8').digest('hex');
+(async()=>{
+  const rec=await sql`SELECT version, length(checksum)::int AS len, checksum FROM public.schema_migration WHERE version='0066'`;
+  console.log('recorded=',JSON.stringify(rec[0]));
+  console.log('file_sha256=',sha);
+  const host=new URL(url).host;
+  const res=await fetch(`https://${host}/sql`,{method:'POST',headers:{'Content-Type':'application/json','Neon-Connection-String':url},body:JSON.stringify({query:txt,params:[]})});
+  console.log('file_replay_http=',res.status,(await res.text()).slice(0,200));
+  const after=await sql`SELECT cid::text AS cid, symbol, name, is_platform_coin FROM public.currency WHERE is_platform_coin = true`;
+  console.log('after_replay=',JSON.stringify(after));
+  process.exit(0);
+})().catch(e=>{console.error('ERR',e.message);process.exit(1);});

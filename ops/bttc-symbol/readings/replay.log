@@ -1,0 +1,4 @@
+recorded= {"version":"0066","len":64,"checksum":"dd8562163c28abb8a4fe8c518f0aa5a186452253f2aff2476948ad822ad3bb67"}
+file_sha256= 5c5226ed93c24730f246991e023a7b0e0bb3f3cb7235389e55e7a9789926c750
+file_replay_http= 200 {"fields":[],"rows":[],"command":"DO","rowCount":null,"rowAsArray":false}
+after_replay= [{"cid":"399","symbol":"₿","name":"BTTC","is_platform_coin":true}]

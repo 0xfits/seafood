@@ -6094,9 +6094,12 @@ export class DatabaseService {
 
   /**
    * ★ BTTC 载体行创建（`R-9-40` · 走既有 `currency` 写路径 · idempotent）。
-   *   逐列：`symbol='BTTC'` / `name='battcoin'` / `owner_uid=0` / `decimals=0` / `status='listed'`
+   *   逐列：`symbol='₿'` / `name='BTTC'`（Kevin 2026-10-20 口径：**BTTC 是货币名称、₿ 是货币符号**）
+   *   / `owner_uid=0` / `decimals=0` / `status='listed'`
    *   （`listed_at=now()` 满足 `currency_listed_at` CHECK）/ `deposit_amount=0` / `deposit_cid=1` /
    *   `supply_cap=NULL` / **`is_platform_coin=true`**（`0033`）。`ON CONFLICT (symbol) DO NOTHING` 幂等。
+   *   ★ **定位口径 = `is_platform_coin = true`，不按 `symbol` 字面**（cid 两库不同：dev 399 /
+   *   生产 4；`symbol` 本身是会被改名的值）⇒ 插入谓词与回读兜底一律走平台标记列。
    *   ★ 平台受信任路径（非普通用户 `POST /api/currency`）；`0033` 已 apply ⇒ 活体可验。
    *   ★ `R-9-45`：**返回确定值** —— 插入那一次经 `ins RETURNING` **同名取回**（PG 数据修改型 CTE
    *   与主查询同快照互不可见 ⇒ 主查询直接读 `public.currency` 会得到 `cid=NULL`），故对每列
@@ -6111,21 +6114,21 @@ export class DatabaseService {
       WITH ins AS (
         INSERT INTO public.currency
           (symbol, name, owner_uid, decimals, status, listed_at, deposit_amount, deposit_cid, supply_cap, is_platform_coin)
-        SELECT 'BTTC'::text, 'battcoin'::text, 0::bigint, 0::smallint, 'listed', now(),
+        SELECT '₿'::text, 'BTTC'::text, 0::bigint, 0::smallint, 'listed', now(),
                0::bigint, 1::bigint, NULL::bigint, true
-        WHERE NOT EXISTS (SELECT 1 FROM public.currency AS c WHERE c.symbol = 'BTTC')
+        WHERE NOT EXISTS (SELECT 1 FROM public.currency AS c WHERE c.is_platform_coin = true)
         ON CONFLICT (symbol) DO NOTHING
         RETURNING cid, symbol, name, decimals, status, total_supply, is_platform_coin
       )
       SELECT
         (SELECT count(*)::int FROM ins) AS inserted,
-        COALESCE((SELECT i.cid::text FROM ins AS i), (SELECT c.cid::text FROM public.currency AS c WHERE c.symbol = 'BTTC' LIMIT 1)) AS cid,
-        COALESCE((SELECT i.symbol FROM ins AS i), (SELECT c.symbol FROM public.currency AS c WHERE c.symbol = 'BTTC' LIMIT 1)) AS symbol,
-        COALESCE((SELECT i.name FROM ins AS i), (SELECT c.name FROM public.currency AS c WHERE c.symbol = 'BTTC' LIMIT 1)) AS name,
-        COALESCE((SELECT i.decimals::int FROM ins AS i), (SELECT c.decimals::int FROM public.currency AS c WHERE c.symbol = 'BTTC' LIMIT 1)) AS decimals,
-        COALESCE((SELECT i.status FROM ins AS i), (SELECT c.status FROM public.currency AS c WHERE c.symbol = 'BTTC' LIMIT 1)) AS status,
-        COALESCE((SELECT i.total_supply::text FROM ins AS i), (SELECT c.total_supply::text FROM public.currency AS c WHERE c.symbol = 'BTTC' LIMIT 1)) AS total_supply,
-        COALESCE((SELECT i.is_platform_coin FROM ins AS i), (SELECT c.is_platform_coin FROM public.currency AS c WHERE c.symbol = 'BTTC' LIMIT 1)) AS is_platform_coin
+        COALESCE((SELECT i.cid::text FROM ins AS i), (SELECT c.cid::text FROM public.currency AS c WHERE c.is_platform_coin = true ORDER BY c.cid LIMIT 1)) AS cid,
+        COALESCE((SELECT i.symbol FROM ins AS i), (SELECT c.symbol FROM public.currency AS c WHERE c.is_platform_coin = true ORDER BY c.cid LIMIT 1)) AS symbol,
+        COALESCE((SELECT i.name FROM ins AS i), (SELECT c.name FROM public.currency AS c WHERE c.is_platform_coin = true ORDER BY c.cid LIMIT 1)) AS name,
+        COALESCE((SELECT i.decimals::int FROM ins AS i), (SELECT c.decimals::int FROM public.currency AS c WHERE c.is_platform_coin = true ORDER BY c.cid LIMIT 1)) AS decimals,
+        COALESCE((SELECT i.status FROM ins AS i), (SELECT c.status FROM public.currency AS c WHERE c.is_platform_coin = true ORDER BY c.cid LIMIT 1)) AS status,
+        COALESCE((SELECT i.total_supply::text FROM ins AS i), (SELECT c.total_supply::text FROM public.currency AS c WHERE c.is_platform_coin = true ORDER BY c.cid LIMIT 1)) AS total_supply,
+        COALESCE((SELECT i.is_platform_coin FROM ins AS i), (SELECT c.is_platform_coin FROM public.currency AS c WHERE c.is_platform_coin = true ORDER BY c.cid LIMIT 1)) AS is_platform_coin
     `);
     const row = rows[0];
     if (!row) return null;
@@ -6145,7 +6148,8 @@ export class DatabaseService {
 
   /**
    * R1 · 用户 BTTC 资产读口（并入既有 `GET /api/batt` 用户资产面 · 变体 Ⅱ）。
-   *   取数：BTTC 行（`symbol='BTTC'`）+ 用户 `account(cid=BTTC).balance` + `$` 余额 + `batt`
+   *   取数：平台币行（**`is_platform_coin = true`**，不按 `symbol` 字面 —— 符号现役 `'₿'`、
+   *   名称现役 `'BTTC'`，改名不再影响定位）+ 用户 `account(cid=平台币).balance` + `$` 余额 + `batt`
    *   + `mint_burn_policy` 五键生效值 ⇒ 派生布尔 `canMint` / `canBurn`（即时重算 · 不落列）。
    *   ★ `C-15`：无 `account` / 无 `batt_account` 行 ⇒ `COALESCE(…, 0)`（**外层**）。
    */
@@ -6161,7 +6165,7 @@ export class DatabaseService {
     const rows = asItems<Record<string, unknown>>(await sql`
       WITH bttc AS (
         SELECT c.cid, c.symbol, c.name, c.decimals, c.status, c.total_supply
-        FROM public.currency AS c WHERE c.symbol = 'BTTC' LIMIT 1
+        FROM public.currency AS c WHERE c.is_platform_coin = true ORDER BY c.cid LIMIT 1
       )
       SELECT
         (SELECT bttc.symbol FROM bttc) AS symbol,
@@ -6184,8 +6188,8 @@ export class DatabaseService {
     const status = row.status === null || row.status === undefined ? null : String(row.status);
     const mintable = status === 'draft' || status === 'listed';
     return {
-      symbol: String(row.symbol ?? 'BTTC'),
-      name: String(row.name ?? 'battcoin'),
+      symbol: String(row.symbol ?? '₿'),
+      name: String(row.name ?? 'BTTC'),
       decimals: Number(row.decimals ?? 0) || 0,
       status,
       totalSupply: String(row.total_supply ?? '0'),
@@ -6216,7 +6220,7 @@ export class DatabaseService {
     const sql = sqlFor(ex);
     const rows = asItems<Record<string, unknown>>(await sql`
       WITH
-      bttc AS (SELECT c.cid, c.status FROM public.currency AS c WHERE c.symbol = 'BTTC' LIMIT 1),
+      bttc AS (SELECT c.cid, c.status FROM public.currency AS c WHERE c.is_platform_coin = true ORDER BY c.cid LIMIT 1),
       cur AS (SELECT b.batt FROM public.batt_account AS b WHERE b.uid = ${uid} FOR UPDATE),
       usd AS (SELECT COALESCE((SELECT a.balance FROM public.account AS a WHERE a.uid = ${uid} AND a.cid = 1), 0) AS bal),
       held AS (SELECT COALESCE((SELECT a.balance FROM public.account AS a
@@ -6332,7 +6336,7 @@ export class DatabaseService {
     const sql = sqlFor(ex);
     const rows = asItems<Record<string, unknown>>(await sql`
       WITH
-      bttc AS (SELECT c.cid, c.status FROM public.currency AS c WHERE c.symbol = 'BTTC' LIMIT 1),
+      bttc AS (SELECT c.cid, c.status FROM public.currency AS c WHERE c.is_platform_coin = true ORDER BY c.cid LIMIT 1),
       cur AS (SELECT b.batt FROM public.batt_account AS b WHERE b.uid = ${uid} FOR UPDATE),
       usd AS (SELECT COALESCE((SELECT a.balance FROM public.account AS a WHERE a.uid = ${uid} AND a.cid = 1), 0) AS bal),
       held AS (SELECT COALESCE((SELECT a.balance FROM public.account AS a

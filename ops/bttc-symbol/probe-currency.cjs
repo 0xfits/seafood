@@ -1,0 +1,28 @@
+const fs=require('fs'),path=require('path');
+const {createRequire}=require('module');
+const req=createRequire('/Users/kevin/bistro/seafood/backend-ts/package.json');
+const {neon}=req('@neondatabase/serverless');
+const dotenv=req('dotenv');
+const envFile=process.argv[2]||'/Users/kevin/bistro/seafood/backend-ts/.env.local';
+const parsed=dotenv.parse(fs.readFileSync(envFile));
+const url=parsed.DATABASE_URL_UNPOOLED||parsed.POSTGRES_URL_NON_POOLING||parsed.DATABASE_URL;
+const sql=neon(url);
+(async()=>{
+  const id=await sql`SELECT current_setting('neon.project_id', true) AS pid`;
+  console.log('project_id=',id[0].pid);
+  const cols=await sql`SELECT column_name,data_type FROM information_schema.columns WHERE table_schema='public' AND table_name='currency' ORDER BY ordinal_position`;
+  console.log('cols=',cols.map(c=>c.column_name+':'+c.data_type).join(', '));
+  const cons=await sql`SELECT conname, pg_get_constraintdef(oid) AS def FROM pg_constraint WHERE conrelid='public.currency'::regclass ORDER BY conname`;
+  for(const c of cons) console.log('constraint',c.conname,'=>',c.def);
+  const idx=await sql`SELECT indexname, indexdef FROM pg_indexes WHERE schemaname='public' AND tablename='currency'`;
+  for(const i of idx) console.log('index',i.indexname,'=>',i.indexdef);
+  const rows=await sql`SELECT cid,symbol,name,status,is_platform_coin,total_supply::text AS supply FROM public.currency ORDER BY cid`;
+  for(const r of rows) console.log('row',JSON.stringify(r));
+  const dup=await sql`SELECT symbol,count(*)::int AS n FROM public.currency GROUP BY symbol HAVING count(*)>1`;
+  console.log('dup_symbols=',JSON.stringify(dup));
+  const dupn=await sql`SELECT name,count(*)::int AS n FROM public.currency GROUP BY name HAVING count(*)>1`;
+  console.log('dup_names=',JSON.stringify(dupn));
+  const top=await sql`SELECT version,name FROM public.schema_migration ORDER BY version DESC LIMIT 3`;
+  console.log('schema_top=',JSON.stringify(top));
+  process.exit(0);
+})().catch(e=>{console.error('ERR',e.message);process.exit(1);});

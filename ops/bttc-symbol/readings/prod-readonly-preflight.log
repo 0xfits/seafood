@@ -1,0 +1,21 @@
+{
+ "project_id": "sweet-pond-28934105",
+ "platform_rows": [
+  {
+   "cid": "4",
+   "symbol": "BTTC",
+   "name": "battcoin",
+   "status": "listed",
+   "is_platform_coin": true,
+   "supply": "1"
+  }
+ ],
+ "platform_count": 1,
+ "btc_sign_rows": [],
+ "rows_with_symbol_BTTC": 1,
+ "dup_symbols": [],
+ "schema": {
+  "n": 63,
+  "mx": "0065"
+ }
+}

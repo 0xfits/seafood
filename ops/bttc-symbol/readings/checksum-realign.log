@@ -1,0 +1,26 @@
+{
+ "project": "quiet-math-65207667",
+ "before": [
+  {
+   "cid": "399",
+   "symbol": "₿",
+   "name": "BTTC",
+   "is_platform_coin": true
+  }
+ ],
+ "updated": [
+  {
+   "version": "0066",
+   "checksum": "5c5226ed93c24730f246991e023a7b0e0bb3f3cb7235389e55e7a9789926c750"
+  }
+ ],
+ "after": [
+  {
+   "cid": "399",
+   "symbol": "₿",
+   "name": "BTTC",
+   "is_platform_coin": true
+  }
+ ],
+ "state_identical": true
+}
