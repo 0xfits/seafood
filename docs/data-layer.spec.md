@@ -5616,3 +5616,103 @@ CONSTRAINT listing_item_code_shape_ck CHECK (
 
 - §40.12.7 的「`0060` 现取不存在 / `grep … = 0 命中`」**是编制起点的现取**（`HEAD e48c567`、后端干净树）；落笔过程中并行后端单已在同工作树落盘迁移与发号器（**untracked · 未提交 · 两库仍 `0059`**）。⇒ 现行读法 = **「已落盘、未提交、未 apply、未验收」**；差额与补齐要求见 §40.12.10。
 - **不变的两句**：两列 / 索引 / CHECK / 九条自检**仍未实测**（零库写）；**本册不代该单声明上线**。
+
+## §40.13 ★★ v0.43 · 多件购买授权列契约：`listing.allow_multi_buy`（`boolean NOT NULL DEFAULT false`）· 迁移 `0061_listing_allow_multi_buy.sql`（**本节只追加 · §1–§40.12 一字未动** · 依据 = Kevin 2026-10-20「发布商品时，**如果商品数量 > 1**，用户需填写一个选项『**是否支持一次购买多个**』；若开启，购买者点【立即购买】后**弹确认购买数量的提示**（数量默认 1，上限 = `min(stock, 单次上限)`）；未开启 ⇒ **恒买 1 件、零提示**」＋ 同日详情页删数量框（§26.17）⇒ 本列把「多件购买」从**常显表单**改为**卖家授权 + 购买时询问** · 迁移由实现单落盘 / apply 由 Zang · 零代码 / 零迁移文件改动 / 零库写 / 零 HTTP 写）
+
+> **本节性质**：**只追加**（§40.12 全文逐字保留；**头注版本块不改写**，承 §40.8.1 / §40.9 / §40.10 / §40.11 / §40.12「加性续登、不改头注」体例，以本行 **`v0.43`** 为现行版读数）。`DL` 编号域**零改动**（仍 `DL1..DL157`），`ID-*`（§40.12）**零改动**；本节以 **`MB-*`** 承载。**姊妹册** = `route-layer.spec` **§49.17**（写口契约 + 购买校验矩阵 + 四读口键数）+ `design-system.spec` **§26.18**（开关可见性 + 购买数量弹层）+ `master-plan` **§5.445 / 版本行 v0.362** + `ops/multi-buy/SPEC-NOTE.md`。
+
+#### 40.13.1 列定义（`MB-1` · 加性一列 · 零索引 · 零 CHECK · 零回填语句）
+
+| 项 | 值 | 依据 / 理由 |
+|---|---|---|
+| 列名 | **`allow_multi_buy`** | 逐字采用派单给定名（**不得**改用 `multi_buy` / `allowMultiBuy` 落库；JSON 出参同名字面） |
+| 类型 | **`boolean`** | 二值授权，**不用** `smallint` / `text '0'/'1'`（读口要出**真布尔**，见 `40.13.5`） |
+| 约束 | **`NOT NULL`** | 只有两态，**禁三态**（`NULL` 会被前端读成「未设置」⇒ 每次调用都要猜默认值） |
+| 默认 | **`DEFAULT false`** | **默认关**（Kevin 未要求默认开；默认开 = 替卖家授权，静默放大成交件数） |
+| 存量行 | **全 `false`**，靠 `DEFAULT` 生效 ⇒ **迁移里零 `UPDATE`** | 存量商品从未被卖家授权过 ⇒ 回填 `true` = 替卖家做决定（与 §40.8「存量 `item_type` 留 `NULL` 不回填」同一纪律：**不替用户猜**） |
+| 索引 | **零** | 无任何查询按此列过滤（购买闸按 `listing_id` 主键取行） |
+| CHECK | **零 —— 且这是本节的核心裁定** | 「`allow_multi_buy = true` ⇒ `stock >= 2`」**不得**落成表约束 / 触发器，理由见 `40.13.2`；归一只在写口做 |
+| 列数 | **17 → 18**（承 §40.12 的 17） | 需 `information_schema` 现取复核（本笔零库写，见 `40.13.6`） |
+| 幂等指纹 | **不进** | `resolveListingCreateKey` 派生 4 元素（`create` / `sellerUid` / `cid` / `price` / `stock`）**不变** ⇒ 同键重投 = **200 replay 回库内真值**（与 `item_type` / `item_condition` 同体例） |
+| 客户端可写面 | **仅 `POST /api/listing` 创建 ＋ `PATCH /api/listing/:listingId` 字段支**（`LISTING_EDIT_FIELDS` 6 → **7**） | 旧编辑口 `POST /api/listing/:id` 不动（本单不扩它，见 route §49.17.2 末条） |
+
+#### 40.13.2 归一规则（`MB-2`）—— **唯一不变式在写口，不在库面**
+
+**为什么库面不设跨列约束（写死，禁复议）**：`stock` 是**随购买递减**的可变列 —— `0015_listing.sql:770` 的 `UPDATE listing SET stock = stock - quantity`。若把「`allow_multi_buy = true` ⇒ `stock >= 2`」写成 CHECK，则**正常购买**把 `stock` 从 2 买到 1 时就撞 `23514` ⇒ **交易链被打断**（且报的是约束码，排查会指向买家的 `quantity`，实际是卖家开关）。⇒ 该不变式只在**写口准入**成立；读面必须容忍「`allow_multi_buy = true` ∧ `stock = 1`」这一**正常终态**（买家侧由 `min(stock, 上限)` 自愈，见 `40.13.5` 与 design §26.18.3）。
+
+| # | 场景 | 生效 `stock` | 结果 | 说明 |
+|---|---|---|---|---|
+| 1 | `POST /api/listing` 未传该键 | 任意 | 落 **`false`** | 缺省即关 |
+| 2 | `POST` / `PATCH` 传 **`true`** ∧ 生效 `stock >= 2` | ≥2 | 落 **`true`** | 唯一「能开」的路径 |
+| 3 | `POST` / `PATCH` 传 **`true`** ∧ 生效 `stock <= 1`（**同一请求内显式自相矛盾**） | ≤1 | **400** `MULTI_BUY_NOT_APPLICABLE`（借码 `LEDGER_AMOUNT_INVALID`） | **不静默归一**：调用方以为开了、实际关了，是最难查的一类账实不符 |
+| 4 | `PATCH` **未传该键** ∧ 生效 `stock <= 1`（例：只把库存改成 1） | ≤1 | **服务端归一落 `false`**（不 400） | 合法编辑；不归一就会留下「已授权但只剩 1 件」的脏值，且下一个编辑器读到的 `true` 是假的 |
+| 5 | `PATCH` 传 **`false`** | 任意 | 落 **`false`** | 关闭恒合法（含 `stock >= 2` 时主动关掉） |
+| 6 | 购买把 `stock` 从 ≥2 降到 ≤1 | ≤1 | **列值保持 `true`（不回写）** | 见下条「为何购买路径不回写」 |
+
+- **「生效 `stock`」定义**：`PATCH` 请求里带了 `stock` ⇒ 用请求值；未带 ⇒ 用**行内现值**（与 `updateListingDetails` 的「未传即不变」语义一致）。**判定必须在归一/400 之前完成**，否则「只改 `allow_multi_buy:true`、没带 `stock`」会漏判（行内 `stock` 可能已经是 1）。
+- **为何购买路径不回写 `allow_multi_buy`（写死）**：把「卖到最后 1 件」的列值改成 `false` 需要在**资金链核心语句**（`listing_post_event(op='buy')`）里多一个写动作 ⇒ 多一处可能与库存/账本不一致的面；而**读面已经自愈**（上限 = `min(stock, 上限)`，`stock=1` ⇒ 上限 1 ⇒ 不弹层）。⇒ 收益仅「列值好看」，代价在钱上。**判负 `MB-N5`**。
+- **400 与归一不得混用**：`40.13.2 #3`（同请求显式 `true` + `stock<=1`）= **400**；`40.13.2 #4`（未传 + 存量 ≤1）= **归一**。两臂读数是同一条契约的两个分支，实现把两者做成同一个行为 ⇒ 判负 `MB-N2`。
+
+#### 40.13.3 写面细节（`MB-3`）
+
+- **类型严格布尔**：只收 JSON `true` / `false`。**字符串 `'true'` / `'1'` / `'0'`、数字 `1` / `0` 一律 400** `NOT_A_BOOLEAN`（借既有码 `LEDGER_AMOUNT_INVALID` + `details:{field:'listing.allow_multi_buy', reason:'NOT_A_BOOLEAN'}`）。理由：`'false'` 是**真值串**（JS 里 `Boolean('false') === true`）—— 一旦收串，前端一个笔误就把「关」落成「开」，而这个开关直接放大成交件数。
+- **校验序（写死，承 §40.8 的「闸先于 DB」体例）**：① 退场字段闸（`title` 等）⇒ ② **布尔形状闸** ⇒ ③ 取生效 `stock` ⇒ ④ 归一 / 400（`40.13.2`）⇒ ⑤ DB 调用。**非法值零 DB 调用**（判据 = 打真 API 后 `listing` 行数不变、无 `listing_edit_log` 行）。
+- **`PATCH` 与 `DL60` 的关系**：本列**不是** `stock` ⇒ **只改 `allow_multi_buy` 不受「仅 `listed` 可改库存」约束**（不出 409）。但**同请求里同时改 `stock`** 时，DL60 逐字照旧（`draft` 改 `stock` ⇒ 409 `listing_stock_change_requires_listed`，`listing-service.ts:489-490`）⇒ 两个闸**各管各的**，不得因为「顺手加了新字段」放宽 DL60。
+- **编辑台账**：管理员改**他人**商品且 `allow_multi_buy` **实际变化** ⇒ `changed_fields` 数组必须含 `allow_multi_buy`（§40.11 的「实际变更集」语义，**零新列、零新表**）；本人编辑与拒绝路径**仍零台账**。
+- **不进翻译链**：`allow_multi_buy` 不参与 `enqueueListingTranslation` 的字段集（翻译只跟 `description`）⇒ 改开关**不得**把已译文本打回 `pending`。
+
+#### 40.13.4 迁移内容契约（`MB-4` · `0061_listing_allow_multi_buy.sql`）
+
+- **唯一动作**：`ALTER TABLE public.listing ADD COLUMN IF NOT EXISTS allow_multi_buy boolean NOT NULL DEFAULT false;` —— **零 DML / 零索引 / 零 CHECK / 零触发器 / 文件内不写 `BEGIN`-`COMMIT`**（`migrate.ts` 逐文件包事务）。
+- **顺序**：本迁移**排在 `0060` 之后**。现取 `0060` 仍为**未提交、两库未 apply**（承 §40.12.10 / §40.12.11）⇒ apply 序 = `0059 → 0060 → 0061`，由 `migrate.ts` 按版本号升序逐文件执行天然保证。**禁**把 `0061` 与 `0060` 合并成一个文件（合并后一旦 `0060` 自检 `RAISE`，本列也拿不到 ⇒ 两个独立变更被绑成一个失败域）。
+- **尾部 `DO $$` 自检（五项，失败即 `RAISE` ⇒ 整迁移回滚、不写版本行）**：① 列存在；② `data_type = 'boolean'`；③ `is_nullable = 'NO'`；④ `column_default` 含 `false`；⑤ `listing` 列数 = **18**。**只断言形状、不断言行值**（断言「`true` 行数 = 0」在重放/后续真实使用后会误红）。
+- **幂等**：`IF NOT EXISTS` ⇒ 重放安全；重放后四项形状断言仍成立。
+- **`schema_version`**：`0060 → 0061`。
+- **零破窗判定**：本迁移**只加列、不改任何既有列/约束/函数** ⇒ 旧代码在**已 apply、新码未上线**的窗口内照常工作（旧 `SELECT` 不带该列）。★ **反向顺序禁**：新码先上线而迁移未 apply ⇒ 四读口的 `SELECT … l.allow_multi_buy` 必 `42703` ⇒ 详情/列表 5xx。⇒ **先 apply 后 push**（台账铁律，本单无例外）。
+
+#### 40.13.5 读面（`MB-5` · 键数与落点）
+
+| 读口 | 现取键数 | 目标键数 | 新键 | 类型 | 落点（服务层） |
+|---|---|---|---|---|---|
+| `GET /api/prize/:ref`（详情） | **52** | **53** | `allow_multi_buy` | **boolean** | `getPrizeDetailRecordingView` + `normalizeBrand` |
+| `GET /api/listing/mine` | **13** | **14** | `allow_multi_buy` | **boolean** | `listListingsBySeller` + `normalizeListingMineRow` |
+| `GET /api/listing/:listingId/edit` | **13** | **14** | `allow_multi_buy` | **boolean** | `getListingEditView`（同 `ListingMineRow` 族） |
+| `GET /api/prize/all`（feed；`/api/home` 同源） | **50** | **50**（不变） | — | — | **不加**：列表卡不参与购买决策，加键 = 纯增量载荷 |
+
+- **`edit` 的 14 是本单的连带必做项，不是可选**：§49.16.3 的「**`edit` 与 `mine` 的键必须逐键同名同型**」是同族硬律；只加 `mine` 不加 `edit` ⇒ **两个读口当场分叉**，而编辑页预填源恰是 `edit` ⇒ 开关永远预填不到（功能断链，门套零信号）。派单只点名 `mine`，本节按同族律补齐 `edit` 并在此处**显式登记为「派生要求」**。
+- **类型 = 真布尔**：`boolean` 直出 JSON（`true` / `false`），**禁** `'true'` 字符串、**禁** `0/1` 数字（前端要写 `=== true` 判定，任何一个形态漂移都会让「已授权」当成「未授权」⇒ 静默只卖 1 件）。
+- **恒在场**：不按行选择性省略；过渡态（列未 apply）的正确失败 = `42703` 5xx，**禁** `COALESCE(allow_multi_buy, false)` 兜底（兜底会把「迁移没跑」伪装成「卖家没开」，是最坏的一种绿）。
+- **归一层显式列举、零 `spread`**（`normalizeBrand` / `normalizeListingMineRow` 既有纪律）、**追加末位**（零重排）；四处 `SELECT` 中**该加的三处必须同时加**（详情 / mine / edit），漏一处 ⇒ `MB-N3`。
+- **读面必须容忍 `true ∧ stock = 1`**（`40.13.2` 的正常终态）：详情照实返回 `true`；买家侧上限收敛由前端算（design §26.18.3），**服务端不得为了「一致」把它读成 `false`**。
+
+#### 40.13.6 现取读数（2026-10-20 · HEAD `bde5a4c` · 工作区**非干净**）
+
+- **注册点** `grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts` = **111**（get **50** / post **57** / put 0 / delete 3 / patch 1）⇒ **本单零新路由**（注册点目标仍 111）。
+- **迁移末位**：盘上最大 = **`0060_item_code_snowflake.sql`**（**untracked、未提交、两库未 apply**，属并行 item-id 单）；`migrations/0061*` **不存在**（`ls migrations | grep -c 0061` = **0**）⇒ 本单文件名可用且无撞号。
+- **可改字段**：`LISTING_EDIT_FIELDS`（`listing-service.ts:545`）= **6 项**（`description` / `price` / `stock` / `media_urls` / `item_type` / `item_condition`）⇒ 目标 **7 项**；`createListing` 的 `editable_when_creating`（`:328`）同为 **6 项** ⇒ 目标 7 项。
+- **购买链现取**：`buyListing`（`listing-funds-service.ts:273`）· `toPosIntText`（`:226-231`，`/^\d+$/` + `0` 拒）· 指纹含 `quantity`（`:310`）· DB 侧库存闸 `listing_stock_insufficient`（`0015_listing.sql:583-588`，码 `LEDGER_INSUFFICIENT_BALANCE`）。
+- **读口键数**：详情 **52** / mine **13** / edit **13** / feed **50**（承 §49.16.3 契约读数；本笔未新取）。
+- **i18n**：top **131** / flat **1137** / nodes **4548** / `item` 命名空间 **65**（四语逐字相等；`python3` 现取 `frontend/src/locales/*.json`）。
+- **DB 面 = `NOT_MEASURED`（诚实登记）**：本环境连不上 Neon —— `migration-preflight.cjs` 连打 **3 次**均 `PREFLIGHT=STOP reason= Error connecting to database: fetch failed`（`neon.project_id` 探针首次可读到 `quiet-math-65207667` 后即失败，属网络/传输层，非凭据问题）。⇒ **`listing` 列数、`schema_version`、`stock > 1` 行数均未实测**；本节「17 → 18」按 §40.12 契约值推算，**不冒充实测**。
+
+#### 40.13.7 未测 / 诚实边界（`NOT_MEASURED` · 本册不预填）
+
+- **未落盘**：`0061` 迁移文件、`allow_multi_buy` 列、写口两处（POST / PATCH）、`LISTING_EDIT_FIELDS` 第 7 项、四读口三处加键 —— **全部为零**（`grep -rn 'allow_multi_buy\|multiBuy' backend-ts/src backend-ts/migrations docs ops` 现取 = 仅本册与本笔新增文件命中）。
+- **未 apply**：两库 `schema_version` 未变（且本环境取不到）；`0` 次库写。
+- **未跑**：`MB-N1..MB-N5` 一条未跑；零 HTTP 实测；零前端改动；零单测 / 零浏览器读数。
+- **不代并行单声明**：`0060` / `:ref` 双形态 / 四读口 +2 键属 item-id 单（同工作树、未提交），本册只登记形状，**不代其声称上线**。
+
+#### 40.13.8 判负（`MB-N1`–`MB-N5` · 与 `ID-N1..N5`（§40.12.9）、`DL` 家族并存、只增不改）
+
+1. **`MB-N1` 库面跨列约束**：`allow_multi_buy` 与 `stock` 之间出现 CHECK / 触发器 / generated column（形如「`true` ⇒ `stock >= 2`」）⇒ 判负。**负控臂**：把 `stock` 从 2 买到 1 必须成功（200、`stock=1`、`allow_multi_buy` 仍 `true`），出现 `23514` 即命中。
+2. **`MB-N2` 400 与归一分不清**：同请求显式 `allow_multi_buy:true` + `stock:1` 返回 **200**（无论落 `true` 还是 `false`）⇒ 判负；反之「`PATCH` 只把 `stock` 改成 1、未带该键」返回 **400** ⇒ 同判（该臂必须 200 + 归一 `false`）。
+3. **`MB-N3` 键数不足 / 类型错**：详情 ≠ **53**、mine ≠ **14**、edit ≠ **14**（含「只加 mine 漏 edit」）；或该键出 `'true'` 字符串 / `0/1` 数字；或 feed 多出该键（≠ 50）⇒ 判负。
+4. **`MB-N4` 进了幂等指纹**：`resolveListingCreateKey` 派生元素由 4 变 5、或 `LISTING_EDIT_FIELDS` 之外的创建指纹含该列 ⇒ 判负（同键重投必须仍 **200 replay** 回库内真值）。
+5. **`MB-N5` 购买路径回写该列**：`stock` 降到 ≤1 时 `allow_multi_buy` 被改成 `false`（任何层：SQL 函数 / 服务层 / 触发器）⇒ 判负（`40.13.2` 末条）。**负控臂**：买到最后 1 件后读详情，该键仍 `true`。
+
+#### 40.13.9 与既有条文的冲突处置（**状态改写式** · 旧字面逐字保留 · 以本段为准）
+
+- **§40.12.9 `ID-N3` 旧字面**：「`LISTING_EDIT_FIELDS` 出现第 7 项 ⇒ 同判。」
+  **以本段为准（收窄）**：该句的判负对象是「**`item_code` / `snowflake_id` 混进可改字段**」，不是「第 7 项一律非法」。本单把 **`allow_multi_buy`** 合法加为第 7 项 ⇒ 现行判据 = **`LISTING_EDIT_FIELDS` 恰 7 项且不含 `item_code` / `snowflake_id`**；出现第 8 项、或两码列任一进场 ⇒ 仍判负。
+- **§40.12.1 列数「15 → 17」不被本单改写**：本单在其后接 **17 → 18**（两节各记自己的增量，**禁**回改 §40.12 的数字）。
+- **§26.17（design）与 `quantity` 语义的冲突**不在本节处置（属设计面），见 design **§26.18.6**。

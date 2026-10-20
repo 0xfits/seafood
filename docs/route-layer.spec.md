@@ -9941,3 +9941,108 @@ ORDER BY score DESC, l.time_created DESC, l.listing_id DESC
 
 - **未做（由该单补）**：`:ref` 参数改名 + 双形态谓词（**现取 `parseInteger` 会把 7 位码判成 404**）；两库 apply；`p60` 门与判负 #42–#47 实测。**前端另有单**（详情页三项删除 + 链接改码）。
 - **本册承诺边界**：以上「一致」= **代码形状对拍**（只读现取），**不是行为验收**；零 HTTP 实测、零库写。
+
+### 49.17 多件购买授权（写口 `allow_multi_buy` ＋ 购买闸 ＋ 读口加性键 · **注册点 111 不变** / **错误码 33 码闭集不动**）· 2026-10-20 · **v2.44 加性续登、不升版**（承 §49.13–§49.16 体例）· 纯追加
+
+> **依据**：Kevin 2026-10-20 口径 —— **发布商品时若商品数量（stock）> 1，用户需填写一个选项「是否支持一次购买多个」**；开启 ⇒ 购买者点【立即购买】后**弹确认购买数量的提示**（数量默认 1、上限 = `min(stock, 单次上限)`）；未开启 ⇒ **恒买 1 件、零提示**。背景 = 同日详情页**已删数量输入框**（design §26.17），购买恒 `quantity=1` ⇒ 本单把「多件购买」从**常显表单**改为**卖家授权 + 购买时询问**。**姊妹册** = `data-layer.spec` **§40.13**（列契约 / 归一规则 / 迁移 `0061`）+ `design-system.spec` **§26.18**（开关可见性 / 购买数量弹层）+ `master-plan` **§5.445 / 版本行 v0.362** + `ops/multi-buy/SPEC-NOTE.md`。**本笔零代码**（本节 = 契约冻结，实现归并行前后端单）。
+
+#### 49.17.1 版本读数与范围
+
+- **零新注册点**（111 → **111**）、**零新错误码**（33 码闭集不动）、**零新 `reason` 常量以外的语义扩张** ⇒ 按 §49.13 / §49.14 / §49.16 体例记为 **「加性续登、不升版」**，正文版本读数仍 **v2.44**，**头注不改写**。
+- **若 Zang 认定「购买闸新增一条拒绝理由」须升版 ⇒ 只把本行版本读数改为 `v2.45`，条文一字不动**（把两种裁决的落点都写死，避免二次返工）。
+- **本单只动三处语义**：① 写口**多收一个布尔字段**；② 购买口**多一条拒绝理由**（`allow=false ∧ qty>1`）；③ 三个读口**各多一个布尔键**。**既有单件链路逐字不变**（缺省 `qty=1` + `allow=false` ⇒ 行为与改前完全一致）。
+
+#### 49.17.2 写口契约（`POST /api/listing` ＋ `PATCH /api/listing/:listingId` 字段支）
+
+| 口 | 收不收 | 规则 | 落库 |
+|---|---|---|---|
+| `POST /api/listing`（创建） | **收**（可选） | `true` / `false` 严格布尔；**缺省 = `false`**；`true` ∧ `stock <= 1` ⇒ **400** `MULTI_BUY_NOT_APPLICABLE` | `allow_multi_buy` |
+| `PATCH /api/listing/:listingId`（字段支） | **收**（成为第 **7** 个可改字段） | 同上；**另加**：未传该键 ∧ 生效 `stock <= 1` ⇒ **服务端归一 `false`**（不 400） | 同上 + 管理员改他人时 `changed_fields` 含本列 |
+| `POST /api/listing/:id`（旧编辑口） | **不收** | 未知字段**忽略**（不 400、不落库；与 `buy` 口同口径 —— 该口既有行为即「只认自己解析的字段」）⇒ **本单不扩它** | — |
+| `POST /api/listing/:listingId/buy` | **不收** | 传了 ⇒ **忽略**（不 400、不回显；买方无权改卖家授权） | — |
+
+- **可改字段 6 → 7**：`LISTING_EDIT_FIELDS`（`listing-service.ts:545`）加 `'allow_multi_buy'`；`createListing` 的 `editable_when_creating`（`:328`）同步 6 → 7。**两处必须同批**（一处在 PATCH、一处在 POST；只改一处 ⇒ 另一半静默忽略该字段，`MB-N3` 同族）。
+- **校验序（写死，禁倒序）**：① 退场字段闸 ⇒ ② **布尔形状闸**（`'true'` / `1` / `'1'` ⇒ 400 `NOT_A_BOOLEAN`）⇒ ③ 取**生效 `stock`**（请求值 ∨ 行内现值）⇒ ④ **归一 / 400**（`49.17.3` 表）⇒ ⑤ DB。**②③④ 任一失败 ⇒ 零 DB 调用**（判据 = `listing` 行未变 + `listing_edit_log` 零行）。
+- **错误码借用（零新增码）**：形状错 ⇒ **400 `LEDGER_AMOUNT_INVALID`** + `details:{field:'listing.allow_multi_buy', reason:'NOT_A_BOOLEAN'}`；矛盾态 ⇒ 同码 + `reason:'MULTI_BUY_NOT_APPLICABLE'` + `{stock, listing_id?}`。**禁**新造 `MULTI_BUY_*` 顶级码（33 码闭集），`reason` 只是 `details` 内的字符串，不占码位。
+- **与 `DL60` 互不干扰**：本列不是 `stock` ⇒ 只改它**不出** `listing_stock_change_requires_listed`（409）；同请求同时改 `stock` 时 DL60 **逐字照旧**（`draft` 改库存 ⇒ 409）。
+- **不进幂等指纹**：`resolveListingCreateKey` 派生仍 **4 元素**（`create` / `sellerUid` / `cid` / `price` / `stock`）；前端 `listingPublishFingerprint` 仍 **4 项**（`item-api.js:161-162`）。⇒ 同 `create_key` 重投 = **200 replay 回库内真值**（不因开关不同而 409/新单）。
+- **不进翻译链**：改该列不得把 `content_translation` 打回 `pending`（只跟 `description` 实际变化）。
+
+#### 49.17.3 写口归一 / 400 矩阵（与 `POST` 共用，`PATCH` 多一行）
+
+| # | 请求 | 生效 `stock` | 结果 |
+|---|---|---|---|
+| W1 | 未传 `allow_multi_buy`（创建） | 任意 | 200，落 **`false`** |
+| W2 | 传 `true` | **≥ 2** | 200，落 **`true`** |
+| W3 | 传 `true` | **≤ 1** | **400** `MULTI_BUY_NOT_APPLICABLE`（**零 DB**） |
+| W4 | 传 `false` | 任意 | 200，落 **`false`** |
+| W5 | **`PATCH` 未传** ∧ 改后 `stock <= 1` | ≤1 | 200，**服务端归一 `false`**（不 400） |
+| W6 | 传 `'true'` / `1` / `'1'` / `null` | 任意 | **400** `NOT_A_BOOLEAN`（**零 DB**） |
+| W7 | 传 `true` ∧ `stock = 1` **且同一请求不改 stock**（行内现值 1） | 1 | **400**（**生效 stock 用行内现值**；漏这条 = 最易漏的一臂） |
+
+#### 49.17.4 购买校验矩阵（`POST /api/listing/:listingId/buy` · **服务端强制，不得依赖前端**）
+
+**入参语义不变**：`{quantity, create_key}`；`quantity` 恒正整数文本（`toPosIntText`，`listing-funds-service.ts:226-231`，`/^\d+$/` + 拒 `0`）；**`create_key` 必传**（`cli:` 前缀，缺失 ⇒ 既有 `400 LEDGER_IDEMPOTENCY_KEY_REQUIRED`）。**`price` / `seller_uid` / `buyer_uid` 一律忽略**（既有 B8 硬口径，本单不动）。
+
+| # | `allow_multi_buy` | `quantity` | 行内 `stock` / `status` | 结果 | 码 / `reason` | 备注 |
+|---|---|---|---|---|---|---|
+| B1 | `false` | **1** | `stock >= 1` ∧ `listed` | **200** | — | **改前行为逐字不变**（既有主路径） |
+| B2 | **`false`** | **> 1** | 任意 | **400** | `LEDGER_AMOUNT_INVALID` + `{field:'quantity', reason:'multi_buy_not_allowed', listing_id}` | **本单新增的唯一拒绝臂**；**零 DB 调用**（判据 = `listing_order` 零行、`ledger_entry` 零行） |
+| B3 | `true` | **1 ≤ qty ≤ stock** | `stock >= qty` ∧ `listed` | **200** | — | 既有路径（多件由 DB 函数按 `price × quantity` 计额） |
+| B4 | 任意 | `> stock` | — | **409** | `LEDGER_INSUFFICIENT_BALANCE` + `listing_stock_insufficient`（`0015_listing.sql:583-588`） | **既有码，不改**（"qty > stock 走既有码"是本节写死的一条） |
+| B5 | 任意 | `0` / 负 / 非整数 / 空 | — | **400** | `LEDGER_AMOUNT_NOT_POSITIVE` 或 `LEDGER_AMOUNT_INVALID`（`toPosIntText` 现取） | 既有，先于 B1–B4 |
+| B6 | 任意 | 任意 | `status <> 'listed'` | **409** | `LEDGER_CURRENCY_INVALID_TRANSITION` + `listing_not_listed`（`0015:571-575`） | 既有；**闸序在 `allow` 闸之前**（见下） |
+| B7 | `true` | 1 | `stock = 1`（卖到最后一件） | **200** | — | **正常终态**（`40.13.2`：购买不回写该列）；前端**不弹层**（design §26.18.3） |
+| B8 | `true` | `>= 1` | `stock = 0` | **409** | 同 B4 | 库存耗尽仍走既有码，**不新增**「已售罄」语义 |
+
+- **闸的位置（写死）**：放在**服务层 `buyListing` 的前置只读**（`listing-funds-service.ts:273` 起，紧随 `quantity` 形状闸之后、调 `listingPostEvent` 之前），体例照 `refundListingOrder` 的「① 只读解析订单做发起人闸；**这不是授权真源**」注释（`:353`）。**不在 DB 函数里**：`0061` 只加列、**不改 `listing_post_event` 函数体**（改资金链核心函数 = 另一量级变更，需独立单 + 全量资金门复跑）。
+- **闸序（写死）**：`形状闸（B5）` → `status 闸（B6，DB 内）` → **`allow 闸（B2，服务层前置）`** → `stock 闸（B4，DB 内）`。⇒ `B2` 与 `B4` 同时成立（`allow=false` ∧ `qty > stock`）时报 **B2**（`400 multi_buy_not_allowed`）—— 理由：`allow=false` 是**契约层不成立**（卖家没授权），比「这次库存不够」更根本，且前端结构上不该发出该请求。
+- **已知竞态（诚实登记，不判负）**：前置读与 `listing_post_event` 之间卖家**关掉**开关 ⇒ 该单仍按 `qty` 件成交（窗口毫秒级、单向、只影响该笔、无资金敞口 —— 金额仍由 DB 按 `price × quantity` 与行内 `stock` 校验）。**加固路径 = 在函数体内加同一闸**（`0062`，另单），**本单不做**。
+- **单次上限 = 前端收敛值，服务端不设第三道闸（登记 + 一句话可改）**：`quantity ≤ stock` 是既有硬闸，够用；再加「`qty ≤ 10`」= 新常量 + 新 400 面，收益仅「防脚本一次买空」。⇒ 本单**不加**；若 Kevin 要，实现 = 服务层一行常量 + 一条 400（与 B2 同码、换 `reason`），**不新增码位**。
+- **幂等**：`request_fingerprint` 现取含 `quantity`（`:310`）⇒ **不同件数 = 不同指纹**；前端 `listingBuyFingerprint({listingId, quantity})`（`item-api.js:165-166`）⇒ 不同件数天然不同 `create_key`，**同件数重复点击由幂等吃掉**（既有行为，本单不新增）。⇒ **同 `create_key` 改件数** ⇒ 指纹不匹配 ⇒ 走既有幂等冲突口径（**不新增行为**，登记为已知边界）。
+- **响应面**：`listingEventView` 的键集**一字不动**（`quantity` / `stock` / `order_id` / `created` / `idempotent_replay` 等）；本单**不往回执里加 `allow_multi_buy`**（回执是成交事实，不是授权事实）。
+
+#### 49.17.5 读口键数（**四处，三处加、一处不加**）
+
+| 读口 | 现取 | 目标 | 增量 | 键 | 类型 |
+|---|---|---|---|---|---|
+| `GET /api/prize/:ref`（详情） | **52** | **53** | +1 | `allow_multi_buy` | **boolean** |
+| `GET /api/listing/mine` | **13** | **14** | +1 | `allow_multi_buy` | **boolean** |
+| `GET /api/listing/:listingId/edit` | **13** | **14** | +1 | `allow_multi_buy` | **boolean** |
+| `GET /api/prize/all`（feed / `/api/home` 同源） | **50** | **50** | **0** | — | — |
+
+- **`edit` 必加（派生要求，不是可选）**：§49.16.3 的「`edit` 与 `mine` 键面恒等」是同族硬律；**编辑页预填源 = `edit`** ⇒ 只加 `mine` ⇒ 开关永远预填不到（功能断链，门套零信号）。派单只点名 `mine`，本节按同族律补齐并显式登记。
+- **feed 不加**：列表卡不参与购买决策；加键 = 每页 36 行 × 一个用不上的布尔。
+- **恒在场、真布尔、追加末位**：`true` / `false` 直出；**禁** `'true'` 串、**禁** `0/1`；过渡态（列未 apply）= `42703` 5xx，**禁** `COALESCE` 兜底。
+- **放宽面**：本单的读口**没有** §49.16 那种「入参形态扩宽」；`:ref` 双形态、页面路由、链接生成**均不改**。
+
+#### 49.17.6 注册点与错误码（**零增量**）
+
+**现取（2026-10-20 · HEAD `bde5a4c`）**：`grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts` = **111**，逐 verb = get **50** / post **57** / put **0** / delete **3** / patch **1**。
+
+| verb | 现取 | 目标 | 增量 |
+|---|---|---|---|
+| get | 50 | 50 | 0 |
+| post | 57 | 57 | 0 |
+| put | 0 | 0 | 0 |
+| delete | 3 | 3 | 0 |
+| patch | 1 | 1 | 0 |
+| **合计** | **111** | **111** | **0** |
+
+- `p7b-03-offline-gates.ts` 的 `AC10-2` 常量 **仍 111**（本单不动该门；谁顺手改成 112 ⇒ `#53`）。
+- 错误码闭集 **33 码不变**；本单只用**既有**两枚（`LEDGER_AMOUNT_INVALID` 400 / `LEDGER_INSUFFICIENT_BALANCE` 409），新增的只是 `details.reason` 字符串（`NOT_A_BOOLEAN` / `MULTI_BUY_NOT_APPLICABLE` / `multi_buy_not_allowed`）。
+
+#### 49.17.7 判负（**#48–#53** · 与 §49.16.6 #42–#47、§49.15.8 #35–#41、§49.14.11 #29–#34 家族**并存、只增不改**）
+
+1. **#48 前端闸代替服务端闸**：**绕过前端**直接 `POST /api/listing/:id/buy` 发 `{quantity:2, create_key:'cli:…'}` 打 `allow_multi_buy=false` 的商品 ⇒ 必须 **400 且零副作用**（`listing_order` 零行 / `ledger_entry` 零行 / `stock` 不变）；返 200 ⇒ 判负。
+2. **#49 拒绝码不合矩**：`allow=false ∧ qty>1` 返 **403 / 409 / 422**，或返 400 但用了 33 码闭集之外的码，或 `details.field ≠ 'quantity'`、`reason ≠ 'multi_buy_not_allowed'` ⇒ 判负。
+3. **#50 键数不足 / 多出**：详情 ≠ **53**、mine ≠ **14**、edit ≠ **14**（含「只加 mine 漏 edit」）；或 feed 多出该键（≠ 50）；或该键出 `'true'` 串 / `0-1` 数字 ⇒ 判负。
+4. **#51 写口矩阵错**：`W3`（显式 `true` + `stock ≤ 1`）返回 200；或 `W5`（`PATCH` 只把 `stock` 改成 1、未带该键）返回 400；或 `W7`（行内 `stock=1`、只传 `true`）返回 200 ⇒ 判负（三臂各一条读数）。
+5. **#52 既有单件链路被连坐**：`allow=false` + `qty=1` 的购买行为与改前不一致（码 / 回执键集 / `price×quantity` 金额 / 幂等 replay 语义任一变化）；或 `qty > stock` 的码从 `409 listing_stock_insufficient` 变了 ⇒ 判负。**负控臂**：改前改后同一请求各跑一次，除新增 B2 臂外读数逐字相同。
+6. **#53 注册点 / 错误码被顺手改**：注册点 ≠ **111**、`p7b-03` `AC10-2` 被改成 ≠ 111、错误码闭集 ≠ 33 码 ⇒ 判负。
+
+#### 49.17.8 现取自证 + 未做（明账）
+
+- **现取（2026-10-20 · HEAD `bde5a4c` · 工作区非干净）**：注册点 **111**（get 50 / post 57 / put 0 / delete 3 / patch 1）· 迁移末位盘上 **`0060_item_code_snowflake.sql`**（untracked、未提交）· `grep -c 0061` = **0** · `LISTING_EDIT_FIELDS` = **6 项**（`listing-service.ts:545`）· `editable_when_creating` = **6 项**（`:328`）· `buyListing` 前置只读位置 = `listing-funds-service.ts:273` 起 · `toPosIntText` = `:226-231` · DB 库存闸 = `0015_listing.sql:583-588` · `LEDGER_INSUFFICIENT_BALANCE` = **409**（`ledger-errors.ts:33`）· `LEDGER_AMOUNT_INVALID` = **400**（`:52`）· 读口 详情 **52** / mine **13** / edit **13** / feed **50**。
+- **未做（`NOT_MEASURED` · 本册不预填）**：`0061` 未落盘 / 两库未 apply；写口两处未改；购买闸未实现；三读口未加键；判负 **#48–#53 一条未跑**；**零 HTTP 实测 / 零库写 / 零代码**。
+- **同树现状披露（并行 item-id 单已改、未提交）**：`M backend-ts/src/{database,index,listing-service}.ts` + `?? backend-ts/migrations/0060_item_code_snowflake.sql` + `?? backend-ts/src/item-id.ts` ⇒ 本单**不代其声明任何落地**，本节只登记形状；契约冲突以上一段与 `data §40.13` 为准。**本笔不 push、不改代码。**
