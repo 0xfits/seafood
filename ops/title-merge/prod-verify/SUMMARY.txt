@@ -1,0 +1,9 @@
+去标题（title 并入 description）· 生产终验（2026-10-20）
+三阶段：apply 0055（合并回填，守卫 strpos(description,title)<>1）→ push 代码 → apply 0056（DROP COLUMN title）
+生产 + dev 均 schema_version=0056；listing 无 title 列；空描述 0（dev 26 行 / 生产 8 行）
+同版：js index-DABfrGYr.js / css index-DeIk4OS4.css（prod == 本地 HEAD 构建）
+真浏览器（8 卡，1536 + 390 双档一致）：
+  标题全部来自描述首行派生（首卡 = 自动发货标签 + 「出 10 个 B家的激活码」）；空标题 0
+  卡高恒 392；零溢出；零 pageerror；详情页正常
+已知数据形态（非缺陷）：listing 5 描述本身 = 标题×2（用户原样），派生标题 = 整段首行，
+  显示层按 48 单位截断加 …；可用新上线【编辑】按钮清理。
