@@ -1647,8 +1647,7 @@ const normalizeListingMineRow = (row: RawRow): ListingMineRow => ({
 const UPDATE_LISTING_DETAILS_SQL = `
       WITH cur AS (
         SELECT pl.listing_id, pl.seller_uid, pl.cid, pl.price, pl.stock, pl.description, pl.media_urls, pl.item_type,
-               pl.status, pl.time_created,
-               (to_jsonb(pl) ->> 'title') AS title
+               pl.status, pl.time_created
         FROM public.listing AS pl
         WHERE pl.listing_id = $1::bigint
         FOR UPDATE
@@ -1673,7 +1672,7 @@ const UPDATE_LISTING_DETAILS_SQL = `
         FROM guarded AS g
         WHERE l.listing_id = $1::bigint
           AND g.outcome = 'ok'
-        RETURNING l.listing_id, g.title AS title, l.price, l.cid, l.status, l.stock,
+        RETURNING l.listing_id, split_part(l.description, E'\\n', 1) AS title, l.price, l.cid, l.status, l.stock,
                   l.media_urls, l.time_created, l.description, l.item_type,
                   g.description AS prev_description,
                   'updated'::text AS outcome
@@ -1682,7 +1681,7 @@ const UPDATE_LISTING_DETAILS_SQL = `
              u.time_created, u.description, u.item_type, u.prev_description, u.outcome
       FROM upd AS u
       UNION ALL
-      SELECT g.listing_id, g.title, g.price, g.cid, g.status, g.stock, g.media_urls,
+      SELECT g.listing_id, split_part(g.description, E'\\n', 1) AS title, g.price, g.cid, g.status, g.stock, g.media_urls,
              g.time_created, g.description, g.item_type, g.description, g.outcome
       FROM guarded AS g WHERE g.outcome <> 'ok'
     `;
@@ -2748,7 +2747,15 @@ export class DatabaseService {
         f.*
       FROM (
         SELECT
-          l.*,
+          -- ★★ 2026-10-20 Kevin 数据模型指令（listing.title 退场、正文并入 description）：
+          --   原 l.* 换成**显式列清单**（不引 title 列）+ 派生 title = 描述首个换行之前
+          --   （以 E 字符串换行作分隔符的 split_part，与 service 层 deriveListingTitle 同源）。
+          --   显式清单同时消掉「0055 已 apply / 0056 未 apply 过渡态下 l.* 里仍有 title 列」与派生列
+          --   **重名**的歧义（重复列名在 pg 行对象里谁胜出是实现细节，不可依赖）；DROP 后零 42P01。
+          l.listing_id, l.seller_uid, l.cid, l.price, l.stock,
+          split_part(l.description, E'\\n', 1) AS title,
+          l.description, l.media_urls, l.status, l.create_key, l.ledger_event_keys,
+          l.item_type, l.time_created, l.time_updated,
           0::int AS stores_count,
           0::int AS claims_count,
           0::int AS activated_count,
@@ -2880,14 +2887,13 @@ export class DatabaseService {
   static async listListingsBySeller(sellerUid: number, skip = 0, limit = 100): Promise<ListingMineRow[]> {
     const sql = getSql();
     // ★ S55：SELECT 加性两列 `description` / `item_type`（行键 8 → 10；既有 8 键位置与顺序一字未动）。
-    // ★★ 2026-10-20 Kevin 指令（`title` 退场、正文并入 `description`）：`title` 改经 `to_jsonb(l)->>'title'`
-    //   **弱取值** —— 本口对 `title` **列不再有硬依赖**：数据面迁移 DROP 该列后本条 SQL **仍可跑**（值变
-    //   `null` ⇒ 归一成 `''`），不会 42P01；列当前仍在 ⇒ 响应形状与取值**逐字不变**（键数 10）。
-    //   本单**零 DDL / 零回填**，不碰 `title` 列本身（DROP 归另一单）。
+    // ★★ 2026-10-20 Kevin 指令（title 退场、正文并入 description）：`title` 改为**派生列**
+    //   = 描述首个换行之前（split_part）。本口对 title **列零引用** ⇒ 0056 DROP 后照跑、不会 42P01；
+    //   响应形状与取值**逐字不变**（键数 10，title 恒在场 = 首行文本；描述首行即标题）。
     const rows = extractRows(await sql`
       SELECT
         l.listing_id,
-        (to_jsonb(l) ->> 'title') AS title,
+        split_part(l.description, E'\\n', 1) AS title,
         l.price,
         l.cid,
         l.status,
@@ -2980,7 +2986,8 @@ export class DatabaseService {
       SELECT
         f.fav_id,
         f.listing_id,
-        l.title,
+        -- ★ 2026-10-20：title 派生自描述首个换行之前（与 feed/详情/卖家轴同源；列已随 0056 DROP）
+        split_part(l.description, E'\\n', 1) AS title,
         l.price,
         l.cid,
         l.status,
@@ -3523,6 +3530,8 @@ export class DatabaseService {
   //   data 键集自 §25.2 起冻结（承 `§24.8(b)`）：listing_id / seller_uid / cid / price / stock /
   //   title / status / time_created。只读（只 `SELECT`）；非法 `status` 由**服务层**判 `400`，
   //   **不得静默回落**；**不得**借读口补写（`DL23` 同向）。
+  // ★ 2026-10-20（title 退场）：键名 `title` 保留，值改为**派生** = 描述首个换行之前（split_part），
+  //   本口对 title 列零引用 ⇒ 0056 DROP 后照跑；键集与顺序不动（零计数前推）。
   // ==========================================================================================
   static async listListingsForAdmin(statusFilter: string | null): Promise<RawRow[]> {
     const rows = await runSql(
@@ -3531,7 +3540,7 @@ export class DatabaseService {
               l.cid         AS cid,
               l.price       AS price,
               l.stock       AS stock,
-              l.title       AS title,
+              split_part(l.description, E'\\n', 1) AS title,
               l.status      AS status,
               l.time_created AS time_created
          FROM public.listing AS l
@@ -3745,29 +3754,37 @@ export class DatabaseService {
     cid: number;
     price: number;
     stock: number;
-    title: string;
+    /** ★ 已退场（2026-10-20）：标题 = 描述首个换行之前，由下方 SQL 派生 ⇒ 本入参**无 title** */
     description: string;
     mediaUrls: string[];
     itemType: string | null;
     createKey: string;
   }): Promise<{ outcome: 'inserted' | 'existing'; row: RawRow }> {
     const sql = getSql();
+    // ★★ 2026-10-20 Kevin 数据模型指令（`listing.title` 退场、正文并入 `description`）：
+    //   本语句对 `title` **列零引用**（INSERT 列清单 / CTE 取列 / RETURNING 全去），响应键 `title`
+    //   一律**派生** `split_part(description, E'\n', 1)`（与读口 / `deriveListingTitle` 同源）
+    //   ⇒ 0056 DROP 后照跑、不会 42P01；行键集与顺序**逐字不变**。
     const rows = extractRows(await sql`
       WITH existing AS (
-        SELECT listing_id, seller_uid, cid, price, stock, title, description, media_urls, item_type, status, create_key
+        SELECT listing_id, seller_uid, cid, price, stock, description, media_urls, item_type, status, create_key
         FROM public.listing
         WHERE create_key = ${input.createKey}::text
       ),
       ins AS (
-        INSERT INTO public.listing (seller_uid, cid, price, stock, title, description, media_urls, item_type, status, create_key)
-        SELECT ${input.sellerUid}::bigint, ${input.cid}::bigint, ${input.price}::bigint, ${input.stock}::int, ${input.title}::text, ${input.description}::text, ${input.mediaUrls}::text[], ${input.itemType}::text, 'draft', ${input.createKey}::text
+        INSERT INTO public.listing (seller_uid, cid, price, stock, description, media_urls, item_type, status, create_key)
+        SELECT ${input.sellerUid}::bigint, ${input.cid}::bigint, ${input.price}::bigint, ${input.stock}::int, ${input.description}::text, ${input.mediaUrls}::text[], ${input.itemType}::text, 'draft', ${input.createKey}::text
         WHERE NOT EXISTS (SELECT 1 FROM existing)
-        RETURNING listing_id, seller_uid, cid, price, stock, title, description, media_urls, item_type, status, create_key, 'inserted'::text AS outcome
+        RETURNING listing_id, seller_uid, cid, price, stock, description, media_urls, item_type, status, create_key, 'inserted'::text AS outcome
       )
-      SELECT i.listing_id, i.seller_uid, i.cid, i.price, i.stock, i.title, i.description, i.media_urls, i.item_type, i.status, i.create_key, i.outcome
+      SELECT i.listing_id, i.seller_uid, i.cid, i.price, i.stock,
+             split_part(i.description, E'\\n', 1) AS title,
+             i.description, i.media_urls, i.item_type, i.status, i.create_key, i.outcome
       FROM ins AS i
       UNION ALL
-      SELECT e.listing_id, e.seller_uid, e.cid, e.price, e.stock, e.title, e.description, e.media_urls, e.item_type, e.status, e.create_key, 'existing'::text
+      SELECT e.listing_id, e.seller_uid, e.cid, e.price, e.stock,
+             split_part(e.description, E'\\n', 1) AS title,
+             e.description, e.media_urls, e.item_type, e.status, e.create_key, 'existing'::text
       FROM existing AS e
     `);
     const row = rows[0] || null;
@@ -3785,14 +3802,14 @@ export class DatabaseService {
     actorUid: number;
     price: number | null;
     stock: number | null;
-    title: string | null;
+    /** ★ 已退场（2026-10-20）：标题 = 描述首个换行之前，SQL 派生 ⇒ 入参无 title、SET 无 title */
     description: string | null;
     mediaUrls: string[] | null;
   }): Promise<{ outcome: 'updated' | 'not_owner' | 'stock_requires_listed' | 'delisted_terminal'; row: RawRow | null }> {
     const sql = getSql();
     const rows = extractRows(await sql`
       WITH cur AS (
-        SELECT listing_id, seller_uid, cid, price, stock, title, description, media_urls, status, create_key
+        SELECT listing_id, seller_uid, cid, price, stock, description, media_urls, status, create_key
         FROM public.listing
         WHERE listing_id = ${input.listingId}::bigint
         FOR UPDATE
@@ -3811,17 +3828,16 @@ export class DatabaseService {
         UPDATE public.listing AS l
         SET price        = COALESCE(${input.price}::bigint, l.price),
             stock        = COALESCE(${input.stock}::int, l.stock),
-            title        = COALESCE(${input.title}::text, l.title),
             description  = COALESCE(${input.description}::text, l.description),
             media_urls   = COALESCE(${input.mediaUrls}::text[], l.media_urls)
         WHERE l.listing_id = ${input.listingId}::bigint
           AND (SELECT g.outcome FROM guarded AS g) = 'ok'
-        RETURNING l.listing_id, l.seller_uid, l.cid, l.price, l.stock, l.title, l.description, l.media_urls, l.status, l.create_key, 'updated'::text AS outcome
+        RETURNING l.listing_id, l.seller_uid, l.cid, l.price, l.stock, split_part(l.description, E'\\n', 1) AS title, l.description, l.media_urls, l.status, l.create_key, 'updated'::text AS outcome
       )
       SELECT u.listing_id, u.seller_uid, u.cid, u.price, u.stock, u.title, u.description, u.media_urls, u.status, u.create_key, u.outcome
       FROM upd AS u
       UNION ALL
-      SELECT g.listing_id, g.seller_uid, g.cid, g.price, g.stock, g.title, g.description, g.media_urls, g.status, g.create_key, g.outcome
+      SELECT g.listing_id, g.seller_uid, g.cid, g.price, g.stock, split_part(g.description, E'\\n', 1) AS title, g.description, g.media_urls, g.status, g.create_key, g.outcome
       FROM guarded AS g WHERE g.outcome <> 'ok'
     `);
     const row = rows[0] || null;
@@ -3843,7 +3859,7 @@ export class DatabaseService {
     const sql = getSql();
     const rows = extractRows(await sql`
       WITH cur AS (
-        SELECT listing_id, seller_uid, cid, price, stock, title, description, media_urls, status, create_key
+        SELECT listing_id, seller_uid, cid, price, stock, description, media_urls, status, create_key
         FROM public.listing
         WHERE listing_id = ${listingId}::bigint
         FOR UPDATE
@@ -3862,12 +3878,12 @@ export class DatabaseService {
         SET status = ${toStatus}::text
         WHERE l.listing_id = ${listingId}::bigint
           AND (SELECT g.outcome FROM guarded AS g) = 'ok'
-        RETURNING l.listing_id, l.seller_uid, l.cid, l.price, l.stock, l.title, l.description, l.media_urls, l.status, l.create_key, 'updated'::text AS outcome
+        RETURNING l.listing_id, l.seller_uid, l.cid, l.price, l.stock, split_part(l.description, E'\\n', 1) AS title, l.description, l.media_urls, l.status, l.create_key, 'updated'::text AS outcome
       )
       SELECT u.listing_id, u.seller_uid, u.cid, u.price, u.stock, u.title, u.description, u.media_urls, u.status, u.create_key, u.outcome
       FROM upd AS u
       UNION ALL
-      SELECT g.listing_id, g.seller_uid, g.cid, g.price, g.stock, g.title, g.description, g.media_urls, g.status, g.create_key, g.outcome
+      SELECT g.listing_id, g.seller_uid, g.cid, g.price, g.stock, split_part(g.description, E'\\n', 1) AS title, g.description, g.media_urls, g.status, g.create_key, g.outcome
       FROM guarded AS g WHERE g.outcome <> 'ok'
     `);
     const row = rows[0] || null;
@@ -4699,7 +4715,12 @@ export class DatabaseService {
     // transfer_counts CTE 的表在新 schema 无对应 ⇒ 聚合键保留、值恒 0。miss ⇒ null（路由层 404 语义保留）。
     const row = firstRow(await sql`
       SELECT
-        l.*,
+        -- ★★ 2026-10-20 Kevin 数据模型指令（title 退场、正文并入 description）：显式列清单
+        --   （不引 title 列）+ 派生 title = 描述首个换行之前（与 feed 口 / service 层同源）。
+        l.listing_id, l.seller_uid, l.cid, l.price, l.stock,
+        split_part(l.description, E'\\n', 1) AS title,
+        l.description, l.media_urls, l.status, l.create_key, l.ledger_event_keys,
+        l.item_type, l.time_created, l.time_updated,
         0::int AS stores_count,
         0::int AS claims_count,
         0::int AS activated_count,

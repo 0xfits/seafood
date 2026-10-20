@@ -156,14 +156,19 @@ const enqueueTranslation = async (target: {
   }
 };
 
-/** 从 listing 写回执（`view`）提取可译字段（field 名 = 源列名，与 createDbSourceResolver 白名单一致）。 */
+/**
+ * 从 listing 写回执（`view`）提取可译字段（field 名 = 源列名，与 `createDbSourceResolver` 白名单一致）。
+ *
+ * ★★ 2026-10-20 Kevin 数据模型指令（`listing.title` 退场、正文并入 `description`）⇒ 只登记
+ *   **`description`** 一路（标题 = 描述首个换行之前，随描述一起翻译）。`view.title` 是**派生值**
+ *   （`split_part(description, E'\n', 1)`），它不是可写列、再登记会让翻译回写撞已 DROP 的列。
+ *   ⇒ 不再从 `view.title` 造 field。
+ */
 const enqueueListingTranslation = async (view: unknown, reset = false): Promise<void> => {
   const v = (view || {}) as Record<string, unknown>;
   const entityId = v.listing_id === undefined || v.listing_id === null ? '' : String(v.listing_id);
   const fields: Record<string, string> = {};
-  const title = typeof v.title === 'string' ? v.title : '';
   const description = typeof v.description === 'string' ? v.description : '';
-  if (title.trim()) fields.title = title;
   if (description.trim()) fields.description = description;
   if (entityId && Object.keys(fields).length) {
     await enqueueTranslation({ entityType: 'listing', entityId, fields, reset });

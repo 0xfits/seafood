@@ -217,7 +217,8 @@ const readConversationRow = async (client: TxClient, conversationId: number): Pr
   const rows = await txQuery<Record<string, unknown>>(
     client,
     `SELECT c.conversation_id, c.listing_id, c.buyer_uid, c.seller_uid,
-            c.buyer_last_read_msg_id, c.seller_last_read_msg_id, l.title AS listing_title
+            c.buyer_last_read_msg_id, c.seller_last_read_msg_id,
+            split_part(l.description, E'\\n', 1) AS listing_title
        FROM public.conversation c
        JOIN public.listing l ON l.listing_id = c.listing_id
       WHERE c.conversation_id = $1
@@ -290,7 +291,7 @@ export const listConversations = async (
   const rows = await readQuery<Record<string, unknown>>(
     `SELECT c.conversation_id,
             c.listing_id,
-            l.title AS listing_title,
+            split_part(l.description, E'\\n', 1) AS listing_title,
             (CASE WHEN c.buyer_uid = $1 THEN 'buyer' ELSE 'seller' END) AS role,
             (CASE WHEN c.buyer_uid = $1 THEN c.seller_uid ELSE c.buyer_uid END) AS counterpart_uid,
             (SELECT m.body FROM public.message m
@@ -804,7 +805,7 @@ export const notifyMessageCounterpart = (input: {
       return;
     }
     const rows = await readQuery<{ tg_user_id: string | number; title: string }>(
-      `SELECT u.tg_user_id, l.title
+      `SELECT u.tg_user_id, split_part(l.description, E'\\n', 1) AS title
          FROM public.conversation c
          JOIN public.users u
            ON u.uid = (CASE WHEN c.buyer_uid = $1 THEN c.seller_uid ELSE c.buyer_uid END)

@@ -1,0 +1,392 @@
+{
+  "run": "20261020T010448Zm8bb",
+  "name": "s56-title-merge-gate",
+  "at": "2026-10-20T01:04:56.844Z",
+  "script": "ops/published-actions/s56-00-title-merge-gate.ts",
+  "migrations": {
+    "m55_head_bytes": 2455,
+    "m55_tail_bytes": 3136,
+    "m56_head": "-- ============================================================================\n-- 0056_drop_listing_title.sql\n-- 取消商品标题字段（`listing.title` 退场）· **三阶段零破窗 · 阶段 3 = DROP 列**\n-- ----------------------------------------------------------------------------\n-- 前置（必须已成立，否则本迁移会毁数据）：\n--   ① **0055 已 apply**（title 已并入 description：有标题的行 description 以 title 开头）；\n--   ② 代码已 push 且**线上读口不再引用 `title` 列**（读口派生 `split_part(description, E'\\n', 1)`，\n--      写口拒 `title`）—— 顺序 = 0055 apply → push → 本文件 apply。\n--\n-- 本文件只做一件事：`ALTER TABLE public.listing DROP COLUMN IF EXISTS title`（幂等写法）。\n--   · 无索引 / 无视图 / 无函数依赖该列（库内实测：listing 五个触发器与四个索引均不引 title，\n--     `pg_depend` 无依赖视图）⇒ 无需 `CASCADE`；\n--   · **零 DML**、不回填（回填已由 0055 完成）。\n--\n-- 文件内**不写 BEGIN/COMMIT**（`scripts/migrate.ts` 逐文件包事务）。\n-- 自检（尾部 `DO $$`）：① `title` 列不存在；② 有内容的历史行仍在（行数 > 0 时 description 非空行数 = 行数），\n--   空描述行只允许是「本来就没有标题也没有描述」的历史行（有则 RAISE 报数、不判负 —— 0055 无法为它造内容）。\n-- ============================================================================\n\nALTER TABLE public.listing DROP COLUMN IF EXISTS title;",
+    "m56_head_bytes": 1049
+  },
+  "live": {
+    "before": {
+      "rows": "26",
+      "rows_distinct": "26",
+      "titled": "26",
+      "empty_desc": "7",
+      "both_empty": "0",
+      "already_merged": "0"
+    },
+    "first": {
+      "hits": 26,
+      "expect": 26,
+      "after": {
+        "rows": "26",
+        "rows_distinct": "26",
+        "titled": "26",
+        "empty_desc": "0",
+        "both_empty": "0",
+        "already_merged": "19"
+      },
+      "checks": {
+        "titled_empty_desc": "0",
+        "double_merged": "0",
+        "merged_ok": "26"
+      }
+    },
+    "sample": {
+      "listing_id": "1",
+      "title": "p4b2c:listing A",
+      "first_line": "p4b2c:listing A"
+    },
+    "replay": {
+      "hits": 0,
+      "after": {
+        "rows": "26",
+        "rows_distinct": "26",
+        "titled": "26",
+        "empty_desc": "0",
+        "both_empty": "0",
+        "already_merged": "19"
+      },
+      "checks": {
+        "titled_empty_desc": "0",
+        "double_merged": "0",
+        "merged_ok": "26"
+      },
+      "sample_unchanged": true
+    },
+    "dropped": {
+      "title_cols": "0",
+      "listing_cols": "13"
+    },
+    "postDrop": {
+      "draft_id": "1",
+      "nl_ok": true,
+      "nl_title": "门标题丙",
+      "nl_desc": "门标题丙\n门正文（DROP 后写入）",
+      "nonl_ok": true,
+      "nonl_title": "整段无回车（DROP 后）",
+      "keys": [
+        "cid",
+        "description",
+        "item_type",
+        "listing_id",
+        "media_urls",
+        "price",
+        "status",
+        "stock",
+        "time_created",
+        "title"
+      ],
+      "text_changed_nl": true
+    },
+    "rolled_back": true,
+    "error": null,
+    "ms": 3750
+  },
+  "negative": {
+    "guard_present": true,
+    "stripped_changed_text": true,
+    "stripped_tail": "述**尚未**以此 title 开头、且**不等于** title ⇒ 才需要合并\n   --   （「描述原本为空」的行合并后 = **恰 `title`**（无尾随换行）⇒ 必须由 `<> title` 这一支兜住，\n   --    否则重放时被再拼一次成 `title\\ntitle`）\n   AND true;",
+    "neg_first_hits": 26,
+    "neg_replay_hits": 26,
+    "neg_double": "26",
+    "neg_selfcheck_caught": "0055 self-check FAILED: 26 行的标题被叠加两次（幂等守卫失效 ⇒ 重放会二次拼接）",
+    "rolled_back": true,
+    "error": null
+  },
+  "unit": [
+    {
+      "id": "B1",
+      "what": "`deriveListingTitle` **有回车** ⇒ 只取首个 `\\n` 之前（多行正文不吃进标题）",
+      "pass": true,
+      "reading": "\"门标题甲\""
+    },
+    {
+      "id": "B2",
+      "what": "`deriveListingTitle` **无回车** ⇒ 整段即标题（**不截断**，48 显示宽单位的截断归前端）",
+      "pass": true,
+      "reading": "\"整段无回车也当标题（存储不截断）\""
+    },
+    {
+      "id": "B3",
+      "what": "`deriveListingTitle` **仅空白 / 空串 / 非字符串** ⇒ `''`（无异常、不编值）",
+      "pass": true,
+      "reading": "{\"empty\":\"\",\"spaces\":\"   \",\"null\":\"\"}"
+    },
+    {
+      "id": "C1",
+      "what": "`createListing` **带 `title` ⇒ 400 `NOT_SUPPORTED`**（`details.field=listing.title`、`retired_fields=[title]`）且**零 DB 调用**",
+      "pass": true,
+      "reading": "{\"res\":\"400/LEDGER_AMOUNT_INVALID/NOT_SUPPORTED\",\"db_calls\":0}"
+    },
+    {
+      "id": "C2",
+      "what": "`createListing` **仅空白 / 未传 / null 描述 ⇒ 400 `REQUIRED`**（标题已并入描述 ⇒ 空描述 = 无标题可选）且**零 DB 调用**",
+      "pass": true,
+      "reading": "{\"blank\":\"400/LEDGER_AMOUNT_INVALID/REQUIRED\",\"missing\":\"400/LEDGER_AMOUNT_INVALID/REQUIRED\",\"null\":\"400/LEDGER_AMOUNT_INVALID/REQUIRED\",\"db_calls\":0}"
+    },
+    {
+      "id": "C3",
+      "what": "**同键同内容重投 ⇒ `replay=true`**（指纹去 title 后仍判定为同一请求；回执 `title` = 描述首行派生值）",
+      "pass": true,
+      "reading": "{\"replay\":true,\"title\":\"门标题乙\"}"
+    },
+    {
+      "id": "C4",
+      "what": "**同键异内容 ⇒ 409 `LEDGER_IDEMPOTENCY_CONFLICT`**（`reason=REPLAY_FINGERPRINT_MISMATCH`）—— 幂等判据没被「去 title」放宽",
+      "pass": true,
+      "reading": "409/LEDGER_IDEMPOTENCY_CONFLICT/REPLAY_FINGERPRINT_MISMATCH"
+    },
+    {
+      "id": "C5",
+      "what": "首次写（`inserted`）⇒ `replay=false`（重放判据只看库回 `existing`，不由客户端声明）",
+      "pass": true,
+      "reading": "replay=false"
+    },
+    {
+      "id": "C6",
+      "what": "创建指纹 = **5 段**（`seller_uid, cid, price, description, media_urls` · 原 6 段去 `title`）且块内**无 `row.title`**",
+      "pass": true,
+      "reading": "{\"parts\":5,\"row_title\":false}"
+    },
+    {
+      "id": "C7",
+      "what": "派生键 `fallbackParts` = **5 段**（`create, seller_uid, cid, price, stock` · 原 6 段去 title）",
+      "pass": true,
+      "reading": "\"'create', params.sellerUid, cid.value, price.value, stock.value\""
+    }
+  ],
+  "checks": [
+    {
+      "id": "A1",
+      "what": "**零新路由**：注册点仍 = 110（本单只改既有写口/读口，无第 111 个注册点）",
+      "pass": true,
+      "reading": "registration_points=110"
+    },
+    {
+      "id": "A2",
+      "what": "`database.ts`：**零处表别名 `.title`**（`pl.`/`l.`/`i.`/`e.`/`g.`；`j.title` = job 面、不在本单范围）⇒ 0056 DROP 后结构上不可能 42P01",
+      "pass": true,
+      "reading": "[]"
+    },
+    {
+      "id": "A3",
+      "what": "`messages-service.ts`：**零处 `l.title`**（3 处会话/通知读口全改派生）",
+      "pass": true,
+      "reading": "[]"
+    },
+    {
+      "id": "A4",
+      "what": "派生位点现取：database.ts `split_part(<alias>.description, E'\\n', 1)` = **13** 处 · messages-service.ts = **3** 处（两处都 > 0 ⇒ 派生确实铺开、不是删了事）",
+      "pass": true,
+      "reading": "{\"db\":13,\"msg\":3}"
+    },
+    {
+      "id": "A5",
+      "what": "翻译面：`createDbSourceResolver` 的 listing 字段 = **恰 `{description}`** · `TRANSLATABLE_SPECS` 的 listing `fields = ['description']`（标题随描述一起译，不再单列已 DROP 的列）",
+      "pass": true,
+      "reading": "{\"whitelist\":true,\"specs\":true}"
+    },
+    {
+      "id": "A6",
+      "what": "`enqueueListingTranslation` **只登记 description**：块内无 `fields.title`、无 `v.title`（`view.title` 是派生值、不可写回）",
+      "pass": true,
+      "reading": "{\"block_bytes\":1400,\"fields_title\":false,\"v_title\":false}"
+    },
+    {
+      "id": "A7",
+      "what": "三个写口（create / update / transition）的 SQL 块：**INSERT 列清单无 title** · **cur CTE 无 title 列** · **零 `.title` 限定引用**",
+      "pass": true,
+      "reading": "[{\"name\":\"createListingRow\",\"block_bytes\":4400,\"qualified\":[],\"insert_title\":false,\"cur_title\":false},{\"name\":\"updateListingRow\",\"block_bytes\":4400,\"qualified\":[],\"insert_title\":false,\"cur_title\":false},{\"name\":\"transitionListingRow\",\"block_bytes\":4400,\"qualified\":[],\"insert_title\":false,\"cur_title\":false}]"
+    },
+    {
+      "id": "A8",
+      "what": "迁移面：`0055` 含**幂等守卫**（`description <> title` ∧ `strpos(description, title || E'\\n') <> 1`）＋ 两条重放自检（`double` / `titled_empty_desc`）；`0056` = `DROP COLUMN IF EXISTS title`；两文件内**无顶层 BEGIN/COMMIT**",
+      "pass": true,
+      "reading": "{\"guard\":true,\"double_check\":true,\"drop\":true}"
+    },
+    {
+      "id": "B1",
+      "what": "`deriveListingTitle` **有回车** ⇒ 只取首个 `\\n` 之前（多行正文不吃进标题）",
+      "pass": true,
+      "reading": "\"门标题甲\""
+    },
+    {
+      "id": "B2",
+      "what": "`deriveListingTitle` **无回车** ⇒ 整段即标题（**不截断**，48 显示宽单位的截断归前端）",
+      "pass": true,
+      "reading": "\"整段无回车也当标题（存储不截断）\""
+    },
+    {
+      "id": "B3",
+      "what": "`deriveListingTitle` **仅空白 / 空串 / 非字符串** ⇒ `''`（无异常、不编值）",
+      "pass": true,
+      "reading": "{\"empty\":\"\",\"spaces\":\"   \",\"null\":\"\"}"
+    },
+    {
+      "id": "C1",
+      "what": "`createListing` **带 `title` ⇒ 400 `NOT_SUPPORTED`**（`details.field=listing.title`、`retired_fields=[title]`）且**零 DB 调用**",
+      "pass": true,
+      "reading": "{\"res\":\"400/LEDGER_AMOUNT_INVALID/NOT_SUPPORTED\",\"db_calls\":0}"
+    },
+    {
+      "id": "C2",
+      "what": "`createListing` **仅空白 / 未传 / null 描述 ⇒ 400 `REQUIRED`**（标题已并入描述 ⇒ 空描述 = 无标题可选）且**零 DB 调用**",
+      "pass": true,
+      "reading": "{\"blank\":\"400/LEDGER_AMOUNT_INVALID/REQUIRED\",\"missing\":\"400/LEDGER_AMOUNT_INVALID/REQUIRED\",\"null\":\"400/LEDGER_AMOUNT_INVALID/REQUIRED\",\"db_calls\":0}"
+    },
+    {
+      "id": "C3",
+      "what": "**同键同内容重投 ⇒ `replay=true`**（指纹去 title 后仍判定为同一请求；回执 `title` = 描述首行派生值）",
+      "pass": true,
+      "reading": "{\"replay\":true,\"title\":\"门标题乙\"}"
+    },
+    {
+      "id": "C4",
+      "what": "**同键异内容 ⇒ 409 `LEDGER_IDEMPOTENCY_CONFLICT`**（`reason=REPLAY_FINGERPRINT_MISMATCH`）—— 幂等判据没被「去 title」放宽",
+      "pass": true,
+      "reading": "409/LEDGER_IDEMPOTENCY_CONFLICT/REPLAY_FINGERPRINT_MISMATCH"
+    },
+    {
+      "id": "C5",
+      "what": "首次写（`inserted`）⇒ `replay=false`（重放判据只看库回 `existing`，不由客户端声明）",
+      "pass": true,
+      "reading": "replay=false"
+    },
+    {
+      "id": "C6",
+      "what": "创建指纹 = **5 段**（`seller_uid, cid, price, description, media_urls` · 原 6 段去 `title`）且块内**无 `row.title`**",
+      "pass": true,
+      "reading": "{\"parts\":5,\"row_title\":false}"
+    },
+    {
+      "id": "C7",
+      "what": "派生键 `fallbackParts` = **5 段**（`create, seller_uid, cid, price, stock` · 原 6 段去 title）",
+      "pass": true,
+      "reading": "\"'create', params.sellerUid, cid.value, price.value, stock.value\""
+    },
+    {
+      "id": "C0",
+      "what": "桩已逐字回收（`createListingRow` / `updateListingRow` / `transitionListingRow` / `getCurrencyStatus`）",
+      "pass": true,
+      "reading": "restored"
+    },
+    {
+      "id": "D1",
+      "what": "**0055 首跑（回填命中数）**：`UPDATE` rowCount = **26** = 有标题 26 − 已合并 0；尾部自检块**未抛**（空描述 0 = 双空 0）",
+      "pass": true,
+      "reading": "{\"hits\":26,\"expect\":26,\"empty_desc\":\"0\",\"both_empty\":\"0\"}"
+    },
+    {
+      "id": "D2",
+      "what": "**行数不变**：合并前 26 → 合并后 26（PK 唯一行数 26；UPDATE 不增删行）",
+      "pass": true,
+      "reading": "{\"before\":\"26\",\"after\":\"26\",\"distinct\":\"26\"}"
+    },
+    {
+      "id": "D3",
+      "what": "**空描述 = 0**（合并后 `count(description='')` = **0**、由原 7 行清空 —— 原 7 行「有标题无描述」全部由 title 补齐）",
+      "pass": true,
+      "reading": "{\"before\":\"7\",\"after\":\"0\"}"
+    },
+    {
+      "id": "D4",
+      "what": "**并入完整且未叠加**：`merged_ok` = **26** = 有标题 26；双叠行 = 0；有标题却空描述 = 0",
+      "pass": true,
+      "reading": "{\"titled_empty_desc\":\"0\",\"double_merged\":\"0\",\"merged_ok\":\"26\"}"
+    },
+    {
+      "id": "D5",
+      "what": "样本行 1：合并后**描述首行 == 原标题**（派生口径真落地，非空描述拼凑）",
+      "pass": true,
+      "reading": "{\"listing_id\":\"1\",\"title\":\"p4b2c:listing A\",\"first_line\":\"p4b2c:listing A\"}"
+    },
+    {
+      "id": "D6",
+      "what": "**0055 重放臂**：第二次 apply 的 rowCount = **0**（幂等守卫生效 ⇒ 0）· 双叠行 0 · **重放后空描述行数不变**（0）· 样本描述逐字未变",
+      "pass": true,
+      "reading": "{\"hits\":0,\"after\":{\"rows\":\"26\",\"rows_distinct\":\"26\",\"titled\":\"26\",\"empty_desc\":\"0\",\"both_empty\":\"0\",\"already_merged\":\"19\"},\"checks\":{\"titled_empty_desc\":\"0\",\"double_merged\":\"0\",\"merged_ok\":\"26\"},\"sample_unchanged\":true}"
+    },
+    {
+      "id": "D7",
+      "what": "**0056 干跑：列已删**（`information_schema` title 列 = **0**）且 `listing` 列数 = **13**（14 − 1），尾部自检未抛",
+      "pass": true,
+      "reading": "{\"title_cols\":\"0\",\"listing_cols\":\"13\"}"
+    },
+    {
+      "id": "D8",
+      "what": "**DROP 之后写口照跑**（无 42P01）：有回车 ⇒ title = `门标题丙` · 无回车 ⇒ title = `整段无回车（DROP 后）`（**由新描述派生**、不是旧值）",
+      "pass": true,
+      "reading": "{\"nl\":\"门标题丙\",\"nonl\":\"整段无回车（DROP 后）\",\"err\":null}"
+    },
+    {
+      "id": "D9",
+      "what": "DROP 之后回执键集仍 **10 键**（`title` 键保留、值派生 ⇒ 前端零改动）",
+      "pass": true,
+      "reading": "[\"cid\",\"description\",\"item_type\",\"listing_id\",\"media_urls\",\"price\",\"status\",\"stock\",\"time_created\",\"title\"]"
+    },
+    {
+      "id": "F0",
+      "what": "真库干跑 **一律 ROLLBACK**（0055 回填 + 0056 DROP + 全部写探针 ⇒ 零残留、零 apply）",
+      "pass": true,
+      "reading": "error=null rolled_back=true"
+    },
+    {
+      "id": "G1",
+      "what": "**feed 读口**（`listBrands`）跑通：5 行，逐行 `name` == 描述首行（显式列清单无笔误、派生同源）",
+      "pass": true,
+      "reading": "{\"rows\":5,\"consistent\":true,\"sample\":{\"bID\":76,\"name\":\"一个月的使用期，速度非常棒！\"}}"
+    },
+    {
+      "id": "G2",
+      "what": "**详情读口**（`getBrandById`）跑通且 `name` == 描述首行",
+      "pass": true,
+      "reading": "{\"bID\":76,\"name\":\"一个月的使用期，速度非常棒！\",\"ok\":true}"
+    },
+    {
+      "id": "G3",
+      "what": "**我的发布**（`listListingsBySeller`）跑通：5 行 · 10 键 · 逐行 `title` == 描述首行",
+      "pass": true,
+      "reading": "{\"rows\":5,\"keys\":10,\"consistent\":true}"
+    },
+    {
+      "id": "G4",
+      "what": "**管理列表**（`listListingsForAdmin`）跑通：26 行，每行 `title` 均为字符串（该口只选派生 title、行内无 description 可对拍）",
+      "pass": true,
+      "reading": "{\"rows\":26,\"consistent\":true}"
+    },
+    {
+      "id": "G5",
+      "what": "**收藏**（`listFavoritesByUser`）跑通：0 行（无夹具时为空表、不算红；行内无 description ⇒ 只断 title 是字符串）",
+      "pass": true,
+      "reading": "{\"rows\":0,\"consistent\":true,\"note\":\"no favorite fixture (empty table)\"}"
+    },
+    {
+      "id": "E1",
+      "what": "★ **负控 1（判负自证）**：把幂等守卫中和成 `AND true` 后连跑两次 ⇒ 第二次仍写 **26** 行、双叠行 = **26**（> 0）⇒ **D6 那条「重放 0 行 / 双叠 0」断言必红**（该判据非恒绿）",
+      "pass": true,
+      "reading": "{\"first\":26,\"replay\":26,\"double\":\"26\"}"
+    },
+    {
+      "id": "E2",
+      "what": "★ **负控 2（自证变异真发生）**：摘除器**确实改变**了语句文本（不是说「没守卫」的空跑）—— 且原文件**确有**该守卫",
+      "pass": true,
+      "reading": "{\"guard_present\":true,\"changed\":true}"
+    },
+    {
+      "id": "E3",
+      "what": "★ **负控 3（自带自检也承重）**：叠两遍后跑**原文件自检块** ⇒ 必须 `RAISE`（`0055 self-check FAILED: … 叠加两次`），即「守卫失效」不会静默过迁",
+      "pass": true,
+      "reading": "0055 self-check FAILED: 26 行的标题被叠加两次（幂等守卫失效 ⇒ 重放会二次拼接）"
+    }
+  ],
+  "summary": {
+    "total": 37,
+    "passed": 37,
+    "failed": 0,
+    "red": []
+  }
+}

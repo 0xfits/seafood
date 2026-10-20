@@ -135,6 +135,19 @@ export const normalizeItemType = (
   return { ok: true, value: text as ItemType };
 };
 
+// ---- 派生标题（`listing.title` 退场后的唯一口径）------------------------------
+// ★★ 2026-10-20 Kevin 数据模型指令：**取消商品标题字段，正文并入 `description`**
+//   · 标题 = 描述首个 `\n` 之前（`split_part(description, E'\n', 1)`）；
+//   · 无回车 ⇒ 整段即标题；
+//   · **存储层不截断**（原文完整入 `description`；显示层 48 显示宽单位 + `...` 由前端做）。
+// 本函数 = SQL 派生式 `split_part(description, E'\n', 1)` 的 **JS 同源实现**（离线门/单测用它，
+//   保证「服务层口径」与「读口 SQL 口径」逐字一致；不得出现第二个派生算法）。
+export const deriveListingTitle = (description: unknown): string => {
+  const text = typeof description === 'string' ? description : '';
+  const cut = text.indexOf('\n');
+  return cut >= 0 ? text.slice(0, cut) : text;
+};
+
 // ---- 入参规范化（§3.2：形状非法 ⇒ 400；金额 = 最小单位整数，§4.4-9）----------
 type IntOk = { ok: true; value: number };
 type IntErr = { ok: false; err: VerbErr };
@@ -195,23 +208,38 @@ const reservedUidGate = (uid: number, field: string): VerbErr | null =>
 
 // ---- 创建指纹（可重构口径，见报告 §4.2 自曝）--------------------------------
 // `public.listing` 只有 DL59 的 13 列、**无指纹列**（migrations 冻结、不得加列）⇒
-// 同键重投的指纹按**可重构不变子集**判定：`seller_uid, cid, price, title, description, media_urls`
+// 同键重投的指纹按**可重构不变子集**判定：`seller_uid, cid, price, description, media_urls`
 // （排除可变列 `stock` / `status`：二者由本模块的 update/transition 正常变更，若纳入会把合法重投误判为 409）。
+// ★★ 2026-10-20 Kevin 数据模型指令（`title` 退场、正文并入 `description`）⇒ 指纹集**去 `title`**：
+//   字段数 6 → 5。指纹集是「创建幂等判据」的冻结口径，`description` 已承载全部正文（含标题），
+//   不再有第二路文本 ⇒ 保留 `title` 会引用已 DROP 的列（且同键重投时 title 已无从取得）。
 const fingerprintOf = (row: Record<string, unknown>) => JSON.stringify([
   Number(row.seller_uid),
   Number(row.cid),
   Number(row.price),
-  String(row.title ?? ''),
   String(row.description ?? ''),
   Array.isArray(row.media_urls) ? row.media_urls.map(String) : null,
 ]);
 
 // ---- P1-a · 上架（create；§4.2 P1）-----------------------------------------
+/**
+ * 上架（`POST /api/listing`）。
+ *
+ * ★★ 2026-10-20 Kevin 数据模型指令（**取消商品标题字段，正文并入 `description`**）：
+ *   ① `title` **不再接受**：body 带**值** ⇒ 400 `NOT_SUPPORTED`（与 `updateListingDetails` 的
+ *      `NOT_SUPPORTED` 同码同 `details.field='listing.title'` 同 `reason_detail`，单一真源）；
+ *      `title: null` / 未传 = 不承载内容 ⇒ 放行（等价于不出现）。闸在**一切校验与 DB 之前**（非法 ⇒ 零 DB 调用）。
+ *   ② `description` **必填**：trim 后为空（含未传 / `null` / 非字符串 / 纯空白）⇒ 400
+ *      `LEDGER_AMOUNT_INVALID` + `details.reason='REQUIRED'`（承仓内既有 REQUIRED 体例）。
+ *      存储**不截断**；标题由读口派生 `split_part(description, E'\n', 1)`（见 `deriveListingTitle`）。
+ *   ③ 幂等指纹与派生键**去 `title`**（见 `fingerprintOf` / `resolveListingCreateKey` 的 fallbackParts）。
+ */
 export const createListing = async (params: {
   sellerUid: number;
   cid: number;
   price: unknown;
   stock: unknown;
+  /** ★ 已退场字段：带**值**即 400 `NOT_SUPPORTED`（保留在类型里 = 能显式拒绝，不是能用） */
   title?: unknown;
   description?: unknown;
   mediaUrls?: unknown;
@@ -222,6 +250,15 @@ export const createListing = async (params: {
   const uidErr = reservedUidGate(Number(params.sellerUid), 'listing.seller_uid');
   if (uidErr) return uidErr;
 
+  // ★ 第一道：退场字段即拒（先于任何字段校验与 DB；与 `updateListingDetails` 同一 field/reason 口径）
+  if (params.title !== undefined && params.title !== null) {
+    return listingShapeError('listing.title', 'NOT_SUPPORTED', {
+      retired_fields: [...LISTING_RETIRED_FIELDS],
+      reason_detail: 'listing.title retired: put the title on the first line of description',
+      editable_when_creating: ['description', 'price', 'stock', 'media_urls', 'item_type'],
+    });
+  }
+
   const cid = toBigIntLike(params.cid, 'listing.cid', 1);
   if (!cid.ok) return cid.err;
   const price = toBigIntLike(params.price, 'listing.price', 1);
@@ -230,15 +267,21 @@ export const createListing = async (params: {
   if (!stock.ok) return stock.err;
   const description = toOptionalText(params.description, 'listing.description');
   if (!description.ok) return description.err;
+  // ★ 描述必填：trim 后非空（描述已承载标题 ⇒ 空描述 = 无标题可选）；存储**不截断**（原样入库）
+  const descriptionText = description.value ?? '';
+  if (!descriptionText.trim()) {
+    return shapeError('listing.description', 'REQUIRED', {
+      reason_detail: 'description is required: first line becomes the title',
+    });
+  }
   const mediaUrls = toOptionalUrls(params.mediaUrls);
   if (!mediaUrls.ok) return mediaUrls.err;
   // §3.2 形状闸：分类只允许四值闭集（非法 ⇒ 400，**早于**任何 DB 调用；`Digital` 已退役 = 非法）
   const itemType = normalizeItemType(params.itemType);
   if (!itemType.ok) return itemType.err;
-  const title = typeof params.title === 'string' ? params.title : (params.title === undefined || params.title === null ? '' : null);
-  if (title === null) return shapeError('listing.title', 'NOT_A_STRING');
 
-  const resolvedKey = resolveListingCreateKey(params.createKeyRaw, ['create', params.sellerUid, cid.value, price.value, stock.value, title]);
+  // ★ 派生键去 `title`（6 段 → 5 段）：同键重投的键不再随标题变化（标题已并入 description）
+  const resolvedKey = resolveListingCreateKey(params.createKeyRaw, ['create', params.sellerUid, cid.value, price.value, stock.value]);
   if (!resolvedKey.ok) return keyError(resolvedKey.details);
 
   const gate = await currencyGate(cid.value);
@@ -249,22 +292,21 @@ export const createListing = async (params: {
     cid: cid.value,
     price: price.value,
     stock: stock.value,
-    title,
-    description: description.value || '',
+    description: descriptionText,
     mediaUrls: mediaUrls.value || [],
     itemType: itemType.value,
     createKey: resolvedKey.key,
   });
 
-  // ★ 幂等指纹口径（迁移 0053 选择）：`item_type` **不进**指纹 —— 指纹字段集沿用既有 6 字段
-  //   （`seller_uid, cid, price, title, description, media_urls`，见 `fingerprintOf` 上方注释：可重构不变子集、
-  //   仓库面无指纹列）。理由：① 指纹集是**创建幂等判据**的冻结口径，扩列会把「同键同请求重放」的判定面改宽，
-  //   影响的是**既有** create_key 的语义（本单不该动）；② 分类**创建后不可变**（编辑/PATCH 均不写该列），
-  //   同键重投带不同 item_type 属客户端误用 ⇒ 落 `replay`（200）并回**库内**真值 + `idempotent_replay: true`，
-  //   客户端可据此发现分歧，无静默写入错误；③ 若要 409 判负，需另单扩指纹（须同批改 `fingerprintOf` 与比对数组）。
+  // ★ 幂等指纹口径（迁移 0053 选择）：`item_type` **不进**指纹 —— 指纹字段集沿用既有 5 字段
+  //   （`seller_uid, cid, price, description, media_urls`，见 `fingerprintOf` 上方注释：可重构不变子集、
+  //   仓库面无指纹列；`title` 已按 2026-10-20 指令退出指纹，6 → 5）。理由：① 指纹集是**创建幂等判据**
+  //   的冻结口径，扩列会把「同键同请求重放」的判定面改宽，影响的是**既有** create_key 的语义（本单不该动）；
+  //   ② 分类**创建后不可变**（编辑/PATCH 均不写该列），同键重投带不同 item_type 属客户端误用 ⇒
+  //   落 `replay`（200）并回**库内**真值 + `idempotent_replay: true`，客户端可据此发现分歧，无静默写入错误。
 
   if (write.outcome === 'existing') {
-    if (fingerprintOf(write.row) !== JSON.stringify([Number(params.sellerUid), cid.value, price.value, title, description.value || '', mediaUrls.value || []])) {
+    if (fingerprintOf(write.row) !== JSON.stringify([Number(params.sellerUid), cid.value, price.value, descriptionText, mediaUrls.value || []])) {
       // §3.2 409：同键异指纹 ⇒ LEDGER_IDEMPOTENCY_CONFLICT
       return fail(409, 'LEDGER_IDEMPOTENCY_CONFLICT', { field: 'listing.create_key', reason: 'REPLAY_FINGERPRINT_MISMATCH', ref_id: resolvedKey.key }, 'Idempotency conflict');
     }
@@ -278,11 +320,21 @@ export const createListing = async (params: {
 };
 
 // ---- P1-b · 编辑（update；含**库存字段维护**；§4.2 P1）----------------------
+/**
+ * 旧编辑面（`POST /api/listing/:listingId`，语义分工：POST = 编辑 / PATCH = 状态迁移）。
+ *
+ * ★★ 2026-10-20 Kevin 数据模型指令（`listing.title` 退场、正文并入 `description`）：
+ *   本口**不再接受 `title`** —— 带值即 400 `NOT_SUPPORTED`（与 `updateListingDetails` 逐字同码、
+ *   同 `details.field='listing.title'`；`title: null` = 未传 ⇒ 放行）；只改
+ *   `description` / `price` / `stock` / `media_urls`（`media_urls` 语义与 PATCH 同族）。
+ *   校验顺序：退场字段闸 → 各字段形状闸 → 空体闸 → DB（非法形状 **零 DB 调用**）。
+ */
 export const updateListing = async (params: {
   listingId: number;
   actorUid: number;
   price?: unknown;
   stock?: unknown;
+  /** ★ 已退场字段：透传进来即 400 `NOT_SUPPORTED`（保留在类型里 = 能显式拒绝，不是能用） */
   title?: unknown;
   description?: unknown;
   mediaUrls?: unknown;
@@ -291,6 +343,15 @@ export const updateListing = async (params: {
   if (!listingId.ok) return listingId.err;
   const uidErr = reservedUidGate(Number(params.actorUid), 'actor.uid');
   if (uidErr) return uidErr;
+
+  // ★ 第一道：退场字段即拒（先于任何字段校验与 DB；与 `updateListingDetails` 同一 field/reason 口径）
+  if (params.title !== undefined && params.title !== null) {
+    return listingShapeError('listing.title', 'NOT_SUPPORTED', {
+      retired_fields: [...LISTING_RETIRED_FIELDS],
+      reason_detail: 'listing.title retired: edit description instead',
+      editable_fields: [...LISTING_EDIT_FIELDS],
+    });
+  }
 
   let price: number | null = null;
   if (params.price !== undefined) {
@@ -304,15 +365,13 @@ export const updateListing = async (params: {
     if (!parsed.ok) return parsed.err;
     stock = parsed.value;
   }
-  const title = toOptionalText(params.title, 'listing.title');
-  if (!title.ok) return title.err;
   const description = toOptionalText(params.description, 'listing.description');
   if (!description.ok) return description.err;
   const mediaUrls = toOptionalUrls(params.mediaUrls);
   if (!mediaUrls.ok) return mediaUrls.err;
 
-  if (price === null && stock === null && title.value === null && description.value === null && mediaUrls.value === null) {
-    return shapeError('listing', 'NO_EDITABLE_FIELD');
+  if (price === null && stock === null && description.value === null && mediaUrls.value === null) {
+    return shapeError('listing', 'NO_EDITABLE_FIELD', { editable_fields: [...LISTING_EDIT_FIELDS] });
   }
 
   const write = await DatabaseService.updateListingRow({
@@ -320,7 +379,6 @@ export const updateListing = async (params: {
     actorUid: Number(params.actorUid),
     price,
     stock,
-    title: title.value,
     description: description.value,
     mediaUrls: mediaUrls.value,
   });
