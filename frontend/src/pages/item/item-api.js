@@ -102,6 +102,15 @@ export const setListingStatus = (listingId, toStatus, user) =>
   patchJson(`/api/listing/${listingId}`, { to_status: toStatus }, user)
 
 /**
+ * P1-b′ **字段编辑**（`PATCH /api/listing/:listingId` 的字段支 · route §49.12.2 / §49.13.3）。
+ * `fields` 只允许 `description` / `price` / `stock` / `media_urls` / `item_type` 五键（**零 `title`**）；
+ * **禁与 `to_status` 混传**（后端 400 `BOTH_MODES`）⇒ 本层刻意不提供合并入口，两个函数各管一支。
+ * 返回行 = `GET /api/listing/mine` 同族（10 键）⇒ 调用方可行内整行替换。
+ */
+export const updateListingFields = (listingId, fields, user) =>
+  patchJson(`/api/listing/${listingId}`, fields, user)
+
+/**
  * P2 购买（付款即交付）。**金额与对手方服务端取数**：payload 只含 `create_key` + `quantity`
  * （`listing-funds-service.ts:210,214` 逐字只读这两键）⇒ 本层**结构上不可能**传价/传对手方。
  */

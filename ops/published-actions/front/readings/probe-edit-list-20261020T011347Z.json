@@ -1,0 +1,422 @@
+{
+  "generatedAt": "2026-10-20T01:13:47.895Z",
+  "mode": "MOCK-API (fixture 库) + dist 真构建产物",
+  "origin": "http://sf.local",
+  "cases": {
+    "pre": {
+      "url": "/item/501/edit",
+      "formPresent": true,
+      "editLoading": false,
+      "editLoadError": false,
+      "heading": "编辑闲置",
+      "description": "探针商品 甲（草稿）\n描述第二行",
+      "price": "88",
+      "stock": "5",
+      "stockDisabled": true,
+      "stockLockedHint": "草稿状态下库存不可修改，上架后即可修改",
+      "cidReadonly": {
+        "value": "$",
+        "readOnly": true,
+        "tagName": "INPUT"
+      },
+      "cidSelectCount": 0,
+      "typeChecked": [
+        "item-input-type-digital"
+      ],
+      "deliverGroupPresent": true,
+      "deliverChecked": [
+        "item-input-deliver-auto"
+      ],
+      "shipGroupPresent": false,
+      "existingThumbs": 1,
+      "saveBtnText": "已保存修改",
+      "rows": [],
+      "actionsCount": 0,
+      "emptyText": null
+    },
+    "saved": {
+      "url": "/profile/trades/published",
+      "formPresent": false,
+      "editLoading": false,
+      "editLoadError": false,
+      "heading": null,
+      "description": null,
+      "price": null,
+      "stock": null,
+      "stockDisabled": null,
+      "stockLockedHint": null,
+      "cidReadonly": null,
+      "cidSelectCount": 0,
+      "typeChecked": [],
+      "deliverGroupPresent": false,
+      "deliverChecked": [],
+      "shipGroupPresent": false,
+      "existingThumbs": 0,
+      "saveBtnText": null,
+      "rows": [
+        {
+          "status": "draft",
+          "title": "降价 probe 新标题行",
+          "priceText": "$88 · 库存 5 · 草稿",
+          "isLink": "A",
+          "hasActions": true,
+          "lowerBtn": true,
+          "editBtn": true,
+          "buttonInsideLink": false,
+          "lowerPanel": false,
+          "lowerInput": null,
+          "lowerOkDisabled": null,
+          "lowerHint": null
+        },
+        {
+          "status": "listed",
+          "title": "探针商品 乙（在售）",
+          "priceText": "$66 · 库存 3 · 已上架",
+          "isLink": "A",
+          "hasActions": true,
+          "lowerBtn": true,
+          "editBtn": true,
+          "buttonInsideLink": false,
+          "lowerPanel": false,
+          "lowerInput": null,
+          "lowerOkDisabled": null,
+          "lowerHint": null
+        },
+        {
+          "status": "sold",
+          "title": "探针商品 丙（已售）",
+          "priceText": "$30 · 库存 0 · 其他状态",
+          "isLink": "A",
+          "hasActions": false,
+          "lowerBtn": false,
+          "editBtn": false,
+          "buttonInsideLink": false,
+          "lowerPanel": false,
+          "lowerInput": null,
+          "lowerOkDisabled": null,
+          "lowerHint": null
+        },
+        {
+          "status": "delisted",
+          "title": "探针商品 丁（已下架）",
+          "priceText": "$20 · 库存 1 · 已下架",
+          "isLink": "A",
+          "hasActions": false,
+          "lowerBtn": false,
+          "editBtn": false,
+          "buttonInsideLink": false,
+          "lowerPanel": false,
+          "lowerInput": null,
+          "lowerOkDisabled": null,
+          "lowerHint": null
+        }
+      ],
+      "actionsCount": 2,
+      "emptyText": null
+    },
+    "savedPatchBodies": [
+      {
+        "listingId": 501,
+        "body": {
+          "description": "降价 probe 新标题行\n第二行内容（探针）"
+        }
+      }
+    ],
+    "rowAfterSave": {
+      "listing_id": 501,
+      "title": "降价 probe 新标题行",
+      "price": "88",
+      "cid": 1,
+      "status": "draft",
+      "stock": "5",
+      "media_urls": [
+        "/api/media/11"
+      ],
+      "time_created": 1760000000,
+      "description": "降价 probe 新标题行\n第二行内容（探针）",
+      "item_type": "DigitalAutoDeliver"
+    },
+    "preListed": {
+      "url": "/item/502/edit",
+      "formPresent": true,
+      "editLoading": false,
+      "editLoadError": false,
+      "heading": "编辑闲置",
+      "description": "探针商品 乙（在售）",
+      "price": "66",
+      "stock": "3",
+      "stockDisabled": false,
+      "stockLockedHint": null,
+      "cidReadonly": {
+        "value": "$",
+        "readOnly": true,
+        "tagName": "INPUT"
+      },
+      "cidSelectCount": 0,
+      "typeChecked": [],
+      "deliverGroupPresent": false,
+      "deliverChecked": [],
+      "shipGroupPresent": false,
+      "existingThumbs": 0,
+      "saveBtnText": "已保存修改",
+      "rows": [],
+      "actionsCount": 0,
+      "emptyText": null
+    },
+    "list": {
+      "url": "/profile/trades/published",
+      "formPresent": false,
+      "editLoading": false,
+      "editLoadError": false,
+      "heading": null,
+      "description": null,
+      "price": null,
+      "stock": null,
+      "stockDisabled": null,
+      "stockLockedHint": null,
+      "cidReadonly": null,
+      "cidSelectCount": 0,
+      "typeChecked": [],
+      "deliverGroupPresent": false,
+      "deliverChecked": [],
+      "shipGroupPresent": false,
+      "existingThumbs": 0,
+      "saveBtnText": null,
+      "rows": [
+        {
+          "status": "draft",
+          "title": "降价 probe 新标题行",
+          "priceText": "$88 · 库存 5 · 草稿",
+          "isLink": "A",
+          "hasActions": true,
+          "lowerBtn": true,
+          "editBtn": true,
+          "buttonInsideLink": false,
+          "lowerPanel": false,
+          "lowerInput": null,
+          "lowerOkDisabled": null,
+          "lowerHint": null
+        },
+        {
+          "status": "listed",
+          "title": "探针商品 乙（在售）",
+          "priceText": "$66 · 库存 3 · 已上架",
+          "isLink": "A",
+          "hasActions": true,
+          "lowerBtn": true,
+          "editBtn": true,
+          "buttonInsideLink": false,
+          "lowerPanel": false,
+          "lowerInput": null,
+          "lowerOkDisabled": null,
+          "lowerHint": null
+        },
+        {
+          "status": "sold",
+          "title": "探针商品 丙（已售）",
+          "priceText": "$30 · 库存 0 · 其他状态",
+          "isLink": "A",
+          "hasActions": false,
+          "lowerBtn": false,
+          "editBtn": false,
+          "buttonInsideLink": false,
+          "lowerPanel": false,
+          "lowerInput": null,
+          "lowerOkDisabled": null,
+          "lowerHint": null
+        },
+        {
+          "status": "delisted",
+          "title": "探针商品 丁（已下架）",
+          "priceText": "$20 · 库存 1 · 已下架",
+          "isLink": "A",
+          "hasActions": false,
+          "lowerBtn": false,
+          "editBtn": false,
+          "buttonInsideLink": false,
+          "lowerPanel": false,
+          "lowerInput": null,
+          "lowerOkDisabled": null,
+          "lowerHint": null
+        }
+      ],
+      "actionsCount": 2,
+      "emptyText": null
+    },
+    "mineGetCountAtListLoad": 6,
+    "lowerGate": {
+      "equal": {
+        "value": "66",
+        "okDisabled": true,
+        "hint": "新价格需为不低于 1 的整数，且必须低于现价"
+      },
+      "raise": {
+        "value": "67",
+        "okDisabled": true,
+        "hint": "新价格需为不低于 1 的整数，且必须低于现价"
+      },
+      "zero": {
+        "value": "0",
+        "okDisabled": true,
+        "hint": "新价格需为不低于 1 的整数，且必须低于现价"
+      },
+      "nonInteger": {
+        "value": "65.5",
+        "okDisabled": true,
+        "hint": "新价格需为不低于 1 的整数，且必须低于现价"
+      },
+      "valid": {
+        "value": "65",
+        "okDisabled": false,
+        "hint": null
+      }
+    },
+    "afterLower": {
+      "url": "/profile/trades/published",
+      "formPresent": false,
+      "editLoading": false,
+      "editLoadError": false,
+      "heading": null,
+      "description": null,
+      "price": null,
+      "stock": null,
+      "stockDisabled": null,
+      "stockLockedHint": null,
+      "cidReadonly": null,
+      "cidSelectCount": 0,
+      "typeChecked": [],
+      "deliverGroupPresent": false,
+      "deliverChecked": [],
+      "shipGroupPresent": false,
+      "existingThumbs": 0,
+      "saveBtnText": null,
+      "rows": [
+        {
+          "status": "draft",
+          "title": "降价 probe 新标题行",
+          "priceText": "$88 · 库存 5 · 草稿",
+          "isLink": "A",
+          "hasActions": true,
+          "lowerBtn": true,
+          "editBtn": true,
+          "buttonInsideLink": false,
+          "lowerPanel": false,
+          "lowerInput": null,
+          "lowerOkDisabled": null,
+          "lowerHint": null
+        },
+        {
+          "status": "listed",
+          "title": "探针商品 乙（在售）",
+          "priceText": "$65 · 库存 3 · 已上架",
+          "isLink": "A",
+          "hasActions": true,
+          "lowerBtn": true,
+          "editBtn": true,
+          "buttonInsideLink": false,
+          "lowerPanel": false,
+          "lowerInput": null,
+          "lowerOkDisabled": null,
+          "lowerHint": null
+        },
+        {
+          "status": "sold",
+          "title": "探针商品 丙（已售）",
+          "priceText": "$30 · 库存 0 · 其他状态",
+          "isLink": "A",
+          "hasActions": false,
+          "lowerBtn": false,
+          "editBtn": false,
+          "buttonInsideLink": false,
+          "lowerPanel": false,
+          "lowerInput": null,
+          "lowerOkDisabled": null,
+          "lowerHint": null
+        },
+        {
+          "status": "delisted",
+          "title": "探针商品 丁（已下架）",
+          "priceText": "$20 · 库存 1 · 已下架",
+          "isLink": "A",
+          "hasActions": false,
+          "lowerBtn": false,
+          "editBtn": false,
+          "buttonInsideLink": false,
+          "lowerPanel": false,
+          "lowerInput": null,
+          "lowerOkDisabled": null,
+          "lowerHint": null
+        }
+      ],
+      "actionsCount": 2,
+      "emptyText": null
+    },
+    "afterLowerPatchBodies": [
+      {
+        "listingId": 502,
+        "body": {
+          "price": 65
+        }
+      }
+    ],
+    "noNavigation": true,
+    "mineGetCountAfterLower": 6,
+    "mineGetCountUnchanged": true,
+    "rowAfterLower": {
+      "listing_id": 502,
+      "title": "探针商品 乙（在售）",
+      "price": "65",
+      "cid": 1,
+      "status": "listed",
+      "stock": "3",
+      "media_urls": [],
+      "time_created": 1760000001,
+      "description": "探针商品 乙（在售）",
+      "item_type": null
+    },
+    "pageErrorCount": 0
+  },
+  "pageErrors": [],
+  "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+  ],
+  "patchBodies": null,
+  "mineGetLog": null,
+  "verdict": {
+    "① 预填一致": false,
+    "① cid 只读": true,
+    "① 草稿库存禁用+提示": true,
+    "① 级联反推": true,
+    "② 只传变化字段": true,
+    "② 库内变+首行即标题": true,
+    "② 回列表": true,
+    "③ 仅 draft|listed 有按钮": true,
+    "③ 无 button 嵌 a": true,
+    "③ 闸四非法全置灰": true,
+    "③ 非法有内联提示": true,
+    "③ 合法降价即时更新": true,
+    "③ PATCH 只带 price": true,
+    "④ 零 pageerror": true
+  },
+  "allPass": false
+}
