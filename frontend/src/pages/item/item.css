@@ -796,6 +796,135 @@
   }
 }
 
+/* --------------------------------------------------------------------------- */
+/* Web（≥768）闲鱼式两栏（design §26.15.4 · 判负 #45）· 断点写 CSS、禁 JS 宽度读数：
+   顶部卖家通栏（①，DOM 恒在顶部）+ 主体两栏：左 = 缩略图列（当前选中黑框）+ 主图（白色圆箭头轮播）
+   + 右 = 价格行（行右端想要·浏览计数）→ 派生标题（粗体）→ 次要标签 → 核心成色标签 → desc → 操作区
+   （拼接胶囊：聊一聊黄 ｜ 立即购买黑 + 独立收藏胶囊；【留言】为 H5 底栏件 ⇒ Web 不显示）。 */
+@media (min-width: 768px) {
+  .sf-item-cols {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    gap: 16px;
+    align-items: start;
+  }
+
+  /* 左栏：缩略图列（纵向）+ 主图并排；不再上下翻 */
+  .sf-item-media {
+    order: 0;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .sf-item-media-thumbs {
+    flex: 0 0 64px;
+    flex-direction: column;
+    overflow-x: visible;
+    overflow-y: auto;
+    max-height: var(--sf-item-media-h);
+  }
+
+  .sf-item-media-thumb {
+    flex: 0 0 64px;
+    width: 64px;
+    height: 64px;
+  }
+
+  /* 白色圆箭头（无多图时 JSX 不渲染；≤767 恒 display:none） */
+  .sf-item-media-nav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border-radius: 9999px;
+    background: #FFFFFF;
+    color: #202020;
+    border: var(--sf-st-stroke-w-thin) solid #E0E0E0;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 1;
+  }
+
+  .sf-item-media-nav-prev { left: 8px; }
+  .sf-item-media-nav-next { right: 8px; }
+
+  /* 右栏：恢复 DOM 序（价格 → 标题 → 次要 → 核心 → desc）+ 标题行显示 + 计数槽换位 */
+  .sf-item-side { order: 0; }
+  .sf-item-web-title {
+    display: block;
+    margin: 0;
+    font-weight: 700;
+  }
+  .sf-item-core-tags { order: 0; }
+  .sf-item-tags-row { order: 0; }
+  .sf-item-desc { order: 0; }
+  .sf-item-counts-desk { display: flex; }
+  .sf-item-counts-mob { display: none; }
+
+  /* 操作区：拼接胶囊（聊一聊黄 ｜ 立即购买黑）+ 独立收藏胶囊；
+     DOM 序 buy→chat ⇒ chat order:-1 翻到前位；中缝直角 + 两端半圆由容器 pill + overflow 承担 */
+  .sf-item-actionbar {
+    border-top: 0;
+    background: transparent;
+    padding: 8px 0 0;
+  }
+
+  .sf-item-actionbar-row {
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .sf-item-bar-msg { display: none; }
+  .sf-item-bar-left { order: 2; }
+  .sf-item-bar-right { order: 1; flex: 1 1 auto; }
+
+  .sf-item-cta-group {
+    flex: 1 1 auto;
+    overflow: hidden;
+    gap: 0;
+    border-radius: var(--sf-st-radius-pill);
+  }
+
+  .sf-btn.sf-item-cta-group-seg {
+    border-radius: 0;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .sf-btn.sf-item-cta-chat { order: -1; flex: 0 0 auto; }
+
+  .sf-btn.sf-item-cta-buy {
+    flex: 1 1 auto;
+    background: var(--sf-cta-solid-bg);
+    color: var(--sf-cta-solid-fg);
+    border-color: var(--sf-cta-solid-bg);
+  }
+
+  .sf-item-cta-group > :only-child {
+    flex: 1 1 auto;
+    border-radius: var(--sf-st-radius-pill);
+  }
+
+  .sf-btn.sf-item-bar-fav {
+    /* 独立收藏胶囊与拼接组同高（44 = --sf-l-cta-h）且图标文字一行：
+       Tailwind preflight 把 svg 置为 display:block ⇒ 裸 button（inline-block）内 svg 与文字
+       分行堆叠（实测 h=55.5 ≠ 拼接组 44）⇒ Web 档显式 inline-flex + min-height 对齐。
+       ★ 仅 ≥768 生效（H5 ≤767 几何冻结不动；H5 的同形堆叠为步 1 存量形态、另单处置）。 */
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--sf-l-cta-h);
+    flex: 0 0 auto;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
 /* ---------------------------------------------------------------------------
    媒体单前端阶段 B · 发布页选图（≤4 张）
    隐藏原生 file input（由可见 `+` 按钮触发）；缩略图 = 64px 方盒 + 移除钮。

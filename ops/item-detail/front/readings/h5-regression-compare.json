@@ -1,0 +1,27 @@
+{
+  "generatedAt": "2026-10-20T03:43:55.638Z",
+  "baseline": {
+    "dist": "/Users/kevin/.hermes/profiles/zang/cache/scratch/sf-s2-base/frontend/dist",
+    "source": "ops/item-detail/front/readings/front-probe-baseline-74fd56f.json"
+  },
+  "current": {
+    "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+    "source": "ops/item-detail/front/readings/front-probe.json"
+  },
+  "h5_390_diffCount": 0,
+  "h5_390_diffs": [],
+  "baseline_web1536_verdict": {
+    "twoColsGrid": false,
+    "mediaLeftThumbsColumn": false,
+    "countsRightSameLevel": null,
+    "sellerBandFullWidth": true,
+    "capsuleJoined": false,
+    "favSameHeight": false,
+    "webTitleBold": false,
+    "msgHiddenOnWeb": false
+  },
+  "baseline_sensitivity_red": true,
+  "verdict": {
+    "h5_390_regression_zero_change": true
+  }
+}
