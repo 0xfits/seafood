@@ -29,7 +29,7 @@
 //   `wage_interval_not_reached` ⇒ 400 `LEDGER_AMOUNT_INVALID`；`worker_not_hired` ⇒ 403 `AUTH_FORBIDDEN`。
 //   其余闸（非招募期 / 满员 / 天数不足 / 他项目在职 / ended 封板 / 缩容低于在职）仍 409。
 // ============================================================================
-import { createHash, randomUUID } from 'crypto';
+import { createHash, randomInt, randomUUID } from 'crypto';
 import { getTransactionPool, readQuery, txQuery, withTransaction, type TxClient } from './db';
 import { postEvent } from './ledger';
 import { errorMessageOf, normalizeLedgerError } from './ledger-errors';
@@ -72,6 +72,22 @@ export const PROJECT_CREATE_FEE_KIND = 'currency_create_fee' as const;
 export const PROJECT_WAGE_KIND = 'transfer' as const;
 /** batt 流水 reason（`batt_entry.reason` 无 CHECK，取机读常量） */
 export const PROJECT_WAGE_BATT_REASON = 'project_wage' as const;
+/**
+ * 连续领工资奖励：配置键（迁移 0067 · §40.15.4 配置键族，与 `project_create_fee` 同一手法）。
+ * 值形：`{"min":"1","max":"5"}`（$ 整数**字符串**，0017 容器约束逼对象包裹）。
+ */
+export const WAGE_STREAK_BONUS_KEY = 'wage_streak_bonus';
+/** 配置缺失 / 非法时的 fail-closed 兜底区间（Kevin：不给就 1–5，含端点） */
+export const WAGE_STREAK_BONUS_DEFAULT: { min: number; max: number } = { min: 1, max: 5 };
+/** 区间上界护栏（配置写成天文数字 ⇒ 回落默认，不铸巨款） */
+export const WAGE_STREAK_BONUS_CEILING = 1_000_000;
+/**
+ * 响应里的**语义标签**（`bonus_kind`）：不是 ledger kind —— 台账腿借现取闭集内的
+ * `invite_first_task_reward`（24 值闭集不动，语义窄化债已登记，见报告）。
+ */
+export const WAGE_STREAK_BONUS_KIND = 'wage_streak' as const;
+/** 奖励台账腿 kind（平台收入 `-1` → 用户 `$`；`-1` debit 白名单已含此值） */
+export const WAGE_STREAK_BONUS_LEDGER_KIND = 'invite_first_task_reward' as const;
 /** 平台收入账户 uid（不真 burn · §31.5） */
 const PLATFORM_UID = -1;
 /** `$`（平台内部积分）cid */
@@ -139,6 +155,12 @@ export interface WageClaimView {
   batt_after: number | null;
   claim_key: string;
   time_created: string | null;
+  /** ★ 加性（Kevin 需求第 4 条）：连续领工资次数 = 本项目**累计**领取行数（含本次；离职重入不清零） */
+  streak: number;
+  /** ★ 加性：本次随机奖励（`$` 整数十进制串；`'0'` = 平台收入账户不足 ⇒ 奖励腿跳过，领取仍成功） */
+  bonus_amount: string;
+  /** ★ 加性：奖励**语义标签**（`wage_streak`，非 ledger kind） */
+  bonus_kind: string;
 }
 
 type Row = Record<string, unknown>;
@@ -645,6 +667,71 @@ export const currentCreateFee = async (): Promise<string> => {
   }
 };
 
+// ----------------------------------------------------------------------------
+// 连续领工资随机奖励（Kevin 需求第 4 条）：区间解析 / 读配置 / 抽样
+// ----------------------------------------------------------------------------
+export interface WageStreakBonusRange {
+  min: number;
+  max: number;
+  /** `app_config` = 读到并校验通过；`default` = 缺行 / 非法 / 读失败 ⇒ fail-closed 1–5 */
+  source: 'app_config' | 'default';
+}
+
+const DIGITS_ONLY = /^[0-9]+$/;
+
+/** 十进制数字串（或安全整数 number）⇒ 正整数；负数 / 小数 / 科学计数 / 空串 ⇒ null */
+const toPositiveInt = (v: unknown): number | null => {
+  const text = typeof v === 'number'
+    ? (Number.isSafeInteger(v) ? String(v) : '')
+    : (typeof v === 'string' ? v.trim() : '');
+  if (!DIGITS_ONLY.test(text)) return null;
+  const n = Number(text);
+  return Number.isSafeInteger(n) ? n : null;
+};
+
+/**
+ * 区间解析（纯函数 · 门可直接调）：
+ *   · 必须是对象包裹的 `{"min":"1","max":"5"}`（0017 容器约束的同款形状）；数组 / 标量 / null ⇒ 默认；
+ *   · `min` / `max` 非十进制数字串 ⇒ 默认（不「猜」、不做四舍五入）；
+ *   · `0 < min <= max <= CEILING` 不满足 ⇒ 默认（fail-closed：坏配置绝不放大奖励）。
+ */
+export const parseWageStreakBonusRange = (value: unknown): WageStreakBonusRange => {
+  const fallback = { min: WAGE_STREAK_BONUS_DEFAULT.min, max: WAGE_STREAK_BONUS_DEFAULT.max, source: 'default' as const };
+  let obj: unknown = value;
+  if (typeof obj === 'string') {
+    try { obj = JSON.parse(obj); } catch { return fallback; }
+  }
+  if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) return fallback;
+  const rec = obj as Record<string, unknown>;
+  const min = toPositiveInt(rec.min);
+  const max = toPositiveInt(rec.max);
+  if (min === null || max === null) return fallback;
+  if (min <= 0 || max < min) return fallback;
+  if (min > WAGE_STREAK_BONUS_CEILING || max > WAGE_STREAK_BONUS_CEILING) return fallback;
+  return { min, max, source: 'app_config' };
+};
+
+/** 读当前区间（`ex` 给出 ⇒ 在该事务内读，供门套在未提交的迁移上真跑；失败 ⇒ 默认） */
+export const currentWageStreakBonusRange = async (ex?: TxClient): Promise<WageStreakBonusRange> => {
+  try {
+    const sql = `SELECT value FROM public.app_config WHERE key = $1 LIMIT 1`;
+    const rows = ex
+      ? await txQuery<Row>(ex, sql, [WAGE_STREAK_BONUS_KEY])
+      : await readQuery<Row>(sql, [WAGE_STREAK_BONUS_KEY]);
+    if (!rows.length) return { min: WAGE_STREAK_BONUS_DEFAULT.min, max: WAGE_STREAK_BONUS_DEFAULT.max, source: 'default' };
+    return parseWageStreakBonusRange(rows[0].value);
+  } catch {
+    return { min: WAGE_STREAK_BONUS_DEFAULT.min, max: WAGE_STREAK_BONUS_DEFAULT.max, source: 'default' };
+  }
+};
+
+/** 均匀抽样 `[min, max]`（含端点；`crypto.randomInt` 无模偏） —— 纯随机，无状态 */
+export const pickWageStreakBonus = (range: { min: number; max: number }): number => {
+  const min = Math.max(1, Math.trunc(range.min));
+  const max = Math.max(min, Math.trunc(range.max));
+  return randomInt(min, max + 1);
+};
+
 // ============================================================================
 // 招工（R4）：满足条件即直接录用；招满当次事务内自动转 working
 // ============================================================================
@@ -930,6 +1017,53 @@ export const claimProjectWageVerb = async (input: {
       }
     }
 
+    // ⑧ 连续领工资：次数 = **本项目累计**领取行数（含本次 —— 行已在 ⑤ 落盘）
+    //    口径决定（一句话可改）：按 (project_id, uid) 累计，**离职后重新入职不清零**
+    //    （行保留不删 ⇒ 派生即真源，不落冗余列、无两处真源）。
+    const streakRows = await txQuery<Row>(
+      tx,
+      `SELECT count(*)::int AS n FROM public.project_wage_claim
+        WHERE project_id = $1::bigint AND uid = $2::bigint`,
+      [projectId, uid],
+    );
+    const streak = Math.max(1, int(streakRows.length ? streakRows[0].n : 0));
+
+    // ⑨ 随机奖励腿（平台收入 −1 → 用户 `$`；kind 借闭集内 invite_first_task_reward，零新 kind）
+    //    · 区间读 `app_config.wage_streak_bonus`（缺失 / 非法 ⇒ 1–5）；每笔独立均匀抽样，含端点；
+    //    · **先对 `-1` 账户行 FOR UPDATE 预检余额**（不是事后 catch）：台账函数报不足会把整个 PG
+    //      事务置为 aborted，TS 侧 catch 救不回来 ⇒ 只能「先看够不够，不够就不发」，让领取照常成功；
+    //      `FOR UPDATE` 同时把并发奖励发放串行化（预检与出账之间无人能挤走余额）；不足 ⇒ bonus_amount='0'；
+    //    · 幂等键 = `<claim 键>:bonus`（claim 键含毫秒时间戳 ⇒ 每次领取一条事件、两腿）。
+    const bonusRange = await currentWageStreakBonusRange(tx);
+    const bonusPicked = pickWageStreakBonus(bonusRange);
+    let bonusAmount = bonusPicked;
+    if (bonusPicked > 0) {
+      const revRows = await txQuery<Row>(
+        tx,
+        `SELECT COALESCE((SELECT balance FROM public.account
+                            WHERE uid = $1::bigint AND cid = $2::bigint FOR UPDATE), 0)::text AS balance`,
+        [String(PLATFORM_UID), String(USD_CID)],
+      );
+      const revenueBalance = BigInt(revRows.length ? strOrNull(revRows[0].balance) ?? '0' : '0');
+      if (revenueBalance < BigInt(bonusPicked)) {
+        bonusAmount = 0;
+      } else {
+        await postEvent({
+          op: 'entries',
+          idempotencyKey: `${claimKey}:bonus`,
+          requestFingerprint: fingerprintOf(['project.claim-bonus', projectId, claimId, String(bonusPicked)]),
+          refType: 'system',
+          refId: projectId,
+          memo: `project_wage_streak_bonus:${projectId}:${claimId}`,
+          entries: [
+            { uid: String(PLATFORM_UID), cid: String(USD_CID), delta: String(-bonusPicked), kind: WAGE_STREAK_BONUS_LEDGER_KIND },
+            { uid, cid: String(USD_CID), delta: String(bonusPicked), kind: WAGE_STREAK_BONUS_LEDGER_KIND },
+          ],
+          ex: tx as unknown as { query: (t: string, p?: unknown[]) => Promise<{ rows: Array<Record<string, unknown>> }> },
+        });
+      }
+    }
+
     const view: WageClaimView = {
       claim_id: claimId,
       project_id: projectId,
@@ -945,6 +1079,9 @@ export const claimProjectWageVerb = async (input: {
       batt_after: battAfter,
       claim_key: claimKey,
       time_created: iso(claim.time_created),
+      streak,
+      bonus_amount: String(bonusAmount),
+      bonus_kind: WAGE_STREAK_BONUS_KIND,
     };
     return { ok: true, view, replay: false, idempotency_key: claimKey } as VerbResult<WageClaimView>;
   });
