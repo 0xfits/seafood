@@ -294,22 +294,28 @@ const Header = () => {
                 {/* 余额区（2026-10-20 · Kevin）：**每种币种一行** `$12,234` / `€21,345`，
                     只渲染余额 > 0 的币种（后端已按 cid 升序、`$` 在首位）；不再有「积分」文案。
                     排版：左对齐、行高 24px、等宽数字（tabular-nums）、14px；符号与数字同色、符号加粗。
-                    无行可渲染（尚未取到 / 全部为 0）⇒ 整块不渲染（不留空框）。 */}
+                    无行可渲染（尚未取到 / 全部为 0）⇒ 整块不渲染（不留空框）。
+                    2026-10-21 · Kevin 需求①：**每一行本身是链接** ⇒ 点击进「我的资产」（`/profile/assets`，
+                    带语言前缀，走 `buildPath`）。整行可点（行高 ≥24px + hover 底色）、`<a>` 原生键盘可聚焦；
+                    金额格式化与货币顺序一字不改（仍来自 `toBalanceRows`）。 */}
                 {balanceRows.length > 0 && (
                   <div
-                    className="px-4 py-3 border-b border-gray-200 dark:border-gray-700"
+                    className="py-2 border-b border-gray-200 dark:border-gray-700"
                     data-sf-m="header-balances"
                   >
                     <ul className="m-0 list-none p-0 text-left">
                       {balanceRows.map((row) => (
-                        <li
-                          key={row.key}
-                          data-sf-m="header-balance-row"
-                          data-symbol={row.symbol}
-                          className="text-left text-sm leading-6 text-gray-900 dark:text-white"
-                          style={{ fontVariantNumeric: 'tabular-nums' }}
-                        >
-                          <span className="font-bold">{row.symbol}</span>{row.amount}
+                        <li key={row.key} className="m-0 p-0">
+                          <Link
+                            to={buildPath('profile/assets')}
+                            data-sf-m="header-balance-row"
+                            data-symbol={row.symbol}
+                            aria-label={`${row.symbol}${row.amount} · ${t('profileNav.assets')}`}
+                            className="flex items-center min-h-6 px-4 py-1 text-left text-sm leading-6 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-gray-400"
+                            style={{ fontVariantNumeric: 'tabular-nums' }}
+                          >
+                            <span className="font-bold">{row.symbol}</span>{row.amount}
+                          </Link>
                         </li>
                       ))}
                     </ul>

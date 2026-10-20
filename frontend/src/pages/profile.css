@@ -202,6 +202,73 @@
   color: var(--sf-down-fg);
 }
 
+/* 我的资产 · 币种卡片（Kevin 2026-10-21 需求②）
+ * ─ 零新色值：面 / 描边 / 文字一律走既有主题 token（--sf-panel-* / --sf-title-fg / --sf-meta-fg / --sf-down-fg）；
+ *   几何量取本文件页局部字面（两档同值 ⇒ 切主题几何逐值相等）。
+ * ─ 列数纯 CSS 决定（禁 JS 宽度读数）：桌面 auto-fill 多列，≤767 强制单列（390 档单列）。
+ */
+.sf-prof-asset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(184px, 1fr));
+  gap: 10px;
+}
+
+.sf-prof-asset-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 12px 14px;
+  background: var(--sf-panel-bg);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-card);
+  box-shadow: none;
+}
+
+.sf-prof-asset-card-main {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.sf-prof-asset-card-symbol {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--sf-title-fg);
+  overflow-wrap: anywhere;
+}
+
+.sf-prof-asset-card-amount {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--sf-title-fg);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.sf-prof-asset-card-name {
+  font-size: 12px;
+  color: var(--sf-meta-fg);
+  overflow-wrap: anywhere;
+}
+
+/* 取数失败：内联提示 + 【重试】（不白屏；与列表行同面的描边/底色 token） */
+.sf-prof-asset-error {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--sf-down-fg);
+  background: var(--sf-panel-bg);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-card);
+  box-shadow: none;
+}
+
 /* 手机档（≤767）：侧栏变横向页签 --------------------------------------------- */
 @media (max-width: 767px) {
   .sf-prof {
@@ -244,6 +311,11 @@
 
   .sf-prof-row {
     flex-wrap: wrap;
+  }
+
+  /* 币种卡片（≤767）：强制单列（390 档逐张一行；列数只用 CSS，禁 JS 宽度读数） */
+  .sf-prof-asset-grid {
+    grid-template-columns: 1fr;
   }
 
   /* 行内动作按钮（≤767）：触控目标 ≥44（既有硬口径） */

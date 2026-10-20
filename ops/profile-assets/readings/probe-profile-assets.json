@@ -1,6 +1,6 @@
 {
   "probe": "ops/profile-assets/probe-profile-assets.mjs",
-  "startedAt": "2026-10-20T12:33:51.675Z",
+  "startedAt": "2026-10-20T22:52:48.320Z",
   "dist": "/Users/kevin/bistro/seafood/frontend/dist",
   "fixtures": {
     "rows": 3,
@@ -10,7 +10,7 @@
       "wage_currency_amount": 20,
       "streak": 3,
       "bonus_amount": "4",
-      "next_claim_at": "2026-10-20T16:33:49.428Z"
+      "next_claim_at": "2026-10-21T02:52:46.414Z"
     },
     "auth": "localStorage seed only（零真登录）",
     "api": "context.route in-probe JSON（零后端 / 零库写）"
@@ -38,20 +38,20 @@
           ],
           "shortfallPresent": false
         },
-        "overflowPx": 226,
+        "overflowPx": 0,
         "offenders": [
           {
-            "sel": "nav.sf-prof-nav",
-            "right": 616,
-            "insideAssetsPane": false
-          },
-          {
-            "sel": "a.sf-prof-link",
+            "sel": "div.sf-prof-nav-group",
             "right": 444,
             "insideAssetsPane": false
           },
           {
-            "sel": "a.sf-prof-link.is-active",
+            "sel": "a.sf-prof-link",
+            "right": 437,
+            "insideAssetsPane": false
+          },
+          {
+            "sel": "a.sf-prof-link",
             "right": 530,
             "insideAssetsPane": false
           },
@@ -63,16 +63,16 @@
         ]
       },
       "control_settings": {
-        "overflowPx": 226,
+        "overflowPx": 0,
         "offenders": [
           {
-            "sel": "nav.sf-prof-nav",
-            "right": 616,
+            "sel": "div.sf-prof-nav-group",
+            "right": 444,
             "insideAssetsPane": false
           },
           {
             "sel": "a.sf-prof-link",
-            "right": 444,
+            "right": 437,
             "insideAssetsPane": false
           },
           {
@@ -262,5 +262,5 @@
     "resourceErrors": 0,
     "verdict": "PASS"
   },
-  "finishedAt": "2026-10-20T12:33:53.387Z"
+  "finishedAt": "2026-10-20T22:52:49.846Z"
 }

@@ -1,0 +1,430 @@
+{
+  "probe": "ops/profile-assets/probe-asset-cards.mjs",
+  "startedAt": "2026-10-20T22:52:00.207Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "fixtures": {
+    "balances": [
+      {
+        "cid": 1,
+        "symbol": "$",
+        "name": "平台积分",
+        "balance": "4361"
+      },
+      {
+        "cid": 4,
+        "symbol": "₿",
+        "name": "BTTC",
+        "balance": "1"
+      },
+      {
+        "cid": 9,
+        "symbol": "€",
+        "name": "Euro",
+        "balance": "100"
+      }
+    ],
+    "expectedCards": [
+      {
+        "symbol": "$",
+        "amount": "4,361",
+        "name": "平台积分"
+      },
+      {
+        "symbol": "₿",
+        "amount": "1",
+        "name": "BTTC"
+      },
+      {
+        "symbol": "€",
+        "amount": "100",
+        "name": "Euro"
+      }
+    ],
+    "auth": "localStorage seed only（零真登录）",
+    "api": "context.route in-probe JSON（零后端 / 零库写）"
+  },
+  "states": {
+    "390": {
+      "assets": {
+        "panePresent": true,
+        "cardsPresent": true,
+        "cardCount": 1,
+        "cards": [
+          {
+            "symbol": "$",
+            "amount": "4,361",
+            "name": "平台积分",
+            "dataSymbol": "$",
+            "dataName": "平台积分",
+            "width": 338
+          }
+        ],
+        "gridColumns": [
+          "338px"
+        ],
+        "panelPresent": true,
+        "panelText": "₿ BTTC12余额电量70%铸造分解消耗电量与手续费后铸造 BTTC",
+        "buttons": [
+          {
+            "text": "铸造",
+            "disabled": false
+          },
+          {
+            "text": "分解",
+            "disabled": false
+          }
+        ],
+        "errorPresent": false,
+        "errorText": null,
+        "retryPresent": false,
+        "pageErrorTitle": "我的资产"
+      },
+      "overflowPx": 0,
+      "offenders": [
+        {
+          "sel": "div.sf-prof-nav-group",
+          "right": 444,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "a.sf-prof-link",
+          "right": 437,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "a.sf-prof-link",
+          "right": 530,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "a.sf-prof-link",
+          "right": 616,
+          "insideAssetsPane": false
+        }
+      ],
+      "assetsPaneOffenders": [],
+      "resourceErrors": 0
+    },
+    "1536_header": {
+      "menuOpen": true,
+      "rows": [
+        {
+          "tag": "li",
+          "href": null,
+          "symbol": "$",
+          "text": "$4,361",
+          "height": 24,
+          "width": 190,
+          "tabIndex": -1,
+          "focusable": false,
+          "bg": "rgba(0, 0, 0, 0)",
+          "insideMenu": true
+        },
+        {
+          "tag": "li",
+          "href": null,
+          "symbol": "₿",
+          "text": "₿1",
+          "height": 24,
+          "width": 190,
+          "tabIndex": -1,
+          "focusable": false,
+          "bg": "rgba(0, 0, 0, 0)",
+          "insideMenu": true
+        },
+        {
+          "tag": "li",
+          "href": null,
+          "symbol": "€",
+          "text": "€100",
+          "height": 24,
+          "width": 190,
+          "tabIndex": -1,
+          "focusable": false,
+          "bg": "rgba(0, 0, 0, 0)",
+          "insideMenu": true
+        }
+      ],
+      "hover": {
+        "bgBefore": "rgba(0, 0, 0, 0)",
+        "bgAfter": "rgba(0, 0, 0, 0)"
+      },
+      "overflowPx": 110,
+      "overflowClosedPx": 0,
+      "overflowExpandedAttributed": "HoverMenu 存量定位缺陷（展开态 left-0 溢出），不判",
+      "apiCalls": [
+        "GET /api/user/balances"
+      ]
+    },
+    "1536_click": {
+      "pathname": "/",
+      "overflowPx": 110
+    },
+    "1536_assets": {
+      "assets": {
+        "panePresent": true,
+        "cardsPresent": true,
+        "cardCount": 1,
+        "cards": [
+          {
+            "symbol": "$",
+            "amount": "4,361",
+            "name": "平台积分",
+            "dataSymbol": "$",
+            "dataName": "平台积分",
+            "width": 188.7
+          }
+        ],
+        "gridColumns": [
+          "188.656px",
+          "188.656px",
+          "188.656px",
+          "188.656px",
+          "188.656px",
+          "188.656px"
+        ],
+        "panelPresent": true,
+        "panelText": "₿ BTTC12余额电量70%铸造分解消耗电量与手续费后铸造 BTTC",
+        "buttons": [
+          {
+            "text": "铸造",
+            "disabled": false
+          },
+          {
+            "text": "分解",
+            "disabled": false
+          }
+        ],
+        "errorPresent": false,
+        "errorText": null,
+        "retryPresent": false,
+        "pageErrorTitle": "我的资产"
+      },
+      "overflowPx": 0,
+      "apiCalls": [
+        "GET /api/user/balances",
+        "GET /api/user/balances",
+        "GET /api/batt",
+        "GET /api/user/balances",
+        "GET /api/user/balances"
+      ]
+    },
+    "1536_on_assets_header": {
+      "pathname": "/profile/assets",
+      "rows": [
+        {
+          "tag": "li",
+          "href": null,
+          "symbol": "$",
+          "text": "$4,361",
+          "height": 24,
+          "width": 190,
+          "tabIndex": -1,
+          "focusable": false,
+          "bg": "rgba(0, 0, 0, 0)",
+          "insideMenu": true
+        },
+        {
+          "tag": "li",
+          "href": null,
+          "symbol": "₿",
+          "text": "₿1",
+          "height": 24,
+          "width": 190,
+          "tabIndex": -1,
+          "focusable": false,
+          "bg": "rgba(0, 0, 0, 0)",
+          "insideMenu": true
+        },
+        {
+          "tag": "li",
+          "href": null,
+          "symbol": "€",
+          "text": "€100",
+          "height": 24,
+          "width": 190,
+          "tabIndex": -1,
+          "focusable": false,
+          "bg": "rgba(0, 0, 0, 0)",
+          "insideMenu": true
+        }
+      ]
+    },
+    "fail_arm": {
+      "assets": {
+        "errorPresent": true,
+        "errorText": "网络连接异常重试",
+        "retryPresent": true,
+        "cardCount": 0,
+        "panelPresent": true
+      },
+      "apiCalls": [
+        "GET /api/user/balances 500",
+        "GET /api/batt undefined",
+        "GET /api/user/balances 500",
+        "GET /api/user/balances 500"
+      ]
+    },
+    "retry_arm": {
+      "assets": {
+        "cardCount": 3,
+        "cards": [
+          {
+            "symbol": "$",
+            "amount": "4,361",
+            "name": "平台积分",
+            "dataSymbol": "$",
+            "dataName": "平台积分",
+            "width": 188.7
+          },
+          {
+            "symbol": "₿",
+            "amount": "1",
+            "name": "BTTC",
+            "dataSymbol": "₿",
+            "dataName": "BTTC",
+            "width": 188.7
+          },
+          {
+            "symbol": "€",
+            "amount": "100",
+            "name": "Euro",
+            "dataSymbol": "€",
+            "dataName": "Euro",
+            "width": 188.7
+          }
+        ],
+        "errorPresent": false
+      }
+    }
+  },
+  "assertions": {
+    "header": {
+      "menuOpen": true,
+      "rowsRendered": true,
+      "allRowsAreAnchors": false,
+      "allRowsLinkToAssets": false,
+      "linksCarryLangPrefixConsistently": true,
+      "rowTextUnchanged": true,
+      "rowHeightAtLeast24": true,
+      "rowFullWidthClickable": true,
+      "rowsKeyboardFocusable": false,
+      "hoverBackgroundChanges": false,
+      "zeroOverflowClosed": true
+    },
+    "rowClick": {
+      "navigatedToAssets": false
+    },
+    "cards": {
+      "panePresent": true,
+      "gridPresent": true,
+      "cardCountIs3": false,
+      "cardsMatchFixture": false,
+      "orderFollowsBackend": false,
+      "namesFromBackend": false,
+      "amountThousandsSeparated": true,
+      "noErrorBanner": true,
+      "readsBalances": true,
+      "zeroOverflow": true
+    },
+    "desktopGrid": {
+      "multiColumn": true,
+      "columns": 6
+    },
+    "mintBurn": {
+      "panelPresent": true,
+      "mintPresent": true,
+      "burnPresent": true,
+      "mintEnabled": true,
+      "burnEnabled": true,
+      "pageTitle": true
+    },
+    "samePageStillLinked": {
+      "onAssetsPage": true,
+      "rowsStillAnchors": false
+    },
+    "mobile390": {
+      "cardCountIs3": false,
+      "cardsMatchFixture": false,
+      "singleColumn": true,
+      "cardsFitViewport": true,
+      "paneNoOffenders": true,
+      "zeroOverflow": true,
+      "mintBurnPresent": true,
+      "zeroPageError": true
+    },
+    "failureAndRetry": {
+      "errorBannerShown": true,
+      "retryButtonShown": true,
+      "noBlankPage": true,
+      "noCardsWhileFailing": true,
+      "retryRestoresCards": true,
+      "retryClearsError": true,
+      "zeroPageErrorInFailArm": true
+    }
+  },
+  "pageErrors": [],
+  "consoleErrors": [],
+  "resourceErrors": [],
+  "errorArmPageErrors": [],
+  "summary": {
+    "checks": 46,
+    "passed": 34,
+    "failed": [
+      [
+        "allRowsAreAnchors",
+        false
+      ],
+      [
+        "allRowsLinkToAssets",
+        false
+      ],
+      [
+        "rowsKeyboardFocusable",
+        false
+      ],
+      [
+        "hoverBackgroundChanges",
+        false
+      ],
+      [
+        "navigatedToAssets",
+        false
+      ],
+      [
+        "rowsStillAnchors",
+        false
+      ],
+      [
+        "cardCountIs3",
+        false
+      ],
+      [
+        "cardsMatchFixture",
+        false
+      ],
+      [
+        "orderFollowsBackend",
+        false
+      ],
+      [
+        "namesFromBackend",
+        false
+      ],
+      [
+        "cardCountIs3",
+        false
+      ],
+      [
+        "cardsMatchFixture",
+        false
+      ]
+    ],
+    "pageErrors": 0,
+    "consoleErrors": 0,
+    "resourceErrors": 0,
+    "errorArmPageErrors": 0,
+    "verdict": "NEG_ARM_RED_AS_EXPECTED"
+  },
+  "finishedAt": "2026-10-20T22:52:32.704Z"
+}

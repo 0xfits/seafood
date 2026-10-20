@@ -18,6 +18,9 @@ import TranslatingBadge from '../components/i18n/TranslatingBadge'
 import RatingTimelinessPanel from '../components/RatingTimelinessPanel'
 // Kevin 2026-10-20 需求①②：BTTC 资产块（余额 / 铸造 / 分解）自 `/wage#batt-checkin` 迁入本页「我的资产」。
 import BttcAssetPanel from '../components/BttcAssetPanel'
+// Kevin 2026-10-21 需求②：`/profile/assets` 顶部按币种的余额卡片（读口 = 既有 `GET /api/user/balances`；
+//   归一 / 千分位格式化一律复用 balances-api，本页零自算）。
+import { fetchUserBalances, toBalanceCards } from '../balances-api'
 // 招工线 / 我的 共用的 token + 栅格层（P4-B4c-ii-a）：与 TaskPage 招工线族同一份样式表
 import './jobs/jobs.css'
 // Kevin 2026-10-14 需求②：桌面侧栏布局样式（页面局部 --sf-l-*，零新主题 token）
@@ -690,16 +693,87 @@ const TelegramBindCard = () => {
 }
 
 // ============================================================================
-// 我的资产（Kevin 2026-10-20 需求①②）
+// 我的资产（Kevin 2026-10-20 需求①②；2026-10-21 需求② 扩为「币种卡片 + 铸造/分解」）
 // ----------------------------------------------------------------------------
-// 形态 = 标题 + `BttcAssetPanel`（BTTC 余额 /【铸造】/【分解】/ 缺额提示 + 电量摘要）。
-//   · 资产块**整块**迁自 `/wage#batt-checkin` 签到场 ⇒ 签到场不再留半套（同源组件、同文案键、同钩子）；
-//   · 读口沿用 `GET /api/batt` 的 `data.bttc` 子对象（零新 GET，组件自取数）；本 pane 不做任何本地换算。
+// 形态 = 标题 + **按币种的余额卡片区** + `BttcAssetPanel`（铸造 / 分解 / 缺额提示 + 电量摘要）。
+//   · 卡片区读口 = 既有 `GET /api/user/balances`（`balances-api.fetchUserBalances`）⇒ 每种货币一张卡，
+//     只渲染余额 > 0、顺序沿用后端（cid 升序、`$` 首位）；卡内 = 大号符号 + 千分位余额 + 币种 `name`。
+//     金额格式化与归一**复用** `balances-api`（`toBalanceCards` → `formatBalanceAmount`），本页零自算。
+//   · 取数失败 ⇒ 内联错误 + 【重试】（不白屏）；未登录 ⇒ `fetchUserBalances` 返回 `null` ⇒ 卡区不渲染，
+//     由既有 `ProtectedRoute` 出登录引导。文案键全部复用（`messagesPage.loadFailed` / `uiError.retry`）。
+//   · `BttcAssetPanel` **原样保留**在本页（铸造 / 分解仍可达）：读口沿用 `GET /api/batt` 的 `data.bttc`
+//     子对象（零新 GET，组件自取数）；本 pane 不做任何本地换算。
+//   · 钩子（§质检探针）：`profile-assets-view` / `asset-cards` / `asset-cards-grid` / `asset-card`
+//     （+ `data-symbol` / `data-name`）/ `asset-card-symbol` / `asset-card-amount` / `asset-card-name`
+//     / `asset-cards-error` / `asset-cards-retry`。
 const AssetsPane = () => {
   const { t } = useTranslation()
+  const [balances, setBalances] = useState({ status: 'loading', cards: [] })
+  const [reloadSeq, setReloadSeq] = useState(0)
+
+  useEffect(() => {
+    let cancelled = false
+    setBalances((prev) => ({ status: 'loading', cards: prev.cards }))
+    const load = async () => {
+      try {
+        const rows = await fetchUserBalances()
+        if (cancelled) return
+        // `null` = 未登录 / 旧后端 ⇒ 空卡区（不报错、不白屏）
+        setBalances({ status: 'ok', cards: toBalanceCards(rows) })
+      } catch (error) {
+        if (cancelled) return
+        console.warn('Failed to load asset balances:', error)
+        setBalances({ status: 'error', cards: [] })
+      }
+    }
+    load()
+    return () => { cancelled = true }
+  }, [reloadSeq])
+
+  const cards = balances.cards
+
   return (
     <div className="sf-prof-pane" data-sf-m="profile-assets-view">
       <h1 className="sf-prof-pane-title">{t('profileNav.assets')}</h1>
+
+      {balances.status === 'error' && (
+        <div className="sf-prof-asset-error" role="alert" data-sf-m="asset-cards-error">
+          <span>{t('uiError.networkTitle')}</span>
+          <button
+            type="button"
+            className="sf-prof-btn"
+            data-sf-m="asset-cards-retry"
+            onClick={() => setReloadSeq((seq) => seq + 1)}
+          >
+            {t('uiError.retry')}
+          </button>
+        </div>
+      )}
+
+      {cards.length > 0 && (
+        <section className="sf-prof-asset-section" data-sf-m="asset-cards">
+          <div className="sf-prof-asset-grid" data-sf-m="asset-cards-grid">
+            {cards.map((card) => (
+              <article
+                key={card.key}
+                className="sf-prof-asset-card"
+                data-sf-m="asset-card"
+                data-symbol={card.symbol}
+                data-name={card.name}
+              >
+                <div className="sf-prof-asset-card-main">
+                  <span className="sf-prof-asset-card-symbol" data-sf-m="asset-card-symbol">{card.symbol}</span>
+                  <span className="sf-prof-asset-card-amount" data-sf-m="asset-card-amount">{card.amount}</span>
+                </div>
+                {card.name && (
+                  <div className="sf-prof-asset-card-name" data-sf-m="asset-card-name">{card.name}</div>
+                )}
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
       <BttcAssetPanel />
     </div>
   )

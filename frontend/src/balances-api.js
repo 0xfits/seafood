@@ -65,6 +65,23 @@ export const toBalanceRows = (rows) =>
     }))
 
 /**
+ * 归一后端行 ⇒ **资产卡数据** `{ key, symbol, amount, name }`（`/profile/assets` 币种卡用）。
+ * 过滤与格式化与 `toBalanceRows` 同一套口径（`isPositiveAmount` + `formatBalanceAmount`，
+ * 余额 0 / 坏行不渲染、顺序沿用后端），额外保留后端 `name`（如 `BTTC` / `平台积分`）供卡片小字。
+ */
+export const toBalanceCards = (rows) =>
+  (Array.isArray(rows) ? rows : [])
+    .filter((row) => row && typeof row === 'object'
+      && typeof row.symbol === 'string' && row.symbol.trim()
+      && isPositiveAmount(row.balance))
+    .map((row) => ({
+      key: `${row.cid ?? ''}:${row.symbol.trim()}`,
+      symbol: row.symbol.trim(),
+      amount: formatBalanceAmount(row.balance),
+      name: typeof row.name === 'string' ? row.name.trim() : '',
+    }))
+
+/**
  * 取多币种余额。未登录（无凭据）⇒ 返回 `null`；接口失败 ⇒ **抛错**（调用方据此走单行降级）。
  * 返回非数组（旧后端 404 拿到 `data: null` 一类）⇒ `null`。
  */
