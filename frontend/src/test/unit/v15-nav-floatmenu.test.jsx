@@ -3,7 +3,7 @@
  *
  * 覆盖面（§14.7 判负清单的可测子集，设备档面见浏览器读数）：
  *   ① 底栏（H5）五项 label/href（含四语前缀）
- *   ② 右侧悬浮菜单：五项上→下（含 2026-10-20 改版：第二位【领工资】/wage、反馈项已移除）/ 链接目标 /
+ *   ② 右侧悬浮菜单：五项上→下（含 2026-10-20 改版：**首位【领工资】/wage**、反馈项已移除）/ 链接目标 /
  *      两弹窗开关（遮罩 + ESC）/ 反馈钩子与模板位全仓零残留
  *   ③ 悬浮菜单可见性口径：shell.css 桌面默认 display:flex、≤767 唯一断点块内 display:none（唯一 @media）
  *   ④ `/messages` 路由可达（四语前缀）；悬浮菜单挂在 AppShell 中（data-sf-m="floatmenu"）
@@ -123,45 +123,45 @@ describe('v1.5 ① 底栏（H5）五项 label / href（含四语前缀）', () =
 })
 
 describe('v1.5 ② 右侧悬浮菜单（T81–T84）', () => {
-  // ★ 改锚（Kevin 2026-10-20 悬浮菜单改版）：五项 = 卖闲置 / **领工资（第二位，新）** / 消息 / APP / 客服；
-  //   【反馈】项连同其弹窗模板位**已移除** ⇒ 旧锚 ['sell','messages','app','feedback','support'] 前移为下值。
-  //   「先卖闲置、第二位领工资」是被点名的顺序口径，故此处逐位断言（不写成集合比较）。
-  it('五项上→下 = 卖闲置/领工资/消息/APP/客服（无反馈），链接目标正确', () => {
+  // ★ 改锚（Kevin 2026-10-20 二次收口）：五项 = **领工资（首位）** / 卖闲置 / 消息 / APP / 客服；
+  //   【反馈】项连同其弹窗模板位**已移除** ⇒ 旧锚 ['sell','wage','messages','app','support'] 前移为下值。
+  //   「领工资排第一」是被点名的顺序口径，故此处逐位断言（不写成集合比较）。
+  it('五项上→下 = 领工资/卖闲置/消息/APP/客服（无反馈），链接目标正确', () => {
     const { container } = renderIn(<FloatingMenu />, '/')
     const menu = container.querySelector('[data-sf-m="floatmenu"]')
     expect(menu).not.toBeNull()
     const items = Array.from(menu.querySelectorAll('[data-sf-m="floatmenu-item"]'))
-    expect(items.map((el) => el.getAttribute('data-sf-fm'))).toEqual(['sell', 'wage', 'messages', 'app', 'support'])
+    expect(items.map((el) => el.getAttribute('data-sf-fm'))).toEqual(['wage', 'sell', 'messages', 'app', 'support'])
     expect(items.map((el) => el.textContent.trim())).toEqual([
-      zh.sell, zh.wage.menuLabel, zh.messages, zh.app, zh.support,
+      zh.wage.menuLabel, zh.sell, zh.messages, zh.app, zh.support,
     ])
-    // 第二位 = 领工资（文案逐字）
-    expect(items[1].textContent.trim()).toBe('领工资')
-    // 前三项 = 链接（含语言前缀），后两项 = 按钮（开弹窗）
+    // 首位 = 领工资（文案逐字；顺序口径的承重锚）
+    expect(items[0].textContent.trim()).toBe('领工资')
+    // 三位 = 链接（含语言前缀），后两项 = 按钮（开弹窗）
     expect(items[0].tagName).toBe('A')
-    expect(items[0].getAttribute('href')).toBe('/item/new')
+    expect(items[0].getAttribute('href')).toBe('/wage')
     expect(items[1].tagName).toBe('A')
-    expect(items[1].getAttribute('href')).toBe('/wage')
+    expect(items[1].getAttribute('href')).toBe('/item/new')
     expect(items[2].tagName).toBe('A')
     expect(items[2].getAttribute('href')).toBe('/messages')
     expect(items.slice(3).every((el) => el.tagName === 'BUTTON')).toBe(true)
     // 反馈项已移除：钩子与文案位全仓不再产出
     expect(items.some((el) => el.getAttribute('data-sf-fm') === 'feedback')).toBe(false)
     expect(menu.textContent).not.toContain(zh.feedback)
-    // 单元间分隔线 = 4 条（5 项 ⇒ 4 段）
+    // 单元间分隔线 = 4 条（5 项 ⇒ 4 段；顺序变更不影响项数）
     expect(menu.querySelectorAll('.sf-fm-div').length).toBe(4)
   })
 
-  it('四语前缀：/en 档下链接带 /en 前缀（含新增的 /en/wage）', () => {
+  it('四语前缀：/en 档下链接带 /en 前缀（含首位的 /en/wage）', () => {
     H.lang = 'en'
     const { container } = renderIn(<FloatingMenu />, '/en')
     const items = Array.from(container.querySelectorAll('[data-sf-m="floatmenu-item"]'))
-    expect(items[0].getAttribute('href')).toBe('/en/item/new')
-    expect(items[1].getAttribute('href')).toBe('/en/wage')
+    expect(items[0].getAttribute('href')).toBe('/en/wage')
+    expect(items[1].getAttribute('href')).toBe('/en/item/new')
     expect(items[2].getAttribute('href')).toBe('/en/messages')
-    expect(items[1].textContent.trim()).toBe(en.wage.menuLabel)
-    // 第二位 href 逐字含 /wage（本单 AC：新入口直达领工资页）
-    expect(items[1].getAttribute('href')).toContain('/wage')
+    expect(items[0].textContent.trim()).toBe(en.wage.menuLabel)
+    // 首位 href 逐字含 /wage（本单 AC：新入口直达领工资页）
+    expect(items[0].getAttribute('href')).toContain('/wage')
   })
 
   it('两弹窗（APP/客服；反馈弹窗已随反馈项移除）：点开出现（role=dialog），关闭按钮可关；关后 DOM 无弹窗节点', () => {

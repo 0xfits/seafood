@@ -2,7 +2,7 @@
  * /wage 前端探针（Kevin 2026-10-20 需求②：悬浮菜单改版 + 新页面）
  *
  * 口径（逐条对齐派单验证项）：
- *   ① 悬浮菜单 5 项、无【反馈】、第二位 = 领工资且 href 含 `/wage`；
+ *   ① 悬浮菜单 5 项、无【反馈】、**首位 = 领工资**且 href 含 `/wage`（顺序 = 领工资/卖闲置/消息/APP/客服）；
  *   ② `/wage` 列表渲染 10 项、招募中/已截止态、加入与领工资按钮态（置灰依据逐条核）；
  *   ③ 领工资成功 ⇒ 卡内到账提示 + 列表重拉；失败（400 间隔未到）⇒ 卡内内联提示、卡仍在；
  *   ④ 390 / 1536 两档：`scrollWidth - clientWidth = 0` + 零 pageerror。
@@ -204,9 +204,12 @@ async function main() {
     noFeedback: menuSnap.floatmenu.feedbackHooks === 0
       && menuSnap.floatmenu.feedbackFormHooks === 0
       && !/反馈|反饋|Feedback/i.test(menuSnap.floatmenu.menuText || ''),
-    secondIsWage: menuSnap.floatmenu.keys[1] === 'wage'
-      && menuSnap.floatmenu.labels[1] === ZH.wage.menuLabel
-      && String(menuSnap.floatmenu.hrefs[1] || '').includes('/wage'),
+    // ★ Kevin 2026-10-20 二次收口：领工资提到**第一位**（其余相对顺序不变）
+    firstIsWage: menuSnap.floatmenu.keys[0] === 'wage'
+      && menuSnap.floatmenu.labels[0] === ZH.wage.menuLabel
+      && String(menuSnap.floatmenu.hrefs[0] || '').includes('/wage'),
+    orderMatches: JSON.stringify(menuSnap.floatmenu.keys) === JSON.stringify(['wage', 'sell', 'messages', 'app', 'support']),
+    dividers4: menuSnap.floatmenu.dividers === 4,
     order: menuSnap.floatmenu.keys,
     labels: menuSnap.floatmenu.labels,
     hrefs: menuSnap.floatmenu.hrefs,
@@ -337,7 +340,7 @@ async function main() {
   await browser.close()
   out.finishedAt = new Date().toISOString()
   const required = [
-    'menu.fiveItems', 'menu.noFeedback', 'menu.secondIsWage',
+    'menu.fiveItems', 'menu.noFeedback', 'menu.firstIsWage', 'menu.orderMatches', 'menu.dividers4',
     'list.tenCards', 'list.recruitingCards', 'list.closedCards', 'list.hiredCardClaimEnabled', 'list.otherJoinDisabled',
     'list.joinEnabledWhenFree',
     'list.otherHintOneAtATime', 'list.fullCardDisabledWithHint', 'list.closedNoAction',
