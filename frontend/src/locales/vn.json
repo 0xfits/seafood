@@ -23,6 +23,7 @@
     "joining": "Đang tham gia…",
     "joined": "Đã tham gia",
     "joinedBadge": "Đã tham gia",
+    "streakReward": "Đã nhận lương {{n}} lần liên tiếp — thưởng thêm ${{bonus}}",
     "joinedToast": "Đã tham gia \"{{title}}\"",
     "claim": "Nhận lương",
     "claiming": "Đang nhận…",

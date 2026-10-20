@@ -33,13 +33,21 @@ import './wage.css'
 //     （写口一律需登录，不在前端替服务端放行）。
 //   · 零 JS 断点判定：列数交给 `wage.css` 的 auto-fill 栅格（单断点 767），可见性零宽度读数。
 //
-// ★ Kevin 2026-10-20 指令：**电量卡 + 签到区并入本页顶部**（原独立页 /activities 已删）。
+// ★ Kevin 2026-10-20 指令：**电量卡并入本页顶部**（原独立页 /activities 已删）。
 //   · 渲染点 = 页标题之下、项目列表之上（`data-sf-m="wage-checkin"` 包裹）；
-//   · 组件本身一字不动 ⇒ 锚点 `id="batt-checkin"`（常量 `BATT_CHECKIN_ANCHOR_ID`）与
-//     `hash === '#batt-checkin'` ⇒ `scrollIntoView` 的机制随组件一起搬过来，
-//     旧深链 `/wage#batt-checkin` 仍直达签到卡；
-//   · 未登录 ⇒ `BattCheckinPanel` 自身返回 `null`（既有策略：不渲染、不白屏），
-//     本页原有的客态轻提示 + 公开项目列表不受影响；签到写口仍走服务端鉴权。
+//   · 组件自带锚点 `id="batt-checkin"`（常量 `BATT_CHECKIN_ANCHOR_ID`）与
+//     `hash === '#batt-checkin'` ⇒ `scrollIntoView` 机制，深链 `/wage#batt-checkin` 仍直达电量卡；
+//   · 未登录 ⇒ 组件自身返回 `null`（既有策略：不渲染、不白屏），
+//     本页原有的客态轻提示 + 公开项目列表不受影响。
+//
+// ★ Kevin 2026-10-20 需求③：签到 UI（连续签到天数 / 【签到】/ 补签 / 断签提示）**整体下线**
+//   ⇒ 本页不再出现签到按钮与「连续签到天数」文案（后端接口保留，未动）。
+//   电量点阵仍在（工资累积展示依赖电量）。
+//
+// ★ Kevin 2026-10-20 需求④：领工资成功提示 = 到账数值 + **连续领取奖励**：
+//   · 后端加性字段 `streak`（第几次连续领取）/ `bonus_amount`（本次额外随机 $ 奖励）；
+//   · 两键都在且为正 ⇒ 追加一行「已连续 N 次领工资，额外奖励 $X」（`wage.streakReward`）；
+//   · 键缺席 / 非正（旧后端）⇒ 静默降级为原提示，**不猜、不补 0**。
 // ============================================================================
 
 const num = (value, fallback = 0) => {
@@ -276,7 +284,13 @@ const WagePage = () => {
       const text = amount > 0 && symbol
         ? tRef.current('wage.claimedWithCurrency', { batt, amount, symbol })
         : tRef.current('wage.claimed', { batt })
-      setNotice(key, { kind: 'ok', text })
+      // 连续领取奖励（后端加性字段）：两键都在且为正才提示；缺键 / 非正 ⇒ 静默降级（旧后端）。
+      const streak = num(result?.streak, 0)
+      const bonus = num(result?.bonus_amount, 0)
+      const streakText = streak > 0 && bonus > 0
+        ? tRef.current('wage.streakReward', { n: streak, bonus })
+        : ''
+      setNotice(key, { kind: 'ok', text, streak: streakText })
       // 刷新列表拿服务端**新的** `next_claim_at`（下次可领时间的真源）。
       const refreshed = await load({ silent: true })
       const fresh = Array.isArray(refreshed) ? refreshed.find((item) => projectKey(item) === key) : null
@@ -410,6 +424,9 @@ const WagePage = () => {
             role={notice.kind === 'err' ? 'alert' : 'status'}
           >
             {notice.text}
+            {notice.streak ? (
+              <span className="sf-wage-notice-streak" data-sf-m="wage-card-streak">{notice.streak}</span>
+            ) : null}
             {notice.kind === 'login' ? (
               <Link className="sf-wage-notice-link" data-sf-m="wage-card-login-link" to={buildLocalizedPath(lang, '/login')}>
                 {t('wage.loginCta')}
@@ -429,7 +446,8 @@ const WagePage = () => {
           <p className="sf-foot-note">{t('wage.oneAtATime')}</p>
         </header>
 
-        {/* 电量卡 + 签到区（Kevin 2026-10-20：自 /activities 并入本页顶部，位于项目列表之上）。
+        {/* 电量卡（Kevin 2026-10-20：自 /activities 并入本页顶部，位于项目列表之上）。
+            ★ 2026-10-20 需求③：签到按钮 / 连续签到天数已下线，本处只剩电量点阵；
             组件自带锚点 `batt-checkin` 与 hash 滚动；未登录时组件返回 null（不白屏）。 */}
         <div className="sf-wage-checkin" data-sf-m="wage-checkin">
           <BattCheckinPanel />

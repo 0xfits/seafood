@@ -212,6 +212,13 @@
   color: var(--sf-down-fg);
 }
 
+/* 连续领取奖励行（2026-10-20 需求④）：与到账提示同一块内**另起一行**，不挤压既有提示排版 */
+.sf-wage-notice-streak {
+  display: block;
+  margin-top: 2px;
+  font-weight: 600;
+}
+
 /* 客态轻提示条：横排一行（提示 + 登录入口），与列表并置 ⇒ 列表照常公开浏览 */
 .sf-wage-login {
   flex-direction: row;

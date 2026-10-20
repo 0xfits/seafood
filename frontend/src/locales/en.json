@@ -23,6 +23,7 @@
     "joining": "Joining…",
     "joined": "Joined",
     "joinedBadge": "Joined",
+    "streakReward": "Claimed {{n}} times in a row — bonus ${{bonus}}",
     "joinedToast": "Joined \"{{title}}\"",
     "claim": "Claim pay",
     "claiming": "Claiming…",

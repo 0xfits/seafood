@@ -23,6 +23,7 @@
     "joining": "加入中…",
     "joined": "已加入",
     "joinedBadge": "已加入",
+    "streakReward": "已连续 {{n}} 次领工资，额外奖励 ${{bonus}}",
     "joinedToast": "已加入「{{title}}」",
     "claim": "领工资",
     "claiming": "领取中…",

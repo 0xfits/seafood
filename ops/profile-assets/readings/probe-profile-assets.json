@@ -1,0 +1,266 @@
+{
+  "probe": "ops/profile-assets/probe-profile-assets.mjs",
+  "startedAt": "2026-10-20T12:33:51.675Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "fixtures": {
+    "rows": 3,
+    "hired": 1,
+    "claimData": {
+      "wage_batt": 30,
+      "wage_currency_amount": 20,
+      "streak": 3,
+      "bonus_amount": "4",
+      "next_claim_at": "2026-10-20T16:33:49.428Z"
+    },
+    "auth": "localStorage seed only（零真登录）",
+    "api": "context.route in-probe JSON（零后端 / 零库写）"
+  },
+  "states": {
+    "390": {
+      "assets": {
+        "assets": {
+          "panePresent": true,
+          "cardPresent": true,
+          "panelPresent": true,
+          "panelText": "₿ BTTC12余额电量70%铸造分解消耗电量与手续费后铸造 BTTC",
+          "symbolText": "₿ BTTC",
+          "balanceText": "12",
+          "battSummary": "电量70%",
+          "buttons": [
+            {
+              "text": "铸造",
+              "disabled": false
+            },
+            {
+              "text": "分解",
+              "disabled": false
+            }
+          ],
+          "shortfallPresent": false
+        },
+        "overflowPx": 226,
+        "offenders": [
+          {
+            "sel": "nav.sf-prof-nav",
+            "right": 616,
+            "insideAssetsPane": false
+          },
+          {
+            "sel": "a.sf-prof-link",
+            "right": 444,
+            "insideAssetsPane": false
+          },
+          {
+            "sel": "a.sf-prof-link.is-active",
+            "right": 530,
+            "insideAssetsPane": false
+          },
+          {
+            "sel": "a.sf-prof-link",
+            "right": 616,
+            "insideAssetsPane": false
+          }
+        ]
+      },
+      "control_settings": {
+        "overflowPx": 226,
+        "offenders": [
+          {
+            "sel": "nav.sf-prof-nav",
+            "right": 616,
+            "insideAssetsPane": false
+          },
+          {
+            "sel": "a.sf-prof-link",
+            "right": 444,
+            "insideAssetsPane": false
+          },
+          {
+            "sel": "a.sf-prof-link",
+            "right": 530,
+            "insideAssetsPane": false
+          },
+          {
+            "sel": "a.sf-prof-link.is-active",
+            "right": 616,
+            "insideAssetsPane": false
+          }
+        ]
+      },
+      "wage": {
+        "wage": {
+          "wrapperPresent": true,
+          "hasCard": true,
+          "cardId": "batt-checkin",
+          "hasMeter": true,
+          "meterText": "70%电量",
+          "checkinButtonTexts": [],
+          "cardText": "电量70%电量电量上限为满值，超出部分不累计",
+          "pageText": "Seafood 海鲜市场社区任务市场订单语言领工资同时只能在一个项目打工电量70%电量电量上限为满值，超出部分不累计海鲜打包已加入招募中每天打包 20 单，按批结算。已招 2/3工资：batt 30/次（间隔 4 小时）＋20 BTTC/次打工中领工资冷库分拣招募中早班分拣冻品。已招 1/4工资：batt 25/次（间隔 6 小时）加入同时只能在一个项目打工文案校对招募中校对商品描述与错别字。已招 2/5工资：batt 20/次（间隔 8 小时）＋50 BTTC/次加入同时只能在一个项目打工简体中文English粤语Tiếng Việt© 2024-2026 Abbey Quant & Jinli Club. 保留所有权利。本网站支持简体中文、英文、粤语和越南语。联系我们：contact@jinli.club海鲜市场卖闲置消息我的领工资卖闲置消息APP客服",
+          "cardBottom": 320,
+          "listTop": 329,
+          "listPresent": true,
+          "listBelowCard": true,
+          "page": {
+            "hasPage": true,
+            "hasList": true
+          }
+        },
+        "overflowPx": 0,
+        "offenders": []
+      },
+      "claim": {
+        "claim": {
+          "noticePresent": true,
+          "noticeKind": "ok",
+          "noticeText": "已领到 batt 30 与 20 BTTC已连续 3 次领工资，额外奖励 $4",
+          "streakHookPresent": true,
+          "streakText": "已连续 3 次领工资，额外奖励 $4",
+          "claimedCardText": "海鲜打包已加入招募中每天打包 20 单，按批结算。已招 2/3工资：batt 30/次（间隔 4 小时）＋20 BTTC/次打工中领工资3:59:57 后可领已领到 batt 30 与 20 BTTC已连续 3 次领工资，额外奖励 $4",
+          "actionText": "领工资",
+          "actionDisabled": true
+        },
+        "overflowPx": 0
+      },
+      "resourceErrors": 0,
+      "assetsPaneOffenders": []
+    },
+    "1536_assets": {
+      "assets": {
+        "panePresent": true,
+        "cardPresent": true,
+        "panelPresent": true,
+        "panelText": "₿ BTTC12余额电量70%铸造分解消耗电量与手续费后铸造 BTTC",
+        "symbolText": "₿ BTTC",
+        "balanceText": "12",
+        "battSummary": "电量70%",
+        "buttons": [
+          {
+            "text": "铸造",
+            "disabled": false
+          },
+          {
+            "text": "分解",
+            "disabled": false
+          }
+        ],
+        "shortfallPresent": false
+      },
+      "overflowPx": 0,
+      "apiCalls": [
+        "GET /api/batt"
+      ]
+    },
+    "1536_wage": {
+      "wage": {
+        "wrapperPresent": true,
+        "hasCard": true,
+        "cardId": "batt-checkin",
+        "hasMeter": true,
+        "meterText": "70%电量",
+        "checkinButtonTexts": [],
+        "cardText": "电量70%电量电量上限为满值，超出部分不累计",
+        "pageText": "Seafood 海鲜市场社区任务市场订单语言领工资同时只能在一个项目打工电量70%电量电量上限为满值，超出部分不累计海鲜打包已加入招募中每天打包 20 单，按批结算。已招 2/3工资：batt 30/次（间隔 4 小时）＋20 BTTC/次打工中领工资冷库分拣招募中早班分拣冻品。已招 1/4工资：batt 25/次（间隔 6 小时）加入同时只能在一个项目打工文案校对招募中校对商品描述与错别字。已招 2/5工资：batt 20/次（间隔 8 小时）＋50 BTTC/次加入同时只能在一个项目打工简体中文English粤语Tiếng Việt© 2024-2026 Abbey Quant & Jinli Club. 保留所有权利。本网站支持简体中文、英文、粤语和越南语。联系我们：contact@jinli.club海鲜市场卖闲置消息我的领工资卖闲置消息APP客服",
+        "cardBottom": 276,
+        "listTop": 285,
+        "listPresent": true,
+        "listBelowCard": true,
+        "page": {
+          "hasPage": true,
+          "hasList": true
+        }
+      },
+      "overflowPx": 0,
+      "apiCalls": [
+        "/api/batt",
+        "/api/project/all"
+      ]
+    },
+    "1536_claim": {
+      "claim": {
+        "noticePresent": true,
+        "noticeKind": "ok",
+        "noticeText": "已领到 batt 30 与 20 BTTC已连续 3 次领工资，额外奖励 $4",
+        "streakHookPresent": true,
+        "streakText": "已连续 3 次领工资，额外奖励 $4",
+        "claimedCardText": "海鲜打包已加入招募中每天打包 20 单，按批结算。已招 2/3工资：batt 30/次（间隔 4 小时）＋20 BTTC/次打工中领工资3:59:58 后可领已领到 batt 30 与 20 BTTC已连续 3 次领工资，额外奖励 $4",
+        "actionText": "领工资",
+        "actionDisabled": true
+      },
+      "expectedStreakText": "已连续 3 次领工资，额外奖励 $4",
+      "apiCalls": [
+        "POST /api/project/101/claim",
+        "GET /api/project/all"
+      ]
+    }
+  },
+  "assertions": {
+    "assets": {
+      "panePresent": true,
+      "panelPresent": true,
+      "balanceIs12": true,
+      "symbolIsBttc": true,
+      "mintPresent": true,
+      "burnPresent": true,
+      "mintEnabled": true,
+      "burnEnabled": true,
+      "battSummaryPresent": true,
+      "readsWired": true,
+      "zeroOverflow": true,
+      "buttonTexts": [
+        "铸造",
+        "分解"
+      ]
+    },
+    "wageNoCheckin": {
+      "cardPresent": true,
+      "meterPresent": true,
+      "meterHasBatt": true,
+      "noCheckinButton": true,
+      "noStreakDaysInCard": true,
+      "noStreakDaysInPage": true,
+      "noMakeupCopy": true,
+      "listBelowCard": true,
+      "zeroOverflow": true,
+      "checkinButtonTexts": []
+    },
+    "claimStreak": {
+      "noticePresent": true,
+      "noticeKind": "ok",
+      "streakLinePresent": true,
+      "streakTextExact": true,
+      "containsStreak3": true,
+      "containsBonus4": true,
+      "claimedStillShown": true,
+      "claimPostedOnce": true,
+      "nextClaimGated": true
+    },
+    "mobile390": {
+      "assetsPaneNoOffenders": true,
+      "assetsOverflowEqualsStockControl": true,
+      "wageZeroOverflow": true,
+      "claimZeroOverflow": true,
+      "assetsPanelPresent": true,
+      "assetsBalanceIs12": true,
+      "mintBurnPresent": true,
+      "meterPresent": true,
+      "noCheckinButton": true,
+      "noStreakDays": true,
+      "streakLinePresent": true,
+      "zeroPageError": true
+    }
+  },
+  "pageErrors": [],
+  "consoleErrors": [],
+  "resourceErrors": [],
+  "summary": {
+    "checks": 40,
+    "passed": 40,
+    "failed": [],
+    "pageErrors": 0,
+    "consoleErrors": 0,
+    "resourceErrors": 0,
+    "verdict": "PASS"
+  },
+  "finishedAt": "2026-10-20T12:33:53.387Z"
+}

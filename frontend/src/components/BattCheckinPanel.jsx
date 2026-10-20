@@ -1,25 +1,29 @@
 // ============================================================================
-// 电量卡 + 签到区（P9② / Kong）
-// 依据：docs/route-layer.spec.md v2.14 §28.7（后台复用 `adminSettings`；**用户面 = 电量卡 + 签到区**，
+// 电量卡（P9② / Kong；Kevin 2026-10-20 需求②③收口）
+// 依据：docs/route-layer.spec.md v2.14 §28.7（后台复用 `adminSettings`；用户面 = 电量卡，
 //   「既有渲染点接覆盖值 / 新取数 · 不新增独立页面」）。
-//   · 文案命名空间 = `battCard`（名称 / 单位 % / 区间提示 / 不足不可承接提示）
-//     + `checkinPanel`（签到按钮 / 连续天数 / 断签提示 / 补签按钮 / 补签费用提示）。
-//   ★ Kevin 2026-10-20 需求②：BTTC 资产块（余额 / 铸造 / 分解 / 缺额）已**整块迁出**至
-//     `components/BttcAssetPanel.jsx` ⇒ 渲染点 = `/profile/assets`（我的资产）；本组件不再留半套。
-//   · 派生布尔（`canAccept` / `checkedInToday` / `canMakeup`）**不落库** ⇒ 每次由读口即时取（§28.7(d)）。
+//   · 文案命名空间 = `battCard`（名称 / 单位 % / 区间提示 / 不足不可承接提示）。
+//   · 派生布尔（`canAccept`）**不落库** ⇒ 每次由读口即时取（§28.7(d)）。
 //   · 六类工程口径泄漏 = 0：本组件只消费 `t(...)` 的四语文案值，**不拼**章节号 / 码 / 路径 / 表名。
+// ----------------------------------------------------------------------------
+// ★ 两次迁出（同一卡片本体的边界，逐条留痕）：
+//   ① 2026-10-20 需求②：BTTC 资产块（余额 / 铸造 / 分解 / 缺额）→ `components/BttcAssetPanel.jsx`，
+//      渲染点 = `/profile/assets`（我的资产）；本组件不再留半套。
+//   ② 2026-10-20 需求③：签到 UI（连续签到天数 / 【签到】/ 补签 / 断签提示）**整体下线** ⇒
+//      本组件只剩电量点阵（工资累积展示仍依赖它）；组件名 / 钩子 / 锚点 `batt-checkin` 保持不变
+//      （`/wage#batt-checkin` 深链与 JobDetail「电量不足」提示仍直达本卡）。
+//      签到后端口（`GET/POST /api/checkin`）**保留不动**（本次只撤前端 UI）。
 // ============================================================================
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
-import toast from 'react-hot-toast'
-import { Button, Card, CardHeader, CardTitle, CardContent, Badge } from './ui'
+import { Card, CardHeader, CardTitle, CardContent, Badge } from './ui'
 import { FadeIn } from './ui/Motion'
 import BattMeter from './BattMeter'
 import { useAuth } from '../auth-context'
-import { fetchBatt, fetchCheckinStatus, postCheckin, postMakeup, utcDay } from '../batt-checkin'
+import { fetchBatt } from '../batt-checkin'
 
-// 签到区锚点（R-9-83）：供头像菜单 / 招工线「电量不足」提示以 `/profile#batt-checkin` 直达。
+// 电量卡锚点（R-9-83）：供招工线「电量不足」提示以 `/wage#batt-checkin` 直达。
 export const BATT_CHECKIN_ANCHOR_ID = 'batt-checkin'
 
 const BattCheckinPanel = () => {
@@ -27,8 +31,6 @@ const BattCheckinPanel = () => {
   const { isAuthenticated, user } = useAuth()
   const location = useLocation()
   const [batt, setBatt] = useState(null)
-  const [checkin, setCheckin] = useState(null)
-  const [busy, setBusy] = useState(false)
   const cardRef = useRef(null)
 
   // 带 hash 进入（`#batt-checkin`）⇒ 滚动到本区（react-router 不自动处理 hash 锚点）。
@@ -41,36 +43,19 @@ const BattCheckinPanel = () => {
   const load = useCallback(async () => {
     if (!isAuthenticated) {
       setBatt(null)
-      setCheckin(null)
       return
     }
     try {
-      const [b, c] = await Promise.all([fetchBatt({ user }), fetchCheckinStatus({ user })])
-      setBatt(b)
-      setCheckin(c)
+      setBatt(await fetchBatt({ user }))
     } catch {
-      // 读口失败 = 静默（不阻塞个人页其余面）；动作口失败才回吐错误（见下）。
+      // 读口失败 = 静默（不阻塞本页其余面）。
       setBatt(null)
-      setCheckin(null)
     }
   }, [isAuthenticated, user])
 
   useEffect(() => {
     load()
   }, [load])
-
-  const runAction = async (action) => {
-    if (busy) return
-    setBusy(true)
-    try {
-      await action()
-      await load()
-    } catch (error) {
-      toast.error(String(error?.message || '').trim() || t('error'))
-    } finally {
-      setBusy(false)
-    }
-  }
 
   if (!isAuthenticated) return null
 
@@ -89,35 +74,6 @@ const BattCheckinPanel = () => {
             <BattMeter batt={batt?.batt ?? null} canAccept={batt?.canAccept ?? null} />
             <span className="text-sm text-gray-500">{t('battCard.rangeHint')}</span>
           </div>
-
-          <div className="flex flex-wrap items-center gap-4">
-            <span className="text-sm text-gray-700">
-              {t('checkinPanel.streakDays')}: {checkin ? checkin.streakDay : 0}
-            </span>
-            {checkin && !checkin.checkedInToday && (
-              <Button onClick={() => runAction(() => postCheckin({ user }))} disabled={busy}>
-                {t('checkinPanel.checkinButton')}
-              </Button>
-            )}
-            {checkin && checkin.checkedInToday && <Badge variant="success">{t('checkinPanel.checkinButton')}</Badge>}
-          </div>
-
-          {checkin && !checkin.checkedInToday && checkin.canMakeup && (
-            <div className="flex flex-wrap items-center gap-4">
-              <Button
-                variant="outline"
-                onClick={() => runAction(() => postMakeup({ user, targetDay: utcDay(-1) }))}
-                disabled={busy}
-              >
-                {t('checkinPanel.makeupButton')}
-              </Button>
-              <span className="text-sm text-gray-500">{t('checkinPanel.makeupCost')}</span>
-            </div>
-          )}
-
-          {checkin && !checkin.checkedInToday && !checkin.canMakeup && (
-            <p className="text-sm text-gray-500">{t('checkinPanel.brokenHint')}</p>
-          )}
         </CardContent>
       </Card>
     </FadeIn>

@@ -4,7 +4,7 @@
  * 覆盖：
  *   ① Header 右上角「订单」按钮（图标 + 文案 → /profile；登录态内外都渲染）+ 移动面板「订单」入口
  *   ② ProfilePage 侧栏钩子与视图派生（/profile 落地 = bought；trades/:subTab 非法值 ⇒ bought；favorites/settings）
- *   ③ `/wage` 页顶部渲染 BattCheckinPanel（签到锚点卡在场 + 项目列表在其下方）
+ *   ③ `/wage` 页顶部渲染电量卡（锚点卡 + 电量点阵在场；**签到 UI 已下线**，项目列表在其下方）
  *   ④ 四语新键齐备（header.orders / profileNav.* / activitiesPage.title / item.favorite*）
  *
  * 断言过期⇒前推记录（本单映射，另见报告）：
@@ -84,7 +84,8 @@ vi.mock('../../messages-api', () => ({
 }))
 
 vi.mock('../../batt-checkin', () => ({
-  // 2026-10-20：签到卡并入 /wage ⇒ 本文件的替身改为「有账户」形状（签到按钮才可断言在场）。
+  // 2026-10-20：签到卡并入 /wage ⇒ 本文件的替身改为「有账户」形状（组件仅消费 fetchBatt）。
+  // 2026-10-20 需求③：签到 UI 已下线 ⇒ fetchCheckinStatus / postCheckin / postMakeup 无消费点，保留替身仅为工厂形状稳定。
   fetchBatt: vi.fn(async () => ({ batt: 70, capBatt: 100, floorBatt: 0, acceptThresholdBatt: 50, canAccept: true, bttc: null })),
   fetchCheckinStatus: vi.fn(async () => ({ streakDay: 3, streakCapDays: 7, checkedInToday: false, canMakeup: false, makeupCostUsd: '1' })),
   postCheckin: vi.fn(),
@@ -296,22 +297,27 @@ describe('sf14 ② · ProfilePage 侧栏与视图派生', () => {
   })
 })
 
-describe('sf14 ③ · WagePage 顶部签到区（电量卡 + 签到，自 /activities 并入）', () => {
-  it('签到锚点卡 id=batt-checkin + 电量点阵 + 签到按钮在场，且项目列表位于签到区之下', async () => {
+describe('sf14 ③ · WagePage 顶部电量卡（签到 UI 已下线，电量点阵仍在）', () => {
+  it('电量卡锚点 id=batt-checkin + 电量点阵在场；签到按钮 / 连续签到天数 / 补签文案一律 0 命中；项目列表位于其下方', async () => {
     const { container } = renderAt(<WagePage />, '/wage')
 
-    // ① 签到卡在场（组件原样搬入 ⇒ 锚点 id 与 BattMeter 钩子都保留）
+    // ① 电量卡在场（锚点 id 与 BattMeter 钩子都保留 ⇒ `/wage#batt-checkin` 深链仍直达）
     await waitFor(() => expect(document.getElementById('batt-checkin')).not.toBeNull())
     expect(container.querySelector('[data-sf-m="wage-checkin"]')).not.toBeNull()
-    expect(document.querySelector('[data-sf-m="batt-meter"]')).not.toBeNull()
+    await waitFor(() => expect(document.querySelector('[data-sf-m="batt-meter"]')).not.toBeNull())
 
-    // ② 签到按钮在场（未签到态；文案 = 真 zh 词典）
-    await waitFor(() => {
-      const buttons = [...document.querySelectorAll('#batt-checkin button')]
-      expect(buttons.some((b) => b.textContent.trim() === zh.checkinPanel.checkinButton)).toBe(true)
-    })
+    // ② 签到 UI 已整体下线（Kevin 2026-10-20 需求③）⇒ 负断言（文案一律取真 zh 词典）
+    const checkinCard = document.getElementById('batt-checkin')
+    const buttons = [...checkinCard.querySelectorAll('button')]
+    expect(buttons.some((b) => b.textContent.trim() === zh.checkinPanel.checkinButton)).toBe(false)
+    expect(buttons.some((b) => b.textContent.trim() === zh.checkinPanel.makeupButton)).toBe(false)
+    expect(checkinCard.textContent).not.toContain(zh.checkinPanel.streakDays)
+    expect(checkinCard.textContent).not.toContain(zh.checkinPanel.makeupCost)
+    expect(checkinCard.textContent).not.toContain(zh.checkinPanel.brokenHint)
+    // 全页层面同样 0 命中（防「签到区搬到别处」）
+    expect(container.textContent).not.toContain(zh.checkinPanel.streakDays)
 
-    // ③ 项目列表仍在，且 DOM 顺序在签到区之后（= 页面上位于其下方）
+    // ③ 项目列表仍在，且 DOM 顺序在电量卡之后（= 页面上位于其下方）
     await waitFor(() => expect(container.querySelector('[data-sf-m="wage-list"]')).not.toBeNull())
     const checkin = container.querySelector('[data-sf-m="wage-checkin"]')
     const list = container.querySelector('[data-sf-m="wage-list"]')
@@ -319,7 +325,7 @@ describe('sf14 ③ · WagePage 顶部签到区（电量卡 + 签到，自 /activ
     expect(relation & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 
-  it('未登录 ⇒ 签到区不渲染（组件既有策略：返回 null），项目列表照常公开浏览（不白屏）', async () => {
+  it('未登录 ⇒ 电量卡不渲染（组件既有策略：返回 null），项目列表照常公开浏览（不白屏）', async () => {
     AUTH.isAuthenticated = false
     AUTH.user = null
     const { container } = renderAt(<WagePage />, '/wage')

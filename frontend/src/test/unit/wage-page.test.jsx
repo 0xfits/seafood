@@ -477,7 +477,7 @@ describe('/wage ④ i18n `wage` 命名空间（四语齐备 + 计数前推）', 
     'wageExtra', 'join', 'joining', 'joined', 'joinedToast', 'claim', 'claiming', 'claimReadyIn',
     'inService', 'full', 'oneAtATime', 'claimed', 'claimedWithCurrency', 'claimTooSoon', 'notHired',
     'claimFailed', 'applyFailed', 'loginRequired', 'loginCta', 'loadFailed', 'retry', 'empty',
-    'joinedBadge',
+    'joinedBadge', 'streakReward',
   ]
 
   it('四语键集相同且逐键非空；menuLabel 逐字 = 领工资 系', () => {
@@ -498,11 +498,11 @@ describe('/wage ④ i18n `wage` 命名空间（四语齐备 + 计数前推）', 
     ))
     for (const lang of LANGS) {
       expect(Object.keys(TABLES[lang]).length, `${lang} top`).toBe(133) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
-      expect(flat(TABLES[lang]).length, `${lang} flat`).toBe(1238) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
+      expect(flat(TABLES[lang]).length, `${lang} flat`).toBe(1239) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
     }
     expect(Object.keys(TABLES.zh).length * LANGS.length).toBe(532) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
-    expect(flat(TABLES.zh).length * LANGS.length).toBe(4952) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
-    // 新增命名空间恰 +1 顶层 / +29 拍平键（相对上一版 131 / 1140）；joinedBadge 加入后 30 键
-    expect(REQUIRED).toHaveLength(30)
+    expect(flat(TABLES.zh).length * LANGS.length).toBe(4956) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
+    // 新增命名空间恰 +1 顶层 / +29 拍平键（相对上一版 131 / 1140）；joinedBadge 加入后 30 键；streakReward 加入后 31 键
+    expect(REQUIRED).toHaveLength(31)
   })
 })
