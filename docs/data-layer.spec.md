@@ -5790,3 +5790,77 @@ CONSTRAINT listing_item_code_shape_ck CHECK (
 - **CP-N5 snowflake 出参为 number**：`campaign`/`task`/`subtask` 任一 `snowflake_id` 以 JSON number 出现 ⇒ 判负（承 §40.12）。
 - **CP-N6 seed 漏行/多行**：`subtask_type` ≠ 恰 **5** 行，或 `label`/`sort` 与 `40.14.3` 表不一致，或出现 `poll` ⇒ 判负。
 - **未做（`NOT_MEASURED` · 本册不预填）**：`0062` 未落盘 / 两库未 apply / 七路由未注册 / 状态机与覆盖 upsert 未实现 / 判负 CP-N1…N6 与 route #54–#60、design #70–#76 一条未跑；**零代码 / 零迁移文件 / 零库写 / 零 HTTP 实测 / 不 push**。
+
+## §40.15 ★★ v0.45 · 项目（打工/工资体系）六面契约：四张新表 `project` ＋ `project_worker` ＋ `project_wage_claim` ＋ `user_activity_hour` ＋ `app_config` 新键 `project_create_fee` ＋ 台账/batt 衔接面 · 迁移 `0063_project_jobs.sql`（**预计** · 0062 已被 §40.14 占用）（**本节只追加 · §1–§40.14 一字未动** · 依据 = Kevin 2026-10-20 四点 clarify「① 活跃/离线判定 = 近 1 小时内有任意登录态请求 = 活跃（2/时），否则离线（1/时）；② 电量**只在被招工期间累积**（未招工不累积，被招后从入职时刻起算）；③ 原 H5【招工】入口文案改为【任务】；④ 建项目费：从创建者 $ 余额扣、走既有积分台账入平台收入，费额存 `app_config` 键 `project_create_fee`（默认 10000，管理员可改）」 · 迁移由实现单落盘 / apply 由 Zang · 零代码 / 零迁移文件改动 / 零库写 / 零 HTTP 写）
+
+> **本节性质**：**只追加**（§40.14 全文逐字保留；**头注版本块不改写**，承 §40.8.1–§40.14「加性续登、不改头注」体例，以本行 **`v0.45`** 为现行版读数）。`DL` 编号域**零改动**（仍 `DL1..DL157`），`EL-*` / `ID-*` / `MB-*` / `CP-*` **零改动**；本节以 **`PR-*`** 承载。**姊妹册** = `route-layer.spec` **§49.19**（七口路由矩阵 · v2.46 新路由升版）＋ `design-system.spec` **§26.20**（招工→任务文案 ＋ 项目页面骨架）＋ `master-plan` **§5.447 / 版本行 v0.364** ＋ `ops/project/SPEC-NOTE.md`。**计数披露**：派单称「六表」，实为新表 **4** 张 ＋ 既有面 **2** 处（`app_config` 键面、ledger/batt 台账衔接面），本节按实数落册、不虚增。
+
+#### 40.15.1 四表清单与列契约（`PR-1`…`PR-4`）
+
+**表 1 · `project`（`PR-1`，15 列）**
+
+| 列 | 契约 | 说明 |
+|---|---|---|
+| `project_id` | `bigserial` PK | 内务主键；对外一律用 `snowflake_id` |
+| `snowflake_id` | `bigint NOT NULL UNIQUE` | 出参**一律字符串**（承 §40.12 `ID-*`：位划分 41+10+12 / 纪元 / 回拨**全盘承 §40.12，本节零改写零重立**） |
+| `owner_uid` | `bigint NOT NULL REFERENCES users(uid)` | 创建者；`uid` 引用体例承 DL54 |
+| `title` | `text NOT NULL` | 项目标题 |
+| `description` | `text NOT NULL DEFAULT ''` | 项目正文 |
+| `headcount` | `int NOT NULL` ＋ 具名 `project_headcount_check CHECK (headcount > 0)` | 招工人数 |
+| `recruit_min_account_days` | `int NOT NULL DEFAULT 0` ＋ 具名 `project_min_days_check CHECK (recruit_min_account_days >= 0)` | 准入条件：注册 ≥ N 天（0 = 无门槛） |
+| `wage_batt_per_claim` | `numeric NOT NULL` ＋ 具名 `project_wage_batt_check CHECK (wage_batt_per_claim > 0)` | batt 工资一笔（**必有**，依据 = 「batt 电量一笔（必有）」） |
+| `wage_cid` | `bigint NULL REFERENCES currency(cid)` | 平台货币币别（**可空**） |
+| `wage_currency_amount` | `numeric NULL` ＋ 具名 `project_wage_amount_check CHECK (wage_currency_amount > 0)` | 平台货币工资一笔（**可空、金额自设**） |
+| （跨列） | 具名 `project_wage_currency_pair_check CHECK ((wage_cid IS NULL) = (wage_currency_amount IS NULL))` | **两币别字段同空同非空**（派单逐字；23514 反证必红 = 判负 PR-N4） |
+| `wage_interval_hours` | `int NOT NULL` ＋ 具名 `project_interval_check CHECK (wage_interval_hours BETWEEN 1 AND 100)` | 领取间隔 1–100 小时（项目自定） |
+| `status` | `text NOT NULL DEFAULT 'recruiting'` ＋ 具名 `project_status_check CHECK (status IN ('recruiting','working','ended'))` | 状态机见 `40.15.2` |
+| `time_created` / `time_updated` | `timestamptz NOT NULL DEFAULT now()` | `time_updated` 承 `0017` BEFORE UPDATE 刷新体例 |
+
+**表 2 · `project_worker`（`PR-2`，6 列）**：`worker_id bigserial PK` · `project_id bigint NOT NULL REFERENCES project(project_id)` · `uid bigint NOT NULL REFERENCES users(uid)` · `status text NOT NULL DEFAULT 'hired'` ＋ 具名 `project_worker_status_check CHECK (status IN ('hired','left'))` · `hired_at timestamptz NOT NULL DEFAULT now()` · `left_at timestamptz NULL`。**部分唯一索引（本契约核心闸）**：`CREATE UNIQUE INDEX project_worker_single_hired_uniq ON project_worker (uid) WHERE status = 'hired'` —— **DB 级「每个用户同时只能在一个 project 打工」**（派单逐字；第二 hire 必撞 `23505` ⇒ 路由层映射 409，见 route §49.19.3）。**本单裁定**：`left` 后**可复职**（再 `apply` = 新行，历史行保留）⇒ `(project_id, uid)` **不设** UNIQUE（同项目可多行历史）；在职判据一律走部分唯一索引覆盖的 `status='hired'` 行。**DL3 声明**：本表零余额列。
+
+**表 3 · `project_wage_claim`（`PR-3`，9 列）**：`claim_id bigserial PK` · `project_id bigint NOT NULL REFERENCES project(project_id)` · `uid bigint NOT NULL REFERENCES users(uid)` · `batt_credited numeric NOT NULL` ＋ 具名 `project_claim_batt_check CHECK (batt_credited >= 0)` · `currency_cid bigint NULL` / `currency_amount numeric NULL`（**同空同非空**具名 `project_claim_currency_pair_check`，同式承 PR-1）· `hours_elapsed numeric NOT NULL` ＋ 具名 `project_claim_hours_check CHECK (hours_elapsed BETWEEN 0 AND 100)`（**累积上限 100h 落到 CHECK**：与最大间隔一致，超出不补）· `active_hours numeric NOT NULL CHECK (active_hours >= 0)` / `offline_hours numeric NOT NULL CHECK (offline_hours >= 0)` · `time_created timestamptz NOT NULL DEFAULT now()`。**零 UNIQUE**：同一 (project, uid) 随时间多行（每次领取一行，append-only 语义由「只插不改」纪律承载，不设触发器）；**防双领竞态** = 领取事务内对 `project_worker` 在职行 `SELECT … FOR UPDATE`（承 D10 单语句/行锁体例），两步写禁令见 `40.15.3`。**软校验（不设 DB CHECK）**：`active_hours + offline_hours = hours_elapsed`（小时桶舍入口径实现单定，回填登记）。
+
+**表 4 · `user_activity_hour`（`PR-4`，4 列）**：`uid bigint NOT NULL REFERENCES users(uid)` · `day date NOT NULL`（**UTC 自然日**，承 R-9-15 日界口径）· `hour int NOT NULL` ＋ 具名 `user_activity_hour_bucket_check CHECK (hour BETWEEN 0 AND 23)` · `request_count bigint NOT NULL DEFAULT 0` ＋ 具名 `user_activity_hour_count_check CHECK (request_count > 0)`（行仅在 ≥1 次登录态请求时存在）。**复合主键 `PRIMARY KEY (uid, day, hour)`** —— 派单「唯一键 (uid,day,hour)」的落地形（主键即唯一键，**不加自增列、零额外索引**；行数 ≤ 24 × 日活，体量小）。写入面见 `40.15.3` 埋点段。
+
+#### 40.15.2 状态机与招工准入（`PR-5`）
+
+- **`project.status` 合法迁移闭集 = {`recruiting→working`, `working→recruiting`, `recruiting→ended`, `working→ended`}`**。`recruiting→working` 有**两个驱动**：① **招满自动截止**（hire 成功后在职数 = `headcount` ⇒ 同事务自动翻转，**非管理员边、零定时器零触发器**——判据 = 该翻转发生在 apply 事务内）；② 管理员**停招**。`working→recruiting` = 管理员**重开招工**（「可改招工状态」字面）。`ended` = **终态封板**（ended 后一切管理员 PATCH 与 claim ⇒ 409）。回退之外的同值写 = 幂等 no-op 200。
+- **招工准入谓词（写口硬闸，DB 不兜底跨表部分）**：`status='recruiting'` ∧ **在职数 < `headcount`** ∧ **注册天数 ≥ `recruit_min_account_days`**（注册天数 = `now() − users.time_reg ≥ N × interval '1 day'`；注册当天 N=0 可进）。三闸任一不满足 ⇒ 409（reason 见 route §49.19.3），**闸链 = 服务层前置只读**（承 §49.18 R3 体例），DB 侧兜底 = 部分唯一索引（PR-2）＋ `headcount` 不设触发器（在职数计数闸为应用层职责，竞态最坏 = 短暂超编一人，登记为已知边界）。
+- **apply = 直接录用（本单裁定）**：派单「招工申请/直接录用？待实现裁」⇒ 本单取**满足条件即直接录用**（无申请池、无审批态）——`project_worker.status` 闭集因此**不预置 `'pending'`**；实现单若裁定要申请池 ⇒ 必须回改本节扩闭集，**不得静默加值**。一句话可改。
+
+#### 40.15.3 活动判定、电量累积与两腿到账（`PR-6`）
+
+- **埋点（新全局写面 · 旁路写）**：**登录态请求**（Bearer 会话解析成功且 uid > 0，解析面现取 = `index.ts:256`/`:362` authHeader → `verifySessionToken`）⇒ `user_activity_hour` 单语句 upsert：`INSERT … ON CONFLICT (uid, day, hour) DO UPDATE SET request_count = user_activity_hour.request_count + 1`（day/hour = **UTC** 桶）。未登录请求**零写**。**旁路纪律**：埋点写**不进业务事务**、失败不阻断业务请求（try/catch 吞错，最坏 = 该小时桶缺行 ⇒ 该小时按离线计）——埋点失败拖垮业务 ⇒ 判负 PR-N5。这是继 `users.time_login_last`（登录时刷新）之后第二个请求侧写面，**性质 = 计数桶，非余额，不违 DL3**。
+- **活跃判定（逐小时桶）**：某 UTC 小时桶内有行（`request_count > 0`）⇒ 该小时 = **活跃（2 电量/时）**；无行 = **离线（1 电量/时）**。派单「近 1 小时内有任意登录态请求」字面落地为**小时桶语义**（10:59 的请求令 10 点桶活跃、11 点桶按无行计）——**已知桶边界近似，登记挂账**；若 Kevin 要真滚动 60 分钟窗口 ⇒ 改判定谓词一句话，本表结构不变。
+- **累积窗口**：`[max(hired_at, 上次领取 time_created)，本次领取时刻)`，**首次 = `hired_at`**（「被招后从入职时刻起算」逐字；未招工期间**零累积**）。`hours_elapsed = min(窗口, 100h)`（**超出不补**）；`active_hours` = 窗口内活跃桶小时数（小时粒度），`offline_hours = hours_elapsed − active_hours`。
+- **到账额 —— 平台货币腿（冻结）**：`currency_amount = wage_currency_amount` **固定数额**（「每次领工资固定数额」字面，与小时数**解耦**）；币别 = `wage_cid` 对应 `currency`（须 `status='listed'`，`assertCurrencyOperable` 体例），走 **`ledger_post_event` 单事件编排**（D10）入账工作者。
+- **到账额 —— batt 腿（`PENDING_KEVIN` · 实现单禁自行择一）**：候选 **A（固定数额制）**：`batt_credited = wage_batt_per_claim` 恒定，小时三列纯记录；候选 **B（按窗 pro-rata 制）**：`batt_credited = wage_batt_per_claim × hours_elapsed ÷ wage_interval_hours`（恰按间隔领取 = 固定数额，迟领最多 ×100/interval，「累积上限 100h 超出不补」在 B 下有函数位）。**两案在「准点领取」行为一致**；张力 = 派单「每次固定数额」字面 vs ①「2/时 1/时」规则的函数位。**须 Kevin 一句话裁决，回填登记**；判负不锁公式分支（只锁下述硬面）。
+- **batt 入账衔接（既有面，零新表）**：`batt_entry`（`delta > 0`、`batt_after`）＋ `batt_account` 就地更新，**值域 [0,100] 封顶丢弃**（承 R-9-17 溢出封顶体例；`batt_account_range` CHECK 现取 `0029:53`）＋ `batt_entry_idem_uniq` 幂等键（`biz:` 形态实现单定，禁 `cli:`——非用户直发动作）。batt **非** ledger kind（R-9-6 独立数据面），与货币腿**两套账本并行、同事务**。
+- **建费腿（衔接既有积分台账）**：创建事务内创建者 `$`（平台积分资产，现取先例 = `bttc_mint_fee` 等费腿同资产；具体 cid 实现单定）出账 `fee` ＋ **平台收入入账（`uid = −1` 体例，不真 burn，零净写对称承 §31.5）**；kind = 实现单从现取 **24 值闭集**（`ledger.ts:168` `LEDGER_KINDS` 现取，末值 `invite_first_task_reward`）择近（借 `currency_create_fee` = **语义窄化债**，须承 C5 借码体例登记）**或扩容 +1 新 kind `project_create_fee`**（推荐；扩容承 R-9-36 体例 = DB CHECK 重建 ＋ `ledger_kind_ok` ＋ `LEDGER_KINDS` 同步 ＋ `ledger.spec` §5.1 回写）。**禁两步写**：建行 + 扣费 + 台账分录 = 同一事务同一幂等键。
+
+#### 40.15.4 `app_config` 新键 `project_create_fee`（`PR-7`）
+
+- 键名 = **`project_create_fee`**，value = jsonb object **`{"fee":"10000"}`**（派单逐字形态；`fee` = 字符串数字，解析为正整数、**> 0**；容器约束承 `0017` `app_config_value_is_container`）。默认 **10000**，管理员可改。
+- **入册与写面**：seed 行随 `0063` 迁移落库（`INSERT … ON CONFLICT DO NOTHING`）——「在册 ⇒ 可写」承 §23 `listing_deposit_policy` 先例；写口 = **既有 `POST /api/admin/settings` 键级寻址**（`index.ts:1915` 现取，零新路由），实现单须把该键加进 AK1 键清单闭集（`database.ts` 校验面，现取在册键 = `system_settings` ＋ `listing_deposit_policy`，`database.ts:55` 现取）；入册前写口必须拒（AG1 体例，「在册 ≠ 可写」姊妹律）。数值改动**只走写口不走迁移**；fail-closed 兜底常量（键缺失/非法时读什么）= 实现单定，回填登记。
+
+#### 40.15.5 互不干涉声明（`PR-8`）
+
+- **旧悬赏体系零触碰**：`job`（`0013`）/ `job_application` / `job_submission`（`0014`）/ `job_arbitration_log`（`0027`）四表 ＋ `/api/job*`、`/api/task*`、`/api/task-progress/*`、`/api/tasklist/*` 活路由族 —— 本四表对上述**零 FK、零 JOIN、零引用、零改写**；「打工/工资」是**新域**，不是 job 悬赏改版。
+- **活动任务体系（§40.14）零复用**：`campaign`/`task`/`subtask`/`subtask_type`/`subtask_proof` 五表与新四表**零 FK 零共享**（项目 ≠ 活动任务卡，两域并存，勿混用文案键——见 design §26.20.1）。
+- **新名无撞车（现取）**：现行迁移链 `grep -rliE "create table.*project|user_activity" backend-ts/migrations/` = **0 命中** ⇒ `project` / `project_worker` / `project_wage_claim` / `user_activity_hour` 均为新名启用；DL26 封禁对象（旧 `task_progress`/`tasklist` 链）零涉。
+
+#### 40.15.6 迁移形状与自检（`PR-9`）
+
+- 迁移 = **`0063_project_jobs.sql`** 单文件（**预计**）：四张 `CREATE TABLE IF NOT EXISTS` ＋ 具名 CHECK/UNIQUE ＋ **部分唯一索引**（PR-2）＋ `app_config` seed 一行（PR-7）＋ `DO $$` 形状自检（四表在场 / 状态三值 CHECK / 两币同空同非空 CHECK / interval 1–100 / 部分唯一索引在场 / activity 小时桶主键在场 / seed 恰 1 行）。文件内**无 `BEGIN`-`COMMIT`**（承 §40.13 体例）；`schema_version` **0062 → 0063**（0062 未落盘 ⇒ 实取顺延，一次性回填）。
+- **编号冲突登记**：§5.445 挂账的「0062」占位语未决、§40.14 已占 `0062` ⇒ 本单取 **`0063`**；若实现落盘时盘上末位已前移 ⇒ **先落盘者得号**，顺延方一次性回填本节编号字面（迁移号 = 落盘事实，不以本节字面为准）。
+- 列数契约：`project` **15** / `project_worker` **6** / `project_wage_claim` **9** / `user_activity_hour` **4**（DB 实测 **`NOT_MEASURED`** —— 本环境连不上 Neon，apply 后现取复核）。
+
+#### 40.15.7 判负（`PR-N1`…`PR-N6`）与未做（明账）
+
+1. **PR-N1 部分唯一失守**：同一 uid 两行 `status='hired'` 可共存（索引缺失/改普通索引/含 project_id 维度）⇒ 判负。**负控臂**：在职状态下对第二项目 apply，DB 层必现 `23505`。
+2. **PR-N2 招工闸旁路**：非 `recruiting` / 满员 / 注册天数不足任一臂 apply 返回 200 ⇒ 判负。
+3. **PR-N3 领取闸旁路**：未在职领工资、间隔未到领取、ended 后领取，任一返回 200 ⇒ 判负。
+4. **PR-N4 两币 CHECK 失守**：`wage_cid` 与 `wage_currency_amount` 一空一非空可落库（反证直插必红 `23514` 不成立）⇒ 判负。
+5. **PR-N5 埋点阻断业务**：活动桶 upsert 失败导致业务请求 5xx / 回滚 / 延迟劣化可见 ⇒ 判负（必须旁路吞错）。
+6. **PR-N6 台账腿断裂**：建费/工资货币腿绕过 `ledger_post_event`（两步写 / 无幂等键 / Σ 破坏），或 batt 入账越 [0,100]（越界报错而非封顶丢弃）⇒ 判负。
+- **未做（`NOT_MEASURED` · 本册不预填）**：`0063` 未落盘 / 两库未 apply / 七路由未注册 / **batt 到账公式 A/B 未裁（PENDING_KEVIN）** / apply 直录 vs 申请池未终裁 / 埋点保留期未定（滚动清理 = 挂账另单，需 Kevin 口径）/ 判负 PR-N1…N6 与 route #61–#67、design #77–#83 一条未跑；**零代码 / 零迁移文件 / 零库写 / 零 HTTP 实测 / 不 push**。

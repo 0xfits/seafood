@@ -10107,3 +10107,64 @@ ORDER BY score DESC, l.time_created DESC, l.listing_id DESC
 
 - **现取（2026-10-20 · HEAD `09943ba` · 工作区非干净 12 路径，属并行多件购买/item-id 面，与本单无关）**：注册点 **111**（get 50 / post 57 / put 0 / delete 3 / patch 1）· 迁移末位盘上 **`0061_listing_allow_multi_buy.sql`**（untracked、未提交），`0062` 零命中 · `requireAdmin` 在册（`index.ts:480`，34 处调用）· 权限键闭集含 `manage_tasks`（`database.ts:21`）· 现行迁移链无任何名为 `task` 的表（grep 现取 0）· 旧路由族坐标 `:707`/`:721`/`:1116`/`:1132`/`:1172`/`:1227`/`:2194`–`:2229`/`:2623` 起。
 - **未做（`NOT_MEASURED` · 本册不预填）**：`0062` 未落盘 / 两库未 apply / 七路由未注册 / **118 为预计值未回填** / 计数变体未裁 / 判负 #54–#60 与 CP-N1…N6、#70–#76 一条未跑；**零 HTTP 实测 / 零库写 / 零代码**。本笔只写 `docs/**` ＋ `ops/campaign/**`，**不 push**。
+
+### 49.19 项目（打工/工资体系）七面路由（公开 2 ＋ 用户 4 ＋ 管理员 1 · **注册点 111 → 125（两级预计：§49.18 的 +7 亦未注册，回填前不冒充实测）** · 配置写零新路由 · 零新错误码）· 2026-10-20 · **v2.46**（新路由 ⇒ 升版；**头注不改写**，承 §49.15 / §49.18 体例）· 纯追加
+
+> **依据**：Kevin 2026-10-20 四点 clarify（逐字转引自本单派单，**原始会话未入仓** ⇒ 出入以 Kevin 一句话为准）—— ① 活跃/离线 = 近 1 小时内任意登录态请求（2/时 vs 1/时，逐小时桶落地承 data §40.15.3）；② 电量只在被招工期间累积（从 `hired_at` 起算）；③ 原 H5【招工】入口文案改【任务】（design §26.20.1 承接）；④ 建项目费 = 创建者 $ 扣款入平台收入、`app_config` 键 `project_create_fee` 默认 10000 可改。**姊妹面** = `data-layer.spec` **§40.15**（四表 ＋ 两既有面 `PR-1…PR-9`）＋ `design-system.spec` **§26.20** ＋ `master-plan` **§5.447 / v0.364** ＋ `ops/project/SPEC-NOTE.md`。**本单零代码**（契约冻结，实现归并行后端单）。
+
+#### 49.19.1 作用面（三面 · **逐口登记**）
+
+| # | verb | path | 面 / 闸 | 语义 |
+|---|---|---|---|---|
+| R1 | GET | `/api/project/all` | 公开 | `status ∈ {recruiting, working}` 列表（ended 不进列表）；出参含状态 / 名额（在职数派生）/ 工资两笔 / 间隔 / 准入天数；无分页（行数小；keyset 另单承 DL25）；排序 `time_created DESC`（新项目在前） |
+| R2 | GET | `/api/project/:ref` | 公开 | `:ref` **纯数字谓词**；单语句 `WHERE project_id = $1 OR snowflake_id = $1`（**一次往返**，承 §49.18 R2 体例）；miss ⇒ 404（reason `project_not_found`）；**三态全公开可读**（本域无 draft 态；ended = 终态历史可看） |
+| R3 | POST | `/api/project` | 用户（登录闸） | 建项目 ＋ **同事务扣建费**。body 闭集 8 键 = `title`/`description`/`headcount`/`recruit_min_account_days`/`wage_batt_per_claim`/`wage_cid`/`wage_currency_amount`/`wage_interval_hours`；**禁带** `status`/`snowflake_id`/`project_id`/`owner_uid`（⇒ 400 ＋ `NOT_SUPPORTED`，承 §49.13 先例）；两币字段**同现同缺**先于 DB 校验（400）；`interval` 1–100、`headcount > 0`、天数 ≥ 0；费读 `project_create_fee`（缺键 fail-closed 实现单定）；余额不足 ⇒ 409（见 49.19.3）；成功 `status` 恒落 `'recruiting'`；幂等键 `cli:` 承 `idempotency.js:27` 体例（同键重投 200 replay） |
+| R4 | POST | `/api/project/:id/apply` | 用户（登录闸） | `:id` 同 R2 数字谓词。**闸链 = 服务层前置只读**：存在(404) → `recruiting`(409) → 在职数 < headcount(409) → 注册天数 ≥ 条件(409) → 未在他项目在职(409，DB 部分唯一 `23505` 兜底同码) → **满足即直接录用**（data §40.15.2 裁定）：同事务 INSERT `hired` ＋ **招满自动置 `working`**；对同项目重复 apply（已在职）= **200 no-op 回放在职态**（承 DL54 回放体例，非 409） |
+| R5 | POST | `/api/project/:id/claim` | 用户（登录闸） | 领工资。闸链：该项目在职 `hired`(409 `worker_not_hired`，覆盖「未招工领工资」与「在别项目」两臂) → project ≠ `ended`(409 `project_ended_frozen`) → 间隔 `now − 上次领取（首次 = hired_at）≥ interval_hours`(409 `wage_interval_not_reached`) → 同事务：算窗口三列（data §40.15.3）＋ batt 腿入账（[0,100] 封顶丢弃）＋ 货币腿 `ledger_post_event` ＋ claim 行；**在职行 `FOR UPDATE` 防双领**；响应 = claim 行本体（`batt_credited` / `currency_amount` / 三小时列 / `time_created`）；**batt 公式 A/B = PENDING_KEVIN，实现单禁自行择一**（data §40.15.3） |
+| R6 | POST | `/api/project/:id/leave` | 用户（登录闸） | 离职。在职 ⇒ `left` ＋ `left_at`（200）；未在职 / 已 `left` / 项目 ended ⇒ **200 no-op**（幂等；用户自处永远可达，本单裁定）；**离开不影响已累积未领的窗口挂账**（再入职重开新窗口，`hired_at` 重新起算 —— 承「被招后从入职时刻起算」字面） |
+| R7 | PATCH | `/api/project/:projectId` | 管理员 `requireAdmin(manage_tasks)` | 状态机 ＋ 字段：可改字段闭集 = `title`/`description`/`headcount`/`recruit_min_account_days`/`wage_batt_per_claim`/`wage_cid`/`wage_currency_amount`/`wage_interval_hours`/`status`（迁移闭集 data §40.15.2：`recruiting→working`（停招）/`working→recruiting`（重开）/`→ended`；**ended 封板 ⇒ 一切 PATCH 409**）；`snowflake_id`/`project_id`/`owner_uid` 禁改；**`headcount` 缩到 < 在职数 ⇒ 409 `project_headcount_below_hired`**（不代项目方裁人，本单裁定一句话可改） |
+
+- **配置写零新路由**：`project_create_fee` 管理员改值走**既有** `POST /api/admin/settings` 键级寻址（`index.ts:1915` 现取），键入册（data §40.15.4）前必须拒 —— 本单注册点增量**不含**配置口。
+- **管理面权限键 = `manage_tasks`**（`database.ts:21` 在册闭集），**不是** §49.15 的 `manage_rewards`（两键两域，混用 ⇒ #66）。
+
+#### 49.19.2 注册点 **111 → 125（两级预计）**（逐 verb · 现取 → 目标态）
+
+**现取（2026-10-20 · HEAD `5f6b838`）**：`grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts` = **111**，逐 verb = get **50** / post **57** / put **0** / delete **3** / patch **1**。**§49.18 的 campaign 七口尚未注册**（grep `api/campaign` = 0 命中现取）⇒ 其 118 仍为**预计值**，本单在其上叠加。
+
+| verb | 现取 | §49.18 目标 | 本单目标（**两级预计**） | 本单增量 | 来源 |
+|---|---|---|---|---|---|
+| get | 50 | 52 | **54** | **+2** | R1 / R2 |
+| post | 57 | 60 | **64** | **+4** | R3 / R4 / R5 / R6 |
+| put | 0 | 0 | 0 | 0 | —— |
+| delete | 3 | 3 | 3 | 0 | ——（无删除口，结束用状态机） |
+| patch | 1 | 3 | **4** | **+1** | R7 |
+| **合计** | **111** | 118 | **125** | **+7** | 回填硬判据 = 实现后现取逐字 |
+
+- **派单字面出入登记（计数如实）**：派单写「预计注册点 111→约 122」；实算 = 现取 111 ＋ §49.18 +7 ＋ 本单 +7 = **125**（派单基数疑未含 campaign 七口或 admin 口计数有异）——本表以现取复算为准，回填以实现后实数为准。
+- **注册顺序判据（写死）**：R1 `GET /api/project/all` 必须注册在 R2 `GET /api/project/:ref` **之前**（Express 顺序匹配，倒置 ⇒ `all` 被吞成 404，#62）；`/api/project/:id/apply|claim|leave` 为独立静态尾段，不受 `:ref` 影响；`/api/project/*` 与既有 `/api/task*`、`/api/job*`、`/api/campaign/*` 无前缀冲突。
+- **页面路由不计注册点**：`/project`、`/project/create`、`/project/:ref`、`/project/mine`（App.jsx 建议形，承 §49.15.7 体例）。
+
+#### 49.19.3 错误码（**零新码 · 33 码闭集不动**）
+
+| 场景 | 码 | 说明 |
+|---|---|---|
+| 未登录调 R3–R6 | 401 既有会话解析 | 零新码 |
+| R7 缺权 / 非 `manage_tasks` | 403 `AUTH_FORBIDDEN` ＋ `ACTOR_NOT_ALLOWED` | 承 §49.15 体例 |
+| `:ref`/`:id` miss | 404 ＋ reason `project_not_found` | reason 字符串**不进** 33 码闭集（承 §49.17 先例） |
+| 禁带字段 / 闭集外键 / 两币不同空同非空 / interval 越界 / headcount ≤ 0 / 负天数 / 非法数值 | 400 借 `LEDGER_AMOUNT_INVALID` ＋ `details.reason`（`NOT_SUPPORTED` 等） | 承 §40.13 借码体例 |
+| 非招募期 / 满员 / 天数不足 / 他项目在职（含 `23505` 兜底）/ 未在职领薪 / 间隔未到 / ended 封板 / 状态机非法 / 缩容低于在职 / **建费余额不足** | 409 借 `LEDGER_INSUFFICIENT_BALANCE` ＋ `details.reason`（`project_not_recruiting` / `project_headcount_full` / `project_min_days_unmet` / `worker_already_hired` / `worker_not_hired` / `wage_interval_not_reached` / `project_ended_frozen` / `project_invalid_transition` / `project_headcount_below_hired` / `project_create_fee_insufficient`） | 具体码回填时可在闭集内择近者替换；**零新码为硬判据**；台账域原生错误照 `normalizeLedgerError` 映射 |
+
+#### 49.19.4 判负（**#61–#67** · 与 #54–#60、#48–#53 家族**并存、只增不改**）
+
+1. **#61 注册点不符**：回填后注册点 ≠ **125**（或 get ≠ 54 / post ≠ 64 / patch ≠ 4 任一）⇒ 判负；两级预计均已登记，回填注记在场除外。
+2. **#62 注册顺序倒置**：`GET /api/project/all` 返回 404（被 `:ref` 吞）⇒ 判负。
+3. **#63 闸链旁路**：R4–R5 任一前置闸（招募期 / 名额 / 天数 / 在职唯一 / 间隔 / ended 封板）不判而放行 200 ⇒ 判负（**负控臂**逐臂 409）。
+4. **#64 事务断裂**：建费未扣而项目建成、或工资两腿未同事务（claim 行在而账未动 / 账动而 claim 行缺）⇒ 判负。
+5. **#65 双领竞态得手**：并发两次 claim 均成功（`FOR UPDATE` 缺失）⇒ 判负（正确表现 = 恰一次 200，另一次 409 `wage_interval_not_reached`）。
+6. **#66 权限键混用**：`manage_rewards` 持有者调 R7 必须 403；或 R7 放行键不是 `manage_tasks` ⇒ 判负。
+7. **#67 出参形态错**：任一 `snowflake_id` 出 JSON 为 number；或 `:ref` 双形态拆两次往返；或非数字 `:ref` 返回 500（应 404）⇒ 判负。
+
+#### 49.19.5 现取自证 + 未做（明账）
+
+- **现取（2026-10-20 · HEAD `5f6b838` · 工作区非干净 19 路径，属并行多件购买/item-id 面，与本单无关）**：注册点 **111**（get 50 / post 57 / put 0 / delete 3 / patch 1，现取复算）· campaign 七口**未注册**（grep `api/campaign` = 0）· 迁移末位盘上 **`0061_listing_allow_multi_buy.sql`**（0062 为 §40.14 契约占用、未落盘）⇒ 本单取 `0063` 预计 · `requireAdmin(` 24 处（现取）· 权限键闭集含 `manage_tasks`（`database.ts:21`）· 会话解析面 `index.ts:256`/`:362` · 设置写口 `index.ts:1915` · 迁移链无名为 `project` / `user_activity*` 的表（grep 0 命中）· **DB 面 `NOT_MEASURED`**（连不上 Neon）。
+- **未做（`NOT_MEASURED` · 本册不预填）**：`0063` 未落盘 / 两库未 apply / 七路由未注册 / **125 为两级预计未回填** / batt 公式 A/B 未裁 / 配置键未入册 / 判负 #61–#67 与 PR-N1…N6、#77–#83 一条未跑；**零 HTTP 实测 / 零库写 / 零代码**。本笔只写 `docs/**` ＋ `ops/project/**`，**不 push**。
