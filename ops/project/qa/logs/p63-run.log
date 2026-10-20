@@ -1,0 +1,37 @@
+{
+ "saved": "/Users/kevin/bistro/seafood/ops/project/readings/p63-project-gate-20261020T114108Zzpb3.json",
+ "summary": {
+  "total": 38,
+  "passed": 36,
+  "failed": 2,
+  "red": [
+   "B1",
+   "Z1"
+  ]
+ },
+ "readings": {
+  "fixture_users": [
+   908301,
+   908302,
+   908303,
+   908304,
+   908305
+  ],
+  "mig63": {
+   "version_rows_before": 1,
+   "version_rows_after": 2
+  },
+  "list": {
+   "n": 10,
+   "first_status": "recruiting",
+   "snowflake_type": "string"
+  },
+  "fixture_money": {
+   "fee": "10000",
+   "owner_usd": "85000",
+   "sec_cid": 419,
+   "owner_sec": "10000"
+  },
+  "committed_touch": "none (single rollback tx)"
+ }
+}

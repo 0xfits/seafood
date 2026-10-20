@@ -13,11 +13,15 @@
  *       结算常量 2/1/100 · 状态迁移矩阵 · 入参纯函数（禁带字段 / 两币成对 / interval / headcount）。
  *   B · 迁移干跑（真库 · 回滚事务内）：0063 头段 + 尾部 DO 全绿（四表 / 列数 14-6-10-4 / 具名约束 /
  *       部分唯一索引 / 配置键 fee=10000 / version 行未写）· 0064 头段 + 尾部 DO（恰 10 行种子）·
- *       0064 二次执行**行数不变**（幂等）· `schema_migration` 无 0063/0064 行。
+ *       0064 二次执行**行数不变**（幂等）· `schema_migration` 无 0063/0064 行 ·
+ *       **B4 匿名列表行三键（my_role/my_hired_at/next_claim_at）缺省、行仍 15 键**。
  *   S · 服务层真路径（同事务 · `ex` 注入）：建费扣款（余额 / 平台收入 / 台账两条 / 幂等重放）·
  *       招工四臂（非招募期 / 满员 / 注册天数不足 / 他项目在职）+ 同项目重投 200 no-op +
  *       招满自动转 working · 领薪（未录用 / 间隔未到 / 正常逐桶 2-1 / 100h 上限 / ended 封板）·
- *       离职幂等 · 管理员缩容 409 + 状态机 + 名字扩充。
+ *       离职幂等 · 管理员缩容 409 + 状态机 + 名字扩充 ·
+ *       **S15/S16 登录态列表加性面**（未在职 ⇒ my_role='none' 三键在场且 null；在职 ⇒ 恰 1 行 hired、
+ *       `my_hired_at` 与库内 `hired_at` 一致、`next_claim_at` = max(hired_at, 上次 claim) + interval
+ *       与库内复算一致且为未来时刻 —— 「领工资只落在自己的卡」的服务端承重臂）。
  *   N · **三臂负控（判据必须可红）**：
  *       ① 去部分唯一索引 ⇒ 同一 uid 双项目在职可现（DB 层 `23505` 消失）⇒ S 臂必红；
  *       ② 去 100h 上限 ⇒ 150h 窗口可累积（DB CHECK 亦拒 ⇒ 双证）⇒ S 臂必红；
@@ -235,8 +239,14 @@ const reasonOf = (r: unknown) => String(((r as { details?: { reason?: unknown } 
 
   // ======================================================================== B + S + N · 事务内
   const pool = mkPool(2);
+  // ★ mode-aware（承「dev 已 apply ⇒ 同一门必红」纪律）：0063 已进 dev 库 ⇒ B1/Z1 断言「已 apply 稳态」，
+  //   否则断言「本门全程未 apply、零残留」。两种模式读数**都落盘**（`readings.mode`）。
+  const applied63 = Number((await qRetry<{ n: number }>(pool,
+    "SELECT count(*)::int AS n FROM public.schema_migration WHERE version = '0063'"))[0]?.n ?? 0) > 0;
+  const MODE = applied63 ? 'post-apply' : 'pre-apply';
+  out.mode = MODE;
   const r = await tx(pool, async (c) => {
-    const R: Record<string, unknown> = {};
+    const R: Record<string, unknown> = { mode: MODE };
     const ex = c as unknown as TxClient;
     /** 台账条数：同键多腿的派生键为 `<key>#<i>`（ledger.ts deriveEventKey）⇒ 计数须含派生键 */
     const ledgerRows = async (key: string): Promise<number> => Number((await raw1<{ n: number }>(c,
@@ -278,13 +288,16 @@ const reasonOf = (r: unknown) => String(((r as { details?: { reason?: unknown } 
     const pidx = await raw1<{ def: string }>(c,
       "SELECT indexdef AS def FROM pg_indexes WHERE schemaname='public' AND indexname='project_worker_single_hired_uniq'");
     const feeRow = await raw1<{ fee: string }>(c, "SELECT value->>'fee' AS fee FROM public.app_config WHERE key='project_create_fee'");
-    ck.t('B1', '0063 干跑全绿：四表在场 · 物理列 14/6/10/4 · 部分唯一索引 = UNIQUE(uid) WHERE status=hired · 配置 fee=10000 · 版本行未写',
+    const versionOk = applied63
+      ? Number(before63?.n ?? -1) === 1 && Number(after63?.n ?? -1) === 2 // 已 apply 稳态：干跑**不得**再写版本行
+      : Number(before63?.n ?? -1) === 0 && Number(after63?.n ?? -1) === 0; // 未 apply：全程零版本行
+    ck.t('B1', `[${MODE}] 0063 干跑全绿：四表在场 · 物理列 14/6/10/4 · 部分唯一索引 = UNIQUE(uid) WHERE status=hired · 配置 fee=10000 · ${applied63 ? '版本行 0063/0064 各 1（已 apply 稳态，干跑零新增）' : '版本行未写'}`,
       Number(tables?.n ?? 0) === 4 && colMap.project === 14 && colMap.project_worker === 6
         && colMap.project_wage_claim === 10 && colMap.user_activity_hour === 4
         && /UNIQUE/.test(String(pidx?.def ?? '')) && /\(uid\)/.test(String(pidx?.def ?? ''))
         && /status = 'hired'/.test(String(pidx?.def ?? '')) && String(feeRow?.fee ?? '') === '10000'
-        && Number(before63?.n ?? -1) === 0 && Number(after63?.n ?? -1) === 0,
-      JSON.stringify({ tables: tables?.n, cols: colMap, index: pidx?.def, fee: feeRow?.fee, version_before: before63?.n, version_after: after63?.n }));
+        && versionOk,
+      JSON.stringify({ mode: MODE, tables: tables?.n, cols: colMap, index: pidx?.def, fee: feeRow?.fee, version_before: before63?.n, version_after: after63?.n }));
 
     // ---- B2 · 种子 0064（头段 + 尾部 DO）+ 幂等重跑
     for (const stmt of M64_HEAD) await c.query(stmt);
@@ -312,6 +325,14 @@ const reasonOf = (r: unknown) => String(((r as { details?: { reason?: unknown } 
         && typeof listed[0]?.snowflake_id === 'string' && detail !== null
         && String(detail?.snowflake_id) === String(listed[0]?.snowflake_id) && miss === null,
       JSON.stringify(R.list));
+
+    // ---- B4 · 匿名面：三键**缺省**（不是 null —— 前端按 hasOwn 判「未登录」）
+    const anonKeys = Object.keys(listed[0] ?? {});
+    const anonAbsent = ['my_role', 'my_hired_at', 'next_claim_at'].every((k) => !(k in (listed[0] ?? {})));
+    ck.t('B4', '匿名列表行：`my_role`/`my_hired_at`/`next_claim_at` **三键缺省**（非 null）· 行仍 15 键（加性零破）· 全表一致',
+      anonAbsent && anonKeys.length === 15
+        && listed.every((x) => !('my_role' in x) && !('my_hired_at' in x) && !('next_claim_at' in x)),
+      JSON.stringify({ keys: anonKeys.length, absent: anonAbsent }));
 
     // ---- 夹具：$ 与次币（平台受信任 mint 路径；全部随事务回滚）
     const fee = BigInt(await currentCreateFee());
@@ -495,6 +516,57 @@ const reasonOf = (r: unknown) => String(((r as { details?: { reason?: unknown } 
         && Number((grow as { view?: { wage_interval_hours?: number } }).view?.wage_interval_hours) === 12,
       JSON.stringify({ hired: [p6a.ok, p6b.ok], shrink: [verbOf(shrink), reasonOf(shrink)], grow: grow.ok }));
 
+    // ---- S15/S16 · 登录态列表加性面（route §49.19 R1 增量 · 零新路由）
+    //  W3 在职于 P2（status 已 ended ⇒ 不在列表）⇒ 登录态下**全表** my_role='none'（三键在场但 null）
+    const viewerNone = await listProjects(ex, { viewerUid: W3 });
+    const noneOk = viewerNone.length > 0 && viewerNone.every((x) =>
+      x.my_role === 'none' && x.my_hired_at === null && x.next_claim_at === null
+      && Object.keys(x).length === 18);
+    ck.t('S15', '登录态列表（未在职者）：三键**在场**且 `my_role="none"` / `my_hired_at=null` / `next_claim_at=null` · 行 18 键',
+      noneOk,
+      JSON.stringify({ rows: viewerNone.length, sample: viewerNone[0] ? {
+        my_role: viewerNone[0].my_role, my_hired_at: viewerNone[0].my_hired_at, keys: Object.keys(viewerNone[0]).length } : null }));
+
+    //  W1 在职于 P1 且已在 S10 领过薪 ⇒ 恰 1 行 hired，值与库内逐项对拍（含 next_claim_at 的服务端算式）
+    const viewerHired = await listProjects(ex, { viewerUid: W1 });
+    const hiredRows = viewerHired.filter((x) => x.my_role === 'hired');
+    const p1Row = viewerHired.find((x) => x.project_id === P1);
+    const dbWage = await raw1<{ hired_at: string; last_claim: string | null; interval_hours: number; next_claim: string }>(c,
+      `SELECT w.hired_at::text AS hired_at,
+              (SELECT max(cl.time_created)::text FROM public.project_wage_claim AS cl
+                WHERE cl.project_id = $1::bigint AND cl.uid = $2::bigint) AS last_claim,
+              p.wage_interval_hours::int AS interval_hours,
+              (GREATEST(w.hired_at,
+                        COALESCE((SELECT max(cl.time_created) FROM public.project_wage_claim AS cl
+                                   WHERE cl.project_id = $1::bigint AND cl.uid = $2::bigint), w.hired_at))
+               + make_interval(hours => p.wage_interval_hours::int))::text AS next_claim
+         FROM public.project_worker AS w
+         JOIN public.project AS p ON p.project_id = w.project_id
+        WHERE w.project_id = $1::bigint AND w.uid = $2::bigint AND w.status = 'hired'`,
+      [P1, String(W1)]);
+    const near = (a?: string | null, b?: string | null): boolean => {
+      const x = a === null || a === undefined ? NaN : Date.parse(a);
+      const y = b === null || b === undefined ? NaN : Date.parse(b);
+      return Number.isFinite(x) && Number.isFinite(y) && Math.abs(x - y) <= 1000;
+    };
+    const claimRowsForW1 = Number((await raw1<{ n: number }>(c,
+      'SELECT count(*)::int AS n FROM public.project_wage_claim WHERE project_id = $1::bigint AND uid = $2::bigint',
+      [P1, String(W1)]))?.n ?? 0);
+    const nextAt = p1Row?.next_claim_at ?? null;
+    ck.t('S16', '登录态列表（在职者）：「领工资」只落在**自己的**卡（恰 1 行 hired）· `my_hired_at` 与库内 `hired_at` 一致 · `next_claim_at` = max(hired_at,上次 claim)+interval（与库内复算一致，且已领过薪 ⇒ 未来时刻）',
+      p1Row !== undefined && p1Row.my_role === 'hired' && hiredRows.length === 1
+        && claimRowsForW1 === 1
+        && near(p1Row.my_hired_at, dbWage?.hired_at)
+        && near(nextAt, dbWage?.next_claim)
+        && Number(dbWage?.interval_hours ?? 0) === 1
+        && nextAt !== null && Date.parse(nextAt) > Date.now()
+        && viewerHired.filter((x) => x.my_role === 'none').every((x) => x.my_hired_at === null && x.next_claim_at === null),
+      JSON.stringify({
+        hired_rows: hiredRows.length, claims_w1: claimRowsForW1,
+        my_hired_at: p1Row?.my_hired_at, db_hired_at: dbWage?.hired_at,
+        next_claim_at: nextAt, db_next_claim: dbWage?.next_claim, db_last_claim: dbWage?.last_claim,
+      }));
+
     // ==================================================================== N · 三臂负控
     // ① 部分唯一索引：去索引 ⇒ 同一 uid 双项目在职**可现**；复索引 ⇒ 23505
     const dupInsert = (proj: string, uid: number) => c.query(
@@ -566,9 +638,14 @@ const reasonOf = (r: unknown) => String(((r as { details?: { reason?: unknown } 
   // ======================================================================== Z · 残留（rollback 之后）
   if (!r.error) {
     const residue = await raw1RetrySafe(pool);
-    ck.t('Z1', '零 apply / 零残留：提交面**无** project 四表、**无** project_create_fee 行（本门全程单回滚事务）',
-      residue.tables === 0 && residue.fee === 0,
-      JSON.stringify(residue));
+    // 已 apply 稳态 ⇒ 提交面本就有四表 + 配置行（那是迁移的真实终态，不是本门残留）；
+    // 未 apply ⇒ 必须零残留。两态都断言「本门没有额外写入」（版本行与业务行数不为门所动）。
+    const residueOk = applied63 ? residue.tables === 4 && residue.fee === 1 : residue.tables === 0 && residue.fee === 0;
+    ck.t('Z1', `[${MODE}] ${applied63
+      ? '已 apply 稳态：提交面四表在场 + project_create_fee 行 1（= 迁移终态；本门单回滚事务未额外写入）'
+      : '零 apply / 零残留：提交面**无** project 四表、**无** project_create_fee 行'}`,
+      residueOk,
+      JSON.stringify({ mode: MODE, ...residue }));
   }
   await pool.end().catch(() => undefined);
 

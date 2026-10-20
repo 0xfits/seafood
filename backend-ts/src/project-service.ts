@@ -101,6 +101,20 @@ export interface ProjectView {
   time_updated: string | null;
 }
 
+/**
+ * 列表行的**登录态加性面**（route §49.19 R1 增量 · 零新路由）：
+ * · `my_role`      —— 本人与该项目的在职关系（`project_worker.status='hired'`）⇒ `'hired'`，否则 `'none'`；
+ * · `my_hired_at`  —— 仅 `my_role='hired'` 时有值（`string|null`）；
+ * · `next_claim_at`—— `max(hired_at, 上次 claim) + wage_interval_hours`（与 `claimProjectWageVerb`
+ *                     ③ 段的结算窗口起点**同一算式**），仅 hired 行有值；
+ * 匿名（无登录取向）⇒ **三键缺省**（不是 null —— 前端按 `hasOwn` 判「未登录 / 未在职」）。
+ */
+export interface ProjectListRow extends ProjectView {
+  my_role?: 'hired' | 'none';
+  my_hired_at?: string | null;
+  next_claim_at?: string | null;
+}
+
 export interface ProjectWorkerView {
   worker_id: string;
   project_id: string;
@@ -385,13 +399,68 @@ const PROJECT_LIST_SQL = `
    WHERE p.status IN ('recruiting', 'working')
    ORDER BY p.time_created DESC, p.project_id DESC`;
 
+/**
+ * 登录态列表 SQL（`project_worker_single_hired_uniq` ⇒ 每个 uid 至多一条 hired 行 ⇒ LEFT JOIN 不放大行数）。
+ * 「上次 claim」按 `max(time_created)` 取 —— 与 `claimProjectWageVerb` ③ 段同一口径。
+ */
+const PROJECT_LIST_VIEWER_SQL = `
+  SELECT p.*,
+         COALESCE((SELECT count(*)::int FROM public.project_worker AS w
+                    WHERE w.project_id = p.project_id AND w.status = 'hired'), 0) AS hired_count,
+         (v.worker_id IS NOT NULL) AS viewer_hired,
+         v.hired_at AS viewer_hired_at,
+         (SELECT max(cl.time_created) FROM public.project_wage_claim AS cl
+           WHERE cl.project_id = p.project_id AND cl.uid = $1::bigint) AS viewer_last_claim_at
+    FROM public.project AS p
+    LEFT JOIN public.project_worker AS v
+      ON v.project_id = p.project_id AND v.uid = $1::bigint AND v.status = 'hired'
+   WHERE p.status IN ('recruiting', 'working')
+   ORDER BY p.time_created DESC, p.project_id DESC`;
+
 /** 读口 SQL 执行：门内传入 `ex` 复用事务连接（迁移干跑未提交 ⇒ 别的连接看不到表）；HTTP 路径不传 = 只读池 */
 const readRows = async <R = Row>(text: string, params: unknown[], ex?: TxClient): Promise<R[]> =>
   (ex ? txQuery<R>(ex, text, params) : readQuery<R>(text, params));
 
-export const listProjects = async (ex?: TxClient): Promise<ProjectView[]> => {
-  const rows = await readRows<Row>(PROJECT_LIST_SQL, [], ex);
-  return rows.map(normalizeProjectRow);
+/** `base + hours` ⇒ ISO（基值为空 / 坏值 ⇒ null，前端按「无倒计时」降级，**不猜**） */
+const addHoursIso = (base: string | null, hours: number): string | null => {
+  if (base === null) return null;
+  const t = Date.parse(base);
+  if (!Number.isFinite(t)) return null;
+  return new Date(t + hours * 3_600_000).toISOString();
+};
+
+/** 登录态行：在职 ⇒ `my_role='hired'` + `my_hired_at` + `next_claim_at`；否则 `my_role='none'`（两键 null） */
+const normalizeProjectListRow = (row: Row): ProjectListRow => {
+  const base = normalizeProjectRow(row);
+  if (row.viewer_hired !== true) return { ...base, my_role: 'none', my_hired_at: null, next_claim_at: null };
+  const hiredAt = iso(row.viewer_hired_at);
+  const lastClaimAt = iso(row.viewer_last_claim_at);
+  const windowStart = hiredAt === null
+    ? lastClaimAt
+    : lastClaimAt === null || Date.parse(lastClaimAt) < Date.parse(hiredAt) ? hiredAt : lastClaimAt;
+  return {
+    ...base,
+    my_role: 'hired',
+    my_hired_at: hiredAt,
+    next_claim_at: addHoursIso(windowStart, base.wage_interval_hours),
+  };
+};
+
+/**
+ * R1 列表。`opts.viewerUid` 缺省 ⇒ **匿名面**：行仍是原 15 键（三键缺省）；
+ * 有值 ⇒ 登录态加性三键（**零新路由、零第二套读口**）。
+ */
+export const listProjects = async (
+  ex?: TxClient,
+  opts?: { viewerUid?: number | null },
+): Promise<ProjectListRow[]> => {
+  const viewerUid = opts?.viewerUid;
+  if (viewerUid === null || viewerUid === undefined || !Number.isSafeInteger(viewerUid) || viewerUid <= 0) {
+    const rows = await readRows<Row>(PROJECT_LIST_SQL, [], ex);
+    return rows.map(normalizeProjectRow);
+  }
+  const rows = await readRows<Row>(PROJECT_LIST_VIEWER_SQL, [String(viewerUid)], ex);
+  return rows.map(normalizeProjectListRow);
 };
 
 /** 单语句双形态（`project_id` OR `snowflake_id`，一次往返 —— route #67） */

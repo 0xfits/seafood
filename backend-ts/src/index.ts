@@ -4014,6 +4014,8 @@ app.get('/api/media/:id', async (req, res) => {
 // ★★ 项目（打工 / 工资）域 · 七口（data-layer.spec §40.15 · route-layer.spec §49.19）
 // ----------------------------------------------------------------------------
 // R1 GET  /api/project/all              公开 · 列表（仅 recruiting / working；带在职数派生）
+//    ★ 登录态带 token ⇒ 每行**加性** `my_role` / `my_hired_at` / `next_claim_at`（匿名 ⇒ 三键缺省）；
+//      前端 `/wage` 据此把【加入】换成【领工资】并按 `next_claim_at` 倒计时（零新路由）。
 // R2 GET  /api/project/:ref             公开 · 详情（纯数字 ⇒ project_id OR snowflake_id，一次往返）
 // R3 POST /api/project                  用户 · 建项目 + 同事务扣建费入平台收入
 // R4 POST /api/project/:id/apply        用户 · 招工（满足即直接录用；招满同事务转 working）
@@ -4026,9 +4028,33 @@ app.get('/api/media/:id', async (req, res) => {
 //   409 `LEDGER_INSUFFICIENT_BALANCE` / 403 `AUTH_FORBIDDEN`，逐场景理由在 `details.reason`。
 // 注册点 111 → 118（get 50→52 / post 57→61 / patch 1→2 / delete 3）。
 // ============================================================================
-app.get('/api/project/all', async (_req, res) => {
+/**
+ * R1 列表的**可选身份**（零新路由 · 承 §49.18 campaign 详情同族体例）：
+ * 登录态 ⇒ 每行加性 `my_role` / `my_hired_at` / `next_claim_at`（`/wage` 卡片据此把【加入】换成
+ * 【领工资】并按 `next_claim_at` 显示倒计时）；匿名 ⇒ **三键缺省**。
+ * 身份解析失败 / 基础设施异常 ⇒ 按公众处理（列表照常公开可读，不落 401）。
+ */
+const resolveOptionalProjectViewer = async (req: Request): Promise<{ viewerUid: number | null }> => {
   try {
-    const rows = await listProjects();
+    const resolved = await resolveActor(req);
+    if (isActorFailure(resolved)) return { viewerUid: null };
+    const uid = Number(resolved.user?.uID);
+    return { viewerUid: Number.isSafeInteger(uid) && uid > 0 ? uid : null };
+  } catch {
+    return { viewerUid: null }; // 基础设施异常 ⇒ 保守按公众处理（不落 401/403）
+  }
+};
+
+app.get('/api/project/all', async (req, res) => {
+  try {
+    // 公开可浏览（未登录零门禁）；仅**登录态**加性透出个人面三键（零新路由）
+    const viewer = await resolveOptionalProjectViewer(req);
+    const rows = await listProjects(undefined, { viewerUid: viewer.viewerUid });
+    // 带个人面的载荷不得进共享缓存（匿名分支维持原样：不设缓存头 = 既有行为零变化）
+    if (viewer.viewerUid !== null) {
+      setPrivateNoStore(res);
+      res.setHeader('Vary', 'Authorization');
+    }
     return sendSuccess(res, rows, 'Project list (public)');
   } catch (error) {
     return sendInfraMapped(res, 'project.list', error);

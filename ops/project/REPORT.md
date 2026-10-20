@@ -120,3 +120,76 @@
 
 - `ops/project/readings/p63-project-gate-20261020T104035Z8b3v.json`（35/35 全绿终轮；同轮 `Z1` 残留 = 0）
 - 回归门的读数落在各自目录（`ops/item-detail/readings/` · `ops/admin-edit/readings/` · `ops/item-id/readings/` · `ops/multi-buy/readings/`）—— **本单只 add `ops/project/**`**，故这些读数**未入本 commit**（保持改动面 = 项目域）。
+
+---
+
+## 9. 增量（2026-10-20 · `/wage` 两处 UI 缺陷的**数据面**根因）
+
+**背景**：`/wage` 上「已加入的项目仍显示【加入】」「【领工资】应出现在已加入项目**自己的卡片内**」两条
+反馈的根因不在卡片渲染，而在数据面 —— `GET /api/project/all` 的行里**没有登录取向**（原 15 键），
+前端拿不到「我是否在职于这一行」。本单只补数据面（**零新路由、零前端改动**）。
+
+### 9.1 契约增量（route §49.19 R1 加性）
+
+| 键 | 匿名 | 登录态 · 未在职 | 登录态 · 在职（`project_worker.status='hired'`） |
+|---|---|---|---|
+| `my_role` | **缺省** | `'none'` | `'hired'` |
+| `my_hired_at` | **缺省** | `null` | 库内 `hired_at`（ISO） |
+| `next_claim_at` | **缺省** | `null` | `max(hired_at, 上次 claim) + wage_interval_hours`（ISO） |
+
+- 「缺省」不是 `null` —— 前端按 `hasOwn` 区分「未登录」与「未在职」，否则两条分支在 JS 里同形。
+- `next_claim_at` 与 `claimProjectWageVerb` ③ 段的结算窗口起点**同一算式**（`GREATEST(hired_at, max(claim.time_created))`），
+  前端据此显示倒计时，不必自算、不会与服务端闸口径漂移。
+- 行键数：匿名 **15**（原样不动）· 登录态 **18**（+3 加性）。**零新路由**（注册点仍 **127**）。
+- 登录态响应头恒 `Cache-Control: private, no-store` + `Vary: Authorization`（带个人面的载荷不得进共享缓存）；
+  匿名分支**不设缓存头** = 既有行为零变化。
+- 身份解析失败 / 坏 token / 基础设施异常 ⇒ **fail-open 按公众处理**（列表照常 200，不落 401 —— 公开读口不得因鉴权抖动变不可读）。
+
+### 9.2 实现落点
+
+- `backend-ts/src/project-service.ts`：新增 `ProjectListRow`（`ProjectView` + 三可选键）、
+  `PROJECT_LIST_VIEWER_SQL`（`LEFT JOIN project_worker` 取在职行 + 子查询取 `max(claim.time_created)`；
+  部分唯一索引 `project_worker_single_hired_uniq` ⇒ 每 uid 至多一条 hired 行 ⇒ JOIN 不放大行数）、
+  `listProjects(ex?, { viewerUid })`（缺省 ⇒ 原 SQL 原 15 键）。
+- `backend-ts/src/index.ts`：`resolveOptionalProjectViewer`（体例同 `resolveOptionalCampaignViewer`）+ R1 接线 + 私有缓存头。
+
+### 9.3 门（`ops/project/p63-00-project-gate.ts` · 35 → **38** 臂）
+
+| 臂 | 断言 | 读数 |
+|---|---|---|
+| **B4** | 匿名行三键**缺省**（非 null）· 行仍 15 键 · 全表一致 | `keys=15 absent=true` |
+| **S15** | 登录态 · 未在职者：三键**在场**且 `my_role='none'`、两键 `null` · 行 18 键 | `rows=15 sample={my_role:'none', my_hired_at:null, keys:18}` |
+| **S16** | 登录态 · 在职者：「领工资」只落在**自己的**卡（恰 1 行 `hired`）· `my_hired_at` 与库内 `hired_at` 一致 · `next_claim_at` 与库内 `GREATEST(...)+interval` 复算一致且为未来时刻 | `hired_rows=1 claims_w1=1 my_hired_at=…08:42:25.629Z db_hired_at=…08:42:25.629345+00 next_claim_at=…12:42:25.629Z db_next_claim=…12:42:25.629+00` |
+
+B4 与 S15/S16 构成**成对判据**（同一批数据：匿名 ⇒ 缺省，登录 ⇒ 在场），任一侧失效另一侧必红；
+S16 的期望值由**独立 SQL 复算**（不是拿服务层自身出参自证）。
+
+### 9.4 门改 mode-aware（环境性红点，非本单回归）
+
+开工时 dev 库已被 apply 到 **0065**（`schema_migration`：0063 `11:14:42Z` / 0064 `11:14:43Z` / 0065 `11:14:44Z`），
+而 `B1` / `Z1` 原断言「本门全程未 apply（版本行 0 / 提交面无四表）」⇒ 首跑 `36/38`（红 `B1`、`Z1`），
+两臂与本次改动**无交集**（只读 `information_schema` / `schema_migration` / `app_config`）。
+按既有纪律改为 **mode-aware**：
+
+- `pre-apply`（0063 未进库）⇒ 原断言逐字保留（版本行 0 / 提交面零残留）；
+- `post-apply`（0063 已进库）⇒ 断言**已 apply 稳态**：干跑不新增版本行（`before=1 / after=2`）、
+  提交面四表在场 + `project_create_fee` 1 行（= 迁移真实终态，不是本门残留）。
+
+`out.mode` 与 `readings.mode` 都落盘。**判据未放宽**：两态各自断言各自的终态，未合并成「任一为真即过」。
+首跑红读数 `readings/p63-project-gate-20261020T114108Zzpb3.json` 保留在库（归因：环境已 apply）。
+
+### 9.5 读数
+
+- `ops/project/readings/p63-project-gate-20261020T114224Zi3id.json` —— **38/38 全绿**（`mode=post-apply`）
+- `ops/project/qa/logs/p63-run2.log`（终轮）· `p63-run.log`（首跑 36/38 红 B1/Z1）· `p7b-03.log`（**37/37**，注册点 **127** = get 54 / post 66 / put 0 / delete 3 / patch 4）
+- HTTP 三臂（临时实例 5811，已关停；零写库）：匿名 `200 / 10 行 / 15 键 / 三键缺省 / 无缓存头` ·
+  登录态（uid 10）`200 / 18 键 / my_role='none' / Cache-Control: private, no-store + Vary: Authorization` ·
+  坏 token `200 / 15 键 / 缺省`（fail-open，不 401）
+- `tsc --noEmit -p tsconfig.json` ⇒ **exit 0**
+
+### 9.6 未做 / 交接
+
+- **前端未改**（本单按派单只做数据面）：`frontend/src/pages/wage/WagePage.jsx` 需改为按
+  `row.my_role === 'hired'` 在**该卡片内**渲染【领工资】、否则渲染【加入】，并按 `next_claim_at` 走既有 `m:ss` 倒计时；
+  匿名（三键缺省）沿用「按钮置灰 + 登录提示」。
+- **未 push**（push = 上线）；**未改** `docs/**`、既有迁移、`frontend/**`。
