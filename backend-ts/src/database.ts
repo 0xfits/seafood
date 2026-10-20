@@ -1179,8 +1179,21 @@ export interface BrandRecord {
   i18n_status: I18nStatus;
   /** ★ 2026-10-19 商品卡结构重定义：加性键 `wants`（feed 行键 46→47）= 该商品 `listing_favorite`
    *   收藏计数（`count(*)`，无收藏 ⇒ 0）。**只发数字**，不含收藏者身份 ⇒ 无权限 / 隐私面。
-   *   仅 `listBrands`（feed 读口）携带；详情行不带该列 ⇒ 键不出现（详情顶层键数不变）。 */
+   *   ★ P57 起 feed（`listBrands`）与详情（`getPrizeDetailRecordingView`）**同源携带**（同一
+   *   `listing_favorite` 聚合 LEFT JOIN）⇒ 详情 data 顶层 47→50 三加性键之一；feed 行键 48 不变。 */
   wants?: number;
+  /** ★ P57 详情浏览计数（Kevin 2026-10-20 详情页改版 · 后端件 · 迁移 0057）：加性键 `views`
+   *  （详情 data 顶层 47→50 三加性键之一，同批 +`condition` +`wants`）= 详情读口「自增 + 读」
+   *  单语句 CTE（`getPrizeDetailRecordingView`）返回的**自增后** `listing.view_count`。
+   *  简单计数口径：任何状态都计（不过滤 status）、不区分访问者、
+   *  **卖家自看也计**（去重 / 自看排除策略挂 OPEN-ITEMS 待裁）。
+   *  仅详情读口携带；feed（`listBrands`）不选该列 ⇒ 行键 48 不变、键不出现。 */
+  views?: number;
+  /** ★ P57 商品成色（迁移 0057 四值闭集）：`BrandNewSealed` / `LikeNew` / `MinorWear` / `HeavyWear`；
+   *  `null` = 无成色（数字商品 / 未分类 / 存量未填）。中文名由前端 i18n 按 `condition` 字面量映射
+   *  （服务端只发枚举字面量，与 `item_type` 同体例）。仅详情读口携带（47→50 三加性键之一；
+   *  feed 行键 48 不变 ⇒ 键不出现）。 */
+  condition?: string | null;
   /** ★ 2026-10-19 商品卡改版（Kevin 第 4 条）：加性键（feed 行键 45→46；详情行经 `getPrizeSellerView`
    *  于路由层合成同构对象 ⇒ 详情顶层键数不变）。形状 = `SellerView`（uid/nickname/avatar/credit）。 */
   seller?: SellerView;
@@ -1217,6 +1230,9 @@ export interface ListingMineRow {
   description: string;
   /** ★ S55 加性键：商品分类（`listing.item_type`；四值闭集 或 `null` = 未分类，原样透出） */
   item_type: string | null;
+  /** ★ P57 加性键（行键 10→11）：商品成色（`listing.item_condition`，迁移 0057 四值闭集 或
+   *  `null` = 无成色）—— 编辑页（/item/:id/edit）预填成色用；键名与详情读口 `condition` 一致。 */
+  condition: string | null;
 }
 
 // 「我卖出的」：行形与买家轴 listPrizeItemsByUser（GET /api/prize-item）同族（gID/bID/uID
@@ -1581,6 +1597,22 @@ const normalizeBrand = (
   if (row.want_count !== undefined) {
     record.wants = toNumberValue(getValue(row, 'want_count'));
   }
+  // ★ P57 详情浏览计数 + 商品成色 + wants（Kevin 2026-10-20 详情页改版 · 迁移 0057）：详情行加性三键
+  //   `views` / `condition` / `wants` ⇒ 详情 data 顶层 47→**50**（service 层 49 + 路由层 `seller`）。
+  //   · `views` = **自增后**的 `listing.view_count`（详情专用「自增+读」CTE 的 RETURNING；
+  //     bigint 经驱动回字符串 ⇒ toNumberValue 归一成 number）；
+  //   · `condition` = `listing.item_condition` 四值闭集字面量或 `null`（= 无成色 / 数字商品 / 未分类；
+  //     服务端只发字面量，中文名映射在前端 i18n —— 与 `item_type` 同体例；此处不走
+  //     `getValue`/`toStringValue`：两者会把 NULL 归一成 ''/undefined，污染「无成色」语义）；
+  //   · `wants` = 收藏计数（`want_count`，走上方既有条件透出块；详情 SELECT 已与 feed 同源 left join）。
+  //   三键都**仅当行携带该列**（详情专用口）时透出：feed（`listBrands`）不选 `view_count`/`item_condition`
+  //   ⇒ feed 行键 48 不变、两键不出现（wants feed 本就携带）。
+  if (row.view_count !== undefined) {
+    record.views = toNumberValue(row.view_count);
+  }
+  if (row.item_condition !== undefined) {
+    record.condition = row.item_condition === null ? null : String(row.item_condition);
+  }
   // P6-TR-1b：`name_*`/`description_*` 由 applyI18n 生成（有 ready 译文用译文，否则回落源文；含 i18n_status）
   applyI18n('listing', String(record.bID), record, i18nIndex);
   return record as unknown as BrandRecord;
@@ -1607,12 +1639,18 @@ const normalizeListingMineRow = (row: RawRow): ListingMineRow => ({
   stock: toNumberValue(getValue(row, 'stock')),
   media_urls: toStringArrayValue(getValue(row, 'media_urls')),
   time_created: toTimestamp(getValue(row, 'time_created')),
-  // ★ S55 加性两键（键序 = 追加在既有 8 键之后 ⇒ 零重排）：`item_type` 保留 `null`（未分类），
-  //   不用 `toStringValue`（后者把 null 归一成 ''，会把「未分类」污染成空串）。
+  // ★ S55 加性键 + P57 第三键（键序 = 依次追加在既有 8 键之后 ⇒ 零重排）：`item_type` 保留 `null`
+  //   （未分类），不用 `toStringValue`（后者把 null 归一成 ''，会把「未分类」污染成空串）。
+  //   `condition`（P57 · 迁移 0057）同体例：四值闭集字面量或 null；undefined 兜成 null
+  //   （两个调用口 SELECT/RETURNING 均恒带该列，兜底只为不炸）。
   description: toStringValue(getValue(row, 'description')),
   item_type: (() => {
     const rawItemType = getValue(row, 'item_type');
     return rawItemType === undefined || rawItemType === null ? null : String(rawItemType);
+  })(),
+  condition: (() => {
+    const rawCondition = getValue(row, 'item_condition');
+    return rawCondition === undefined || rawCondition === null ? null : String(rawCondition);
   })(),
 });
 
@@ -1636,18 +1674,22 @@ const normalizeListingMineRow = (row: RawRow): ListingMineRow => ({
  *      库存实际变更且 `status <> 'listed'` ⇒ `stock_requires_listed`
  *      （⇒ 409 + reason `listing_stock_change_requires_listed`；触发器本身也会 RAISE，此处前置判
  *      只为给**确定性业务码**而不是冒泡成基础设施异常；库内触发器仍是最终真源）。
+ *   ④ **成色适用性闸**（P57 · 迁移 0057）：生效 item_condition 非空而有效 item_type ∉
+ *      {PhysicalFreeShip, PhysicalBuyerShip} ⇒ `condition_not_applicable`（⇒ 400）；
+ *      patch 同时带 item_type 时服务层已纯预检（零 DB），本臂接「只提成色、需回读行现值」的路径。
  *
  * 「未传字段不动」= `COALESCE($n, l.xxx)`（NULL 占位不覆盖）；`item_type` 需区分「未传」与「显式置 NULL」
- * ⇒ 单独 `$8::boolean` 开关（`CASE WHEN $8 THEN $7::text ELSE l.item_type END`）。
+ * ⇒ 单独 `$8::boolean` 开关（`CASE WHEN $8 THEN $7::text ELSE l.item_type END`）；
+ * `item_condition` 同体例走 `$10::boolean` 开关（P57 · 迁移 0057）。
  * `prev_description` 同语句带回 ⇒ 服务层判「描述是否实际变化」（决定是否重置翻译），零额外往返。
  *
- * 参数位（8 位，**无 title 位**）：$1 listing_id · $2 actor_uid · $3 description · $4 price ·
- *   $5 stock · $6 media_urls · $7 item_type · $8 item_type_set
+ * 参数位（10 位，**无 title 位**）：$1 listing_id · $2 actor_uid · $3 description · $4 price ·
+ *   $5 stock · $6 media_urls · $7 item_type · $8 item_type_set · $9 item_condition · $10 item_condition_set
  */
 const UPDATE_LISTING_DETAILS_SQL = `
       WITH cur AS (
         SELECT pl.listing_id, pl.seller_uid, pl.cid, pl.price, pl.stock, pl.description, pl.media_urls, pl.item_type,
-               pl.status, pl.time_created
+               pl.item_condition, pl.status, pl.time_created
         FROM public.listing AS pl
         WHERE pl.listing_id = $1::bigint
         FOR UPDATE
@@ -1658,6 +1700,10 @@ const UPDATE_LISTING_DETAILS_SQL = `
                  WHEN cur.seller_uid <> $2::bigint THEN 'not_owner'
                  WHEN cur.status NOT IN ('draft', 'listed') THEN 'status_not_editable'
                  WHEN $5::int IS NOT NULL AND $5::int IS DISTINCT FROM cur.stock AND cur.status <> 'listed' THEN 'stock_requires_listed'
+                 WHEN (CASE WHEN $10::boolean THEN $9::text ELSE cur.item_condition END) IS NOT NULL
+                      AND COALESCE(CASE WHEN $8::boolean THEN $7::text ELSE cur.item_type END, '')
+                          NOT IN ('PhysicalFreeShip', 'PhysicalBuyerShip')
+                      THEN 'condition_not_applicable'
                  ELSE 'ok'
                END AS outcome
         FROM cur
@@ -1668,21 +1714,22 @@ const UPDATE_LISTING_DETAILS_SQL = `
             price       = COALESCE($4::bigint, l.price),
             stock       = COALESCE($5::int, l.stock),
             media_urls  = COALESCE($6::text[], l.media_urls),
-            item_type   = CASE WHEN $8::boolean THEN $7::text ELSE l.item_type END
+            item_type   = CASE WHEN $8::boolean THEN $7::text ELSE l.item_type END,
+            item_condition = CASE WHEN $10::boolean THEN $9::text ELSE l.item_condition END
         FROM guarded AS g
         WHERE l.listing_id = $1::bigint
           AND g.outcome = 'ok'
         RETURNING l.listing_id, split_part(l.description, E'\\n', 1) AS title, l.price, l.cid, l.status, l.stock,
-                  l.media_urls, l.time_created, l.description, l.item_type,
+                  l.media_urls, l.time_created, l.description, l.item_type, l.item_condition,
                   g.description AS prev_description,
                   'updated'::text AS outcome
       )
       SELECT u.listing_id, u.title, u.price, u.cid, u.status, u.stock, u.media_urls,
-             u.time_created, u.description, u.item_type, u.prev_description, u.outcome
+             u.time_created, u.description, u.item_type, u.item_condition, u.prev_description, u.outcome
       FROM upd AS u
       UNION ALL
       SELECT g.listing_id, split_part(g.description, E'\\n', 1) AS title, g.price, g.cid, g.status, g.stock, g.media_urls,
-             g.time_created, g.description, g.item_type, g.description, g.outcome
+             g.time_created, g.description, g.item_type, g.item_condition, g.description, g.outcome
       FROM guarded AS g WHERE g.outcome <> 'ok'
     `;
 
@@ -2884,12 +2931,15 @@ export class DatabaseService {
   // ============================================================================
 
   /** 「我发布的」（GET /api/listing/mine）：listing.seller_uid = me **全状态行**（draft/listed/delisted/frozen 都回），listing_id 降序。 */
-  static async listListingsBySeller(sellerUid: number, skip = 0, limit = 100): Promise<ListingMineRow[]> {
-    const sql = getSql();
+  static async listListingsBySeller(sellerUid: number, skip = 0, limit = 100, ex?: SqlRunner): Promise<ListingMineRow[]> {
+    const sql = sqlFor(ex);
     // ★ S55：SELECT 加性两列 `description` / `item_type`（行键 8 → 10；既有 8 键位置与顺序一字未动）。
+    // ★ P57（迁移 0057）：再加性一列 `item_condition`（行键 10 → 11，响应键 `condition`）——
+    //   编辑页（/item/:id/edit）预填成色用；与编辑回执（`updateListingDetailsRow` 的 ListingMineRow
+    //   同族）逐键一致。
     // ★★ 2026-10-20 Kevin 指令（title 退场、正文并入 description）：`title` 改为**派生列**
     //   = 描述首个换行之前（split_part）。本口对 title **列零引用** ⇒ 0056 DROP 后照跑、不会 42P01；
-    //   响应形状与取值**逐字不变**（键数 10，title 恒在场 = 首行文本；描述首行即标题）。
+    //   响应形状与取值**逐字不变**（title 恒在场 = 首行文本；描述首行即标题）。
     const rows = extractRows(await sql`
       SELECT
         l.listing_id,
@@ -2901,7 +2951,8 @@ export class DatabaseService {
         l.media_urls,
         l.time_created,
         l.description,
-        l.item_type
+        l.item_type,
+        l.item_condition
       FROM public.listing AS l
       WHERE l.seller_uid = ${sellerUid}::bigint
       ORDER BY l.listing_id DESC
@@ -2917,7 +2968,8 @@ export class DatabaseService {
    * 与 `updateListingRow`（旧 `POST` 编辑面）**并存、互不改写**：本方法的差异只有三处 ——
    *   ① **可编辑态 = `draft|listed`**（旧面只禁 `delisted`）⇒ `frozen` 一并只读（`status_not_editable`）；
    *   ② 可改字段 = **`description / price / stock / media_urls / item_type`（无 `title`）** +
-   *      `item_type` 区分「未传」与「显式置 NULL」（`itemTypeSet` 开关）；
+   *      `item_type` 区分「未传」与「显式置 NULL」（`itemTypeSet` 开关）+
+   *      `item_condition`（P57 · 迁移 0057，第 6 可改字段；同体例 `conditionSet` 开关）；
    *   ③ 回执 = **`ListingMineRow` 同族**（与 `listListingsBySeller` 逐键一致，前端可整行替换）+ `prev` 旧描述。
    *
    * `ex`（可选）= 既有事务内执行口（承 `R-8-18`）：门探针在 `inRollbackTx` 内跑**同一份 SQL** ⇒ 真库读数、零残留。
@@ -2932,8 +2984,11 @@ export class DatabaseService {
     mediaUrls: string[] | null;
     itemType: string | null;
     itemTypeSet: boolean;
+    /** ★ 迁移 0057：`item_condition` 新值（`conditionSet = false` 时语句忽略本参数、保留行现值） */
+    itemCondition: string | null;
+    conditionSet: boolean;
   }, ex?: SqlRunner): Promise<{
-    outcome: 'updated' | 'not_owner' | 'status_not_editable' | 'stock_requires_listed';
+    outcome: 'updated' | 'not_owner' | 'status_not_editable' | 'stock_requires_listed' | 'condition_not_applicable';
     row: ListingMineRow | null;
     prev: { description: string } | null;
   }> {
@@ -2946,11 +3001,13 @@ export class DatabaseService {
       input.mediaUrls,
       input.itemType,
       input.itemTypeSet,
+      input.itemCondition,
+      input.conditionSet,
     ], ex);
     const row = rows[0] || null;
     if (!row) return { outcome: 'updated', row: null, prev: null };
     const outcome = String(getValue(row, 'outcome')) as
-      'updated' | 'not_owner' | 'status_not_editable' | 'stock_requires_listed';
+      'updated' | 'not_owner' | 'status_not_editable' | 'stock_requires_listed' | 'condition_not_applicable';
     return {
       outcome,
       row: normalizeListingMineRow(row),
@@ -3758,9 +3815,11 @@ export class DatabaseService {
     description: string;
     mediaUrls: string[];
     itemType: string | null;
+    /** ★ 商品成色（迁移 0057）：可空；非空仅实物两分类（服务层 applicability 闸已把关，本层直存） */
+    itemCondition: string | null;
     createKey: string;
-  }): Promise<{ outcome: 'inserted' | 'existing'; row: RawRow }> {
-    const sql = getSql();
+  }, ex?: SqlRunner): Promise<{ outcome: 'inserted' | 'existing'; row: RawRow }> {
+    const sql = sqlFor(ex);
     // ★★ 2026-10-20 Kevin 数据模型指令（`listing.title` 退场、正文并入 `description`）：
     //   本语句对 `title` **列零引用**（INSERT 列清单 / CTE 取列 / RETURNING 全去），响应键 `title`
     //   一律**派生** `split_part(description, E'\n', 1)`（与读口 / `deriveListingTitle` 同源）
@@ -3772,8 +3831,8 @@ export class DatabaseService {
         WHERE create_key = ${input.createKey}::text
       ),
       ins AS (
-        INSERT INTO public.listing (seller_uid, cid, price, stock, description, media_urls, item_type, status, create_key)
-        SELECT ${input.sellerUid}::bigint, ${input.cid}::bigint, ${input.price}::bigint, ${input.stock}::int, ${input.description}::text, ${input.mediaUrls}::text[], ${input.itemType}::text, 'draft', ${input.createKey}::text
+        INSERT INTO public.listing (seller_uid, cid, price, stock, description, media_urls, item_type, item_condition, status, create_key)
+        SELECT ${input.sellerUid}::bigint, ${input.cid}::bigint, ${input.price}::bigint, ${input.stock}::int, ${input.description}::text, ${input.mediaUrls}::text[], ${input.itemType}::text, ${input.itemCondition}::text, 'draft', ${input.createKey}::text
         WHERE NOT EXISTS (SELECT 1 FROM existing)
         RETURNING listing_id, seller_uid, cid, price, stock, description, media_urls, item_type, status, create_key, 'inserted'::text AS outcome
       )
@@ -4744,11 +4803,80 @@ export class DatabaseService {
     }, await loadI18nIndex('listing', [String(bID)]));
   }
 
+  /**
+   * ★ P57 详情浏览计数（Kevin 2026-10-20 详情页改版 · 后端件 · 迁移 0057）：
+   *   详情读口（`GET /api/prize/:bID`）专用「自增 + 读」**单语句 CTE** ——
+   *   `WITH bumped AS (UPDATE … RETURNING)` 先自增（自增语句见方法体，全仓唯一一处），
+   *   外层 SELECT 经 JOIN 读回**自增后**的值（`b.view_count`）与其余列（外层读 l 的行快照；
+   *   UPDATE 不改其它列 ⇒ 无读偏）。单语句 = 原子（隐式事务），即「自增后读」口径。
+   *   · 行不存在 ⇒ `bumped` 空 ⇒ 返回 null（路由层 404 语义保留；UPDATE 0 行 ⇒ **不计数**）；
+   *   · 简单计数口径：**任何状态都计**（不过滤 status，直链 draft 仍可看）、**不区分访问者**、
+   *     **卖家自看也计**（去重 / 自看排除策略挂 OPEN-ITEMS 待裁）；
+   *   · 行键 = `getBrandById` 同款显式清单 + `l.item_condition`（成色，响应键 `condition`）+ `b.view_count`
+   *     + `want_count`（收藏计数 left join，**与 feed `listBrands` 同源**，响应键 `wants`）
+   *     ⇒ 归一后详情 data 顶层 47→**50**（+`views` +`condition` +`wants`；service 层 49 键，
+   *     路由层合成 `seller` ⇒ 50）；feed（`listBrands`）不选这三列 ⇒ 行键 48 不变；
+   *   · 与 `getBrandById`（创建回执等共用、**不计数**、不带三加性键）分离：只有本方法计数并透出
+   *     `views`/`condition`/`wants`，其余读面零影响；
+   *   · `ex` = 既有事务内执行口（`sqlFor` 同族体例，承 R-8-18「单一真源」）：离线门把它路由进
+   *     `inRollbackTx` 客户端干跑（迁移先在事务内 ADD COLUMN ⇒ 零 apply / 零残留）；生产路径不传 ⇒ `getSql()`。
+   */
+  static async getPrizeDetailRecordingView(bID: number, ex?: SqlRunner): Promise<BrandRecord | null> {
+    const sql = sqlFor(ex);
+    const row = firstRow(await sql`
+      WITH bumped AS (
+        UPDATE listing
+        SET view_count = view_count + 1
+        WHERE listing_id = ${bID}
+        RETURNING listing_id, view_count
+      )
+      SELECT
+        -- 显式列清单与 getBrandById 同款（不引 title 列）+ 派生 title = 描述首个换行之前；
+        -- 加选 l.item_condition（迁移 0057 成色）、b.view_count（自增后浏览计数）与
+        -- want_count（收藏计数，LEFT JOIN + COALESCE ⇒ 无收藏 ⇒ 0，与 feed 同一聚合形态）。
+        l.listing_id, l.seller_uid, l.cid, l.price, l.stock,
+        split_part(l.description, E'\\n', 1) AS title,
+        l.description, l.media_urls, l.status, l.create_key, l.ledger_event_keys,
+        l.item_type, l.item_condition, l.time_created, l.time_updated,
+        b.view_count AS view_count,
+        COALESCE(fav.want_count, 0)::int AS want_count,
+        0::int AS stores_count,
+        0::int AS claims_count,
+        0::int AS activated_count,
+        0::int AS current_shard_supply,
+        0::int AS free_shards_distributed
+      FROM listing AS l
+      JOIN bumped AS b ON b.listing_id = l.listing_id
+      -- ★ wants 与 feed 同源：listing_favorite 按 listing 聚合（每 listing 至多一行）；
+      --   聚合面只出 count、不含收藏者身份 ⇒ 无权限 / 隐私面。
+      LEFT JOIN (
+        SELECT listing_id, count(*)::int AS want_count
+        FROM public.listing_favorite
+        GROUP BY listing_id
+      ) AS fav ON fav.listing_id = l.listing_id
+      LIMIT 1
+    `);
+
+    if (!row) {
+      return null;
+    }
+
+    return normalizeBrand(row, {
+      stores_count: toNumberValue(getValue(row, 'stores_count')),
+      claims_count: toNumberValue(getValue(row, 'claims_count')),
+      activated_count: toNumberValue(getValue(row, 'activated_count')),
+      current_shard_supply: toNumberValue(getValue(row, 'current_shard_supply')),
+      free_shards_distributed: toNumberValue(getValue(row, 'free_shards_distributed')),
+    }, await loadI18nIndex('listing', [String(bID)]));
+  }
+
   static async listPrizes(skip = 0, limit = 100): Promise<PrizeRecord[]> {
     return this.listBrands(skip, limit);
   }
 
   static async getPrizeById(bID: number): Promise<PrizeRecord | null> {
+    // ★ P57：详情读口（GET /api/prize/:bID）已换 `getPrizeDetailRecordingView`（浏览计数 + 成色）。
+    //   本方法 = **不计数**的裸读（创建回执等内部共用），勿再用于详情路由（否则浏览计数断链）。
     return this.getBrandById(bID);
   }
 

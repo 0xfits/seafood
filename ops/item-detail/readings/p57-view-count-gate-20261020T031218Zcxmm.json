@@ -1,0 +1,390 @@
+{
+  "run": "20261020T031218Zcxmm",
+  "name": "p57-view-count-gate",
+  "at": "2026-10-20T03:12:28.113Z",
+  "script": "ops/item-detail/p57-00-view-count-gate.ts",
+  "env": {
+    "project_id": "quiet-math-65207667",
+    "branch_id": "br-soft-lake-b3iv9tli",
+    "expect_dev": "quiet-math-65207667"
+  },
+  "mode": "pre-apply",
+  "migration": {
+    "head_stmts": 2,
+    "head_bytes": 2295,
+    "tail_bytes": 4301
+  },
+  "unit": [
+    {
+      "id": "D1-Mint",
+      "what": "非法 item_condition=`Mint` ⇒ 400 NOT_IN_CLOSED_SET + allowed 四值，且 **DB 调用 0 次**（闸在 currencyGate 之前）",
+      "pass": true,
+      "reading": {
+        "got": "400/LEDGER_AMOUNT_INVALID/NOT_IN_CLOSED_SET",
+        "field": "listing.item_condition",
+        "gateCalls": 0,
+        "createCalls": 0
+      }
+    },
+    {
+      "id": "D1-brandnewsealed",
+      "what": "非法 item_condition=`brandnewsealed` ⇒ 400 NOT_IN_CLOSED_SET + allowed 四值，且 **DB 调用 0 次**（闸在 currencyGate 之前）",
+      "pass": true,
+      "reading": {
+        "got": "400/LEDGER_AMOUNT_INVALID/NOT_IN_CLOSED_SET",
+        "field": "listing.item_condition",
+        "gateCalls": 0,
+        "createCalls": 0
+      }
+    },
+    {
+      "id": "D1-blank",
+      "what": "非法 item_condition=`` ⇒ 400 NOT_IN_CLOSED_SET + allowed 四值，且 **DB 调用 0 次**（闸在 currencyGate 之前）",
+      "pass": true,
+      "reading": {
+        "got": "400/LEDGER_AMOUNT_INVALID/NOT_IN_CLOSED_SET",
+        "field": "listing.item_condition",
+        "gateCalls": 0,
+        "createCalls": 0
+      }
+    },
+    {
+      "id": "D1-blank",
+      "what": "非法 item_condition=`  ` ⇒ 400 NOT_IN_CLOSED_SET + allowed 四值，且 **DB 调用 0 次**（闸在 currencyGate 之前）",
+      "pass": true,
+      "reading": {
+        "got": "400/LEDGER_AMOUNT_INVALID/NOT_IN_CLOSED_SET",
+        "field": "listing.item_condition",
+        "gateCalls": 0,
+        "createCalls": 0
+      }
+    },
+    {
+      "id": "D1b",
+      "what": "非字符串 item_condition ⇒ 400 NOT_A_STRING（零 DB）",
+      "pass": true,
+      "reading": {
+        "got": "400/LEDGER_AMOUNT_INVALID/NOT_A_STRING",
+        "gateCalls": 0
+      }
+    },
+    {
+      "id": "D2-DigitalAutoDeliver",
+      "what": "数字商品 `DigitalAutoDeliver` 带成色 ⇒ 400 ITEM_CONDITION_NOT_APPLICABLE + requires_item_type=实物两分类（零 DB）",
+      "pass": true,
+      "reading": {
+        "got": "400/LEDGER_AMOUNT_INVALID/ITEM_CONDITION_NOT_APPLICABLE",
+        "gateCalls": 0,
+        "createCalls": 0
+      }
+    },
+    {
+      "id": "D2-DigitalManualDeliver",
+      "what": "数字商品 `DigitalManualDeliver` 带成色 ⇒ 400 ITEM_CONDITION_NOT_APPLICABLE + requires_item_type=实物两分类（零 DB）",
+      "pass": true,
+      "reading": {
+        "got": "400/LEDGER_AMOUNT_INVALID/ITEM_CONDITION_NOT_APPLICABLE",
+        "gateCalls": 0,
+        "createCalls": 0
+      }
+    },
+    {
+      "id": "D3",
+      "what": "未分类（item_type 缺省 ⇒ null）带成色 ⇒ 400 ITEM_CONDITION_NOT_APPLICABLE（零 DB）",
+      "pass": true,
+      "reading": {
+        "got": "400/LEDGER_AMOUNT_INVALID/ITEM_CONDITION_NOT_APPLICABLE",
+        "item_type": null,
+        "gateCalls": 0
+      }
+    },
+    {
+      "id": "D4",
+      "what": "实物 + `MinorWear` ⇒ 通过全部闸，写入口收到 `itemCondition=MinorWear`（原样落库参数，不派生不改写）",
+      "pass": true,
+      "reading": {
+        "createCalls": 1,
+        "itemCondition": "MinorWear",
+        "itemType": "PhysicalFreeShip"
+      }
+    },
+    {
+      "id": "D5",
+      "what": "PATCH 数字分类 + 带值成色（同 patch 提交）⇒ 400 ITEM_CONDITION_NOT_APPLICABLE（纯预检、**零 DB**）",
+      "pass": true,
+      "reading": {
+        "got": "400/LEDGER_AMOUNT_INVALID/ITEM_CONDITION_NOT_APPLICABLE",
+        "updateCalls": 0
+      }
+    },
+    {
+      "id": "D6",
+      "what": "PATCH 非法成色值 ⇒ 400 NOT_IN_CLOSED_SET（零 DB）",
+      "pass": true,
+      "reading": {
+        "got": "400/LEDGER_AMOUNT_INVALID/NOT_IN_CLOSED_SET",
+        "updateCalls": 0
+      }
+    },
+    {
+      "id": "D7",
+      "what": "`classifyListingPatchBody` 识别 `item_condition` 为**字段键**（kind=fields；不误判 NO_EDITABLE_FIELD / 状态支）",
+      "pass": true,
+      "reading": "{\"kind\":\"fields\",\"fields\":[\"item_condition\"]}"
+    }
+  ],
+  "checks": [
+    {
+      "id": "A1",
+      "what": "**零新路由**：注册点仍 = 110（本单只改既有读口/写口，无第 111 个注册点）",
+      "pass": true,
+      "reading": "registration_points=110"
+    },
+    {
+      "id": "A2",
+      "what": "详情读口已换「自增+读」专用口：`getPrizeDetailRecordingView` 在场、`getPrizeById` 不再被详情路由调用（裸读只留内部回执用）",
+      "pass": true,
+      "reading": "{\"uses_recording\":true,\"uses_bare\":false}"
+    },
+    {
+      "id": "A3",
+      "what": "`view_count = view_count + 1` 全仓 database.ts **恰 1 处**且在详情专用 CTE 内（其余读面零计数）",
+      "pass": false,
+      "reading": "increment_sites=0 in_detail_cte=false"
+    },
+    {
+      "id": "A4",
+      "what": "feed（`listBrands`）SQL **不选** `view_count` / `item_condition` ⇒ 行键 48 不变、两键不出现、不计数",
+      "pass": true,
+      "reading": "listBrands_slice_bytes=6433"
+    },
+    {
+      "id": "A5",
+      "what": "归一器两处**条件透出**（行携带列才出键）：`row.view_count` ×1 + `row.item_condition` ×1（详情专用；feed 行无列 ⇒ 键不出现；mine 行 `condition` 走 getValue 兜底口、不计入本口径）",
+      "pass": true,
+      "reading": "item_condition_guards=1 view_count_guards=1"
+    },
+    {
+      "id": "A6",
+      "what": "迁移 0057 形状（**头段代码行口径**）：无 BEGIN/COMMIT · 两列 `ADD COLUMN IF NOT EXISTS`（具名 CHECK）· **零 CREATE INDEX** · `view_count >= 0` 在场",
+      "pass": true,
+      "reading": "{\"begins\":false,\"commits\":false,\"adds\":3,\"create_index\":false}"
+    },
+    {
+      "id": "A7",
+      "what": "成色闭集**单一真源对齐**：迁移 CHECK 字面量 = 服务层 `ITEM_CONDITIONS`（含顺序）；实物两分类常量 = PhysicalFreeShip/PhysicalBuyerShip；`ITEM_TYPES` 未动",
+      "pass": true,
+      "reading": "mig_check_set=[\"BrandNewSealed\",\"LikeNew\",\"MinorWear\",\"HeavyWear\"] svc=[\"BrandNewSealed\",\"LikeNew\",\"MinorWear\",\"HeavyWear\"]"
+    },
+    {
+      "id": "A8",
+      "what": "写口接线：POST /api/listing 与 PATCH 字段支都透传 `body.item_condition` ⇒ `itemCondition`",
+      "pass": true,
+      "reading": "{\"post\":true,\"patch\":true}"
+    },
+    {
+      "id": "D1-Mint",
+      "what": "非法 item_condition=`Mint` ⇒ 400 NOT_IN_CLOSED_SET + allowed 四值，且 **DB 调用 0 次**（闸在 currencyGate 之前）",
+      "pass": true,
+      "reading": "{\"got\":\"400/LEDGER_AMOUNT_INVALID/NOT_IN_CLOSED_SET\",\"field\":\"listing.item_condition\",\"gateCalls\":0,\"createCalls\":0}"
+    },
+    {
+      "id": "D1-brandnewsealed",
+      "what": "非法 item_condition=`brandnewsealed` ⇒ 400 NOT_IN_CLOSED_SET + allowed 四值，且 **DB 调用 0 次**（闸在 currencyGate 之前）",
+      "pass": true,
+      "reading": "{\"got\":\"400/LEDGER_AMOUNT_INVALID/NOT_IN_CLOSED_SET\",\"field\":\"listing.item_condition\",\"gateCalls\":0,\"createCalls\":0}"
+    },
+    {
+      "id": "D1-blank",
+      "what": "非法 item_condition=`` ⇒ 400 NOT_IN_CLOSED_SET + allowed 四值，且 **DB 调用 0 次**（闸在 currencyGate 之前）",
+      "pass": true,
+      "reading": "{\"got\":\"400/LEDGER_AMOUNT_INVALID/NOT_IN_CLOSED_SET\",\"field\":\"listing.item_condition\",\"gateCalls\":0,\"createCalls\":0}"
+    },
+    {
+      "id": "D1-blank",
+      "what": "非法 item_condition=`  ` ⇒ 400 NOT_IN_CLOSED_SET + allowed 四值，且 **DB 调用 0 次**（闸在 currencyGate 之前）",
+      "pass": true,
+      "reading": "{\"got\":\"400/LEDGER_AMOUNT_INVALID/NOT_IN_CLOSED_SET\",\"field\":\"listing.item_condition\",\"gateCalls\":0,\"createCalls\":0}"
+    },
+    {
+      "id": "D1b",
+      "what": "非字符串 item_condition ⇒ 400 NOT_A_STRING（零 DB）",
+      "pass": true,
+      "reading": "{\"got\":\"400/LEDGER_AMOUNT_INVALID/NOT_A_STRING\",\"gateCalls\":0}"
+    },
+    {
+      "id": "D2-DigitalAutoDeliver",
+      "what": "数字商品 `DigitalAutoDeliver` 带成色 ⇒ 400 ITEM_CONDITION_NOT_APPLICABLE + requires_item_type=实物两分类（零 DB）",
+      "pass": true,
+      "reading": "{\"got\":\"400/LEDGER_AMOUNT_INVALID/ITEM_CONDITION_NOT_APPLICABLE\",\"gateCalls\":0,\"createCalls\":0}"
+    },
+    {
+      "id": "D2-DigitalManualDeliver",
+      "what": "数字商品 `DigitalManualDeliver` 带成色 ⇒ 400 ITEM_CONDITION_NOT_APPLICABLE + requires_item_type=实物两分类（零 DB）",
+      "pass": true,
+      "reading": "{\"got\":\"400/LEDGER_AMOUNT_INVALID/ITEM_CONDITION_NOT_APPLICABLE\",\"gateCalls\":0,\"createCalls\":0}"
+    },
+    {
+      "id": "D3",
+      "what": "未分类（item_type 缺省 ⇒ null）带成色 ⇒ 400 ITEM_CONDITION_NOT_APPLICABLE（零 DB）",
+      "pass": true,
+      "reading": "{\"got\":\"400/LEDGER_AMOUNT_INVALID/ITEM_CONDITION_NOT_APPLICABLE\",\"item_type\":null,\"gateCalls\":0}"
+    },
+    {
+      "id": "D4",
+      "what": "实物 + `MinorWear` ⇒ 通过全部闸，写入口收到 `itemCondition=MinorWear`（原样落库参数，不派生不改写）",
+      "pass": true,
+      "reading": "{\"createCalls\":1,\"itemCondition\":\"MinorWear\",\"itemType\":\"PhysicalFreeShip\"}"
+    },
+    {
+      "id": "D5",
+      "what": "PATCH 数字分类 + 带值成色（同 patch 提交）⇒ 400 ITEM_CONDITION_NOT_APPLICABLE（纯预检、**零 DB**）",
+      "pass": true,
+      "reading": "{\"got\":\"400/LEDGER_AMOUNT_INVALID/ITEM_CONDITION_NOT_APPLICABLE\",\"updateCalls\":0}"
+    },
+    {
+      "id": "D6",
+      "what": "PATCH 非法成色值 ⇒ 400 NOT_IN_CLOSED_SET（零 DB）",
+      "pass": true,
+      "reading": "{\"got\":\"400/LEDGER_AMOUNT_INVALID/NOT_IN_CLOSED_SET\",\"updateCalls\":0}"
+    },
+    {
+      "id": "D7",
+      "what": "`classifyListingPatchBody` 识别 `item_condition` 为**字段键**（kind=fields；不误判 NO_EDITABLE_FIELD / 状态支）",
+      "pass": true,
+      "reading": "{\"kind\":\"fields\",\"fields\":[\"item_condition\"]}"
+    },
+    {
+      "id": "D8",
+      "what": "桩已回收（三个静态方法逐字还原）",
+      "pass": true,
+      "reading": "restored"
+    },
+    {
+      "id": "ENV",
+      "what": "库身份自证：neon.project_id = dev（quiet-math-65207667）—— 读数归因前置",
+      "pass": true,
+      "reading": "project_id=quiet-math-65207667"
+    },
+    {
+      "id": "ENV2",
+      "what": "迁移态可判读（pre-apply = 两列均缺席 ⇒ 本门以「事务内 ADD COLUMN」干跑；post-apply = 两列均在场 ⇒ 头段为 no-op 同样可跑；partial = STOP）",
+      "pass": true,
+      "reading": "mode=pre-apply view_count=false item_condition=false"
+    },
+    {
+      "id": "B1",
+      "what": "迁移头段干跑（事务内）⇒ 两列在场：view_count = bigint/NOT NULL/DEFAULT 0 · item_condition = text/可空",
+      "pass": true,
+      "reading": "{\"error\":null,\"view_count\":{\"column_name\":\"view_count\",\"data_type\":\"bigint\",\"is_nullable\":\"NO\",\"column_default\":\"0\"},\"item_condition\":{\"column_name\":\"item_condition\",\"data_type\":\"text\",\"is_nullable\":\"YES\",\"column_default\":null}}"
+    },
+    {
+      "id": "B2",
+      "what": "迁移尾部 DO 自检（真库 · 事务内）跑通：列型/默认/存量全 0/存量全 NULL/CHECK 在场/零索引/列数 15 全过",
+      "pass": true,
+      "reading": "{\"tail_ran\":true,\"tail_error\":null}"
+    },
+    {
+      "id": "B3",
+      "what": "事务已回滚（`inRollbackTx` 恒 ROLLBACK ⇒ 零 apply / 零版本行 / 零残留）",
+      "pass": true,
+      "reading": "rolled_back=true ms=917"
+    },
+    {
+      "id": "C0",
+      "what": "夹具自建走**真 createListingRow 写路径**（含 0057 item_condition INSERT 列）⇒ 两行 inserted · wants 夹具收藏行落 1 行",
+      "pass": true,
+      "reading": "{\"error\":null,\"a\":\"inserted\",\"b\":\"inserted\",\"idA\":116,\"idB\":117,\"fav_rows\":1}"
+    },
+    {
+      "id": "C1",
+      "what": "**连续两次 GET 详情 ⇒ 第二次 views = 第一次 + 1**（自增后读）：views₁ = 1（0+1）· views₂ = 2",
+      "pass": false,
+      "reading": "{\"views1\":0,\"views2\":0,\"type1\":\"number\"}"
+    },
+    {
+      "id": "C2",
+      "what": "**详情 service 层 49 键**（= 详情 50 − 路由层 seller）：`views`/`condition`/`wants` 三加性键在场 · wants = 1（收藏 left join 生效）· condition = LikeNew",
+      "pass": false,
+      "reading": "{\"keys\":49,\"has_views\":true,\"has_condition\":true,\"has_wants\":true,\"condition\":\"LikeNew\",\"wants\":1}"
+    },
+    {
+      "id": "C3",
+      "what": "**详情路由合成后 50 键**（{ ...prize, seller } ⇒ 47→50：+views +condition +wants）",
+      "pass": true,
+      "reading": "route_shape_keys=50"
+    },
+    {
+      "id": "C4",
+      "what": "**draft 也计数**（任何状态都计）且数字商品 `condition` = null（键在场值为 null，不缺键）、未收藏 wants = 0",
+      "pass": false,
+      "reading": "{\"views\":0,\"has_condition_key\":true,\"condition\":null,\"wants\":0}"
+    },
+    {
+      "id": "C5",
+      "what": "**不存在 id ⇒ null（404 语义）且不计数**：ghost 读数 null · 夹具 A view_count 仍 = 2",
+      "pass": false,
+      "reading": "{\"ghost\":null,\"vc_after_ghost\":\"0\"}"
+    },
+    {
+      "id": "C6",
+      "what": "**成色四值写入**（DB 层真实写路径）：四值闭集逐个 UPDATE 全部命中 1 行（CHECK 放行）",
+      "pass": true,
+      "reading": "row_counts=[1,1,1,1]"
+    },
+    {
+      "id": "C7",
+      "what": "**PATCH DB 守卫臂**：数字行带成色 ⇒ `condition_not_applicable`（400 路径）；实物行合法改写 ⇒ `updated` 且回执 = **11 键**（ListingMineRow 同族，P57 +condition）、库内值已改",
+      "pass": true,
+      "reading": "{\"bad\":\"condition_not_applicable\",\"ok\":\"updated\",\"ok_row_keys\":11,\"ok_cond_in_db\":\"HeavyWear\"}"
+    },
+    {
+      "id": "C9",
+      "what": "**mine 行键 10→11**：`listListingsBySeller` 全部行恰 11 键且 `condition` 在场；夹具 A = LikeNew（编辑页预填）/ B（数字）= null",
+      "pass": true,
+      "reading": "{\"mine_total\":6,\"bad_rows\":0,\"a_keys\":11,\"a_has_condition\":true,\"a_cond\":\"LikeNew\",\"b_cond\":null}"
+    },
+    {
+      "id": "C6",
+      "what": "**feed 行键仍 48**：全部行恰 48 键且 `views`/`condition` 均不出现（feed 不加键、不计数）",
+      "pass": true,
+      "reading": "{\"rows\":8,\"bad_rows\":0,\"sample_keys\":48}"
+    },
+    {
+      "id": "N1",
+      "what": "CHECK 负控①：非法成色值 `Mint` ⇒ 23514 check_violation（闭集闸真在场，判据非恒绿）",
+      "pass": true,
+      "reading": "{\"violated\":true,\"sqlstate\":\"23514\",\"error\":null}"
+    },
+    {
+      "id": "N2",
+      "what": "CHECK 负控②：负 view_count ⇒ 23514（`view_count >= 0` 真在场）",
+      "pass": true,
+      "reading": "{\"violated\":true,\"sqlstate\":\"23514\",\"error\":null}"
+    },
+    {
+      "id": "E1",
+      "what": "**零残留**：回滚后 `create_key LIKE cli:p57-gate:%` 命中 = 0（含历史 run；> 0 = 有夹具泄漏，fail-loud）",
+      "pass": true,
+      "reading": "residue_rows=0"
+    },
+    {
+      "id": "E2",
+      "what": "committed 列面与迁移态自洽（pre-apply ⇒ 13 列 / post-apply ⇒ 15 列；实测 mode=pre-apply）",
+      "pass": true,
+      "reading": "committed_cols=13 expect=13"
+    }
+  ],
+  "summary": {
+    "total": 40,
+    "passed": 35,
+    "failed": 5,
+    "red": [
+      "A3",
+      "C1",
+      "C2",
+      "C4",
+      "C5"
+    ]
+  }
+}

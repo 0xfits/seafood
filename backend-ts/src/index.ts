@@ -671,7 +671,15 @@ app.get('/api/prize/:bID', async (req, res) => {
       return sendRefNotFound(res, 'prize', String(req.params.bID ?? ''), 'bID_not_found');
     }
 
-    const prize = await DatabaseService.getPrizeById(bID);
+    // ★ P57 详情浏览计数（Kevin 2026-10-20 详情页改版 · 后端件 · 迁移 0057）：详情读口换
+    //   「自增 + 读」专用口 getPrizeDetailRecordingView —— 单语句 CTE 对 listing.view_count +1
+    //   并读回**自增后**值 ⇒ 响应加性键 `views`；item_condition 同批透出为 `condition`、
+    //   收藏计数同批与 feed 同源透出为 `wants` ⇒ data 顶层 47→**50**（+views +condition +wants）。
+    //   简单计数口径：任何状态都计（不过滤 status）、不区分访问者、
+    //   **卖家自看也计**（去重 / 自看排除策略挂 OPEN-ITEMS 待裁）。
+    //   行不存在 ⇒ CTE 0 行 ⇒ null ⇒ 既有 404 语义不变、**不计数**。零新路由（注册点仍 110）；
+    //   feed（/api/prize/all、/api/home）不计数、不加键。
+    const prize = await DatabaseService.getPrizeDetailRecordingView(bID);
     if (!prize) {
       return sendRefNotFound(res, 'prize', String(bID), 'prize_not_found');
     }
@@ -2730,6 +2738,10 @@ app.post('/api/listing', async (req, res) => {
       // （`DigitalAutoDeliver` / `DigitalManualDeliver` / `PhysicalFreeShip` / `PhysicalBuyerShip`）；
       // 未传 ⇒ null（未分类）。闸在服务层（非法值含退役的裸 `Digital` ⇒ 400）。
       itemType: body.item_type,
+      // ★ 商品成色（迁移 0057）：可选 `item_condition`，四值闭集；**仅实物两分类允许非空**
+      //   （数字商品 / 未分类带值 ⇒ 400 `ITEM_CONDITION_NOT_APPLICABLE`，服务层 applicability 闸；
+      //   非法值同 item_type 体例 400 `NOT_IN_CLOSED_SET`）。两闸都在 currencyGate 之前 ⇒ 零 DB 调用。
+      itemCondition: body.item_condition,
       createKeyRaw: body.create_key,
     });
     if (!result.ok) return sendVerbError(res, result);
@@ -2806,6 +2818,10 @@ app.patch('/api/listing/:listingId', async (req, res) => {
           stock: body.stock,
           mediaUrls: body.media_urls,
           itemType: body.item_type,
+          // ★ 商品成色（迁移 0057）：PATCH 字段支可改；`undefined` = 不动 / `null` = 显式置 NULL /
+          //   带值 = 改成色（仅实物两分类允许非空 —— 同 patch 提交类型时纯预检零 DB，只提成色时
+          //   交 DB 侧 `condition_not_applicable` 守卫臂）。
+          itemCondition: body.item_condition,
         },
       });
       if (!result.ok) return sendVerbError(res, result);

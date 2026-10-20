@@ -77,7 +77,7 @@ const dropSqlLine = (sql: string, needle: string): string =>
     return line.replace(needle, `${head} AND false${tail}`);
   }).join('\n');
 
-/** 服务层桩行（= `ListingMineRow` 同族 10 键） */
+/** 服务层桩行（= `ListingMineRow` 同族 11 键；P57 · 迁移 0057 加 `item_condition` ⇒ 回执键 `condition`） */
 const stubRow = (over: Record<string, unknown> = {}) => ({
   listing_id: 424242,
   title: 'S55 存量标题（退场字段，读口弱取值）',
@@ -89,6 +89,7 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
   time_created: 0,
   description: 'S55 桩描述',
   item_type: null as string | null,
+  item_condition: null as string | null,
   ...over,
 });
 
@@ -120,10 +121,10 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
       && /await transitionListingStatus\(\{/.test(patchBlock),
     `patch_block_bytes=${patchBlock.length}`);
 
-  ck.t('A4', '服务层导出齐备：`updateListingDetails` / `classifyListingPatchBody` / `LISTING_EDIT_FIELDS`（**5 字段，无 title**）/ `LISTING_RETIRED_FIELDS=[title]` / media ≤4',
+  ck.t('A4', '服务层导出齐备：`updateListingDetails` / `classifyListingPatchBody` / `LISTING_EDIT_FIELDS`（**6 字段，无 title**；0057 批前推 +`item_condition`，原 5 字面量见 git 历史）/ `LISTING_RETIRED_FIELDS=[title]` / media ≤4',
     typeof updateListingDetails === 'function'
       && typeof classifyListingPatchBody === 'function'
-      && JSON.stringify([...LISTING_EDIT_FIELDS]) === JSON.stringify(['description', 'price', 'stock', 'media_urls', 'item_type'])
+      && JSON.stringify([...LISTING_EDIT_FIELDS]) === JSON.stringify(['description', 'price', 'stock', 'media_urls', 'item_type', 'item_condition'])
       && JSON.stringify([...LISTING_RETIRED_FIELDS]) === JSON.stringify(['title'])
       && MAX_LISTING_MEDIA_ITEMS === 4,
     JSON.stringify({ fields: LISTING_EDIT_FIELDS, retired: LISTING_RETIRED_FIELDS, media_max: MAX_LISTING_MEDIA_ITEMS }));
@@ -143,21 +144,22 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
       .every((s) => SQL_TEXT.includes(s)),
     `coalesce_hits=${(SQL_TEXT.match(/COALESCE\(/g) ?? []).length}`);
 
-  // ★ 只截 `SET … FROM guarded` 这一段判 title（RETURNING 里 `g.title` 是弱取值，不算 SET 列）
+  // ★ 只截 `SET … FROM guarded` 这一段判 title（RETURNING 里 title 是 split_part 派生值，不算 SET 列）
   const setClause = (SQL_TEXT.match(/SET\s+([\s\S]*?)\bFROM\s+guarded\b/i)?.[1]) ?? '';
-  ck.t('A7', '★ **写路径零 `title`**：唯一真源 SQL **不 SET 也不直接 SELECT `title` 列**（仅 `to_jsonb()->>title` 弱取值）⇒ 数据面 DROP 该列后本语句仍可跑（不 42P01）',
+  ck.t('A7', '★ **写路径零 `title`**：唯一真源 SQL **不 SET 也不直接 SELECT `title` 列**（RETURNING 的 title = `split_part(description, …)` 派生；title 列已 0056 DROP）⇒ 本语句不 42P01',
     setClause.length > 0 && !/\btitle\b/i.test(setClause)
       && !/,\s*title\s*,/.test(SQL_TEXT)
       && !/pl\.title\b|l\.title\b/.test(SQL_TEXT)
-      && /\(to_jsonb\(pl\) ->> 'title'\)/.test(SQL_TEXT),
+      && /split_part\(l\.description/.test(SQL_TEXT),
     `set_clause_bytes=${setClause.length} set_title=${/\btitle\b/i.test(setClause)} hard_col=${/pl\.title\b|l\.title\b/.test(SQL_TEXT)}`);
 
   const mineSelect = DB.slice(DB.indexOf('static async listListingsBySeller'), DB.indexOf('static async updateListingDetailsRow'));
   const mineIface = DB.slice(DB.indexOf('export interface ListingMineRow'), DB.indexOf('export interface ListingOrderSoldRow'));
-  ck.t('A8', "读口：加性两键 `description` / `item_type`（行键 **8 → 10**，原 8 键一字未动）；`title` 改 `to_jsonb(l)->>'title'` **弱取值**（对 title 列无硬依赖）",
-    /l\.description,/.test(mineSelect) && /l\.item_type/.test(mineSelect)
-      && /\(to_jsonb\(l\) ->> 'title'\) AS title/.test(mineSelect)
+  ck.t('A8', "读口：加性键 `description` / `item_type`（S55，8→10）+ `item_condition`（P57 · 迁移 0057，10→11 ⇒ 回执键 `condition`）；`title` = `split_part` **派生列**（title 列已 0056 DROP，零列引用）",
+    /l\.description,/.test(mineSelect) && /l\.item_type/.test(mineSelect) && /l\.item_condition/.test(mineSelect)
+      && mineSelect.includes("split_part(l.description, E'\\\\n', 1) AS title")
       && /description: string;/.test(mineIface) && /item_type: string \| null;/.test(mineIface)
+      && /condition: string \| null;/.test(mineIface)
       && ['listing_id', 'title', 'price', 'cid', 'status', 'stock', 'media_urls', 'time_created']
         .every((k) => new RegExp(`\\b${k}:`).test(mineIface)),
     `iface_keys=${(mineIface.match(/^\s{2}\w+:/gm) ?? []).length}`);
@@ -379,10 +381,10 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
     }
     nextOutcome = defaultOutcome();
 
-    // ---- E7 · 回执形状 = 读口同族（10 键，无内嵌旁路键）
+    // ---- E7 · 回执形状 = 读口同族（11 键，无内嵌旁路键）
     const stubKeys = Object.keys(stubRow());
     const okView = await call({ price: 999 });
-    u('E7', '回执 `view` 键集与 `GET /api/listing/mine` 行**同族 10 键**，且 `text_changed` **不在 view 内**（旁路键，不下发）',
+    u('E7', '回执 `view` 键集与 `GET /api/listing/mine` 行**同族 11 键**（P57 +condition），且 `text_changed` **不在 view 内**（旁路键，不下发）',
       okView.ok && JSON.stringify(Object.keys(okView.view).sort()) === JSON.stringify([...stubKeys].sort())
         && !('text_changed' in okView.view),
       okView.ok ? JSON.stringify(Object.keys(okView.view)) : got(okView as ErrLike));
@@ -528,9 +530,9 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
         const mineKeys = mineRows.length ? Object.keys(mineRows[0]).sort() : [];
         const f12 = await updateListingDetails({ listingId: draftId, actorUid: owner, patch: { title: '不该被写进去的标题', price: 12 } });
         const a12 = await readBack(draftId);
-        ck.t('F12', '读口行键 **8 → 10**（含 description / item_type）且与编辑回执 `view` **逐键同集**；★ `title` ⇒ 400 且库内 title/price **零改动**',
-          mineKeys.length === 10
-            && JSON.stringify(mineKeys) === JSON.stringify(['cid', 'description', 'item_type', 'listing_id', 'media_urls', 'price', 'status', 'stock', 'time_created', 'title'])
+        ck.t('F12', '读口行键 **10 → 11**（S55 description/item_type + P57 condition）且与编辑回执 `view` **逐键同集**；★ `title` ⇒ 400 且库内 title/price **零改动**',
+          mineKeys.length === 11
+            && JSON.stringify(mineKeys) === JSON.stringify(['cid', 'condition', 'description', 'item_type', 'listing_id', 'media_urls', 'price', 'status', 'stock', 'time_created', 'title'])
             && JSON.stringify(viewKeys) === JSON.stringify(mineKeys)
             && !f12.ok && f12.status === 400 && f12.details.reason === 'NOT_SUPPORTED'
             && Number(a12?.price) === 11 && String(a12?.title ?? '') === String(draft.title ?? ''),
@@ -538,14 +540,15 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
 
         // N · 负控（把闸从 SQL 里摘掉 ⇒ 对应断言必红）
         const runSql = async (sql: string, params: unknown[]) => raw1<Record<string, unknown>>(c, sql, params);
-        const strangerParams = [draftId, stranger, null, null, null, null, null, false];
+        // ★ P57：UPDATE_LISTING_DETAILS_SQL 参数位 8 → 10（$9 item_condition · $10 item_condition_set）
+        const strangerParams = [draftId, stranger, null, null, null, null, null, false, null, false];
         const negOwnerReal = await runSql(SQL_TEXT, strangerParams);
         const negNoOwner = await runSql(dropSqlLine(SQL_TEXT, NOT_OWNER_CLAUSE), strangerParams);
         r.N1 = { real: negOwnerReal?.outcome, mutated: negNoOwner?.outcome };
         ck.t('N1', '★ **负控 1**：把归属闸（`seller_uid <> $2 ⇒ not_owner`）从 SQL 摘掉 ⇒ 非本人得 `updated`（不是 `not_owner`）⇒ **F5/D1 断言必红**（归属判据非恒绿）',
           negOwnerReal?.outcome === 'not_owner' && negNoOwner?.outcome === 'updated', JSON.stringify(r.N1));
 
-        const delistedParams = [Number(delisted.listing_id), Number(delisted.seller_uid), null, 5, null, null, null, false];
+        const delistedParams = [Number(delisted.listing_id), Number(delisted.seller_uid), null, 5, null, null, null, false, null, false];
         const negStatusReal = await runSql(SQL_TEXT, delistedParams);
         const negNoStatus = await runSql(dropSqlLine(SQL_TEXT, STATUS_CLAUSE), delistedParams);
         r.N2 = { real: negStatusReal?.outcome, mutated: negNoStatus?.outcome, delisted_id: delisted.listing_id };

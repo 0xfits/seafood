@@ -135,6 +135,66 @@ export const normalizeItemType = (
   return { ok: true, value: text as ItemType };
 };
 
+// ---- 商品成色枚举（迁移 0057）--------------------------------------------------
+// 闭集唯一真源 = `migrations/0057_listing_view_count.sql` 的 CHECK
+// （'BrandNewSealed' / 'LikeNew' / 'MinorWear' / 'HeavyWear'）；本常量与之逐字一致（含顺序），
+// 仅作**入参闸**（不落库、不派生、不做中文名翻译 —— 显示名由前端 i18n 按 `condition` 字面量映射）。
+// 语义：BrandNewSealed = 全新未拆封 · LikeNew = 几乎全新
+//        MinorWear = 细微磕碰划痕 · HeavyWear = 严重磨损。
+// ★ **数字商品不适用**（Kevin 2026-10-20）：非空成色仅允许 `item_type ∈ PHYSICAL_ITEM_TYPES`
+//   （PhysicalFreeShip / PhysicalBuyerShip）；数字两分类 / 未分类（item_type NULL）带值 ⇒ 400。
+export const ITEM_CONDITIONS = ['BrandNewSealed', 'LikeNew', 'MinorWear', 'HeavyWear'] as const;
+export type ItemCondition = (typeof ITEM_CONDITIONS)[number];
+export const PHYSICAL_ITEM_TYPES = ['PhysicalFreeShip', 'PhysicalBuyerShip'] as const;
+
+/**
+ * `item_condition` 入参规范化（与 `normalizeItemType` 同体例）：未传 / `null` ⇒ `null`（= 无成色）；
+ * **空串 / 闭集外 / 非字符串 / 大小写不符 ⇒ 400** `LEDGER_AMOUNT_INVALID` + `details.field='listing.item_condition'`
+ * + `reason`（`NOT_A_STRING` / `NOT_IN_CLOSED_SET` + `provided`/`allowed`）——零新错误码（33 码闭集不动）。
+ */
+export const normalizeItemCondition = (
+  raw: unknown,
+): { ok: true; value: ItemCondition | null } | { ok: false; err: VerbErr } => {
+  if (raw === undefined || raw === null) return { ok: true, value: null };
+  if (typeof raw !== 'string') return { ok: false, err: shapeError('listing.item_condition', 'NOT_A_STRING') };
+  const text = raw.trim();
+  if (!(ITEM_CONDITIONS as readonly string[]).includes(text)) {
+    return {
+      ok: false,
+      err: fail(
+        400,
+        'LEDGER_AMOUNT_INVALID',
+        { field: 'listing.item_condition', reason: 'NOT_IN_CLOSED_SET', provided: text, allowed: [...ITEM_CONDITIONS] },
+        'Request shape is invalid',
+      ),
+    };
+  }
+  return { ok: true, value: text as ItemCondition };
+};
+
+/**
+ * 成色适用性（**纯函数**，创建与 PATCH 共用同一闸）：非空成色仅允许实物两分类。
+ * `itemType = null`（未分类）或数字两分类 + 带值成色 ⇒ 400 `ITEM_CONDITION_NOT_APPLICABLE`
+ * （借既有 `LEDGER_AMOUNT_INVALID`，零新错误码；`requires_item_type` = 实物两分类可机读指引）。
+ */
+export const itemConditionApplicabilityError = (
+  itemType: ItemType | null,
+  condition: ItemCondition | null,
+): VerbErr | null =>
+  condition === null || (itemType !== null && (PHYSICAL_ITEM_TYPES as readonly string[]).includes(itemType))
+    ? null
+    : fail(
+        400,
+        'LEDGER_AMOUNT_INVALID',
+        {
+          field: 'listing.item_condition',
+          reason: 'ITEM_CONDITION_NOT_APPLICABLE',
+          item_type: itemType,
+          requires_item_type: [...PHYSICAL_ITEM_TYPES],
+        },
+        'Request shape is invalid',
+      );
+
 // ---- 派生标题（`listing.title` 退场后的唯一口径）------------------------------
 // ★★ 2026-10-20 Kevin 数据模型指令：**取消商品标题字段，正文并入 `description`**
 //   · 标题 = 描述首个 `\n` 之前（`split_part(description, E'\n', 1)`）；
@@ -245,6 +305,10 @@ export const createListing = async (params: {
   mediaUrls?: unknown;
   /** 商品分类（迁移 0054 换集，承 0053）：闭集 `ItemType`（4 值），未传 ⇒ null（未分类）。仅创建时定，编辑/状态迁移不可改。 */
   itemType?: unknown;
+  /** ★ 商品成色（迁移 0057）：闭集 `ItemCondition`（4 值），未传 ⇒ null（无成色）。
+   *  **仅实物两分类允许非空**（数字两分类 / 未分类带值 ⇒ 400 `ITEM_CONDITION_NOT_APPLICABLE`，
+   *  闸在 currencyGate 之前 ⇒ 零 DB 调用）。不进幂等指纹（与 `item_type` 同口径，见下方注释）。 */
+  itemCondition?: unknown;
   createKeyRaw?: unknown;
 }): Promise<VerbResult> => {
   const uidErr = reservedUidGate(Number(params.sellerUid), 'listing.seller_uid');
@@ -255,7 +319,7 @@ export const createListing = async (params: {
     return listingShapeError('listing.title', 'NOT_SUPPORTED', {
       retired_fields: [...LISTING_RETIRED_FIELDS],
       reason_detail: 'listing.title retired: put the title on the first line of description',
-      editable_when_creating: ['description', 'price', 'stock', 'media_urls', 'item_type'],
+      editable_when_creating: ['description', 'price', 'stock', 'media_urls', 'item_type', 'item_condition'],
     });
   }
 
@@ -279,6 +343,12 @@ export const createListing = async (params: {
   // §3.2 形状闸：分类只允许四值闭集（非法 ⇒ 400，**早于**任何 DB 调用；`Digital` 已退役 = 非法）
   const itemType = normalizeItemType(params.itemType);
   if (!itemType.ok) return itemType.err;
+  // ★ 商品成色（迁移 0057 · 承 item_type 同体例）：闭集四值 + **适用性**（仅实物两分类允许非空）。
+  //   两闸都在 currencyGate 之前 ⇒ 非法值 / 数字带成色 / 未分类带成色 **零 DB 调用**。
+  const itemCondition = normalizeItemCondition(params.itemCondition);
+  if (!itemCondition.ok) return itemCondition.err;
+  const conditionAppErr = itemConditionApplicabilityError(itemType.value, itemCondition.value);
+  if (conditionAppErr) return conditionAppErr;
 
   // ★ 派生键去 `title`（6 段 → 5 段）：同键重投的键不再随标题变化（标题已并入 description）
   const resolvedKey = resolveListingCreateKey(params.createKeyRaw, ['create', params.sellerUid, cid.value, price.value, stock.value]);
@@ -295,6 +365,7 @@ export const createListing = async (params: {
     description: descriptionText,
     mediaUrls: mediaUrls.value || [],
     itemType: itemType.value,
+    itemCondition: itemCondition.value,
     createKey: resolvedKey.key,
   });
 
@@ -304,6 +375,7 @@ export const createListing = async (params: {
   //   的冻结口径，扩列会把「同键同请求重放」的判定面改宽，影响的是**既有** create_key 的语义（本单不该动）；
   //   ② 分类**创建后不可变**（编辑/PATCH 均不写该列），同键重投带不同 item_type 属客户端误用 ⇒
   //   落 `replay`（200）并回**库内**真值 + `idempotent_replay: true`，客户端可据此发现分歧，无静默写入错误。
+  //   ★ 迁移 0057：`item_condition` **同样不进**指纹（与 item_type 同口径 —— 可选创建属性、重放回库内真值）。
 
   if (write.outcome === 'existing') {
     if (fingerprintOf(write.row) !== JSON.stringify([Number(params.sellerUid), cid.value, price.value, descriptionText, mediaUrls.value || []])) {
@@ -444,7 +516,7 @@ export const transitionListingStatus = async (params: {
 // ============================================================================
 
 /** 可编辑字段闭集（`PATCH /api/listing/:listingId` 字段支；顺序即错误 `field_keys` 的列出顺序） */
-export const LISTING_EDIT_FIELDS = ['description', 'price', 'stock', 'media_urls', 'item_type'] as const;
+export const LISTING_EDIT_FIELDS = ['description', 'price', 'stock', 'media_urls', 'item_type', 'item_condition'] as const;
 export type ListingEditField = (typeof LISTING_EDIT_FIELDS)[number];
 
 /**
@@ -559,6 +631,10 @@ export const updateListingDetails = async (params: {
     stock?: unknown;
     mediaUrls?: unknown;
     itemType?: unknown;
+    /** ★ 商品成色（迁移 0057）：`undefined` = 不动；`null` = 显式置 NULL（数字商品 / 清除成色）；
+     *  带值 = 改成色（**仅实物两分类允许非空** —— 与 item_type 同 patch 提交时纯预检零 DB；
+     *  只提成色时有效 item_type 要读行 ⇒ 交 DB 侧守卫臂 `condition_not_applicable`）。 */
+    itemCondition?: unknown;
   };
 }): Promise<UpdateListingDetailsResult> => {
   const listingId = toBigIntLike(params.listingId, 'listing.listing_id', 1);
@@ -623,7 +699,18 @@ export const updateListingDetails = async (params: {
   const itemType = normalizeItemType(patch.itemType);
   if (!itemType.ok) return itemType.err;
 
-  if (description === null && price === null && stock === null && mediaUrls === null && !itemTypeSet) {
+  // ★ 商品成色（迁移 0057）：`undefined` = 不动；`null` = 显式置 NULL（⇒ `conditionSet` 开关区分，同 item_type 体例）。
+  const conditionSet = patch.itemCondition !== undefined;
+  const itemCondition = normalizeItemCondition(patch.itemCondition);
+  if (!itemCondition.ok) return itemCondition.err;
+  // 适用性预检：patch **同时**带 item_type 时两值都在手 ⇒ 纯函数闸、零 DB；
+  // 只带 item_condition（有效 item_type 要读行）⇒ 交 UPDATE 语句内的 `condition_not_applicable` 守卫臂。
+  if (itemCondition.value !== null && itemTypeSet) {
+    const appErr = itemConditionApplicabilityError(itemType.value, itemCondition.value);
+    if (appErr) return appErr;
+  }
+
+  if (description === null && price === null && stock === null && mediaUrls === null && !itemTypeSet && !conditionSet) {
     return shapeError('listing', 'NO_EDITABLE_FIELD', { editable_fields: [...LISTING_EDIT_FIELDS] });
   }
 
@@ -636,6 +723,8 @@ export const updateListingDetails = async (params: {
     mediaUrls,
     itemType: itemType.value,
     itemTypeSet,
+    itemCondition: itemCondition.value,
+    conditionSet,
   });
 
   if (!write.row) return gone404('listing', listingId.value);
@@ -655,6 +744,17 @@ export const updateListingDetails = async (params: {
         listing_id: String(listingId.value),
         status: write.row.status,
       });
+    case 'condition_not_applicable': {
+      // ★ 迁移 0057：有效（item_type, item_condition）违反「非空成色仅实物两分类」⇒ 400。
+      //   有效 item_type = patch 带了用 patch 值，否则回读行现值（write.row = cur 行快照）。
+      const effectiveType = itemTypeSet ? itemType.value : write.row.item_type;
+      return fail(400, 'LEDGER_AMOUNT_INVALID', {
+        field: 'listing.item_condition',
+        reason: 'ITEM_CONDITION_NOT_APPLICABLE',
+        item_type: effectiveType,
+        requires_item_type: [...PHYSICAL_ITEM_TYPES],
+      }, 'Request shape is invalid');
+    }
     default:
       break;
   }
