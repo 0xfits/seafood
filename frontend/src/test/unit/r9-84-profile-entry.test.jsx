@@ -137,32 +137,36 @@ describe('R-9-85 右上角合并为唯一菜单按钮（文案 = 钱包地址缩
     vi.useRealTimers()
   })
 
-  it('③b 下拉「电量与签到」项 href = …/wage#batt-checkin（四语）+ 保留 R-9-83 钩子', () => {
-    const cases = [
-      ['/', '/wage#batt-checkin'],
-      ['/en', '/en/wage#batt-checkin'],
-      ['/hk', '/hk/wage#batt-checkin'],
-      ['/vn', '/vn/wage#batt-checkin'],
-    ]
+  it('③b 下拉**不再**含「电量与签到」项（2026-10-20 已删；四语均 0 命中）', () => {
+    const cases = ['/', '/en', '/hk', '/vn']
     vi.useFakeTimers()
-    for (const [entry, expected] of cases) {
+    for (const entry of cases) {
       cleanup()
       renderAt(entry)
-      const link = openMenu().querySelector(BATT)
-      expect(link, `entry=${entry}`).not.toBeNull()
-      expect(link.getAttribute('href')).toBe(expected)
-      expect(link.textContent).toContain(zh.checkinPanel.checkinButton)
-      expect(link.textContent).toContain(zh.battCard.title)
+      const menu = openMenu()
+      expect(menu, `entry=${entry}`).not.toBeNull()
+      expect(menu.querySelector(BATT), `entry=${entry}`).toBeNull()
+      expect(menu.textContent).not.toContain(zh.checkinPanel.checkinButton)
+      expect(menu.textContent).not.toContain(zh.battCard.title)
     }
     vi.useRealTimers()
   })
 
-  it('③c 下拉含 积分块 + 退出登录；且**不含**「管理后台」（反向断言，四语）', () => {
+  it('③c 下拉含 余额区（`$` 单行降级）+ 退出登录；且**不含**「积分」文案 / 「管理后台」（反向断言，四语）', async () => {
     vi.useFakeTimers()
     renderAt('/')
+    await act(async () => {})
     const menu = openMenu()
     expect(menu).not.toBeNull()
-    expect(menu.textContent).toContain(zh.common.communityPoints)
+    // 余额区在场：`header-balances` 容器 + 至少一行；fetch 桩给 `points: 0` ⇒ 降级单行 `$0`
+    expect(menu.querySelector('[data-sf-m="header-balances"]')).not.toBeNull()
+    expect(menu.querySelectorAll('[data-sf-m="header-balance-row"]').length).toBe(1)
+    expect(menu.textContent).toContain('$')
+    // ★ 反向断言：「积分」文案不再渲染（四语均不出现）
+    expect(menu.textContent).not.toContain(zh.common.communityPoints)
+    expect(menu.textContent).not.toContain(hk.common.communityPoints)
+    expect(menu.textContent).not.toContain(en.common.communityPoints)
+    expect(menu.textContent).not.toContain(vn.common.communityPoints)
     expect(menu.querySelector(LOGOUT)).not.toBeNull()
     expect(menu.querySelector(LOGOUT).textContent).toContain(zh.logout)
     // ★ 反向断言：下拉内**不得**出现「管理后台/管理面板」（管理后台仅在左侧 nav）

@@ -170,7 +170,7 @@ describe('③ R-9-83 签到入口可发现性', () => {
     expect(document.querySelector('[data-sf-m="batt-meter"]').textContent).not.toMatch(/NaN|undefined/)
   })
 
-  it('Header 头像菜单：「我的」之下有直达 `/wage#batt-checkin` 的新项（复用既有文案键）', () => {
+  it('Header 头像菜单：桌面下拉**不再**有「签到 · 电量」直达项（2026-10-20 已删，签到/电量并入 `/wage`）', () => {
     vi.useFakeTimers()
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ success: true, data: { points: 0 } }) })))
     render(<MemoryRouter initialEntries={['/']}><Header /></MemoryRouter>)
@@ -178,11 +178,15 @@ describe('③ R-9-83 签到入口可发现性', () => {
     expect(trigger).toBeTruthy()
     act(() => { fireEvent.mouseEnter(trigger.parentElement) })
     act(() => { vi.advanceTimersByTime(200) })
-    const link = document.querySelector('[data-sf-m="header-batt-checkin"]')
-    expect(link).not.toBeNull()
-    expect(link.getAttribute('href')).toBe('/wage#batt-checkin')
-    expect(link.textContent).toContain(zh.checkinPanel.checkinButton)
-    expect(link.textContent).toContain(zh.battCard.title)
+    const menu = trigger.parentElement.querySelector('div.absolute')
+    expect(menu).not.toBeNull()
+    // 反向断言：桌面用户下拉里既无钩子也无该文案（文案键仍在四语表里，只是不再渲染）
+    expect(menu.querySelector('[data-sf-m="header-batt-checkin"]')).toBeNull()
+    expect(menu.textContent).not.toContain(zh.checkinPanel.checkinButton)
+    expect(menu.textContent).not.toContain(zh.battCard.title)
+    // 其余菜单项不受影响
+    expect(menu.querySelector('[data-sf-m="header-profile"]')).not.toBeNull()
+    expect(menu.querySelector('[data-sf-m="header-logout"]')).not.toBeNull()
     vi.useRealTimers()
   })
 

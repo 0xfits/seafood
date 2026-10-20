@@ -10,6 +10,7 @@ import vnFlag from '../images/vn.svg'
 import orderIcon from '../images/order.svg'
 import HoverMenu from './ui/HoverMenu'
 import { fetchAdminAccess } from '../admin-utils'
+import { fetchUserBalances, formatBalanceAmount, toBalanceRows } from '../balances-api'
 import { useAuth } from '../auth-context'
 import {buildLocalizedPath, buildLangPath, getLanguageFromUrl} from '../utils'
 
@@ -22,7 +23,7 @@ const MOBILE_PANEL_EXCLUDED_PATHS = ['exchange']
 const Header = () => {
   const { t } = useTranslation()
   const { user: currentUser, isAuthenticated, logout } = useAuth()
-  const [userPoints, setUserPoints] = useState(0)
+  const [balanceRows, setBalanceRows] = useState([])
   const location = useLocation()
   const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -43,7 +44,7 @@ const Header = () => {
         if (!cancelled) {
           setIsAdmin(false)
           setAdminPath('/dashboard')
-          setUserPoints(0)
+          setBalanceRows([])
         }
         return
       }
@@ -61,7 +62,7 @@ const Header = () => {
         }
       }
 
-      await loadUserPoints(currentUser)
+      await loadBalances(currentUser)
     }
 
     loadSession()
@@ -71,23 +72,38 @@ const Header = () => {
     }
   }, [currentUser])
 
-  // 获取用户积分
-  const loadUserPoints = async (userData = currentUser) => {
+  // 余额区（2026-10-20 · Kevin）：**多币种分行**，只显示有余额的币种。
+  // 读口优先级：`/api/user/balances`（登录）⇒ 失败 / 未登录 / 非数组 ⇒ 回落既有
+  // `/api/user/asset/:uID` 的 `$` 单行（不得白屏）。金额一律由字符串格式化，不经 Number 累加。
+  const loadBalances = async (userData = currentUser) => {
+    try {
+      const rows = await fetchUserBalances()
+      if (Array.isArray(rows)) {
+        setBalanceRows(toBalanceRows(rows))
+        return
+      }
+    } catch (error) {
+      console.warn('Failed to load user balances:', error)
+    }
+
+    // 降级：既有资产读口 ⇒ 单行 `$`
     try {
       if (userData?.uID) {
         const response = await fetch(`/api/user/asset/${userData.uID}`)
         if (response.ok) {
           const data = await response.json()
           if (data.success && data.data) {
-            setUserPoints(data.data.points || 0)
+            setBalanceRows([
+              { key: 'fallback:usd', symbol: '$', amount: formatBalanceAmount(data.data.points || 0) },
+            ])
             return
           }
         }
       }
-      setUserPoints(0)
+      setBalanceRows([])
     } catch (error) {
       console.warn('Failed to load user points:', error)
-      setUserPoints(0)
+      setBalanceRows([])
     }
   }
 
@@ -104,7 +120,7 @@ const Header = () => {
     logout()
     setIsAdmin(false)
     setAdminPath('/dashboard')
-    setUserPoints(0)
+    setBalanceRows([])
     navigate(buildLocalizedPath(getCurrentLang(), '/'))
   }
 
@@ -275,21 +291,31 @@ const Header = () => {
                   </button>
                 }
               >
-                {/* 用户积分显示 */}
-                <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                      {t('common.communityPoints')}
-                    </span>
-                    <div className="flex items-center gap-1">
-                      <span className="text-gray-900 dark:text-white font-medium">
-                        {userPoints.toLocaleString()}
-                      </span>
-                      <span className="text-lg font-bold text-yellow-600 dark:text-yellow-400">$</span>
-                    </div>
+                {/* 余额区（2026-10-20 · Kevin）：**每种币种一行** `$12,234` / `€21,345`，
+                    只渲染余额 > 0 的币种（后端已按 cid 升序、`$` 在首位）；不再有「积分」文案。
+                    排版：左对齐、行高 24px、等宽数字（tabular-nums）、14px；符号与数字同色、符号加粗。
+                    无行可渲染（尚未取到 / 全部为 0）⇒ 整块不渲染（不留空框）。 */}
+                {balanceRows.length > 0 && (
+                  <div
+                    className="px-4 py-3 border-b border-gray-200 dark:border-gray-700"
+                    data-sf-m="header-balances"
+                  >
+                    <ul className="m-0 list-none p-0 text-left">
+                      {balanceRows.map((row) => (
+                        <li
+                          key={row.key}
+                          data-sf-m="header-balance-row"
+                          data-symbol={row.symbol}
+                          className="text-left text-sm leading-6 text-gray-900 dark:text-white"
+                          style={{ fontVariantNumeric: 'tabular-nums' }}
+                        >
+                          <span className="font-bold">{row.symbol}</span>{row.amount}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                </div>
-                
+                )}
+
                 {/* R-9-85：恢复「个人资料」项（触发器已不再是直达链接 ⇒ 需一条菜单项进个人资料页） */}
                 <Link
                   to={buildPath('profile')}
@@ -298,17 +324,8 @@ const Header = () => {
                 >
                   {t('profile')}
                 </Link>
-                {/* R-9-83：直达电量 + 签到区（锚点 `#batt-checkin`），提升签到入口可发现性。
-                    Kevin 2026-10-14 需求③/⑥ → 2026-10-20 改指：签到/活动独立页已删、内容并入
-                    `/wage` 顶部 ⇒ 直达项改指 `/wage`（锚点机制不变）。
-                    标签复用既有文案键（签到 + 电量），不新增顶层导航项、不新增 i18n 键。 */}
-                <Link
-                  to={`${buildPath('wage')}#batt-checkin`}
-                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
-                  data-sf-m="header-batt-checkin"
-                >
-                  {t('checkinPanel.checkinButton')} · {t('battCard.title')}
-                </Link>
+                {/* 2026-10-20 · Kevin：桌面下拉的「签到 · 电量」直达项已删（签到/电量并入 `/wage` 页内，
+                    下拉里不再需要；手机汉堡面板的 `header-batt-checkin-mobile` 原样保留）。 */}
                 <button
                   onClick={handleLogout}
                   data-sf-m="header-logout"

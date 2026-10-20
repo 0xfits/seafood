@@ -16,7 +16,7 @@ import React from 'react'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { render, cleanup, fireEvent, act, screen } from '@testing-library/react'
+import { render, cleanup, fireEvent, act, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -29,9 +29,11 @@ const SRC = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const LANGS = ['zh', 'en', 'hk', 'vn']
 const CJK = /[\u3400-\u9fff]/
 
-/** 产品使用点（父单逐字）：4 文件 / 6 处 `<DashJ … />` → `$` */
+/** 产品使用点（父单逐字）：4 文件 / 6 处 `<DashJ … />` → `$`
+ *  ★ 2026-10-20 · Kevin：Header 下拉余额区改「每种币种一行」（符号来自 `/api/user/balances`）
+ *    ⇒ `Header.jsx` 不再有字面 `$` 符号（计数 1 ⇒ 0），其余三文件不变。 */
 const USAGE_FILES = {
-  'components/Header.jsx': 1,
+  'components/Header.jsx': 0,
   'components/task/TaskCard.jsx': 1,
   'components/reward/RewardCard.jsx': 1,
   'pages/HomePage.jsx': 3,
@@ -60,13 +62,15 @@ vi.mock('../../admin-utils', () => ({
 }))
 vi.mock('../../auth', () => ({
   fetchApiJson: vi.fn(async () => []),
-  getAuthHeaders: vi.fn(() => ({})),
+  getAuthHeaders: vi.fn(() => ({ Authorization: 'Bearer t' })),
   clearAuthSession: vi.fn(),
 }))
 vi.mock('../../pages/jobs/job-api', () => ({ applyToJob: vi.fn(), submitDeliverable: vi.fn() }))
 vi.mock('react-hot-toast', () => ({ default: { error: vi.fn(), success: vi.fn() } }))
 
 import Header from '../../components/Header'
+import { fetchApiJson } from '../../auth'
+import { formatBalanceAmount, isPositiveAmount, toBalanceRows } from '../../balances-api'
 import { TaskCard } from '../../components/task/TaskCard'
 import { RewardCard } from '../../components/reward/RewardCard'
 import HomePage from '../../pages/HomePage'
@@ -89,6 +93,8 @@ beforeEach(() => {
   AUTH.isAuthenticated = true
   AUTH.user = { uID: 7, EVM: '0xABCDEF1234567890abcdef1234567890ABCDEF12', token: 't' }
   vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ success: true, data: { points: 0 } }) })))
+  // 余额读口默认返回空数组（其余用例依赖「无行 ⇒ 整块不渲染」）；需要的用例自行覆写实现
+  fetchApiJson.mockImplementation(async () => [])
   document.documentElement.setAttribute('data-theme', 'light')
 })
 
@@ -125,17 +131,32 @@ describe('② 产品面 DashJ 零引用（仅组件自身 + barrel 导出保留�
 })
 
 describe('③ 渲染面：含 `$` 且不再含旧 DashJ 符号', () => {
-  it('Header：用户菜单积分块含 `$`，无旧符号', () => {
+  it('Header：用户菜单余额区 = 多币种分行（`$` / `€` 各一行、无「积分」文案），无旧符号', async () => {
+    fetchApiJson.mockImplementation(async (url) => (
+      String(url).includes('/api/user/balances')
+        ? [
+          { cid: 1, symbol: '$', name: '平台积分', balance: '12234' },
+          { cid: 9, symbol: '€', name: 'Euro', balance: '21345' },
+        ]
+        : []
+    ))
     vi.useFakeTimers()
     const { container } = render(<MemoryRouter initialEntries={['/']}><Header /></MemoryRouter>)
+    // 余额行是异步取数结果 ⇒ 先冲一次微任务队列（假定时器不影响 Promise）
+    await act(async () => {})
     const trigger = document.querySelector('[data-sf-m="header-user-menu"]')
     expect(trigger).not.toBeNull()
     act(() => { fireEvent.mouseEnter(trigger.parentElement) })
     act(() => { vi.advanceTimersByTime(200) })
     const menu = trigger.parentElement.querySelector('div.absolute')
     expect(menu).not.toBeNull()
-    expect(menu.textContent).toContain(zh.common.communityPoints)
     expect(menu.textContent).toContain('$')
+    // ★ 2026-10-20：不再渲染「积分」文案（四语均不出现），改为每币种一行
+    expect(menu.textContent).not.toContain(zh.common.communityPoints)
+    expect(menu.textContent).not.toContain(en.common.communityPoints)
+    const rows = [...menu.querySelectorAll('[data-sf-m="header-balance-row"]')]
+    expect(rows.map((el) => el.getAttribute('data-symbol'))).toEqual(['$', '€'])
+    expect(rows.map((el) => el.textContent)).toEqual(['$12,234', '€21,345'])
     oldSymbolAbsent(menu)
     oldSymbolAbsent(container)
     vi.useRealTimers()
@@ -201,5 +222,103 @@ describe('④ 文案键 `common.communityPoints` 四语新值 + 键计数', () =
     expect(src).toContain('export default DashJ')
     expect(src).toContain('无产品引用')
     expect(src).toContain('上市的积分')
+  })
+})
+
+describe('⑤ 2026-10-20 · Header 余额区多币种分行（Kevin）', () => {
+  const openUserMenu = () => {
+    const trigger = document.querySelector('[data-sf-m="header-user-menu"]')
+    expect(trigger).not.toBeNull()
+    act(() => { fireEvent.mouseEnter(trigger.parentElement) })
+    act(() => { vi.advanceTimersByTime(200) })
+    return trigger.parentElement.querySelector('div.absolute')
+  }
+  const mountHeader = () => render(<MemoryRouter initialEntries={['/']}><Header /></MemoryRouter>)
+
+  it('单币种 ⇒ 恰一行（`$`），且无「积分」文案', async () => {
+    fetchApiJson.mockImplementation(async (url) => (
+      String(url).includes('/api/user/balances')
+        ? [{ cid: 1, symbol: '$', name: '平台积分', balance: '32456' }]
+        : []
+    ))
+    vi.useFakeTimers()
+    mountHeader()
+    await act(async () => {})
+    const menu = openUserMenu()
+    const rows = [...menu.querySelectorAll('[data-sf-m="header-balance-row"]')]
+    expect(rows.length).toBe(1)
+    expect(rows[0].textContent).toBe('$32,456')
+    expect(menu.textContent).not.toContain(zh.common.communityPoints)
+    vi.useRealTimers()
+  })
+
+  it('四币种 ⇒ 四行且顺序沿用后端（`$` 首位）；余额 0 的币种不渲染', async () => {
+    fetchApiJson.mockImplementation(async (url) => (
+      String(url).includes('/api/user/balances')
+        ? [
+          { cid: 1, symbol: '$', name: '平台积分', balance: '12234' },
+          { cid: 9, symbol: '€', name: 'Euro', balance: '21345' },
+          { cid: 10, symbol: '¥', name: 'Yen', balance: '32456' },
+          { cid: 11, symbol: '₿', name: 'BTTC', balance: '56678' },
+          { cid: 12, symbol: 'Ξ', name: 'Eth', balance: '0' },
+        ]
+        : []
+    ))
+    vi.useFakeTimers()
+    mountHeader()
+    await act(async () => {})
+    const rows = [...openUserMenu().querySelectorAll('[data-sf-m="header-balance-row"]')]
+    expect(rows.map((el) => el.textContent)).toEqual(['$12,234', '€21,345', '¥32,456', '₿56,678'])
+    vi.useRealTimers()
+  })
+
+  it('接口失败 ⇒ 降级既有 `/api/user/asset/:uID` 的 `$` 单行（不白屏）', async () => {
+    fetchApiJson.mockImplementation(async () => { throw new Error('404 not found') })
+    vi.stubGlobal('fetch', vi.fn(async (url) => {
+      if (String(url).includes('/api/user/asset/')) {
+        return { ok: true, json: async () => ({ success: true, data: { points: '12345' } }) }
+      }
+      return { ok: false, json: async () => ({ success: false }) }
+    }))
+    vi.useFakeTimers()
+    mountHeader()
+    await act(async () => {})
+    const menu = openUserMenu()
+    const rows = [...menu.querySelectorAll('[data-sf-m="header-balance-row"]')]
+    expect(rows.length).toBe(1)
+    expect(rows[0].getAttribute('data-symbol')).toBe('$')
+    expect(rows[0].textContent).toBe('$12,345')
+    // 不白屏：菜单其余项照旧在场
+    expect(menu.querySelector('[data-sf-m="header-logout"]')).not.toBeNull()
+    // 桌面下拉不再有「签到 · 电量」项（2026-10-20 已删）
+    expect(document.querySelector('[data-sf-m="header-batt-checkin"]')).toBeNull()
+    vi.useRealTimers()
+  })
+
+  it('金额格式化：字符串千分位 / 超大整数走 BigInt / 坏值 ⇒ 0', () => {
+    expect(formatBalanceAmount('12234')).toBe('12,234')
+    expect(formatBalanceAmount(21345)).toBe('21,345')
+    expect(formatBalanceAmount('32456.75')).toBe('32,456.75')
+    expect(formatBalanceAmount('0')).toBe('0')
+    expect(formatBalanceAmount('')).toBe('0')
+    expect(formatBalanceAmount(null)).toBe('0')
+    expect(formatBalanceAmount('NaN')).toBe('0')
+    // 超 15 位整数：Number 会丢精度 ⇒ 用 BigInt 逐位分组
+    expect(formatBalanceAmount('123456789012345678')).toBe('123,456,789,012,345,678')
+  })
+
+  it('归一：只留有 symbol 且余额 > 0 的行', () => {
+    expect(isPositiveAmount('0')).toBe(false)
+    expect(isPositiveAmount('0.00')).toBe(false)
+    expect(isPositiveAmount('0.5')).toBe(true)
+    expect(isPositiveAmount('-3')).toBe(false)
+    const rows = toBalanceRows([
+      { cid: 1, symbol: '$', balance: '5' },
+      { cid: 2, symbol: '', balance: '7' },
+      { cid: 3, symbol: '€', balance: '0' },
+      { cid: 4, symbol: '¥', balance: 'bad' },
+      null,
+    ])
+    expect(rows).toEqual([{ key: '1:$', symbol: '$', amount: '5' }])
   })
 })

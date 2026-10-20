@@ -1,0 +1,313 @@
+{
+  "probe": "ops/header-balances/probe-header-balances.mjs",
+  "startedAt": "2026-10-20T12:06:36.970Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "fixtures": {
+    "two": [
+      "$12234",
+      "€21345"
+    ],
+    "one": [
+      "$32456"
+    ],
+    "fallbackPoints": "12345",
+    "auth": "localStorage seed only（零真登录）",
+    "api": "context.route in-probe JSON（零后端 / 零库写）"
+  },
+  "states": {
+    "1536_two": {
+      "viewport": {
+        "w": 1536,
+        "h": 960
+      },
+      "overflowPx": 110,
+      "menuRect": {
+        "x": 1454,
+        "w": 192,
+        "right": 1646
+      },
+      "rootLen": 18665,
+      "triggerPresent": true,
+      "blockPresent": true,
+      "menuText": "$12,234€21,345我的登出",
+      "rows": [
+        {
+          "symbol": "$",
+          "text": "$12,234",
+          "fontSize": "14px",
+          "lineHeight": "24px",
+          "heightPx": 24,
+          "fontVariantNumeric": "tabular-nums",
+          "textAlign": "left",
+          "color": "rgb(17, 24, 39)",
+          "symbolWeight": "700",
+          "symbolColor": "rgb(17, 24, 39)"
+        },
+        {
+          "symbol": "€",
+          "text": "€21,345",
+          "fontSize": "14px",
+          "lineHeight": "24px",
+          "heightPx": 24,
+          "fontVariantNumeric": "tabular-nums",
+          "textAlign": "left",
+          "color": "rgb(17, 24, 39)",
+          "symbolWeight": "700",
+          "symbolColor": "rgb(17, 24, 39)"
+        }
+      ],
+      "battCheckinInMenu": 0,
+      "battCheckinMobile": 0,
+      "profileInMenu": 1,
+      "logoutInMenu": 1,
+      "menuOpened": true,
+      "overflowClosedPx": 0,
+      "apiCalls": [
+        "/api/user/balances"
+      ],
+      "pageErrors": []
+    },
+    "1536_one": {
+      "viewport": {
+        "w": 1536,
+        "h": 960
+      },
+      "overflowPx": 110,
+      "menuRect": {
+        "x": 1454,
+        "w": 192,
+        "right": 1646
+      },
+      "rootLen": 18461,
+      "triggerPresent": true,
+      "blockPresent": true,
+      "menuText": "$32,456我的登出",
+      "rows": [
+        {
+          "symbol": "$",
+          "text": "$32,456",
+          "fontSize": "14px",
+          "lineHeight": "24px",
+          "heightPx": 24,
+          "fontVariantNumeric": "tabular-nums",
+          "textAlign": "left",
+          "color": "rgb(17, 24, 39)",
+          "symbolWeight": "700",
+          "symbolColor": "rgb(17, 24, 39)"
+        }
+      ],
+      "battCheckinInMenu": 0,
+      "battCheckinMobile": 0,
+      "profileInMenu": 1,
+      "logoutInMenu": 1,
+      "menuOpened": true,
+      "overflowClosedPx": 0,
+      "apiCalls": [
+        "/api/user/balances"
+      ],
+      "pageErrors": []
+    },
+    "1536_fallback": {
+      "viewport": {
+        "w": 1536,
+        "h": 960
+      },
+      "overflowPx": 110,
+      "menuRect": {
+        "x": 1454,
+        "w": 192,
+        "right": 1646
+      },
+      "rootLen": 18461,
+      "triggerPresent": true,
+      "blockPresent": true,
+      "menuText": "$12,345我的登出",
+      "rows": [
+        {
+          "symbol": "$",
+          "text": "$12,345",
+          "fontSize": "14px",
+          "lineHeight": "24px",
+          "heightPx": 24,
+          "fontVariantNumeric": "tabular-nums",
+          "textAlign": "left",
+          "color": "rgb(17, 24, 39)",
+          "symbolWeight": "700",
+          "symbolColor": "rgb(17, 24, 39)"
+        }
+      ],
+      "battCheckinInMenu": 0,
+      "battCheckinMobile": 0,
+      "profileInMenu": 1,
+      "logoutInMenu": 1,
+      "menuOpened": true,
+      "overflowClosedPx": 0,
+      "apiCalls": [
+        "/api/user/balances",
+        "/api/user/asset/970213"
+      ],
+      "pageErrors": []
+    },
+    "390_two": {
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "overflowPx": 0,
+      "menuRect": {
+        "x": 0,
+        "w": 0,
+        "right": 0
+      },
+      "rootLen": 18677,
+      "triggerPresent": true,
+      "blockPresent": true,
+      "menuText": "$12,234€21,345我的登出",
+      "rows": [
+        {
+          "symbol": "$",
+          "text": "$12,234",
+          "fontSize": "14px",
+          "lineHeight": "24px",
+          "heightPx": 0,
+          "fontVariantNumeric": "tabular-nums",
+          "textAlign": "left",
+          "color": "rgb(17, 24, 39)",
+          "symbolWeight": "700",
+          "symbolColor": "rgb(17, 24, 39)"
+        },
+        {
+          "symbol": "€",
+          "text": "€21,345",
+          "fontSize": "14px",
+          "lineHeight": "24px",
+          "heightPx": 0,
+          "fontVariantNumeric": "tabular-nums",
+          "textAlign": "left",
+          "color": "rgb(17, 24, 39)",
+          "symbolWeight": "700",
+          "symbolColor": "rgb(17, 24, 39)"
+        }
+      ],
+      "battCheckinInMenu": 0,
+      "battCheckinMobile": 0,
+      "profileInMenu": 1,
+      "logoutInMenu": 1,
+      "menuOpened": false,
+      "overflowClosedPx": 0,
+      "apiCalls": [
+        "/api/user/balances"
+      ],
+      "pageErrors": []
+    }
+  },
+  "assertions": {
+    "twoCurrencies": {
+      "rowsAreTwo": true,
+      "symbols": [
+        "$",
+        "€"
+      ],
+      "texts": [
+        "$12,234",
+        "€21,345"
+      ],
+      "symbolsMatch": true,
+      "textsFormatted": true,
+      "noPointsWord": true,
+      "battItemRemoved": true,
+      "otherItemsIntact": true,
+      "typography": {
+        "lineHeight24": true,
+        "fontSize14": true,
+        "tabularNums": true,
+        "leftAligned": true,
+        "symbolBold": true,
+        "symbolSameColor": true
+      }
+    },
+    "singleCurrency": {
+      "rowsIsOne": true,
+      "text": "$32,456",
+      "matches": true,
+      "noPointsWord": true
+    },
+    "fallback": {
+      "rowsIsOne": true,
+      "symbol": "$",
+      "text": "$12,345",
+      "fallbackFormatted": true,
+      "fallbackRead": true,
+      "balancesTried": true,
+      "notBlank": true,
+      "menuStillUsable": true,
+      "zeroPageError": true
+    },
+    "mobile": {
+      "zeroOverflow": true,
+      "overflowPx": 0,
+      "zeroPageError": true,
+      "notBlank": true
+    },
+    "desktop": {
+      "zeroOverflow": true,
+      "overflowClosedPx": 0,
+      "overflowOpenPx": 110,
+      "knownIssue": "menu-open overflow 110px = HoverMenu 存量定位缺陷（父版对照同值），另单可改 position=\"bottom-left\"",
+      "zeroPageError": true
+    }
+  },
+  "pageErrors": [],
+  "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+  ],
+  "bundle": {
+    "files": [
+      "index-BHS1jrP_.js",
+      "vendor-AmHF8z37.js",
+      "vendor-i18n-Dv2xmCnL.js",
+      "vendor-react-CZtNYldG.js",
+      "vendor-router-DiMdLYdS.js",
+      "vendor-ui-DoLm4A5p.js"
+    ],
+    "hasBalancesEndpoint": true,
+    "hasRowHook": true,
+    "hasBalancesHook": true,
+    "oldBattHookAbsent": true
+  },
+  "summary": {
+    "checks": 27,
+    "passed": 27,
+    "failed": [],
+    "verdict": "PASS"
+  },
+  "finishedAt": "2026-10-20T12:06:54.037Z"
+}
