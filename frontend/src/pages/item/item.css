@@ -422,40 +422,296 @@
 }
 
 /* ============================================================================
-   v1.23（design v1.22 §24 `T120`）· goofish 操作栏形态
-   三段结构：① 组合条（`聊一聊` 50% | `立即购买` 50%）② 留白 ③ 独立 `收藏` 胶囊。
-
-   · 形状/配色一律由**新修饰类**承载（`.sf-item-btn` 与 `.sf-btn` 的规则本体一字未改 ——
-     p6-btn-impl2 冻结 `min-height` / `padding` / `cursor` 且本体不得出现 background/border）；
-   · ★ 跨文件同具体性覆盖：shell.css 的 `.sf-btn`（8px 圆角 / bta 底字 / 1px 描边）在打包序上
-     后于本文件 ⇒ 页面侧单类 (0,1,0) 会被压回 ⇒ 一律用 (0,2,0) 复合选择器 `.sf-btn.sf-item-…`；
-   · 颜色全走 token（btna / cta-solid / btnalt），本文件**无 hex/rgba 字面量**、**无按主题分支的属性选择器**；
-   · 几何全落页面局部 `--sf-l-*`（两档同值 ⇒ 日/夜 rect 逐值相等，`T120`-f）；
-   · 组合条两端半圆 / 中缝直角由**容器** pill + `overflow:hidden` 实现（子元素不自带圆角）。
-
-   旧规则 `.sf-btn.sf-item-cta`（三格等分胶囊，v1.15 §19 R-B）已由本组规则取代并删除 ——
-   该类在 src 内零消费者（`grep -rn 'sf-item-cta'` 仅命中本文件与 ItemDetailPage 的注释）。
+   详情页改版（design §26.15 / route §49.14 / data §40.10 · 2026-10-20）
+   · H5（≤767）四段行序冻结 + 底部固定四件栏（留言·收藏 靠左 ‖ 立即购买·聊一聊 靠右）；
+     Web（≥768）闲鱼式两栏 = 左媒体右信息（≥768 断点块落在文件尾）。
+   · ★ 状态改写：§24 `T120` 的「组合条 58%｜42% + 收藏」为详情页**旧形态**；
+     本节四件形态落定起，详情页底栏以本节为准（T120 条文在册保留可检索）。
+   · 页面局部常量（承 reward-card 卡内局部常量先例，不进主题 token 层 / 零 TOKEN_KEYS 变更）：
+     橙红大价 #FF4D00 · 自动发货绿 #4ADE80 · 核心签/H5 购买胶囊灰底 #ECECEC。
+   · 零 [data-theme] 选择器（p6-btn-impl2 硬门）；断点仅既有 767 / 768；
+     新形状一律新修饰类 + 复合选择器（`.sf-btn.sf-item-…`），`.sf-item-btn` 本体一字未动。
+   · 两档差异**只走 CSS 断点**（禁 JS 宽度读数 —— theme-shell-isomorphism 全文扫描）。
    ============================================================================ */
+.sf-item-detail {
+  --sf-item-price-fg: #FF4D00;
+  --sf-item-tag-auto-bg: #4ADE80;
+  --sf-item-core-tag-bg: #ECECEC;
+  --sf-item-cta-buy-bg: #ECECEC;
+  --sf-item-media-h: 320px;
+}
+
+/* ① 卖家信息行（H5 行① / Web 顶部通栏）：24px 圆头像（同 feed 卡卖家栏）+ 掩码地址 + 信用胶囊 */
+.sf-item-seller {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sf-item-seller-avatar {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  background: #EEF0F2;
+  color: #6B7280;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.sf-item-seller-avatar-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sf-item-seller-name {
+  font-size: 13px;
+  color: var(--sf-title-fg);
+  white-space: nowrap;
+}
+
+.sf-item-seller-credit {
+  font-size: 12px;
+  color: var(--sf-meta-fg);
+  background: var(--sf-btnalt-bg);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-btnalt-border);
+  border-radius: var(--sf-st-radius-pill);
+  padding: 1px 8px;
+  white-space: nowrap;
+}
+
+/* 两栏壳：H5 = 纵向堆叠（side = ②③④ 行 先、media = ⑤ 后）；Web ≥768 断点块改两栏 */
+.sf-item-cols {
+  display: flex;
+  flex-direction: column;
+}
+
+.sf-item-side {
+  order: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sf-item-media {
+  order: 2;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 8px;
+}
+
+/* H5 行序（判负 #43/#44）：②价格 → 核心签 → ③次要签+计数 → ④desc；Web 标题行 ≤767 不另设 */
+.sf-item-web-title {
+  display: none;
+}
+
+.sf-item-core-tags {
+  order: 2;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.sf-item-tags-row {
+  order: 3;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 16px;
+}
+
+.sf-item-desc {
+  order: 4;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--sf-search-fg);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ④ 首行 = 派生标题（中等字重；正文其余行原样） */
+.sf-item-desc-first {
+  font-weight: 500;
+}
+
+/* ② 价格行：橙红 #FF4D00 大价（$ 小号同色；同卡面局部常量先例）+ Web 行右端想要·浏览计数 */
+.sf-item-price-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sf-item-detail .sf-item-price {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  align-self: auto;
+}
+
+.sf-item-detail .sf-item-price-cur,
+.sf-item-detail .sf-item-price-num {
+  color: var(--sf-item-price-fg);
+}
+
+.sf-item-detail .sf-item-price-num {
+  font-weight: 700;
+}
+
+.sf-item-counts {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--sf-meta-fg);
+  white-space: nowrap;
+}
+
+/* 计数双槽：H5 = ③ 行尾；Web = 价格行右端（同一数据，两档各显其一） */
+.sf-item-counts-desk {
+  display: none;
+}
+
+.sf-item-tags-row .sf-item-counts {
+  margin-inline-start: auto;
+}
+
+/* ③ 次要标签（收敛两枚）与核心成色签：同族几何 12px/700/16 高/2px 圆角（承卡面标签体例） */
+.sf-item-ship-tag,
+.sf-item-auto-tag,
+.sf-item-core-tag {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  height: 16px;
+  border-radius: 2px;
+  padding: 0 4px;
+  margin-right: 4px;
+  vertical-align: baseline;
+  white-space: nowrap;
+}
+
+.sf-item-ship-tag {
+  background: var(--sf-btna-bg);
+  color: var(--sf-btna-fg);
+}
+
+.sf-item-auto-tag {
+  background: var(--sf-item-tag-auto-bg);
+  color: var(--sf-btna-fg);
+}
+
+.sf-item-core-tag {
+  background: var(--sf-item-core-tag-bg);
+  color: var(--sf-btna-fg);
+}
+
+/* ⑤ 媒体区（H5）：主图在上、缩略横条在下（黑框 = 当前选中）；轮播箭头 ≥768 才显示 */
+.sf-item-media-thumbs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.sf-item-media-thumb {
+  flex: 0 0 56px;
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: var(--sf-st-radius-btna);
+  background: var(--sf-thumb-1);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.sf-item-media-thumb[data-sf-active='1'] {
+  border-color: #202020;
+}
+
+.sf-item-media-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sf-item-media-main {
+  position: relative;
+}
+
+.sf-item-media-img {
+  display: block;
+  width: 100%;
+  height: var(--sf-item-media-h);
+  object-fit: cover;
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-thumb-border);
+  border-radius: var(--sf-st-radius-btna);
+  background: var(--sf-thumb-1);
+}
+
+.sf-item-media-nav {
+  display: none;
+}
+
+/* ⑥ 底部操作栏四件（H5 ≤767 fixed；判负 #41/#42/#47）：
+   左组【留言·收藏】靠左 ‖ 右组【立即购买·聊一聊】靠右（space-between 自然让位，不写死 px） */
 .sf-item-actionbar-row {
   display: flex;
   align-items: center;
-  /* 留白 = 组合条与收藏之间由 space-between **自然让出**（不写固定 px） */
   justify-content: space-between;
   gap: var(--sf-st-feed-gap-m);
   width: 100%;
 }
 
-.sf-item-cta-group {
+.sf-item-bar-left,
+.sf-item-bar-right {
   display: flex;
-  align-items: stretch;
-  /* 72.8% ⇒ 收藏 22.6% + 中间留白 ≈4.6%（space-between 让出，两档同值）
-     72.8% 非目测：参考图 ref/goofish-ref.png 列主类逐像素实测 x=32..806 / 可用宽 1064px */
-  flex: 0 0 72.8%;
-  overflow: hidden;
-  border-radius: var(--sf-st-radius-pill);
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
-/* 两段共用：中缝直角（4 角 = 0）+ 高度 44px（= --sf-l-actionbar-h − 8×2） */
+/* 留言 = 文本钮（无底无框；触控高由 .sf-item-btn 的 min-height 承担） */
+.sf-btn.sf-item-bar-msg {
+  background: transparent;
+  border-color: transparent;
+  color: var(--sf-title-fg);
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+/* 收藏 = 独立胶囊（灰/次按钮 token 族）；已收藏 = 实心黄星（图标吃 --sf-btna-bg） */
+.sf-btn.sf-item-bar-fav {
+  border-radius: var(--sf-st-radius-pill);
+  background: var(--sf-btnalt-bg);
+  color: var(--sf-btnalt-fg);
+  border-color: var(--sf-btnalt-border);
+  gap: var(--sf-l-cta-icon-gap);
+}
+
+.sf-item-bar-fav[data-sf-fav='1'] svg {
+  color: var(--sf-btna-bg);
+}
+
+/* 右组容器：H5 = 两枚独立胶囊（gap 分隔）；Web ≥768 断点块改为拼接（overflow hidden + 中缝直角） */
+.sf-item-cta-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .sf-btn.sf-item-cta-group-seg {
   display: inline-flex;
   align-items: center;
@@ -463,54 +719,29 @@
   gap: var(--sf-l-cta-icon-gap);
   height: var(--sf-l-cta-h);
   min-height: var(--sf-l-cta-h);
-  border-radius: 0;
-  /* 基类 1px 描边保留**宽度**（几何不变），颜色随各自底色 ⇒ 中缝与两端无描边痕迹 */
+  border-radius: var(--sf-st-radius-pill);
+}
+
+/* H5：立即购买 = 黑字灰底胶囊；聊一聊 = 图标 + 黑字黄底胶囊（--sf-btna-*，日夜同值） */
+.sf-btn.sf-item-cta-buy {
+  background: var(--sf-item-cta-buy-bg);
+  color: var(--sf-btna-fg);
+  border-color: var(--sf-item-cta-buy-bg);
+}
+
+.sf-btn.sf-item-cta-chat {
+  background: var(--sf-btna-bg);
+  color: var(--sf-btna-fg);
   border-color: var(--sf-btna-bg);
 }
 
-/* 聊一聊段：50%（实测 388px / 775px = 50.1%，与立即买 50:50），黄底深字（--sf-btna-*，日夜同值） */
-.sf-btn.sf-item-cta-chat {
-  flex: 0 0 50%;
-  background: var(--sf-btna-bg);
-  color: var(--sf-btna-fg);
-}
-
-/* 立即购买段：50%（flex 1 1 auto 吃满余量 ⇒ 50:50），墨底反相字（--sf-cta-solid-*，夜档成对反相） */
-.sf-btn.sf-item-cta-buy {
-  flex: 1 1 auto;
-  background: var(--sf-cta-solid-bg);
-  color: var(--sf-cta-solid-fg);
-  border-color: var(--sf-cta-solid-bg);
-}
-
-/* 卖家本人看自己商品 ⇒ 组合条内只剩「立即购买」：单段撑满组合条并**整条全圆**
-   （不留半圆开口）。置于两段规则之后：同具体性 (0,2,0) ⇒ 后置取胜。 */
+/* 卖家本人看自己商品 ⇒ 右组只剩「立即购买」单胶囊（无拼接缝、不撑满） */
 .sf-item-cta-group > :only-child {
-  flex: 1 1 100%;
-  border-radius: var(--sf-st-radius-pill);
+  flex: 0 0 auto;
 }
 
-/* 收藏：独立胶囊，22.6%（实测 240px / 1064px），浅底（--sf-btnalt-*，夜档自带反相） */
-.sf-btn.sf-item-cta-fav {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--sf-l-cta-icon-gap);
-  flex: 0 0 22.6%;
-  height: var(--sf-l-cta-h);
-  min-height: var(--sf-l-cta-h);
-  /* 水平内边距收窄到 8px：「★ 已收藏」（图标 18 + 间距 8 + 三字 39）在 390 档最窄情况下不换行 */
-  padding-left: 8px;
-  padding-right: 8px;
-  border-radius: var(--sf-st-radius-pill);
-  background: var(--sf-btnalt-bg);
-  color: var(--sf-btnalt-fg);
-  border-color: var(--sf-btnalt-border);
-}
-
-/* 图标 = 图形件（`currentColor` 跟随所属段文字色 token），尺寸取页面局部常量（两档同值） */
 .sf-item-cta-group-seg > svg,
-.sf-item-cta-fav > svg {
+.sf-item-bar-fav > svg {
   flex: 0 0 auto;
   width: var(--sf-l-cta-icon-size);
   height: var(--sf-l-cta-icon-size);

@@ -193,7 +193,16 @@
     "draftStockLocked": "Stock is locked while the item is a draft — it can be changed once listed",
     "lowerPrice": "Lower price",
     "newPrice": "New price",
-    "lowerPriceInvalid": "New price must be a whole number of at least 1 and lower than the current price"
+    "lowerPriceInvalid": "New price must be a whole number of at least 1 and lower than the current price",
+    "message": "Message",
+    "platformSettled": "Platform settlement",
+    "views": "{{n}} views"
+  },
+  "itemCondition": {
+    "brandNewSealed": "Brand new sealed",
+    "heavyWear": "Heavy wear",
+    "likeNew": "Like new",
+    "minorWear": "Minor wear"
   },
   "market": {
     "line": "Exchange",

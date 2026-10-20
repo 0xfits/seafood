@@ -193,7 +193,16 @@
     "draftStockLocked": "草稿狀態下庫存不可修改，上架後即可修改",
     "lowerPrice": "減價",
     "newPrice": "新價格",
-    "lowerPriceInvalid": "新價格需為不低於 1 的整數，且必須低於現價"
+    "lowerPriceInvalid": "新價格需為不低於 1 的整數，且必須低於現價",
+    "message": "留言",
+    "platformSettled": "平台結算",
+    "views": "{{n}}人瀏覽"
+  },
+  "itemCondition": {
+    "brandNewSealed": "全新未拆封",
+    "heavyWear": "嚴重磨損",
+    "likeNew": "幾乎全新",
+    "minorWear": "細微磕碰劃痕"
   },
   "market": {
     "line": "交易所線",

@@ -15,7 +15,7 @@
  *   ⑥ CSS：两枚标签几何逐条相同、**只差底色**（黄 `var(--sf-btna-bg)` / 绿 `var(--sf-reward-tag-auto-bg)`
  *      = 卡内局部常量 `#4ADE80`）；行高 48 / 卡高 392 不动（真渲染几何读数走
  *      `ops/item-type/delivery/front/` 的浏览器探针，jsdom 无布局 ⇒ 此处只钉**声明**）；
- *   ⑦ i18n 6 键四语齐备 + 计数前推（top 130 / flat 1123 / nodes 4492 / `item` 55）。
+ *   ⑦ i18n 6 键四语齐备 + 计数前推（top 131 / flat 1136 / nodes 4544 / `item` 64）。
  *
  * 替身设计（承 `publish-item-cid-select.test.jsx` 体例）：
  *   · `item-api` = `importOriginal + 只桩三个面`（`fetchCurrencies` / `publishListing` /
@@ -595,12 +595,12 @@ describe('F · i18n 6 键四语 + 计数前推（top 130 / flat 1123 / nodes 449
 
   it('计数：top 130 / flat 1123 / 四语节点 4492 / `item` 55（四语逐文件相等）', () => {
     for (const [lang, table] of Object.entries(TABLES)) {
-      expect(Object.keys(table).length, `${lang} top`).toBe(130)
-      expect(flat(table), `${lang} flat`).toBe(1129) // [i18n-bump title-merge +1 键 item.descFirstLineHint ⇒ flat 1122⇒1123 / nodes 4488⇒4492 / item 54⇒55] // [i18n-bump edit-page +3 键 item.editTitle/editOk/draftStockLocked ⇒ flat 1123⇒1126 / nodes 4492⇒4504 / item 55⇒58] // [i18n-bump list-actions +3 键 item.lowerPrice/newPrice/lowerPriceInvalid ⇒ flat 1126⇒1129 / nodes 4504⇒4516 / item 58⇒61]
-      expect(Object.keys(table.item).length, `${lang} item`).toBe(61) // [i18n-bump title-merge +1 键 item.descFirstLineHint ⇒ flat 1122⇒1123 / nodes 4488⇒4492 / item 54⇒55] // [i18n-bump edit-page +3 键 item.editTitle/editOk/draftStockLocked ⇒ flat 1123⇒1126 / nodes 4492⇒4504 / item 55⇒58] // [i18n-bump list-actions +3 键 item.lowerPrice/newPrice/lowerPriceInvalid ⇒ flat 1126⇒1129 / nodes 4504⇒4516 / item 58⇒61]
+      expect(Object.keys(table).length, `${lang} top`).toBe(131) // [i18n-bump item-detail +7 键 item.message/platformSettled/views + itemCondition×4 ⇒ top 130⇒131 / flat 1129⇒1136 / nodes 4516⇒4544 / item 61⇒64]
+      expect(flat(table), `${lang} flat`).toBe(1136) // [i18n-bump title-merge +1 键 item.descFirstLineHint ⇒ flat 1122⇒1123 / nodes 4488⇒4492 / item 54⇒55] // [i18n-bump edit-page +3 键 item.editTitle/editOk/draftStockLocked ⇒ flat 1123⇒1126 / nodes 4492⇒4504 / item 55⇒58] // [i18n-bump list-actions +3 键 item.lowerPrice/newPrice/lowerPriceInvalid ⇒ flat 1126⇒1129 / nodes 4504⇒4516 / item 58⇒61] // [i18n-bump item-detail +7 键 item.message/platformSettled/views + itemCondition×4 ⇒ top 130⇒131 / flat 1129⇒1136 / nodes 4516⇒4544 / item 61⇒64]
+      expect(Object.keys(table.item).length, `${lang} item`).toBe(64) // [i18n-bump title-merge +1 键 item.descFirstLineHint ⇒ flat 1122⇒1123 / nodes 4488⇒4492 / item 54⇒55] // [i18n-bump edit-page +3 键 item.editTitle/editOk/draftStockLocked ⇒ flat 1123⇒1126 / nodes 4492⇒4504 / item 55⇒58] // [i18n-bump list-actions +3 键 item.lowerPrice/newPrice/lowerPriceInvalid ⇒ flat 1126⇒1129 / nodes 4504⇒4516 / item 58⇒61] // [i18n-bump item-detail +7 键 item.message/platformSettled/views + itemCondition×4 ⇒ top 130⇒131 / flat 1129⇒1136 / nodes 4516⇒4544 / item 61⇒64]
     }
-    expect(Object.keys(zh).length * 4).toBe(520)
-    expect(flat(zh) * 4).toBe(4516) // [i18n-bump title-merge +1 键 item.descFirstLineHint ⇒ flat 1122⇒1123 / nodes 4488⇒4492 / item 54⇒55] // [i18n-bump edit-page +3 键 item.editTitle/editOk/draftStockLocked ⇒ flat 1123⇒1126 / nodes 4492⇒4504 / item 55⇒58] // [i18n-bump list-actions +3 键 item.lowerPrice/newPrice/lowerPriceInvalid ⇒ flat 1126⇒1129 / nodes 4504⇒4516 / item 58⇒61]
+    expect(Object.keys(zh).length * 4).toBe(524) // [i18n-bump item-detail top 130⇒131 ×4 = 524]
+    expect(flat(zh) * 4).toBe(4544) // [i18n-bump title-merge +1 键 item.descFirstLineHint ⇒ flat 1122⇒1123 / nodes 4488⇒4492 / item 54⇒55] // [i18n-bump edit-page +3 键 item.editTitle/editOk/draftStockLocked ⇒ flat 1123⇒1126 / nodes 4492⇒4504 / item 55⇒58] // [i18n-bump list-actions +3 键 item.lowerPrice/newPrice/lowerPriceInvalid ⇒ flat 1126⇒1129 / nodes 4504⇒4516 / item 58⇒61] // [i18n-bump item-detail +7 键 item.message/platformSettled/views + itemCondition×4 ⇒ top 130⇒131 / flat 1129⇒1136 / nodes 4516⇒4544 / item 61⇒64]
   })
 })
 

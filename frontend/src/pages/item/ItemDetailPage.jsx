@@ -28,46 +28,49 @@ const LISTING_STATUS_KEYS = ['draft', 'listed', 'delisted', 'frozen']
 //   · `item/:itemId`（**原 `listing/:listingId`**）⇒ 详情；
 //   · **同路由 `?id=` 兼容**：`item`（无 `/item/:itemId` 段）由 App.jsx 挂**本组件**，
 //     无 params 时按 query 的 `id` 渲染详情；两者都无 id ⇒ 重定向首页 `/`（保留语言前缀）。
-// 详情：`GET /api/prize/:bID`（**已注册** :433）= `listing` 行（`bID` = `listing_id`）；miss ⇒ 404（R107）。
-// 购买：`POST /api/listing/:listingId/buy`（**已注册** :1569）。
-//   ★ **金额与对手方一律服务端取数**：payload 只有 `create_key` + `quantity`（`listing-funds-service.ts:210,214`）
+// 详情：`GET /api/prize/:bID`（**已注册**）= `listing` 行（`bID` = `listing_id`）；miss ⇒ 404（R107）。
+// 购买：`POST /api/listing/:listingId/buy`（**已注册**）。
+//   ★ **金额与对手方一律服务端取数**：payload 只有 `create_key` + `quantity`
 //     —— 页面**没有**任何 price/seller 输入参与请求；客户端传 `price`/`seller_uid`/`buyer_uid` 也被忽略。
 //   ★ 幂等键 = **前端供键**（fail-loud：缺 `cli:` 键 ⇒ `400 LEDGER_IDEMPOTENCY_KEY_REQUIRED`）。
-// 后端面一字不动：`/api/prize/…` 与 `/api/listing…` 路径名保持不变（本单只改前端路由与文件命名）。
+// 后端面一字不动：`/api/prize/…` 与 `/api/listing…` 路径名保持不变。
 //
 // ============================================================================
-// ★ v1.15 §19（T94–T99）· 变体 A「闲鱼结构 × 本站主题」· 渲染面收窄为白名单
-//   渲染面（只这些）：① 价格行（大号价格 + 单位小字）② 大标题 ③ 详情面板（渐变占位图 +
-//     描述 + 库存 + 数量输入）④ 底部固定操作栏（仅「立即购买」一个 CTA）⑤ 页内顶栏返回箭头
-//     ⑥ 既有 `.sf-item-note`（物品编号 + 状态 —— 有数据承载，须保留）。
-//   一律不渲染：卖家行 / 属性两列 / 集市横幅 / 划线原价 / 比市场价 / 包邮 / 想要·浏览计数 /
-//     留言 / 收藏 / 聊一聊（前三者 = Kevin 裁定④ 另单；其余无数据源）。
-//   ★ 不预埋空槽位 DOM（承 §15「不造无人消费的空路径」）。
-//   ★ R-A（Zang 终审）：`item.line` / `item.priceServerNote` / `item.refundStockNote` 三个既有键
-//     **保留**，由独立侧栏列折进详情面板作 meta 组（小标题 + 两行说明）⇒ 详情页上 `.sf-layout-side`
-//     消失、`.sf-layout` 退化为单列；零数据依赖的既有可见内容不删。
-//   ★ R-F（Zang 终审）：`item.buyNote`（「购买金额以平台结算为准；重复点击不会重复扣款」）同口径
-//     **保留渲染**，并入同一 meta 组（与 `item.priceServerNote` **非冗余** —— 它多携带「重复点击
-//     不会重复扣款」的幂等告知，对支付 CTA 是对用户的有效告知）。**只改渲染、locale 四语键一字不动**。
-//   ★ 返回目标语义（T96 裁死）：固定回首页 root('/')，**否决 history.back()**（深链 / 刷新 / 新标签
-//     三种入口下导航栈无站内上一页 ⇒ 行为不一致）。a11y 名复用既有键 `item.list`（+0 新键）。
-//   ★ 结构常量（T98）：本单零新主题 token；字号 / 高度等几何量一律落 item.css 的页面局部 --sf-l-*。
+// ★ 详情页改版（design §26.15 / route §49.14 / data §40.10 · 2026-10-20）· 只换壳，购买业务逻辑零改动
+//   H5（≤767）行序冻结（判负 #43/#44）：
+//     ① 卖家信息行（头像 + 掩码地址 `seller.nickname`（服务端单源掩码）+ 信用胶囊 `sellerCredit.*`）
+//     ② 价格行（橙红 #FF4D00 大价 + 核心标签）
+//     ③ 次要标签行（`item_type` 派生**收敛两枚**：PhysicalFreeShip⇒包邮黄 / DigitalAutoDeliver⇒自动发货绿；
+//        其余值 / NULL ⇒ 彻底不渲染，判负 #48）+ 行尾 `x人想要`（`wants`）+ `x人浏览`（`views`）
+//     ④ desc 全文（`white-space: pre-wrap` 保留换行；首行即派生标题、中等字重，**不另设标题行**）
+//     ⑤ 图片区（`media_urls` 画廊；无图 ⇒ 机械鱼占位）
+//     ⑥ 底部固定操作栏四件：【留言】【收藏（五角星）】靠左 ‖【立即购买（黑字灰底胶囊）】【聊一聊（图标+黑字黄底）】
+//        靠右（判负 #42/#47）；≤767 `position: fixed` + `env(safe-area-inset-bottom)`（判负 #41）。
+//   Web（≥768）闲鱼式两栏（判负 #45）：顶部卖家通栏 + 左 = 缩略图列 + 主图（白色圆箭头轮播，无多图隐藏）
+//     + 右 = 价格行（行右端想要·浏览计数）→ 派生标题（粗体）→ 次要标签 → 核心成色标签 → desc → 操作区
+//     （拼接胶囊：聊一聊黄 ｜ 立即购买黑 + 独立收藏胶囊）。两档差异**只走 CSS 767/768 断点**
+//     （禁 JS 宽度读数 —— `theme-shell-isomorphism` 全文扫描）。
+//   核心标签（判负 #49/#50）：`condition` 四值（`BrandNewSealed/LikeNew/MinorWear/HeavyWear`）⇒ 成色中文签；
+//     `condition` 为 null / 闭集外 ⇒ 【平台结算】+ 状态类标签兜底，**不空置**、不渲染四值外文案。
+//   无承载不渲染（判负 #46）：`seller` / `wants` / `views` / `condition` / `item_type` 缺键 ⇒ 对应节点不渲染。
+//   行为接线（全部既有口，零新写口）：留言/聊一聊 ⇒ 会话五口（`openConversation`，未登录 ⇒ 既有登录引导；
+//     卖家本人 ⇒ 聊一聊整格不渲染）；收藏 ⇒ `trades-api` toggle（已收藏实心黄星）；
+//     立即购买 ⇒ 既有 `onBuy`（表单 submit、quantity/create_key 逻辑一字未动；未登录 ⇒ 按钮禁用 + `pleaseLogin` 提示）。
 // ============================================================================
-// ★ v1.17 §20.2（`T100`）· 底部固定操作栏**第 3 格「聊一聊」激活**（N = 0 → 1）
-//   第 1 格「留言」/ 第 2 格「收藏」**仍不渲染、不预埋 DOM**（N43：不造无人消费的占位槽）。
-//   渲染条件（Zang 裁定② 2026-10-12 **就地取代 §20.3 末行的「未登录不渲染」口径**）：
-//     · 登录 ∧ 非卖家本人 ⇒ 渲染；点击 ⇒ `POST /api/messages/conversations`（自然幂等）后**就地叠加**打开会话
-//       （**当前商品页** + `?msg=1&c=<conversation_id>` —— `pathname` 逐字不变、不换页；
-//        v1.19 §21 / route v2.34 §44.3 `Q4` 待裁项已由 Zang 2026-10-16 裁定为「方案 1 · 就地叠加」）。
-//     · 卖家本人 ⇒ **整格不渲染**（参会判定 = `F19` 的 `row.seller.uid` vs `user.uID`；
-//       服务端 `MSG_SELF_CONVERSATION` 双闸仍在）。
-//     · 未登录 ⇒ **渲染且不 disabled**，点击走**既有登录引导**（本仓既有受保护项口径 = 转
-//       `/login` 并带 `state.from`，同 `pages/ProfilePage.jsx` 的 `goLogin` / `AuthPage` 的
-//       `redirectTarget`；**不新造弹层**）—— 与「立即购买」未登录也有 `pleaseLogin` 提示同向。
-//   ★ 参会判定用 `String(...)` 归一：同 `messages-api` 的 id 口径（后端 id 经 `pg` 可能回字符串）。
-//   ★ 复用既有 `.sf-btn` 家族 + `.sf-item-cta`（`--sf-st-radius-pill` 胶囊 / R-B）：零新颜色、零新 token；
-//     `p6-btn-impl2` 的家族清单本就含本文件、`totalUses` 为**下限断言** ⇒ +1 处不红。
-// ============================================================================
+// 成色四值 → i18n 键（route §49.14.3：响应键 `condition`，值原样下发不翻译；文案 = 平台侧 i18n）。
+const ITEM_CONDITION_KEYS = {
+  BrandNewSealed: 'itemCondition.brandNewSealed',
+  LikeNew: 'itemCondition.likeNew',
+  MinorWear: 'itemCondition.minorWear',
+  HeavyWear: 'itemCondition.heavyWear',
+}
+
+// 次要标签收敛两枚（design §26.15.2 ③）：仅这两值渲染标签；`DigitalManualDeliver` / `PhysicalBuyerShip` / NULL ⇒ 不渲染。
+const ITEM_SECONDARY_TAGS = {
+  PhysicalFreeShip: { cls: 'sf-item-ship-tag', key: 'item.freeShipping' },
+  DigitalAutoDeliver: { cls: 'sf-item-auto-tag', key: 'itemType.autoDeliver' },
+}
+
 const ItemDetailPage = () => {
   const { t } = useTranslation()
   const location = useLocation()
@@ -81,6 +84,8 @@ const ItemDetailPage = () => {
   const [chat, setChat] = useState({ phase: 'idle', message: '' })
   // sf14 需求⑦：第 2 格「收藏」本地态（favored 初值 = 收藏列表成员判定；取数失败 ⇒ 静默按未收藏）。
   const [fav, setFav] = useState({ phase: 'idle', favored: false })
+  // 详情页改版 ⑤：媒体画廊当前选中下标（轮播/缩略图共用；换商品即复位，越界钳制兜底）。
+  const [mediaIndex, setMediaIndex] = useState(0)
   const tracker = useMemo(() => createListingBuyTracker(), [])
 
   // TR-2：当前语言（`utils.SUPPORTED_LANGS` 同一白名单）
@@ -104,6 +109,9 @@ const ItemDetailPage = () => {
   }, [id, user, t])
 
   useEffect(() => { if (id) load() }, [id, load])
+
+  // 画廊下标随商品复位（旧下标对下一件商品无意义；渲染侧另有越界钳制双保险）
+  useEffect(() => { setMediaIndex(0) }, [id])
 
   // sf14 需求⑦：收藏态初始化 —— 登录 ∧ 详情在 ⇒ 读一次收藏列表判成员（失败静默，不阻塞详情面）。
   useEffect(() => {
@@ -142,13 +150,11 @@ const ItemDetailPage = () => {
     }
   }
 
-  // T100 第 3 格「聊一聊」：未登录 ⇒ 既有登录引导（转 `/login` + `state.from`，不新造弹层）；
+  // 「聊一聊」/「留言」：未登录 ⇒ 既有登录引导（转 `/login` + `state.from`，不新造弹层）；
   //   登录 ⇒ `POST /api/messages/conversations`（自然幂等：同 (listing_id, buyer_uid) 重放回既有 id）
   //   ⇒ 成功后 **就地叠加**打开该会话：**当前商品页**加 `?msg=1&c=<conversation_id>`
   //     （`pathname` 逐字不变 ⇒ 不换页、详情页原地左压，面板由外壳按 `T105` 判据挂载）。
-  //   ★ v1.19 §21 / route v2.34 §44.3（`Q4` 待裁项 · Zang 2026-10-16 裁定 = 「方案 1 · 就地叠加」）：
-  //     原 `navigate('/messages?c=<id>')`（换页到直链落点、`M4` 形态）**已被就地形态取代**；
-  //     POST 幂等 / 失败处置一字不动（`openConversation` 未改）。
+  //   ★ 两钮同走 listing 会话口（design §26.15.3：本站无独立留言板载体，差异 = 入口形态）。
   const onChat = async (event) => {
     event.preventDefault()
     if (chat.phase === 'loading') return
@@ -168,7 +174,7 @@ const ItemDetailPage = () => {
     }
   }
 
-  // sf14 需求⑦ 第 2 格「收藏」：登录 = 收藏/已收藏 toggle（幂等：重复收藏/取消同效）；
+  // 「收藏」：登录 = 收藏/已收藏 toggle（幂等：重复收藏/取消同效）；
   //   未登录 = 既有登录引导（同 onChat 体例，不新造弹层）；收藏成功 = toast + 状态翻转（可见反馈）。
   const onToggleFav = async () => {
     if (fav.phase === 'loading') return
@@ -195,7 +201,7 @@ const ItemDetailPage = () => {
   }
 
   const row = detail.row || {}
-  // T100 参会判定：卖家本人 ⇒ 第 3 格整格不渲染（`F19` 读口的 `seller.uid` vs 当前用户 `uID`）。
+  // 参会判定：卖家本人 ⇒ 「聊一聊」整格不渲染（`seller.uid` vs 当前用户 `uID`）。
   //   `String(...)` 归一（后端 id 经 `pg` 可能回字符串 ⇒ 裸 `===` 会静默失效）；缺 `seller` 读口
   //   （旧行 / mock 面）⇒ 无法判定为本人 ⇒ 视为「非卖家」（读口扩展是纯增键、向后兼容）。
   const sellerUid = row?.seller?.uid ?? null
@@ -204,8 +210,25 @@ const ItemDetailPage = () => {
     && String(myUid) === String(sellerUid)
   const title = pickLocalized(row, 'title', lang) || pickLocalized(row, 'name', lang) || t('item.detail')
   const description = pickLocalized(row, 'description', lang) || ''
-  // 媒体单前端阶段 A：详情面板图 = 真图（media_urls[0]）> 机械鱼占位；alt 复用本地化标题（零新 i18n 键）。
-  const detailImage = row.media_urls?.[0] || PLACEHOLDER_IMAGE
+  // ④ desc 全文（存储不截）：首行 = 派生标题（中等字重、不另设标题行），其余行原样保留换行。
+  const descNl = description.indexOf('\n')
+  const descFirst = descNl >= 0 ? description.slice(0, descNl) : description
+  const descRest = descNl >= 0 ? description.slice(descNl + 1) : ''
+  // ⑤ 媒体画廊（media_urls ≤4 张）；无图 ⇒ 机械鱼占位（既有口径）。越界下标钳制到末张。
+  const media = Array.isArray(row.media_urls) ? row.media_urls.filter(Boolean) : []
+  const mediaIdx = media.length ? Math.min(mediaIndex, media.length - 1) : 0
+  const currentImage = media[mediaIdx] || PLACEHOLDER_IMAGE
+  // ② 核心标签：`condition` 四值 ⇒ 成色签；null / 闭集外 ⇒ 【平台结算】+ 状态签兜底（#49/#50）。
+  const conditionKey = ITEM_CONDITION_KEYS[row.condition] || null
+  // ③ 次要标签：仅收敛两枚在值（#48：其余值 / NULL 彻底不渲染）。
+  const secondaryTag = ITEM_SECONDARY_TAGS[row.item_type] || null
+  // 「想要 / 浏览」读数（#46：响应缺键 ⇒ 槽不渲染，不造假数据；bigint 可能以字符串回流 ⇒ 一律 String）。
+  const hasWants = row.wants != null
+  const hasViews = row.views != null
+  const wantsText = hasWants ? t('rewardCard.wants', { n: String(row.wants) }) : ''
+  const viewsText = hasViews ? t('item.views', { n: String(row.views) }) : ''
+  // ① 卖家行（#46：响应无 `seller` ⇒ 整行不渲染）。昵称 = 服务端 `maskWalletAddress` 单源掩码。
+  const seller = row.seller || null
 
   // P7-E 小尾巴批-β ①：listing 状态**不得原样渲染枚举**。已知取值 ⇒ 四语标签；未知 ⇒ 本地化兜底（`item.statusLabel.unknown`）；
   //   原值留 `title`/`data-sf-status`（仅排查用）。缺省/空串 ⇒ 维持既有口径 = `-`（与列表「缺失 ⇒ 已上架」**不同**）。
@@ -220,7 +243,7 @@ const ItemDetailPage = () => {
     <div className="sf-layout" data-sf-m="item-detail-layout">
       <div className="sf-layout-main">
         <div className="sf-item sf-item-detail">
-          {/* 页内顶栏 · 返回箭头（T96：固定回首页；a11y 名复用 item.list；触控复用 .sf-tap-sq） */}
+          {/* 页内顶栏 · 返回箭头（T96：固定回首页；a11y 名复用 item.list；触控复用 .sf-tap-sq）—— Web 两栏改版后保留 */}
           <div className="sf-item-topbar">
             <Link className="sf-item-back sf-tap-sq" to={root('/')} data-sf-m="item-back" aria-label={t('item.list')}>
               <ChevronLeft size={22} aria-hidden="true" />
@@ -232,44 +255,138 @@ const ItemDetailPage = () => {
               {detail.message || t('noData')}
             </div>
           ) : (
-            <>
-              {/* 价格行 → 大标题 → `.sf-item-note`（副行）：层级照参考图，颜色/字号走本站 token 与页面局部常量 */}
-              <div className="sf-item-head" data-sf-m="item-detail-hero">
-                <div className="sf-item-price sf-item-price-l">
-                  <span className="sf-item-price-cur">$</span>
-                  <span className="sf-item-price-num">{String(row.price ?? row.points ?? '-')}</span>
-                  <span className="sf-item-price-unit">{t('item.priceUnit')}</span>
+            <form className="sf-item-detail-body" onSubmit={onBuy} data-sf-m="item-buy-form">
+              {/* ① 卖家信息行（H5 行① / Web 顶部通栏；响应无 `seller` ⇒ 整行不渲染，#46） */}
+              {seller ? (
+                <div className="sf-item-seller" data-sf-m="item-detail-seller-row">
+                  <span className="sf-item-seller-avatar" aria-hidden="true">
+                    {seller.avatar
+                      ? <img className="sf-item-seller-avatar-img" src={seller.avatar} alt="" />
+                      : (seller.nickname ? String(seller.nickname).slice(0, 1) : '·')}
+                  </span>
+                  <span className="sf-item-seller-name">{seller.nickname || ''}</span>
+                  <span className="sf-item-seller-credit" data-sf-m="item-detail-seller-credit">
+                    {t(`sellerCredit.${seller.credit || 'new'}`)}
+                  </span>
                 </div>
-                <h1 className="sf-item-title sf-item-title-l">
-                  {String(title)}
-                  {/* 「翻译中」小标（ready/缺省 ⇒ null） */}
-                  <TranslatingBadge status={contentStatus(row)} />
-                </h1>
-                <p
-                  className="sf-item-note"
-                  data-sf-status={statusRaw || undefined}
-                  title={statusRaw || undefined}
-                >{`${t('item.listingId')} #${String(row.listing_id ?? row.bID ?? id ?? '-')} · ${statusText}`}</p>
-              </div>
+              ) : null}
 
-              <form onSubmit={onBuy} data-sf-m="item-buy-form">
-                {/* 详情面板：渐变占位图 + 描述 + 库存 + meta 组（R-A）+ 数量输入 */}
-                <div className="sf-item-panel" data-sf-m="item-detail">
-                  <img
-                    className="sf-item-thumb"
-                    data-sf-m="item-detail-thumb"
-                    src={detailImage}
-                    alt={title}
-                  />
-                  <p className="sf-item-meta">{String(description)}</p>
-                  <p className="sf-item-meta">{t('item.stock')}{` ${String(row.stock ?? '-')}`}</p>
-                  <div className="sf-item-meta-group">
-                    <h2 className="sf-item-title">{t('item.line')}</h2>
-                    <p className="sf-item-meta">{t('item.priceServerNote')}</p>
-                    <p className="sf-item-meta">{t('item.buyNote')}</p>
-                    <p className="sf-item-meta">{t('item.refundStockNote')}</p>
+              <div className="sf-item-cols" data-sf-m="item-detail-web-cols">
+                {/* ⑤ 媒体区（H5 第 ⑤ 行 / Web 左栏）：主图 + 画廊缩略条 + 白色圆箭头（无多图不渲染） */}
+                <div className="sf-item-media" data-sf-m="item-detail-gallery">
+                  {media.length > 0 ? (
+                    <div className="sf-item-media-thumbs" data-sf-m="item-detail-media-thumbs">
+                      {media.map((url, i) => (
+                        <button
+                          key={`${i}-${url}`}
+                          type="button"
+                          className="sf-item-media-thumb"
+                          data-sf-m="item-detail-media-thumb"
+                          data-sf-active={i === mediaIdx ? '1' : '0'}
+                          aria-label={`${i + 1}`}
+                          onClick={() => setMediaIndex(i)}
+                        >
+                          <img src={url} alt="" />
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                  <div className="sf-item-media-main">
+                    {media.length > 1 ? (
+                      <>
+                        <button
+                          type="button"
+                          className="sf-item-media-nav sf-item-media-nav-prev"
+                          data-sf-m="item-detail-media-prev"
+                          aria-label="‹"
+                          onClick={() => setMediaIndex((mediaIdx - 1 + media.length) % media.length)}
+                        >
+                          ‹
+                        </button>
+                        <button
+                          type="button"
+                          className="sf-item-media-nav sf-item-media-nav-next"
+                          data-sf-m="item-detail-media-next"
+                          aria-label="›"
+                          onClick={() => setMediaIndex((mediaIdx + 1) % media.length)}
+                        >
+                          ›
+                        </button>
+                      </>
+                    ) : null}
+                    <img
+                      className="sf-item-media-img"
+                      data-sf-m="item-detail-thumb"
+                      src={currentImage}
+                      alt={title}
+                    />
                   </div>
-                  <label className="sf-item-field">
+                </div>
+
+                {/* 右栏（Web）/ ②③④ 行序（H5，flex order 落 CSS）：价格 → 次要 → 核心 → desc → 操作区 */}
+                <div className="sf-item-side" data-sf-m="item-detail-web-side">
+                  {/* ② 价格行：橙红大价（$ 小号同色）+ Web 行右端想要·浏览计数 */}
+                  <div className="sf-item-price-row" data-sf-m="item-detail-price-row">
+                    <div className="sf-item-price sf-item-price-l">
+                      <span className="sf-item-price-cur">$</span>
+                      <span className="sf-item-price-num">{String(row.price ?? row.points ?? '-')}</span>
+                      <span className="sf-item-price-unit">{t('item.priceUnit')}</span>
+                    </div>
+                    {hasWants || hasViews ? (
+                      <div className="sf-item-counts sf-item-counts-desk" data-sf-m="item-detail-counts" data-sf-slot="price">
+                        {hasWants ? <span data-sf-m="item-detail-wants">{wantsText}</span> : null}
+                        {hasViews ? <span data-sf-m="item-detail-views">{viewsText}</span> : null}
+                      </div>
+                    ) : null}
+                  </div>
+
+                  {/* 派生标题（Web 粗体行 + 翻译中小标；H5 不另设标题行 ⇒ ≤767 隐藏） */}
+                  <h1 className="sf-item-title sf-item-title-l sf-item-web-title">
+                    {String(title)}
+                    <TranslatingBadge status={contentStatus(row)} />
+                  </h1>
+
+                  {/* ③ 次要标签行（收敛两枚）+ 行尾 `x人想要`/`x人浏览`（H5 槽位） */}
+                  <div className="sf-item-tags-row" data-sf-m="item-detail-tags-secondary">
+                    {secondaryTag ? (
+                      <span className={secondaryTag.cls} data-sf-m="item-detail-secondary-tag">{t(secondaryTag.key)}</span>
+                    ) : null}
+                    {hasWants || hasViews ? (
+                      <span className="sf-item-counts sf-item-counts-mob" data-sf-m="item-detail-counts" data-sf-slot="tags">
+                        {hasWants ? <span data-sf-m="item-detail-wants">{wantsText}</span> : null}
+                        {hasViews ? <span data-sf-m="item-detail-views">{viewsText}</span> : null}
+                      </span>
+                    ) : null}
+                  </div>
+
+                  {/* 核心标签（成色卖点签 / NULL ⇒ 平台结算 + 状态签兜底，不空置 #50） */}
+                  <div className="sf-item-core-tags" data-sf-m="item-detail-tag-core">
+                    {conditionKey ? (
+                      <span className="sf-item-core-tag" data-sf-m="item-detail-condition-tag">{t(conditionKey)}</span>
+                    ) : (
+                      <>
+                        <span className="sf-item-core-tag" data-sf-m="item-detail-settle-tag">{t('item.platformSettled')}</span>
+                        <span className="sf-item-core-tag" data-sf-m="item-detail-status-tag">{statusText}</span>
+                      </>
+                    )}
+                  </div>
+
+                  {/* ④ desc 全文（pre-wrap 保留换行；首行 = 派生标题中等字重） */}
+                  <p className="sf-item-desc" data-sf-m="item-detail-desc">
+                    <span className="sf-item-desc-first">{descFirst}</span>
+                    {descRest ? `\n${descRest}` : ''}
+                  </p>
+
+                  {/* 物品编号 + 状态（既有 `.sf-item-note`：`item.listingId` + 四语状态签，原始枚举不进用户面） */}
+                  <p
+                    className="sf-item-note"
+                    data-sf-status={statusRaw || undefined}
+                    title={statusRaw || undefined}
+                  >{`${t('item.listingId')} #${String(row.listing_id ?? row.bID ?? id ?? '-')} · ${statusText}`}</p>
+
+                  {/* 库存 + 数量（既有购买表单面：`onBuy` / quantity / create_key 逻辑零改动） */}
+                  <p className="sf-item-meta">{t('item.stock')}{` ${String(row.stock ?? '-')}`}</p>
+                  <label className="sf-item-field sf-item-qty-field">
                     <span className="sf-item-label">{t('item.quantity')}</span>
                     <input
                       className="sf-item-input"
@@ -280,73 +397,86 @@ const ItemDetailPage = () => {
                       required
                     />
                   </label>
-                </div>
 
-                {/* 底部操作栏（v1.23 · design v1.22 §24 `T120` goofish 形态）：
-                    三段结构 = ① 组合条（`聊一聊` 58% | `立即购买` 42%，容器圆角实现「两端半圆 + 中缝直角」）
-                    ② 留白（`space-between` 自然让出，不写死 px）③ `收藏` 独立胶囊。
-                    · 顺序 = 聊一聊 → 立即购买 → 收藏（DOM 顺序即视觉顺序，恒 2 段 + 1 段）。
-                    · 卖家本人（`!isSellerSelf` 为假）⇒ 组合条只剩「立即购买」，由
-                      `.sf-item-cta-group > :only-child` 撑满组合条并整条全圆（不留半圆开口）。
-                    · 形状/配色一律落 item.css 的新修饰类（`.sf-item-btn` / `.sf-btn` 规则本体一字未改）。
-                    · 状态文字（buy / chat）从按钮行内**移到按钮行下方独立一行**；无文案时 `:empty` 不占高。
-                    · 既有 `data-sf-m` 钩子全保留：item-actionbar / item-buy-btn / fav-toggle /
-                      item-chat-btn / item-buy-status / item-chat-status；`data-sf-fav` 与新增
-                      `aria-pressed` 同源（收藏态可读）。 */}
-                <div className="sf-item-actionbar" data-sf-m="item-actionbar">
-                  <div className="sf-item-actionbar-row">
-                    <div className="sf-item-cta-group">
-                      {!isSellerSelf ? (
+                  {/* 平台告知 meta 组（v1.15 R-A/R-F 既有四键：明细 / 结算 / 幂等告知 / 退款库存） */}
+                  <div className="sf-item-meta-group">
+                    <h2 className="sf-item-title">{t('item.line')}</h2>
+                    <p className="sf-item-meta">{t('item.priceServerNote')}</p>
+                    <p className="sf-item-meta">{t('item.buyNote')}</p>
+                    <p className="sf-item-meta">{t('item.refundStockNote')}</p>
+                  </div>
+
+                  {/* ⑥ 底部操作栏（H5 ≤767 = fixed 四件栏；Web = 右栏操作区）：
+                      左组【留言】【收藏】靠左 ‖ 右组【立即购买】【聊一聊】靠右（判负 #42/#47）。
+                      DOM 顺序 = 立即购买 → 聊一聊；Web 拼接序（聊一聊 ｜ 立即购买）由 ≥768 CSS order 翻转。
+                      既有钩子全保留：item-actionbar / item-chat-btn / item-buy-btn / fav-toggle；
+                      `data-sf-fav` 与 `aria-pressed` 同源（收藏态可读）；已收藏 = 实心黄星。 */}
+                  <div className="sf-item-actionbar" data-sf-m="item-actionbar">
+                    <div className="sf-item-actionbar-row">
+                      <div className="sf-item-bar-left">
                         <button
-                          className="sf-btn sf-item-btn sf-item-cta-group-seg sf-item-cta-chat"
+                          className="sf-btn sf-item-btn sf-item-bar-msg"
                           type="button"
-                          data-sf-m="item-chat-btn"
-                          data-sf-phase={chat.phase}
+                          data-sf-m="item-detail-msg-btn"
                           onClick={onChat}
                           disabled={chat.phase === 'loading'}
                         >
-                          <MessageCircle size={18} aria-hidden="true" />
-                          <span className="sf-item-cta-label">{t('item.chat')}</span>
+                          <span className="sf-item-cta-label">{t('item.message')}</span>
                         </button>
-                      ) : null}
-                      <button
-                        className="sf-btn sf-item-btn sf-item-cta-group-seg sf-item-cta-buy"
-                        type="submit"
-                        data-sf-m="item-buy-btn"
-                        disabled={buy.phase === 'loading' || !isAuthenticated}
-                      >
-                        <span className="sf-item-cta-label">{t('item.buy')}</span>
-                      </button>
+                        <button
+                          className="sf-btn sf-item-btn sf-item-bar-fav"
+                          type="button"
+                          data-sf-m="fav-toggle"
+                          data-sf-fav={fav.favored ? '1' : '0'}
+                          aria-pressed={fav.favored}
+                          onClick={onToggleFav}
+                          disabled={fav.phase === 'loading'}
+                        >
+                          <Star size={18} aria-hidden="true" {...(fav.favored ? { fill: 'currentColor' } : {})} />
+                          <span className="sf-item-cta-label">{fav.favored ? t('item.favorited') : t('item.favorite')}</span>
+                        </button>
+                      </div>
+                      <div className="sf-item-bar-right">
+                        <div className="sf-item-cta-group">
+                          <button
+                            className="sf-btn sf-item-btn sf-item-cta-group-seg sf-item-cta-buy"
+                            type="submit"
+                            data-sf-m="item-buy-btn"
+                            disabled={buy.phase === 'loading' || !isAuthenticated}
+                          >
+                            <span className="sf-item-cta-label">{t('item.buy')}</span>
+                          </button>
+                          {!isSellerSelf ? (
+                            <button
+                              className="sf-btn sf-item-btn sf-item-cta-group-seg sf-item-cta-chat"
+                              type="button"
+                              data-sf-m="item-chat-btn"
+                              data-sf-phase={chat.phase}
+                              onClick={onChat}
+                              disabled={chat.phase === 'loading'}
+                            >
+                              <MessageCircle size={18} aria-hidden="true" />
+                              <span className="sf-item-cta-label">{t('item.chat')}</span>
+                            </button>
+                          ) : null}
+                        </div>
+                      </div>
                     </div>
-                    {/* 收藏/已收藏 toggle：登录态调 trades-api 幂等写口；未登录点击走既有登录引导。
-                        星形：未收藏 = 空心（不传 fill）/ 已收藏 = fill="currentColor"（跟随 fg token）。 */}
-                    <button
-                      className="sf-btn sf-item-btn sf-item-cta-fav"
-                      type="button"
-                      data-sf-m="fav-toggle"
-                      data-sf-fav={fav.favored ? '1' : '0'}
-                      aria-pressed={fav.favored}
-                      onClick={onToggleFav}
-                      disabled={fav.phase === 'loading'}
+                    <span
+                      className={`sf-item-status${buy.phase === 'error' ? ' sf-item-err' : ''}${buy.phase === 'ok' ? ' sf-item-ok' : ''}`}
+                      data-sf-m="item-buy-status"
+                      data-sf-phase={buy.phase}
+                      role="status"
                     >
-                      <Star size={18} aria-hidden="true" {...(fav.favored ? { fill: 'currentColor' } : {})} />
-                      <span className="sf-item-cta-label">{fav.favored ? t('item.favorited') : t('item.favorite')}</span>
-                    </button>
+                      {buy.message || (isAuthenticated ? '' : t('pleaseLogin'))}
+                    </span>
+                    {chat.message ? (
+                      <span className="sf-item-status sf-item-err" data-sf-m="item-chat-status" role="status">{chat.message}</span>
+                    ) : null}
                   </div>
-                  <span
-                    className={`sf-item-status${buy.phase === 'error' ? ' sf-item-err' : ''}${buy.phase === 'ok' ? ' sf-item-ok' : ''}`}
-                    data-sf-m="item-buy-status"
-                    data-sf-phase={buy.phase}
-                    role="status"
-                  >
-                    {buy.message || (isAuthenticated ? '' : t('pleaseLogin'))}
-                  </span>
-                  {chat.message ? (
-                    <span className="sf-item-status sf-item-err" data-sf-m="item-chat-status" role="status">{chat.message}</span>
-                  ) : null}
                 </div>
-              </form>
-            </>
+              </div>
+            </form>
           )}
         </div>
       </div>

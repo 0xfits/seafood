@@ -193,7 +193,16 @@
     "draftStockLocked": "Không thể sửa số lượng khi còn là bản nháp — hãy đăng bán để sửa số lượng",
     "lowerPrice": "Giảm giá",
     "newPrice": "Giá mới",
-    "lowerPriceInvalid": "Giá mới phải là số nguyên từ 1 trở lên và thấp hơn giá hiện tại"
+    "lowerPriceInvalid": "Giá mới phải là số nguyên từ 1 trở lên và thấp hơn giá hiện tại",
+    "message": "Nhắn tin",
+    "platformSettled": "Thanh toán nền tảng",
+    "views": "{{n}} lượt xem"
+  },
+  "itemCondition": {
+    "brandNewSealed": "Mới nguyên seal",
+    "heavyWear": "Mài mòn nặng",
+    "likeNew": "Như mới",
+    "minorWear": "Trầy xước nhẹ"
   },
   "market": {
     "line": "Dòng sàn giao dịch",
