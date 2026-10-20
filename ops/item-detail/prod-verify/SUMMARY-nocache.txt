@@ -1,0 +1,5 @@
+详情缓存改判 · 生产复测（2026-10-20，push 974bb01）
+头：cache-control: private, no-store · x-vercel-cache: MISS（feed 仍 public/s-maxage=30）
+views 连读 4 次：6→7→8→9（严格步长 1）
+页面打开（390 / 1536 各一次）：/api/prize/9 请求数各 1 · 零 pageerror/console.error · 零横向溢出
+详情 50 键；价格 rgb(255,77,0)；底栏与两栏读数见 prod-bar.json
