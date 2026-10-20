@@ -4027,3 +4027,87 @@ description（全文，落库不截）
 2. **#52 拼接胶囊被拆 / 收藏混入**：Web 拼接组不是**单容器**（拆成两个独立胶囊）、或 `fav-toggle` 落进拼接组内（实测应独立在 1438–1516、与组右缘间隙 8px）⇒ 判负。
 3. **#53 留言 Web 未隐藏**：≥768 下 `item-detail-msg-btn` 仍可见（`display ≠ none`）⇒ 判负（反之**不得**用「不渲染 DOM」达成 ⇒ 同判）。
 4. **#54 断点由 JS 决定**：布局分档依赖 `matchMedia` / `innerWidth` / `ResizeObserver`（源码或产物命中）⇒ 判负。
+
+### 26.16 管理员编辑他人商品：详情页【编辑】入口可见性 ＋ 编辑页「管理员编辑」提示 ＋ 编辑页预填改走新读口（2026-10-20 · **加性续登、不升版**（承 §26.12–§26.15 体例）· 纯追加）
+
+> **依据**：Kevin 2026-10-20 指令 —— **「管理员（如 `09b0`）可以编辑他人发布的商品」**（逐字转引自本单派单，**原始会话未入仓** ⇒ 出入以 Kevin 一句话为准）。**前端实现口径（并行前端单）** = 详情页对**本人 / 管理员**显示【编辑】（管理员编辑他人时界面标「管理员编辑」一类提示）；**编辑页预填统一走新读口** `GET /api/listing/:listingId/edit`。**配套** = `route-layer.spec` **§49.15**（授权矩阵 / 读口 11 键 / `/api/user` 加性 `admin` 块 3 键 / 注册点 111 / 判负 #35–#41）+ `data-layer.spec` **§40.11**（`listing_edit_log`）+ `master-plan` **§5.443 / 版本行 v0.360** + `ops/admin-edit/SPEC-NOTE.md`。**本笔零代码**（本节 = 契约冻结，实现归并行前端单）。
+
+#### 26.16.1 现状（现取 · HEAD `5310a72`）
+
+- **详情页无编辑入口**：`ItemDetailPage.jsx` 现取钩子集 = `item-detail-layout` / `item-back` / `item-detail-empty` / `item-buy-form` / `item-detail-seller-row` / `item-detail-seller-credit` / `item-detail-web-cols` / `item-detail-gallery` / `item-detail-media-thumbs` / `item-detail-media-thumb` / `item-detail-media-prev` / `item-detail-media-next` / `item-detail-thumb` / `item-detail-web-side` / `item-detail-price-row` / `item-detail-counts` / `item-detail-wants` / `item-detail-views` / `item-detail-tags-secondary` / `item-detail-secondary-tag` / `item-detail-tag-core` / `item-detail-condition-tag` / `item-detail-settle-tag` / `item-detail-status-tag` / `item-detail-desc` / `item-input-qty` / `item-actionbar` —— **`*edit*` 零命中**。
+- **编辑页已存在**：页面路由 `item/:itemId/edit` → `PublishItemPage mode="edit"`（`App.jsx:111` 现取）；**预填源 = `GET /api/listing/mine`**（`PublishItemPage.jsx:268` 一带现取注释与 `item-api.js`）⇒ **该口只列 `seller_uid = me`** ⇒ **管理员取不到他人行 = 结构上不可预填**（这是必须换读口的硬理由，不是优化）。
+- **载荷来源**：`GET /api/user` 现取 **8 键**、**无 `admin` 块** ⇒ 前端今天**无法**判定「我是不是管理员」（只能靠 `is_admin` 顶层键，而 `is_admin = false` 但有 `manage_rewards` 位的账号会漏判）。
+- **既有可见性先例**：发布列表行内动作**仅 `draft` / `listed`** 出按钮（§26.13.4 矩阵，`sold` / `delisted` 只读）。
+
+#### 26.16.2 入口可见性判据（硬 · **唯一公式**）
+
+```
+isOwner      = String(detail?.seller?.uid) === String(user?.uID)
+canEditAny   = admin?.can_access_admin === true
+               && (admin?.is_admin === true || (admin?.permissions ?? []).includes('manage_rewards'))
+statusEditable = detail?.status === 'draft' || detail?.status === 'listed'
+showEdit     = isAuthenticated && (isOwner || canEditAny) && statusEditable
+```
+
+| 角色 / 状态 | 【编辑】入口 | 判据 |
+|---|---|---|
+| 未登录 | **不渲染** | `isAuthenticated = false`（**不是置灰**） |
+| 本人 ∧ `draft` / `listed` | **渲染** | `isOwner` |
+| 本人 ∧ `sold` / `delisted` / `frozen` | **不渲染** | `statusEditable = false`（承 §26.13.4：进去也只会吃 409） |
+| 管理员（非本人）∧ `draft` / `listed` | **渲染** | `canEditAny` |
+| 管理员（非本人）∧ `sold` / `delisted` / `frozen` | **不渲染** | 同上（管理员不获得额外状态面，route §49.15.2） |
+| 普通用户（非本人） | **不渲染** | 两布尔皆假 |
+
+- **判据单一真源（硬）**：`admin` 块**只从** `GET /api/user` 读，**不得**另开读口、**不得**从 `is_admin` 顶层键或 JWT 自造；公式**必须逐字**如上（`manage_rewards` 位与 `is_admin` 是**或**关系、外层必须带 `can_access_admin`）—— 少一项即越权或漏权（判负 #55 / #58）。
+- **卖家 uid 取数**：详情响应 `seller.uid`（路由层合成，现取在场）；**不做本地猜补**（`seller` 缺失 ⇒ 视为非本人）。
+- **两处同式的漂移风险（诚实登记）**：本公式与 route §49.15.2 的管理员判定是**同一规则的第二处实现**（中文语义同、语言不同）。已挂账：后端后续可在 `admin` 块加派生布尔 `can_edit_any_listing`（一句话可改），届时本公式收敛为单键读取；**本笔不改** Kevin 给定载荷形状。
+
+#### 26.16.3 入口形态与落点（**不碰两处冻结几何**）
+
+- **落点 = 页头行右端**：与既有 `item-back`（返回箭头）**同一行**、**靠右端**；H5 / Web **同一份 DOM**（禁第二套组件），差异只由 CSS 767/768 断点调尺寸。
+- **形态 = 文字按钮**「编辑」（复用既有键 `common.edit` = 「编辑」，**零新文案键**；`item.editTitle` = 「编辑闲置」是编辑页标题，**不复用**）；触控目标 ≤767 **≥44**、可见字号 **≥12px**（承 §13 硬口径）。
+- **禁用落点（硬）**：
+  - **不得进 H5 底栏四件**（§26.15.9 E 判负 #51 冻结：四件同高 44、后两件右缘 378/378 —— 加第五件即破锚）；
+  - **不得进 Web 拼接胶囊**（§26.15.9 E 判负 #52 冻结：`.sf-item-cta-group` 单容器 + 独立收藏 8px 间隙）；
+  - **不得**用宽度读数决定落点（`matchMedia` / `innerWidth` 全文扫描判负，判负 #54）。
+- **钩子（建议名，落定后回写）**：`item-detail-edit-btn`。**既有 `item-back` / 底栏四件 / 两栏钩子一律不动。**
+
+#### 26.16.4 管理员编辑提示（**进编辑页后**才出现）
+
+- **落点**：编辑页**顶部常驻提示条**（表单之前，非 toast、非 placeholder）；钩子 `item-admin-edit-notice`。
+- **出现条件（硬）**：进入 `/item/:id/edit` ∧ **当前用户非该行 owner** ∧ `canEditAny = true`。**本人编辑不显示**（本人看自己的商品不需要被告知「你在编辑他人商品」）。
+- **文案**：建议键 `item.adminEditNotice`（zh = 「管理员编辑 · 你正在编辑他人发布的商品」；四语同补、非 zh 可标「待复核」）；**建议名，定名后回写**。**不得**把提示写成 placeholder / tooltip（消失即无痕）。
+- **几何**：条高不入冻结面（本页无固定高卡）；字号 **≥12px**、对比度按既有 `--sf-btnalt-*` 家族取值（**零新 token**）。
+- **不得做的事**：不得因「管理员编辑」而**改表单本身的可见字段集**（字段集 = route §49.15.3 的 6 项，管理员不多不少）；不得禁用 / 隐藏库存输入以外任何控件（草稿库存只读 = 既有 DL60 前端表现，与身份无关）。
+
+#### 26.16.5 编辑页预填取数源切换（**统一走新读口**）
+
+- **取数口改为** `GET /api/listing/:listingId/edit`（route §49.15.4）：本人与管理员**同一条路径、同一 11 键**；`mine` **不再**作为编辑页预填源（保留为「我发布的」列表口，键面仍 11，不动）。
+- **预填 6 项逐字不变**：`description` / `price` / `stock` / `media_urls` / `item_type`（级联反推）/ `condition`（成色四选一，实物分支）；`cid` 只读展示；**`item_type = NULL` 不猜补**、`media_urls` 缺失 = 空列表（承 §26.14 / §26.15 既有口径）。
+- **失败态**：403（越权）/ 404（行不存在）⇒ **表单不渲染** + 服务端文案（**不得**渲染空表单可提交）；`loadState.phase='error'` 既有形态沿用。
+- **保存**：仍单次 `PATCH /api/listing/:listingId`（字段支），成功后回详情页；管理员保存成功 ⇒ 后端落审计行（data §40.11），**前端不显示「已记录审计」一类文案**（审计是后台面，不在用户界面自证）。
+
+#### 26.16.6 i18n 与计数（现取复算）
+
+- **新增键 1 个**（`item.adminEditNotice`）；**「编辑」按钮复用 `common.edit`** ⇒ **顶层命名空间数不变**（键挂在既有 `item` 域内）。
+- **现取（2026-10-20 四语逐文件 python walk）**：top **131** / flat **1136** / 四语节点 **4544**（= 1136 × 4，四语键集逐文件相等）⇒ **+1 键后**：top **131**（不变）/ flat **1137** / nodes **4548**。
+- **计数断言按现取复算前推**（约 13 个测试文件的硬编计数，一律等值替换、不得照抄本册数字）；四语同补、缺键会渲染裸键名。
+
+#### 26.16.7 判负（**#55–#58** · 与 §26.15.9 E #51–#54、§26.15.6 #40–#50 等家族**并存、只增不改**）
+
+1. **#55 普通用户见入口**：非本人 ∧ 非管理员在详情页看到【编辑】（或看到置灰态）⇒ 判负。
+2. **#56 管理员编辑不落审计**：管理员改他人商品成功后 `listing_edit_log` **0 行**（与 route #37 同源、两册同判据）⇒ 判负。
+3. **#57 本人编辑落审计**：本人编辑自己商品后 `listing_edit_log` 出现行（`admin_edit = false` 行 ≠ 0 / `owner_uid = actor_uid` 行 ≠ 0）⇒ 判负。
+4. **#58 提示缺失或误示**：管理员编辑他人时编辑页**无**「管理员编辑」提示；或**本人**编辑时出现该提示；或判定公式与 §26.16.2 **不一致**（漏 `can_access_admin` / 漏 `manage_rewards` / 只看 `is_admin`）⇒ 判负。
+
+#### 26.16.8 未做 / 读数登记项（本笔零代码 · 明账）
+
+- **未实现**：详情页入口 / 提示条 / 预填源切换 / `/api/user` `admin` 块 / 后端授权扩展与审计写 —— **一行代码未写**；判负 #55–#58 **一条未跑**；未跑任何浏览器几何读数 / 单测 / 截图。
+- **读数登记项（不判负）**：入口按钮的实高 / 间距 / 与 `item-back` 的基线对齐；提示条底色与字色；H5 390 与 Web 1536 两档截图；`admin` 块在四类账号（无权限 / 仅角色行 / `manage_rewards` 位 / `is_admin`）下的实测三键值。
+- **连带** = route **§49.15** · data **§40.11** · `master-plan` **§5.443 + 版本行 v0.360** · `ops/admin-edit/SPEC-NOTE.md`。本笔只写 `docs/**` 与 `ops/admin-edit/**`，零代码 / 零迁移 / 零测试改动 / **不 push**；`git diff --numstat` **删除列 = 0**。
+
+#### 26.16.9 同树现状披露（2026-10-20 编制期现取 · 不改 §26.16.1–.8 任何条文）
+
+- **前端零改动**：`git status --porcelain` 现取**无** `frontend/**` 条目 ⇒ 详情页入口、编辑页提示条、预填取数源切换**全部未实现**（判负 #55–#58 一条未跑）。
+- **后端已在同工作树、未提交**：`GET /api/listing/:listingId/edit`（11 键同族）、`/api/user` 的 `admin` 3 键、`PATCH` 授权扩展与同语句审计**均已落盘**（**未提交 · 两库未 apply**）⇒ 前端单**可以**按本契约接线，但**不得**据「后端已在」宣称功能可用（未 apply ⇒ 管理员编辑会 `42P01`）。
+- **接线前的两条硬提醒**：① `admin` 块只在**登录后**的 `/api/user` 载荷里（游客读不到，也不该读）；② 详情页判「本人」用 `detail.seller.uid`，**不要**用 `listing.seller_uid`（详情响应无该键 —— 现有键面是路由层合成的 `seller` 对象）。

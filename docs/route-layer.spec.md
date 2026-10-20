@@ -9701,3 +9701,134 @@ ORDER BY score DESC, l.time_created DESC, l.listing_id DESC
 - **浏览计数实测**：`off`（当前配置）连读三次 **各 +1**；`on` 同 viewer 同日二次不涨、同日日志恰 1 行（p58 门 **29/29**）。
 - **门套**：p57 **40/40** · p58 **29/29** · `p7b-03` **37/37** `regs=110`。
 - **缓存改判的实施状态（诚实登记）**：§49.14.10 由**另单（P59）**实施；本笔落册时该改动**已在同工作树、未提交** —— `index.ts` 详情块已改**无条件** `setPrivateNoStore(res)`，且该块内 `setPublicCache(` / `mintedCookie` **零命中**，`resolveDetailViewViewerKey` 返回值收窄为 `viewerKey` 字符串（P58 的「发 cookie 二分」已删）。⇒ **判负 #29 以「详情响应头实测 `Cache-Control: private, no-store`」为唯一判据**，实施单的补测读数落 `ops/` 另件；本笔不 add 该代码件、不代其声明上线。
+
+### 49.15 管理员编辑他人商品（`PATCH /api/listing/:listingId` **授权扩展** ＋ 新读口 `GET /api/listing/:listingId/edit` ＋ `/api/user` **加性 `admin` 块** · **注册点 110 → 111**（get **49 → 50** / post 57 / put 0 / delete 3 / patch 1））· 2026-10-20 · **v2.44**（新路由 ⇒ 升版；**头注不改写**，承 §40.10 / §49.14 加性续登体例）· 纯追加
+
+> **依据**：Kevin 2026-10-20 指令 —— **「管理员（如 `09b0`）可以编辑他人发布的商品」**（逐字转引自本单派单，**原始会话未入仓** ⇒ 与 Kevin 原话若有出入以 Kevin 一句话为准）。**实现口径（并行后端单）** = 写口字段支放行非本人管理员并落审计行 · 新读口供管理员取他人编辑行 · `/api/user` 加性 `admin` 块供前端判可见性。**姊妹面** = `data-layer.spec` **§40.11**（`listing_edit_log` 表契约 / 零 FK 取舍 / 审计语义）+ `design-system.spec` **§26.16**（详情页编辑入口可见性 + 管理员编辑提示）+ `master-plan` **§5.443 / 版本行 v0.360** + `ops/admin-edit/SPEC-NOTE.md`。**本笔零代码**（契约冻结，实现归并行后端单 / 前端单）。
+
+#### 49.15.1 作用面（一写口扩展 ＋ 一新读口 ＋ 一载荷加性块 · **零新错误码** · 一条新迁移）
+
+- **写口扩展恰 1 条** = `PATCH /api/listing/:listingId` 的**字段支**（`updateListingDetails`），既有 6 可改字段与全部字段校验**一字不动**，只扩「谁可以改」。
+- **新读口恰 1 条** = `GET /api/listing/:listingId/edit`（两段路径，与 `GET /api/listing/mine` 单段口**不冲突**；`mine` 现取注册在 `index.ts:2994`，仍只列本人行 ⇒ 管理员取不到他人行是本读口存在的**唯一理由**）。
+- **载荷加性块恰 1 处** = `GET /api/user`（`buildUserPayload`，`index.ts:523` 现取）加 `admin` 对象，**既有 8 键一字不动**。
+- **零新错误码**（33 码闭集不动）：403 复用 `AUTH_FORBIDDEN` + `details.reason = 'ACTOR_NOT_ALLOWED'`（现取同族先例 `listing-service.ts:734`）；404 复用 `LEDGER_REF_NOT_FOUND` + `listing_not_found`。
+- **新迁移恰 1 条** = `0059_listing_edit_log.sql`（内容契约 = data §40.11.5；实现单创建 · apply 由 Zang · **先 apply 后 push**）。
+- **不动面（硬）**：状态迁移支（`to_status` / `status`）**不因本单放宽**（管理员状态迁移 = 另一单）；`POST /api/listing/:listingId`（旧编辑口）**不纳入**本单授权扩展（仍仅本人）；`GET /api/listing/mine` 键面仍 **11**；feed 仍 **48**；详情仍 **50**。
+
+#### 49.15.2 授权矩阵（**本单的承重表** · 行 = 角色 · 列 = 三面）
+
+**管理员判定单一真源**（写口与读口**同一判据、同一实现**）：`canEditAnyListing = adminAccess.can_access_admin === true ∧ (adminAccess.is_admin === true ∨ adminAccess.permissions.includes('manage_rewards'))`。**`adminAccess` 一律取 token 侧 `actor.adminAccess`（`index.ts:389` `resolveAdminAccess` 现取），客户端不得声明 actor / 权限 / `is_admin`。**
+
+| 行 \ 角色 | 读编辑行 `GET /api/listing/:id/edit` | 写字段 `PATCH /api/listing/:id`（字段支） | 审计行 `listing_edit_log` |
+|---|---|---|---|
+| **本人**（`seller_uid = actor.uID`） | **200** · 与 `mine` 同族 **11 键** | **200**（照旧；6 字段校验与 DL60 **一字不变**） | **0 行**（本人编辑**不落**审计） |
+| **管理员**（`actor ≠ owner` ∧ `canEditAnyListing`） | **200** · 同族 **11 键** | **200**（同字段集、同校验、同 DL60） | **恰 1 行**（`admin_edit = true` · `changed_fields` = 实际变更集） |
+| **其他**（`actor ≠ owner` ∧ 非管理员） | **403** `AUTH_FORBIDDEN` / `ACTOR_NOT_ALLOWED` | **403** `AUTH_FORBIDDEN` / `ACTOR_NOT_ALLOWED` | **0 行** |
+| **未登录**（无 token） | **401** `AUTH_UNAUTHORIZED` | **401** `AUTH_UNAUTHORIZED` | **0 行** |
+| **行不存在 / id 非正整数** | **404** `LEDGER_REF_NOT_FOUND` / `listing_not_found` | **404**（同码） | **0 行** |
+| **状态不可编辑**（`sold` / `delisted` / `frozen`） | **200**（**读不受状态限制** —— 管理员需要看行才知道为何不可编辑） | **409** `LEDGER_CURRENCY_INVALID_TRANSITION` / `status_not_editable` | **0 行** |
+| **`stock` 变更但 `status ≠ listed`**（DL60） | **200** | **409** / `stock_requires_listed`（**DL60 不变**，管理员同样受限） | **0 行** |
+
+- **判定顺序写死**：`requireActor`（401）→ id 形状 / 行缺失（404）→ 归属与管理员判定（403）→ 字段校验（400）→ DL60 / 状态闸（409）→ 写入（200）。**403 必早于任何 DB 写**（承 §12.3 G6 同族）。
+- **管理员 ≠ 超级用户**：管理员不进「状态迁移支」、不能改 `cid` / `seller_uid` / `status` / `title`（`title` 带值仍 **400 `NOT_SUPPORTED`**）、不绕过 DL60、不改幂等指纹、不触发额外翻译重置。
+- **审计行与 UPDATE 原子**：见 data §40.11.2（**同一语句内**，失败则一行都不落）。
+
+#### 49.15.3 写口口径（`PATCH` 字段支 · 只扩「谁可以改」）
+
+1. **闸位置（硬）**：归属闸现取在 **DB 语句内**（`UPDATE_LISTING_DETAILS_SQL` 的 `cur.seller_uid <> $2::bigint ⇒ 'not_owner'`，`database.ts` 现取）⇒ 扩展必须是**同一处放行**，**不得**在路由层另写一遍归属判定（双真源）：服务层 `updateListingDetails` 新增可选入参 `adminAccess`，派生 `canEditAny = 源上判定`，作为新参数传给 SQL，语句内条件改为 `cur.seller_uid <> $2::bigint AND NOT $<n>::boolean`。
+2. **403 形态不变**：非本人非管理员仍走现有 `not_owner` ⇒ 服务层 `fail(403, 'AUTH_FORBIDDEN', {reason:'ACTOR_NOT_ALLOWED', ref_type:'listing', ref_id:...})`（`listing-service.ts:734` 现取），**不改码、不改字面**。
+3. **字段集与校验零变化**：`LISTING_EDIT_FIELDS` 现取 **6 项**（`description` / `price` / `stock` / `media_urls` / `item_type` / `item_condition`，`listing-service.ts:519`）；`title` 带值 400 `NOT_SUPPORTED`；`NO_EDITABLE_FIELD` / `BOTH_MODES` / 闭集闸 / URL 闸 / 图片张数闸**逐条不动**。
+4. **DL60 不变**：`stock` 仅 `listed` 可改（`stock_requires_listed`）—— **管理员同样受限**（本单不提供「管理员改草稿库存」能力；要开 = 另裁）。
+5. **翻译链不变**：仅 `description` **实际变化**才 `enqueueListingTranslation(view, true)`；`item_type` / `item_condition` / `media_urls` / 价格不触发。
+6. **回执不变**：仍 = `ListingMineRow` 同族 **11 键**（前端可整行替换）；**审计行为响应体之外的副作用**，不新增响应键。
+7. **不进幂等**：本口无 `create_key`；同请求重投 = 再执行一次更新、**再落一条审计行**（动作日志语义，见 data §40.11.4）。
+
+#### 49.15.4 新读口 `GET /api/listing/:listingId/edit`（编辑预填唯一取数源）
+
+- **授权** = 授权矩阵第一列（本人 ∨ 管理员）；**未登录 401**、**行缺失 404**、**其他 403**（同 `ACTOR_NOT_ALLOWED`）。
+- **响应键面 = 与 `GET /api/listing/mine` 行**同族 **11 键**、同归一器（`normalizeListingMineRow`）：`listing_id` / `title`（**派生值** = `split_part(description, E'\n', 1)`，列已随 `0056` DROP）/ `price` / `cid` / `status` / `stock` / `media_urls` / `time_created` / `description` / `item_type` / **`condition`**（列名 `item_condition`，**键名 = `condition`**，与 mine 同一映射）。**管理员的响应与本人**逐键同形（不额外下发 `seller_uid`、不标记 admin 视角）。
+- **零副作用（硬）**：**不** `view_count + 1`、**不**写 `listing_view_log`、**不**写 `listing_edit_log`、**不**触发翻译、**不**改任何行。这是「读」而不是「详情读」—— `GET /api/prize/:bID` 的 +1 语义**不得**被本口继承。
+- **缓存头**：`setPrivateNoStore`（`Cache-Control: private, no-store`）—— 行级私有数据，**不得**进共享缓存（承 §49.14.10 同族理由）。
+- **`skip`/`limit` 不适用**：单行读口，**不收分页参数**（传了也忽略，不报错）。
+- **路径与 `mine` 不冲突**：本口两段（`:listingId/edit`）、`mine` 单段；既有 `GET /api/listing/mine` 注册顺序**不动**（新口追加在其后即可，Express 不会把 `mine` 匹配成 `:listingId/edit`）。
+
+#### 49.15.5 `/api/user` 加性 `admin` 块（**3 键** · 前端可见性判据的唯一载荷来源）
+
+| 键 | 类型 | 来源 / 语义 |
+|---|---|---|
+| `admin.can_access_admin` | `boolean` | 恒在场；= `resolveAdminAccess` 的 `can_access_admin` |
+| `admin.is_admin` | `boolean` | 恒在场；= `users.is_admin`（**含 `ALL_ADMIN_PERMISSIONS` 全量权限的语义不变**） |
+| `admin.permissions` | `string[]` | 恒在场、可为空数组；= 有效权限位（`is_admin` ⇒ 全集，非 admin ⇒ 角色行权限位） |
+
+- **加性**：`/api/user` 载荷 **8 → 9 键**（既有 `uID` / `EVM` / `bio` / `is_admin` / `time_reg` / `time_login_last` / `points` / `requires_profile_completion` **一字不动**；顶层 `is_admin` **保留**，`admin.is_admin` 是**同值第二处**，不得以 `admin` 块取代顶层键）。
+- **不得整块搬 `AdminAccessRecord`**：该记录现取 **6 键**（+`uID` / +`EVM` / +`preferred_admin_path`，`database.ts:7508-7532`）⇒ 直接 `sendSuccess(res, adminAccess)` 会给 `/api/user` 多塞 3 键（**判负 #41**）；本处只取 3 键。
+- **既有 `/api/admin/access` 不动**（仍下发 6 键整块，`index.ts:1386` 现取）。
+- **未登录**：`/api/user` 本身 401 ⇒ 无「`admin` 缺省」形态；前端在 `user === null` 时按「无权限」处理（不渲染入口）。
+- **派生布尔挂账**：前端需自行组合 `can_access_admin ∧ (is_admin ∨ permissions∋manage_rewards)`（见 design §26.16.2）。**两处同式 = 漂移风险**，已登记为挂账：后端后续可在 `admin` 块加派生布尔 `can_edit_any_listing`（一句话可改，本笔**不改** Kevin 给定载荷形状）。
+
+#### 49.15.6 错误码矩阵（**零新码** · 逐场景）
+
+| 场景 | 状态码 | `code` | `details.reason` |
+|---|---|---|---|
+| 无 token / token 失效 | 401 | `AUTH_UNAUTHORIZED` | —（既有） |
+| `:listingId` 非正整数 / 行不存在 | 404 | `LEDGER_REF_NOT_FOUND` | `listing_not_found` |
+| 非本人 ∧ 非管理员（读 / 写同判） | 403 | `AUTH_FORBIDDEN` | `ACTOR_NOT_ALLOWED` |
+| `title` 带值（读口不适用） | — | — | 写口 400 `LEDGER_AMOUNT_INVALID` + `NOT_SUPPORTED`（既有） |
+| 字段闭集外 / 形态非法 | 400 | 既有码 | 既有（`NOT_IN_CLOSED_SET` 等） |
+| 无可改字段 / 两模式同现 | 400 | 既有码 | `NO_EDITABLE_FIELD` / `BOTH_MODES`（既有） |
+| 状态不可编辑 / 库存需 listed | 409 | `LEDGER_CURRENCY_INVALID_TRANSITION` | `status_not_editable` / `stock_requires_listed`（既有） |
+
+#### 49.15.7 注册点 **110 → 111**（逐 verb · 现取 → 目标态）
+
+**现取（2026-10-20 · HEAD `5310a72` · 工作区干净 · `grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts`）**：**110 = get 49 / post 57 / put 0 / delete 3 / patch 1**。
+
+| verb | 现取 | 目标 | 本单增量 |
+|---|---|---|---|
+| `get` | 49 | **50** | **+1** = `GET /api/listing/:listingId/edit` |
+| `post` | 57 | 57 | 0 |
+| `put` | 0 | 0 | 0 |
+| `delete` | 3 | 3 | 0 |
+| `patch` | 1 | 1 | 0（`PATCH /api/listing/:listingId` **已存在**，本单只扩授权，**不新增注册点**） |
+| **合计** | **110** | **111** | **+1** |
+
+- **同批必改**：后端离线门 `p7b-03-offline-gates.ts` 的 `AC10-2` 常量 **110 → 111** 与派生注释链（只改常量与注释，其余判据一字不动）⇒ 改前应只红 `AC10-2`，改后 **37/37 green**。**漏推 = 下一轮被当回归立案**。
+- **`/item/:itemId/edit` 是前端页面路由，不计入注册点**（`App.jsx:111` 现取已存在）。
+
+#### 49.15.8 判负（**#35–#41** · 与 §49.14.11 #29–#34、§49.13.7 #14–#21、§49.12 家族**并存、只增不改**）
+
+1. **#35 越权读**：非本人 ∧ 非管理员调 `GET /api/listing/:id/edit` 得 **200**（或得 200 但键面 ≠ 11 / 缺 `condition`）⇒ 判负。
+2. **#36 读口带副作用**：`GET /api/listing/:id/edit` 使 `view_count` 增加、写 `listing_view_log`、写 `listing_edit_log`、或触发翻译重置 ⇒ 判负（**读 ≠ 详情读**）。
+3. **#37 审计缺失或多余**：管理员改他人商品成功后 `listing_edit_log` **0 行**；**或**本人编辑落行（表内出现 `owner_uid = actor_uid` 的行 / `admin_edit = false` 的行）；**或** 403 / 404 / 409 / 400 场景落行 ⇒ 判负。
+4. **#38 审计行形状错**：缺列、`changed_fields` 出现六字段闭集之外的名字、`changed_fields` 含 `NULL` 元素、`admin_edit` 非布尔、`time_created` 由客户端传入 ⇒ 判负。
+5. **#39 发明错误码 / 改码**：403 未用 `AUTH_FORBIDDEN` + `ACTOR_NOT_ALLOWED`、404 未用 `LEDGER_REF_NOT_FOUND`、或新增任何错误码（33 码闭集变动）⇒ 判负。
+6. **#40 注册点未前推**：注册点 ≠ **111**（或 `get` ≠ 50）⇒ 判负；`p7b-03` 的 `AC10-2` 未同步 ⇒ 同判。
+7. **#41 授权越界 / 载荷形状错**：管理员获得状态迁移、改 `cid`/`seller_uid`/`title`、绕过 DL60 库存闸、或 `/api/user` 的 `admin` 块 ≠ 3 键（整块搬 `AdminAccessRecord` 的 6 键 / 少 `permissions`）⇒ 判负。
+
+#### 49.15.9 现取自证 + 未做（明账）
+
+- **现取（2026-10-20 · HEAD `5310a72` · 工作区干净）**：注册点 **110**（get 49 / post 57 / put 0 / delete 3 / patch 1）· 迁移末位 **`0058`** · 两库 `schema_version` **0058** · `PATCH` 可改字段 **6 项**（`LISTING_EDIT_FIELDS`）· `mine` **11 键** · 详情 **50 键** · feed **48** · `/api/user` 载荷 **8 键**（`...UserRecord` 6 ＋ `points` ＋ `requires_profile_completion`）· `AdminAccessRecord` **6 键** · 归属闸落点 = `UPDATE_LISTING_DETAILS_SQL`（`cur.seller_uid <> $2` ⇒ `not_owner`）· 403 形态 = `AUTH_FORBIDDEN` + `ACTOR_NOT_ALLOWED`（`listing-service.ts:734`）· 详情页**无编辑入口**（`ItemDetailPage.jsx` 钩子集现取无 `*edit*`）· `mine` 只列 `seller_uid = me`。
+- **未做（`NOT_MEASURED` · 本册不预填）**：`0059` 未落盘 / 两库未 apply；写口授权扩展、读口、`/api/user` `admin` 块、审计写**均未实现**（后端单在跑）；判负 #35–#41 **一条未跑**；**零 HTTP 写 / 零库写 / 零代码**（本笔零 HTTP 实测）。
+- **契约面** = `data-layer.spec` **§40.11** + `design-system.spec` **§26.16** + `master-plan` **§5.443 / 版本行 v0.360** + `ops/admin-edit/SPEC-NOTE.md`；**本册正文版本读数 = v2.44**（头注不改写，承 §40.10 体例）。
+
+#### 49.15.10 同树现状披露（并行后端单**已在同工作树、未提交** · 2026-10-20 编制期现取）
+
+> **性质**：**不改本契约任何条文**（§49.15.1–.9 逐字保留）；本节登记「写这些字的时候，代码长什么样」，供 Zang 验收与后续单对账。**本册不代该单声明上线**（两库未 apply、未提交、未跑门）。
+
+- **已在工作区、未提交（`git status` 现取 = `M backend-ts/src/{index,database,listing-service,audit-console}.ts` + `?? backend-ts/migrations/0059_listing_edit_log.sql`）**，逐条对拍本契约：
+  | 契约面 | 盘上现状 | 判 |
+  |---|---|---|
+  | 注册点 **111**（get **50**） | `grep -cE '^app\.(get\|post\|put\|delete\|patch)\('` 现取 = **111**（get 50 / post 57 / put 0 / delete 3 / patch 1） | **一致** |
+  | `GET /api/listing/:listingId/edit` | 已在 `index.ts` 注册（`getListingEditView`），注释明写「先 404 后 403，不给存在性探针」 | **一致**（判定次序与本册 §49.15.2 同） |
+  | 授权闸落点 | `UPDATE_LISTING_DETAILS_SQL` 加 `$11::boolean` 管理员放行位（`cur.seller_uid <> $2 AND NOT $11` ⇒ `not_owner`），判定真源 `isListingEditAdminAccess` | **一致** |
+  | 审计同语句 | 同一 SQL 内 `ins AS (INSERT INTO public.listing_edit_log … WHERE $11 AND seller_uid <> $2 RETURNING log_id)` | **一致**（本人编辑零行） |
+  | `changed_fields` | 逐列 `IS DISTINCT FROM` + `array_remove(…, NULL)`，顺序 = 字段声明序 | **一致** |
+  | `/api/user` `admin` 3 键 | `buildUserPayload` 已加 `admin { can_access_admin, is_admin, permissions[] }`，未注入时保守默认 `false/false/[]` | **一致** |
+  | 回执 11 键 | `edit_log_written` 仅落在 DB 层回执内部位，服务层未回传 ⇒ 响应仍 `ListingMineRow` 同族 11 键 | **一致**（该位不得进响应体 = #41 判据不变） |
+  | 迁移 `0059` | 文件已落盘（132 行 · **未 apply** · 未提交） | **未闭环**：两库 `schema_version` 仍 **0058** |
+- **未做（由该单补）**：`0059` 两库 apply；`p7b-03` 的 `AC10-2` 常量 110 → 111（**现取该门常量仍 110 ⇒ 该门此刻必红 `AC10-2`**）；门套与判负 #35–#41 实测读数；前端（入口 / 提示 / 预填换源）另单。
+- **本册对读数的承诺边界**：以上「一致」= **代码形状对拍**（只读现取），**不是**行为验收；**零 HTTP 实测、零库写**。行为判据仍以 §49.15.8 的 #35–#41 为准。
+
+#### 49.15.11 状态改写（**针对 §49.15.9「未做」表述** · 旧字面逐字保留 · 以本段为准）
+
+- §49.15.9 的「`0059` 未落盘 / 写口授权扩展、读口、`/api/user` `admin` 块、审计写**均未实现**」**是编制起点的现取**（HEAD `5310a72` 干净树），**在落笔过程中已被并行后端单在同一工作树改写**：该单已落 `GET /api/listing/:listingId/edit`、`$11` 授权位、同语句审计、`admin` 3 键与迁移 `0059` 文件（**均未提交、两库未 apply**）。⇒ **本册的「未实现」读作「未提交、未 apply、未验收」**，逐条对拍见 §49.15.10。
+- **不变的两句**：**本册不代该单声明上线**；**行为验收只看判负 #35–#41**（零 HTTP 实测）。
