@@ -1,0 +1,21 @@
+{
+ "info": {
+  "body": "Seafood 海鲜市场\n社区任务\n市场\n订单\n语言\n注册\n登录\n领工资\n\n同时只能在一个项目打工\n\n登录后即可加入项目、领工资\n\n去登录\nOptimism 生态推广\n招募中\n\nOptimism 公共物品资助宣传：RetroPGF 说明、项目盘点、社区问答。\n\n已招 0/6\n工资：batt 25/次（间隔 12 小时）＋25 BTTC/次\n加入\nPolygon 生态推广\n招募中\n\nPolygon zkEVM 生态推广：开发者活动组织、文档本地化、社群运营。\n\n已招 0/15\n工资：batt 30/次（间隔 24 小时）\n加入\nSolana 生态推广\n招募中\n\nSolana 生态项目冷启动推广：社群答疑、活动报名引导、开发者文档校对。\n\n已招 0/8\n工资：batt 15/次（间隔 2 小时）\n加入\nAptos 生态推广\n招募中\n\nAptos 生态推广：活动策划执行、用户增长数据汇总、内容排期。\n\n已招 0/7\n工资：batt 40/次（间隔 72 小时）\n加入\nArbitrum 生态推广\n招募中\n\nArbitrum 生态空投季宣传：任务引导、链上交互演示、社群维护。\n\n已招 0/10\n工资：batt 18/次（间隔 3 小时）＋25 BTTC/次\n加入\nSui 生态推广\n招募中\n\nSui 生态新项目推广：Move 开发入门资料整理、社群答疑、活动执行。\n\n已招 0/20\n工资：ba",
+  "cards": 79,
+  "hooks": [
+   "wage-page",
+   "wage-login",
+   "wage-login-cta",
+   "wage-list",
+   "wage-card",
+   "wage-card-title",
+   "wage-card-status",
+   "wage-card-desc"
+  ],
+  "projectNames": true
+ },
+ "reqs": [
+  "https://0xseafood.com/api/project/all"
+ ],
+ "errs": []
+}

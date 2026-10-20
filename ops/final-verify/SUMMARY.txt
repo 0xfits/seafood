@@ -1,0 +1,11 @@
+三域上线 · 生产终验（2026-10-20）
+push = 21 笔 + b712399（wage 公开浏览修复）；两库 schema 0059→0065（0060 商品 ID / 0061 多件购买 / 0059 编辑台账 / 0063+0064 项目域+种子 / 0065 活动域）
+同版：js index-CnbdqZr9.js / css index-Bxr_e8iC.css（prod == 本地构建逐字）
+
+首页：11 卡，链接全为 /item/<7 位 itemCode>（如 /item/CoPhFBP）
+详情：by code 打开正常；无数量框、无「闲置物品」、无三段说明；物品编号 = itemCode
+悬浮菜单：领工资 → 卖闲置 → 消息 → APP → 客服（无反馈）
+/wage：未登录公开渲染 10 个项目（Optimism/Polygon/Solana/Aptos/Arbitrum/Sui/…），工资行含 batt/间隔/次币，加入按钮可点（点击提示登录、零写请求）
+/campaign：可访问，当前无活动 ⇒ 空态
+API：/api/project/all = 10 行 15 键；/api/prize/all = 50 键含 item_code；feed 卡 392
+异常：1536/390 双档零 pageerror、零 console error
