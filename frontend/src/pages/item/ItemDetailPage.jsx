@@ -80,6 +80,10 @@ const ITEM_SECONDARY_TAGS = {
   DigitalAutoDeliver: { cls: 'sf-item-auto-tag', key: 'itemType.autoDeliver' },
 }
 
+// ★ design §26.18.3 / route §49.17：多件购买单次上限 = **前端局部常量**（服务端不设第三道闸：
+//   `qty ≤ stock` 已由 DB 硬闸兜住）。生效上限 = `min(stock, 10)`；要改口径就改这一行。
+const MULTI_BUY_MAX_QUANTITY = 10
+
 const ItemDetailPage = () => {
   const { t } = useTranslation()
   const location = useLocation()
@@ -91,6 +95,10 @@ const ItemDetailPage = () => {
   //   购买载荷形状零变化：仍是 `{quantity, create_key}`，`listingBuyFingerprint` 的入参位不删）。
   //   §26.18.3 收窄：`allow_multi_buy === true ∧ cap ≥ 2` 时由购买弹层写入买家选定的 n，其余场景恒 `'1'`。
   const [quantity, setQuantity] = useState('1')
+  // ★ 多件购买弹层（design §26.18.3）：`qtyOpen` = 弹层开合（**开 ≠ 请求**，零网络）；
+  //   `qtyDraft` = 买家在层内填的件数（默认 '1'；取消 / 背板 / Esc ⇒ 丢弃，不改 `quantity`）。
+  const [qtyOpen, setQtyOpen] = useState(false)
+  const [qtyDraft, setQtyDraft] = useState('1')
   const [buy, setBuy] = useState({ phase: 'idle', message: '' })
   // T100：第 3 格「聊一聊」的本地态（开会话请求的加载 / 失败；成功即离开本页，无需 ok 态）。
   const [chat, setChat] = useState({ phase: 'idle', message: '' })
@@ -214,24 +222,78 @@ const ItemDetailPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, uidKey, sellerUidKey, detail.phase])
 
+  // ★ 多件购买弹层（design §26.18.3）：换商品 ⇒ 关层并丢弃草稿（旧件数对下一件商品无意义）。
+  useEffect(() => { setQtyOpen(false); setQtyDraft('1') }, [id])
+
+  // 弹层 Esc ⇒ 关闭（**零请求**；背板点击同效，见渲染侧）。监听只在开层期间挂载。
+  useEffect(() => {
+    if (!qtyOpen) return undefined
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') { setQtyOpen(false); setQtyDraft('1') }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [qtyOpen])
+
   // 无 id（`/item` 且无 `?id`）⇒ 自洽处理：重定向首页（保留语言前缀；Kevin 口径「一句话可改」）。
   if (!id) {
     return <Navigate to={root('/')} replace />
   }
 
-  const onBuy = async (event) => {
-    event.preventDefault()
-    if (buy.phase === 'loading') return
-    const createKey = tracker.keyFor(listingBuyFingerprint({ listingId: opId, quantity }))
+  // ★ design §26.18.3：多件购买**生效条件** = 卖家授权是真布尔 `true` ∧ `cap = min(stock, 10) ≥ 2`。
+  //   `stock` 缺键 / 非数字 ⇒ cap 0 ⇒ 不生效（fail-safe：读口没这列时行为 = 旧的「恒买 1 件」）。
+  const stockNum = Number(detail.row?.stock)
+  const multiBuyCap = Number.isFinite(stockNum) ? Math.min(stockNum, MULTI_BUY_MAX_QUANTITY) : 0
+  const multiBuyEnabled = detail.row?.allow_multi_buy === true && multiBuyCap >= 2
+  // 层内件数合法性（**禁静默 clamp**：不合法 ⇒ 确认不可用，绝不把 10 悄悄改成 3）。
+  const qtyText = String(qtyDraft).trim()
+  const qtyValid = /^\d+$/.test(qtyText) && Number(qtyText) >= 1 && Number(qtyText) <= multiBuyCap
+
+  /** 弹层 「取消 / 背板 / Esc」统一出口：关层 + 丢弃草稿（**零请求**，`quantity` 不动）。 */
+  const closeQtyLayer = () => {
+    setQtyOpen(false)
+    setQtyDraft('1')
+  }
+
+  /**
+   * 真正下单（**唯一写口**）：`quantity` 逐字进载荷 + 指纹（同件数重试 ⇒ 同键；换件数 ⇒ 新键）。
+   * 授权态下的件数由弹层传入；未授权 / 不满足 cap ⇒ 上层恒传 `'1'`。
+   */
+  const submitBuy = async (qty) => {
+    const quantityText = String(qty).trim()
+    setQuantity(quantityText)
+    const createKey = tracker.keyFor(listingBuyFingerprint({ listingId: opId, quantity: quantityText }))
     setBuy({ phase: 'loading', message: t('jobs.submitting') })
     try {
-      const view = await buyListing(opId, { quantity: String(quantity).trim(), createKey, user })
+      const view = await buyListing(opId, { quantity: quantityText, createKey, user })
       tracker.reset()
       setBuy({ phase: 'ok', message: `${t('item.buyOk')} · ${t('item.orderId')} #${view?.order_id ?? '-'}` })
       await load()
     } catch (error) {
       setBuy({ phase: 'error', message: String(error?.message || t('error')) })
     }
+  }
+
+  /** 弹层「确认购买」：合法 ⇒ 关层 + 下单；不合法 ⇒ **原地不动、零请求**。 */
+  const confirmBuy = async () => {
+    if (!qtyValid) return
+    closeQtyLayer()
+    await submitBuy(qtyText)
+  }
+
+  const onBuy = async (event) => {
+    event.preventDefault()
+    if (buy.phase === 'loading') return
+    // 未登录：按钮本就 `disabled` + 状态位常显 `pleaseLogin`（既有口径，不新造弹层）；此处兜底零请求。
+    if (!isAuthenticated) return
+    // ★ 授权态（§26.18.3）：**先开层、本次零请求**；件数与确认都在层内决定。
+    if (multiBuyEnabled) {
+      setQtyDraft('1')
+      setQtyOpen(true)
+      return
+    }
+    // 未授权 / cap < 2：**零提示直买 1 件**（既有路径逐字不变：一次请求、quantity = '1'）。
+    await submitBuy('1')
   }
 
   // 「聊一聊」/「留言」：未登录 ⇒ 既有登录引导（转 `/login` + `state.from`，不新造弹层）；
@@ -597,6 +659,76 @@ const ItemDetailPage = () => {
                       <span className="sf-item-status sf-item-err" data-sf-m="item-chat-status" role="status">{chat.message}</span>
                     ) : null}
                   </div>
+
+                  {/* ★ 多件购买 · 数量确认弹层（design §26.18.3）：**仅在授权态由【立即购买】打开**
+                      （`multiBuyEnabled` ⇒ 打开时零请求）。`position: fixed` 覆盖层 —— 不进 `scrollWidth`、
+                      不新增 `data-sf-region`、不改 H5 底栏；背板点击 / 取消 / Esc ⇒ 关闭且零请求。
+                      层内数字框 = **弹层内**控件（判负 #59 尺度不变：正文常显数量控件仍判负，层内不算）。
+                      上限显示走 `item.buyQtyHint` 的 `{{n}}` = `cap`（必须显示）；禁静默 clamp。 */}
+                  {qtyOpen ? (
+                    <div
+                      className="sf-item-qty-layer"
+                      data-sf-m="item-buy-qty-layer"
+                      onClick={(event) => { if (event.target === event.currentTarget) closeQtyLayer() }}
+                    >
+                      <div
+                        className="sf-item-qty-sheet"
+                        data-sf-m="item-buy-qty-sheet"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="item-buy-qty-title"
+                      >
+                        <h2 className="sf-item-qty-title" id="item-buy-qty-title" data-sf-m="item-buy-qty-title">
+                          {t('item.buyQtyTitle')}
+                        </h2>
+                        <p className="sf-item-hint" id="item-buy-qty-hint" data-sf-m="item-buy-qty-hint">
+                          {t('item.buyQtyHint', { n: String(multiBuyCap) })}
+                        </p>
+                        <label className="sf-item-qty-field">
+                          <span className="sf-item-label">{t('item.quantity')}</span>
+                          <input
+                            className="sf-item-input sf-item-qty-input"
+                            data-sf-m="item-buy-qty-input"
+                            type="number"
+                            inputMode="numeric"
+                            min="1"
+                            max={multiBuyCap}
+                            step="1"
+                            value={qtyDraft}
+                            onChange={(event) => setQtyDraft(event.target.value)}
+                            onKeyDown={(event) => {
+                              // 回车 = 确认（**不**让表单 submit 重开弹层）；不合法则原地不动。
+                              if (event.key === 'Enter') {
+                                event.preventDefault()
+                                if (qtyValid) confirmBuy()
+                              }
+                            }}
+                            aria-describedby="item-buy-qty-hint"
+                            autoFocus
+                          />
+                        </label>
+                        <div className="sf-item-qty-row">
+                          <button
+                            className="sf-btn sf-item-btn sf-item-qty-cancel"
+                            type="button"
+                            data-sf-m="item-buy-qty-cancel"
+                            onClick={closeQtyLayer}
+                          >
+                            {t('cancel')}
+                          </button>
+                          <button
+                            className="sf-btn sf-item-btn sf-item-cta-buy sf-item-qty-ok"
+                            type="button"
+                            data-sf-m="item-buy-qty-ok"
+                            onClick={confirmBuy}
+                            disabled={!qtyValid || buy.phase === 'loading'}
+                          >
+                            {t('item.buy')}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </form>

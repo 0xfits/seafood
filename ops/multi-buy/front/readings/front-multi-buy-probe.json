@@ -1,0 +1,1025 @@
+{
+  "generatedAt": "2026-10-20T05:59:01.767Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "cases": {
+    "h5_390": {
+      "buysPerStep": {
+        "openAuth": 0,
+        "cancelAuth": 0,
+        "confirmAuth": 1,
+        "unauthDirect": 1,
+        "openCap10": 0,
+        "stock1Direct": 1
+      },
+      "publishStock1": {
+        "present": false,
+        "boxPresent": false,
+        "checked": null,
+        "labelText": null,
+        "labelRect": null,
+        "tapH": null,
+        "fontSize": null,
+        "stockValue": "1",
+        "overflowPx": 0,
+        "statusPhase": "idle"
+      },
+      "publishStock5": {
+        "present": true,
+        "boxPresent": true,
+        "checked": false,
+        "labelText": "支持一次购买多个",
+        "labelRect": {
+          "x": 25,
+          "y": 479,
+          "w": 198,
+          "h": 44
+        },
+        "tapH": 44,
+        "fontSize": "13px",
+        "stockValue": "5",
+        "overflowPx": 0,
+        "statusPhase": "idle"
+      },
+      "publishStock5on": {
+        "present": true,
+        "boxPresent": true,
+        "checked": true,
+        "labelText": "支持一次购买多个",
+        "labelRect": {
+          "x": 25,
+          "y": 479,
+          "w": 198,
+          "h": 44
+        },
+        "tapH": 44,
+        "fontSize": "13px",
+        "stockValue": "5",
+        "overflowPx": 0,
+        "statusPhase": "idle"
+      },
+      "publishStock1Downgrade": {
+        "present": false,
+        "boxPresent": false,
+        "checked": null,
+        "labelText": null,
+        "labelRect": null,
+        "tapH": null,
+        "fontSize": null,
+        "stockValue": "1",
+        "overflowPx": 0,
+        "statusPhase": "idle"
+      },
+      "publishStock5Back": {
+        "present": true,
+        "boxPresent": true,
+        "checked": false,
+        "labelText": "支持一次购买多个",
+        "labelRect": {
+          "x": 25,
+          "y": 479,
+          "w": 198,
+          "h": 44
+        },
+        "tapH": 44,
+        "fontSize": "13px",
+        "stockValue": "5",
+        "overflowPx": 0,
+        "statusPhase": "idle"
+      },
+      "publishBeforeSubmit": {
+        "present": true,
+        "boxPresent": true,
+        "checked": true,
+        "labelText": "支持一次购买多个",
+        "labelRect": {
+          "x": 25,
+          "y": 479,
+          "w": 340,
+          "h": 44
+        },
+        "tapH": 44,
+        "fontSize": "13px",
+        "stockValue": "5",
+        "overflowPx": 0,
+        "statusPhase": "idle"
+      },
+      "publishPostWait": {
+        "before": 0,
+        "after": 1
+      },
+      "edit501": {
+        "present": true,
+        "boxPresent": true,
+        "checked": true,
+        "labelText": "支持一次购买多个",
+        "labelRect": {
+          "x": 25,
+          "y": 479,
+          "w": 340,
+          "h": 44
+        },
+        "tapH": 44,
+        "fontSize": "13px",
+        "stockValue": "5",
+        "overflowPx": 0,
+        "statusPhase": "idle"
+      },
+      "edit501Unchecked": {
+        "present": true,
+        "boxPresent": true,
+        "checked": false,
+        "labelText": "支持一次购买多个",
+        "labelRect": {
+          "x": 25,
+          "y": 479,
+          "w": 340,
+          "h": 44
+        },
+        "tapH": 44,
+        "fontSize": "13px",
+        "stockValue": "5",
+        "overflowPx": 0,
+        "statusPhase": "idle"
+      },
+      "edit501PatchWait": {
+        "before": 1,
+        "after": 2
+      },
+      "edit502": {
+        "present": false,
+        "boxPresent": false,
+        "checked": null,
+        "labelText": null,
+        "labelRect": null,
+        "tapH": null,
+        "fontSize": null,
+        "stockValue": "1",
+        "overflowPx": 0,
+        "statusPhase": "idle"
+      },
+      "edit502PatchWait": {
+        "before": 2,
+        "after": 2
+      },
+      "edit501PricePatchWait": {
+        "before": 2,
+        "after": 3
+      },
+      "detail601Before": {
+        "detailPhase": "ok",
+        "layerOpen": false,
+        "sheetRect": null,
+        "hintText": null,
+        "titleText": null,
+        "inputValue": null,
+        "inputMin": null,
+        "inputMax": null,
+        "okRect": null,
+        "okDisabled": null,
+        "cancelRect": null,
+        "okText": null,
+        "cancelText": null,
+        "barRect": {
+          "x": 0,
+          "y": 783,
+          "w": 390,
+          "h": 61
+        },
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "overflowPx": 0,
+        "regionCount": 5
+      },
+      "detail601Layer": {
+        "detailPhase": "ok",
+        "layerOpen": true,
+        "sheetRect": {
+          "x": 16,
+          "y": 313,
+          "w": 358,
+          "h": 218
+        },
+        "hintText": "一次最多可购买 5 件",
+        "titleText": "选择购买数量",
+        "inputValue": "1",
+        "inputMin": "1",
+        "inputMax": "5",
+        "okRect": {
+          "x": 279,
+          "y": 470,
+          "w": 78,
+          "h": 44
+        },
+        "okDisabled": false,
+        "cancelRect": {
+          "x": 219,
+          "y": 470,
+          "w": 52,
+          "h": 44
+        },
+        "okText": "立即购买",
+        "cancelText": "取消",
+        "barRect": {
+          "x": 0,
+          "y": 783,
+          "w": 390,
+          "h": 61
+        },
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "overflowPx": 0,
+        "regionCount": 5
+      },
+      "detail601Cancelled": {
+        "detailPhase": "ok",
+        "layerOpen": false,
+        "sheetRect": null,
+        "hintText": null,
+        "titleText": null,
+        "inputValue": null,
+        "inputMin": null,
+        "inputMax": null,
+        "okRect": null,
+        "okDisabled": null,
+        "cancelRect": null,
+        "okText": null,
+        "cancelText": null,
+        "barRect": {
+          "x": 0,
+          "y": 783,
+          "w": 390,
+          "h": 61
+        },
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "overflowPx": 0,
+        "regionCount": 5
+      },
+      "detail601Qty3": {
+        "detailPhase": "ok",
+        "layerOpen": true,
+        "sheetRect": {
+          "x": 16,
+          "y": 313,
+          "w": 358,
+          "h": 218
+        },
+        "hintText": "一次最多可购买 5 件",
+        "titleText": "选择购买数量",
+        "inputValue": "3",
+        "inputMin": "1",
+        "inputMax": "5",
+        "okRect": {
+          "x": 279,
+          "y": 470,
+          "w": 78,
+          "h": 44
+        },
+        "okDisabled": false,
+        "cancelRect": {
+          "x": 219,
+          "y": 470,
+          "w": 52,
+          "h": 44
+        },
+        "okText": "立即购买",
+        "cancelText": "取消",
+        "barRect": {
+          "x": 0,
+          "y": 783,
+          "w": 390,
+          "h": 61
+        },
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "overflowPx": 0,
+        "regionCount": 5
+      },
+      "detail601AfterBuy": {
+        "detailPhase": "ok",
+        "layerOpen": false,
+        "sheetRect": null,
+        "hintText": null,
+        "titleText": null,
+        "inputValue": null,
+        "inputMin": null,
+        "inputMax": null,
+        "okRect": null,
+        "okDisabled": null,
+        "cancelRect": null,
+        "okText": null,
+        "cancelText": null,
+        "barRect": {
+          "x": 0,
+          "y": 756,
+          "w": 390,
+          "h": 88
+        },
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "overflowPx": 0,
+        "regionCount": 5
+      },
+      "detail602": {
+        "detailPhase": "ok",
+        "layerOpen": false,
+        "sheetRect": null,
+        "hintText": null,
+        "titleText": null,
+        "inputValue": null,
+        "inputMin": null,
+        "inputMax": null,
+        "okRect": null,
+        "okDisabled": null,
+        "cancelRect": null,
+        "okText": null,
+        "cancelText": null,
+        "barRect": {
+          "x": 0,
+          "y": 756,
+          "w": 390,
+          "h": 88
+        },
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "overflowPx": 0,
+        "regionCount": 5
+      },
+      "detail603Cap10": {
+        "detailPhase": "ok",
+        "layerOpen": true,
+        "sheetRect": {
+          "x": 16,
+          "y": 313,
+          "w": 358,
+          "h": 218
+        },
+        "hintText": "一次最多可购买 10 件",
+        "titleText": "选择购买数量",
+        "inputValue": "1",
+        "inputMin": "1",
+        "inputMax": "10",
+        "okRect": {
+          "x": 279,
+          "y": 470,
+          "w": 78,
+          "h": 44
+        },
+        "okDisabled": false,
+        "cancelRect": {
+          "x": 219,
+          "y": 470,
+          "w": 52,
+          "h": 44
+        },
+        "okText": "立即购买",
+        "cancelText": "取消",
+        "barRect": {
+          "x": 0,
+          "y": 783,
+          "w": 390,
+          "h": 61
+        },
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "overflowPx": 0,
+        "regionCount": 5
+      },
+      "detail604Stock1": {
+        "detailPhase": "ok",
+        "layerOpen": false,
+        "sheetRect": null,
+        "hintText": null,
+        "titleText": null,
+        "inputValue": null,
+        "inputMin": null,
+        "inputMax": null,
+        "okRect": null,
+        "okDisabled": null,
+        "cancelRect": null,
+        "okText": null,
+        "cancelText": null,
+        "barRect": {
+          "x": 0,
+          "y": 756,
+          "w": 390,
+          "h": 88
+        },
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "overflowPx": 0,
+        "regionCount": 5
+      }
+    },
+    "web_1536": {
+      "buysPerStep": {
+        "openAuth": 0,
+        "cancelAuth": 0,
+        "confirmAuth": 1,
+        "unauthDirect": 1,
+        "openCap10": 0,
+        "stock1Direct": 1
+      },
+      "publishStock1": {
+        "present": false,
+        "boxPresent": false,
+        "checked": null,
+        "labelText": null,
+        "labelRect": null,
+        "tapH": null,
+        "fontSize": null,
+        "stockValue": "1",
+        "overflowPx": 0,
+        "statusPhase": "idle"
+      },
+      "publishStock5": {
+        "present": true,
+        "boxPresent": true,
+        "checked": false,
+        "labelText": "支持一次购买多个",
+        "labelRect": {
+          "x": 35,
+          "y": 383,
+          "w": 1128,
+          "h": 44
+        },
+        "tapH": 44,
+        "fontSize": "13px",
+        "stockValue": "5",
+        "overflowPx": 0,
+        "statusPhase": "idle"
+      },
+      "publishStock5on": {
+        "present": true,
+        "boxPresent": true,
+        "checked": true,
+        "labelText": "支持一次购买多个",
+        "labelRect": {
+          "x": 35,
+          "y": 383,
+          "w": 1128,
+          "h": 44
+        },
+        "tapH": 44,
+        "fontSize": "13px",
+        "stockValue": "5",
+        "overflowPx": 0,
+        "statusPhase": "idle"
+      },
+      "publishStock1Downgrade": {
+        "present": false,
+        "boxPresent": false,
+        "checked": null,
+        "labelText": null,
+        "labelRect": null,
+        "tapH": null,
+        "fontSize": null,
+        "stockValue": "1",
+        "overflowPx": 0,
+        "statusPhase": "idle"
+      },
+      "publishStock5Back": {
+        "present": true,
+        "boxPresent": true,
+        "checked": false,
+        "labelText": "支持一次购买多个",
+        "labelRect": {
+          "x": 35,
+          "y": 383,
+          "w": 1128,
+          "h": 44
+        },
+        "tapH": 44,
+        "fontSize": "13px",
+        "stockValue": "5",
+        "overflowPx": 0,
+        "statusPhase": "idle"
+      },
+      "publishBeforeSubmit": {
+        "present": true,
+        "boxPresent": true,
+        "checked": true,
+        "labelText": "支持一次购买多个",
+        "labelRect": {
+          "x": 35,
+          "y": 383,
+          "w": 1128,
+          "h": 44
+        },
+        "tapH": 44,
+        "fontSize": "13px",
+        "stockValue": "5",
+        "overflowPx": 0,
+        "statusPhase": "idle"
+      },
+      "publishPostWait": {
+        "before": 1,
+        "after": 2
+      },
+      "edit501": {
+        "present": true,
+        "boxPresent": true,
+        "checked": true,
+        "labelText": "支持一次购买多个",
+        "labelRect": {
+          "x": 35,
+          "y": 383,
+          "w": 1128,
+          "h": 44
+        },
+        "tapH": 44,
+        "fontSize": "13px",
+        "stockValue": "5",
+        "overflowPx": 0,
+        "statusPhase": "idle"
+      },
+      "edit501Unchecked": {
+        "present": true,
+        "boxPresent": true,
+        "checked": false,
+        "labelText": "支持一次购买多个",
+        "labelRect": {
+          "x": 35,
+          "y": 383,
+          "w": 1128,
+          "h": 44
+        },
+        "tapH": 44,
+        "fontSize": "13px",
+        "stockValue": "5",
+        "overflowPx": 0,
+        "statusPhase": "idle"
+      },
+      "edit501PatchWait": {
+        "before": 4,
+        "after": 5
+      },
+      "edit502": {
+        "present": false,
+        "boxPresent": false,
+        "checked": null,
+        "labelText": null,
+        "labelRect": null,
+        "tapH": null,
+        "fontSize": null,
+        "stockValue": "1",
+        "overflowPx": 0,
+        "statusPhase": "idle"
+      },
+      "edit502PatchWait": {
+        "before": 5,
+        "after": 5
+      },
+      "edit501PricePatchWait": {
+        "before": 5,
+        "after": 6
+      },
+      "detail601Before": {
+        "detailPhase": "ok",
+        "layerOpen": false,
+        "sheetRect": null,
+        "hintText": null,
+        "titleText": null,
+        "inputValue": null,
+        "inputMin": null,
+        "inputMax": null,
+        "okRect": null,
+        "okDisabled": null,
+        "cancelRect": null,
+        "okText": null,
+        "cancelText": null,
+        "barRect": {
+          "x": 924,
+          "y": 369,
+          "w": 592,
+          "h": 60
+        },
+        "viewport": {
+          "w": 1536,
+          "h": 960
+        },
+        "overflowPx": 0,
+        "regionCount": 5
+      },
+      "detail601Layer": {
+        "detailPhase": "ok",
+        "layerOpen": true,
+        "sheetRect": {
+          "x": 588,
+          "y": 374,
+          "w": 360,
+          "h": 211
+        },
+        "hintText": "一次最多可购买 5 件",
+        "titleText": "选择购买数量",
+        "inputValue": "1",
+        "inputMin": "1",
+        "inputMax": "5",
+        "okRect": {
+          "x": 665,
+          "y": 525,
+          "w": 266,
+          "h": 44
+        },
+        "okDisabled": false,
+        "cancelRect": {
+          "x": 605,
+          "y": 525,
+          "w": 52,
+          "h": 44
+        },
+        "okText": "立即购买",
+        "cancelText": "取消",
+        "barRect": {
+          "x": 924,
+          "y": 369,
+          "w": 592,
+          "h": 60
+        },
+        "viewport": {
+          "w": 1536,
+          "h": 960
+        },
+        "overflowPx": 0,
+        "regionCount": 5
+      },
+      "detail601Cancelled": {
+        "detailPhase": "ok",
+        "layerOpen": false,
+        "sheetRect": null,
+        "hintText": null,
+        "titleText": null,
+        "inputValue": null,
+        "inputMin": null,
+        "inputMax": null,
+        "okRect": null,
+        "okDisabled": null,
+        "cancelRect": null,
+        "okText": null,
+        "cancelText": null,
+        "barRect": {
+          "x": 924,
+          "y": 369,
+          "w": 592,
+          "h": 60
+        },
+        "viewport": {
+          "w": 1536,
+          "h": 960
+        },
+        "overflowPx": 0,
+        "regionCount": 5
+      },
+      "detail601Qty3": {
+        "detailPhase": "ok",
+        "layerOpen": true,
+        "sheetRect": {
+          "x": 588,
+          "y": 374,
+          "w": 360,
+          "h": 211
+        },
+        "hintText": "一次最多可购买 5 件",
+        "titleText": "选择购买数量",
+        "inputValue": "3",
+        "inputMin": "1",
+        "inputMax": "5",
+        "okRect": {
+          "x": 665,
+          "y": 525,
+          "w": 266,
+          "h": 44
+        },
+        "okDisabled": false,
+        "cancelRect": {
+          "x": 605,
+          "y": 525,
+          "w": 52,
+          "h": 44
+        },
+        "okText": "立即购买",
+        "cancelText": "取消",
+        "barRect": {
+          "x": 924,
+          "y": 369,
+          "w": 592,
+          "h": 60
+        },
+        "viewport": {
+          "w": 1536,
+          "h": 960
+        },
+        "overflowPx": 0,
+        "regionCount": 5
+      },
+      "detail601AfterBuy": {
+        "detailPhase": "ok",
+        "layerOpen": false,
+        "sheetRect": null,
+        "hintText": null,
+        "titleText": null,
+        "inputValue": null,
+        "inputMin": null,
+        "inputMax": null,
+        "okRect": null,
+        "okDisabled": null,
+        "cancelRect": null,
+        "okText": null,
+        "cancelText": null,
+        "barRect": {
+          "x": 924,
+          "y": 369,
+          "w": 592,
+          "h": 79
+        },
+        "viewport": {
+          "w": 1536,
+          "h": 960
+        },
+        "overflowPx": 0,
+        "regionCount": 5
+      },
+      "detail602": {
+        "detailPhase": "ok",
+        "layerOpen": false,
+        "sheetRect": null,
+        "hintText": null,
+        "titleText": null,
+        "inputValue": null,
+        "inputMin": null,
+        "inputMax": null,
+        "okRect": null,
+        "okDisabled": null,
+        "cancelRect": null,
+        "okText": null,
+        "cancelText": null,
+        "barRect": {
+          "x": 924,
+          "y": 369,
+          "w": 592,
+          "h": 79
+        },
+        "viewport": {
+          "w": 1536,
+          "h": 960
+        },
+        "overflowPx": 0,
+        "regionCount": 5
+      },
+      "detail603Cap10": {
+        "detailPhase": "ok",
+        "layerOpen": true,
+        "sheetRect": {
+          "x": 588,
+          "y": 374,
+          "w": 360,
+          "h": 211
+        },
+        "hintText": "一次最多可购买 10 件",
+        "titleText": "选择购买数量",
+        "inputValue": "1",
+        "inputMin": "1",
+        "inputMax": "10",
+        "okRect": {
+          "x": 665,
+          "y": 525,
+          "w": 266,
+          "h": 44
+        },
+        "okDisabled": false,
+        "cancelRect": {
+          "x": 605,
+          "y": 525,
+          "w": 52,
+          "h": 44
+        },
+        "okText": "立即购买",
+        "cancelText": "取消",
+        "barRect": {
+          "x": 924,
+          "y": 369,
+          "w": 592,
+          "h": 60
+        },
+        "viewport": {
+          "w": 1536,
+          "h": 960
+        },
+        "overflowPx": 0,
+        "regionCount": 5
+      },
+      "detail604Stock1": {
+        "detailPhase": "ok",
+        "layerOpen": false,
+        "sheetRect": null,
+        "hintText": null,
+        "titleText": null,
+        "inputValue": null,
+        "inputMin": null,
+        "inputMax": null,
+        "okRect": null,
+        "okDisabled": null,
+        "cancelRect": null,
+        "okText": null,
+        "cancelText": null,
+        "barRect": {
+          "x": 924,
+          "y": 369,
+          "w": 592,
+          "h": 79
+        },
+        "viewport": {
+          "w": 1536,
+          "h": 960
+        },
+        "overflowPx": 0,
+        "regionCount": 5
+      }
+    }
+  },
+  "postBodies": [
+    {
+      "cid": 1,
+      "price": "66",
+      "stock": "5",
+      "description": "FIXTURE 多件购买探针商品\n可批量买 5 件",
+      "media_urls": [],
+      "item_type": "PhysicalFreeShip",
+      "item_condition": "LikeNew",
+      "allow_multi_buy": true,
+      "create_key": "cli:1a157e4522b-2c3a651c"
+    },
+    {
+      "cid": 1,
+      "price": "66",
+      "stock": "5",
+      "description": "FIXTURE 多件购买探针商品\n可批量买 5 件",
+      "media_urls": [],
+      "item_type": "PhysicalFreeShip",
+      "item_condition": "LikeNew",
+      "allow_multi_buy": true,
+      "create_key": "cli:1a157e48542-ac54a669"
+    }
+  ],
+  "patchBodies": [
+    {
+      "listingId": 9001,
+      "body": {
+        "to_status": "listed"
+      }
+    },
+    {
+      "listingId": 501,
+      "body": {
+        "allow_multi_buy": false
+      }
+    },
+    {
+      "listingId": 501,
+      "body": {
+        "price": 129
+      }
+    },
+    {
+      "listingId": 9001,
+      "body": {
+        "to_status": "listed"
+      }
+    },
+    {
+      "listingId": 501,
+      "body": {
+        "allow_multi_buy": false
+      }
+    },
+    {
+      "listingId": 501,
+      "body": {
+        "price": 129
+      }
+    }
+  ],
+  "buyBodies": [
+    {
+      "listingId": 601,
+      "body": {
+        "quantity": "3",
+        "create_key": "cli:1a157e4764e-d1ab698b"
+      }
+    },
+    {
+      "listingId": 602,
+      "body": {
+        "quantity": "1",
+        "create_key": "cli:1a157e47879-210279c9"
+      }
+    },
+    {
+      "listingId": 604,
+      "body": {
+        "quantity": "1",
+        "create_key": "cli:1a157e47d9f-f6a57f9a"
+      }
+    },
+    {
+      "listingId": 601,
+      "body": {
+        "quantity": "3",
+        "create_key": "cli:1a157e4a9a5-990db655"
+      }
+    },
+    {
+      "listingId": 602,
+      "body": {
+        "quantity": "1",
+        "create_key": "cli:1a157e4abd8-4e016a78"
+      }
+    },
+    {
+      "listingId": 604,
+      "body": {
+        "quantity": "1",
+        "create_key": "cli:1a157e4b124-2bc58c07"
+      }
+    }
+  ],
+  "pageErrors": [],
+  "verdict": {
+    "pageErrorCount": 0,
+    "postCount": 2,
+    "patchCount": 6,
+    "buyCount": 6,
+    "h5_390": {
+      "hiddenAtStock1": true,
+      "shownAtStock5DefaultOff": true,
+      "autoOffOnDowngrade": true,
+      "noAutoRestoreOnRaise": true,
+      "labelText": "支持一次购买多个",
+      "labelTapAtLeast44": true,
+      "labelFontAtLeast12": true,
+      "publishPayloadTrue": true,
+      "editPrefillChecked": true,
+      "editPatchNoMultiBuyWhenUnchanged": true,
+      "editUncheckWritesFalse": true,
+      "editStock1Hidden": true,
+      "editStock1PatchNoMultiBuy": true,
+      "layerOpensZeroRequest": true,
+      "layerDefaultOne": true,
+      "layerShowsCap": true,
+      "layerMinMax": true,
+      "cancelZeroRequest": true,
+      "confirmPayloadQty": true,
+      "unauthNoLayerQty1": true,
+      "stock1NoLayerQty1": true,
+      "cap10WhenStock20": true,
+      "layerButtonsInViewport": true,
+      "actionbarStableAfterClose": true,
+      "zeroOverflow": true,
+      "noNewRegion": true
+    },
+    "web_1536": {
+      "hiddenAtStock1": true,
+      "shownAtStock5DefaultOff": true,
+      "autoOffOnDowngrade": true,
+      "noAutoRestoreOnRaise": true,
+      "labelText": "支持一次购买多个",
+      "labelTapAtLeast44": true,
+      "labelFontAtLeast12": true,
+      "publishPayloadTrue": true,
+      "editPrefillChecked": true,
+      "editPatchNoMultiBuyWhenUnchanged": true,
+      "editUncheckWritesFalse": true,
+      "editStock1Hidden": true,
+      "editStock1PatchNoMultiBuy": true,
+      "layerOpensZeroRequest": true,
+      "layerDefaultOne": true,
+      "layerShowsCap": true,
+      "layerMinMax": true,
+      "cancelZeroRequest": true,
+      "confirmPayloadQty": true,
+      "unauthNoLayerQty1": true,
+      "stock1NoLayerQty1": true,
+      "cap10WhenStock20": true,
+      "layerButtonsInViewport": true,
+      "actionbarStableAfterClose": true,
+      "zeroOverflow": true,
+      "noNewRegion": true
+    }
+  }
+}

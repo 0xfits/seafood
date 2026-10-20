@@ -197,7 +197,10 @@
     "lowerPriceInvalid": "新價格需為不低於 1 的整數，且必須低於現價",
     "message": "留言",
     "platformSettled": "平台結算",
-    "views": "{{n}}人瀏覽"
+    "views": "{{n}}人瀏覽",
+    "multiBuyLabel": "支持一次購買多個",
+    "buyQtyTitle": "選擇購買數量",
+    "buyQtyHint": "一次最多可購買 {{n}} 件"
   },
   "itemCondition": {
     "brandNewSealed": "全新未拆封",

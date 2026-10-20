@@ -171,6 +171,23 @@ const CONDITION_OPTIONS = [
   { value: 'HeavyWear', hook: 'heavyWear', labelKey: 'itemCondition.heavyWear' },
 ]
 
+// ---- 多件购买授权（design §26.18 / route §49.17 / data §40.13 · 迁移 0061） ------
+// 载荷唯一字段 = `allow_multi_buy`（**真布尔**，默认 `false`）：
+//   · 开关**仅 `Number(stock) > 1` 时渲染**（★ 禁字符串比较：`'10' > '9'` 为 false）；
+//     `stock ≤ 1` / 空 / 非法 ⇒ 整块不渲染 + state 强制 `false` + 载荷不带该键。
+//   · 默认**关**（库存填 >1 不自动勾选 = 不替卖家做决定）。
+//   · **单向自动关**：库存改 ≤1 ⇒ `false`；改回 ≥2 **不自动恢复**（回涨恢复 = 替卖家决定，
+//     且与后端 `W5`（PATCH 未传 ∧ stock ≤1 ⇒ 归一 false）的库值分叉）。
+//   · 编辑页预填 = 读口行键 `allow_multi_buy === true`；行内 `true ∧ stock = 1`（正常终态：买到只剩 1 件）
+//     ⇒ 不渲染 + state `false` ⇒ 保存**不带**该键（不把 `true` 又抄回去）。
+// 文案三键（四语同补）：`item.multiBuyLabel` / `item.buyQtyTitle` / `item.buyQtyHint`（后两键详情页消费）。
+/** 库存输入 ⇒ 是否满足「多件购买」可见性（**数值比较**；空 / 小数 / 非数字均不满足）。 */
+const stockAllowsMultiBuy = (raw) => {
+  const text = String(raw ?? '').trim()
+  if (!/^\d+$/.test(text)) return false
+  return Number(text) > 1
+}
+
 /** 成色四值闭集（`/api/listing/mine` 行键 `condition` 预填时的合法性判定）。 */
 const ITEM_CONDITIONS = CONDITION_OPTIONS.map((option) => option.value)
 
@@ -244,6 +261,9 @@ const PublishItemPage = ({ mode = 'publish' }) => {
   const [shipSel, setShipSel] = useState('')
   // 商品成色（仅实物分支渲染；'' = 未选。发布模式实物下必选，编辑模式可空 —— 存量行可能为 NULL）
   const [conditionSel, setConditionSel] = useState('')
+  // 多件购买授权（**卖方显式**开关；默认关）。可见性 = 库存数值 > 1（见 `stockAllowsMultiBuy`）；
+  // 不可见时 state 恒 false（降量 ⇒ 单向自动关；此后回涨不自动恢复）。
+  const [multiBuy, setMultiBuy] = useState(false)
   const [miss, setMiss] = useState({ type: false, deliver: false, ship: false, condition: false })
   const [images, setImages] = useState([])
   const [imageNotice, setImageNotice] = useState('')
@@ -265,6 +285,10 @@ const PublishItemPage = ({ mode = 'publish' }) => {
 
   /** 草稿 ⇒ 库存锁定（DL60）。发布模式恒 `false`。 */
   const stockLocked = isEdit && String(source?.status ?? '') === 'draft'
+
+  // 多件购买授权：**仅库存数值 > 1 时**渲染开关；不可见 ⇒ 生效值恒 `false`（载荷不带该键）。
+  const multiBuyVisible = stockAllowsMultiBuy(form.stock)
+  const multiBuyEffective = multiBuyVisible && multiBuy
 
   /** 只读币种显示文本：`symbol · name`（与下拉同源）；列表里没有 ⇒ 原样显示 cid（已退市币种不猜补）。 */
   const cidLabel = useMemo(() => {
@@ -319,6 +343,7 @@ const PublishItemPage = ({ mode = 'publish' }) => {
     let cancelled = false
     setLoadState({ phase: 'loading', message: '' })
     setAdminEdit(false)
+    setMultiBuy(false) // 换商品 ⇒ 授权开关回到默认关（旧行授权不得串行）
     fetchListingEdit(itemId, user)
       .then((row) => {
         if (cancelled) return
@@ -341,6 +366,9 @@ const PublishItemPage = ({ mode = 'publish' }) => {
         //   ★ 闭集外 / 缺键 ⇒ ''（未选），**不猜补**；实物行的 NULL 也保持未选（编辑不强制补选）。
         const rawCondition = String(row.condition ?? '')
         setConditionSel(ITEM_CONDITIONS.includes(rawCondition) ? rawCondition : '')
+        // 多件购买授权预填（读口 14 键之 `allow_multi_buy`，真布尔）：**仅 true 且库存 > 1 时勾上**；
+        //   行内 `true ∧ stock = 1`（正常终态）= 开关不渲染 ⇒ state 保持 false ⇒ 保存不带该键。
+        setMultiBuy(row.allow_multi_buy === true && stockAllowsMultiBuy(row.stock))
         setExistingMedia(Array.isArray(row.media_urls) ? row.media_urls.map((u) => String(u)) : [])
         setSource({ ...row, item_type: row.item_type ?? null, condition: row.condition ?? null })
         setMiss({ type: false, deliver: false, ship: false, condition: false })
@@ -377,6 +405,17 @@ const PublishItemPage = ({ mode = 'publish' }) => {
   }, [isEdit, itemId, isAuthenticated, user?.uID, t])
 
   const setField = (key) => (event) => setForm((prev) => ({ ...prev, [key]: event.target.value }))
+
+  /** 库存输入（专治「单向自动关」）：库存落到 ≤1 / 空 / 非法 ⇒ 多件购买授权**立即清零**；
+   *  ★ 回涨到 ≥2 **不自动恢复**（不是双向联动）。 */
+  const setStock = (event) => {
+    const value = event.target.value
+    setForm((prev) => ({ ...prev, stock: value }))
+    if (!stockAllowsMultiBuy(value)) setMultiBuy(false)
+  }
+
+  /** 多件购买开关：只存**布尔**（不可见时恒 false，不因点击变 true）。 */
+  const toggleMultiBuy = (event) => setMultiBuy(multiBuyVisible ? event.target.checked : false)
 
   /** 一级「商品分类」：切换即**清空三个二级值**（分支切换 ⇒ stale 值不得进载荷）。
    *  ★ 成色同批清空：数字 / 未分类带 `item_condition` 会被后端判 400 `ITEM_CONDITION_NOT_APPLICABLE`。 */
@@ -488,6 +527,11 @@ const PublishItemPage = ({ mode = 'publish' }) => {
     if (nextType !== (source.item_type ?? null)) patch.item_type = nextType
     // 成色（第 6 可改字段）：只在**实变**时上送；数字 / 未分类 ⇒ `null`（显式置 NULL 亦是合法终态）。
     if (nextCondition !== (source.condition ?? null)) patch.item_condition = nextCondition
+    // 多件购买授权（第 7 可改字段 · route §49.17）：**只在真实变化时**进 PATCH。
+    //   基线也取「库值的**生效**形」（`true ∧ stock = 1` 视为生效 false）—— 该行是「买到只剩 1 件」的
+    //   正常终态，开关不渲染、保存**不带该键**（不把库里的 true 抄回去，也不写一条无意义的 false）。
+    const sourceMultiBuy = source.allow_multi_buy === true && stockAllowsMultiBuy(source.stock)
+    if (multiBuyEffective !== sourceMultiBuy) patch.allow_multi_buy = multiBuyEffective
 
     // ③ 无变化 ⇒ 不往返（不打扰、也不产生空 patch 的 400 `NO_EDITABLE_FIELD`）
     if (!Object.keys(patch).length) {
@@ -577,6 +621,9 @@ const PublishItemPage = ({ mode = 'publish' }) => {
         itemType: toItemType(itemTypeSel, deliverSel, shipSel),
         // 成色（迁移 0057 四值闭集）：**仅实物两分类**带值；数字 / 未分类 ⇒ `null`（字段缺省）。
         itemCondition: toItemCondition(itemTypeSel, conditionSel),
+        // 多件购买授权（迁移 0061 · design §26.18）：**仅授权为真时上送**（此时 `stock > 1` 必成立，
+        //   因为开关只在 `stock > 1` 渲染；未授权 ⇒ 字段缺省 ⇒ 服务端落 DEFAULT false）。
+        allowMultiBuy: multiBuyEffective,
         createKey,
         user,
       })
@@ -687,7 +734,7 @@ const PublishItemPage = ({ mode = 'publish' }) => {
                   className="sf-item-input"
                   data-sf-m="item-input-stock"
                   value={form.stock}
-                  onChange={setField('stock')}
+                  onChange={setStock}
                   inputMode="numeric"
                   required
                   disabled={stockLocked}
@@ -697,6 +744,24 @@ const PublishItemPage = ({ mode = 'publish' }) => {
                   <p className="sf-item-hint" data-sf-m="item-stock-locked">{t('item.draftStockLocked')}</p>
                 ) : null}
               </label>
+              {/* ★ 多件购买授权（design §26.18 · route §49.17）：**仅 `stock > 1` 时渲染**
+                  （不可见 = 整块不渲染，非 display:none；state 同时被强制 false）。
+                  形态 = 原生 `checkbox` + `<label>`（不新造 switch 组件）；触控 ≥44 / 字号 ≥12 落 CSS。
+                  默认**关**；库存降回 ≤1 ⇒ 单向自动关，回涨不自动恢复。 */}
+              {multiBuyVisible ? (
+                <div className="sf-item-field sf-item-field-wide sf-item-multibuy" data-sf-m="item-multi-buy">
+                  <label className="sf-item-check" data-sf-m="item-input-multi-buy">
+                    <input
+                      className="sf-item-check-box"
+                      type="checkbox"
+                      checked={multiBuyEffective}
+                      onChange={toggleMultiBuy}
+                      data-sf-m="item-input-multi-buy-box"
+                    />
+                    <span className="sf-item-check-text">{t('item.multiBuyLabel')}</span>
+                  </label>
+                </div>
+              ) : null}
               {/* 币种：发布 = 下拉（可改）；编辑 = **只读展示**（后端字段模式不收 `cid` ⇒ 不可改，
                   已退市币种也原样显示 `cid` 数字，不猜补）。 */}
               {isEdit ? (

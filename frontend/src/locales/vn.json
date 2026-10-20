@@ -197,7 +197,10 @@
     "lowerPriceInvalid": "Giá mới phải là số nguyên từ 1 trở lên và thấp hơn giá hiện tại",
     "message": "Nhắn tin",
     "platformSettled": "Thanh toán nền tảng",
-    "views": "{{n}} lượt xem"
+    "views": "{{n}} lượt xem",
+    "multiBuyLabel": "Hỗ trợ mua nhiều cùng lúc",
+    "buyQtyTitle": "Chọn số lượng mua",
+    "buyQtyHint": "Tối đa {{n}} sản phẩm mỗi lần"
   },
   "itemCondition": {
     "brandNewSealed": "Mới nguyên seal",

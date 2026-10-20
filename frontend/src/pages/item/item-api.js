@@ -93,7 +93,7 @@ export const fetchCurrencies = (user) => getJson('/api/currencies', user)
  *   `MinorWear` / `HeavyWear`；**仅实物两分类**允许非空（数字 / 未分类带值 ⇒ 400
  *   `ITEM_CONDITION_NOT_APPLICABLE`）⇒ 调用方只在实物分支带上值，其余传 `null`（**字段缺省**）。
  */
-export const publishListing = ({ cid, price, stock, description, mediaUrls, itemType = null, itemCondition = null, createKey, user }) => {
+export const publishListing = ({ cid, price, stock, description, mediaUrls, itemType = null, itemCondition = null, allowMultiBuy = false, createKey, user }) => {
   const body = {
     cid,
     price,
@@ -107,6 +107,10 @@ export const publishListing = ({ cid, price, stock, description, mediaUrls, item
   if (itemType) body.item_type = itemType
   // 成色同体例：只在**有值**（= 实物分支且已选）时进载荷；数字 / 未分类 ⇒ 字段缺省（落 NULL）。
   if (itemCondition) body.item_condition = itemCondition
+  // ★ design §26.18 / route §49.17：多件购买授权（`listing.allow_multi_buy`，布尔）。
+  //   **仅 `true` 时上送** ⇒ 未授权 / 库存 ≤1（开关不渲染）⇒ 字段缺省，服务端按 DEFAULT false 落库。
+  //   （显式 `false` 亦合法，但缺省更少歧义：不与「调用方到底传没传」纠缠。）
+  if (allowMultiBuy === true) body.allow_multi_buy = true
   body.create_key = createKey
   return postJson('/api/listing', body, user)
 }
@@ -125,8 +129,9 @@ export const setListingStatus = (listingId, toStatus, user) =>
 
 /**
  * P1-b′ **字段编辑**（`PATCH /api/listing/:listingId` 的字段支 · route §49.12.2 / §49.13.3）。
- * `fields` 只允许 `description` / `price` / `stock` / `media_urls` / `item_type` / `item_condition`
- * 六键（**零 `title`**；`item_condition` = 迁移 0057 第 6 可改字段，数字 / 未分类 ⇒ `null`）；
+ * `fields` 只允许 `description` / `price` / `stock` / `media_urls` / `item_type` / `item_condition` /
+ * `allow_multi_buy` 七键（**零 `title`**；`item_condition` = 迁移 0057 第 6 可改字段；
+ * `allow_multi_buy` = 迁移 0061 第 7 可改字段，布尔，**仅在真实变化时进 PATCH**）；
  * **禁与 `to_status` 混传**（后端 400 `BOTH_MODES`）⇒ 本层刻意不提供合并入口，两个函数各管一支。
  * 返回行 = `GET /api/listing/mine` 同族（10 键）⇒ 调用方可行内整行替换。
  */
