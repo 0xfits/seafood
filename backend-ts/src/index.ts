@@ -42,7 +42,7 @@ import { ledgerErrorBody, sendGone, sendVerbError, submitWork } from './job-serv
 // P4-B4a：J1 `publishJob`（§1.8 #1）/ J5 `settleJob` / J6 `refundJob` 由本片注册（`verifyJobSubmission` 沿用）
 import { publishJob, refundJob, settleJob, verifyJobSubmission } from './job-funds-service';
 // P4-B4a：商品面（P1 上架/编辑/下架）—— §1.8 #7/#8；**本片首次导入整个模块**（v0.8 §1.8 现取 `grep` = 0）
-import { createListing, transitionListingStatus, updateListing } from './listing-service';
+import { createListing, transitionListingStatus, updateListing, updateListingDetails, classifyListingPatchBody } from './listing-service';
 // P4-B4a：商品**资金**面（P2 购买 / P4 退款）—— §1.8 #9/#10；同样**本片首次导入**（`listing-funds-service` 调用点改前 = 0）
 import { buyListing, refundListingOrder } from './listing-funds-service';
 // P4-B4a：R3 佣金政策插行（§1.8 附注 / §9 A11）；**只读引用**该模块，不改其行为、不改金额来源（§4.8）
@@ -2766,6 +2766,17 @@ app.post('/api/listing/:listingId', async (req, res) => {
 
 // ---- A8-b · P1-c 商品状态迁移（上架 / 下架 / 冻结 / 复牌；`:286` `transitionListingStatus`）----
 // `delisted` = 终态禁改（§7-18）；白名单唯一真源 = `public.listing_status_transition_ok`（服务层交 DB）。
+// ★ S55（发布动作单 · 2026-10-20 Kevin 口径）：**同一路径扩出「字段编辑」支**（`/profile/trades/published`
+//   行内【编辑】独立页 `/item/:id/edit` + 【降价】弹窗）—— **零新路由**（注册点仍 110）、零迁移、零新码。
+//   verb 分类（互斥口径 · 纯函数 `classifyListingPatchBody`，本层只分支）：
+//     · 含 `to_status|status` **且** 含任一可编辑字段 ⇒ **400 STATUS_AND_FIELDS_EXCLUSIVE**（两支语义冲突；
+//       不猜、不二段式执行 —— 否则「先改价再下架」会在半途失败时留下已改价的行）；
+//     · 只含状态键 ⇒ 既有 `transitionListingStatus`（下架/上架/冻结/复牌，行为一字不动）；
+//     · 只含字段键 ⇒ `updateListingDetails`（仅本人、仅 `draft|listed`；**`description` 实际变化**时
+//       **才**重置翻译回 `pending`，未变不调 ⇒ 避免无谓重译与译文闪烁）；
+//     · body 带 `title` ⇒ **400 NOT_SUPPORTED**（★ Kevin 2026-10-20：`listing.title` 退场、正文并入
+//       `description`；不静默忽略 ⇒ 旧前端误发 title 会立刻暴露，而不是「以为改标题生效了」）；
+//     · 两者都无 ⇒ **400 NO_EDITABLE_FIELD**（与旧面「空 body 交服务层判 400」同码同形，`sendVerbError` 体例）。
 app.patch('/api/listing/:listingId', async (req, res) => {
   const actor = await requireActor(req, res);
   if (!actor) return;
@@ -2773,12 +2784,37 @@ app.patch('/api/listing/:listingId', async (req, res) => {
   const listingId = parseInteger(req.params.listingId);
   if (!listingId || listingId <= 0) return sendRefNotFound(res, 'listing', String(req.params.listingId ?? ''), 'listing_not_found');
 
+  const body = (req.body || {}) as Record<string, unknown>;
+  const route = classifyListingPatchBody(body);
+  if (route.kind === 'invalid') return sendVerbError(res, route.err);
+
   try {
-    // 入参别名：`to_status`（§4.2 P1 状态机口径）/ `status`（前端常见写法）—— 二者皆缺 ⇒ 交服务层判 400
+    if (route.kind === 'fields') {
+      const result = await updateListingDetails({
+        listingId,
+        actorUid: actor.user.uID, // 非卖家 ⇒ 服务层 403 + ACTOR_NOT_ALLOWED（闸在 DB 语句内）
+        patch: {
+          // `title` 已被分类闸拦下（400）；此处仍透传 ⇒ 服务层同一条 NOT_SUPPORTED 闸是第二道（双保险）
+          title: body.title,
+          description: body.description,
+          price: body.price,
+          stock: body.stock,
+          mediaUrls: body.media_urls,
+          itemType: body.item_type,
+        },
+      });
+      if (!result.ok) return sendVerbError(res, result);
+      // ★ 只有 description **实际**变化才重置翻译（`text_changed` 由服务层按 `prev_description` 判定）；
+      //   纯改价/库存/图片/分类不动译文（`media_urls` 不进译文源白名单）。
+      if (result.text_changed) await enqueueListingTranslation(result.view, true);
+      return sendSuccess(res, result.view, 'Listing updated');
+    }
+
+    // 入参别名：`to_status`（§4.2 P1 状态机口径）/ `status`（前端常见写法）—— 二者皆缺已在上面 400
     const result = await transitionListingStatus({
       listingId,
       actorUid: actor.user.uID,
-      toStatus: req.body?.to_status ?? req.body?.status ?? '',
+      toStatus: body.to_status ?? body.status ?? '',
     });
     if (!result.ok) return sendVerbError(res, result);
     await enqueueListingTranslation(result.view); // 状态迁移（title/description 未变）⇒ 不重置回 pending

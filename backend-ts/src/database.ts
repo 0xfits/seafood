@@ -1199,6 +1199,11 @@ export interface PrizeItemRecord {
 
 // ---- 本批五口（卖家轴两条交易读口 + 收藏三口）行形 ------------------------------
 // 「我发布的」：listing.seller_uid = me 全状态行（字段沿 listing 表现列）。
+// ★ S55（发布动作单 · `/profile/trades/published` 行内【降价】【编辑】）：加性两键
+//   `description` / `item_type`（行键 **8 → 10**，键名/顺序 = 表列原名，零改名、零删键）——
+//   目的：① 编辑页（`/item/:id/edit`）回填描述；② 行内按分类渲染（四值闭集，服务端不翻译）；
+//   ③ 编辑写口回执与读口**同族同键**（前端可用回执整行替换列表行，无需二次拉取）。
+//   两键均为**本人可见面**（seller 自己发布的内容）⇒ 无越权/隐私面。
 export interface ListingMineRow {
   listing_id: number;
   title: string;
@@ -1208,6 +1213,10 @@ export interface ListingMineRow {
   stock: number;
   media_urls: string[];
   time_created: number;
+  /** ★ S55 加性键：商品描述（`listing.description`，NOT NULL DEFAULT ''；编辑器允许清空为 ''） */
+  description: string;
+  /** ★ S55 加性键：商品分类（`listing.item_type`；四值闭集 或 `null` = 未分类，原样透出） */
+  item_type: string | null;
 }
 
 // 「我卖出的」：行形与买家轴 listPrizeItemsByUser（GET /api/prize-item）同族（gID/bID/uID
@@ -1598,7 +1607,85 @@ const normalizeListingMineRow = (row: RawRow): ListingMineRow => ({
   stock: toNumberValue(getValue(row, 'stock')),
   media_urls: toStringArrayValue(getValue(row, 'media_urls')),
   time_created: toTimestamp(getValue(row, 'time_created')),
+  // ★ S55 加性两键（键序 = 追加在既有 8 键之后 ⇒ 零重排）：`item_type` 保留 `null`（未分类），
+  //   不用 `toStringValue`（后者把 null 归一成 ''，会把「未分类」污染成空串）。
+  description: toStringValue(getValue(row, 'description')),
+  item_type: (() => {
+    const rawItemType = getValue(row, 'item_type');
+    return rawItemType === undefined || rawItemType === null ? null : String(rawItemType);
+  })(),
 });
+
+/**
+ * ★ S55（发布动作单）· `PATCH /api/listing/:listingId` **字段编辑**的 DB 侧单一真源语句。
+ *
+ * 承既有体例（`LIST_CURRENCY_WITH_DEPOSIT_SQL` / `R-8-18`「单一真源 + `ex` 既有事务内执行口」）：
+ * 语句写成**显式 `$n` 占位文本**，服务层（neon）路径与门探针（`inRollbackTx` 客户端）**共用同一份 SQL**。
+ *
+ * ★★ 2026-10-20 Kevin 数据模型指令：**`listing.title` 退场、正文并入 `description`** ⇒
+ *   本语句**不读也不写 `title` 列**（可改字段 = `description / price / stock / media_urls / item_type`）。
+ *   数据面（DROP COLUMN）由**另一单**负责；本单零 DDL、零回填、零列引用 —— 故下一单 DROP 后本语句
+ *   **无需改动、也不会 42P01**（这是「不期望 title 列」的结构性落实）。
+ *
+ * 三道闸（全部在**唯一写路径的 SQL 内**，服务层不可绕过、探针同理）：
+ *   ① **归属闸**：`cur.seller_uid <> $2` ⇒ `not_owner`（⇒ 服务层 403 ACTOR_NOT_ALLOWED）；
+ *   ② **可编辑态闸**：`cur.status NOT IN ('draft','listed')` ⇒ `status_not_editable`
+ *      （⇒ 服务层 409 + LISTING_STATE_INVALID；`delisted` 终态 / `frozen` 冻结 = 只读）；
+ *      ★ 顺序在库存闸**之前** ⇒ 非法态下即使改库存也落 `status_not_editable`（不落误导性的库存码）。
+ *   ③ **库存状态闸**（承 DL60 / `listing_stock_guard` 触发器，与 `updateListingRow` 同码）：
+ *      库存实际变更且 `status <> 'listed'` ⇒ `stock_requires_listed`
+ *      （⇒ 409 + reason `listing_stock_change_requires_listed`；触发器本身也会 RAISE，此处前置判
+ *      只为给**确定性业务码**而不是冒泡成基础设施异常；库内触发器仍是最终真源）。
+ *
+ * 「未传字段不动」= `COALESCE($n, l.xxx)`（NULL 占位不覆盖）；`item_type` 需区分「未传」与「显式置 NULL」
+ * ⇒ 单独 `$8::boolean` 开关（`CASE WHEN $8 THEN $7::text ELSE l.item_type END`）。
+ * `prev_description` 同语句带回 ⇒ 服务层判「描述是否实际变化」（决定是否重置翻译），零额外往返。
+ *
+ * 参数位（8 位，**无 title 位**）：$1 listing_id · $2 actor_uid · $3 description · $4 price ·
+ *   $5 stock · $6 media_urls · $7 item_type · $8 item_type_set
+ */
+const UPDATE_LISTING_DETAILS_SQL = `
+      WITH cur AS (
+        SELECT pl.listing_id, pl.seller_uid, pl.cid, pl.price, pl.stock, pl.description, pl.media_urls, pl.item_type,
+               pl.status, pl.time_created,
+               (to_jsonb(pl) ->> 'title') AS title
+        FROM public.listing AS pl
+        WHERE pl.listing_id = $1::bigint
+        FOR UPDATE
+      ),
+      guarded AS (
+        SELECT cur.*,
+               CASE
+                 WHEN cur.seller_uid <> $2::bigint THEN 'not_owner'
+                 WHEN cur.status NOT IN ('draft', 'listed') THEN 'status_not_editable'
+                 WHEN $5::int IS NOT NULL AND $5::int IS DISTINCT FROM cur.stock AND cur.status <> 'listed' THEN 'stock_requires_listed'
+                 ELSE 'ok'
+               END AS outcome
+        FROM cur
+      ),
+      upd AS (
+        UPDATE public.listing AS l
+        SET description = COALESCE($3::text, l.description),
+            price       = COALESCE($4::bigint, l.price),
+            stock       = COALESCE($5::int, l.stock),
+            media_urls  = COALESCE($6::text[], l.media_urls),
+            item_type   = CASE WHEN $8::boolean THEN $7::text ELSE l.item_type END
+        FROM guarded AS g
+        WHERE l.listing_id = $1::bigint
+          AND g.outcome = 'ok'
+        RETURNING l.listing_id, g.title AS title, l.price, l.cid, l.status, l.stock,
+                  l.media_urls, l.time_created, l.description, l.item_type,
+                  g.description AS prev_description,
+                  'updated'::text AS outcome
+      )
+      SELECT u.listing_id, u.title, u.price, u.cid, u.status, u.stock, u.media_urls,
+             u.time_created, u.description, u.item_type, u.prev_description, u.outcome
+      FROM upd AS u
+      UNION ALL
+      SELECT g.listing_id, g.title, g.price, g.cid, g.status, g.stock, g.media_urls,
+             g.time_created, g.description, g.item_type, g.description, g.outcome
+      FROM guarded AS g WHERE g.outcome <> 'ok'
+    `;
 
 const normalizeListingOrderSoldRow = (row: RawRow): ListingOrderSoldRow => ({
   gID: toNumberValue(getValue(row, 'gID')),
@@ -2792,16 +2879,23 @@ export class DatabaseService {
   /** 「我发布的」（GET /api/listing/mine）：listing.seller_uid = me **全状态行**（draft/listed/delisted/frozen 都回），listing_id 降序。 */
   static async listListingsBySeller(sellerUid: number, skip = 0, limit = 100): Promise<ListingMineRow[]> {
     const sql = getSql();
+    // ★ S55：SELECT 加性两列 `description` / `item_type`（行键 8 → 10；既有 8 键位置与顺序一字未动）。
+    // ★★ 2026-10-20 Kevin 指令（`title` 退场、正文并入 `description`）：`title` 改经 `to_jsonb(l)->>'title'`
+    //   **弱取值** —— 本口对 `title` **列不再有硬依赖**：数据面迁移 DROP 该列后本条 SQL **仍可跑**（值变
+    //   `null` ⇒ 归一成 `''`），不会 42P01；列当前仍在 ⇒ 响应形状与取值**逐字不变**（键数 10）。
+    //   本单**零 DDL / 零回填**，不碰 `title` 列本身（DROP 归另一单）。
     const rows = extractRows(await sql`
       SELECT
         l.listing_id,
-        l.title,
+        (to_jsonb(l) ->> 'title') AS title,
         l.price,
         l.cid,
         l.status,
         l.stock,
         l.media_urls,
-        l.time_created
+        l.time_created,
+        l.description,
+        l.item_type
       FROM public.listing AS l
       WHERE l.seller_uid = ${sellerUid}::bigint
       ORDER BY l.listing_id DESC
@@ -2809,6 +2903,53 @@ export class DatabaseService {
     `);
 
     return rows.map(normalizeListingMineRow);
+  }
+
+  /**
+   * ★ S55（发布动作单）· P1-b′ **字段编辑**（`PATCH /api/listing/:listingId` 的字段支）。
+   *
+   * 与 `updateListingRow`（旧 `POST` 编辑面）**并存、互不改写**：本方法的差异只有三处 ——
+   *   ① **可编辑态 = `draft|listed`**（旧面只禁 `delisted`）⇒ `frozen` 一并只读（`status_not_editable`）；
+   *   ② 可改字段 = **`description / price / stock / media_urls / item_type`（无 `title`）** +
+   *      `item_type` 区分「未传」与「显式置 NULL」（`itemTypeSet` 开关）；
+   *   ③ 回执 = **`ListingMineRow` 同族**（与 `listListingsBySeller` 逐键一致，前端可整行替换）+ `prev` 旧描述。
+   *
+   * `ex`（可选）= 既有事务内执行口（承 `R-8-18`）：门探针在 `inRollbackTx` 内跑**同一份 SQL** ⇒ 真库读数、零残留。
+   * 返回 `row = null` ⇒ listing 行不存在（由服务层落 404，沿用 `LEDGER_REF_NOT_FOUND`）。
+   */
+  static async updateListingDetailsRow(input: {
+    listingId: number;
+    actorUid: number;
+    description: string | null;
+    price: number | null;
+    stock: number | null;
+    mediaUrls: string[] | null;
+    itemType: string | null;
+    itemTypeSet: boolean;
+  }, ex?: SqlRunner): Promise<{
+    outcome: 'updated' | 'not_owner' | 'status_not_editable' | 'stock_requires_listed';
+    row: ListingMineRow | null;
+    prev: { description: string } | null;
+  }> {
+    const rows = await runSql(UPDATE_LISTING_DETAILS_SQL, [
+      input.listingId,
+      input.actorUid,
+      input.description,
+      input.price,
+      input.stock,
+      input.mediaUrls,
+      input.itemType,
+      input.itemTypeSet,
+    ], ex);
+    const row = rows[0] || null;
+    if (!row) return { outcome: 'updated', row: null, prev: null };
+    const outcome = String(getValue(row, 'outcome')) as
+      'updated' | 'not_owner' | 'status_not_editable' | 'stock_requires_listed';
+    return {
+      outcome,
+      row: normalizeListingMineRow(row),
+      prev: { description: toStringValue(getValue(row, 'prev_description')) },
+    };
   }
 
   /** 「我卖出的」（GET /api/listing-orders/sold）：listing_order.seller_uid = me，order_id 降序；行形与买家轴 listPrizeItemsByUser（GET /api/prize-item）同族 + status（time_claimed/time_actived 无对应列 ⇒ 恒 NULL → 0，同买家轴「不编值」口径）。 */

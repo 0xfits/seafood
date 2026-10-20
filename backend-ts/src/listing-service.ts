@@ -58,8 +58,16 @@ const stateConflict = (field: string, reason: string, extra: Record<string, unkn
 const keyError = (details: Record<string, unknown>): VerbErr =>
   fail(400, 'LEDGER_IDEMPOTENCY_KEY_INVALID', details, 'Idempotency key is invalid');
 
-const shapeError = (field: string, reason: string): VerbErr =>
-  fail(400, 'LEDGER_AMOUNT_INVALID', { field, reason }, 'Request shape is invalid');
+/**
+ * §3.2 形状闸 ⇒ 400 + 借码 `LEDGER_AMOUNT_INVALID`（零新错误码）。
+ * ★ S55：改为 **export**（`listingShapeError`），供路由层复用同一构造 —— `PATCH /api/listing/:listingId`
+ *   的「状态+字段混传 / 空体」两支在**路由层**就判 400（不必进 service 打 DB），但**形状必须逐字同源**
+ *   （同一 `code/message`，只换 `details.field/reason`）⇒ 单一真源、不复制体例。
+ */
+export const listingShapeError = (field: string, reason: string, extra: Record<string, unknown> = {}): VerbErr =>
+  fail(400, 'LEDGER_AMOUNT_INVALID', { field, reason, ...extra }, 'Request shape is invalid');
+
+const shapeError = listingShapeError;
 
 // ---- 创建键（§4.5：前缀只允许 biz:/cm:/cli:/ops:；禁 `#` 与控制字符；顺序固定）----
 const KEY_PREFIXES = ['biz:', 'cm:', 'cli:', 'ops:'];
@@ -359,4 +367,248 @@ export const transitionListingStatus = async (params: {
   }
 
   return { ok: true, replay: false, view: { ...write.row } };
+};
+
+// ============================================================================
+// ★ S55（发布动作单 · Kevin 2026-10-20 口径）· P1-b′ **独立字段编辑**
+//   `/profile/trades/published` 行内【编辑】= 独立页 `/item/:id/edit`（复用发布页表单：描述 / 价格 /
+//   库存 / 图片 / 分类；★ `title` 已按 Kevin 2026-10-20 数据模型指令退场、正文并入 `description`）；
+//   【降价】= 弹窗只改价（**必须低于当前价**，这条**业务规则在前端与门**，服务端只保证「合法价格」——
+//   服务端不引入第二个价格写口语义，见报告「口径与自曝」）。
+//
+//   硬边界（本段自证）：
+//     · **零新路由**（扩既有 `PATCH /api/listing/:listingId`）· **零迁移** · **零新错误码** ·
+//       **零 ledger 写**（改价不涉资金 ⇒ 无分录、无幂等键；本文件仍不 import `./ledger`）。
+//     · **可编辑态 = `draft` | `listed`**（`delisted` 终态 / `frozen` 冻结 = 只读 ⇒ 409）；
+//     · **可改字段 = `description / price / stock / media_urls / item_type`**（`title` ⇒ 400 NOT_SUPPORTED）；
+//     · **归属闸在 SQL 内**（`updateListingDetailsRow` 的 `not_owner`）⇒ 服务层只做码映射 ↦ 403，
+//       与 `transitionListingStatus` 逐字同形（`AUTH_FORBIDDEN` + `reason=ACTOR_NOT_ALLOWED`）。
+// ============================================================================
+
+/** 可编辑字段闭集（`PATCH /api/listing/:listingId` 字段支；顺序即错误 `field_keys` 的列出顺序） */
+export const LISTING_EDIT_FIELDS = ['description', 'price', 'stock', 'media_urls', 'item_type'] as const;
+export type ListingEditField = (typeof LISTING_EDIT_FIELDS)[number];
+
+/**
+ * **已退场字段**（2026-10-20 Kevin 数据模型指令：`listing.title` 取消、正文并入 `description`）：
+ * 编辑/更新面**不得接受、不得校验** `title` —— 出现在 body 即 **400 `NOT_SUPPORTED`**
+ * （借码 `LEDGER_AMOUNT_INVALID`，`details.field='listing.title'`；**零新错误码**，33 码闭集不动）。
+ * ★ 不静默忽略：静默会把「前端还在发 title」这类误用藏起来（旧前端未升级时会以为改标题生效了）。
+ * ★ 数据面（`DROP COLUMN title`）归**另一单**：本单零 DDL、零回填、不碰该列。
+ */
+export const LISTING_RETIRED_FIELDS = ['title'] as const;
+
+/** 状态迁移别名（§4.2 P1 的 `to_status` / 前端常见写法 `status`）—— 与字段支**互斥** */
+export const LISTING_STATUS_KEYS = ['to_status', 'status'] as const;
+
+/** 图片张数上限 = 4（Kevin 2026-10-19 裁定「张数 ≤4、卡用第一张」· 发布页同口径；此处为**入参闸**） */
+export const MAX_LISTING_MEDIA_ITEMS = 4;
+
+/** 图片 URL 形态：只收媒体表读口形态 `/api/media/<数字 id>`（发布页上传回执即此形态） */
+export const LISTING_MEDIA_URL_RE = /^\/api\/media\/\d+$/;
+
+/**
+ * `PATCH /api/listing/:listingId` 的 **verb 分类闸**（纯函数 · 零 DB）：
+ *   · 含**已退场字段**（`title`）⇒ 400 `NOT_SUPPORTED`（最高优先：即使同时带状态键也先报这条，
+ *     因为「发 title」本身就是要纠正的误用，不该进状态机）；
+ *   · 同时出现「状态键」与「可编辑字段」⇒ 400 `STATUS_AND_FIELDS_EXCLUSIVE`（两支语义冲突，不猜）；
+ *   · 只出现状态键 ⇒ `'status'`（走既有 `transitionListingStatus`）；
+ *   · 只出现字段键 ⇒ `'fields'`（走 `updateListingDetails`）；
+ *   · 两者都无 ⇒ 400 `NO_EDITABLE_FIELD`。
+ * ★ 放在 service 而非路由内联：与 `listingShapeError` 同一构造、可离线判负（门直接调本函数），
+ *   路由层只剩「分支 + 发送」。
+ */
+export type ListingPatchRoute =
+  | { kind: 'fields'; fields: string[] }
+  | { kind: 'status'; statusKeys: string[] }
+  | { kind: 'invalid'; err: VerbErr };
+
+export const classifyListingPatchBody = (body: Record<string, unknown>): ListingPatchRoute => {
+  const b = body && typeof body === 'object' ? body : {};
+  // `title: null` = 未传（不承载内容，等价于不出现）；只有**带值**的 title 才 400 NOT_SUPPORTED
+  const retired = LISTING_RETIRED_FIELDS.filter((k) => b[k] !== undefined && b[k] !== null);
+  if (retired.length) {
+    return {
+      kind: 'invalid',
+      err: listingShapeError('listing.title', 'NOT_SUPPORTED', {
+        retired_fields: [...retired],
+        reason_detail: 'listing.title retired: edit description instead',
+        editable_fields: [...LISTING_EDIT_FIELDS],
+      }),
+    };
+  }
+  const statusKeys = LISTING_STATUS_KEYS.filter((k) => b[k] !== undefined);
+  const fieldKeys = LISTING_EDIT_FIELDS.filter((k) => b[k] !== undefined);
+  if (statusKeys.length && fieldKeys.length) {
+    return {
+      kind: 'invalid',
+      err: listingShapeError('listing', 'STATUS_AND_FIELDS_EXCLUSIVE', {
+        status_keys: [...statusKeys],
+        field_keys: [...fieldKeys],
+      }),
+    };
+  }
+  if (statusKeys.length) return { kind: 'status', statusKeys: [...statusKeys] };
+  if (fieldKeys.length) return { kind: 'fields', fields: [...fieldKeys] };
+  return {
+    kind: 'invalid',
+    err: listingShapeError('listing', 'NO_EDITABLE_FIELD', { editable_fields: [...LISTING_EDIT_FIELDS] }),
+  };
+};
+
+/**
+ * `updateListingDetails` 回执：成功支在 `VerbResult` 之上**加一个离线判据键** `text_changed`
+ * （= title/description **实际**变化 ⇒ 调用方应重置翻译回 `pending`）。
+ * ★ 不塞进 `view`：`view` 必须与 `GET /api/listing/mine` 行**逐键同族**（前端整行替换），
+ *   多一个键就会污染读口形状；故用**同级旁路键**，只在服务端内部（路由）消费、不下发。
+ */
+export type UpdateListingDetailsResult =
+  | VerbErr
+  | { ok: true; replay: false; view: Record<string, unknown>; text_changed: boolean };
+
+/**
+ * P1-b′ 字段编辑（`PATCH /api/listing/:listingId` 字段支）：**仅本人**、**仅 `draft|listed`**。
+ *
+ * 入参 `patch` 只含业务字段（**已由路由层剔掉状态键**）；**未传的字段一律不动**（`undefined` = 不触碰；
+ * `null` 对 `media_urls` 表示「不动」、对 `item_type` 表示「显式置 NULL（= 未分类）」）。
+ *
+ * ★ 2026-10-20 Kevin 数据模型指令：**`title` 已退场**（正文并入 `description`）⇒ 本函数
+ *   **不接受、不校验** `title`：`patch.title !== undefined` ⇒ 400 `NOT_SUPPORTED`（早于一切校验与 DB，
+ *   零 DB 调用）；可改字段只有 `description / price / stock / media_urls / item_type`。
+ *
+ * 逐字段闸（先全部验完再打 DB ⇒ 非法形状**零 DB 调用**）：
+ *   · `description`：字符串（**允许空串** = 清空描述；不 trim —— 描述保留作者排版）
+ *   · `price`：整数（`toBigIntLike` 同口径）且 **> 0**（DB `listing_price_positive CHECK (price > 0)`）；
+ *     上限 = `Number.MAX_SAFE_INTEGER`（>`OUT_OF_RANGE` 400）——DB 列为 bigint（上限 2^63-1），
+ *     服务层沿仓内既有「JS 安全整数」纪律归一，故**有效上限取更紧的一侧**（报告已写明）
+ *   · `stock`：整数 **≥ 0**（DB `listing_stock_nonneg`）；★ 实际变更且 `status <> 'listed'` ⇒ 409
+ *     `listing_stock_change_requires_listed`（DL60 触发器同口径，不改迁移、不绕触发器）
+ *   · `media_urls`：字符串数组（`toOptionalUrls` 同口径）→ 元素 `trim` 后须匹配 `/api/media/<id>`、
+ *     张数 ≤4；`[]` = 清空
+ *   · `item_type`：四值闭集 或 `null`（`normalizeItemType`；裸 `Digital` = 退役 ⇒ 400）
+ *
+ * 译文：**只有 `description` 实际变化**才置 `text_changed=true`（调用方据此重置翻译回 `pending`）；
+ *   改价 / 库存 / 图片 / 分类**不触翻译**（`media_urls` 不进译文源白名单）。
+ */
+export const updateListingDetails = async (params: {
+  listingId: number;
+  actorUid: number;
+  patch: {
+    /** ★ 已退场字段：透传进来即 400 NOT_SUPPORTED（保留在类型里 = 能显式拒绝，不是能用） */
+    title?: unknown;
+    description?: unknown;
+    price?: unknown;
+    stock?: unknown;
+    mediaUrls?: unknown;
+    itemType?: unknown;
+  };
+}): Promise<UpdateListingDetailsResult> => {
+  const listingId = toBigIntLike(params.listingId, 'listing.listing_id', 1);
+  if (!listingId.ok) return listingId.err;
+  const uidErr = reservedUidGate(Number(params.actorUid), 'actor.uid');
+  if (uidErr) return uidErr;
+
+  const patch = params.patch || {};
+
+  // ★ 第一道：退场字段即拒（先于任何字段校验与 DB；与 `classifyListingPatchBody` 同一 reason/field ⇒ 单一真源口径）
+  if (patch.title !== undefined && patch.title !== null) {
+    return listingShapeError('listing.title', 'NOT_SUPPORTED', {
+      retired_fields: [...LISTING_RETIRED_FIELDS],
+      reason_detail: 'listing.title retired: edit description instead',
+      editable_fields: [...LISTING_EDIT_FIELDS],
+    });
+  }
+
+  let description: string | null = null;
+  if (patch.description !== undefined) {
+    if (typeof patch.description !== 'string') return shapeError('listing.description', 'NOT_A_STRING');
+    description = patch.description;
+  }
+
+  let price: number | null = null;
+  if (patch.price !== undefined) {
+    const parsed = toBigIntLike(patch.price, 'listing.price', 1);
+    if (!parsed.ok) return parsed.err;
+    price = parsed.value;
+  }
+
+  let stock: number | null = null;
+  if (patch.stock !== undefined) {
+    const parsed = toBigIntLike(patch.stock, 'listing.stock', 0);
+    if (!parsed.ok) return parsed.err;
+    stock = parsed.value;
+  }
+
+  let mediaUrls: string[] | null = null;
+  if (patch.mediaUrls !== undefined && patch.mediaUrls !== null) {
+    const urls = toOptionalUrls(patch.mediaUrls);
+    if (!urls.ok) return urls.err;
+    const list = (urls.value ?? []).map((u) => u.trim());
+    if (list.length > MAX_LISTING_MEDIA_ITEMS) {
+      return shapeError('listing.media_urls', 'TOO_MANY_ITEMS', {
+        max_items: MAX_LISTING_MEDIA_ITEMS,
+        count: list.length,
+      });
+    }
+    const invalid = list.filter((u) => !LISTING_MEDIA_URL_RE.test(u));
+    if (invalid.length) {
+      return listingShapeError('listing.media_urls', 'INVALID_MEDIA_URL', {
+        invalid: invalid.slice(0, MAX_LISTING_MEDIA_ITEMS),
+        allowed_pattern: '/api/media/<id>',
+      });
+    }
+    mediaUrls = list;
+  }
+
+  // `item_type`：`undefined` = 不动；`null` = 显式置 NULL（未分类）⇒ 需 `itemTypeSet` 开关区分
+  const itemTypeSet = patch.itemType !== undefined;
+  const itemType = normalizeItemType(patch.itemType);
+  if (!itemType.ok) return itemType.err;
+
+  if (description === null && price === null && stock === null && mediaUrls === null && !itemTypeSet) {
+    return shapeError('listing', 'NO_EDITABLE_FIELD', { editable_fields: [...LISTING_EDIT_FIELDS] });
+  }
+
+  const write = await DatabaseService.updateListingDetailsRow({
+    listingId: listingId.value,
+    actorUid: Number(params.actorUid),
+    description,
+    price,
+    stock,
+    mediaUrls,
+    itemType: itemType.value,
+    itemTypeSet,
+  });
+
+  if (!write.row) return gone404('listing', listingId.value);
+  switch (write.outcome) {
+    case 'not_owner':
+      // 与 `transitionListingStatus` 逐字同形（§6.2 附表 · C6：不借 LEDGER_HOLD_NOT_ALLOWED）
+      return fail(403, 'AUTH_FORBIDDEN', { reason: 'ACTOR_NOT_ALLOWED', ref_type: 'listing', ref_id: String(listingId.value) });
+    case 'status_not_editable':
+      // 可编辑态 = draft|listed（delisted 终态 / frozen 冻结 ⇒ 只读）
+      return stateConflict('listing.status', 'LISTING_STATE_INVALID', {
+        listing_id: String(listingId.value),
+        status: write.row.status,
+        editable_statuses: ['draft', 'listed'],
+      });
+    case 'stock_requires_listed':
+      return stateConflict('listing.stock', 'listing_stock_change_requires_listed', {
+        listing_id: String(listingId.value),
+        status: write.row.status,
+      });
+    default:
+      break;
+  }
+
+  // ★ 译文重置判据：**只认 `description` 的实际变化**（title 已退场 ⇒ 不再有第二路文本）
+  const prev = write.prev ?? { description: write.row.description };
+  const textChanged = description !== null && description !== prev.description;
+
+  return {
+    ok: true,
+    replay: false,
+    view: { ...(write.row as unknown as Record<string, unknown>) },
+    text_changed: textChanged,
+  };
 };
