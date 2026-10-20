@@ -20,6 +20,9 @@ import './jobs/jobs.css'
 import './profile.css'
 // D7 变更（2026-10-14）：MyOrdersPanel 渲染点自首页迁入「我买到的」子页（组件复用；发货/收货/退款可达）
 import MyOrdersPanel, { SellerOrderActions } from './item/MyOrdersPanel'
+// 发布列表行内动作（2026-10-20 · design §26.13）：【降价】= 字段模式 PATCH（只传 price）；
+//   【编辑】= 跳 /item/:id/edit。取数层 = item-api（本页其余交易取数仍在 trades-api，不跨线复用）。
+import { updateListingFields } from './item/item-api'
 // sf14 需求④：交易/收藏取数层（契约冻结；后端并行单实现中）
 import { addFavorite, fetchFavorites, fetchMyListings, fetchSoldOrders, removeFavorite } from '../trades-api'
 import { fetchApiJson, fetchCurrentUser, getAuthHeaders, updateMyProfile } from '../auth'
@@ -103,10 +106,21 @@ const TradesPane = ({ subTab, user, isAuthenticated, lang }) => {
   return <BoughtPane isAuthenticated={isAuthenticated} />
 }
 
-// 我发布的：GET /api/listing/mine ⇒ 行(listing_id/title/price/cid/status/stock/media_urls/time_created)
+// 我发布的：GET /api/listing/mine ⇒ 行(listing_id/title/price/cid/status/stock/media_urls/time_created/description/item_type)
+// 行内动作（2026-10-20 · design §26.13）：仅 draft|listed 显示【降价】【编辑】两按钮（sold/delisted 只读）；
+//   行结构 = 「链接区 + 动作区」两段 —— **禁止 button 嵌 `<a>`**（a>button 非法嵌套 + 双发导航）。
+// 【降价】= 行内弹层：整数且 1 ≤ 新价 < 现价（涨价走编辑页）；提交 = 字段模式 PATCH **只传 `{price}`**；
+//   成功后**行内价格即时更新**（改本地该行，不跳页、不整表重取）。
+// 【编辑】= 跳 `/item/:id/edit`（独立编辑页，同语言前缀）。
 const PublishedList = ({ user, isAuthenticated, lang }) => {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const [state, setState] = useState({ phase: 'idle', rows: [], message: '' })
+  // 行内【降价】弹层状态（`lowerFor` = 正在降价的 listing_id 字符串；'' = 无弹层）
+  const [lowerFor, setLowerFor] = useState('')
+  const [lowerValue, setLowerValue] = useState('')
+  const [lowerBusy, setLowerBusy] = useState(false)
+  const [lowerErr, setLowerErr] = useState('')
 
   const load = useCallback(async () => {
     if (!isAuthenticated) {
@@ -125,6 +139,41 @@ const PublishedList = ({ user, isAuthenticated, lang }) => {
 
   useEffect(() => { load() }, [load])
 
+  const rowIdOf = (row) => String(row?.listing_id ?? row?.bID ?? '')
+  const lowerRow = state.rows.find((row) => rowIdOf(row) === lowerFor) || null
+  // 闸 = **整数**且 `1 ≤ 新价 < 现价`；非法 ⇒ 确认按钮置灰 + 内联提示（不发起请求）。
+  const lowerPrice = /^\d+$/.test(String(lowerValue).trim()) ? Number(String(lowerValue).trim()) : NaN
+  const currentPrice = Number(String(lowerRow?.price ?? '').trim())
+  const lowerInvalid = !(
+    Number.isInteger(lowerPrice)
+    && lowerPrice >= 1
+    && Number.isFinite(currentPrice)
+    && lowerPrice < currentPrice
+  )
+  const lowerInputEmpty = String(lowerValue).trim() === ''
+
+  const openLower = (row) => { setLowerFor(rowIdOf(row)); setLowerValue(''); setLowerErr('') }
+  const closeLower = () => { setLowerFor(''); setLowerValue(''); setLowerErr('') }
+
+  const submitLower = async () => {
+    if (!lowerRow || lowerInvalid || lowerBusy) return
+    setLowerBusy(true)
+    setLowerErr('')
+    try {
+      await updateListingFields(rowIdOf(lowerRow), { price: lowerPrice }, user)
+      // 成功 ⇒ 只改本地这一行（价格即时可见），**不跳页、不整表重取**
+      setState((prev) => ({
+        ...prev,
+        rows: prev.rows.map((row) => (rowIdOf(row) === lowerFor ? { ...row, price: lowerPrice } : row)),
+      }))
+      closeLower()
+    } catch (error) {
+      setLowerErr(String(error?.message || t('error')))
+    } finally {
+      setLowerBusy(false)
+    }
+  }
+
   return (
     <div className="sf-prof-pane" data-sf-m="trades-published-list">
       <h1 className="sf-prof-pane-title">
@@ -135,23 +184,95 @@ const PublishedList = ({ user, isAuthenticated, lang }) => {
           {state.message || t('profileNav.emptyPublished')}
         </div>
       ) : (
-        state.rows.map((row) => (
-          <Link
-            key={String(row.listing_id ?? row.bID)}
-            className="sf-prof-row"
-            data-sf-m="trades-published-item"
-            to={buildLocalizedPath(lang, `/item/${String(row.listing_id ?? row.bID)}`)}
-          >
-            <span className="sf-prof-row-title">{String(row.title ?? '-')}</span>
-            <span className="sf-prof-row-meta">
-              {`$${String(row.price ?? '-')}`}
-              {' · '}
-              {`${t('item.stock')} ${String(row.stock ?? '-')}`}
-              {' · '}
-              {listingStatusLabel(t, row.status)}
-            </span>
-          </Link>
-        ))
+        state.rows.map((row) => {
+          const id = rowIdOf(row)
+          // `row?.status`（可选链）取值：既避开「String(<obj>.<field> ?? …)」工程口径形态面（p4z 类级断言），
+          //   也顺带把 canAct 与 data-sf-status 收到同一取值上
+          const statusText = String(row?.status ?? '')
+          const canAct = statusText === 'draft' || statusText === 'listed'
+          return (
+            <div
+              key={id}
+              className="sf-prof-row-wrap"
+              data-sf-m="trades-published-item"
+              data-sf-status={statusText}
+            >
+              {/* 链接区（整行可点进详情）+ 动作区（按钮在 `<Link>` **外**，杜绝 a>button） */}
+              <Link
+                className="sf-prof-row"
+                data-sf-m="trades-published-link"
+                to={buildLocalizedPath(lang, `/item/${id}`)}
+              >
+                <span className="sf-prof-row-title">{String(row.title ?? '-')}</span>
+                <span className="sf-prof-row-meta" data-sf-m="trades-published-price">
+                  {`$${String(row.price ?? '-')}`}
+                  {' · '}
+                  {`${t('item.stock')} ${String(row.stock ?? '-')}`}
+                  {' · '}
+                  {listingStatusLabel(t, row.status)}
+                </span>
+              </Link>
+              {canAct ? (
+                <div className="sf-prof-row-actions" data-sf-m="trades-published-actions">
+                  <button
+                    type="button"
+                    className="sf-prof-btn"
+                    data-sf-m="trades-published-lower"
+                    onClick={() => openLower(row)}
+                  >
+                    {t('item.lowerPrice')}
+                  </button>
+                  <button
+                    type="button"
+                    className="sf-prof-btn"
+                    data-sf-m="trades-published-edit"
+                    onClick={() => navigate(buildLocalizedPath(lang, `/item/${id}/edit`))}
+                  >
+                    {t('common.edit')}
+                  </button>
+                </div>
+              ) : null}
+              {lowerFor === id ? (
+                <div className="sf-prof-lower" data-sf-m="trades-published-lower-panel">
+                  <label className="sf-prof-lower-field">
+                    <span className="sf-prof-lower-label">{t('item.newPrice')}</span>
+                    <input
+                      className="sf-prof-lower-input"
+                      data-sf-m="trades-published-lower-input"
+                      value={lowerValue}
+                      onChange={(event) => { setLowerValue(event.target.value); setLowerErr('') }}
+                      inputMode="numeric"
+                      autoFocus
+                    />
+                  </label>
+                  <span className="sf-prof-lower-hint" data-sf-m="trades-published-lower-err" role="status">
+                    {lowerInvalid && !lowerInputEmpty ? t('item.lowerPriceInvalid') : ''}
+                  </span>
+                  <button
+                    type="button"
+                    className="sf-prof-btn"
+                    data-sf-m="trades-published-lower-ok"
+                    disabled={lowerInvalid || lowerBusy}
+                    onClick={submitLower}
+                  >
+                    {lowerBusy ? t('jobs.submitting') : t('item.lowerPrice')}
+                  </button>
+                  <button
+                    type="button"
+                    className="sf-prof-btn"
+                    data-sf-m="trades-published-lower-cancel"
+                    onClick={closeLower}
+                  >
+                    ×
+                  </button>
+                  {lowerErr ? (
+                    <span className="sf-prof-lower-fail" data-sf-m="trades-published-lower-fail" role="alert">{lowerErr}</span>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+          )
+        })
       )}
     </div>
   )

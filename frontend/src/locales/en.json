@@ -190,7 +190,10 @@
     "freeShipping": "Free shipping",
     "editTitle": "Edit item",
     "editOk": "Changes saved",
-    "draftStockLocked": "Stock is locked while the item is a draft — it can be changed once listed"
+    "draftStockLocked": "Stock is locked while the item is a draft — it can be changed once listed",
+    "lowerPrice": "Lower price",
+    "newPrice": "New price",
+    "lowerPriceInvalid": "New price must be a whole number of at least 1 and lower than the current price"
   },
   "market": {
     "line": "Exchange",

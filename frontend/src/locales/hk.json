@@ -190,7 +190,10 @@
     "freeShipping": "包郵",
     "editTitle": "編輯閒置",
     "editOk": "已儲存修改",
-    "draftStockLocked": "草稿狀態下庫存不可修改，上架後即可修改"
+    "draftStockLocked": "草稿狀態下庫存不可修改，上架後即可修改",
+    "lowerPrice": "減價",
+    "newPrice": "新價格",
+    "lowerPriceInvalid": "新價格需為不低於 1 的整數，且必須低於現價"
   },
   "market": {
     "line": "交易所線",

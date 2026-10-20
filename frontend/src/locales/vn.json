@@ -190,7 +190,10 @@
     "freeShipping": "Miễn phí vận chuyển",
     "editTitle": "Chỉnh sửa mặt hàng",
     "editOk": "Đã lưu thay đổi",
-    "draftStockLocked": "Không thể sửa số lượng khi còn là bản nháp — hãy đăng bán để sửa số lượng"
+    "draftStockLocked": "Không thể sửa số lượng khi còn là bản nháp — hãy đăng bán để sửa số lượng",
+    "lowerPrice": "Giảm giá",
+    "newPrice": "Giá mới",
+    "lowerPriceInvalid": "Giá mới phải là số nguyên từ 1 trở lên và thấp hơn giá hiện tại"
   },
   "market": {
     "line": "Dòng sàn giao dịch",
