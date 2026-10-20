@@ -217,6 +217,10 @@
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     padding-bottom: 2px;
+    /* 存量溢出修复（Kevin 2026-10-21 需求② 验收项「390 零溢出」）：桌面档 `align-items: flex-start`
+       使本项为 flex-start 项 ⇒ 宽 auto = max-content（6 项一行 590px > 视口 390），
+       `overflow-x: auto` 因此永远不生效、溢出甩给文档。夹到 100% 后横向页签在自身内滚动。 */
+    max-width: 100%;
   }
 
   .sf-prof-nav-group {

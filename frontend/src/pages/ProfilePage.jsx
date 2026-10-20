@@ -945,6 +945,12 @@ const ProfilePage = () => {
       <div className="sf-prof" data-sf-m="profile-view">
         {/* 左栏菜单（桌面档；≤767 变横向页签，见 profile.css） */}
         <nav className="sf-prof-nav" data-sf-m="profile-nav" aria-label={t('profileNav.title')}>
+          {navLink(
+            buildLocalizedPath(lang, '/profile/assets'),
+            'profile-nav-assets',
+            t('profileNav.assets'),
+            view.kind === 'assets',
+          )}
           <div className="sf-prof-nav-group" data-sf-m="profile-nav-trades">
             <span className="sf-prof-nav-title">{t('profileNav.title')}</span>
             {navLink(
@@ -971,12 +977,6 @@ const ProfilePage = () => {
             'profile-nav-favorites',
             t('profileNav.favorites'),
             view.kind === 'favorites',
-          )}
-          {navLink(
-            buildLocalizedPath(lang, '/profile/assets'),
-            'profile-nav-assets',
-            t('profileNav.assets'),
-            view.kind === 'assets',
           )}
           {navLink(
             buildLocalizedPath(lang, '/profile/settings'),

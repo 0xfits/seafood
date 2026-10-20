@@ -173,6 +173,25 @@ describe('sf14 ② · ProfilePage 侧栏与视图派生', () => {
     }
   })
 
+  it('侧栏 DOM 顺序 = 我的资产 → 我的交易(三子项) → 我的收藏 → 账户设置', async () => {
+    const { container } = renderAt(<ProfilePage />, '/profile/settings')
+    await waitFor(() => expect(container.querySelector('[data-sf-m="profile-nav"]')).not.toBeNull())
+    const nav = container.querySelector('[data-sf-m="profile-nav"]')
+    // 直接按文档顺序取钩子（含分组容器），断言与需求口径逐项相等
+    const order = [...nav.querySelectorAll('[data-sf-m]')]
+      .map((el) => el.getAttribute('data-sf-m'))
+      .filter((h) => h !== 'profile-nav')
+    expect(order).toEqual([
+      'profile-nav-assets',
+      'profile-nav-trades',
+      'profile-nav-published',
+      'profile-nav-sold',
+      'profile-nav-bought',
+      'profile-nav-favorites',
+      'profile-nav-settings',
+    ])
+  })
+
   it('/profile/assets ⇒ 我的资产：侧栏 profile-nav-assets 为当前项 + BTTC 资产块（余额 / 铸造 / 分解）在场', async () => {
     fetchBatt.mockResolvedValue({
       batt: 70, capBatt: 100, canAccept: true,
