@@ -163,7 +163,6 @@
     "favoriteOk": "Saved to favorites",
     "favoriteFail": "Could not save favorite, please try again",
     "favoriteLogin": "Log in to save favorites",
-
     "line": "Items",
     "list": "Items",
     "listNote": "The idle items currently on sale are listed below; open one to see its details and stock.",
@@ -1350,7 +1349,17 @@
       "empty": "Please fill in what you want to submit",
       "needLogin": "Sign in to submit",
       "imageTooLarge": "Image is too large, please choose another",
-      "uploadFailed": "Screenshot upload failed, please retry"
+      "uploadFailed": "Screenshot upload failed, please retry",
+      "removeImage": "Remove",
+      "imageMax": "Up to {{n}} screenshots",
+      "snapshotHint": "EVM address (0x + 40 chars), Solana address or 0x tx hash",
+      "snapshotInvalid": "Address doesn't look valid - please check",
+      "snapshotValid": "Address format looks valid",
+      "needLink": "Add a link",
+      "linkInvalid": "Link must start with http:// or https://",
+      "needAddr": "Enter an on-chain address",
+      "needAnswer": "Write your answer",
+      "chooseOption": "Choose an option"
     },
     "prediction": {
       "deadline": "Deadline: {{time}}",
@@ -1362,7 +1371,10 @@
       "voted": "You picked \"{{option}}\"",
       "correct": "Correct answer",
       "failed": "Voting failed, please try again",
-      "settlePending": "Results will show once settled"
+      "settlePending": "Results will show once settled",
+      "cta": "Vote",
+      "pickOne": "Pick an option first",
+      "payout": "Payout ${{amount}}"
     }
   },
   "itemType": {

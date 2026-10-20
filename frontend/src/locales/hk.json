@@ -163,7 +163,6 @@
     "favoriteOk": "收藏成功",
     "favoriteFail": "收藏失敗，請稍後重試",
     "favoriteLogin": "登入後即可收藏",
-
     "line": "閒置物品",
     "list": "閒置物品列表",
     "listNote": "以下為在售嘅閒置物品，撳入去可以睇詳情同庫存。",
@@ -1350,7 +1349,17 @@
       "empty": "請先填寫要提交的內容",
       "needLogin": "登入後才能提交",
       "imageTooLarge": "圖片過大，請換一張",
-      "uploadFailed": "截圖上載失敗，請重試"
+      "uploadFailed": "截圖上載失敗，請重試",
+      "removeImage": "移除",
+      "imageMax": "最多 {{n}} 張截圖",
+      "snapshotHint": "支援 EVM 地址（0x + 40 位）、Solana 地址或 0x 交易雜湊",
+      "snapshotInvalid": "地址格式無法識別，請核對後再提交",
+      "snapshotValid": "地址格式有效",
+      "needLink": "請填寫連結",
+      "linkInvalid": "連結需以 http:// 或 https:// 開頭",
+      "needAddr": "請填寫鏈上地址",
+      "needAnswer": "請填寫回答",
+      "chooseOption": "請選擇一個選項"
     },
     "prediction": {
       "deadline": "截止時間：{{time}}",
@@ -1362,7 +1371,10 @@
       "voted": "你選了「{{option}}」",
       "correct": "正確答案",
       "failed": "投票失敗，請稍後重試",
-      "settlePending": "結果公佈後可查看輸贏"
+      "settlePending": "結果公佈後可查看輸贏",
+      "cta": "投票",
+      "pickOne": "請先選擇一個選項",
+      "payout": "獎金 ${{amount}}"
     }
   },
   "itemType": {

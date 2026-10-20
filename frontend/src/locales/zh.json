@@ -163,7 +163,6 @@
     "favoriteOk": "收藏成功",
     "favoriteFail": "收藏失败，请稍后重试",
     "favoriteLogin": "登录后即可收藏",
-
     "line": "闲置物品",
     "list": "闲置物品列表",
     "listNote": "以下为在售的闲置物品，点开可查看详情与库存。",
@@ -1350,7 +1349,17 @@
       "empty": "请先填写要提交的内容",
       "needLogin": "登录后才能提交",
       "imageTooLarge": "图片过大，请换一张",
-      "uploadFailed": "截图上传失败，请重试"
+      "uploadFailed": "截图上传失败，请重试",
+      "removeImage": "移除",
+      "imageMax": "最多 {{n}} 张截图",
+      "snapshotHint": "支持 EVM 地址（0x + 40 位）、Solana 地址或 0x 交易哈希",
+      "snapshotInvalid": "地址格式无法识别，请核对后再提交",
+      "snapshotValid": "地址格式有效",
+      "needLink": "请填写链接",
+      "linkInvalid": "链接需以 http:// 或 https:// 开头",
+      "needAddr": "请填写链上地址",
+      "needAnswer": "请填写回答",
+      "chooseOption": "请选择一个选项"
     },
     "prediction": {
       "deadline": "截止时间：{{time}}",
@@ -1362,7 +1371,10 @@
       "voted": "你选了「{{option}}」",
       "correct": "正确答案",
       "failed": "投票失败，请稍后重试",
-      "settlePending": "结果公布后可查看输赢"
+      "settlePending": "结果公布后可查看输赢",
+      "cta": "投票",
+      "pickOne": "请先选择一个选项",
+      "payout": "奖金 ${{amount}}"
     }
   },
   "itemType": {

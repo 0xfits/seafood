@@ -365,6 +365,16 @@
   border-color: var(--sf-up-fg);
 }
 
+/* 结算后：正确项高亮、错误项置灰（点不动，且不再抢视觉） */
+.sf-campaign-vote.is-wrong {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+
+.sf-campaign-vote.is-correct:disabled {
+  opacity: 1;
+}
+
 .sf-campaign-vote:disabled {
   cursor: not-allowed;
 }
@@ -428,6 +438,62 @@
 .sf-campaign-field-label {
   color: var(--sf-meta-fg);
   font-size: 12px;
+  font-weight: 600;
+}
+
+.sf-campaign-field-hint {
+  color: var(--sf-meta-fg);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.sf-campaign-field-hint.is-ok {
+  color: var(--sf-up-fg);
+}
+
+.sf-campaign-field-hint.is-err {
+  color: var(--sf-down-fg);
+}
+
+.sf-campaign-file {
+  max-width: 100%;
+  color: var(--sf-meta-fg);
+  font-size: 13px;
+}
+
+.sf-campaign-questions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sf-campaign-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sf-campaign-choice {
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-btna);
+  background: var(--sf-panel-bg);
+  color: var(--sf-title-fg);
+  font-size: 14px;
+  font-family: inherit;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.sf-campaign-choice.is-picked {
+  border-color: var(--sf-btna-border);
+  background: var(--sf-btna-bg);
+  color: var(--sf-btna-fg);
   font-weight: 600;
 }
 
@@ -498,6 +564,29 @@
   object-fit: cover;
 }
 
+.sf-campaign-thumb-box {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.sf-campaign-thumb-del {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--sf-meta-fg);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.sf-campaign-thumb-del:hover {
+  color: var(--sf-down-fg);
+  text-decoration: underline;
+}
+
 .sf-campaign-notice {
   margin: 0;
   font-size: 13px;
@@ -524,6 +613,12 @@
 
 .sf-campaign-login p {
   margin: 0;
+}
+
+.sf-campaign-login-link {
+  color: var(--sf-btna-fg);
+  font-weight: 600;
+  text-decoration: underline;
 }
 
 /* 手机档：活动列表单列（禁 >1 列）+ 主要动作触控目标 ≥44

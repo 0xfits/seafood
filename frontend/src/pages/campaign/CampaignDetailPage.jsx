@@ -24,7 +24,7 @@ import './campaign.css'
 //   · 404 / 拉取失败分开呈现：前者 = 「活动不存在或已下线」，后者 = 可重试错误块。
 // ============================================================================
 
-const TaskCard = ({ task, t, lang, symbols }) => {
+const TaskCard = ({ task, t, lang, symbols, user, isAuthenticated, onRefresh }) => {
   const window = timeWindowOf(task, lang)
   const reward = taskRewardOf(task)
   const secondarySymbol = reward.secondaryCid ? (symbols[reward.secondaryCid] || '') : ''
@@ -59,7 +59,15 @@ const TaskCard = ({ task, t, lang, symbols }) => {
       {subtasks.length ? (
         <ul className="sf-campaign-subtasks" data-sf-m="campaign-subtasks">
           {subtasks.map((subtask) => (
-            <SubtaskItem subtask={subtask} t={t} lang={lang} key={String(subtask?.subtask_id ?? '')} />
+            <SubtaskItem
+              subtask={subtask}
+              t={t}
+              lang={lang}
+              user={user}
+              isAuthenticated={isAuthenticated}
+              onRefresh={onRefresh}
+              key={String(subtask?.subtask_id ?? '')}
+            />
           ))}
         </ul>
       ) : null}
@@ -71,7 +79,7 @@ const CampaignDetailPage = () => {
   const { t } = useTranslation()
   const location = useLocation()
   const params = useParams()
-  const { user } = useAuth()
+  const { user, isAuthenticated } = useAuth()
   const lang = getLanguageFromUrl(location.pathname)
   const ref = String(params?.ref ?? '')
 
@@ -103,6 +111,23 @@ const CampaignDetailPage = () => {
   useEffect(() => {
     load()
   }, [load])
+
+  /**
+   * 提交成功后的**静默复读**（步 3）：只为拿服务端 `my_proof` / `my_outcome`。
+   * · 不切 `phase`（不闪 loading、不清页面）；失败保持原视图（提交本身已成功，提示已给）；
+   * · 仍受 `reqSeq` 守卫：与 `load()` 并发时以最后发出者为准，避免旧响应盖新数据。
+   */
+  const refresh = useCallback(async () => {
+    const seq = reqSeq.current + 1
+    reqSeq.current = seq
+    try {
+      const view = await fetchCampaignDetail(ref, userRef.current)
+      if (reqSeq.current !== seq) return
+      if (view && typeof view === 'object') setState({ phase: 'ready', view })
+    } catch (error) {
+      // 静默：复读失败不改判已成功的提交
+    }
+  }, [ref])
 
   // 次币符号（公开读面）：失败 ⇒ 空表，卡面退化为只显示金额。
   useEffect(() => {
@@ -180,6 +205,9 @@ const CampaignDetailPage = () => {
                     t={t}
                     lang={lang}
                     symbols={symbols}
+                    user={user}
+                    isAuthenticated={isAuthenticated}
+                    onRefresh={refresh}
                     key={String(task?.task_id ?? '')}
                   />
                 ))}

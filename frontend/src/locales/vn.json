@@ -163,7 +163,6 @@
     "favoriteOk": "Đã thêm vào yêu thích",
     "favoriteFail": "Không thể thêm yêu thích, vui lòng thử lại",
     "favoriteLogin": "Đăng nhập để thêm yêu thích",
-
     "line": "Đồ đạc nhàn rỗi",
     "list": "Danh sách đồ đạc nhàn rỗi",
     "listNote": "Dưới đây là các món đồ đang bán; mở một mục để xem chi tiết và tồn kho.",
@@ -1350,7 +1349,17 @@
       "empty": "Vui lòng nhập nội dung cần gửi",
       "needLogin": "Đăng nhập để gửi",
       "imageTooLarge": "Ảnh quá lớn, vui lòng chọn ảnh khác",
-      "uploadFailed": "Tải ảnh chụp thất bại, vui lòng thử lại"
+      "uploadFailed": "Tải ảnh chụp thất bại, vui lòng thử lại",
+      "removeImage": "Xóa",
+      "imageMax": "Tối đa {{n}} ảnh chụp",
+      "snapshotHint": "Hỗ trợ địa chỉ EVM (0x + 40 ký tự), địa chỉ Solana hoặc mã giao dịch 0x",
+      "snapshotInvalid": "Địa chỉ không hợp lệ, vui lòng kiểm tra lại",
+      "snapshotValid": "Định dạng địa chỉ hợp lệ",
+      "needLink": "Vui lòng nhập liên kết",
+      "linkInvalid": "Liên kết phải bắt đầu bằng http:// hoặc https://",
+      "needAddr": "Vui lòng nhập địa chỉ on-chain",
+      "needAnswer": "Vui lòng nhập câu trả lời",
+      "chooseOption": "Hãy chọn một phương án"
     },
     "prediction": {
       "deadline": "Hạn chót: {{time}}",
@@ -1362,7 +1371,10 @@
       "voted": "Bạn đã chọn \"{{option}}\"",
       "correct": "Đáp án đúng",
       "failed": "Bình chọn thất bại, vui lòng thử lại",
-      "settlePending": "Kết quả sẽ hiển thị sau khi chốt"
+      "settlePending": "Kết quả sẽ hiển thị sau khi chốt",
+      "cta": "Bỏ phiếu",
+      "pickOne": "Hãy chọn một phương án trước",
+      "payout": "Tiền thưởng ${{amount}}"
     }
   },
   "itemType": {

@@ -83,6 +83,70 @@ export const typeKeyOf = (typeCode) => {
   return TYPE_CODES.includes(value) ? `campaign.type.${value}` : null
 }
 
+/** prediction 生命周期三态闭集（服务端读时派生；前端只读不判）。 */
+export const PREDICTION_STATES = ['open', 'deadline_reached', 'settled']
+
+/**
+ * prediction 的两个选项：**服务端 payload 的 `option_a` / `option_b` 为准**（CP-P1 四键合同）。
+ * 两枚都非空才返回数组（否则 `[]` ⇒ 调用方整块不渲染：宁可少渲染，不渲染半个预测）。
+ */
+export const predictionOptionsOf = (subtask) => {
+  const payload = subtask?.payload && typeof subtask.payload === 'object' ? subtask.payload : {}
+  const a = typeof payload.option_a === 'string' ? payload.option_a.trim() : ''
+  const b = typeof payload.option_b === 'string' ? payload.option_b.trim() : ''
+  if (!a || !b) return []
+  return [{ choice: 'a', text: a }, { choice: 'b', text: b }]
+}
+
+/**
+ * prediction 展示元信息。
+ * · `state`：**服务端 `prediction_state` 优先**（读时派生，含 open/deadline_reached/settled）；
+ *   旧读口未带该字段时按 `correct_option` + `deadline` 本地派生（同一套三态，无新状态）；
+ * · `correct`：只在结算后由 settle 口回填 ⇒ 有值即「已结算」，是正确项高亮的唯一依据；
+ * · `prize`：奖池 `$`（数字串），显示用，不做任何分摊计算（payout 一律服务端给）。
+ */
+export const predictionMetaOf = (subtask) => {
+  const payload = subtask?.payload && typeof subtask.payload === 'object' ? subtask.payload : {}
+  const rawState = String(subtask?.prediction_state || '')
+  const correct = payload.correct_option === 'a' || payload.correct_option === 'b'
+    ? payload.correct_option
+    : null
+  let state = PREDICTION_STATES.includes(rawState) ? rawState : null
+  if (!state) {
+    if (correct) state = 'settled'
+    else {
+      const deadlineMs = Date.parse(String(payload.deadline ?? ''))
+      state = Number.isFinite(deadlineMs) && Date.now() >= deadlineMs ? 'deadline_reached' : 'open'
+    }
+  }
+  const prize = payload.prize_amount === null || payload.prize_amount === undefined || payload.prize_amount === ''
+    ? null
+    : String(payload.prize_amount)
+  return { options: predictionOptionsOf(subtask), prize, correct, state, deadline: payload.deadline ?? null }
+}
+
+/**
+ * 个人预测结果：**服务端 `my_outcome` 优先**（`{choice, won, payout}`，payout 服务端算）；
+ * 旧读口未带该字段时，只做「结算后 + 本机回执有选项」的**降级推导**（`won` 由公开的
+ * `correct_option` 比对得出，`payout` **留空** —— 前端绝不自己算钱）。
+ */
+export const predictionOutcomeOf = (subtask, proof) => {
+  const server = subtask?.my_outcome
+  if (server && typeof server === 'object') {
+    const won = server.won === true ? true : server.won === false ? false : null
+    return {
+      choice: server.choice === 'a' || server.choice === 'b' ? server.choice : null,
+      won,
+      payout: server.payout === null || server.payout === undefined || server.payout === '' ? null : String(server.payout),
+      source: 'server',
+    }
+  }
+  const meta = predictionMetaOf(subtask)
+  const choice = proof?.payload?.choice
+  if (!meta.correct || (choice !== 'a' && choice !== 'b')) return null
+  return { choice, won: choice === meta.correct, payout: null, source: 'local' }
+}
+
 /** 任务完成奖：主奖励恒 `$`（读口是数字串）+ 可选次币（`reward_cid_secondary` + 金额）。 */
 export const taskRewardOf = (task) => {
   const primary = task?.reward_amount_primary

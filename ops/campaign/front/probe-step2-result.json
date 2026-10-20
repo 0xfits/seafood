@@ -1,0 +1,160 @@
+{
+  "prediction": {
+    "open": {
+      "count": 2,
+      "disabled": [
+        false,
+        false
+      ],
+      "heights": [
+        59,
+        59
+      ],
+      "locked": "0",
+      "submitVisible": true,
+      "texts": [
+        "A甲摊",
+        "B乙摊"
+      ]
+    },
+    "picked": "1",
+    "afterVote": {
+      "posted": [
+        {
+          "choice": "a"
+        }
+      ],
+      "locked": "1",
+      "disabled": [
+        true,
+        true
+      ],
+      "picked": [
+        "1",
+        "0"
+      ],
+      "submitVisible": false,
+      "resultText": "已投票，不可更改你选了「甲摊」",
+      "notice": "已投票，不可更改"
+    },
+    "pageerrors": [],
+    "settled": {
+      "state": "settled",
+      "classes": [
+        "sf-campaign-vote is-picked is-correct",
+        "sf-campaign-vote is-wrong"
+      ],
+      "disabled": [
+        true,
+        true
+      ],
+      "picked": [
+        "1",
+        "0"
+      ],
+      "correctFlag": [
+        "1",
+        "0"
+      ],
+      "wrongOpacity": "0.6",
+      "won": "1",
+      "payout": "60",
+      "resultText": "猜中了奖金 $60",
+      "payoutText": "奖金 $60",
+      "submitVisible": false
+    },
+    "settledPageerrors": []
+  },
+  "fourTypes": {
+    "pageerrors": [],
+    "consoleErrors": [],
+    "rendered": {
+      "panels": [
+        "x_verify",
+        "onchain_snapshot",
+        "survey",
+        "quiz"
+      ],
+      "xLink": true,
+      "xFile": true,
+      "addr": true,
+      "surveyQuestions": 2,
+      "surveyChoices": 2,
+      "surveyText": true,
+      "quizInput": true
+    },
+    "shotThumb": 1,
+    "addrBadHint": "地址格式无法识别，请核对后再提交",
+    "addrGoodHint": "地址格式有效",
+    "afterSubmit": {
+      "submitted": [
+        "已提交 · 2026/10/20 19:14",
+        "已提交 · 2026/10/20 19:14",
+        "已提交 · 2026/10/20 19:14",
+        "已提交 · 2026/10/20 19:14"
+      ],
+      "notices": [
+        "已提交，完成奖稍后发放",
+        "已提交，完成奖稍后发放",
+        "已提交，完成奖稍后发放",
+        "已提交，完成奖稍后发放"
+      ]
+    },
+    "posted": [
+      {
+        "links": [
+          "https://x.com/seafood/status/123"
+        ],
+        "screenshots": [
+          "/api/media/1"
+        ]
+      },
+      {
+        "snapshot_addr": "0x1234567890abcdef1234567890abcdef12345678"
+      },
+      {
+        "answers": {
+          "taste": "辣味",
+          "why": "因为够鲜"
+        }
+      },
+      {
+        "answers": {
+          "q1": "42"
+        }
+      }
+    ],
+    "mediaHits": [
+      {
+        "content_type": "image/png",
+        "bytes": 96
+      }
+    ]
+  },
+  "geometry": {
+    "390": {
+      "docScrollW": 390,
+      "bodyScrollW": 390,
+      "innerW": 390,
+      "over": 0,
+      "voteHeights": [
+        59,
+        59
+      ],
+      "pageerrors": [],
+      "consoleErrors": []
+    },
+    "1536": {
+      "docScrollW": 1536,
+      "bodyScrollW": 1536,
+      "innerW": 1536,
+      "over": 0,
+      "voteHeights": [
+        59,
+        59
+      ],
+      "pageerrors": [],
+      "consoleErrors": []
+    }
+  }
+}
