@@ -156,8 +156,8 @@ const got = (r: { ok?: boolean; status?: number; code?: string; details?: Record
   const regsByVerb = ['get', 'post', 'put', 'delete', 'patch'].map((v) =>
     (INDEX_TS.match(new RegExp(`^app\\.${v}\\(`, 'gm')) ?? []).length);
   const regs = regsByVerb.reduce((a, b) => a + b, 0);
-  ck.t('A1', '**零新路由**：注册点 = 118（get 52 / post 61 / put 0 / delete 3 / patch 2；111 + project-domain 七口 route §49.19）—— 写口/购买口全是既有端点收新字段',
-    regs === 118 && JSON.stringify(regsByVerb) === JSON.stringify([52, 61, 0, 3, 2]),
+  ck.t('A1', '**零新路由**：注册点 = 127（get 54 / post 66 / put 0 / delete 3 / patch 4；118 + campaign-domain 九口 route §49.18）—— 写口/购买口全是既有端点收新字段',
+    regs === 127 && JSON.stringify(regsByVerb) === JSON.stringify([54, 66, 0, 3, 4]),
     `registration_points=${regs} by_verb=${JSON.stringify(regsByVerb)}`);
 
   /** 从某一路由声明起，截到下一个顶层 `app.` 注册点（或文件尾）——PATCH 口是全文件唯一 patch ⇒ 也能截到 */

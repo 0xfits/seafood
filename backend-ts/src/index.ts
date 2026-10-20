@@ -119,6 +119,21 @@ import {
   patchProjectVerb,
   recordUserActivityHour,
 } from './project-service';
+// ★ 活动任务体系（data-layer.spec §40.14 · route-layer.spec §49.18 · 迁移 0065）
+//   九口：R1/R2 公开读、R3 用户提凭证、R4–R8 管理员（manage_tasks：建改活动/任务/子任务、settle、task 完成奖）。
+//   subtask 增改内联于 task 写口（`subtasks[]` 整组 upsert、永不 DELETE）⇒ 无独立 subtask 路由。
+import {
+  createCampaignVerb,
+  createTaskVerb,
+  getCampaignByRef,
+  grantTaskRewardVerb,
+  isCampaignRef,
+  listActiveCampaigns,
+  patchCampaignVerb,
+  patchTaskVerb,
+  settlePredictionVerb,
+  submitProofVerb,
+} from './campaign-service';
 import {
   checkConfirmRateLimit,
   confirmErrorForOutcome,
@@ -4108,6 +4123,169 @@ app.patch('/api/project/:projectId', async (req, res) => {
     return sendSuccess(res, result.view, 'Project updated');
   } catch (error) {
     return sendInfraMapped(res, 'project.patch', error);
+  }
+});
+
+// ============================================================================
+// ★★ 活动任务体系 · 九口（data-layer.spec §40.14 · route-layer.spec §49.18）
+// ----------------------------------------------------------------------------
+// R1 GET   /api/campaign/all                        公开 · active 活动（嵌套 active 任务 → 全量子任务）
+// R2 GET   /api/campaign/:ref                       公开 · 详情（draft 对公众 404 / 对管理员 200）
+// R3 POST  /api/campaign/subtask/:subtaskId/proof   用户 · 提凭证（提交即通过；prediction 一人一票）
+// R4 POST  /api/campaign                            管理员 manage_tasks · 建活动（status 恒 draft）
+// R5 PATCH /api/campaign/:campaignId                管理员 · 改活动（闭集 5 键 ＋ 状态机）
+// R6 POST  /api/campaign/:campaignId/task           管理员 · 加任务（可内联 subtasks[]）
+// R7 PATCH /api/campaign/task/:taskId               管理员 · 改任务（subtasks[] 整组 upsert、永不 DELETE）
+// R8 POST  /api/campaign/subtask/:subtaskId/settle  管理员 · prediction 结算（回填 ＋ 分发同一事务）
+// R9 POST  /api/campaign/task/:taskId/reward        管理员 · task 完成奖手动发放（全部子任务完成后）
+//
+// 注册顺序判据（route #55）：R1 必须先于 R2 —— 否则字面 `all` 被 `:ref` 吞成 404。
+// 错误码：零新码 —— 400 `LEDGER_AMOUNT_INVALID` / 404 `LEDGER_REF_NOT_FOUND` /
+//   409 `LEDGER_INSUFFICIENT_BALANCE` / 403 `AUTH_FORBIDDEN`，逐场景理由在 `details.reason`。
+// 注册点 118 → 127（get +2 / post +5 / patch +2；put 0 / delete 0 不动）。
+// ============================================================================
+/**
+ * 可选管理员判定（**不落 401/403**）：R2 的 draft 放宽 —— 「draft 对公众 404 / 对
+ * `manage_tasks` 管理员 200」由同一读口按身份放宽实现（承 §49.15 体例）。
+ * 判定谓词与 `requireAdmin(req,res,'manage_tasks')` 逐字同源（can_access_admin ∧ (is_admin ∨ 权限))。
+ */
+const isOptionalCampaignAdmin = async (req: Request): Promise<boolean> => {
+  try {
+    const resolved = await resolveActor(req);
+    if (isActorFailure(resolved)) return false;
+    return resolved.adminAccess.can_access_admin
+      && (resolved.adminAccess.is_admin || hasRequiredPermission(resolved, 'manage_tasks'));
+  } catch {
+    return false; // 基础设施异常 ⇒ 保守按公众处理（不泄露 draft 存在性）
+  }
+};
+
+app.get('/api/campaign/all', async (_req, res) => {
+  try {
+    const rows = await listActiveCampaigns();
+    return sendSuccess(res, rows, 'Campaign list (public)');
+  } catch (error) {
+    return sendInfraMapped(res, 'campaign.list', error);
+  }
+});
+
+app.get('/api/campaign/:ref', async (req, res) => {
+  const ref = String(req.params.ref ?? '');
+  // 非数字 ref ⇒ 404（**不得** 500 —— route #60）
+  if (!isCampaignRef(ref)) return sendRefNotFound(res, 'campaign', ref, 'campaign_not_found');
+  try {
+    // draft 对公众 = 404（不泄露存在性）；持 `manage_tasks` 的管理员 200（同一读口按身份放宽）
+    const admin = await isOptionalCampaignAdmin(req);
+    const view = await getCampaignByRef(ref, { includeDraft: admin });
+    if (!view) return sendRefNotFound(res, 'campaign', ref, 'campaign_not_found');
+    return sendSuccess(res, view, 'Campaign detail (public)');
+  } catch (error) {
+    return sendInfraMapped(res, 'campaign.get', error);
+  }
+});
+
+app.post('/api/campaign/subtask/:subtaskId/proof', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  try {
+    const ref = String(req.params.subtaskId ?? '');
+    if (!isCampaignRef(ref)) return sendRefNotFound(res, 'subtask', ref, 'subtask_not_found');
+    const result = await submitProofVerb({ actorUid: Number(actor.user.uID), subtaskRef: ref, body: req.body ?? {} });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, 'Subtask proof submitted');
+  } catch (error) {
+    return sendInfraMapped(res, 'campaign.proof', error);
+  }
+});
+
+app.post('/api/campaign/subtask/:subtaskId/settle', async (req, res) => {
+  const actor = await requireAdmin(req, res, 'manage_tasks');
+  if (!actor) return;
+  try {
+    const ref = String(req.params.subtaskId ?? '');
+    if (!isCampaignRef(ref)) return sendRefNotFound(res, 'subtask', ref, 'subtask_not_found');
+    const result = await settlePredictionVerb({ subtaskRef: ref, body: req.body ?? {} });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, 'Prediction settled');
+  } catch (error) {
+    return sendInfraMapped(res, 'campaign.settle', error);
+  }
+});
+
+app.post('/api/campaign', async (req, res) => {
+  const actor = await requireAdmin(req, res, 'manage_tasks');
+  if (!actor) return;
+  try {
+    const result = await createCampaignVerb({ body: req.body ?? {} });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, 'Campaign created', 201);
+  } catch (error) {
+    return sendInfraMapped(res, 'campaign.create', error);
+  }
+});
+
+app.patch('/api/campaign/:campaignId', async (req, res) => {
+  const actor = await requireAdmin(req, res, 'manage_tasks');
+  if (!actor) return;
+  try {
+    const ref = String(req.params.campaignId ?? '');
+    if (!isCampaignRef(ref)) return sendRefNotFound(res, 'campaign', ref, 'campaign_not_found');
+    const result = await patchCampaignVerb({ ref, body: req.body ?? {} });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, 'Campaign updated');
+  } catch (error) {
+    return sendInfraMapped(res, 'campaign.patch', error);
+  }
+});
+
+app.post('/api/campaign/:campaignId/task', async (req, res) => {
+  const actor = await requireAdmin(req, res, 'manage_tasks');
+  if (!actor) return;
+  try {
+    const ref = String(req.params.campaignId ?? '');
+    if (!isCampaignRef(ref)) return sendRefNotFound(res, 'campaign', ref, 'campaign_not_found');
+    const result = await createTaskVerb({ campaignRef: ref, body: req.body ?? {} });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, 'Campaign task created', 201);
+  } catch (error) {
+    return sendInfraMapped(res, 'campaign.task.create', error);
+  }
+});
+
+app.patch('/api/campaign/task/:taskId', async (req, res) => {
+  const actor = await requireAdmin(req, res, 'manage_tasks');
+  if (!actor) return;
+  try {
+    const ref = String(req.params.taskId ?? '');
+    if (!isCampaignRef(ref)) return sendRefNotFound(res, 'task', ref, 'task_not_found');
+    const result = await patchTaskVerb({ ref, body: req.body ?? {} });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, 'Campaign task updated');
+  } catch (error) {
+    return sendInfraMapped(res, 'campaign.task.patch', error);
+  }
+});
+
+app.post('/api/campaign/task/:taskId/reward', async (req, res) => {
+  const actor = await requireAdmin(req, res, 'manage_tasks');
+  if (!actor) return;
+  try {
+    const ref = String(req.params.taskId ?? '');
+    if (!isCampaignRef(ref)) return sendRefNotFound(res, 'task', ref, 'task_not_found');
+    const result = await grantTaskRewardVerb({
+      ref,
+      body: req.body ?? {},
+      headerKey: req.header('idempotency-key'),
+    });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(
+      res,
+      result.view,
+      result.replay ? 'Task completion reward (idempotent replay)' : 'Task completion reward granted',
+      result.replay ? 200 : 201,
+    );
+  } catch (error) {
+    return sendInfraMapped(res, 'campaign.task.reward', error);
   }
 });
 

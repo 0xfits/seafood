@@ -122,8 +122,8 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
 
   // ====================================================================== A · 静态面
   const regs = (INDEX_TS.match(/^app\.(get|post|put|delete|patch)\(/gm) ?? []).length;
-  ck.t('A1', '**注册点 = 118**（111 = 本单 `GET /api/listing/:listingId/edit`；+7 = project-domain 七口 route §49.19 —— 本单自身仍恰 +1）',
-    regs === 118, `registration_points=${regs}`);
+  ck.t('A1', '**注册点 = 127**（111 = 本单 `GET /api/listing/:listingId/edit`；+7 = project-domain 七口 route §49.19；+9 = campaign-domain 九口 route §49.18 —— 本单自身仍恰 +1）',
+    regs === 127, `registration_points=${regs}`);
 
   const editRoutes = INDEX_TS.match(/^app\.get\('\/api\/listing\/:listingId\/edit'/gm) ?? [];
   const routeBlock = (() => {
@@ -153,8 +153,8 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
 
   const migFiles = fs.readdirSync(path.join(REPO_BACKEND, 'migrations')).filter((f) => f.endsWith('.sql')).sort();
   const maxMig = (migFiles[migFiles.length - 1].match(/^(\d+)/) ?? [, ''])[1];
-  ck.t('A4', '迁移面：`0059_listing_edit_log.sql` 在场 · **文件链顶已前推至 `0064_seed_projects.sql`**（文件即版本号；三文件都必须在，本门**不 apply**；0060 = 商品统一 Id 单、0061 = 多件购买授权列单、0063/0064 = project 域 DDL + 种子，0062 未落盘故顺延）',
-    maxMig === '0064' && migFiles.includes('0059_listing_edit_log.sql') && migFiles.includes('0060_item_code_snowflake.sql') && migFiles.includes('0061_listing_allow_multi_buy.sql'),
+  ck.t('A4', '迁移面：`0059_listing_edit_log.sql` 在场 · **文件链顶已前推至 `0065_campaign_hierarchy.sql`**（文件即版本号；三文件都必须在，本门**不 apply**；0060 = 商品统一 Id 单、0061 = 多件购买授权列单、0063/0064 = project 域 DDL + 种子、0065 = 活动五表，0062 未落盘故顺延）',
+    maxMig === '0065' && migFiles.includes('0059_listing_edit_log.sql') && migFiles.includes('0060_item_code_snowflake.sql') && migFiles.includes('0061_listing_allow_multi_buy.sql'),
     `max=${maxMig} count=${migFiles.length} has_0059=${migFiles.includes('0059_listing_edit_log.sql')} has_0060=${migFiles.includes('0060_item_code_snowflake.sql')} has_0061=${migFiles.includes('0061_listing_allow_multi_buy.sql')}`);
 
   const migCols = ['log_id', 'listing_id', 'actor_uid', 'owner_uid', 'admin_edit', 'changed_fields', 'time_created'];
@@ -604,8 +604,8 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
       // 同样成立（post-apply 模式）；旧冻结「max=0059 ⇒ pending=[0060]」只是该不变式的一个时点特例。
       const maxApplied = String(pre.max_applied ?? '');
       const expectPending = (['0059', '0060', '0061'] as string[]).filter((v) => v > maxApplied);
-      ck.t('P1', `preflight（只读·**不 apply**）：迁移**文件链顶** = ${migTop}（0059 admin-edit → 0060 商品统一 Id → 0061 多件购买授权列 → 0063/0064 project 域）· \`schema_migration\` 已应用顶 = **${maxApplied}** · PENDING(≥0059) = [${(pre.pending as string[]).join(',')}]（判据 = 链上尚未 apply 的后缀；dev 已全 apply ⇒ [] 同算过 = post-apply 模式）`,
-        migTop === '0064'
+      ck.t('P1', `preflight（只读·**不 apply**）：迁移**文件链顶** = ${migTop}（0059 admin-edit → 0060 商品统一 Id → 0061 多件购买授权列 → 0063/0064 project 域 → 0065 campaign 五表）· \`schema_migration\` 已应用顶 = **${maxApplied}** · PENDING(≥0059) = [${(pre.pending as string[]).join(',')}]（判据 = 链上尚未 apply 的后缀；dev 已全 apply ⇒ [] 同算过 = post-apply 模式）`,
+        migTop === '0065'
           && ['0058', '0059', '0060', '0061'].includes(maxApplied)
           && JSON.stringify(pre.pending) === JSON.stringify(expectPending),
         JSON.stringify({ project: 'seafood', chain_top: migTop, max: maxApplied, pending: pre.pending, expect_pending: expectPending }));
