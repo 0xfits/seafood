@@ -3,8 +3,9 @@
 // 依据：docs/route-layer.spec.md v2.14 §28.7（后台复用 `adminSettings`；**用户面 = 电量卡 + 签到区**，
 //   「既有渲染点接覆盖值 / 新取数 · 不新增独立页面」）。
 //   · 文案命名空间 = `battCard`（名称 / 单位 % / 区间提示 / 不足不可承接提示）
-//     + `checkinPanel`（签到按钮 / 连续天数 / 断签提示 / 补签按钮 / 补签费用提示）
-//     + `bttcPanel`（P9④：BTTC 代币余额 / 铸造 / 分解 · 并入既有资产面）。
+//     + `checkinPanel`（签到按钮 / 连续天数 / 断签提示 / 补签按钮 / 补签费用提示）。
+//   ★ Kevin 2026-10-20 需求②：BTTC 资产块（余额 / 铸造 / 分解 / 缺额）已**整块迁出**至
+//     `components/BttcAssetPanel.jsx` ⇒ 渲染点 = `/profile/assets`（我的资产）；本组件不再留半套。
 //   · 派生布尔（`canAccept` / `checkedInToday` / `canMakeup`）**不落库** ⇒ 每次由读口即时取（§28.7(d)）。
 //   · 六类工程口径泄漏 = 0：本组件只消费 `t(...)` 的四语文案值，**不拼**章节号 / 码 / 路径 / 表名。
 // ============================================================================
@@ -17,7 +18,6 @@ import { FadeIn } from './ui/Motion'
 import BattMeter from './BattMeter'
 import { useAuth } from '../auth-context'
 import { fetchBatt, fetchCheckinStatus, postCheckin, postMakeup, utcDay } from '../batt-checkin'
-import { postBttcMint, postBttcBurn } from '../bttc-api'
 
 // 签到区锚点（R-9-83）：供头像菜单 / 招工线「电量不足」提示以 `/profile#batt-checkin` 直达。
 export const BATT_CHECKIN_ANCHOR_ID = 'batt-checkin'
@@ -74,37 +74,6 @@ const BattCheckinPanel = () => {
 
   if (!isAuthenticated) return null
 
-  const bttc = batt?.bttc || null
-  const bttcBalance = bttc ? bttc.balance : '—'
-  const bttcAvailable = bttc && bttc.status !== null
-  // 铸造缺额（纯展示 · 只做减法 · 承 `R-8-5`：客户端永不决定金额/电量）
-  //   口径与后端 `getBttcState` 同源：`batt ≥ policy.mintBattCost` ∧ `$ ≥ policy.mintFeeUsd`。
-  //   `mintBattCost` / `mintFeeUsd` 缺键 ⇒ 回落后端同款常量（`MINT_BURN_POLICY_DEFAULTS` 100 / 1），
-  //   保证「显示缺额」优先于静默；**不参与**任何提交载荷，按钮 `disabled` 语义保持原样。
-  const mintShortfall = (() => {
-    if (!bttcAvailable || bttc.canMint) return { batt: 0, usd: '0' }
-    const policy = bttc.policy || {}
-    const positiveInt = (v, fallback) => {
-      const n = Number(v)
-      return Number.isSafeInteger(n) && n > 0 ? n : fallback
-    }
-    const battCost = positiveInt(policy.mintBattCost, 100)
-    const feeUsd = positiveInt(policy.mintFeeUsd, 1)
-    const battNow = Number(batt?.batt ?? 0) || 0
-    const toBig = (v) => {
-      try {
-        return BigInt(String(v ?? '0').trim() || '0')
-      } catch {
-        return null
-      }
-    }
-    const usdNow = toBig(bttc.usdBalance ?? 0)
-    const fee = BigInt(feeUsd)
-    const needUsd = usdNow === null ? '0' : fee > usdNow ? String(fee - usdNow) : '0'
-    return { batt: Math.max(0, battCost - battNow), usd: needUsd }
-  })()
-  const showMintShortfall = bttcAvailable && !bttc.canMint && (mintShortfall.batt > 0 || mintShortfall.usd !== '0')
-
   return (
     <FadeIn>
       <Card ref={cardRef} id={BATT_CHECKIN_ANCHOR_ID} variant="secondary">
@@ -119,49 +88,6 @@ const BattCheckinPanel = () => {
             {/* 电量点阵条（10 点 × 10%）：无值/无账户 ⇒ 全空 + 数字 0（R-9-82 ④）。 */}
             <BattMeter batt={batt?.batt ?? null} canAccept={batt?.canAccept ?? null} />
             <span className="text-sm text-gray-500">{t('battCard.rangeHint')}</span>
-          </div>
-
-          <div className="border-t pt-4 space-y-3" data-sf-m="bttc-asset">
-            <div className="flex items-baseline gap-3">
-              <span className="text-sm text-gray-700">{t('bttcPanel.symbol')}</span>
-              <span className="text-2xl font-semibold">{bttcBalance}</span>
-              <span className="text-sm text-gray-500">{t('bttcPanel.balanceLabel')}</span>
-            </div>
-            {bttc && !bttcAvailable && (
-              <p className="text-sm text-gray-500">{t('bttcPanel.unavailable')}</p>
-            )}
-            {bttcAvailable && (
-              <div className="flex flex-wrap items-center gap-3">
-                <Button
-                  onClick={() => runAction(() => postBttcMint({ user }))}
-                  disabled={busy || !bttc.canMint}
-                >
-                  {t('bttcPanel.mintButton')}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => runAction(() => postBttcBurn({ user }))}
-                  disabled={busy || !bttc.canBurn}
-                >
-                  {t('bttcPanel.burnButton')}
-                </Button>
-                <span className="text-sm text-gray-500">{t('bttcPanel.mintHint')}</span>
-                {showMintShortfall && (
-                  <div className="flex flex-wrap items-center gap-2" data-sf-m="bttc-mint-shortfall">
-                    {mintShortfall.batt > 0 && (
-                      <span className="text-sm text-red-600" data-sf-m="bttc-mint-shortfall-batt">
-                        {t('bttcPanel.mintNeedBatt', { n: mintShortfall.batt })}
-                      </span>
-                    )}
-                    {mintShortfall.usd !== '0' && (
-                      <span className="text-sm text-red-600" data-sf-m="bttc-mint-shortfall-usd">
-                        {t('bttcPanel.mintNeedUsd', { n: mintShortfall.usd })}
-                      </span>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-4">

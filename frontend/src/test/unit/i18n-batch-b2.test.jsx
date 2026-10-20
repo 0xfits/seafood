@@ -124,7 +124,9 @@ describe('P6-I18N-LIT-B2 · en 档渲染英文文案（Task / Home / Profile）'
     expect(screen.getByText('Manage your account and view achievements')).toBeInTheDocument()
     expect(screen.getByText('Basic info')).toBeInTheDocument()
     expect(screen.getByText('English bio')).toBeInTheDocument()
-    expect(screen.getByText('My assets')).toBeInTheDocument()
+    // 2026-10-20：侧栏新增「我的资产」项（profileNav.assets）与 settings 的资产分区同名 ⇒ 改为「至少一处」
+    //   （同名是刻意的产品口径：菜单项与分区标题都叫 My assets）。
+    expect(screen.getAllByText('My assets').length).toBeGreaterThanOrEqual(1)
     expect(screen.getByText('Redeemed rewards')).toBeInTheDocument()
     expect(screen.getByText('Task achievements')).toBeInTheDocument()
     expect(screen.getByText('Total tasks')).toBeInTheDocument()

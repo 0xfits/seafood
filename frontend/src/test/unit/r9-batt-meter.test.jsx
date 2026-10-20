@@ -58,6 +58,8 @@ vi.mock('../../pages/jobs/job-api', () => ({
 import { fetchBatt } from '../../batt-checkin'
 import { fetchJobDetail, submitDeliverable } from '../../pages/jobs/job-api'
 import BattMeter from '../../components/BattMeter'
+// 2026-10-20 前推：BTTC 资产块整块迁出 `BattCheckinPanel` ⇒ 渲染点 = `BttcAssetPanel`（/profile/assets）。
+import BttcAssetPanel from '../../components/BttcAssetPanel'
 import BattCheckinPanel from '../../components/BattCheckinPanel'
 import Header from '../../components/Header'
 import JobDetailPage from '../../pages/jobs/JobDetailPage'
@@ -232,6 +234,7 @@ describe('③ R-9-83 签到入口可发现性', () => {
 
 // ============================================================================
 // ④ 铸造缺额提示（`data-sf-m="bttc-mint-shortfall"`）：canMint=false 时量化「还差 X 电量 / 差 Y $」
+//   ★ 2026-10-20：断言对象自 `BattCheckinPanel` 前推为 `BttcAssetPanel`（资产块整块迁出，钩子/文案键不变）
 //   纯展示：只用 policy + batt + usdBalance 做减法；不改铸造载荷、不改按钮 `disabled` 语义。
 // ============================================================================
 const BTTC_BASE = {
@@ -255,7 +258,7 @@ describe('④ 铸造缺额提示（量化「还差 X 电量 / 差 Y $」· 纯�
       batt: 40, canAccept: false,
       bttc: { ...BTTC_BASE, usdBalance: '5', canMint: false },
     })
-    render(<MemoryRouter><BattCheckinPanel /></MemoryRouter>)
+    render(<BttcAssetPanel />)
     await waitFor(() => expect(shortfallBox()).not.toBeNull())
     expect(document.querySelector('[data-sf-m="bttc-mint-shortfall-batt"]').textContent).toBe('还差 60 电量')
     expect(document.querySelector('[data-sf-m="bttc-mint-shortfall-usd"]')).toBeNull()
@@ -268,7 +271,7 @@ describe('④ 铸造缺额提示（量化「还差 X 电量 / 差 Y $」· 纯�
       batt: 100, canAccept: true,
       bttc: { ...BTTC_BASE, usdBalance: '0', canMint: false },
     })
-    render(<MemoryRouter><BattCheckinPanel /></MemoryRouter>)
+    render(<BttcAssetPanel />)
     await waitFor(() => expect(shortfallBox()).not.toBeNull())
     expect(document.querySelector('[data-sf-m="bttc-mint-shortfall-usd"]').textContent).toBe('还差 $1')
     expect(document.querySelector('[data-sf-m="bttc-mint-shortfall-batt"]')).toBeNull()
@@ -280,7 +283,7 @@ describe('④ 铸造缺额提示（量化「还差 X 电量 / 差 Y $」· 纯�
       batt: 150, canAccept: true,
       bttc: { ...BTTC_BASE, usdBalance: '3', canMint: true },
     })
-    render(<MemoryRouter><BattCheckinPanel /></MemoryRouter>)
+    render(<BttcAssetPanel />)
     await waitFor(() => expect(mintButton()).toBeTruthy())
     expect(shortfallBox()).toBeNull()
     expect(mintButton().disabled).toBe(false)

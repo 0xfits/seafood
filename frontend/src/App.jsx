@@ -177,6 +177,15 @@ const LangShell = () => {
             </ProtectedRoute>
           }
         />
+        {/* 我的资产（Kevin 2026-10-20 需求①②：BTTC 资产块自 /wage#batt-checkin 迁入；同 ProtectedRoute 族） */}
+        <Route
+          path="profile/assets"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="profile/settings"
           element={

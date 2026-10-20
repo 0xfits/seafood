@@ -28,6 +28,8 @@ import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // D7 收尾：需求④ 两个用例直接驱动 `fetchApiJson` 替身（vi.mock 工厂里的同一个 vi.fn）⇒ 必须具名导入。
 import { fetchApiJson } from '../../auth'
+// 2026-10-20 需求①②：BTTC 资产块迁入 /profile/assets ⇒ 本文件需直接驱动 `fetchBatt` 替身。
+import { fetchBatt } from '../../batt-checkin'
 
 import zh from '../../locales/zh.json'
 import en from '../../locales/en.json'
@@ -165,9 +167,36 @@ describe('sf14 ② · ProfilePage 侧栏与视图派生', () => {
     const { container } = renderAt(<ProfilePage />, '/profile/settings')
     // 资料加载是异步的（fetchCurrentUser 替身）⇒ 等 settings 内容挂载后再断言
     await waitFor(() => expect(container.querySelector('[data-sf-m="profile-nav"]')).not.toBeNull())
-    for (const hook of ['profile-nav-trades', 'profile-nav-published', 'profile-nav-sold', 'profile-nav-bought', 'profile-nav-favorites', 'profile-nav-settings']) {
+    for (const hook of ['profile-nav-trades', 'profile-nav-published', 'profile-nav-sold', 'profile-nav-bought', 'profile-nav-favorites', 'profile-nav-assets', 'profile-nav-settings']) {
       expect(container.querySelector(`[data-sf-m="${hook}"]`), hook).not.toBeNull()
     }
+  })
+
+  it('/profile/assets ⇒ 我的资产：侧栏 profile-nav-assets 为当前项 + BTTC 资产块（余额 / 铸造 / 分解）在场', async () => {
+    fetchBatt.mockResolvedValue({
+      batt: 70, capBatt: 100, canAccept: true,
+      bttc: { balance: '12', status: 'listed', canMint: true, canBurn: false, usdBalance: '5', policy: {} },
+    })
+    const { container } = renderAt(<ProfilePage />, '/profile/assets')
+    await waitFor(() => expect(container.querySelector('[data-sf-m="profile-assets-view"]')).not.toBeNull())
+
+    // ① 侧栏当前项（aria-current=page）+ 文案 = 真 zh 词典
+    const nav = container.querySelector('[data-sf-m="profile-nav-assets"]')
+    expect(nav).not.toBeNull()
+    expect(nav.getAttribute('href')).toBe('/profile/assets')
+    expect(nav.getAttribute('aria-current')).toBe('page')
+    expect(nav.textContent).toBe(zh.profileNav.assets)
+
+    // ② 资产块：余额 + 【铸造】/【分解】两按钮（文案键沿用 bttcPanel.*）
+    const asset = container.querySelector('[data-sf-m="bttc-asset"]')
+    expect(asset).not.toBeNull()
+    expect(asset.textContent).toContain(zh.bttcPanel.symbol)
+    // 读口值异步落盘 ⇒ 等余额真值（不是初始占位 '—'）
+    await waitFor(() => expect(asset.textContent).toContain('12'))
+    const labels = [...asset.querySelectorAll('button')].map((b) => b.textContent.trim())
+    expect(labels).toContain(zh.bttcPanel.mintButton)
+    expect(labels).toContain(zh.bttcPanel.burnButton)
+    // ③ 签到场不再自留资产块（半套 = 0）：/wage 侧断言见 ③ 组
   })
 
   it('/profile 裸渲染（落地口径）⇒ 我的交易-我买到的：MyOrdersPanel 原样挂载（D7 渲染点迁移）+ 冻结钩子', async () => {

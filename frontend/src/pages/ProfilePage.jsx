@@ -16,6 +16,8 @@ import { contentStatus, pickLocalized } from '../i18n-content'
 import TranslatingBadge from '../components/i18n/TranslatingBadge'
 // P9②：电量卡 + 签到区（Kevin 2026-10-14 需求③：已迁出；2026-10-20 起落点 = /wage 顶部 —— 本文件不再渲染）。
 import RatingTimelinessPanel from '../components/RatingTimelinessPanel'
+// Kevin 2026-10-20 需求①②：BTTC 资产块（余额 / 铸造 / 分解）自 `/wage#batt-checkin` 迁入本页「我的资产」。
+import BttcAssetPanel from '../components/BttcAssetPanel'
 // 招工线 / 我的 共用的 token + 栅格层（P4-B4c-ii-a）：与 TaskPage 招工线族同一份样式表
 import './jobs/jobs.css'
 // Kevin 2026-10-14 需求②：桌面侧栏布局样式（页面局部 --sf-l-*，零新主题 token）
@@ -50,11 +52,13 @@ const toDate = (value) => new Date(typeof value === 'number' ? value * 1000 : va
 //   · /profile(/:lang 前缀)                 ⇒ 我的交易-我买到的（落地口径；生产路由先重定向到 trades/bought）
 //   · /profile/trades/published|sold|bought ⇒ 我的交易三子页（非法值按 bought 处理）
 //   · /profile/favorites                    ⇒ 我的收藏
+//   · /profile/assets                       ⇒ 我的资产（BTTC 资产块：余额 / 铸造 / 分解；2026-10-20 需求①②）
 //   · /profile/settings                     ⇒ 账户设置
 // 左栏菜单（桌面 ≥768 固定宽，手机 ≤767 横向页签，见 profile.css）：我的交易（三子项）/ 我的收藏 / 账户设置。
 // 既有内容归位（派单方裁定）：账户设置 = 基本信息卡（bio 编辑往返）+ 用户资产卡 + 账本读数
 //   + 任务统计与成就徽章 + 碎片持仓 + Telegram 通知卡 + 评分/时效面板；电量卡 + 签到 = `/wage` 顶部。
-// 钩子（§质检探针）：profile-nav（侧栏根）/ profile-nav-trades / profile-nav-{published,sold,bought,favorites,settings}
+// 钩子（§质检探针）：profile-nav（侧栏根）/ profile-nav-trades / profile-nav-{published,sold,bought,favorites,assets,settings}
+//   / profile-assets-view（我的资产 pane；内含 bttc-asset 面板钩子）
 //   / trades-{published,sold,bought}-list（各配 -empty）/ fav-list（配 -empty）/ settings-view。
 // ============================================================================
 
@@ -84,6 +88,7 @@ const profileViewOf = (pathname) => {
   const prev = parts[parts.length - 2] || ''
   if (last === 'favorites') return { kind: 'favorites', subTab: '' }
   if (last === 'settings') return { kind: 'settings', subTab: '' }
+  if (last === 'assets') return { kind: 'assets', subTab: '' }
   if (prev === 'trades') {
     return { kind: 'trades', subTab: PROFILE_TRADE_TABS.includes(last) ? last : PROFILE_DEFAULT_TRADE_TAB }
   }
@@ -684,6 +689,22 @@ const TelegramBindCard = () => {
   )
 }
 
+// ============================================================================
+// 我的资产（Kevin 2026-10-20 需求①②）
+// ----------------------------------------------------------------------------
+// 形态 = 标题 + `BttcAssetPanel`（BTTC 余额 /【铸造】/【分解】/ 缺额提示 + 电量摘要）。
+//   · 资产块**整块**迁自 `/wage#batt-checkin` 签到场 ⇒ 签到场不再留半套（同源组件、同文案键、同钩子）；
+//   · 读口沿用 `GET /api/batt` 的 `data.bttc` 子对象（零新 GET，组件自取数）；本 pane 不做任何本地换算。
+const AssetsPane = () => {
+  const { t } = useTranslation()
+  return (
+    <div className="sf-prof-pane" data-sf-m="profile-assets-view">
+      <h1 className="sf-prof-pane-title">{t('profileNav.assets')}</h1>
+      <BttcAssetPanel />
+    </div>
+  )
+}
+
 const ProfilePage = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -952,6 +973,12 @@ const ProfilePage = () => {
             view.kind === 'favorites',
           )}
           {navLink(
+            buildLocalizedPath(lang, '/profile/assets'),
+            'profile-nav-assets',
+            t('profileNav.assets'),
+            view.kind === 'assets',
+          )}
+          {navLink(
             buildLocalizedPath(lang, '/profile/settings'),
             'profile-nav-settings',
             t('profileNav.settings'),
@@ -959,7 +986,7 @@ const ProfilePage = () => {
           )}
         </nav>
 
-        {/* 右侧内容：三视图（我的交易 / 我的收藏 / 账户设置） */}
+        {/* 右侧内容：四视图（我的交易 / 我的收藏 / 我的资产 / 账户设置） */}
         <div className="sf-prof-content" data-sf-m="profile-content">
           {view.kind === 'trades' && (
             <TradesPane subTab={view.subTab} user={sessionUser} isAuthenticated={isAuthenticated} lang={lang} />
@@ -967,6 +994,8 @@ const ProfilePage = () => {
           {view.kind === 'favorites' && (
             <FavoritesPane user={sessionUser} isAuthenticated={isAuthenticated} lang={lang} />
           )}
+
+          {view.kind === 'assets' && <AssetsPane />}
 
           {view.kind === 'settings' && (
             <div data-sf-m="settings-view">
