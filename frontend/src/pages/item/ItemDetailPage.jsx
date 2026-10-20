@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ChevronLeft, MessageCircle, Star } from 'lucide-react'
@@ -97,16 +97,40 @@ const ItemDetailPage = () => {
   const queryId = new URLSearchParams(location.search).get('id')
   const id = itemId || queryId || ''
 
+  // ---------------------------------------------------------------------------
+  // ★ 详情读口去重（2026-10-20 独立质检缺陷 2）：**一次挂载 = 一次 `GET /api/prize/<id>`**
+  //   旧实现 `load` 依赖 `[id, user, t]` ⇒ `AuthProvider` 启动期 `setUser(新对象)`（同一 uID、
+  //   新引用）+ i18n `t` 引用变化都会让 `load` 身份翻新 ⇒ 挂载后 effect 再跑一次，
+  //   生产构建实测 2 条同 id 请求（间隔 1–3ms）⇒ 计数口径被写两次。
+  //   修法（依赖收敛 + 过期响应丢弃，两件并用）：
+  //     · 依赖只留**原始值** `[id, uidKey]`：换商品 id ⇒ 重拉（保留）；登录态**实质**变化
+  //       （uID 变、登入/登出）⇒ 重拉（保留）；同一 uID 的**对象引用**抖动 / 语言切换 ⇒ 不重拉
+  //       （token 与文案走 `userRef` / `tRef` 取最新值，不进依赖）。
+  //     · `reqSeq` 单调序号：切 id / 登录态变化时**已过期响应一律丢弃**（后发先至不覆盖），
+  //       DOM 始终取最新一次请求的结果。
+  const userRef = useRef(user)
+  const tRef = useRef(t)
+  userRef.current = user
+  tRef.current = t
+  const reqSeq = useRef(0)
+  // 登录态「实质」键：uID 原始值（`undefined`/`null` 皆归一为 null ⇒ 未登录）
+  const uidKey = user?.uID ?? user?.uid ?? null
+
   const load = useCallback(async () => {
-    setDetail({ phase: 'loading', row: null, message: t('loading') })
+    const seq = reqSeq.current + 1
+    reqSeq.current = seq
+    const tr = tRef.current
+    setDetail({ phase: 'loading', row: null, message: tr('loading') })
     try {
-      const row = await fetchListingDetail(id, user)
-      setDetail({ phase: row ? 'ok' : 'empty', row: row || null, message: row ? '' : t('item.empty') })
+      const row = await fetchListingDetail(id, userRef.current)
+      if (seq !== reqSeq.current) return // 过期响应：已有更新的请求在飞/已落
+      setDetail({ phase: row ? 'ok' : 'empty', row: row || null, message: row ? '' : tr('item.empty') })
     } catch (error) {
+      if (seq !== reqSeq.current) return
       // 404（miss）与 5xx 都走这里：文案已是 R107 链解出的**字符串**
-      setDetail({ phase: 'error', row: null, message: String(error?.message || t('error')) })
+      setDetail({ phase: 'error', row: null, message: String(error?.message || tr('error')) })
     }
-  }, [id, user, t])
+  }, [id, uidKey]) // eslint-disable-line react-hooks/exhaustive-deps -- 见上：user/t 走 ref，收敛到原始值
 
   useEffect(() => { if (id) load() }, [id, load])
 
@@ -174,6 +198,29 @@ const ItemDetailPage = () => {
     }
   }
 
+  // ★ 收藏 ⇄「x人想要」联动（2026-10-20 独立质检缺陷 1）：
+  //   `wants` 的后端真源 = `listing_favorite` 按 listing 聚合（`database.ts getPrizeById` 的
+  //   LEFT JOIN + COALESCE 计数）⇒ 收藏 / 取消**必然**让该商品 wants ±1。
+  //   旧实现只翻 `fav` 布尔 ⇒ 写口已落库、DOM 仍读旧值（质检当场抓到 `data-sf-fav` 0→1 后仍 `0人想要`）。
+  //   修法：写口成功后**本地即时调整** wants（+1 / −1，下限 0），**不重拉整页**
+  //   （省一次读口，也避免重拉再计一次 views）；写口响应若携带 `wants`（将来后端加键的加性面）
+  //   ⇒ **以响应为准**（绝对值覆盖，不做增量）。
+  //   缺键臂（#46：响应无 `wants` ⇒ 槽不渲染）不因收藏凭空造出该槽：`row.wants == null` ⇒ 不动。
+  //   ★ 普通函数、非 `useCallback`：本行位于 `if (!id) return <Navigate/>` 早退**之后**，
+  //     在此挂 hook 会破坏 hook 顺序（无 id 分支少挂一个）。
+  const applyWants = (nextAbsolute, delta) => {
+    setDetail((prev) => {
+      const row = prev.row
+      if (!row || row.wants == null) return prev
+      const current = Number(row.wants)
+      const next = nextAbsolute != null
+        ? Number(nextAbsolute)
+        : (Number.isFinite(current) ? Math.max(0, current + delta) : Number.NaN)
+      if (!Number.isFinite(next)) return prev
+      return { ...prev, row: { ...row, wants: next } }
+    })
+  }
+
   // 「收藏」：登录 = 收藏/已收藏 toggle（幂等：重复收藏/取消同效）；
   //   未登录 = 既有登录引导（同 onChat 体例，不新造弹层）；收藏成功 = toast + 状态翻转（可见反馈）。
   const onToggleFav = async () => {
@@ -185,13 +232,16 @@ const ItemDetailPage = () => {
       return
     }
     setFav((prev) => ({ ...prev, phase: 'loading' }))
+    const nextWants = (view) => (view && typeof view === 'object' && view.wants != null ? view.wants : null)
     try {
       if (fav.favored) {
-        await removeFavorite(id, user)
+        const view = await removeFavorite(id, user)
         setFav({ phase: 'idle', favored: false })
+        applyWants(nextWants(view), -1)
       } else {
-        await addFavorite(id, user)
+        const view = await addFavorite(id, user)
         setFav({ phase: 'idle', favored: true })
+        applyWants(nextWants(view), +1)
         toast.success(t('item.favoriteOk'))
       }
     } catch (error) {

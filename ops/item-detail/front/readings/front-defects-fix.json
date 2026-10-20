@@ -1,0 +1,529 @@
+{
+  "generatedAt": "2026-10-20T04:20:37.699Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "fixtures": [
+    {
+      "id": 101,
+      "wantsBase": 7
+    },
+    {
+      "id": 103,
+      "wantsBase": 2
+    },
+    {
+      "id": 104,
+      "wantsBase": 0
+    }
+  ],
+  "cases": {
+    "h5_390": {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "label": "h5_390",
+      "requestPerMount": [
+        {
+          "kind": "goto",
+          "count": 1,
+          "ids": [
+            104
+          ],
+          "domViews": [
+            1
+          ],
+          "domWants": [
+            0
+          ],
+          "noteId": 104
+        },
+        {
+          "kind": "reload",
+          "count": 1,
+          "ids": [
+            104
+          ],
+          "domViews": [
+            2
+          ],
+          "domWants": [
+            0
+          ],
+          "noteId": 104
+        },
+        {
+          "kind": "reload",
+          "count": 1,
+          "ids": [
+            104
+          ],
+          "domViews": [
+            3
+          ],
+          "domWants": [
+            0
+          ],
+          "noteId": 104
+        }
+      ],
+      "favToggle": {
+        "before": {
+          "wants": {
+            "texts": [
+              "0人想要",
+              "0人想要"
+            ],
+            "uniq": [
+              0
+            ]
+          },
+          "fav": {
+            "pressed": "false",
+            "sfFav": "0",
+            "label": "收藏",
+            "starColor": "rgb(32, 32, 32)",
+            "starFill": "none"
+          }
+        },
+        "timeline": [
+          {
+            "tMs": 100,
+            "wants": [
+              "1人想要",
+              "1人想要"
+            ],
+            "sfFav": "1",
+            "label": "已收藏"
+          },
+          {
+            "tMs": 200,
+            "wants": [
+              "1人想要",
+              "1人想要"
+            ],
+            "sfFav": "1",
+            "label": "已收藏"
+          },
+          {
+            "tMs": 300,
+            "wants": [
+              "1人想要",
+              "1人想要"
+            ],
+            "sfFav": "1",
+            "label": "已收藏"
+          },
+          {
+            "tMs": 400,
+            "wants": [
+              "1人想要",
+              "1人想要"
+            ],
+            "sfFav": "1",
+            "label": "已收藏"
+          },
+          {
+            "tMs": 500,
+            "wants": [
+              "1人想要",
+              "1人想要"
+            ],
+            "sfFav": "1",
+            "label": "已收藏"
+          },
+          {
+            "tMs": 600,
+            "wants": [
+              "1人想要",
+              "1人想要"
+            ],
+            "sfFav": "1",
+            "label": "已收藏"
+          }
+        ],
+        "afterFav": {
+          "wants": {
+            "texts": [
+              "1人想要",
+              "1人想要"
+            ],
+            "uniq": [
+              1
+            ]
+          },
+          "fav": {
+            "pressed": "true",
+            "sfFav": "1",
+            "label": "已收藏",
+            "starColor": "rgb(255, 230, 15)",
+            "starFill": "currentColor"
+          }
+        },
+        "afterUnfav": {
+          "wants": {
+            "texts": [
+              "0人想要",
+              "0人想要"
+            ],
+            "uniq": [
+              0
+            ]
+          },
+          "fav": {
+            "pressed": "false",
+            "sfFav": "0",
+            "label": "收藏",
+            "starColor": "rgb(32, 32, 32)",
+            "starFill": "none"
+          }
+        },
+        "hitsOnFav": 0,
+        "hitsOnUnfav": 0,
+        "afterReload": {
+          "wants": {
+            "texts": [
+              "0人想要",
+              "0人想要"
+            ],
+            "uniq": [
+              0
+            ]
+          },
+          "fav": {
+            "pressed": "false",
+            "sfFav": "0",
+            "label": "收藏",
+            "starColor": "rgb(32, 32, 32)",
+            "starFill": "none"
+          }
+        },
+        "serverWants": 0
+      },
+      "idSwitch": {
+        "hits": [
+          101
+        ],
+        "noteId": 101,
+        "wants": [
+          7
+        ],
+        "domViews": [
+          1
+        ],
+        "serverViews101": 1,
+        "url": "http://sf.local/item/101"
+      },
+      "authIdentity": {
+        "sameUidHits": 0,
+        "newUidHits": [
+          101
+        ],
+        "wantsAfterUidChange": [
+          7
+        ]
+      },
+      "stale": {
+        "requestsInWindow": 2,
+        "issuedWindow": [
+          {
+            "id": 101,
+            "idx": 7,
+            "views": 3
+          },
+          {
+            "id": 101,
+            "idx": 8,
+            "views": 4
+          }
+        ],
+        "domViews": [
+          4
+        ],
+        "lastIssuedViews": 4,
+        "firstIssuedViews": 3
+      }
+    },
+    "web_1536": {
+      "viewport": {
+        "width": 1536,
+        "height": 960
+      },
+      "label": "web_1536",
+      "requestPerMount": [
+        {
+          "kind": "goto",
+          "count": 1,
+          "ids": [
+            104
+          ],
+          "domViews": [
+            5
+          ],
+          "domWants": [
+            0
+          ],
+          "noteId": 104
+        },
+        {
+          "kind": "reload",
+          "count": 1,
+          "ids": [
+            104
+          ],
+          "domViews": [
+            6
+          ],
+          "domWants": [
+            0
+          ],
+          "noteId": 104
+        },
+        {
+          "kind": "reload",
+          "count": 1,
+          "ids": [
+            104
+          ],
+          "domViews": [
+            7
+          ],
+          "domWants": [
+            0
+          ],
+          "noteId": 104
+        }
+      ],
+      "favToggle": {
+        "before": {
+          "wants": {
+            "texts": [
+              "0人想要",
+              "0人想要"
+            ],
+            "uniq": [
+              0
+            ]
+          },
+          "fav": {
+            "pressed": "false",
+            "sfFav": "0",
+            "label": "收藏",
+            "starColor": "rgb(32, 32, 32)",
+            "starFill": "none"
+          }
+        },
+        "timeline": [
+          {
+            "tMs": 100,
+            "wants": [
+              "1人想要",
+              "1人想要"
+            ],
+            "sfFav": "1",
+            "label": "已收藏"
+          },
+          {
+            "tMs": 200,
+            "wants": [
+              "1人想要",
+              "1人想要"
+            ],
+            "sfFav": "1",
+            "label": "已收藏"
+          },
+          {
+            "tMs": 300,
+            "wants": [
+              "1人想要",
+              "1人想要"
+            ],
+            "sfFav": "1",
+            "label": "已收藏"
+          },
+          {
+            "tMs": 400,
+            "wants": [
+              "1人想要",
+              "1人想要"
+            ],
+            "sfFav": "1",
+            "label": "已收藏"
+          },
+          {
+            "tMs": 500,
+            "wants": [
+              "1人想要",
+              "1人想要"
+            ],
+            "sfFav": "1",
+            "label": "已收藏"
+          },
+          {
+            "tMs": 600,
+            "wants": [
+              "1人想要",
+              "1人想要"
+            ],
+            "sfFav": "1",
+            "label": "已收藏"
+          }
+        ],
+        "afterFav": {
+          "wants": {
+            "texts": [
+              "1人想要",
+              "1人想要"
+            ],
+            "uniq": [
+              1
+            ]
+          },
+          "fav": {
+            "pressed": "true",
+            "sfFav": "1",
+            "label": "已收藏",
+            "starColor": "rgb(255, 230, 15)",
+            "starFill": "currentColor"
+          }
+        },
+        "afterUnfav": {
+          "wants": {
+            "texts": [
+              "0人想要",
+              "0人想要"
+            ],
+            "uniq": [
+              0
+            ]
+          },
+          "fav": {
+            "pressed": "false",
+            "sfFav": "0",
+            "label": "收藏",
+            "starColor": "rgb(32, 32, 32)",
+            "starFill": "none"
+          }
+        },
+        "hitsOnFav": 0,
+        "hitsOnUnfav": 0,
+        "afterReload": {
+          "wants": {
+            "texts": [
+              "0人想要",
+              "0人想要"
+            ],
+            "uniq": [
+              0
+            ]
+          },
+          "fav": {
+            "pressed": "false",
+            "sfFav": "0",
+            "label": "收藏",
+            "starColor": "rgb(32, 32, 32)",
+            "starFill": "none"
+          }
+        },
+        "serverWants": 0
+      },
+      "idSwitch": {
+        "hits": [
+          101
+        ],
+        "noteId": 101,
+        "wants": [
+          7
+        ],
+        "domViews": [
+          5
+        ],
+        "serverViews101": 5,
+        "url": "http://sf.local/item/101"
+      },
+      "authIdentity": {
+        "sameUidHits": 0,
+        "newUidHits": [
+          101
+        ],
+        "wantsAfterUidChange": [
+          7
+        ]
+      },
+      "stale": {
+        "requestsInWindow": 2,
+        "issuedWindow": [
+          {
+            "id": 101,
+            "idx": 15,
+            "views": 7
+          },
+          {
+            "id": 101,
+            "idx": 16,
+            "views": 8
+          }
+        ],
+        "domViews": [
+          8
+        ],
+        "lastIssuedViews": 8,
+        "firstIssuedViews": 7
+      }
+    }
+  },
+  "pageErrors": [],
+  "consoleErrors": [],
+  "verdict": {
+    "pageErrorCount": 0,
+    "consoleErrorCount": 0,
+    "h5_390": {
+      "wantsBeforeZero": true,
+      "wantsOneAfterFav": true,
+      "wantsZeroAfterUnfav": true,
+      "wantsFlippedWithoutReload": true,
+      "favFlagOn": true,
+      "favFlagOff": true,
+      "noDetailRefetchOnToggle": true,
+      "localMatchesServerOnReload": true,
+      "oneRequestPerMount": true,
+      "mountCounts": [
+        1,
+        1,
+        1
+      ],
+      "idSwitchOneRequest": true,
+      "idSwitchDomFollows": true,
+      "viewsEqualsServer": true,
+      "sameUidNoRefetch": true,
+      "newUidRefetchOnce": true,
+      "staleDiscarded": true,
+      "allGreen": true
+    },
+    "web_1536": {
+      "wantsBeforeZero": true,
+      "wantsOneAfterFav": true,
+      "wantsZeroAfterUnfav": true,
+      "wantsFlippedWithoutReload": true,
+      "favFlagOn": true,
+      "favFlagOff": true,
+      "noDetailRefetchOnToggle": true,
+      "localMatchesServerOnReload": true,
+      "oneRequestPerMount": true,
+      "mountCounts": [
+        1,
+        1,
+        1
+      ],
+      "idSwitchOneRequest": true,
+      "idSwitchDomFollows": true,
+      "viewsEqualsServer": true,
+      "sameUidNoRefetch": true,
+      "newUidRefetchOnce": true,
+      "staleDiscarded": true,
+      "allGreen": true
+    },
+    "zeroPageErrors": true,
+    "zeroConsoleErrors": true,
+    "allGreen": true
+  }
+}
