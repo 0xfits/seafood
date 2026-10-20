@@ -9832,3 +9832,112 @@ ORDER BY score DESC, l.time_created DESC, l.listing_id DESC
 
 - §49.15.9 的「`0059` 未落盘 / 写口授权扩展、读口、`/api/user` `admin` 块、审计写**均未实现**」**是编制起点的现取**（HEAD `5310a72` 干净树），**在落笔过程中已被并行后端单在同一工作树改写**：该单已落 `GET /api/listing/:listingId/edit`、`$11` 授权位、同语句审计、`admin` 3 键与迁移 `0059` 文件（**均未提交、两库未 apply**）。⇒ **本册的「未实现」读作「未提交、未 apply、未验收」**，逐条对拍见 §49.15.10。
 - **不变的两句**：**本册不代该单声明上线**；**行为验收只看判负 #35–#41**（零 HTTP 实测）。
+
+### 49.16 商品统一 Id 的读面契约（`GET /api/prize/:ref` **双形态** ＋ 四个读口**加性两键** ＋ 页面路由 `/item/<itemCode>`）· 2026-10-20 · **v2.44 加性续登、不升版** · 纯追加
+
+> **依据**：Kevin 2026-10-20 指令三条 —— ① 商品 Id 统一为 Snowflake 格式；② `itemCode` = 字母数字混合 **7 位**；③ **页面地址用 `itemCode` 而非数字 id**（逐字转引自本单派单，**原始会话未入仓** ⇒ 出入以 Kevin 一句话为准）。**实现口径（并行后端单）** = `GET /api/prize/:ref` 兼容「码或数字」+ feed / 详情 / mine / edit 四口各加 `item_code` ＋ `snowflake_id` + 页面路由走码。**姊妹册** = `data-layer.spec` **§40.12**（两列 / 雪花位划分 / 字母表 / 回填与重试 / 迁移 `0060`）+ `design-system.spec` **§26.17**（详情页三项删除 + 编号改码 + 判负 #59–#63）+ `master-plan` **§5.444 / 版本行 v0.361** + `ops/item-id/SPEC-NOTE.md`。
+
+#### 49.16.1 版本读数与范围
+
+- **零新注册点**（111 → **111**）、**零新错误码**（33 码闭集不动）、**旧数字形态逐字兼容**（`:ref = 纯数字` 走既有 `listing_id` 谓词）⇒ 按本册 §49.13 / §49.14 体例记为 **「加性续登、不升版」**，正文版本读数仍 **v2.44**，**头注不改写**。
+- **若 Zang 认定「`:ref` 接受非数字」属契约语义扩宽须升版 ⇒ 只把本行版本读数改为 `v2.45`，条文一字不动**（本条把两种裁决的落点都写死，避免二次返工）。
+- **本单放宽的只有「读」**：一个既有读口（`GET /api/prize/:ref`）的**入参接受面**扩宽。所有写口与其它读口**一律不收码**（见 `49.16.2` 末条）。
+
+#### 49.16.2 `:ref` 双形态判定表（**一次判定、不查两遍**）
+
+| `:ref` 形态 | 判别正则 | 判定 | 落地谓词 | 未命中 |
+|---|---|---|---|---|
+| **全数字**（含纯 `0`） | `^[0-9]+$` | 旧链接 / 内部调用 ⇒ 按**数字 `listing_id`** 查 | `WHERE listing_id = $1::bigint` | **404** 既有 |
+| **其余一切**（含匹配 `^[A-Za-z][A-Za-z0-9]{6}$` 的码，也含**不合任何形**的乱串） | — | 按 **`item_code`** 精确查 | `WHERE item_code = $1` | **404** 既有 |
+
+- **判别子 = 首字符（写死）**：两形态**互斥**（`data-layer.spec` §40.12.3 把「`item_code` 首字符必须字母」定为库级 CHECK，就是为这条服务）。**禁**「先按 id 查、miss 再按 code 查」——那是两次往返，且把「不存在」与「形态错」混成一个慢路径（判负 #42）。
+- **参数名 `:bID` → `:ref`**：**同一注册点**（`app.get('/api/prize/:ref')`，`grep` 行数不变），但**函数体内所有 `req.params.bID` 必须同步改**；漏改一处 ⇒ 恒 `undefined` ⇒ **全表 404**（这是本单最容易出的一个错，登记为验收首查项）。
+- **不合形输入**（长度 ≠ 7、含 `-` / `_` / 空格、超长、空串）⇒ **仍 404**，`details.reason` 沿用既有 **`bID_not_found`**（**零新增 reason 常量**）。**禁 400** —— 「detail-miss 一律 404」是既有口径，本单不改（`sendRefNotFound` 的体例：`ref_type: 'prize'` + `ref_id` + `reason`）。
+- **`ref_id` 回显 = 请求原文逐字**（**不得**归一化 / 转小写 / 补零 / trim 后回显）。判据：`GET /api/prize/Ab3XyZ9` 与 `GET /api/prize/Ab3xyz9` 若都不命中，两个 404 体里的 `ref_id` 必须分别逐字等于输入。
+- **副作用逐字不变**：仍走 `getPrizeDetailRecordingView`（单语句 CTE：`view_count + 1` 并读回自增值）；**计数的口径不变** —— 任何状态都计、**卖家自看也计**、**miss 不计**。双形态改的只是 `WHERE` 谓词，**不是**计数语义（判负 #45）。
+- **写口一律不收码（硬）**：`PATCH /api/listing/:listingId`、`POST /api/listing/:listingId/buy`、收藏 / 留言 / 编辑读口 `GET /api/listing/:listingId/edit` **仍只认数字 `listing_id`**。**理由**：写路径引入「引用解析」= 多一次读 + 多一个竞态面（解析到的行可能在两次调用之间被改），**收益（前端少传一个字段）不值**。若将来编辑页也要走码 ⇒ 另单，须同时给 `edit` 读口加码形态并重跑 #35–#41。
+
+#### 49.16.3 四个读口的加性键（**键序 = 追加在末位 · 零重排**）
+
+| 读口 | 现取键数 | 目标键数 | 新增键（逐字） | 类型 | 现取落点 |
+|---|---|---|---|---|---|
+| `GET /api/prize/all`（feed；`/api/home` 同源 `listBrands`） | 48 | **50** | `item_code` · `snowflake_id` | 皆 **string** | `database.ts` `listBrands` + `normalizeBrand` |
+| `GET /api/prize/:ref`（详情） | 50 | **52** | `item_code` · `snowflake_id` | 皆 **string** | `getPrizeDetailRecordingView` + `normalizeBrand` |
+| `GET /api/listing/mine` | 11 | **13** | `item_code` · `snowflake_id` | 皆 **string** | `listListingsBySeller` + `normalizeListingMineRow` |
+| `GET /api/listing/:listingId/edit` | 11 | **13** | `item_code` · `snowflake_id` | 皆 **string** | `getListingEditView`（同 `ListingMineRow` 族） |
+
+- **`bID`（数字 `listing_id`）保留、不删**：旧链接、内部引用、账本对账、`listing_edit_log` 旁证全靠它 ⇒ 本单是**加性**，不是迁移。
+- **新键恒在场**（不按行选择性省略）：它们是**身份属性**，不是聚合派生面。过渡态（列未 apply）的正确失败 = `42703` 5xx；**禁** `COALESCE(item_code,'')` 兜底（空码会渲染成 `#-` 或空串，比报错难查十倍）。
+- **归一层显式列举，禁 `spread`**：`normalizeBrand` / `normalizeListingMineRow` 既有纪律（`score` 等**排他派生列**不得漏进响应）；两键必须**逐键写出**并在类型里声明为 `string`。
+- **四处同源**：四条 `SELECT` 各加两列；**只加一处 = 判负**（判负 #44 含「漏一处」）。
+- **键面恒等律**：`edit` 与 `mine` 的 13 键必须**逐键同名同型**（既有同族纪律，`§49.15.4`）；`feed` 50 ⊂ `detail` 52（差 `views` / `condition` 两键，既有差分不变）。
+
+#### 49.16.4 页面路由 `/item/<itemCode>` 与旧链接兼容
+
+| 形态 | 行为 | 判据 |
+|---|---|---|
+| `/item/<itemCode>`（如 `/item/Ab3XyZ9`） | **新规范地址**：列表 / 卡面 / 详情内链 / 分享**一律用它** | 直达详情，`data-sf-m="item-detail-*"` 家族渲染 |
+| `/item/<纯数字>` | **旧链接兼容入口**（**不重定向**、直接渲染） | 同页渲染；**禁** 301/302 |
+| `/item?id=<数字>` | **更旧形态兼容**（`App.jsx:24` 既有 `?id=` 分支） | 同页渲染 |
+| `/item/<不合形>` | 详情页 **miss 空态**（既有 `item-detail-empty`），**不是** 404 页 | 空态可达、不白屏 |
+| `/item/<码>/edit` | **不在本单范围**：编辑页仍走数字 id（详情页「编辑」按钮用 `bID` 跳转） | 用码进编辑面 ⇒ 另单 |
+
+- **前端路由参数语义**：`item/:itemId` → 建议改名 `item/:ref`（`Route path` 字符串**不变**、匹配行为不变；改的是**读法**）。**必须改名**的理由：`params.itemId` 这个名字会让下一个人以为它恒为数字，从而写出 `Number(params.itemId)` 一类静默破坏。
+- **取值一律原样透传**：前端把 `ref` **不做形态判定、不做 `Number()`、不做 `trim` 之外的归一**，直接 `GET /api/prize/<ref>`。判定权在服务端**唯一一处**（`49.16.2`）—— 两处判定 = 两处会长歪（判负 #42 同族）。
+- **链接生成的唯一口径**：`href = /item/${item_code}`。**`item_code` 缺失 ⇒ 不生成链接 / 该卡整块不可点**；**禁**回落 `/item/${bID}` —— 回落 = 两种地址长期并存，「地址用码」的规范形同虚设（判负 #46）。
+- **同一商品存在两个可达 URL（有意的兼容代价 · 诚实登记）**：`/item/<code>` 与 `/item/<id>` 都返回 200 且不重定向。**本单不做 canonical 合并**（合并需先确认无外部引用 / 无已发出的收藏 / 无用户截图链）。canonical / OG 一律输出**码形**。
+- **`/item/new` 与静态段优先级不变**：`item/new` 仍优先于 `item/:ref`（react-router v6 排名，`App.jsx:104/107` 现取注释）；`new` 恰好是 3 字母 ⇒ 与 `item_code` 形状（7 位）**不冲突**（这也是「定长 7」的一个附带好处，登记）。
+
+#### 49.16.5 注册点与错误码（**零增量**）
+
+**现取（2026-10-20 · HEAD `e48c567` · `grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts`）**：**111 = get 50 / post 57 / put 0 / delete 3 / patch 1**。
+
+| verb | 现取 | 目标 | 本单增量 |
+|---|---|---|---|
+| `get` | 50 | 50 | **0**（`:bID` → `:ref` 是**同一注册点**，不是新路由） |
+| `post` | 57 | 57 | 0 |
+| `put` | 0 | 0 | 0 |
+| `delete` | 3 | 3 | 0 |
+| `patch` | 1 | 1 | 0 |
+| **合计** | **111** | **111** | **0** |
+
+- `p7b-03-offline-gates.ts` 的 `AC10-2` 常量**仍 111**（**本单不改该门** —— 若有人顺手改成 112，判负 #44 同族）。
+- 错误码闭集 **33 码不变**；`AUTH_REASONS` 三值不变；零新增 `reason` 常量（不合形与 miss 都用 `bID_not_found`）。
+- **页面路由不计注册点**（`item/:itemId` → 语义扩宽，不新增 `Route`）。
+
+#### 49.16.6 判负（**#42–#47** · 与 §49.15.8 #35–#41、§49.14.11 #29–#34、§49.13.7 #14–#21 家族**并存、只增不改**）
+
+1. **#42 双查 / 双命中**：实现「先按 id 查、miss 再按 code 查」（两次往返）；或同一 `ref` 能命中两行；或**前后端各判一次形态** ⇒ 判负。
+2. **#43 旧形态被破**：`GET /api/prize/<纯数字>` 由 200 变 404 / 400，或返回的 `bID` 与改前不同 ⇒ 判负。
+3. **#44 键数不足 / 类型错**：feed ≠ **50**、详情 ≠ **52**、mine ≠ **13**、edit ≠ **13**（含「只加一处、漏三处」）；或 `snowflake_id` 出 `number`；或注册点 ≠ 111 ⇒ 判负。
+4. **#45 副作用走样**：按码读详情**不** +1 浏览；或 miss 计入浏览；或卖家自看不计 ⇒ 判负（读语义必须与数字形态**逐字相同**）。
+5. **#46 页面地址仍用数字**：列表 / 卡面 / 分享生成的链接是 `/item/<数字>`；或 `item_code` 缺失时回落数字 id ⇒ 判负。
+6. **#47 旧链接失效**：`/item/<数字>` 或 `/item?id=<数字>` 打开后为空态 / 报错（而非正常详情）；或对旧形态做了 301/302 ⇒ 判负。
+
+#### 49.16.7 现取自证 + 未做（明账）
+
+- **现取（2026-10-20 · HEAD `e48c567`）**：注册点 **111**（get 50 / post 57 / put 0 / delete 3 / patch 1）· 迁移末位 **`0059`**、`0060` **不存在** · `grep -rn "item_code\|itemCode\|snowflake" backend-ts/src backend-ts/migrations frontend/src` = **0 命中** · 详情参数现名 **`:bID`**（`index.ts:747`）· 非数字入参**今天已 404**（`index.ts:749-751`：`parseInteger` 失败 ⇒ `sendRefNotFound(res,'prize',…,'bID_not_found')`）⇒ **本单只需换谓词，404 形状无需改** · 前端路由 `item/:itemId`（`App.jsx:112`）+ `item/new`（`:107`）+ `item/:itemId/edit`（`:111`）。
+- **未做（`NOT_MEASURED` · 本册不预填）**：两列未落盘 / 两库未 apply；四读口未加键；`:ref` 双形态未实现；页面路由未改，链接仍由数字生成；判负 **#42–#47 一条未跑**；**零 HTTP 实测 / 零库写 / 零代码**。
+- **契约面** = `data-layer.spec` **§40.12** + `design-system.spec` **§26.17** + `master-plan` **§5.444 / 版本行 v0.361** + `ops/item-id/SPEC-NOTE.md`；**本册正文版本读数 = v2.44**（头注不改写，承 §49.13 / §49.14 体例）。
+
+#### 49.16.8 同树现状披露（编制期 · **不改本契约任何条文**）
+
+- `git status --porcelain` 现取：`backend-ts/**` **干净**；`frontend/**` **15 个 `M` + 3 个 `??`**（并行前端单的「管理员编辑」批次，与本单无关）⇒ **`:ref` 双形态、四口加键、页面路由改动，全部为零**。
+- **本册不代并行后端单声明任何落地**：本节 = **契约冻结**；行为验收只看 `49.16.6` 的 #42–#47。
+- 本笔只写 `docs/**` + `ops/item-id/**`；**不 push、不改代码**；`git diff --numstat` 删除列 = **0**。
+
+#### 49.16.9 同树现状披露（并行后端单**已在同工作树、未提交** · 编制期现取 · **不改 §49.16.1–.8 条文**）
+
+> **现取**：`git status --porcelain` = `M backend-ts/src/database.ts`（**+60/−7**）· `?? backend-ts/migrations/0060_item_code_snowflake.sql`（269 行）· `?? backend-ts/src/item-id.ts`（174 行）。**本册只登记形状，不代该单声明上线。**
+
+| 契约面 | 盘上现状 | 判 |
+|---|---|---|
+| 四读口各 +2 键（feed **50** / 详情 **52** / mine **13** / edit **13**） | `listBrands`（`:2931`）· 详情（`:4982`）· `listListingsBySeller`（`:3083`）· 编辑读口（`:3191`）均加 `l.item_code, l.snowflake_id`；`normalizeBrand`（`:1584`）与 `normalizeListingMineRow`（`:1707`）各**显式**加两键（无 `spread`、追加末位） | **一致**（键数目标成立） |
+| 新键类型 = **string** | 类型声明为 **`string \| null`**（缺列 / 未回填 ⇒ `null`，**不编值**） | **本册收敛（以本段为准）**：**键恒在场、值允许 `null`**（apply 后由 `NOT NULL` 保证非空）⇒ `#44` 判据收窄为「**键在场 ∧ 类型非 `number`**」，不再要求「恒非 null」 |
+| `:ref` 双形态 | **未落**：`index.ts:747` 仍 `app.get('/api/prize/:bID')` + `parseInteger`（非数字 ⇒ `bID_not_found` 404） | **未闭环**（本契约的核心变更**尚未实现** —— 今天 `/api/prize/Ab3XyZ9` 404 靠的是 `parseInteger` 失败，**不是**按码查） |
+| 建行写口 | `createListingRow` 的 `INSERT` 已带两列（`:4027` / `RETURNING :4035`，冲突回执 `:4039/:4044` 同带）⇒ 服务端发号 | **一致**（零客户端输入、码随幂等回执稳定） |
+| 旧数字形态 | 现取即「纯数字 ⇒ `listing_id`」 | **一致**（换谓词即可，404 形状无需改） |
+| 注册点 | `grep -cE '^app\.(get\|post\|put\|delete\|patch)\('` 现取仍 **111** | **一致**（`:ref` 改名不改注册点） |
+
+- **未做（由该单补）**：`:ref` 参数改名 + 双形态谓词（**现取 `parseInteger` 会把 7 位码判成 404**）；两库 apply；`p60` 门与判负 #42–#47 实测。**前端另有单**（详情页三项删除 + 链接改码）。
+- **本册承诺边界**：以上「一致」= **代码形状对拍**（只读现取），**不是行为验收**；零 HTTP 实测、零库写。
