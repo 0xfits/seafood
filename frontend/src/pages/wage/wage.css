@@ -46,6 +46,50 @@
   justify-content: space-between;
 }
 
+/* 标题行左组：标题 + 【已加入】徽标（徽标与详情页标签同族：12px/700/圆角 2px/黄底黑字） */
+.sf-wage-card-head-main {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.sf-wage-joined-badge {
+  display: inline-block;
+  flex: none;
+  padding: 0 4px;
+  border-radius: 2px;
+  background: var(--sf-btna-bg);
+  color: var(--sf-btna-fg);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+/* 已加入的卡 = 一眼可辨：淡黄叠加层 + 左侧 4px 强调边。
+ * 颜色一律逐槽取既有 token（--sf-btna-bg 日/夜同值）⇒ 零新主题 token、无 [data-theme] 分支；
+ * 叠加层用伪元素而非 background-color ⇒ 不改 .sf-card 的底色槽位，两档都能保持卡面可读。 */
+.sf-wage-card.is-joined {
+  position: relative;
+  border-left: 4px solid var(--sf-btna-bg);
+}
+
+.sf-wage-card.is-joined::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--sf-btna-bg);
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.sf-wage-card.is-joined > * {
+  position: relative;
+  z-index: 1;
+}
+
 .sf-wage-card-title {
   color: var(--sf-title-fg);
   font-size: 16px;

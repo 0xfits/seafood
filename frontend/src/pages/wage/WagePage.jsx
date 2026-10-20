@@ -17,9 +17,15 @@ import './wage.css'
 // 硬口径：
 //   · 「同时只能在一个项目打工」—— 已在其他项目在职 ⇒ **本卡【加入】置灰**并给提示；
 //     真正的闸在服务端（部分唯一索引），前端只做提示，不替服务端做判定。
-//   · 领取间隔：行内若带下次可领时间（`next_claim_at` 一族）或剩余秒数 ⇒ 置灰 + 倒计时；
-//     行内没带 ⇒ 按钮可点，**由服务端 400 兜底**（`details.reason` 映射成提示，并把
-//     `details` 里的下次可领时间/剩余秒数接成倒计时）；不猜、不本地自算间隔。
+//   · 领取间隔：以行内 `next_claim_at` 为准（键在场且为未来时刻 ⇒ 置灰 + 1s 倒计时，到点自动可点）；
+//     键在场且已过 / 为 null ⇒ 立即可领；**键缺席**（匿名 / 后端未透出）⇒ 可点，由服务端 400 兜底
+//     （`details.reason` 映射成提示，并把 `details` 里的下次可领时间/剩余秒数接成倒计时）；不猜、不本地自算间隔。
+//   · 成功 ⇒ 卡内成功提示（含到账 batt/次币数值）+ 重拉列表（取服务端新的 `next_claim_at` 重新置灰倒计时）
+//     + 卡内内联提示，失败不白屏、不清列表。
+//   · 卡片按钮态**只认 `my_role`**：`hired` ⇒ 卡内只有【领工资】（**不再渲染【加入】**）；
+//     `none` ⇒ 【加入】；键缺席（匿名）⇒ 照常渲染【加入】、点击只给登录提示。
+//   · 已加入的卡换一套配色（`is-joined` + `data-sf-joined="1"`：淡黄叠加 + 左侧 4px 强调边 +
+//     标题行【已加入】徽标），与其他卡一眼可辨；未加入卡片的配色一字不动、零新主题 token。
 //   · 成功 ⇒ 卡内成功提示（含到账 batt/次币数值）+ 重拉列表刷新该项目卡；失败 ⇒ 卡内内联提示，
 //     不白屏、不清列表。
 //   · 未登录 ⇒ **项目列表照常公开浏览**（`GET /api/project/all` 本身无闸，设计意图就是「先看招工
@@ -59,15 +65,6 @@ const parseInstant = (value) => {
   return Number.isFinite(ts) ? ts : null
 }
 
-/** 「下次可领时间」：行内时间点优先，其次剩余秒数；两者都没有 ⇒ null（交给服务端判）。 */
-const claimInstantOf = (row, now = Date.now()) => {
-  const direct = parseInstant(row?.next_claim_at ?? row?.next_claim_time ?? row?.claimable_at)
-  if (direct) return direct
-  const remaining = num(row?.claim_ready_in_seconds ?? row?.remaining_seconds, null)
-  if (remaining != null && remaining > 0) return now + remaining * 1000
-  return null
-}
-
 /** 倒计时文本：≥1 小时 ⇒ `h:mm:ss`，否则 `m:ss`（纯数字，不引新文案）。 */
 const formatRemaining = (seconds) => {
   const total = Math.max(0, Math.ceil(seconds))
@@ -76,6 +73,22 @@ const formatRemaining = (seconds) => {
   const s = total % 60
   const pad = (n) => String(n).padStart(2, '0')
   return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`
+}
+
+/** 键存在性判别：匿名时后端对 `my_role` / `my_hired_at` / `next_claim_at` **整键缺省**
+ *  ⇒ 一律用 `hasOwn` 判别，「键缺席」与「键值为 null/false」是两种不同的事（不可用 falsy 判别）。 */
+const hasKey = (obj, key) => Object.prototype.hasOwnProperty.call(obj || {}, key)
+
+/**
+ * 「我的在职态」：`'hired'` | `'none'` | `null`。
+ *   · 行内有 `my_role` ⇒ 逐字采用（闭集外一律按 `none`，不推断）；
+ *   · 无 `my_role` 但有非空 `my_hired_at` ⇒ 也是在职（契约加性键兜底，防行内只透出时间）；
+ *   · 三者都缺省 ⇒ `null` = 匿名 / 后端未透出 ⇒ **不参与在职判定**（不置灰别人的卡）。
+ */
+const myRoleOf = (row) => {
+  if (hasKey(row, 'my_role')) return String(row?.my_role || '') === 'hired' ? 'hired' : 'none'
+  if (hasKey(row, 'my_hired_at') && row?.my_hired_at) return 'hired'
+  return null
 }
 
 /** 服务端 `details.reason` ⇒ 文案键（未知 reason 落到动作各自的兜底句，不外泄机读码）。 */
@@ -121,18 +134,23 @@ const WagePage = () => {
       const rows = Array.isArray(payload) ? payload : (payload?.rows || payload?.projects || [])
       const nextRows = Array.isArray(rows) ? rows : []
       setList({ phase: 'ready', rows: nextRows })
-      // 行内自带的下次可领时间一并接管（服务端一旦透出就不用等 400 才知道）。
+      // 下次可领时间以**服务端行**为准：键在场 ⇒ 采用（未来 ⇒ 置灰倒计时；已过 / null ⇒ 立即可领、
+      // 清掉上一轮本地倒计时）；键缺席（匿名 / 后端未透出）⇒ 不动，避免把「没透出」读成「现在可领」。
       setClaimAt((prev) => {
         const next = { ...prev }
         for (const row of nextRows) {
           const key = projectKey(row)
-          const instant = claimInstantOf(row)
-          if (key && instant && !(next[key] > Date.now())) next[key] = instant
+          if (!key || !hasKey(row, 'next_claim_at')) continue
+          const instant = parseInstant(row.next_claim_at)
+          if (instant && instant > Date.now()) next[key] = instant
+          else delete next[key]
         }
         return next
       })
+      return nextRows
     } catch (error) {
       setList({ phase: 'error', rows: [] })
+      return []
     }
   }, [])
 
@@ -159,18 +177,23 @@ const WagePage = () => {
     return () => { cancelled = true }
   }, [])
 
-  // 倒计时驱动：只有存在「未来」的领取时间点时才起定时器（无倒计时 ⇒ 零定时器）。
+  // 倒计时驱动：只有存在「未来」的领取时间点时才起定时器（无倒计时 ⇒ 零定时器）；
+  // 到点那一次 tick 之后 `pendingClaim` 转 false ⇒ 定时器自动停，按钮同帧起可用。
+  const pendingClaim = useMemo(
+    () => Object.values(claimAt).some((ts) => ts > clock),
+    [claimAt, clock]
+  )
+
   useEffect(() => {
-    const pending = Object.values(claimAt).some((ts) => ts > Date.now())
-    if (!pending) return undefined
+    if (!pendingClaim) return undefined
     const timer = setInterval(() => setClock(Date.now()), 1000)
     return () => clearInterval(timer)
-  }, [claimAt, clock])
+  }, [pendingClaim])
 
   const hiredKey = useMemo(() => {
-    // 客态没有「我」的在职行 ⇒ 行内 `my_role` 不参与判定（否则会拿别人的在职业态去置灰【加入】）。
+    // 客态没有「我」的在职行（`my_role` 整键缺省）⇒ 不参与判定（否则会拿别人的在职业态去置灰【加入】）。
     if (!isAuthenticated) return ''
-    const hiredRow = list.rows.find((row) => row?.my_role === 'hired')
+    const hiredRow = list.rows.find((row) => myRoleOf(row) === 'hired')
     return hiredRow ? projectKey(hiredRow) : ''
   }, [isAuthenticated, list.rows])
 
@@ -254,11 +277,19 @@ const WagePage = () => {
         ? tRef.current('wage.claimedWithCurrency', { batt, amount, symbol })
         : tRef.current('wage.claimed', { batt })
       setNotice(key, { kind: 'ok', text })
+      // 刷新列表拿服务端**新的** `next_claim_at`（下次可领时间的真源）。
+      const refreshed = await load({ silent: true })
+      const fresh = Array.isArray(refreshed) ? refreshed.find((item) => projectKey(item) === key) : null
+      const fromResult = parseInstant(result?.next_claim_at ?? result?.next_claim_time ?? result?.claimable_at)
+      const fromRow = fresh && hasKey(fresh, 'next_claim_at') ? parseInstant(fresh.next_claim_at) : null
       const hours = num(row?.wage_interval_hours, 0)
-      if (hours > 0) {
-        setClaimAt((prev) => ({ ...prev, [key]: Date.now() + hours * 3600 * 1000 }))
-      }
-      await load({ silent: true })
+      const nextAt = fromResult || fromRow || (hours > 0 ? Date.now() + hours * 3600 * 1000 : null)
+      setClaimAt((prev) => {
+        const next = { ...prev }
+        if (nextAt) next[key] = nextAt
+        else delete next[key]
+        return next
+      })
     } catch (error) {
       const { text, at } = reasonNotice(error, 'claimFailed')
       setNotice(key, { kind: 'err', text })
@@ -271,7 +302,8 @@ const WagePage = () => {
   const renderCard = (row) => {
     const key = projectKey(row)
     const recruiting = String(row?.status || '') === 'recruiting'
-    const hired = row?.my_role === 'hired'
+    const role = myRoleOf(row) // 'hired' | 'none' | null（null = 匿名 / 行内缺键）
+    const joined = role === 'hired'
     const headcount = num(row?.headcount)
     const hiredCount = num(row?.hired_count)
     const batt = num(row?.wage_batt_per_claim)
@@ -287,9 +319,21 @@ const WagePage = () => {
     const isFull = headcount > 0 && hiredCount >= headcount
 
     return (
-      <article className="sf-wage-card sf-card" data-sf-m="wage-card" data-sf-project={key} key={key || row?.title}>
+      <article
+        className={`sf-wage-card sf-card${joined ? ' is-joined' : ''}`}
+        data-sf-m="wage-card"
+        data-sf-project={key}
+        data-sf-joined={joined ? '1' : '0'}
+        data-sf-role={role || 'anonymous'}
+        key={key || row?.title}
+      >
         <div className="sf-wage-card-head">
-          <h2 className="sf-wage-card-title" data-sf-m="wage-card-title">{row?.title || ''}</h2>
+          <div className="sf-wage-card-head-main">
+            <h2 className="sf-wage-card-title" data-sf-m="wage-card-title">{row?.title || ''}</h2>
+            {joined ? (
+              <span className="sf-wage-joined-badge" data-sf-m="wage-card-joined">{t('wage.joinedBadge')}</span>
+            ) : null}
+          </div>
           <span
             className={`sf-wage-status ${recruiting ? 'is-open' : 'is-closed'}`}
             data-sf-m="wage-card-status"
@@ -314,7 +358,7 @@ const WagePage = () => {
         </div>
 
         <div className="sf-wage-card-actions">
-          {hired ? (
+          {joined ? (
             <>
               <span className="sf-wage-in-service" data-sf-m="wage-card-in-service">{t('wage.inService')}</span>
               <button

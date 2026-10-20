@@ -40,8 +40,8 @@ const MIME = {
 // ---- 夹具（探针内内存 JSON；契约形状 = 派单冻结的 11 键行） --------------------------------------
 const soon = () => new Date(Date.now() + 2 * 3600 * 1000 + 95 * 1000).toISOString()
 const ROWS = [
-  // ① 已入职 + 可领（无下次可领时间）⇒【领工资】可点（成功臂）
-  { project_id: 101, snowflake_id: '7101', title: '海鲜打包', description: '每天打包 20 单，按批结算。', headcount: 3, hired_count: 2, wage_batt_per_claim: 30, wage_cid: 1, wage_currency_amount: 0, wage_interval_hours: 4, status: 'recruiting', my_role: 'hired' },
+  // ① 已入职 + 可领（无下次可领时间）⇒【领工资】可点（成功臂；带次币定额 ⇒ 到账提示两币都在）
+  { project_id: 101, snowflake_id: '7101', title: '海鲜打包', description: '每天打包 20 单，按批结算。', headcount: 3, hired_count: 2, wage_batt_per_claim: 30, wage_cid: 4, wage_currency_amount: 20, wage_interval_hours: 4, status: 'recruiting', my_role: 'hired', my_hired_at: '2026-10-18T02:00:00.000Z' },
   { project_id: 102, snowflake_id: '7102', title: '冷库分拣', description: '早班分拣冻品。', headcount: 4, hired_count: 1, wage_batt_per_claim: 25, wage_cid: 1, wage_currency_amount: 0, wage_interval_hours: 6, status: 'recruiting', my_role: 'none' },
   { project_id: 103, snowflake_id: '7103', title: '文案校对', description: '校对商品描述与错别字。', headcount: 5, hired_count: 2, wage_batt_per_claim: 20, wage_cid: 4, wage_currency_amount: 50, wage_interval_hours: 8, status: 'recruiting', my_role: 'none' },
   { project_id: 104, snowflake_id: '7104', title: '客服值守', description: '白天在线答疑。', headcount: 2, hired_count: 0, wage_batt_per_claim: 18, wage_cid: 1, wage_currency_amount: 0, wage_interval_hours: 12, status: 'recruiting', my_role: 'none' },
@@ -55,14 +55,38 @@ const ROWS = [
 
 const CUR = [{ cid: 1, symbol: '$' }, { cid: 4, symbol: 'BTTC' }]
 
-// 可变探针状态：失败臂靠它切换（不重启浏览器、不改夹具文件）
-const STATE = { claimFail: false, claimFailReason: 'WAGE_INTERVAL_NOT_REACHED', rows: ROWS.map((r) => ({ ...r })), calls: [] }
+// 可变探针状态：失败臂 / 倒计时臂 / 匿名臂靠它切换（不重启浏览器、不改夹具文件）
+const STATE = {
+  claimFail: false,
+  claimFailReason: 'WAGE_INTERVAL_NOT_REACHED',
+  countdownMs: 0, // > 0 ⇒ 101 行按「现在 + N ms」透出 next_claim_at（倒计时臂）
+  afterClaimNextAt: null, // 领工资成功 ⇒ 刷新后的行带上这个 next_claim_at（验「刷新拿新时间」）
+  anon: false, // true ⇒ 三键（my_role/my_hired_at/next_claim_at）整键缺省（匿名臂）
+  rows: ROWS.map((r) => ({ ...r })),
+  calls: [],
+}
+
+const resetRows = () => { STATE.rows = ROWS.map((r) => ({ ...r })) }
+
+/** 按 STATE 现算要下发的行（模拟服务端在请求时刻算 next_claim_at / 匿名单缺省三键）。 */
+const servedRows = () => STATE.rows.map((row) => {
+  let out = { ...row }
+  if (row.project_id === 101 && STATE.countdownMs > 0) {
+    out = { ...out, next_claim_at: new Date(Date.now() + STATE.countdownMs).toISOString() }
+  }
+  if (STATE.anon) {
+    delete out.my_role
+    delete out.my_hired_at
+    delete out.next_claim_at
+  }
+  return out
+})
 
 const apiResponse = (method, pathname) => {
   const ok = (data) => ({ success: true, data })
   if (pathname === '/api/project/all') {
     STATE.calls.push({ method, path: pathname })
-    return ok(STATE.rows)
+    return ok(servedRows())
   }
   if (pathname === '/api/currencies') return ok(CUR)
   // 签到面（Kevin 2026-10-20：电量卡 + 签到区并入 /wage 顶部 ⇒ 探针必须喂这两个读口）
@@ -86,8 +110,14 @@ const apiResponse = (method, pathname) => {
     if (STATE.claimFail) {
       return { success: false, error: { code: 'WAGE_CLAIM_TOO_SOON', details: { reason: STATE.claimFailReason, remaining_seconds: 90 } } }
     }
-    // 成功：batt 到账（并在列表里抹掉下次可领时间 ⇒ 由前端按间隔起倒计时）
-    return ok({ wage_batt: 30, wage_currency_amount: 0 })
+    // 成功：batt + 次币两笔到账；★ **响应里不返 next_claim_at** ⇒ 前端必须靠「刷新列表」拿新时间，
+    //   这一臂专验「成功 ⇒ 重拉 ⇒ 用服务端新 next_claim_at 重新置灰」这条链（不靠本地按间隔猜）。
+    if (STATE.afterClaimNextAt) {
+      STATE.rows = STATE.rows.map((r) => (
+        r.project_id === Number(claim[1]) ? { ...r, next_claim_at: STATE.afterClaimNextAt } : r
+      ))
+    }
+    return ok({ wage_batt: 30, wage_currency_amount: 20 })
   }
   const apply = pathname.match(/^\/api\/project\/(\d+)\/apply$/)
   if (apply && method === 'POST') {
@@ -165,7 +195,10 @@ const SNAP_FN = `(() => {
       const hint = c.querySelector('[data-sf-m="wage-card-hint"]')
       const extra = c.querySelector('[data-sf-m="wage-card-wage-extra"]')
       const notice = c.querySelector('[data-sf-m="wage-card-notice"]')
+      const badge = c.querySelector('[data-sf-m="wage-card-joined"]')
       const r = c.getBoundingClientRect()
+      const cs = getComputedStyle(c)
+      const tint = getComputedStyle(c, '::before')
       return {
         project: c.getAttribute('data-sf-project'),
         title: txt(c.querySelector('[data-sf-m="wage-card-title"]')),
@@ -186,6 +219,17 @@ const SNAP_FN = `(() => {
         noticeKind: notice ? notice.getAttribute('data-sf-kind') : null,
         noticeText: txt(notice),
         right: Math.round(r.right * 10) / 10,
+        // 已加入卡的区分度（data 旗标 / 徽标 / 描边 / 叠加层）
+        joined: c.getAttribute('data-sf-joined'),
+        role: c.getAttribute('data-sf-role'),
+        joinedBadge: txt(badge),
+        joinCount: c.querySelectorAll('[data-sf-action="join"]').length,
+        claimCount: c.querySelectorAll('[data-sf-action="claim"]').length,
+        bgColor: cs.backgroundColor,
+        borderLeftWidth: cs.borderLeftWidth,
+        borderLeftColor: cs.borderLeftColor,
+        tintBg: tint.backgroundColor,
+        tintOpacity: tint.opacity,
       }
     }),
   }
@@ -347,6 +391,32 @@ async function main() {
     closedNoAction: ['108', '109'].every((id) => byId[id] && byId[id].action === null),
   }
 
+  // ★ 派单三臂之一：已加入行**只渲染【领工资】，不得再出现【加入】**；
+  //   并核「已加入 = 另一套配色」（data 旗标 + 徽标 + 左侧强调边 + 淡黄叠加层），未加入卡一字不动。
+  const joinedCard = byId['101']
+  const plainCard = byId['102']
+  out.states['1536_joined_card'] = { joined: joinedCard, plain: plainCard }
+  out.assertions.joinedCard = {
+    hiredOnlyClaim: Boolean(joinedCard && joinedCard.action === 'claim' && joinedCard.claimCount === 1 && joinedCard.joinCount === 0),
+    noCardMixesJoinAndClaim: listSnap.cards.every((c) => !(c.joinCount > 0 && c.claimCount > 0)),
+    otherCardsJoinOnly: ['102', '103', '104', '105', '106', '110'].every((id) => byId[id] && byId[id].joinCount === 1 && byId[id].claimCount === 0),
+    joinedFlag: Boolean(joinedCard && joinedCard.joined === '1'),
+    plainFlag: Boolean(plainCard && plainCard.joined === '0'),
+    joinedBadgeText: Boolean(joinedCard && joinedCard.joinedBadge === ZH.wage.joinedBadge),
+    plainNoBadge: Boolean(plainCard && plainCard.joinedBadge === null),
+    badgeCount1: listSnap.cards.filter((c) => c.joined === '1').length === 1,
+    borderDiffers: Boolean(
+      joinedCard && plainCard
+        && joinedCard.borderLeftWidth !== plainCard.borderLeftWidth
+        && joinedCard.borderLeftColor !== plainCard.borderLeftColor
+    ),
+    borderIsAccent: Boolean(joinedCard && joinedCard.borderLeftWidth === '4px' && joinedCard.borderLeftColor === 'rgb(255, 230, 15)'),
+    tintDiffers: Boolean(
+      joinedCard && plainCard && joinedCard.tintBg !== plainCard.tintBg && joinedCard.tintOpacity === '0.12'
+    ),
+    plainTintNone: Boolean(plainCard && plainCard.tintOpacity !== '0.12'),
+  }
+
   // ===== 已招满臂（无人在职态）：把唯一在职行的 my_role 抹成 none 后重载 =====
   STATE.rows = STATE.rows.map((r) => (r.project_id === 101 ? { ...r, my_role: 'none' } : r))
   const fullSnap = await open('/wage')
@@ -366,6 +436,72 @@ async function main() {
   STATE.rows = STATE.rows.map((r) => (r.project_id === 101 ? { ...r, my_role: 'hired' } : r))
   STATE.calls.length = 0
   await open('/wage') // 这一发 = 卡面初始拉取（作为「领完重拉」的计数基线）
+
+  // ============================ ③-b 倒计时臂（next_claim_at 未到 ⇒ 置灰 + 倒计时；到点自动可点）==
+  // 口径：hired 行带 `next_claim_at`（未来 6s）⇒ 按钮置灰 + 「m:ss 后可领」、点了零请求；
+  //       走真实时间（不 mock 时钟）⇒ 1s tick 自动转可用 ⇒ 可点领薪、卡内显示 batt + 次币，
+  //       并用**刷新拿到的服务端新 next_claim_at**（3h25m，故意不等于 wage_interval_hours 4h）重新置灰。
+  STATE.countdownMs = 6000
+  STATE.afterClaimNextAt = new Date(Date.now() + 3 * 3600 * 1000 + 25 * 60 * 1000).toISOString()
+  STATE.calls.length = 0
+  const cdSnap = await open('/wage')
+  const cd0 = cdSnap.cards.find((c) => c.project === '101')
+  out.states['1536_countdown_before'] = cd0
+  // 置灰期间点击必须零写请求（disabled 按钮的 click 不触发 handler）
+  await page.evaluate(() => {
+    const b = document.querySelector('[data-sf-project="101"] [data-sf-action="claim"]')
+    if (b) b.click()
+  })
+  await settle(page)
+  const cdClicksWhileGated = STATE.calls.filter((c) => /\/claim$/.test(c.path)).length
+
+  const cdDue = await page.waitForFunction(() => {
+    const b = document.querySelector('[data-sf-project="101"] [data-sf-action="claim"]')
+    return !!b && b.getAttribute('data-sf-claimable') === '1'
+  }, null, { timeout: 20000 }).then(() => true).catch(() => false)
+  await settle(page)
+  const cd1 = (await page.evaluate(SNAP_FN)).cards.find((c) => c.project === '101')
+  out.states['1536_countdown_after'] = { due: cdDue, card: cd1 }
+
+  // 到点后撤掉「按请求时刻重算 next_claim_at」的模拟 ⇒ 领薪成功后的刷新读到的是服务端**新时间**
+  STATE.countdownMs = 0
+  await page.click('[data-sf-project="101"] [data-sf-action="claim"]')
+  await page.waitForFunction(() => {
+    const n = document.querySelector('[data-sf-project="101"] [data-sf-m="wage-card-notice"]')
+    return !!n && n.getAttribute('data-sf-kind') === 'ok'
+  }, null, { timeout: 8000 }).catch(() => {})
+  await settle(page)
+  const cd2 = (await page.evaluate(SNAP_FN)).cards.find((c) => c.project === '101')
+  const cdRemaining = Number(cd2 && cd2.remaining)
+  out.states['1536_countdown_claim'] = {
+    card: cd2,
+    remainingSeconds: cdRemaining,
+    intervalFallbackSeconds: 4 * 3600,
+    serverNextAtSeconds: Math.round((Date.parse(STATE.afterClaimNextAt) - Date.now()) / 1000),
+    claimPosts: STATE.calls.filter((c) => /\/claim$/.test(c.path)).length,
+    listFetches: STATE.calls.filter((c) => c.path === '/api/project/all').length,
+  }
+  out.assertions.countdown = {
+    gatedWithCountdown: Boolean(
+      cd0 && cd0.action === 'claim' && cd0.actionDisabled === true && cd0.claimable === '0'
+        && Number(cd0.remaining) > 0 && Number(cd0.remaining) <= 7 && /后可领$/.test(cd0.hint || '')
+    ),
+    zeroWriteWhileGated: cdClicksWhileGated === 0,
+    autoEnabledAtDueTime: cdDue === true && Boolean(cd1 && cd1.actionDisabled === false && cd1.claimable === '1' && cd1.hint === null),
+    claimOkWithBothCurrencies: Boolean(
+      cd2 && cd2.noticeKind === 'ok' && /batt\s*30/.test(cd2.noticeText || '') && /20\s*BTTC/.test(cd2.noticeText || '')
+    ),
+    // 重新置灰的剩余量 ≈ 服务端新 next_claim_at（3h25m）而不是本地间隔兜底（4h）⇒ 证明「刷新拿新时间」生效
+    regatedByServerNextAt: cdRemaining > 12000 && cdRemaining <= 12400,
+    claimPostCount1: STATE.calls.filter((c) => /\/claim$/.test(c.path)).length === 1,
+    listRefetchedAfterClaim: STATE.calls.filter((c) => c.path === '/api/project/all').length >= 2,
+  }
+
+  // 复原：倒计时臂改过的行与状态全部回位，再跑原有的「领工资成功臂」
+  STATE.countdownMs = 0
+  resetRows()
+  STATE.calls.length = 0
+  await open('/wage')
 
   // ============================ ③ 领工资成功臂 =====================================
   await page.click('[data-sf-project="101"] [data-sf-action="claim"]')
@@ -388,12 +524,15 @@ async function main() {
     postPath: (STATE.calls.find((c) => /\/claim$/.test(c.path)) || {}).path,
     noticeOk: c101 && c101.noticeKind === 'ok',
     noticeHasBatt: c101 && /batt\s*30/.test(c101.noticeText || ''),
+    noticeHasCurrency: c101 && /20\s*BTTC/.test(c101.noticeText || ''),
     cardRefreshedAndGated: c101 && c101.claimable === '0' && Number(c101.remaining) > 0,
     listRefetched: STATE.calls.filter((c) => c.path === '/api/project/all').length >= 2,
     cardStillPresent: afterClaim.cards.length === 10,
   }
 
   // ============================ ③ 领工资失败臂（400 间隔未到） =====================
+  // 前置：清掉 101 的 next_claim_at —— 成功臂刷新后它已被置灰，而失败臂需要一个**可点**的按钮。
+  resetRows()
   STATE.claimFail = true
   STATE.calls.length = 0
   const failSnap = await open('/wage')
@@ -440,6 +579,13 @@ async function main() {
       checkinAboveList: snap.checkin.cardBottom !== null && snap.checkin.listTop !== null
         && snap.checkin.cardBottom <= snap.checkin.listTop,
       checkinButtons: snap.checkin.buttonTexts,
+      // 已加入卡的配色区分在两档都必须成立（joined 卡 = 4px 黄边 + 淡黄叠加 + 徽标）
+      joinedCards: snap.cards.filter((c) => c.joined === '1').length,
+      joinedBorder: (snap.cards.find((c) => c.joined === '1') || {}).borderLeftWidth,
+      joinedTint: (snap.cards.find((c) => c.joined === '1') || {}).tintOpacity,
+      joinedBadge: (snap.cards.find((c) => c.joined === '1') || {}).joinedBadge,
+      plainBorder: (snap.cards.find((c) => c.joined === '0') || {}).borderLeftWidth,
+      plainTint: (snap.cards.find((c) => c.joined === '0') || {}).tintOpacity,
     }
   }
   out.assertions.geometry = {
@@ -454,11 +600,25 @@ async function main() {
     checkin1536: out.states['1536_geometry'].checkinPresent === true
       && out.states['1536_geometry'].checkinAboveList === true,
     zeroPageErrors: pageErrors.length === 0,
+    // ★ 已加入卡两档都可辨（底色/描边与普通卡 computed 值不同）
+    joinedDistinct390: out.states['390_geometry'].joinedCards === 1
+      && out.states['390_geometry'].joinedBorder !== out.states['390_geometry'].plainBorder
+      && out.states['390_geometry'].joinedTint !== out.states['390_geometry'].plainTint,
+    joinedBadge390: out.states['390_geometry'].joinedBadge === ZH.wage.joinedBadge,
+    joinedDistinct1536: out.states['1536_geometry'].joinedCards === 1
+      && out.states['1536_geometry'].joinedBorder !== out.states['1536_geometry'].plainBorder
+      && out.states['1536_geometry'].joinedTint !== out.states['1536_geometry'].plainTint,
+    joinedBadge1536: out.states['1536_geometry'].joinedBadge === ZH.wage.joinedBadge,
   }
 
   // ============================ ⑤ 客态公开浏览臂（独立 context，无登录种子）================
   // 口径：`/api/project/all` 是无闸公开读口 ⇒ 未登录也必须渲染项目卡；写口（加入 / 领工资）
   //       点击只弹**卡内登录提示**、零写请求。旧形态「未登录 ⇒ 整页只有登录块、零请求」已作废。
+  // ★ 匿名载荷按真契约走：`my_role` / `my_hired_at` / `next_claim_at` **三键整键缺省**
+  //   ⇒ 不得被当成 'hired'（卡面必须全是【加入】、无【领工资】、无【已加入】徽标）。
+  STATE.anon = true
+  STATE.countdownMs = 0
+  resetRows()
   const guestCtx = await browser.newContext({ viewport: { width: 1536, height: 960 }, reducedMotion: 'reduce', deviceScaleFactor: 1 })
   guestCtx.addInitScript(() => { localStorage.setItem('theme', 'light') }) // 只种主题，不种登录态
   await attachRoutes(guestCtx)
@@ -486,10 +646,11 @@ async function main() {
   const guestJoinClicked = await clickGuest('[data-sf-project="102"] [data-sf-action="join"]')
   const guestAfterJoin = await guestPage.evaluate(SNAP_FN)
   const g102 = guestAfterJoin.cards.find((c) => c.project === '102')
-  const guestClaimClicked = await clickGuest('[data-sf-project="101"] [data-sf-action="claim"]')
-  const guestAfterClaim = await guestPage.evaluate(SNAP_FN)
-  const g101guest = guestAfterClaim.cards.find((c) => c.project === '101')
-  const writeCalls = STATE.calls.filter((c) => /\/(apply|claim)$/.test(c.path))
+  // 匿名载荷没有 my_role ⇒ 101（登录态下是「已加入」的那张）也必须是【加入】，点了只弹登录提示
+  const guestJoin101Clicked = await clickGuest('[data-sf-project="101"] [data-sf-action="join"]')
+  const guestAfterJoin101 = await guestPage.evaluate(SNAP_FN)
+  const g101guest = guestAfterJoin101.cards.find((c) => c.project === '101')
+  const writeCalls = STATE.calls.filter((c) => /(apply|claim)$/.test(c.path))
 
   out.states['1536_guest'] = {
     page: guestSnap.page,
@@ -500,7 +661,7 @@ async function main() {
     c102: gById['102'],
     c103: gById['103'],
     afterJoinClick: g102,
-    afterClaimClick: g101guest,
+    afterJoinClick101: g101guest,
     writeCalls,
   }
   out.assertions.guest = {
@@ -511,6 +672,13 @@ async function main() {
     titleVisible: Boolean(gById['102'] && gById['102'].title === '冷库分拣'),
     wageVisible: Boolean(gById['101'] && /batt\s*30/.test(gById['101'].wage || '')),
     currencyExtraVisible: Boolean(gById['103'] && /BTTC/.test(gById['103'].wageExtra || '')),
+    // ★ 三键缺省 ⇒ 不得被读成 hired：无一张卡有【领工资】、无一张卡是【已加入】态，全部【加入】
+    noClaimButtons: guestSnap.cards.every((c) => c.claimCount === 0 && c.action !== 'claim'),
+    // 招募中的卡全部是【加入】（8 张）；已截止的两张本来就没有动作按钮（状态标签体现）
+    allCardsJoinOnly: guestSnap.cards.filter((c) => c.joinCount === 1).length === 8
+      && guestSnap.cards.filter((c) => c.statusState === 'closed' && c.action === null).length === 2,
+    noJoinedFlag: guestSnap.cards.every((c) => c.joined === '0' && c.joinedBadge === null),
+    rolesAnonymous: guestSnap.cards.every((c) => c.role === 'anonymous'),
     joinEnabled: Boolean(
       gById['102'] && gById['102'].action === 'join'
         && gById['102'].actionDisabled === false && gById['102'].needLogin === '1'
@@ -518,12 +686,12 @@ async function main() {
     joinClickLoginPrompt: guestJoinClicked && Boolean(
       g102 && g102.noticeKind === 'login' && (g102.noticeText || '').includes(ZH.wage.loginRequired) && g102.loginLink
     ),
-    claimClickLoginPrompt: guestClaimClicked && Boolean(
+    joinClickLoginPrompt101: guestJoin101Clicked && Boolean(
       g101guest && g101guest.noticeKind === 'login' && (g101guest.noticeText || '').includes(ZH.wage.loginRequired)
     ),
     zeroWriteRequests: writeCalls.length === 0,
     writeCallPaths: writeCalls.map((c) => c.path),
-    cardsStableAfterClicks: guestAfterClaim.cards.length === ROWS.length,
+    cardsStableAfterClicks: guestAfterJoin101.cards.length === ROWS.length,
     zeroOverflowGuest: guestSnap.overflowPx === 0,
   }
   await guestCtx.close()
@@ -567,14 +735,27 @@ async function main() {
     'list.tenCards', 'list.recruitingCards', 'list.closedCards', 'list.hiredCardClaimEnabled', 'list.otherJoinDisabled',
     'list.joinEnabledWhenFree',
     'list.otherHintOneAtATime', 'list.fullCardDisabledWithHint', 'list.closedNoAction',
-    'claimOk.postCount1', 'claimOk.noticeOk', 'claimOk.noticeHasBatt', 'claimOk.cardRefreshedAndGated', 'claimOk.listRefetched',
+    // 已加入卡：只有【领工资】、不再有【加入】，且换一套配色（徽标 / 黄边 / 淡黄叠加）
+    'joinedCard.hiredOnlyClaim', 'joinedCard.noCardMixesJoinAndClaim', 'joinedCard.otherCardsJoinOnly',
+    'joinedCard.joinedFlag', 'joinedCard.plainFlag', 'joinedCard.joinedBadgeText', 'joinedCard.plainNoBadge',
+    'joinedCard.badgeCount1', 'joinedCard.borderDiffers', 'joinedCard.borderIsAccent',
+    'joinedCard.tintDiffers', 'joinedCard.plainTintNone',
+    // 倒计时：未到点置灰 + 倒计时、到点自动可点、成功到账（batt + 次币）、刷新拿服务端新时间重新置灰
+    'countdown.gatedWithCountdown', 'countdown.zeroWriteWhileGated', 'countdown.autoEnabledAtDueTime',
+    'countdown.claimOkWithBothCurrencies', 'countdown.regatedByServerNextAt',
+    'countdown.claimPostCount1', 'countdown.listRefetchedAfterClaim',
+    'claimOk.postCount1', 'claimOk.noticeOk', 'claimOk.noticeHasBatt', 'claimOk.noticeHasCurrency',
+    'claimOk.cardRefreshedAndGated', 'claimOk.listRefetched',
     'claimFail.noticeErr', 'claimFail.noticeIsReason', 'claimFail.noWhiteScreen',
     'geometry.zeroOverflow390', 'geometry.zeroOverflow1536', 'geometry.cards390',
     'geometry.touchTarget44On390', 'geometry.zeroPageErrors', 'geometry.checkin390', 'geometry.checkin1536',
-    // ⑤ 客态公开浏览臂（未登录也渲染列表 + 写口需登录）
+    'geometry.joinedDistinct390', 'geometry.joinedBadge390',
+    'geometry.joinedDistinct1536', 'geometry.joinedBadge1536',
+    // ⑤ 客态公开浏览臂（未登录也渲染列表 + 写口需登录；三键缺省不得读成 hired）
     'guest.cardsVisible', 'guest.listRendered', 'guest.bannerWithList', 'guest.titleVisible',
     'guest.wageVisible', 'guest.currencyExtraVisible', 'guest.joinEnabled',
-    'guest.joinClickLoginPrompt', 'guest.claimClickLoginPrompt', 'guest.zeroWriteRequests',
+    'guest.noClaimButtons', 'guest.allCardsJoinOnly', 'guest.noJoinedFlag', 'guest.rolesAnonymous',
+    'guest.joinClickLoginPrompt', 'guest.joinClickLoginPrompt101', 'guest.zeroWriteRequests',
     'guest.cardsStableAfterClicks', 'guest.zeroOverflowGuest',
     'guest.zeroOverflow390', 'guest.cards390', 'guest.touchTarget44On390', 'guest.bannerAndList390',
   ]

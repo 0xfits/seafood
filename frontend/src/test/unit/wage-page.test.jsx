@@ -179,6 +179,10 @@ describe('/wage ① 列表卡：状态 / 已招 X/Y / 工资行 / 按钮态', ()
     const hint = cardOf(container, '11').querySelector('[data-sf-m="wage-card-hint"]')
     expect(hint.textContent).toMatch(/后可领$/)
 
+    // ★ 已加入的项目**不得再出现【加入】**（卡内只有【领工资】）
+    expect(cardOf(container, '11').querySelector('[data-sf-action="join"]')).toBeNull()
+    expect(cardOf(container, '11').querySelectorAll('[data-sf-m="wage-card-action"]')).toHaveLength(1)
+
     // 已在其他项目在职 ⇒ 本卡【加入】置灰 + 「同时只能在一个项目打工」
     const joinBtn = cardOf(container, '12').querySelector('[data-sf-action="join"]')
     expect(joinBtn).not.toBeNull()
@@ -188,6 +192,26 @@ describe('/wage ① 列表卡：状态 / 已招 X/Y / 工资行 / 按钮态', ()
 
     // 已截止且未入职 ⇒ 无动作按钮（只在状态标签上体现）
     expect(cardOf(container, '13').querySelector('[data-sf-m="wage-card-action"]')).toBeNull()
+  })
+
+  it('已加入的卡换配色：data-sf-joined=1 + 【已加入】徽标；未加入卡 0 且无徽标', async () => {
+    installFetch({ rows: [rowHired(), ROW_OPEN] })
+    const { container } = mount()
+    await waitFor(() => expect(cards(container)).toHaveLength(2))
+
+    const joined = cardOf(container, '11')
+    expect(joined.getAttribute('data-sf-joined')).toBe('1')
+    expect(joined.className).toContain('is-joined')
+    const badge = joined.querySelector('[data-sf-m="wage-card-joined"]')
+    expect(badge).not.toBeNull()
+    expect(badge.textContent).toBe(zh.wage.joinedBadge)
+    // 徽标挂在标题行内，标题文字本身不受影响
+    expect(joined.querySelector('[data-sf-m="wage-card-title"]').textContent).toBe('海鲜打包')
+
+    const plain = cardOf(container, '12')
+    expect(plain.getAttribute('data-sf-joined')).toBe('0')
+    expect(plain.className).not.toContain('is-joined')
+    expect(plain.querySelector('[data-sf-m="wage-card-joined"]')).toBeNull()
   })
 
   it('无人在职 ⇒ 招募中卡【加入】可点；已招满 ⇒ 置灰 + 已招满提示', async () => {
@@ -226,6 +250,25 @@ describe('/wage ② 加入 / 领工资行为', () => {
     expect(apply[0].url).toBe('/api/project/12/apply')
     // 列表被重拉（首拉 + 成功后的静默刷新）
     expect(calls.filter((c) => c.url.startsWith('/api/project/all')).length).toBeGreaterThanOrEqual(2)
+  })
+
+  it('next_claim_at 未到 ⇒ 置灰倒计时；到点后 1s tick 自动可点', async () => {
+    installFetch({
+      rows: [rowHired({ next_claim_at: new Date(Date.now() + 1200).toISOString() })],
+      onClaim: () => okBody({ wage_batt: 30 }),
+    })
+    const { container } = mount()
+    await waitFor(() => expect(cards(container)).toHaveLength(1))
+
+    const claimBtn = () => cardOf(container, '11').querySelector('[data-sf-action="claim"]')
+    expect(claimBtn().disabled).toBe(true)
+    expect(claimBtn().getAttribute('data-sf-claimable')).toBe('0')
+    expect(Number(claimBtn().getAttribute('data-sf-remaining'))).toBeGreaterThan(0)
+
+    // 到点：定时器 tick 后自动转可用（无需刷新、无需点击）
+    await waitFor(() => expect(claimBtn().disabled).toBe(false), { timeout: 6000 })
+    expect(claimBtn().getAttribute('data-sf-claimable')).toBe('1')
+    expect(cardOf(container, '11').querySelector('[data-sf-m="wage-card-hint"]')).toBeNull()
   })
 
   it('领工资成功：POST claim ⇒ 卡内到账数值提示 + 间隔置灰倒计时', async () => {
@@ -382,6 +425,42 @@ describe('/wage ③ 未登录（公开浏览） / 空态', () => {
     expect(calls.filter((c) => /\/claim$/.test(c.url))).toHaveLength(0)
   })
 
+  it('匿名行（my_role/my_hired_at/next_claim_at 三键缺省）⇒ 全卡【加入】、无【领工资】，点击只弹登录提示', async () => {
+    AUTH.isAuthenticated = false
+    const anonRow = (row) => {
+      const copy = { ...row }
+      delete copy.my_role
+      delete copy.my_hired_at
+      delete copy.next_claim_at
+      return copy
+    }
+    const { calls } = installFetch({ rows: [anonRow(rowHired()), anonRow(ROW_OPEN)] })
+    const { container } = mount('/wage')
+    await waitFor(() => expect(cards(container)).toHaveLength(2))
+
+    // 键缺省不得被当作 hired：两张卡都无【领工资】、无在职徽标
+    expect(container.querySelectorAll('[data-sf-action="claim"]')).toHaveLength(0)
+    expect(container.querySelectorAll('[data-sf-m="wage-card-joined"]')).toHaveLength(0)
+    for (const card of cards(container)) {
+      expect(card.getAttribute('data-sf-joined')).toBe('0')
+      expect(card.getAttribute('data-sf-role')).toBe('anonymous')
+      const joinBtn = card.querySelector('[data-sf-action="join"]')
+      expect(joinBtn).not.toBeNull()
+      expect(joinBtn.disabled).toBe(false)
+      expect(joinBtn.textContent).toBe(zh.wage.join)
+      expect(joinBtn.getAttribute('data-sf-need-login')).toBe('1')
+    }
+
+    fireEvent.click(cardOf(container, '11').querySelector('[data-sf-action="join"]'))
+    await waitFor(() => {
+      const notice = cardOf(container, '11').querySelector('[data-sf-m="wage-card-notice"]')
+      expect(notice).not.toBeNull()
+      expect(notice.getAttribute('data-sf-kind')).toBe('login')
+      expect(notice.textContent).toContain(zh.wage.loginRequired)
+    })
+    expect(calls.filter((c) => /\/apply$|\/claim$/.test(c.url))).toHaveLength(0)
+  })
+
   it('空列表 ⇒ 空态文案（不渲染卡片）', async () => {
     installFetch({ rows: [] })
     const { container } = mount()
@@ -398,6 +477,7 @@ describe('/wage ④ i18n `wage` 命名空间（四语齐备 + 计数前推）', 
     'wageExtra', 'join', 'joining', 'joined', 'joinedToast', 'claim', 'claiming', 'claimReadyIn',
     'inService', 'full', 'oneAtATime', 'claimed', 'claimedWithCurrency', 'claimTooSoon', 'notHired',
     'claimFailed', 'applyFailed', 'loginRequired', 'loginCta', 'loadFailed', 'retry', 'empty',
+    'joinedBadge',
   ]
 
   it('四语键集相同且逐键非空；menuLabel 逐字 = 领工资 系', () => {
@@ -418,11 +498,11 @@ describe('/wage ④ i18n `wage` 命名空间（四语齐备 + 计数前推）', 
     ))
     for (const lang of LANGS) {
       expect(Object.keys(TABLES[lang]).length, `${lang} top`).toBe(133) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
-      expect(flat(TABLES[lang]).length, `${lang} flat`).toBe(1236) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
+      expect(flat(TABLES[lang]).length, `${lang} flat`).toBe(1237) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
     }
     expect(Object.keys(TABLES.zh).length * LANGS.length).toBe(532) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
-    expect(flat(TABLES.zh).length * LANGS.length).toBe(4944) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
-    // 新增命名空间恰 +1 顶层 / +29 拍平键（相对上一版 131 / 1140）
-    expect(REQUIRED).toHaveLength(29)
+    expect(flat(TABLES.zh).length * LANGS.length).toBe(4948) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
+    // 新增命名空间恰 +1 顶层 / +29 拍平键（相对上一版 131 / 1140）；joinedBadge 加入后 30 键
+    expect(REQUIRED).toHaveLength(30)
   })
 })

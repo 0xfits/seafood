@@ -112,3 +112,69 @@
   与实现已不一致，需另立规范勘误单（旧条文保留 + 「作废 · 以新段为准」）。
 - **历史证据未改写**：`ops/bttc-mint-shortfall/**` 里的 `/activities` 属上一批（当时页面尚在）的探针与读数，
   按「历史读数不改写」保留；其探针若重跑会落 catch-all 提示页，属预期。
+
+## 卡片按钮重构 + 已加入卡配色（2026-10-20 · 第二单）
+
+**目标**：① 已加入项目**只显【领工资】**（含 `next_claim_at` 倒计时、到点自动可点），不再与【加入】同屏；
+② 其他项目【加入】的置灰逻辑收口到「同时只能在一个项目打工」；③ 已加入的卡换一套配色，与其他卡一眼可辨。
+
+### 改动（纯前端；零新路由、零后端改动、零新主题 token）
+
+- `frontend/src/pages/wage/WagePage.jsx`
+  - **键存在性判别**：新增 `hasKey`（`Object.prototype.hasOwnProperty`）与 `myRoleOf(row)`
+    ⇒ `'hired' | 'none' | null`。匿名时后端对 `my_role` / `my_hired_at` / `next_claim_at` **整键缺省**
+    ⇒ `null` = 不参与在职判定（**不用 falsy 判别**，否则 `null` / 缺键 / `'none'` 会被混成一类）。
+    `my_role` 键在场时逐字采用（闭集外按 `none`），只带非空 `my_hired_at` 也认作在职。
+  - **按钮态只认 `my_role`**：`hired` ⇒ 卡内**只**渲染【领工资】（`[data-sf-action="join"]` 数量 0）；
+    `none` ⇒ 【加入】；键缺省（匿名）⇒ 照常渲染【加入】、点击只给登录提示、**零写请求**。
+  - **领取间隔以行内 `next_claim_at` 为准**：键在场且为未来时刻 ⇒ 置灰 + 1s tick 倒计时（`m:ss` / `h:mm:ss`）；
+    键在场且已过 / `null` ⇒ 立即可领；**键缺席** ⇒ 不动本地倒计时（不把「没透出」读成「现在可领」），
+    交给服务端 400 兜底。定时器改为按 `pendingClaim` 开关（到点那一 tick 后自动停，不每秒重建 interval）。
+  - **成功 ⇒ 刷新拿服务端新时间**：`POST /api/project/:id/claim` 成功后 `await load({silent:true})`，
+    下次可领时间优先取 `响应.next_claim_at` → 次取**刷新后该行**的 `next_claim_at` → 最后才是
+    `wage_interval_hours` 兜底；卡内提示显示到账 batt + 次币（`claimedWithCurrency`）。
+  - **已加入卡的区分度**：`data-sf-joined="1"` + `is-joined` 类 + 标题行【已加入】徽标
+    （`data-sf-m="wage-card-joined"`，文案 `wage.joinedBadge`）；未加入的卡 `data-sf-joined="0"`、无徽标、配色一字不动。
+  - 新增 `data-sf-role="hired|none|anonymous"`（探针判别用，不影响渲染）。
+- `frontend/src/pages/wage/wage.css`：`.sf-wage-card.is-joined` = 左侧 **4px** 强调边（`--sf-btna-bg`）+
+  `::before` **12% 淡黄叠加层**（同一 token、`pointer-events:none`、子元素 `position:relative;z-index:1`）+
+  `.sf-wage-joined-badge`（12px/700/圆角 2px/`--sf-btna-bg` 底 `--sf-btna-fg` 字，与详情页标签同族）。
+  **零新 token、无 `[data-theme]` 选择器、无 `matchMedia`**；叠加层不走 `background-color` ⇒ 不改 `.sf-card`
+  的底色槽位，夜档卡面仍是 `rgb(20,22,25)`（实测：夜档 title `rgb(237,239,242)` 可读）。
+- i18n：新增 `wage.joinedBadge`（zh 已加入 / en Joined / hk 已加入 / **vn Đã tham gia 待复核**）⇒
+  四语对称 +1 键：**top 133 不变 / flat 1236→1237 / 四语节点 4944→4948**；14 个硬编计数测试文件按现取复算等值替换
+  （`toBe(1236)→1237`、`toBe(4944)→4948`、`flat: 1236→1237`、`'zh: top=133 flat=1236'→1237`、命中节点数 4944→4948）。
+
+### 验证读数（均已落盘 `readings/`）
+
+- `npm run build`：**exit 0**（`assets/index-B2X6D2ZE.js`；`readings/build-joined-card.log`）。
+- `npm run test:unit`：**68 文件 / 711 例全绿**（改前基线当场自取 = **68 / 708** ⇒ +3 例，例数不减；
+  `readings/unit-joined-card.log`）。新增 3 例：`hired` 卡无【加入】、倒计时到点自动可点、匿名三键缺省全【加入】+零写请求；
+  另在既有例内补「已加入卡 `data-sf-joined=1` + 徽标 / 未加入卡 0 且无徽标」。
+- 探针 `node ops/wage/front/probe-wage.mjs`：**verdict.pass = true、failed = []**，必过项 **90**、`pageErrors = 0`
+  （`readings/probe-result-wage-joined.json`、`readings/summary-joined-card.json`）。本单三条新臂：
+  - **① 已加入行只有【领工资】**：项目 101 `action=claim`、`claimCount=1`、`joinCount=0`；全列表无一张卡同时有
+    join+claim；其余招募中卡 `joinCount=1 / claimCount=0`。已加入卡 `data-sf-joined=1`、徽标「已加入」、全表仅 1 张；
+    普通卡 `0` + 无徽标。
+  - **② 配色可辨（computed 对拍）**：joined vs plain = 左描边 `4px rgb(255,230,15)` vs `1px rgb(3,4,2)`；
+    叠加层 `rgb(255,230,15)/0.12` vs `rgba(0,0,0,0)/1`；390 / 1536 两档同判据全绿且零横向溢出。
+  - **③ 倒计时臂（真实时间，不 mock 时钟）**：`next_claim_at = now+6s` ⇒ 置灰 + `0:0x 后可领`、置灰期间点击
+    **零 claim 请求**；到点（`waitForFunction claimable=1`）自动可点；领薪成功卡内「已领到 batt 30 与 20 BTTC」，
+    重拉后按**服务端新 `next_claim_at`（3h25m=12294s）**重新置灰 —— 与本地间隔兜底（4h=14400s）**不同值**，
+    证明「刷新拿新时间」这条链真的走通（而非本地猜）。
+  - 客态臂改为**匿名真载荷**（三键整键缺省）：10 张卡全 `role=anonymous`、`joined=0`、无【领工资】；
+    8 张招募中全【加入】、2 张已截止无按钮；点【加入】⇒ 卡内登录提示、`writeCalls = []`。
+
+### 边界与待接项（如实披露）
+
+- **后端契约已在同树落库**（`563f816` `feat(project): 列表读口登录态加性 my_role / my_hired_at / next_claim_at`，
+  文件面与本单不重叠）：逐字核对 `ProjectListRow` = `my_role('hired'|'none')` + `my_hired_at(string|null)` +
+  `next_claim_at(ISO|null)`；**非在职行三键在场**（后两键 `null`）、**匿名行三键缺省** ⇒ 与前端
+  `hasKey` / `myRoleOf` 判据一致（`'none'` 不置灰别人的卡，缺键不当 hired）。
+  `next_claim_at = max(hired_at, 上次 claim) + wage_interval_hours`（与 claim 结算窗口同一算式）。
+  ★ **`POST /api/project/:id/claim` 的响应不含 `next_claim_at`**（现取 `grep -n next_claim_at backend-ts/src`
+  只在读口出现）⇒「成功 ⇒ 重拉列表拿新时间」是唯一正确路径，探针 ③ 正按此设计（响应不带、刷新带）。
+  前端「优先取 `响应.next_claim_at`」那一支属**契约之外的防御分支**，不影响现行为。
+- `docs/**` 未改（本单口径 = 不碰后端/docs）⇒ `docs/route-layer.spec.md` 的 `/api/project/all` 行键集仍是旧口径
+  （未记 `my_role` / `my_hired_at` / `next_claim_at` 三键与 `wage.joinedBadge`），需另立规范勘误单。
+- 未加入的卡：`data-sf-joined="0"` 且**无任何新增 class / 样式命中**（`.is-joined` 只在 joined 时挂）。

@@ -1,0 +1,72 @@
+{
+  "verdict": true,
+  "failed": [],
+  "required": 90,
+  "pageErrors": [],
+  "newArms": {
+    "joinedCard": {
+      "hiredOnlyClaim": true,
+      "noCardMixesJoinAndClaim": true,
+      "otherCardsJoinOnly": true,
+      "joinedFlag": true,
+      "plainFlag": true,
+      "joinedBadgeText": true,
+      "plainNoBadge": true,
+      "badgeCount1": true,
+      "borderDiffers": true,
+      "borderIsAccent": true,
+      "tintDiffers": true,
+      "plainTintNone": true
+    },
+    "countdown": {
+      "gatedWithCountdown": true,
+      "zeroWriteWhileGated": true,
+      "autoEnabledAtDueTime": true,
+      "claimOkWithBothCurrencies": true,
+      "regatedByServerNextAt": true,
+      "claimPostCount1": true,
+      "listRefetchedAfterClaim": true
+    }
+  },
+  "joinedVsPlain": {
+    "joined": [
+      "1",
+      "0"
+    ],
+    "joinedBadge": [
+      "已加入",
+      null
+    ],
+    "borderLeftWidth": [
+      "4px",
+      "1px"
+    ],
+    "borderLeftColor": [
+      "rgb(255, 230, 15)",
+      "rgb(3, 4, 2)"
+    ],
+    "tintBg": [
+      "rgb(255, 230, 15)",
+      "rgba(0, 0, 0, 0)"
+    ],
+    "tintOpacity": [
+      "0.12",
+      "1"
+    ],
+    "joinCount": [
+      0,
+      1
+    ],
+    "claimCount": [
+      1,
+      0
+    ]
+  },
+  "countdownClaim": {
+    "remainingSeconds": 12294,
+    "intervalFallbackSeconds": 14400,
+    "serverNextAtSeconds": 12294,
+    "claimPosts": 1,
+    "listFetches": 2
+  }
+}
