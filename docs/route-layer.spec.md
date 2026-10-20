@@ -9588,3 +9588,60 @@ ORDER BY score DESC, l.time_created DESC, l.listing_id DESC
 - **现取（2026-10-20 · HEAD `421b7c9` —— **`origin/main` = `6f88cce`，本地 **ahead 2 笔**（`c3dd5fc` 规范 / `421b7c9` 实现），**均未 push**；工作区在编制起点干净）**：注册点 **110**（get 49 / post 57 / put 0 / delete 3 / patch 1）· 创建口 `title` 现取**缺省 `''`**、非字符串 ⇒ `NOT_A_STRING`、进 `create_key` 派生（`listing-service.ts:238-241`）· 指纹现 **6 项**（`:198` / `:267`）· `PATCH` 字段模式已落 `title ⇒ 400 NOT_SUPPORTED`（`listing-service.ts:393-396` 注释）· 两库 `schema_version` **`0054`** / `schema_migration` 53 行 · 迁移文件末位 **`0054`**。
 - **未做（`NOT_MEASURED` · 本册不预填）**：三条写口的 `title` / `description` 闸**未实现**（`createListing` 现取仍收 `title`、`description` 仍可选 `toOptionalText`）；读口派生**未实现**（`normalizeBrand` 现取仍 `title ← 列`）；**零 HTTP 实测 / 零库写**；§49.13.7 八条判负**一条未跑**；`REQUIRED` 字面未落盘。
 - **契约面** = `data-layer.spec` **§40.9**（回填 / DROP / 顺序）+ `design-system.spec` **§26.14**（单描述框 / 派生标题）+ `master-plan` **§5.440 / 版本行 v0.357** + `ops/title-merge/SPEC-NOTE.md`；**本册不升版**（承 §49.10 / §49.11 / §49.12 加性续登体例）。
+
+### 49.14 详情读口增量（`GET /api/prize/:bID` **读路径每次成功读 +1** · 加性键 `views` ＋ `condition` ⇒ 详情 **47→49** · 写口 `item_condition` · **零新 API 路由**）· 2026-10-20 · **同 v2.43 加性续登、不升版** · 纯追加
+
+> **依据两段（均逐字转引自本单派单、原始会话未入仓 ⇒ 与 Kevin 原话若有出入以 Kevin 一句话为准）**：① **配套后端口径** = 迁移 `0057`（data **§40.10** 契约）加 `listing.view_count bigint NOT NULL DEFAULT 0`；本读口**每次成功读 +1**（不区分访问者、卖家自看也计、404 不计、fail-open）并透出 **`views`**；**去重挂账**（data §40.10.3）。② **同日三点追加** = 次要标签收敛两枚 / **新增成色字段 `item_condition`（四值闭集，与 view_count 同迁移 0057，详情键 +`condition` ⇒ 详情 49 键）** / 核心标签 = 成色卖点标签（design §26.15）。姊妹面 = `design-system.spec` **§26.15**（H5 四段 + 底栏四件 / Web 两栏）+ `master-plan` **§5.441 / 版本行 v0.358** + `ops/item-detail/SPEC-NOTE.md`。
+
+#### 49.14.1 作用面（读口 1 ＋ 写口 3 扩展 · **零新 API 路由 / 零新错误码** · 一条新迁移）
+
+- **唯一变更读口** = `GET /api/prize/:bID`（`index.ts:667` 现取）：读响应加性键 `views` ＋ `condition` + 读路径 +1 副作用。**零新 API 路由**（注册点仍 **110** = get 49 / post 57 / put 0 / delete 3 / patch 1，现取复算）⇒ `p7b-03` 的 `AC10-2` 常量**不动**（写「110→111」即判负 #25）。
+- **扩展写口恰 3 条（全部既有路径收新字段，零新路由）**：`POST /api/listing`（创建，可选 `item_condition`）· `PATCH /api/listing/:listingId` 字段模式（`item_condition` = **第 6 可改字段**，承 v0.356 双模式契约的可改字段集 5→6）· 旧编辑口 `POST /api/listing/:id`（同收同闸）。
+- **零新错误码**（33 码闭集不动；`item_condition` 非法借 `LEDGER_AMOUNT_INVALID` + `NOT_IN_CLOSED_SET` —— `item_type` 同族；计数副作用 fail-open、不新增失败响应形态）。
+- **新迁移恰 1 条** = `0057`（**双列**：`view_count` + `item_condition`；内容契约 = data §40.10.1；实现单创建 · apply 由 Zang · 先 apply 后 push）。
+- feed `/api/prize/all` **两键均不加**（feed **48** 不变）；`GET /api/listing/mine` **加性 `condition` ⇒ 10→11**（编辑页预填唯一取数源 `PublishItemPage.jsx:268` 现取 ⇒「编辑页可改」的派生必要增量）；其余读口零变化。
+
+#### 49.14.2 自增副作用契约（硬 · **落点 = 路由层**）
+
+1. **落点（硬）**：+1 写在**路由 handler 成功路径**（行找到之后、响应之前）；**禁止**落服务层 `getBrandById` / `getPrizeById` —— 现取两方法**多消费点**（建单回读 `database.ts:6347`、幂等重放 `:6371`、市场订单族 `:6640/:6666/:6688/:6693/:6778/:6881/:7068/:7079/:7106` 等 ≥10 处）：服务层计数会把建单回读 / 下单读行**全部误计成浏览**（判负 #27）。
+2. **计数面**：每次**到达 origin** 的成功读 +1；**不区分访问者**（无登录 / uid / IP / UA / 设备指纹区分）、**卖家自看也计**；miss 分支（`sendRefNotFound`）**不 +1**。
+3. **形态**：单语句 `UPDATE public.listing SET view_count = view_count + 1 WHERE listing_id = $1`；响应 `views` = **计入后**值（含本次 ⇒ 部署后首读 = 1）。
+4. **fail-open（硬）**：计数 UPDATE 失败（锁等待 / 超时 / 连接抖动）⇒ **详情响应仍必须成功返回**（欠计一次可接受）；禁止计数故障把详情读口拖成 4xx/5xx、禁止把计数写与读行包进同一失败域（判负 #26）。
+5. **不进幂等指纹 / 不触发翻译重置**：`view_count` 与 `item_condition` 均不参与 `create_key` 派生与任何指纹；计数变化 ≠ 内容变化 ⇒ 不得调 `enqueueListingTranslation`（判负 #27）。
+6. **缓存张力**（诚实登记）：详情口现挂 `setPublicCache`（`public, s-maxage=30, swr=300`，`index.ts:202-204` / 详情口 `:681` 现取）⇒ CDN 命中不回源不计 ⇒ `views` 为下界；缓存头是否改 = 挂账（data §40.10.4），实现单**禁顺手改**。
+
+#### 49.14.3 响应键面（加性 · 向后兼容）
+
+| 口 | 键数 | 变化 |
+|---|---|---|
+| `GET /api/prize/:bID`（data 顶层，含路由层合成的 `seller`） | **47 → 49** | **+`views`**（`number`，恒在场，值 = 计入后含本次）＋ **+`condition`**（四字面之一或 `null`，恒在场，**原样下发不翻译**；**响应键名 = `condition`**（Kevin 逐字「详情键 +condition」）· 列名 = `item_condition`，`normalizeBrand` 显式列举映射） |
+| `GET /api/prize/all`（feed 行） | **48**（不变） | **两键均不加**（批量口逐行 +1 = 写面放大；feed 卡不显示浏览数与成色） |
+| `GET /api/listing/mine` | **10 → 11** | **+`condition`**（同键名统一；编辑页预填源现取 = 本口） |
+
+- **键名统一**：详情与 mine 响应键均 = `condition`（与列名 `item_condition` 的差异为实现面显式映射；若实现单按列名同键须回派单方核对 —— 键名以 Kevin 逐字为准）。
+- **「想要」挂账**：详情响应无 `wants`（现取实测）⇒ 本批键面 **49** 不含 `wants` ⇒ 前端「x人想要」槽位**无承载不渲染**（design §26.15.2 ③）；要渲染 = Kevin 一句话加键（⇒ 50）。
+
+#### 49.14.4 写口 `item_condition`（创建 / 编辑双路径 · 闭集闸）
+
+1. **`POST /api/listing`**：body **可选** `item_condition`；**未传 / `null` ⇒ NULL**（未填，不报错）；**`''` / 空白 / 闭集外字符串 / 非字符串 ⇒ 400**（借 `LEDGER_AMOUNT_INVALID` + `details={field:'listing.item_condition', reason:'NOT_IN_CLOSED_SET', allowed:['BrandNewSealed','LikeNew','MinorWear','HeavyWear']}`；闸在 `currencyGate` 之前 ⇒ 非法值零 DB 调用，`item_type` 同族先例）。
+2. **`PATCH /api/listing/:listingId` 字段模式**：`item_condition` = 第 6 可改字段（同闭集闸、同 NULL 语义；仅描述实变才重置翻译的既有判据**不含**成色变化）；状态迁移模式不受影响；**两模式同现/皆无的既有互斥矩阵不动**。
+3. **旧编辑口 `POST /api/listing/:id`**：同收同闸（避免「同页两保存路径行为不一致」）。
+4. **幂等**：`item_condition` **不进幂等指纹**（同 `item_type`）⇒ 同键重投 200 replay 返回首落行、不 409。
+5. **必选闸 = 前端闸**：发布页**实物分支**成色四选一必选（`onSubmit` 最前、零请求、组 `aria-invalid`，承 `item_type` 必选闸同族；数字分支控件不渲染）；**服务端不强绑「实物 ⇒ 必填」**（挂账、一句话可改）。
+6. **翻译**：`item_condition` **不进翻译链**（枚举文案 = 平台侧 i18n，值原样下发）；`item_type` 既有闸与键面**一字不动**。
+
+#### 49.14.5 判负（**#22–#28** · 与 §49.13.7 #14–#21、§49.11.1 判负**并存、只增不改**）
+
+1. **#22** 详情成功响应缺 `views` 或缺 `condition` 键（mine 缺 `condition` 同判）⇒ 判负；`views` 非 number / `condition` 非四字面或 `null` ⇒ 判负。
+2. **#23** 同一商品连续读两次，第二次 `views` ≠ 第一次 + 1 ⇒ 判负（自增未生效）。
+3. **#24** feed 行出现 `views` 或 `condition` 键（feed 键数 ≠ 48）⇒ 判负。
+4. **#25** 注册点 ≠ 110（新增任何 API 路由）⇒ 判负。
+5. **#26** 计数写失败导致详情响应 4xx/5xx ⇒ 判负（fail-open 破）。
+6. **#27** +1 落服务层（建单回读 / 市场订单读行被计数）或 `views` / `item_condition` 进幂等指纹 / 触发翻译重置 ⇒ 判负。
+7. **#28** `item_condition` 写口收闭集外 / 空串 / 非字符串未 400；或 PATCH / 旧编辑口不接受 `item_condition`；或进了幂等指纹 ⇒ 判负。
+
+#### 49.14.6 现取自证 + 未做（明账）
+
+- **现取（2026-10-20 · HEAD `c3e500a` · 工作区干净）**：注册点 **110**（get 49 / post 57 / put 0 / delete 3 / patch 1）· 迁移末位 **`0056`** · **详情口实测** `GET /api/prize/1`（dev 5788 · 只读一次）= 200 · `data` **47 键** · 无 `views`/`wants`/`condition` · 有 `seller`；feed 行 **48 键**（对拍差集恰 `wants`）· `PATCH` 可改字段现取 **5 项**（`description/price/stock/media_urls/item_type`）· mine **10 键** · 编辑页预填源 = mine（`PublishItemPage.jsx:268`）· `setPublicCache` = `public, s-maxage=30, swr=300`（`index.ts:202-204`）。
+- **未做（`NOT_MEASURED` · 本册不预填）**：`0057` 未落盘 / 两库未 apply；+1 未实现；`views` / `condition` 未透出；`item_condition` 三写口闸未实现；判负 #22–#28 **一条未跑**；零 HTTP 写 / 零库写。
+- **契约面** = `data-layer.spec` **§40.10**（双列迁移 / 自增语义 / 去重挂账 / 成色列语义）+ `design-system.spec` **§26.15** + `master-plan` **§5.441 / 版本行 v0.358** + `ops/item-detail/SPEC-NOTE.md`；**本册不升版**（承 §49.10–§49.13 加性续登体例）。
