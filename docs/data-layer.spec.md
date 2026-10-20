@@ -5164,3 +5164,137 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_users_tg_user_id
 
 - **apply 态（现取 · 收笔时点）**：**两库均未 apply** —— dev / 生产 `schema_migration` 顶仍 = **`0053`** / 52 行（D 节读数即此态）⇒ `23514` 兜底与四值往返**仍未实测**（`NOT_MEASURED`）。
 - **未做的读数**：`INSERT … item_type = 'Digital'` ⇒ `23514` 实测、四值各 INSERT 回读、读口 48 / 47 的四值往返、发布页三控件必选 / 清值、两枚标签配色与位置 —— **全部未取**。
+
+### 40.9 ★★ v0.39 · `listing.title` **退役** · 正文并入 `description`（迁移 `0055` 回填 + `0056` DROP · **三阶段零破窗**）（**本节只追加 · §21–§40.8.1 一字未动** · 依据 = Kevin 2026-10-20 数据模型指令 · `0055`/`0056` 由并行实现单落盘、本册只冻契约与顺序 · 零代码 / 零迁移文件改动 / 零库写 / 零 HTTP）
+
+> **本节性质**：**只追加**（§40.8 / §40.8.1 全文逐字保留；**头注版本块不改写**，承 §40.8.1「加性续登、不改头注」体例，以本行 `v0.39` 为现行版读数）。`DL` 编号域**零改动**（仍 `DL1..DL157`，本节以 `TM-*` 承载）；**`DL60` 只读引用**（`listing.status` 状态机「**库存变更只允许 `listed`**」⇒ 编辑页「草稿库存只读」，F 节）。**依据** = Kevin 2026-10-20 指令：**取消商品标题字段、并入 `description`** —— **标题 = 描述首个 `\n` 之前**；**无回车则整段作标题**；**显示层按 48 显示宽单位截断并追加字面 `...`**；**存储不截**（逐字转引自本单派单、**原始会话未入仓** ⇒ 与 Kevin 原话若有出入以 Kevin 一句话为准）。姊妹册 = `route-layer.spec` **§49.13**（写口拒 `title` / 读口保留派生 `title`）+ `design-system.spec` **§26.14**（单描述框 / 派生标题）+ `master-plan` **§5.440 + 版本行 v0.357** + 交付件 `ops/title-merge/SPEC-NOTE.md`。
+
+**A. 变更摘要（退役的是**列**，不是键；前端零破）**
+
+| 项 | 退役前（2026-10-20 现取） | 本节现行口径（**以本段为准**） |
+|---|---|---|
+| 列 | `listing.title text NOT NULL DEFAULT ''`（`0015_listing.sql:121`；`listing` 14 列之一） | **退役**：`0055` 回填 →（观察窗）→ `0056` `DROP COLUMN`；列数 **14 → 13** |
+| 标题真源 | `title` 列 | **`description` 的首行**（首个 `\n` 之前；派生、**不落库**） |
+| 写口 | `POST /api/listing` 收 `title`，缺省 `''`（`listing-service.ts:238`） | **不再接受**（带非空值 ⇒ **400**；route §49.13.2） |
+| 读口键 | 键 `title` ← 列值 | **键 `title` 保留**（feed **48** / 详情 **47** / `mine` **10**，**键数不变**），值 = **服务端派生** |
+| 幂等指纹 | **6 项**含 `title`（`listing-service.ts:198` 注释 · `:267` 比对数组）= `seller_uid, cid, price, title, description, media_urls` | **5 项**：`seller_uid, cid, price, description, media_urls`（`title` 出集；`stock` 本就不在集内） |
+| 截断 | 无（列内原样存） | **存储 / 传输不截**；**显示层** 48 显示宽单位 + 字面 `...`（design §26.14） |
+| 翻译面 | `title` 与 `description` 各自登记 | **源值同源**：`title` 面 = 派生首行、`description` 面 = 全文（不新增翻译键，route §49.13.4） |
+
+> **「退役」的精确含义**：`listing.title` **不再是库内列**（`0056` 后 `information_schema.columns` 对该列 **0 命中**）、**不再是写口字段**、**不再有独立真源**。它**仍是读口键名**（前端消费面一字不改），值由 `description` 派生 —— **「键在、列亡、真源唯一」** 是本节的全部语义。**不得**为了省事保留「`title` 列 + 写入时冗余首行」的双写形态（双写 = 两个真源，改描述不改标题即漂移）。
+
+**B. 合并回填规则（`0055` 的 DML 语义 · 逐条冻结）**
+
+```sql
+UPDATE public.listing
+   SET description = CASE
+         WHEN btrim(coalesce(title, '')) = '' THEN coalesce(description, '')
+         WHEN btrim(coalesce(description, '')) = '' THEN title
+         ELSE title || E'\n' || description
+       END
+ WHERE btrim(coalesce(title, '')) <> ''
+   AND description IS DISTINCT FROM (CASE
+         WHEN btrim(coalesce(description, '')) = '' THEN title
+         ELSE title || E'\n' || description
+       END);
+```
+
+| # | 规则（硬） | 说明 / 违反后果 |
+|---|---|---|
+| B1 | **标题在前、正文在后**，分隔符 = **单个 `E'\n'`** | 不是空行、不是 `\r\n`、不是两个换行 —— 多一个换行会让「派生标题」后出现空首行 |
+| B2 | **空描述行不加尾换行** | 空描述直接取 `title`（不拼接）—— 若写成「标题 + 换行 + 空串」则落库得 `title` 加一个尾随换行，派生值虽同为标题，但**多一个空行**（字节脏、判负） |
+| B3 | **全空白 `title` ⇒ 不动** | 无正文可并；**不得**写成「换行 + 正文」形态（会把空首行写进正文，派生标题变空串） |
+| B4 | **幂等守卫（承重）** | 已满足「`description` 等于 `title` ∨ 以「`title` + 换行」起首」⇒ **跳过**；否则人工重跑 / 分支重放会**二次拼接**（标题被拼两遍） |
+| B5 | **不做全局换行归一** | 只判「`title` 是否已是首行」；`\r\n` → `\n` 的归一是**读口 / 显示层**职责（F 节），回填不改写正文既有换行风格 |
+| B6 | **不改 `status` / `stock` / `price` / `media_urls` / `item_type`** | 唯一被写的列 = `description`；`time_updated` 由既有 `trg_listing_touch_time_updated`（`0015:245-253`）自动刷新 —— **已知副作用**，feed 排序吃 `time_created` ⇒ **排序不动** |
+
+**C. 迁移链与三阶段零破窗顺序（本段承重 · 顺序反了就是全站 500）**
+
+| 阶段 | 动作 | 谁做 | 破窗条件 / 反向证据 |
+|---|---|---|---|
+| **S1 · 回填** | apply **`0055_listing_title_merge.sql`**（`UPDATE … `，**列暂留**，零 DDL） | Zang（apply 由 Zang 执行，实现单不碰真库） | 旧代码**仍读 `title` 列** ⇒ 值未被改写（列原样在）⇒ **零破窗**；新代码已可只吃 `description` |
+| **S2 · 代码上线** | 写口拒 `title`、读口派生 `title`、编辑口字段集去 `title`，**`0056` 不 apply** | 实现单 + push | 列仍在 ⇒ **回滚安全**（回退代码即回旧行为）；此窗内 `title` 列成为「只读遗留列」（无人写、派生时被忽略） |
+| **S3 · 收列** | apply **`0056_listing_title_drop.sql`**（`DROP COLUMN IF EXISTS title`） | Zang | **前置 = S2 已上线且生产终验 PASS**；DROP 后任何仍在 `SELECT l.title` 的代码路径 ⇒ **`42P01` ⇒ 500** |
+
+- **禁止顺序（三条，任一即判负）**：① **先 DROP 后上线** —— 旧代码 `SELECT l.title` 当场 `42P01`（全站列表 / 详情 / 编辑 / `mine` 全挂）；② **`0055` 与 `0056` 同批 apply**（无观察窗 ⇒ S2 的回滚能力归零，且回填错误无法对拍）；③ **`0056` 与 S2 同一 push** 且未取生产终验读数（等于把两阶段压成一阶段）。
+- **回滚能力（诚实边界）**：S3 **之前**回滚 = 回退代码（列还在，秒级）；S3 **之后**回滚 = `ALTER TABLE public.listing ADD COLUMN title text NOT NULL DEFAULT ''` ＋ **从 `description` 首行重建**（`split_part(description, E'\n', 1)`）—— 这是**弱可逆**：`title` 原文若自身含换行 / 首尾空白，重建值与原文**不保证逐字相同**。⇒ **DROP 不可逆的部分必须写在 S3 的 apply 记录里**（本册不掩盖）。
+- **两库节奏**：dev 先 apply 走通（`0055` → 代码 → `0056`），生产按同一三段走；**不得** dev 停在中态、生产走全链（读数不可比）。
+
+**D. 迁移内容契约 —— `0055_listing_title_merge.sql`（回填 · 列暂留）**
+
+- **唯一动作 = 一条 `UPDATE`**（B 节语义）；**零 DDL**（不建列、不改列、不建索引、不建触发器、不建视图）、**零 `DELETE` / `INSERT`**、**零 `BEGIN` / `COMMIT`**（`scripts/migrate.ts` 逐文件包事务并在同事务内写版本行）。
+- **尾部 `DO $$` 自检（四项 · 任一不成立 ⇒ `RAISE` ⇒ 整迁移回滚、不写 `schema_migration` 行）**：
+  ① **零漏行**：`count(*) FILTER (WHERE btrim(coalesce(title,'')) <> '' AND btrim(coalesce(description,'')) = '')` = **0**（回填后「有标题无正文」的行必须不存在）；
+  ② **零二次拼接**：`count(*) FILTER (WHERE description LIKE title || E'\n' || title || E'\n' || '%')` = **0**（B4 幂等臂的反向证据）；
+  ③ **列仍在**：`information_schema.columns` 命中 `public.listing.title`（**回填迁移不得顺手 DROP** —— 收列是 `0056` 的唯一职责）；
+  ④ **行数不变**：`count(*)` 与迁移头注登记的**预检行数**逐字相等（防误删；预检值由 apply 前只读取数写入头注，**不得**写成「恒 > 0」这种无分辨力的断言）。
+- **apply 后外部闭环**：`/api/health` 的 `schema_version` 翻 **`0055`**；`schema_migration` 顶 = `0055`、行数 **53 → 54**；`listing` 列数仍 **14**（列暂留）；G 节的 `desc_empty` 读数按「回填命中行数」下降（dev **7 → 0**）。
+- **checksum 纪律**：`0055` 一旦 apply 即**不可再改**（改则 `checksum` 漂移 ⇒ `migrate.ts` `ABORT` 退 3，承 `0051` 不改 `0050` 的先例）；要修只能新开 `0057`。
+
+**E. 迁移内容契约 —— `0056_listing_title_drop.sql`（收列）**
+
+- **唯一动作 = `ALTER TABLE public.listing DROP COLUMN IF EXISTS title;`**（幂等：重复 apply 终态一致）；**零 DML**、**零其它 DDL**、**零 `BEGIN` / `COMMIT`**。
+- **前置闸（apply 前由 Zang 逐条核，缺一即停手）**：① `grep -rn "l\.title\|listing\.title\|SELECT.*title" backend-ts/src` **零命中**（代码面已无列引用）；② 生产 `schema_version` = **`0055`** 且 S2 已上线并验收；③ `pg_depend` 该列**无视图 / 索引 / 约束**依赖（有依赖 ⇒ `DROP` 会连带或报错，须先另单拆）。
+- **尾部 `DO $$` 自检（三项）**：① `information_schema.columns` 对 `public.listing.title` **0 命中**；② `description` 仍 `NOT NULL`（`is_nullable = 'NO'`，防误删改）；③ `listing` 列数 = **13**（`14 − title`；`item_type` 仍在、`media_urls` / `ledger_event_keys` 仍在）。
+- **apply 后外部闭环**：`schema_version` 翻 **`0056`**、`schema_migration` 行数 **54 → 55**、`listing` 列数 **13**；`POST /api/listing`（不带 `title`、带 `description`）**200** 且响应含派生 `title`。
+- **★ 与历史自检文件的关系**：`0015_listing.sql` 的自检写死「`listing` 13 列」（`0015:830` 一带）—— 那是**已 apply 的历史文件、checksum 冻结、永不复跑** ⇒ **不得为 13/14 的差额去改 `0015`**（改则漂移 ABORT）。现行列数断言点 = 门脚本（现取 `backend-ts/scripts/s53-00-item-type-gate.ts` 只断言 `item_type` 单列属性，不含总列数 ⇒ **本批无「列数常量」需要前推**；若实现单新增了总列数断言，须同批前推并在 `SPEC-NOTE` 登记）。
+
+**F. 派生标题（不落库 · 唯一读法）**
+
+- **派生式（逐字）**：`title := firstLine(description)`，其中 `firstLine(s)` = 取 `s` 首个 `\n` 之前的部分、**剥掉行尾 `\r`**（兼容 `\r\n`）、**两端 `trim`**；`description` 为 `NULL` / 空串 / 全空白 ⇒ `title = ''`（**不得编造占位文案**，承 §40.8 D「不猜补」同纪律）。
+- **不落库（硬）**：**不得**用 generated column / 视图 / 触发器 / 物化表承载派生值 —— 派生只在读口归一器与前端内存里发生（`normalizeBrand` / `normalizeListingMineRow` 一族）。理由：generated column 会把「显示口径」冻进库面，将来改截断 / 改首行规则都要 DDL。
+- **不截断（硬）**：`title` 键的**传输值 = 全文首行**（可长）；48 显示宽单位的截断 + 字面 `...` **只在显示层**（`frontend/src/components/reward/truncate.js` 的 `truncateByWidth(text, 48)` / `displayWidthUnits`）。**存储层与 API 层出现 `...` 即判负**（route §49.13 判负 #19；design §26.14）。
+- **`name` 兼容键同源**：`normalizeBrand` 的 `name ← name | title`（`database.ts:2231`）在本批后**只剩 `title` 一路**（`name` 列不存在），值 = 同一派生值 ⇒ 两个键不得出现不同值。
+
+**G. 现取读数（2026-10-20 · HEAD `421b7c9` · 两库只读 SELECT · 逐库自证 `neon.project_id`）**
+
+| 库 | `neon.project_id` | `schema_migration` 顶 / 行数 | `listing` 总行 | `title` 空行 | `description` 空行 | **回填命中行**（空描述 ∧ 有标题） | `listing` 列数 |
+|---|---|---|---|---|---|---|---|
+| dev | `quiet-math-65207667` | **`0054` / 53** | **26** | **0** | **7** | **7** | **14** |
+| 生产 | `sweet-pond-28934105` | **`0054` / 53** | **8** | **0** | **0** | **0** | **14** |
+
+- **列属性现取（两库同）**：`title` = `text`、`is_nullable = NO`、`default = ''::text`；`description` = `text`、`is_nullable = NO`、`default = ''`（`0015:122`）。⇒ 回填**不需要处理 `NULL`**（B 节的 `coalesce` 只是防御式写法，不是实存状态）。
+- **回填影响面（现取算术）**：dev **7 行**走 B2 臂（空描述 ⇒ 直接取 `title`，**不加尾换行**）、**19 行**走 `title || E'\n' || description` 臂（有正文的存量）⇒ 回填后 dev `description` 空行 **7 → 0**。
+- **★ 读数分辨力（诚实登记）**：生产 `description` 空行**本来就是 0** ⇒ 「`desc_empty` 归零」在生产**无分辨力**（改前改后同值）；生产侧回填是否生效**只能**靠「逐行 `description` 是否以原 `title` 起首」抽样对拍（S1 apply 前先落盘 `listing_id, title, description` 快照，apply 后逐行比对）。**不得**拿生产 `desc_empty = 0` 当回填证据。
+- 探针口径：读 `backend-ts/.env.local`（dev）与 `~/.config/seafood/prod-db.env`（生产）**显式构造连接**（`dotenv.parse` 后 `neon(url)`，不吃 `process.env`），承「跨库探针」纪律；本笔**零写库、零 DDL、零 apply**。
+
+**H. 冲击清单（逐条）**
+
+| # | 面 | 冲击 | 处置 |
+|---|---|---|---|
+| H1 | `listing` 列数 | 14 →（`0056`）13 | 无总列数门断言需前推（E 节 ★）；`item_type` 面不受影响 |
+| H2 | 幂等指纹 / create_key 派生 | 指纹 **6 → 5** 项（去 `title`）；派生载荷 `['create', seller_uid, cid, price, stock, title]` → **4** 个业务元素（去 `title`，`listing-service.ts:241`） | 旧 `create_key` 仍可比（键值本身是字符串，指纹比对集变小 ⇒ 同键重投只要其余 5 项一致即 `replay`）；**登记为行为放宽**（原本因 `title` 不同就 409 的用例，现在会 200 replay） |
+| H3 | 读口键 | **零变化**（feed 48 / 详情 47 / `mine` 10） | 前端零破；但**值的语义变了**（列值 → 派生值）⇒ 质检要比对「派生 = 首行」而不是「键在场」 |
+| H4 | `DL60` 状态机 | 只读引用：库存变更只允许 `listed` | 编辑页对 `draft` **只读库存**（不放开写口，design §26.14 / route §49.12 待裁项**结案 = 取 (b)**） |
+| H5 | 翻译面 | `content_translation` 的 `title` 面源值改派生 | 翻译登记函数入参不变（键名不变）；**不含**「改描述后 title 面不重置」这类行为改动（重置判据仍 = 描述实际变化） |
+| H6 | feed 排序 | 不动（`time_created` 驱动） | 回填虽刷新 `time_updated`，不进排序键 |
+| H7 | 既有夹具 / 测试锚 | 断言 `title` 列或 `item-input-title` 钩子的用例会红 | 归实现 / 质检单改锚；本册只登记「该面必然红」 |
+
+**I. 未测项（`NOT_MEASURED` · 禁填 0 / 空）**
+
+- `0055` / `0056` **本笔时点未落盘**（`backend-ts/migrations/` 现取末位 = `0054_item_type_delivery_split.sql`）、两库 **`schema_version` 仍 `0054`** ⇒ 回填未跑、DROP 未跑、`42P01` 未复现。
+- 回填幂等臂（人工重跑不得二次拼接）**未实测**；尾注四项自检**未实测**。
+- 读口派生值（首行 / `\r\n` / 全空白描述）**未做 HTTP 往返**；显示层 48 单位截断与多行溢出**未做人眼 / 几何读数**（design §26.14 判负 #36–#39 一条未跑）。
+- 生产快照对拍（S1 前后逐行）**未做**。
+
+**J. 连带**：route **§49.13**（写口 / 读口 / 幂等 / 判负 #14–#21）· design **§26.14**（单描述框 / 派生标题 / 判负 #36–#39）· `master-plan` **§5.440 + 版本行 v0.357** · `ops/title-merge/SPEC-NOTE.md`。**本笔** = 只写 `docs/**` + `ops/title-merge/**`，零代码 / 零迁移文件 / 零库写 / 零 HTTP，`git diff --numstat` **删除列 = 0**。
+
+**K. 并行实现单现取 · 差额登记（2026-10-20 收笔时点 · **本册不背书** · 只登记差额）**
+
+> **触发**：本笔落笔期间并行实现单**已落盘**两迁移（现取 `git status` = `??` 未跟踪、**未提交**）：`backend-ts/migrations/0055_title_merge_into_description.sql`（**97 行**）与 `backend-ts/migrations/0056_drop_listing_title.sql`（**53 行**）；同批改动 `backend-ts/src/listing-service.ts`（现取 `git diff --numstat` = **17 / 2**，未提交）。以下只登记差额，A–J 契约字面**不改写**；采信顺序承 §40.5 / §40.8 F = **落盘形态为准、契约字面留痕**。
+
+| # | 项 | 本节契约（A–E） | 落盘现取 | 处置 |
+|---|---|---|---|---|
+| 1 | 文件名 | `0055_listing_title_merge.sql` / `0056_listing_title_drop.sql` | `0055_title_merge_into_description.sql` / `0056_drop_listing_title.sql` | **以落盘为准**（册内文件名仅为约定名）；版本号 `0055` / `0056` 与顺序**一致** |
+| 2 | **B4 幂等守卫** | 「描述已等于 `title` 或以「`title` + 换行」起首 ⇒ 跳过」 | **无守卫**：`UPDATE … CASE … WHERE btrim(title) <> ''`，**依赖版本表只 apply 一次**（文件头注亦写明「只 apply 一次」） | **★ 差额（承重 · 未加固）**：人工重放 / 分支重放会**二次拼接**，且自检臂**不会红**（拼接后 `left(description, length(title)) = title` 仍成立、行数不变）⇒ 若在 apply 前修，直接改文件加守卫即可；**apply 后禁改**（checksum 漂移 ABORT），只能新开 `0057` 补救。本册**保留 B4 为契约**，实现单是否加固 = 其自决，但**必须**在交付里点名这条风险 |
+| 3 | 自检 ①（漏行） | 「有标题 ∧ 空描述 = 0」 | 等价形态：`v_empty_desc <> v_both_empty ⇒ RAISE`（「合并后空描述行 = 双空历史行」）+ 双空行 `RAISE WARNING` 报数 | **等价且更诚实**（不为「本来就没内容」的史行造数据），采纳 |
+| 4 | 自检 ②（并入判据） | 未要求 | **新增** `v_merged_ok`：有标题的行 `left(description, length(title)) = title` ∧ 紧随字符为 `E'\n'` 或串尾，且 `v_merged_ok = v_titled` | **落盘更严**（逐行证明「就地并入、无丢行」），采纳；契约 D① 已可读作此意 |
+| 5 | 自检 ④（行数） | 「行数 = 迁移头注登记的**预检值**」 | 「行数 = `count(DISTINCT listing_id)`」 | **差额（弱一档）**：`UPDATE` 语义下行数本就不会变 ⇒ 该臂近乎**恒真、无分辨力**；契约保留「与预检值比对」为更强口径，登记不改落盘 |
+| 6 | 自检 ⑤（列仍在） | D③「回填不得顺手 DROP」 | `v_title_cols <> 1 ⇒ RAISE` | **逐字一致** |
+| 7 | `0056` 自检 ② | E③「列数 = 13」 | `v_cols <> 13 ⇒ RAISE`（并写明 14 → 13 的算术） | **一致** |
+| 8 | `0056` 自检（`description NOT NULL`） | E② 要求断言 `description` 仍 `is_nullable = 'NO'` | **该臂缺失**（改为对空描述行 `RAISE WARNING` 报数） | **差额**：缺「防误删改 `description` 约束」的反向断言；风险低（本迁移只 `DROP` 一列），登记不改落盘 |
+| 9 | 事务 / 零 DML | 文件内无 `BEGIN`/`COMMIT`；`0055` 零 DDL、`0056` 零 DML | 逐字一致（`0055` = 1 `UPDATE` + 1 `DO $$`；`0056` = 1 `ALTER … DROP` + 1 `DO $$`） | **无差额** |
+| 10 | apply 态 | 「两库未 apply」 | **仍成立**：两库 `schema_version` = **`0054`** / `schema_migration` **53** 行（G 节读数未变；`migrate.ts` 未跑） | **无差额** |
+
+- **本册立场**：差额 #2（幂等守卫缺失）与 #5 / #8（无分辨力臂）**只登记、不替实现单改文件**；`0055` 一旦 apply 即冻结，故**这条必须在 apply 前决定**（加固 = 改被跟踪外的未提交文件，属实现单权限）。
+- **未变的读数**：`listing` 26 / 8 行、`title` 空行 0 / 0、`description` 空行 7 / 0、回填命中 7 / 0、列数 14、`schema_migration` 顶 `0054`（G 节表即收笔时点态）。

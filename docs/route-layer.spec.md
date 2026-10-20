@@ -9490,3 +9490,101 @@ ORDER BY score DESC, l.time_created DESC, l.listing_id DESC
 - **未做（`NOT_MEASURED` · 本册不预填）**：双模式派发、`item_type` 写入、`description`/`item_type` 读口下发、`/item/:id/edit` 页面、行内降价弹窗 —— **均未实现**；**零 HTTP 实测 / 零库写 / 零迁移**；§49.12.8 十三条**一条未跑**。
 - **待裁一条**：`draft` 行改 `stock`（§49.12.2 ★ 差额，本册倾向 (a) 放开、不冻结）。
 - 契约面 = design **§26.13** + master **§5.439 / 版本行 v0.356** + `ops/published-actions/SPEC-NOTE.md`；**本册不升版**（承 §49.10 / §49.11 加性续登体例）。
+
+### 49.13 去标题写读契约（`POST /api/listing` **不再接受 `title`** · `description` 必填 · 响应仍保留**派生 `title`** 键）· 2026-10-20 · **同 v2.43 加性续登、不升版** · 纯追加
+
+> **依据** = Kevin 2026-10-20 数据模型指令「**取消商品标题字段、并入 `description`**：标题 = 描述首个 `\n` 之前；无回车整段作标题；显示层 48 显示宽单位截断 + `...`；**存储不截**」，**逐字转引自本单派单、原始会话未入仓** ⇒ 与 Kevin 原话若有出入以 Kevin 一句话为准。**库面契约 = `data-layer.spec` §40.9**（`0055` 回填 / `0056` DROP / 三阶段零破窗）；**显示面 = `design-system.spec` §26.14**。**本册零代码 / 零 HTTP 实测 / 零库写 / 零迁移文件**；实现面差额见 §49.13.8，不预填未测读数。
+
+#### 49.13.1 作用面（四个口 · **零新 API 路由 / 零新错误码 / 零新迁移**）
+
+| 面 | 现取锚点（HEAD `421b7c9`） | 本段契约 |
+|---|---|---|
+| 创建口 | `POST /api/listing`（`backend-ts/src/index.ts:2710`；service `createListing` `listing-service.ts:238-241`） | **不再接受 `title`**（带非空值 ⇒ 400）；**`description` 必填**（§49.13.2） |
+| 旧编辑口 | `POST /api/listing/:listingId`（`index.ts:2741` · `updateListing` `listing-service.ts:281+`） | **同口径**：带非空 `title` ⇒ **400**（与 `PATCH` 同码同 details）；`description` 传空 ⇒ 400（§49.13.3） |
+| 编辑口（现行） | `PATCH /api/listing/:listingId`（§49.12 · 字段模式） | **已退役 `title`**（`data` 面承 §49.12 差额 D 已落：`title` ⇒ 400 `NOT_SUPPORTED`）；本段**只做口径对齐**，不新增字段 |
+| 读口（三个消费面） | feed feed 行（`normalizeBrand`）/ 详情 `data` / `GET /api/listing/mine` 行 | **键集零变化**（**48** / **47** / **10**），`title` 键**保留**、值 = **服务端派生**（§49.13.4） |
+
+- **零新 API 路由（硬）**：注册点仍 **110**（get **49** / post **57** / put **0** / delete **3** / patch **1**；现取 `grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts` = **110**）⇒ `p7b-03` 的 `registration_points` **不得 +1**。
+- **零新错误码（硬）**：全部**借既有码**（`LEDGER_AMOUNT_INVALID` / 400）；`ledger-errors.ts` 的 **33 码闭集不动**；`details.reason` 只新增一个字面 **`REQUIRED`**（§49.13.6 注）。
+- **零新迁移**：本册零 DDL；`0055` / `0056` 属数据册 §40.9，**本册只引用 `schema_version` 读数**（现取两库 **`0054`**）。
+- **不写账本**：两写口本就不涉资金；本段**不得**因去 `title` 而新增任何账本调用（承 §49.12.1 同纪律）。
+
+#### 49.13.2 创建口 `POST /api/listing`（写口契约 · 硬）
+
+| 字段 | 传什么 | 期望 | 依据 / 备注 |
+|---|---|---|---|
+| `title` | **非空字符串**（`btrim` 后非空） | **400** `LEDGER_AMOUNT_INVALID` `{field:'listing.title', reason:'NOT_SUPPORTED'}` | **与 `PATCH` 同码同字面**（承 §49.12 字段模式已落地的 `NOT_SUPPORTED`） |
+| `title` | `''` / `null` / **缺省** | **忽略**（等价未传，**不 400**） | 旧前端可能仍发空串 ⇒ **不得**因过度严格把存量客户端打爆（判负 #21） |
+| `title` | 非字符串（数字 / 数组 / 对象 / 布尔） | **400** `{field:'listing.title', reason:'NOT_SUPPORTED'}` | 「不是字符串」= 「不是可接受的值」，与带值同码（不细分 `NOT_A_STRING`，免得旧字面回归） |
+| `description` | **非空字符串**（`btrim` 后非空） | **必填**；缺省 / `null` / `''` / 全空白 ⇒ **400** `{field:'listing.description', reason:'REQUIRED'}` | 描述成了**唯一正文** ⇒ 空正文 = 无标题无内容，不许落库 |
+| `description` | 非字符串（数字 / 数组 / 对象） | **400** `{field:'listing.description', reason:'NOT_A_STRING'}` | 沿用既有字面（`toOptionalText` 的 `NOT_A_STRING`），不新造码 |
+| `description` | 含换行 / 多行 | **原样落库、不截断** | 首行语义只在读口派生与显示层发生（§49.13.4） |
+| 其余字段 | 不变 | 不变 | `cid` / `price` / `stock` / `media_urls` / `item_type` / `create_key` 口径**逐字不动**（承 §49.11 / §49.11.1） |
+
+- **闸位置（硬）**：`title` / `description` 的形状闸**必须在服务层解析段、`currencyGate` 之前**完成（承既有 `shapeError` 位置 `listing-service.ts:61-62`）⇒ **非法值零 DB 调用**（探针：非法载荷下 `/api/listing` 侧 SQL 计数 = 0）。
+- **不做静默忽略（硬）**：带值 `title` **不得**被悄悄丢弃后仍 200 —— 静默会把「前端还在发 title」藏起来，客户端会以为改标题生效（承 `listing-service.ts:396` 注释同纪律）。**空串 / `null` 属例外**（见上表第二行），因为那是「无此意图」而非「有此意图被丢弃」。
+- **失败时零写入**：400 分支**不得**留下 `listing` 行（判负 #14 / #15 同臂：错误前后 `count(*)` 与 `md5` 不变）。
+
+#### 49.13.3 旧编辑口 `POST /api/listing/:listingId`（同口径 · 部分更新语义）
+
+- **带非空 `title` ⇒ 400**，`{field:'listing.title', reason:'NOT_SUPPORTED'}`，**与 §49.13.2 与 `PATCH` 逐字相同**（三口同码同 details；判负 #16）。
+- **`description` 在本口是「可选但不可置空」**：不传 ⇒ 不修改（部分更新语义不变）；传 `''` / 全空白 ⇒ **400** `{field:'listing.description', reason:'REQUIRED'}`（正文不可被清空 —— 清空等于把一个商品变成「无标题无内容」）；传非空字符串 ⇒ 正常更新。
+- **`PATCH` 同口径对齐**（§49.12 字段模式）：字段集 = `description / price / stock / media_urls / item_type`（**无 `title`**）；`title` 出现（任意值，含空串）⇒ **400 `NOT_SUPPORTED`**（`PATCH` 的「字段模式判定」由「body 含任一**可改字段**」定义 ⇒ `title` 不属可改字段，带它 = 既非字段模式也非状态模式 ⇒ 若同时无其它键则落 `NO_EDITABLE_FIELD`；**本段裁定：`title` 在场即优先判 `NOT_SUPPORTED`**，理由 = 更精确地告诉调用方「这个字段已退役」，而不是含糊的「没有可改字段」）。
+  > **与 §49.12 的衔接（不冲突、只细化）**：§49.12.4 的「两者皆无 ⇒ `NO_EDITABLE_FIELD`」对**空 body / 全无关键**仍然有效；本段只把「**含 `title` 键**」这一形态从 `NO_EDITABLE_FIELD` 里**摘出来**判 `NOT_SUPPORTED`。两条不互斥。
+- **`item_type` 面**：`PATCH` 接受（§49.12.2 已登）、**旧 `POST` 编辑口仍静默忽略**（§49.11.1 ② 对该口继续全额有效）；本段不改此差异（判负 #16 只锤 `title`，不锤 `item_type`）。
+
+#### 49.13.4 读口派生（**键集零变化** · 值语义变更）
+
+- **派生式（唯一读法）**：`title = firstLine(description)` —— 取首个 `\n` 之前；行尾 `\r` 剥掉（兼容 `\r\n`）；两端 `trim`；`description` 为空 / 全空白 ⇒ **`''`**（**不编造占位文案**，承 data §40.8.1 D「不猜补」）。
+- **键集不变（硬）**：feed 行 **48 键**、详情 `data` **47 键**、`GET /api/listing/mine` 行 **10 键** —— `title` 键**仍在**（前端零破），**只是值换了来源**。判负 #17。
+- **`name` 兼容键同源**：`normalizeBrand` 的 `name ← name | title`（`database.ts:2231`）在本批后只剩 `title` 一路 ⇒ **`name` 与 `title` 必须逐字相同**（不得一个派生、一个落空）。
+- **不截断（硬）**：`title` 键的值 = **首行全文**（可以很长）；48 显示宽单位 + 字面 `...` **只在显示层**（design §26.14）。API 响应里出现 `...` 或任何截断痕迹 ⇒ 判负 #19。
+- **`description` 键**：feed 行是否含 `description` 维持现值（不因本段增删键）；`mine` 行的 `description` 原样下发（§49.12.6 加性键口径不变）。
+- **翻译面**：`enqueueListingTranslation(result.view)` 的入参形状不变，`title` 面源值 = 派生首行（服务端派生后登记）；**不新增翻译键、不改 `content_translation` 表结构**；「改描述才重置」的判据（§49.12.2）不变 —— 由于 `title` 现在是描述的函数，**改描述必然同时改标题**，`title` 面的重置不再有独立触发路径（登记，不判负）。
+
+#### 49.13.5 幂等面（指纹 6 → 5 · `create_key` 派生载荷 5 → 4 元素）
+
+| 项 | 现取（`421b7c9`） | 本段口径 |
+|---|---|---|
+| 指纹字段集 | **6 项**：`seller_uid, cid, price, title, description, media_urls`（`listing-service.ts:198` 注释 · `:267` 比对数组） | **5 项**：`seller_uid, cid, price, description, media_urls`（只去 `title`；`stock` 本就不在集内） |
+| `create_key` 派生载荷 | `['create', sellerUid, cid, price, stock, title]`（`listing-service.ts:241`） | `['create', sellerUid, cid, price, stock]`（**4 个业务元素**） |
+| 同键重投 | 指纹不符 ⇒ 409 `LEDGER_IDEMPOTENCY_CONFLICT` | 指纹只剩 5 项 ⇒ **原先因 `title` 不同而 409 的用例，现在回 200 `replay`**（**行为放宽，登记**；`title` 已无可比对之物） |
+| `item_type` | 不进指纹（§49.11.1 ③） | **继续不进**（本段不动） |
+
+- **不得**为了「保留旧指纹」而把派生 `title` 塞回指纹 —— 派生值会随描述变化，塞回去等于让指纹随派生漂移（同键重投 409 频繁化，且判据不可解释）。判负 #20。
+
+#### 49.13.6 错误码矩阵（借码 · 零新码 · 只多一个字面 `REQUIRED`）
+
+| 场景 | HTTP | code（借码） | `details` |
+|---|---|---|---|
+| 无 token / 签名错 / 用户不存在 | 401 | `AUTH_UNAUTHORIZED` | 既有 `sendAuthError` 形状（不变） |
+| `POST /api/listing` 带非空 `title`（或非字符串） | 400 | `LEDGER_AMOUNT_INVALID` | `{field:'listing.title', reason:'NOT_SUPPORTED'}` |
+| `POST /api/listing` 缺 / 空 `description` | 400 | `LEDGER_AMOUNT_INVALID` | `{field:'listing.description', reason:'REQUIRED'}` |
+| `POST /api/listing` `description` 非字符串 | 400 | `LEDGER_AMOUNT_INVALID` | `{field:'listing.description', reason:'NOT_A_STRING'}` |
+| `POST /api/listing/:id` 带非空 `title` | 400 | `LEDGER_AMOUNT_INVALID` | 同第二条（逐字相同） |
+| `POST /api/listing/:id` / `PATCH` 把 `description` 置空 | 400 | `LEDGER_AMOUNT_INVALID` | `{field:'listing.description', reason:'REQUIRED'}` |
+| `PATCH` 带 `title`（任意值） | 400 | `LEDGER_AMOUNT_INVALID` | `{field:'listing.title', reason:'NOT_SUPPORTED'}` |
+| 非卖家写 | 403 | `AUTH_FORBIDDEN` | `ACTOR_NOT_ALLOWED`（不变） |
+| 商品不存在 / `:listingId` 非正整数 | 404 | `LEDGER_REF_NOT_FOUND` | `ref_type:'listing'`（不变） |
+| 状态 / 库存闸 / 基础设施 | 409 / 503 | 承 §49.12.5 | 不变 |
+
+> **`REQUIRED` 的性质**：它是 `details.reason` 的**新字面**，**不是**新 `code` —— 错误码闭集（33 码）不动、`HTTP` 码不动、`i18n_key` 不动。若实现单选择复用既有字面（如 `NOT_A_STRING` 覆盖缺省），**以落盘为准并在此登记差额**，但**不得**改成 200 或静默落空描述。
+
+#### 49.13.7 判负（**#14–#21** · 与 §49.12.8 #1–#13、§49.11.1 判负**并存、只增不改**）
+
+| # | 探针 | 违反即判负 |
+|---|---|---|
+| **14** | `POST /api/listing` body 含 `title:'x'`（其余合法） | 非 **400 `NOT_SUPPORTED`**（含 200 落库、含静默忽略后 200、含 409/500） |
+| **15** | `POST /api/listing` 缺 `description` / `description:''` / `'   '` | 非 **400 `REQUIRED`**（含 200 建出空正文行） |
+| **16** | `POST /api/listing/:id` body 含 `title:'x'`；并与 `PATCH` 同 body 对比 | 非 400、或与 `PATCH` 的 `code` / `details` **不逐字相同** |
+| **17** | 三个读口的键集（feed 行 / 详情 `data` / `mine` 行） | 键数 ≠ **48 / 47 / 10**，或 **`title` 键缺失**（有人「顺手删掉」这个键 ⇒ 前端裸空标题） |
+| **18** | 派生值对拍（三臂：单行描述 / 多行描述 / 空描述） | `title` ≠ 描述首个 `\n` 之前（含未 `trim`、含整段描述塞进 `title`、含空描述时编造文案、含 `\r\n` 未剥 `\r`） |
+| **19** | 长描述（> 48 显示宽单位）的响应体 | 服务端出现截断 / 出现字面 `...`（截断只许在显示层） |
+| **20** | 幂等：同 `create_key` 重投、仅 `title` 不同（或带空串 `title`） | 回 **409**（期望 200 `replay` + `idempotent_replay: true`）；或指纹仍含 `title` |
+| **21** | 兼容臂：`title:''` / `title:null` / 不带 `title` 三态各打一次 `POST /api/listing` | 任一被 **400**（旧前端空串不得爆；期望 200 且响应 `title` = 描述首行） |
+
+#### 49.13.8 现取自证 + 未做（明账）
+
+- **现取（2026-10-20 · HEAD `421b7c9` —— **`origin/main` = `6f88cce`，本地 **ahead 2 笔**（`c3dd5fc` 规范 / `421b7c9` 实现），**均未 push**；工作区在编制起点干净）**：注册点 **110**（get 49 / post 57 / put 0 / delete 3 / patch 1）· 创建口 `title` 现取**缺省 `''`**、非字符串 ⇒ `NOT_A_STRING`、进 `create_key` 派生（`listing-service.ts:238-241`）· 指纹现 **6 项**（`:198` / `:267`）· `PATCH` 字段模式已落 `title ⇒ 400 NOT_SUPPORTED`（`listing-service.ts:393-396` 注释）· 两库 `schema_version` **`0054`** / `schema_migration` 53 行 · 迁移文件末位 **`0054`**。
+- **未做（`NOT_MEASURED` · 本册不预填）**：三条写口的 `title` / `description` 闸**未实现**（`createListing` 现取仍收 `title`、`description` 仍可选 `toOptionalText`）；读口派生**未实现**（`normalizeBrand` 现取仍 `title ← 列`）；**零 HTTP 实测 / 零库写**；§49.13.7 八条判负**一条未跑**；`REQUIRED` 字面未落盘。
+- **契约面** = `data-layer.spec` **§40.9**（回填 / DROP / 顺序）+ `design-system.spec` **§26.14**（单描述框 / 派生标题）+ `master-plan` **§5.440 / 版本行 v0.357** + `ops/title-merge/SPEC-NOTE.md`；**本册不升版**（承 §49.10 / §49.11 / §49.12 加性续登体例）。
