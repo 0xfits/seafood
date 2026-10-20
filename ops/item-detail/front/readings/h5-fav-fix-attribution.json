@@ -1,0 +1,226 @@
+{
+  "generatedAt": "2026-10-20T04:00:58.025Z",
+  "baseline": {
+    "source": "ops/item-detail/front/readings/front-probe.json",
+    "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+    "generatedAt": "2026-10-20T03:41:07.552Z"
+  },
+  "current": {
+    "source": "ops/item-detail/front/readings/front-probe-h5-fav-fix.json",
+    "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+    "generatedAt": "2026-10-20T04:00:51.011Z"
+  },
+  "h5_390_diffCount": 96,
+  "h5_390_buckets": {
+    "fav_fix": {
+      "count": 15,
+      "paths": [
+        "cases.h5_390.item101.rects.fav.y",
+        "cases.h5_390.item101.rects.fav.w",
+        "cases.h5_390.item101.rects.fav.h",
+        "cases.h5_390.item101.rects.fav.right",
+        "cases.h5_390.item101.rects.fav.top",
+        "cases.h5_390.item102.rects.fav.y",
+        "cases.h5_390.item102.rects.fav.w",
+        "cases.h5_390.item102.rects.fav.h",
+        "cases.h5_390.item102.rects.fav.right",
+        "cases.h5_390.item102.rects.fav.top",
+        "cases.h5_390.item103.rects.fav.y",
+        "cases.h5_390.item103.rects.fav.w",
+        "cases.h5_390.item103.rects.fav.h",
+        "cases.h5_390.item103.rects.fav.right",
+        "cases.h5_390.item103.rects.fav.top"
+      ]
+    },
+    "fav_container": {
+      "count": 15,
+      "paths": [
+        "cases.h5_390.item101.rects.barLeft.y",
+        "cases.h5_390.item101.rects.barLeft.w",
+        "cases.h5_390.item101.rects.barLeft.h",
+        "cases.h5_390.item101.rects.barLeft.right",
+        "cases.h5_390.item101.rects.barLeft.top",
+        "cases.h5_390.item102.rects.barLeft.y",
+        "cases.h5_390.item102.rects.barLeft.w",
+        "cases.h5_390.item102.rects.barLeft.h",
+        "cases.h5_390.item102.rects.barLeft.right",
+        "cases.h5_390.item102.rects.barLeft.top",
+        "cases.h5_390.item103.rects.barLeft.y",
+        "cases.h5_390.item103.rects.barLeft.w",
+        "cases.h5_390.item103.rects.barLeft.h",
+        "cases.h5_390.item103.rects.barLeft.right",
+        "cases.h5_390.item103.rects.barLeft.top"
+      ]
+    },
+    "bar_clamp": {
+      "count": 21,
+      "paths": [
+        "cases.h5_390.item101.order.actionbar",
+        "cases.h5_390.item101.rects.actionbar.y",
+        "cases.h5_390.item101.rects.actionbar.h",
+        "cases.h5_390.item101.rects.actionbar.top",
+        "cases.h5_390.item101BarAfterScroll.y",
+        "cases.h5_390.item101BarAfterScroll.h",
+        "cases.h5_390.item101BarAfterScroll.top",
+        "cases.h5_390.item102.order.actionbar",
+        "cases.h5_390.item102.rects.actionbar.y",
+        "cases.h5_390.item102.rects.actionbar.h",
+        "cases.h5_390.item102.rects.actionbar.top",
+        "cases.h5_390.item103.order.actionbar",
+        "cases.h5_390.item103.rects.actionbar.y",
+        "cases.h5_390.item103.rects.actionbar.h",
+        "cases.h5_390.item103.rects.actionbar.top",
+        "cases.h5_390.barFixed.before.y",
+        "cases.h5_390.barFixed.before.h",
+        "cases.h5_390.barFixed.before.top",
+        "cases.h5_390.barFixed.after.y",
+        "cases.h5_390.barFixed.after.h",
+        "cases.h5_390.barFixed.after.top"
+      ]
+    },
+    "uniform_shift": {
+      "count": 42,
+      "paths": [
+        "cases.h5_390.item101.rects.grp.y",
+        "cases.h5_390.item101.rects.grp.top",
+        "cases.h5_390.item101.rects.grp.bottom",
+        "cases.h5_390.item101.rects.msg.y",
+        "cases.h5_390.item101.rects.msg.top",
+        "cases.h5_390.item101.rects.msg.bottom",
+        "cases.h5_390.item101.rects.buy.y",
+        "cases.h5_390.item101.rects.buy.top",
+        "cases.h5_390.item101.rects.buy.bottom",
+        "cases.h5_390.item101.rects.chat.y",
+        "cases.h5_390.item101.rects.chat.top",
+        "cases.h5_390.item101.rects.chat.bottom",
+        "cases.h5_390.item101.rects.barRight.y",
+        "cases.h5_390.item101.rects.barRight.top",
+        "cases.h5_390.item101.rects.barRight.bottom",
+        "cases.h5_390.item102.rects.grp.y",
+        "cases.h5_390.item102.rects.grp.top",
+        "cases.h5_390.item102.rects.grp.bottom",
+        "cases.h5_390.item102.rects.msg.y",
+        "cases.h5_390.item102.rects.msg.top",
+        "cases.h5_390.item102.rects.msg.bottom",
+        "cases.h5_390.item102.rects.buy.y",
+        "cases.h5_390.item102.rects.buy.top",
+        "cases.h5_390.item102.rects.buy.bottom",
+        "cases.h5_390.item102.rects.chat.y",
+        "cases.h5_390.item102.rects.chat.top",
+        "cases.h5_390.item102.rects.chat.bottom",
+        "cases.h5_390.item102.rects.barRight.y",
+        "cases.h5_390.item102.rects.barRight.top",
+        "cases.h5_390.item102.rects.barRight.bottom",
+        "cases.h5_390.item103.rects.grp.y",
+        "cases.h5_390.item103.rects.grp.top",
+        "cases.h5_390.item103.rects.grp.bottom",
+        "cases.h5_390.item103.rects.msg.y",
+        "cases.h5_390.item103.rects.msg.top",
+        "cases.h5_390.item103.rects.msg.bottom",
+        "cases.h5_390.item103.rects.buy.y",
+        "cases.h5_390.item103.rects.buy.top",
+        "cases.h5_390.item103.rects.buy.bottom",
+        "cases.h5_390.item103.rects.barRight.y",
+        "cases.h5_390.item103.rects.barRight.top",
+        "cases.h5_390.item103.rects.barRight.bottom"
+      ]
+    },
+    "msg_bookkeeping": {
+      "count": 3,
+      "paths": [
+        "cases.h5_390.item101.colors.msg.display",
+        "cases.h5_390.item102.colors.msg.display",
+        "cases.h5_390.item103.colors.msg.display"
+      ]
+    }
+  },
+  "h5_390_unattributed": [],
+  "web_1536_diffCount": 0,
+  "web_1536_diffs": [],
+  "invariantChecks": [
+    {
+      "check": "item101.msg.w/h/x/left/right unchanged",
+      "ok": true
+    },
+    {
+      "check": "item102.msg.w/h/x/left/right unchanged",
+      "ok": true
+    },
+    {
+      "check": "item103.msg.w/h/x/left/right unchanged",
+      "ok": true
+    },
+    {
+      "check": "item101.buy.w/h/x/left/right unchanged",
+      "ok": true
+    },
+    {
+      "check": "item102.buy.w/h/x/left/right unchanged",
+      "ok": true
+    },
+    {
+      "check": "item103.buy.w/h/x/left/right unchanged",
+      "ok": true
+    },
+    {
+      "check": "item101.chat.w/h/x/left/right unchanged",
+      "ok": true
+    },
+    {
+      "check": "item102.chat.w/h/x/left/right unchanged",
+      "ok": true
+    },
+    {
+      "check": "item101.grp.w/h/x/left/right unchanged",
+      "ok": true
+    },
+    {
+      "check": "item102.grp.w/h/x/left/right unchanged",
+      "ok": true
+    },
+    {
+      "check": "item103.grp.w/h/x/left/right unchanged",
+      "ok": true
+    },
+    {
+      "check": "item101.barRight.w/h/x/left/right unchanged",
+      "ok": true
+    },
+    {
+      "check": "item102.barRight.w/h/x/left/right unchanged",
+      "ok": true
+    },
+    {
+      "check": "item103.barRight.w/h/x/left/right unchanged",
+      "ok": true
+    },
+    {
+      "check": "item101.actionbar.x/w unchanged",
+      "ok": true
+    },
+    {
+      "check": "item102.actionbar.x/w unchanged",
+      "ok": true
+    },
+    {
+      "check": "item103.actionbar.x/w unchanged",
+      "ok": true
+    }
+  ],
+  "targets": {
+    "favSingleLine44": true,
+    "fourButtonsAligned": true,
+    "otherThreeOwnGeometryUnchanged": true,
+    "favMatchesWebTier": true,
+    "web1536DiffZero": true,
+    "noUnexpectedH5Diff": true,
+    "invariantsAllOk": true
+  },
+  "verdict": {
+    "h5_390_all_diffs_attributed": true,
+    "h5_390_fav_single_line_44": true,
+    "h5_390_other_three_unchanged": true,
+    "web_1536_zero_change": true,
+    "pass": true
+  }
+}

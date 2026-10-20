@@ -1,0 +1,508 @@
+{
+  "generatedAt": "2026-10-20T04:00:57.989Z",
+  "baseline": {
+    "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+    "source": "ops/item-detail/front/readings/front-probe.json"
+  },
+  "current": {
+    "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+    "source": "ops/item-detail/front/readings/front-probe-h5-fav-fix.json"
+  },
+  "h5_390_diffCount": 96,
+  "h5_390_diffs": [
+    {
+      "path": "cases.h5_390.item101.order.actionbar",
+      "baseline": 771.5,
+      "current": 783
+    },
+    {
+      "path": "cases.h5_390.item101.rects.actionbar.y",
+      "baseline": 771.5,
+      "current": 783
+    },
+    {
+      "path": "cases.h5_390.item101.rects.actionbar.h",
+      "baseline": 72.5,
+      "current": 61
+    },
+    {
+      "path": "cases.h5_390.item101.rects.actionbar.top",
+      "baseline": 771.5,
+      "current": 783
+    },
+    {
+      "path": "cases.h5_390.item101.rects.grp.y",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item101.rects.grp.top",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item101.rects.grp.bottom",
+      "baseline": 830.25,
+      "current": 836
+    },
+    {
+      "path": "cases.h5_390.item101.rects.msg.y",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item101.rects.msg.top",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item101.rects.msg.bottom",
+      "baseline": 830.25,
+      "current": 836
+    },
+    {
+      "path": "cases.h5_390.item101.rects.fav.y",
+      "baseline": 780.5,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item101.rects.fav.w",
+      "baseline": 52,
+      "current": 78
+    },
+    {
+      "path": "cases.h5_390.item101.rects.fav.h",
+      "baseline": 55.5,
+      "current": 44
+    },
+    {
+      "path": "cases.h5_390.item101.rects.fav.right",
+      "baseline": 108,
+      "current": 134
+    },
+    {
+      "path": "cases.h5_390.item101.rects.fav.top",
+      "baseline": 780.5,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item101.rects.buy.y",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item101.rects.buy.top",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item101.rects.buy.bottom",
+      "baseline": 830.25,
+      "current": 836
+    },
+    {
+      "path": "cases.h5_390.item101.rects.chat.y",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item101.rects.chat.top",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item101.rects.chat.bottom",
+      "baseline": 830.25,
+      "current": 836
+    },
+    {
+      "path": "cases.h5_390.item101.rects.barLeft.y",
+      "baseline": 780.5,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item101.rects.barLeft.w",
+      "baseline": 96,
+      "current": 122
+    },
+    {
+      "path": "cases.h5_390.item101.rects.barLeft.h",
+      "baseline": 55.5,
+      "current": 44
+    },
+    {
+      "path": "cases.h5_390.item101.rects.barLeft.right",
+      "baseline": 108,
+      "current": 134
+    },
+    {
+      "path": "cases.h5_390.item101.rects.barLeft.top",
+      "baseline": 780.5,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item101.rects.barRight.y",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item101.rects.barRight.top",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item101.rects.barRight.bottom",
+      "baseline": 830.25,
+      "current": 836
+    },
+    {
+      "path": "cases.h5_390.item101.colors.msg.display",
+      "baseline": "block",
+      "current": "flex"
+    },
+    {
+      "path": "cases.h5_390.item101BarAfterScroll.y",
+      "baseline": 771.5,
+      "current": 783
+    },
+    {
+      "path": "cases.h5_390.item101BarAfterScroll.h",
+      "baseline": 72.5,
+      "current": 61
+    },
+    {
+      "path": "cases.h5_390.item101BarAfterScroll.top",
+      "baseline": 771.5,
+      "current": 783
+    },
+    {
+      "path": "cases.h5_390.item102.order.actionbar",
+      "baseline": 771.5,
+      "current": 783
+    },
+    {
+      "path": "cases.h5_390.item102.rects.actionbar.y",
+      "baseline": 771.5,
+      "current": 783
+    },
+    {
+      "path": "cases.h5_390.item102.rects.actionbar.h",
+      "baseline": 72.5,
+      "current": 61
+    },
+    {
+      "path": "cases.h5_390.item102.rects.actionbar.top",
+      "baseline": 771.5,
+      "current": 783
+    },
+    {
+      "path": "cases.h5_390.item102.rects.grp.y",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item102.rects.grp.top",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item102.rects.grp.bottom",
+      "baseline": 830.25,
+      "current": 836
+    },
+    {
+      "path": "cases.h5_390.item102.rects.msg.y",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item102.rects.msg.top",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item102.rects.msg.bottom",
+      "baseline": 830.25,
+      "current": 836
+    },
+    {
+      "path": "cases.h5_390.item102.rects.fav.y",
+      "baseline": 780.5,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item102.rects.fav.w",
+      "baseline": 52,
+      "current": 78
+    },
+    {
+      "path": "cases.h5_390.item102.rects.fav.h",
+      "baseline": 55.5,
+      "current": 44
+    },
+    {
+      "path": "cases.h5_390.item102.rects.fav.right",
+      "baseline": 108,
+      "current": 134
+    },
+    {
+      "path": "cases.h5_390.item102.rects.fav.top",
+      "baseline": 780.5,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item102.rects.buy.y",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item102.rects.buy.top",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item102.rects.buy.bottom",
+      "baseline": 830.25,
+      "current": 836
+    },
+    {
+      "path": "cases.h5_390.item102.rects.chat.y",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item102.rects.chat.top",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item102.rects.chat.bottom",
+      "baseline": 830.25,
+      "current": 836
+    },
+    {
+      "path": "cases.h5_390.item102.rects.barLeft.y",
+      "baseline": 780.5,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item102.rects.barLeft.w",
+      "baseline": 96,
+      "current": 122
+    },
+    {
+      "path": "cases.h5_390.item102.rects.barLeft.h",
+      "baseline": 55.5,
+      "current": 44
+    },
+    {
+      "path": "cases.h5_390.item102.rects.barLeft.right",
+      "baseline": 108,
+      "current": 134
+    },
+    {
+      "path": "cases.h5_390.item102.rects.barLeft.top",
+      "baseline": 780.5,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item102.rects.barRight.y",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item102.rects.barRight.top",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item102.rects.barRight.bottom",
+      "baseline": 830.25,
+      "current": 836
+    },
+    {
+      "path": "cases.h5_390.item102.colors.msg.display",
+      "baseline": "block",
+      "current": "flex"
+    },
+    {
+      "path": "cases.h5_390.item103.order.actionbar",
+      "baseline": 771.5,
+      "current": 783
+    },
+    {
+      "path": "cases.h5_390.item103.rects.actionbar.y",
+      "baseline": 771.5,
+      "current": 783
+    },
+    {
+      "path": "cases.h5_390.item103.rects.actionbar.h",
+      "baseline": 72.5,
+      "current": 61
+    },
+    {
+      "path": "cases.h5_390.item103.rects.actionbar.top",
+      "baseline": 771.5,
+      "current": 783
+    },
+    {
+      "path": "cases.h5_390.item103.rects.grp.y",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item103.rects.grp.top",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item103.rects.grp.bottom",
+      "baseline": 830.25,
+      "current": 836
+    },
+    {
+      "path": "cases.h5_390.item103.rects.msg.y",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item103.rects.msg.top",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item103.rects.msg.bottom",
+      "baseline": 830.25,
+      "current": 836
+    },
+    {
+      "path": "cases.h5_390.item103.rects.fav.y",
+      "baseline": 780.5,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item103.rects.fav.w",
+      "baseline": 52,
+      "current": 78
+    },
+    {
+      "path": "cases.h5_390.item103.rects.fav.h",
+      "baseline": 55.5,
+      "current": 44
+    },
+    {
+      "path": "cases.h5_390.item103.rects.fav.right",
+      "baseline": 108,
+      "current": 134
+    },
+    {
+      "path": "cases.h5_390.item103.rects.fav.top",
+      "baseline": 780.5,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item103.rects.buy.y",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item103.rects.buy.top",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item103.rects.buy.bottom",
+      "baseline": 830.25,
+      "current": 836
+    },
+    {
+      "path": "cases.h5_390.item103.rects.barLeft.y",
+      "baseline": 780.5,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item103.rects.barLeft.w",
+      "baseline": 96,
+      "current": 122
+    },
+    {
+      "path": "cases.h5_390.item103.rects.barLeft.h",
+      "baseline": 55.5,
+      "current": 44
+    },
+    {
+      "path": "cases.h5_390.item103.rects.barLeft.right",
+      "baseline": 108,
+      "current": 134
+    },
+    {
+      "path": "cases.h5_390.item103.rects.barLeft.top",
+      "baseline": 780.5,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item103.rects.barRight.y",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item103.rects.barRight.top",
+      "baseline": 786.25,
+      "current": 792
+    },
+    {
+      "path": "cases.h5_390.item103.rects.barRight.bottom",
+      "baseline": 830.25,
+      "current": 836
+    },
+    {
+      "path": "cases.h5_390.item103.colors.msg.display",
+      "baseline": "block",
+      "current": "flex"
+    },
+    {
+      "path": "cases.h5_390.barFixed.before.y",
+      "baseline": 771.5,
+      "current": 783
+    },
+    {
+      "path": "cases.h5_390.barFixed.before.h",
+      "baseline": 72.5,
+      "current": 61
+    },
+    {
+      "path": "cases.h5_390.barFixed.before.top",
+      "baseline": 771.5,
+      "current": 783
+    },
+    {
+      "path": "cases.h5_390.barFixed.after.y",
+      "baseline": 771.5,
+      "current": 783
+    },
+    {
+      "path": "cases.h5_390.barFixed.after.h",
+      "baseline": 72.5,
+      "current": 61
+    },
+    {
+      "path": "cases.h5_390.barFixed.after.top",
+      "baseline": 771.5,
+      "current": 783
+    }
+  ],
+  "baseline_web1536_verdict": {
+    "twoColsGrid": true,
+    "mediaLeftThumbsColumn": true,
+    "countsRightSameLevel": true,
+    "sellerBandFullWidth": true,
+    "capsuleJoined": true,
+    "favSameHeight": true,
+    "webTitleBold": true,
+    "msgHiddenOnWeb": true
+  },
+  "baseline_sensitivity_red": false,
+  "verdict": {
+    "h5_390_regression_zero_change": false
+  }
+}

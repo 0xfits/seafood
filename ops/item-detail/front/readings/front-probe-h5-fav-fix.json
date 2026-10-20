@@ -1,0 +1,2290 @@
+{
+  "generatedAt": "2026-10-20T04:00:51.011Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "fixtures": {
+    "rows": [
+      {
+        "id": 101,
+        "item_type": "PhysicalFreeShip",
+        "condition": "BrandNewSealed",
+        "hasWantsKey": true,
+        "media": 3,
+        "sellerSelf": false
+      },
+      {
+        "id": 102,
+        "item_type": "DigitalAutoDeliver",
+        "condition": null,
+        "hasWantsKey": false,
+        "media": 0,
+        "sellerSelf": false
+      },
+      {
+        "id": 103,
+        "item_type": "DigitalManualDeliver",
+        "condition": "MinorWear",
+        "hasWantsKey": true,
+        "media": 1,
+        "sellerSelf": true
+      }
+    ]
+  },
+  "cases": {
+    "h5_390": {
+      "item101": {
+        "url": "http://sf.local/item/101",
+        "overflowPx": 0,
+        "hooks": {
+          "seller": true,
+          "priceRow": true,
+          "tagsRow": true,
+          "coreTags": true,
+          "desc": true,
+          "gallery": true,
+          "actionbar": true,
+          "msg": true,
+          "fav": true,
+          "buy": true,
+          "chat": true,
+          "note": true,
+          "qty": true
+        },
+        "order": {
+          "seller": 134,
+          "priceRow": 158,
+          "webTitle": null,
+          "tagsRow": 462,
+          "coreTags": 438,
+          "desc": 488,
+          "gallery": 550.39,
+          "actionbar": 783
+        },
+        "rects": {
+          "seller": {
+            "x": 10,
+            "y": 134,
+            "w": 320,
+            "h": 24,
+            "left": 10,
+            "right": 330,
+            "top": 134,
+            "bottom": 158
+          },
+          "priceRow": {
+            "x": 10,
+            "y": 158,
+            "w": 320,
+            "h": 48,
+            "left": 10,
+            "right": 330,
+            "top": 158,
+            "bottom": 206
+          },
+          "priceNum": {
+            "x": 21.2,
+            "y": 158,
+            "w": 38.41,
+            "h": 48,
+            "left": 21.2,
+            "right": 59.61,
+            "top": 158,
+            "bottom": 206
+          },
+          "priceCur": {
+            "x": 10,
+            "y": 180,
+            "w": 7.2,
+            "h": 18,
+            "left": 10,
+            "right": 17.2,
+            "top": 180,
+            "bottom": 198
+          },
+          "webTitle": null,
+          "tagsRow": {
+            "x": 10,
+            "y": 462,
+            "w": 320,
+            "h": 18,
+            "left": 10,
+            "right": 330,
+            "top": 462,
+            "bottom": 480
+          },
+          "coreTags": {
+            "x": 10,
+            "y": 438,
+            "w": 320,
+            "h": 16,
+            "left": 10,
+            "right": 330,
+            "top": 438,
+            "bottom": 454
+          },
+          "desc": {
+            "x": 10,
+            "y": 488,
+            "w": 320,
+            "h": 62.39,
+            "left": 10,
+            "right": 330,
+            "top": 488,
+            "bottom": 550.39
+          },
+          "gallery": {
+            "x": 10,
+            "y": 550.39,
+            "w": 320,
+            "h": 384,
+            "left": 10,
+            "right": 330,
+            "top": 550.39,
+            "bottom": 934.39
+          },
+          "actionbar": {
+            "x": 0,
+            "y": 783,
+            "w": 390,
+            "h": 61,
+            "left": 0,
+            "right": 390,
+            "top": 783,
+            "bottom": 844
+          },
+          "cols": {
+            "x": 10,
+            "y": 158,
+            "w": 320,
+            "h": 776.39,
+            "left": 10,
+            "right": 330,
+            "top": 158,
+            "bottom": 934.39
+          },
+          "side": {
+            "x": 10,
+            "y": 158,
+            "w": 320,
+            "h": 392.39,
+            "left": 10,
+            "right": 330,
+            "top": 158,
+            "bottom": 550.39
+          },
+          "grp": {
+            "x": 201,
+            "y": 792,
+            "w": 177,
+            "h": 44,
+            "left": 201,
+            "right": 378,
+            "top": 792,
+            "bottom": 836
+          },
+          "msg": {
+            "x": 12,
+            "y": 792,
+            "w": 36,
+            "h": 44,
+            "left": 12,
+            "right": 48,
+            "top": 792,
+            "bottom": 836
+          },
+          "fav": {
+            "x": 56,
+            "y": 792,
+            "w": 78,
+            "h": 44,
+            "left": 56,
+            "right": 134,
+            "top": 792,
+            "bottom": 836
+          },
+          "buy": {
+            "x": 201,
+            "y": 792,
+            "w": 78,
+            "h": 44,
+            "left": 201,
+            "right": 279,
+            "top": 792,
+            "bottom": 836
+          },
+          "chat": {
+            "x": 287,
+            "y": 792,
+            "w": 91,
+            "h": 44,
+            "left": 287,
+            "right": 378,
+            "top": 792,
+            "bottom": 836
+          },
+          "barLeft": {
+            "x": 12,
+            "y": 792,
+            "w": 122,
+            "h": 44,
+            "left": 12,
+            "right": 134,
+            "top": 792,
+            "bottom": 836
+          },
+          "barRight": {
+            "x": 201,
+            "y": 792,
+            "w": 177,
+            "h": 44,
+            "left": 201,
+            "right": 378,
+            "top": 792,
+            "bottom": 836
+          },
+          "navPrev": null,
+          "navNext": null,
+          "countsPrice": null,
+          "countsTags": {
+            "x": 235.59,
+            "y": 462,
+            "w": 94.41,
+            "h": 18,
+            "left": 235.59,
+            "right": 330,
+            "top": 462,
+            "bottom": 480
+          },
+          "thumbsCol": {
+            "x": 10,
+            "y": 878.39,
+            "w": 320,
+            "h": 56,
+            "left": 10,
+            "right": 330,
+            "top": 878.39,
+            "bottom": 934.39
+          },
+          "mediaMain": {
+            "x": 10,
+            "y": 550.39,
+            "w": 320,
+            "h": 320,
+            "left": 10,
+            "right": 330,
+            "top": 550.39,
+            "bottom": 870.39
+          }
+        },
+        "colors": {
+          "priceNum": "rgb(255, 77, 0)",
+          "priceCur": "rgb(255, 77, 0)",
+          "priceNumWeight": "700",
+          "condTag": {
+            "text": "全新未拆封",
+            "bg": "rgb(236, 236, 236)",
+            "fg": "rgb(32, 32, 32)",
+            "fontSize": "12px",
+            "fontWeight": "700",
+            "radius": "2px"
+          },
+          "settleTag": null,
+          "statusTag": null,
+          "secTag": {
+            "text": "包邮",
+            "bg": "rgb(255, 230, 15)",
+            "fg": "rgb(32, 32, 32)"
+          },
+          "buy": {
+            "bg": "rgb(236, 236, 236)",
+            "fg": "rgb(32, 32, 32)",
+            "radius": "999px"
+          },
+          "chat": {
+            "bg": "rgb(255, 230, 15)",
+            "fg": "rgb(32, 32, 32)"
+          },
+          "favStar": {
+            "color": "rgb(32, 32, 32)",
+            "fill": "none"
+          },
+          "msg": {
+            "bg": "rgba(0, 0, 0, 0)",
+            "display": "flex"
+          },
+          "grp": {
+            "radius": "0px",
+            "overflow": "visible",
+            "gap": "8px"
+          },
+          "buyCorners": {
+            "tl": "999px",
+            "tr": "999px",
+            "br": "999px",
+            "bl": "999px"
+          },
+          "chatCorners": {
+            "tl": "999px",
+            "tr": "999px",
+            "br": "999px",
+            "bl": "999px"
+          }
+        },
+        "bar": {
+          "position": null,
+          "actionbarPosition": "fixed",
+          "viewportH": 844
+        },
+        "counts": {
+          "priceSlotDisplay": "none",
+          "tagsSlotDisplay": "flex",
+          "wantsTexts": [
+            "7人想要",
+            "7人想要"
+          ],
+          "viewsTexts": [
+            "2人浏览",
+            "2人浏览"
+          ]
+        },
+        "tags": {
+          "shipTagCount": 1,
+          "autoTagCount": 0,
+          "manualOrBuyerTagTexts": [
+            "包邮"
+          ]
+        },
+        "media": {
+          "thumbCount": 3,
+          "thumbRects": [
+            {
+              "x": 10,
+              "y": 878.39,
+              "w": 56,
+              "h": 56,
+              "left": 10,
+              "right": 66,
+              "top": 878.39,
+              "bottom": 934.39
+            },
+            {
+              "x": 74,
+              "y": 878.39,
+              "w": 56,
+              "h": 56,
+              "left": 74,
+              "right": 130,
+              "top": 878.39,
+              "bottom": 934.39
+            },
+            {
+              "x": 138,
+              "y": 878.39,
+              "w": 56,
+              "h": 56,
+              "left": 138,
+              "right": 194,
+              "top": 878.39,
+              "bottom": 934.39
+            }
+          ],
+          "activeIdx": 0,
+          "mainImg": "http://sf.local/api/media/fx-a",
+          "navDisplay": "none",
+          "navCount": 2,
+          "prevBg": "rgba(0, 0, 0, 0)",
+          "mainImgH": 320,
+          "thumbsDirection": "row"
+        },
+        "descStyle": {
+          "whiteSpace": "pre-wrap",
+          "firstWeight": "500"
+        },
+        "webTitleDisplay": "none",
+        "webTitleWeight": "400",
+        "colsDisplay": "flex",
+        "colsColumns": "none",
+        "noteText": "物品编号 #101 · 已上架",
+        "actionbarTexts": [
+          "留言",
+          "收藏",
+          "立即购买",
+          "聊一聊"
+        ]
+      },
+      "item101BarAfterScroll": {
+        "x": 0,
+        "y": 783,
+        "w": 390,
+        "h": 61,
+        "left": 0,
+        "right": 390,
+        "top": 783,
+        "bottom": 844
+      },
+      "item101ThumbSwitch": {
+        "activeIdx": 1,
+        "mainImg": "http://sf.local/api/media/fx-b"
+      },
+      "item102": {
+        "url": "http://sf.local/item/102",
+        "overflowPx": 0,
+        "hooks": {
+          "seller": true,
+          "priceRow": true,
+          "tagsRow": true,
+          "coreTags": true,
+          "desc": true,
+          "gallery": true,
+          "actionbar": true,
+          "msg": true,
+          "fav": true,
+          "buy": true,
+          "chat": true,
+          "note": true,
+          "qty": true
+        },
+        "order": {
+          "seller": 134,
+          "priceRow": 158,
+          "webTitle": null,
+          "tagsRow": 462,
+          "coreTags": 438,
+          "desc": 488,
+          "gallery": 508.8,
+          "actionbar": 783
+        },
+        "rects": {
+          "seller": {
+            "x": 10,
+            "y": 134,
+            "w": 320,
+            "h": 24,
+            "left": 10,
+            "right": 330,
+            "top": 134,
+            "bottom": 158
+          },
+          "priceRow": {
+            "x": 10,
+            "y": 158,
+            "w": 320,
+            "h": 48,
+            "left": 10,
+            "right": 330,
+            "top": 158,
+            "bottom": 206
+          },
+          "priceNum": {
+            "x": 21.2,
+            "y": 158,
+            "w": 38.41,
+            "h": 48,
+            "left": 21.2,
+            "right": 59.61,
+            "top": 158,
+            "bottom": 206
+          },
+          "priceCur": {
+            "x": 10,
+            "y": 180,
+            "w": 7.2,
+            "h": 18,
+            "left": 10,
+            "right": 17.2,
+            "top": 180,
+            "bottom": 198
+          },
+          "webTitle": null,
+          "tagsRow": {
+            "x": 10,
+            "y": 462,
+            "w": 320,
+            "h": 18,
+            "left": 10,
+            "right": 330,
+            "top": 462,
+            "bottom": 480
+          },
+          "coreTags": {
+            "x": 10,
+            "y": 438,
+            "w": 320,
+            "h": 16,
+            "left": 10,
+            "right": 330,
+            "top": 438,
+            "bottom": 454
+          },
+          "desc": {
+            "x": 10,
+            "y": 488,
+            "w": 320,
+            "h": 20.8,
+            "left": 10,
+            "right": 330,
+            "top": 488,
+            "bottom": 508.8
+          },
+          "gallery": {
+            "x": 10,
+            "y": 508.8,
+            "w": 320,
+            "h": 320,
+            "left": 10,
+            "right": 330,
+            "top": 508.8,
+            "bottom": 828.8
+          },
+          "actionbar": {
+            "x": 0,
+            "y": 783,
+            "w": 390,
+            "h": 61,
+            "left": 0,
+            "right": 390,
+            "top": 783,
+            "bottom": 844
+          },
+          "cols": {
+            "x": 10,
+            "y": 158,
+            "w": 320,
+            "h": 670.8,
+            "left": 10,
+            "right": 330,
+            "top": 158,
+            "bottom": 828.8
+          },
+          "side": {
+            "x": 10,
+            "y": 158,
+            "w": 320,
+            "h": 350.8,
+            "left": 10,
+            "right": 330,
+            "top": 158,
+            "bottom": 508.8
+          },
+          "grp": {
+            "x": 201,
+            "y": 792,
+            "w": 177,
+            "h": 44,
+            "left": 201,
+            "right": 378,
+            "top": 792,
+            "bottom": 836
+          },
+          "msg": {
+            "x": 12,
+            "y": 792,
+            "w": 36,
+            "h": 44,
+            "left": 12,
+            "right": 48,
+            "top": 792,
+            "bottom": 836
+          },
+          "fav": {
+            "x": 56,
+            "y": 792,
+            "w": 78,
+            "h": 44,
+            "left": 56,
+            "right": 134,
+            "top": 792,
+            "bottom": 836
+          },
+          "buy": {
+            "x": 201,
+            "y": 792,
+            "w": 78,
+            "h": 44,
+            "left": 201,
+            "right": 279,
+            "top": 792,
+            "bottom": 836
+          },
+          "chat": {
+            "x": 287,
+            "y": 792,
+            "w": 91,
+            "h": 44,
+            "left": 287,
+            "right": 378,
+            "top": 792,
+            "bottom": 836
+          },
+          "barLeft": {
+            "x": 12,
+            "y": 792,
+            "w": 122,
+            "h": 44,
+            "left": 12,
+            "right": 134,
+            "top": 792,
+            "bottom": 836
+          },
+          "barRight": {
+            "x": 201,
+            "y": 792,
+            "w": 177,
+            "h": 44,
+            "left": 201,
+            "right": 378,
+            "top": 792,
+            "bottom": 836
+          },
+          "navPrev": null,
+          "navNext": null,
+          "countsPrice": null,
+          "countsTags": {
+            "x": 286.8,
+            "y": 462,
+            "w": 43.2,
+            "h": 18,
+            "left": 286.8,
+            "right": 330,
+            "top": 462,
+            "bottom": 480
+          },
+          "thumbsCol": null,
+          "mediaMain": {
+            "x": 10,
+            "y": 508.8,
+            "w": 320,
+            "h": 320,
+            "left": 10,
+            "right": 330,
+            "top": 508.8,
+            "bottom": 828.8
+          }
+        },
+        "colors": {
+          "priceNum": "rgb(255, 77, 0)",
+          "priceCur": "rgb(255, 77, 0)",
+          "priceNumWeight": "700",
+          "condTag": null,
+          "settleTag": {
+            "text": "平台结算",
+            "bg": "rgb(236, 236, 236)"
+          },
+          "statusTag": {
+            "text": "已上架",
+            "bg": "rgb(236, 236, 236)"
+          },
+          "secTag": {
+            "text": "自动发货",
+            "bg": "rgb(74, 222, 128)",
+            "fg": "rgb(32, 32, 32)"
+          },
+          "buy": {
+            "bg": "rgb(236, 236, 236)",
+            "fg": "rgb(32, 32, 32)",
+            "radius": "999px"
+          },
+          "chat": {
+            "bg": "rgb(255, 230, 15)",
+            "fg": "rgb(32, 32, 32)"
+          },
+          "favStar": {
+            "color": "rgb(32, 32, 32)",
+            "fill": "none"
+          },
+          "msg": {
+            "bg": "rgba(0, 0, 0, 0)",
+            "display": "flex"
+          },
+          "grp": {
+            "radius": "0px",
+            "overflow": "visible",
+            "gap": "8px"
+          },
+          "buyCorners": {
+            "tl": "999px",
+            "tr": "999px",
+            "br": "999px",
+            "bl": "999px"
+          },
+          "chatCorners": {
+            "tl": "999px",
+            "tr": "999px",
+            "br": "999px",
+            "bl": "999px"
+          }
+        },
+        "bar": {
+          "position": null,
+          "actionbarPosition": "fixed",
+          "viewportH": 844
+        },
+        "counts": {
+          "priceSlotDisplay": "none",
+          "tagsSlotDisplay": "flex",
+          "wantsTexts": [],
+          "viewsTexts": [
+            "2人浏览",
+            "2人浏览"
+          ]
+        },
+        "tags": {
+          "shipTagCount": 0,
+          "autoTagCount": 1,
+          "manualOrBuyerTagTexts": [
+            "自动发货"
+          ]
+        },
+        "media": {
+          "thumbCount": 0,
+          "thumbRects": [],
+          "activeIdx": -1,
+          "mainImg": "http://sf.local/assets/placeholder-item-ChYVGMSM.webp",
+          "navDisplay": null,
+          "navCount": 0,
+          "prevBg": null,
+          "mainImgH": 320,
+          "thumbsDirection": null
+        },
+        "descStyle": {
+          "whiteSpace": "pre-wrap",
+          "firstWeight": "500"
+        },
+        "webTitleDisplay": "none",
+        "webTitleWeight": "400",
+        "colsDisplay": "flex",
+        "colsColumns": "none",
+        "noteText": "物品编号 #102 · 已上架",
+        "actionbarTexts": [
+          "留言",
+          "收藏",
+          "立即购买",
+          "聊一聊"
+        ]
+      },
+      "item103": {
+        "url": "http://sf.local/item/103",
+        "overflowPx": 0,
+        "hooks": {
+          "seller": true,
+          "priceRow": true,
+          "tagsRow": true,
+          "coreTags": true,
+          "desc": true,
+          "gallery": true,
+          "actionbar": true,
+          "msg": true,
+          "fav": true,
+          "buy": true,
+          "chat": false,
+          "note": true,
+          "qty": true
+        },
+        "order": {
+          "seller": 134,
+          "priceRow": 158,
+          "webTitle": null,
+          "tagsRow": 462,
+          "coreTags": 438,
+          "desc": 488,
+          "gallery": 529.59,
+          "actionbar": 783
+        },
+        "rects": {
+          "seller": {
+            "x": 10,
+            "y": 134,
+            "w": 320,
+            "h": 24,
+            "left": 10,
+            "right": 330,
+            "top": 134,
+            "bottom": 158
+          },
+          "priceRow": {
+            "x": 10,
+            "y": 158,
+            "w": 320,
+            "h": 48,
+            "left": 10,
+            "right": 330,
+            "top": 158,
+            "bottom": 206
+          },
+          "priceNum": {
+            "x": 21.2,
+            "y": 158,
+            "w": 19.2,
+            "h": 48,
+            "left": 21.2,
+            "right": 40.41,
+            "top": 158,
+            "bottom": 206
+          },
+          "priceCur": {
+            "x": 10,
+            "y": 180,
+            "w": 7.2,
+            "h": 18,
+            "left": 10,
+            "right": 17.2,
+            "top": 180,
+            "bottom": 198
+          },
+          "webTitle": null,
+          "tagsRow": {
+            "x": 10,
+            "y": 462,
+            "w": 320,
+            "h": 18,
+            "left": 10,
+            "right": 330,
+            "top": 462,
+            "bottom": 480
+          },
+          "coreTags": {
+            "x": 10,
+            "y": 438,
+            "w": 320,
+            "h": 16,
+            "left": 10,
+            "right": 330,
+            "top": 438,
+            "bottom": 454
+          },
+          "desc": {
+            "x": 10,
+            "y": 488,
+            "w": 320,
+            "h": 41.59,
+            "left": 10,
+            "right": 330,
+            "top": 488,
+            "bottom": 529.59
+          },
+          "gallery": {
+            "x": 10,
+            "y": 529.59,
+            "w": 320,
+            "h": 384,
+            "left": 10,
+            "right": 330,
+            "top": 529.59,
+            "bottom": 913.59
+          },
+          "actionbar": {
+            "x": 0,
+            "y": 783,
+            "w": 390,
+            "h": 61,
+            "left": 0,
+            "right": 390,
+            "top": 783,
+            "bottom": 844
+          },
+          "cols": {
+            "x": 10,
+            "y": 158,
+            "w": 320,
+            "h": 755.59,
+            "left": 10,
+            "right": 330,
+            "top": 158,
+            "bottom": 913.59
+          },
+          "side": {
+            "x": 10,
+            "y": 158,
+            "w": 320,
+            "h": 371.59,
+            "left": 10,
+            "right": 330,
+            "top": 158,
+            "bottom": 529.59
+          },
+          "grp": {
+            "x": 300,
+            "y": 792,
+            "w": 78,
+            "h": 44,
+            "left": 300,
+            "right": 378,
+            "top": 792,
+            "bottom": 836
+          },
+          "msg": {
+            "x": 12,
+            "y": 792,
+            "w": 36,
+            "h": 44,
+            "left": 12,
+            "right": 48,
+            "top": 792,
+            "bottom": 836
+          },
+          "fav": {
+            "x": 56,
+            "y": 792,
+            "w": 78,
+            "h": 44,
+            "left": 56,
+            "right": 134,
+            "top": 792,
+            "bottom": 836
+          },
+          "buy": {
+            "x": 300,
+            "y": 792,
+            "w": 78,
+            "h": 44,
+            "left": 300,
+            "right": 378,
+            "top": 792,
+            "bottom": 836
+          },
+          "chat": null,
+          "barLeft": {
+            "x": 12,
+            "y": 792,
+            "w": 122,
+            "h": 44,
+            "left": 12,
+            "right": 134,
+            "top": 792,
+            "bottom": 836
+          },
+          "barRight": {
+            "x": 300,
+            "y": 792,
+            "w": 78,
+            "h": 44,
+            "left": 300,
+            "right": 378,
+            "top": 792,
+            "bottom": 836
+          },
+          "navPrev": null,
+          "navNext": null,
+          "countsPrice": null,
+          "countsTags": {
+            "x": 235.59,
+            "y": 462,
+            "w": 94.41,
+            "h": 18,
+            "left": 235.59,
+            "right": 330,
+            "top": 462,
+            "bottom": 480
+          },
+          "thumbsCol": {
+            "x": 10,
+            "y": 857.59,
+            "w": 320,
+            "h": 56,
+            "left": 10,
+            "right": 330,
+            "top": 857.59,
+            "bottom": 913.59
+          },
+          "mediaMain": {
+            "x": 10,
+            "y": 529.59,
+            "w": 320,
+            "h": 320,
+            "left": 10,
+            "right": 330,
+            "top": 529.59,
+            "bottom": 849.59
+          }
+        },
+        "colors": {
+          "priceNum": "rgb(255, 77, 0)",
+          "priceCur": "rgb(255, 77, 0)",
+          "priceNumWeight": "700",
+          "condTag": {
+            "text": "细微磕碰划痕",
+            "bg": "rgb(236, 236, 236)",
+            "fg": "rgb(32, 32, 32)",
+            "fontSize": "12px",
+            "fontWeight": "700",
+            "radius": "2px"
+          },
+          "settleTag": null,
+          "statusTag": null,
+          "secTag": null,
+          "buy": {
+            "bg": "rgb(236, 236, 236)",
+            "fg": "rgb(32, 32, 32)",
+            "radius": "999px"
+          },
+          "chat": null,
+          "favStar": {
+            "color": "rgb(32, 32, 32)",
+            "fill": "none"
+          },
+          "msg": {
+            "bg": "rgba(0, 0, 0, 0)",
+            "display": "flex"
+          },
+          "grp": {
+            "radius": "0px",
+            "overflow": "visible",
+            "gap": "8px"
+          },
+          "buyCorners": {
+            "tl": "999px",
+            "tr": "999px",
+            "br": "999px",
+            "bl": "999px"
+          },
+          "chatCorners": null
+        },
+        "bar": {
+          "position": null,
+          "actionbarPosition": "fixed",
+          "viewportH": 844
+        },
+        "counts": {
+          "priceSlotDisplay": "none",
+          "tagsSlotDisplay": "flex",
+          "wantsTexts": [
+            "2人想要",
+            "2人想要"
+          ],
+          "viewsTexts": [
+            "2人浏览",
+            "2人浏览"
+          ]
+        },
+        "tags": {
+          "shipTagCount": 0,
+          "autoTagCount": 0,
+          "manualOrBuyerTagTexts": []
+        },
+        "media": {
+          "thumbCount": 1,
+          "thumbRects": [
+            {
+              "x": 10,
+              "y": 857.59,
+              "w": 56,
+              "h": 56,
+              "left": 10,
+              "right": 66,
+              "top": 857.59,
+              "bottom": 913.59
+            }
+          ],
+          "activeIdx": 0,
+          "mainImg": "http://sf.local/api/media/fx-one",
+          "navDisplay": null,
+          "navCount": 0,
+          "prevBg": null,
+          "mainImgH": 320,
+          "thumbsDirection": "row"
+        },
+        "descStyle": {
+          "whiteSpace": "pre-wrap",
+          "firstWeight": "500"
+        },
+        "webTitleDisplay": "none",
+        "webTitleWeight": "400",
+        "colsDisplay": "flex",
+        "colsColumns": "none",
+        "noteText": "物品编号 #103 · 已下架",
+        "actionbarTexts": [
+          "留言",
+          "收藏",
+          "立即购买"
+        ]
+      },
+      "viewsIncrement": {
+        "first": [
+          "4人浏览",
+          "4人浏览"
+        ],
+        "second": [
+          "6人浏览",
+          "6人浏览"
+        ]
+      },
+      "favToggle": {
+        "wantsBefore": [
+          "7人想要",
+          "7人想要"
+        ],
+        "favAfterClick": {
+          "pressed": "true",
+          "sfFav": "1",
+          "starColor": "rgb(255, 230, 15)"
+        },
+        "wantsAfterReload": [
+          "8人想要",
+          "8人想要"
+        ],
+        "favPersisted": {
+          "pressed": "true",
+          "starColor": "rgb(255, 230, 15)"
+        },
+        "wantsRestored": [
+          "7人想要",
+          "7人想要"
+        ]
+      },
+      "barFixed": {
+        "before": {
+          "x": 0,
+          "y": 783,
+          "w": 390,
+          "h": 61,
+          "left": 0,
+          "right": 390,
+          "top": 783,
+          "bottom": 844
+        },
+        "after": {
+          "x": 0,
+          "y": 783,
+          "w": 390,
+          "h": 61,
+          "left": 0,
+          "right": 390,
+          "top": 783,
+          "bottom": 844
+        }
+      }
+    },
+    "web_1536": {
+      "item101": {
+        "url": "http://sf.local/item/101",
+        "overflowPx": 0,
+        "hooks": {
+          "seller": true,
+          "priceRow": true,
+          "tagsRow": true,
+          "coreTags": true,
+          "desc": true,
+          "gallery": true,
+          "actionbar": true,
+          "msg": true,
+          "fav": true,
+          "buy": true,
+          "chat": true,
+          "note": true,
+          "qty": true
+        },
+        "order": {
+          "seller": 104,
+          "priceRow": 128,
+          "webTitle": 184,
+          "tagsRow": 219,
+          "coreTags": 243,
+          "desc": 267,
+          "gallery": 128,
+          "actionbar": 554.89
+        },
+        "rects": {
+          "seller": {
+            "x": 20,
+            "y": 104,
+            "w": 1496,
+            "h": 24,
+            "left": 20,
+            "right": 1516,
+            "top": 104,
+            "bottom": 128
+          },
+          "priceRow": {
+            "x": 924,
+            "y": 128,
+            "w": 592,
+            "h": 48,
+            "left": 924,
+            "right": 1516,
+            "top": 128,
+            "bottom": 176
+          },
+          "priceNum": {
+            "x": 935.2,
+            "y": 128,
+            "w": 38.41,
+            "h": 48,
+            "left": 935.2,
+            "right": 973.61,
+            "top": 128,
+            "bottom": 176
+          },
+          "priceCur": {
+            "x": 924,
+            "y": 150,
+            "w": 7.2,
+            "h": 18,
+            "left": 924,
+            "right": 931.2,
+            "top": 150,
+            "bottom": 168
+          },
+          "webTitle": {
+            "x": 924,
+            "y": 184,
+            "w": 592,
+            "h": 27,
+            "left": 924,
+            "right": 1516,
+            "top": 184,
+            "bottom": 211
+          },
+          "tagsRow": {
+            "x": 924,
+            "y": 219,
+            "w": 592,
+            "h": 16,
+            "left": 924,
+            "right": 1516,
+            "top": 219,
+            "bottom": 235
+          },
+          "coreTags": {
+            "x": 924,
+            "y": 243,
+            "w": 592,
+            "h": 16,
+            "left": 924,
+            "right": 1516,
+            "top": 243,
+            "bottom": 259
+          },
+          "desc": {
+            "x": 924,
+            "y": 267,
+            "w": 592,
+            "h": 62.39,
+            "left": 924,
+            "right": 1516,
+            "top": 267,
+            "bottom": 329.39
+          },
+          "gallery": {
+            "x": 20,
+            "y": 128,
+            "w": 888,
+            "h": 320,
+            "left": 20,
+            "right": 908,
+            "top": 128,
+            "bottom": 448
+          },
+          "actionbar": {
+            "x": 924,
+            "y": 554.89,
+            "w": 592,
+            "h": 60,
+            "left": 924,
+            "right": 1516,
+            "top": 554.89,
+            "bottom": 614.89
+          },
+          "cols": {
+            "x": 20,
+            "y": 128,
+            "w": 1496,
+            "h": 486.89,
+            "left": 20,
+            "right": 1516,
+            "top": 128,
+            "bottom": 614.89
+          },
+          "side": {
+            "x": 924,
+            "y": 128,
+            "w": 592,
+            "h": 486.89,
+            "left": 924,
+            "right": 1516,
+            "top": 128,
+            "bottom": 614.89
+          },
+          "grp": {
+            "x": 924,
+            "y": 562.89,
+            "w": 506,
+            "h": 44,
+            "left": 924,
+            "right": 1430,
+            "top": 562.89,
+            "bottom": 606.89
+          },
+          "msg": null,
+          "fav": {
+            "x": 1438,
+            "y": 562.89,
+            "w": 78,
+            "h": 44,
+            "left": 1438,
+            "right": 1516,
+            "top": 562.89,
+            "bottom": 606.89
+          },
+          "buy": {
+            "x": 1019,
+            "y": 562.89,
+            "w": 411,
+            "h": 44,
+            "left": 1019,
+            "right": 1430,
+            "top": 562.89,
+            "bottom": 606.89
+          },
+          "chat": {
+            "x": 924,
+            "y": 562.89,
+            "w": 95,
+            "h": 44,
+            "left": 924,
+            "right": 1019,
+            "top": 562.89,
+            "bottom": 606.89
+          },
+          "barLeft": {
+            "x": 1438,
+            "y": 562.89,
+            "w": 78,
+            "h": 44,
+            "left": 1438,
+            "right": 1516,
+            "top": 562.89,
+            "bottom": 606.89
+          },
+          "barRight": {
+            "x": 924,
+            "y": 562.89,
+            "w": 506,
+            "h": 44,
+            "left": 924,
+            "right": 1430,
+            "top": 562.89,
+            "bottom": 606.89
+          },
+          "navPrev": {
+            "x": 100,
+            "y": 272,
+            "w": 32,
+            "h": 32,
+            "left": 100,
+            "right": 132,
+            "top": 272,
+            "bottom": 304
+          },
+          "navNext": {
+            "x": 372,
+            "y": 272,
+            "w": 32,
+            "h": 32,
+            "left": 372,
+            "right": 404,
+            "top": 272,
+            "bottom": 304
+          },
+          "countsPrice": {
+            "x": 1414.39,
+            "y": 150,
+            "w": 101.61,
+            "h": 18,
+            "left": 1414.39,
+            "right": 1516,
+            "top": 150,
+            "bottom": 168
+          },
+          "countsTags": null,
+          "thumbsCol": {
+            "x": 20,
+            "y": 128,
+            "w": 64,
+            "h": 208,
+            "left": 20,
+            "right": 84,
+            "top": 128,
+            "bottom": 336
+          },
+          "mediaMain": {
+            "x": 92,
+            "y": 128,
+            "w": 320,
+            "h": 320,
+            "left": 92,
+            "right": 412,
+            "top": 128,
+            "bottom": 448
+          }
+        },
+        "colors": {
+          "priceNum": "rgb(255, 77, 0)",
+          "priceCur": "rgb(255, 77, 0)",
+          "priceNumWeight": "700",
+          "condTag": {
+            "text": "全新未拆封",
+            "bg": "rgb(236, 236, 236)",
+            "fg": "rgb(32, 32, 32)",
+            "fontSize": "12px",
+            "fontWeight": "700",
+            "radius": "2px"
+          },
+          "settleTag": null,
+          "statusTag": null,
+          "secTag": {
+            "text": "包邮",
+            "bg": "rgb(255, 230, 15)",
+            "fg": "rgb(32, 32, 32)"
+          },
+          "buy": {
+            "bg": "rgb(32, 32, 32)",
+            "fg": "rgb(255, 255, 255)",
+            "radius": "0px"
+          },
+          "chat": {
+            "bg": "rgb(255, 230, 15)",
+            "fg": "rgb(32, 32, 32)"
+          },
+          "favStar": {
+            "color": "rgb(32, 32, 32)",
+            "fill": "none"
+          },
+          "msg": {
+            "bg": "rgba(0, 0, 0, 0)",
+            "display": "none"
+          },
+          "grp": {
+            "radius": "999px",
+            "overflow": "hidden",
+            "gap": "0px"
+          },
+          "buyCorners": {
+            "tl": "0px",
+            "tr": "0px",
+            "br": "0px",
+            "bl": "0px"
+          },
+          "chatCorners": {
+            "tl": "0px",
+            "tr": "0px",
+            "br": "0px",
+            "bl": "0px"
+          }
+        },
+        "bar": {
+          "position": null,
+          "actionbarPosition": "static",
+          "viewportH": 960
+        },
+        "counts": {
+          "priceSlotDisplay": "flex",
+          "tagsSlotDisplay": "none",
+          "wantsTexts": [
+            "7人想要",
+            "7人想要"
+          ],
+          "viewsTexts": [
+            "14人浏览",
+            "14人浏览"
+          ]
+        },
+        "tags": {
+          "shipTagCount": 1,
+          "autoTagCount": 0,
+          "manualOrBuyerTagTexts": [
+            "包邮"
+          ]
+        },
+        "media": {
+          "thumbCount": 3,
+          "thumbRects": [
+            {
+              "x": 20,
+              "y": 128,
+              "w": 64,
+              "h": 64,
+              "left": 20,
+              "right": 84,
+              "top": 128,
+              "bottom": 192
+            },
+            {
+              "x": 20,
+              "y": 200,
+              "w": 64,
+              "h": 64,
+              "left": 20,
+              "right": 84,
+              "top": 200,
+              "bottom": 264
+            },
+            {
+              "x": 20,
+              "y": 272,
+              "w": 64,
+              "h": 64,
+              "left": 20,
+              "right": 84,
+              "top": 272,
+              "bottom": 336
+            }
+          ],
+          "activeIdx": 0,
+          "mainImg": "http://sf.local/api/media/fx-a",
+          "navDisplay": "flex",
+          "navCount": 2,
+          "prevBg": "rgb(255, 255, 255)",
+          "mainImgH": 320,
+          "thumbsDirection": "column"
+        },
+        "descStyle": {
+          "whiteSpace": "pre-wrap",
+          "firstWeight": "500"
+        },
+        "webTitleDisplay": "block",
+        "webTitleWeight": "700",
+        "colsDisplay": "grid",
+        "colsColumns": "888px 592px",
+        "noteText": "物品编号 #101 · 已上架",
+        "actionbarTexts": [
+          "留言",
+          "收藏",
+          "立即购买",
+          "聊一聊"
+        ]
+      },
+      "item101AfterNext": {
+        "activeIdx": 1
+      },
+      "item102": {
+        "url": "http://sf.local/item/102",
+        "overflowPx": 0,
+        "hooks": {
+          "seller": true,
+          "priceRow": true,
+          "tagsRow": true,
+          "coreTags": true,
+          "desc": true,
+          "gallery": true,
+          "actionbar": true,
+          "msg": true,
+          "fav": true,
+          "buy": true,
+          "chat": true,
+          "note": true,
+          "qty": true
+        },
+        "order": {
+          "seller": 104,
+          "priceRow": 128,
+          "webTitle": 184,
+          "tagsRow": 219,
+          "coreTags": 243,
+          "desc": 267,
+          "gallery": 128,
+          "actionbar": 513.3
+        },
+        "rects": {
+          "seller": {
+            "x": 20,
+            "y": 104,
+            "w": 1496,
+            "h": 24,
+            "left": 20,
+            "right": 1516,
+            "top": 104,
+            "bottom": 128
+          },
+          "priceRow": {
+            "x": 924,
+            "y": 128,
+            "w": 592,
+            "h": 48,
+            "left": 924,
+            "right": 1516,
+            "top": 128,
+            "bottom": 176
+          },
+          "priceNum": {
+            "x": 935.2,
+            "y": 128,
+            "w": 38.41,
+            "h": 48,
+            "left": 935.2,
+            "right": 973.61,
+            "top": 128,
+            "bottom": 176
+          },
+          "priceCur": {
+            "x": 924,
+            "y": 150,
+            "w": 7.2,
+            "h": 18,
+            "left": 924,
+            "right": 931.2,
+            "top": 150,
+            "bottom": 168
+          },
+          "webTitle": {
+            "x": 924,
+            "y": 184,
+            "w": 592,
+            "h": 27,
+            "left": 924,
+            "right": 1516,
+            "top": 184,
+            "bottom": 211
+          },
+          "tagsRow": {
+            "x": 924,
+            "y": 219,
+            "w": 592,
+            "h": 16,
+            "left": 924,
+            "right": 1516,
+            "top": 219,
+            "bottom": 235
+          },
+          "coreTags": {
+            "x": 924,
+            "y": 243,
+            "w": 592,
+            "h": 16,
+            "left": 924,
+            "right": 1516,
+            "top": 243,
+            "bottom": 259
+          },
+          "desc": {
+            "x": 924,
+            "y": 267,
+            "w": 592,
+            "h": 20.8,
+            "left": 924,
+            "right": 1516,
+            "top": 267,
+            "bottom": 287.8
+          },
+          "gallery": {
+            "x": 20,
+            "y": 128,
+            "w": 888,
+            "h": 320,
+            "left": 20,
+            "right": 908,
+            "top": 128,
+            "bottom": 448
+          },
+          "actionbar": {
+            "x": 924,
+            "y": 513.3,
+            "w": 592,
+            "h": 60,
+            "left": 924,
+            "right": 1516,
+            "top": 513.3,
+            "bottom": 573.3
+          },
+          "cols": {
+            "x": 20,
+            "y": 128,
+            "w": 1496,
+            "h": 445.3,
+            "left": 20,
+            "right": 1516,
+            "top": 128,
+            "bottom": 573.3
+          },
+          "side": {
+            "x": 924,
+            "y": 128,
+            "w": 592,
+            "h": 445.3,
+            "left": 924,
+            "right": 1516,
+            "top": 128,
+            "bottom": 573.3
+          },
+          "grp": {
+            "x": 924,
+            "y": 521.3,
+            "w": 506,
+            "h": 44,
+            "left": 924,
+            "right": 1430,
+            "top": 521.3,
+            "bottom": 565.3
+          },
+          "msg": null,
+          "fav": {
+            "x": 1438,
+            "y": 521.3,
+            "w": 78,
+            "h": 44,
+            "left": 1438,
+            "right": 1516,
+            "top": 521.3,
+            "bottom": 565.3
+          },
+          "buy": {
+            "x": 1019,
+            "y": 521.3,
+            "w": 411,
+            "h": 44,
+            "left": 1019,
+            "right": 1430,
+            "top": 521.3,
+            "bottom": 565.3
+          },
+          "chat": {
+            "x": 924,
+            "y": 521.3,
+            "w": 95,
+            "h": 44,
+            "left": 924,
+            "right": 1019,
+            "top": 521.3,
+            "bottom": 565.3
+          },
+          "barLeft": {
+            "x": 1438,
+            "y": 521.3,
+            "w": 78,
+            "h": 44,
+            "left": 1438,
+            "right": 1516,
+            "top": 521.3,
+            "bottom": 565.3
+          },
+          "barRight": {
+            "x": 924,
+            "y": 521.3,
+            "w": 506,
+            "h": 44,
+            "left": 924,
+            "right": 1430,
+            "top": 521.3,
+            "bottom": 565.3
+          },
+          "navPrev": null,
+          "navNext": null,
+          "countsPrice": {
+            "x": 1472.8,
+            "y": 150,
+            "w": 43.2,
+            "h": 18,
+            "left": 1472.8,
+            "right": 1516,
+            "top": 150,
+            "bottom": 168
+          },
+          "countsTags": null,
+          "thumbsCol": null,
+          "mediaMain": {
+            "x": 20,
+            "y": 128,
+            "w": 320,
+            "h": 320,
+            "left": 20,
+            "right": 340,
+            "top": 128,
+            "bottom": 448
+          }
+        },
+        "colors": {
+          "priceNum": "rgb(255, 77, 0)",
+          "priceCur": "rgb(255, 77, 0)",
+          "priceNumWeight": "700",
+          "condTag": null,
+          "settleTag": {
+            "text": "平台结算",
+            "bg": "rgb(236, 236, 236)"
+          },
+          "statusTag": {
+            "text": "已上架",
+            "bg": "rgb(236, 236, 236)"
+          },
+          "secTag": {
+            "text": "自动发货",
+            "bg": "rgb(74, 222, 128)",
+            "fg": "rgb(32, 32, 32)"
+          },
+          "buy": {
+            "bg": "rgb(32, 32, 32)",
+            "fg": "rgb(255, 255, 255)",
+            "radius": "0px"
+          },
+          "chat": {
+            "bg": "rgb(255, 230, 15)",
+            "fg": "rgb(32, 32, 32)"
+          },
+          "favStar": {
+            "color": "rgb(32, 32, 32)",
+            "fill": "none"
+          },
+          "msg": {
+            "bg": "rgba(0, 0, 0, 0)",
+            "display": "none"
+          },
+          "grp": {
+            "radius": "999px",
+            "overflow": "hidden",
+            "gap": "0px"
+          },
+          "buyCorners": {
+            "tl": "0px",
+            "tr": "0px",
+            "br": "0px",
+            "bl": "0px"
+          },
+          "chatCorners": {
+            "tl": "0px",
+            "tr": "0px",
+            "br": "0px",
+            "bl": "0px"
+          }
+        },
+        "bar": {
+          "position": null,
+          "actionbarPosition": "static",
+          "viewportH": 960
+        },
+        "counts": {
+          "priceSlotDisplay": "flex",
+          "tagsSlotDisplay": "none",
+          "wantsTexts": [],
+          "viewsTexts": [
+            "4人浏览",
+            "4人浏览"
+          ]
+        },
+        "tags": {
+          "shipTagCount": 0,
+          "autoTagCount": 1,
+          "manualOrBuyerTagTexts": [
+            "自动发货"
+          ]
+        },
+        "media": {
+          "thumbCount": 0,
+          "thumbRects": [],
+          "activeIdx": -1,
+          "mainImg": "http://sf.local/assets/placeholder-item-ChYVGMSM.webp",
+          "navDisplay": null,
+          "navCount": 0,
+          "prevBg": null,
+          "mainImgH": 320,
+          "thumbsDirection": null
+        },
+        "descStyle": {
+          "whiteSpace": "pre-wrap",
+          "firstWeight": "500"
+        },
+        "webTitleDisplay": "block",
+        "webTitleWeight": "700",
+        "colsDisplay": "grid",
+        "colsColumns": "888px 592px",
+        "noteText": "物品编号 #102 · 已上架",
+        "actionbarTexts": [
+          "留言",
+          "收藏",
+          "立即购买",
+          "聊一聊"
+        ]
+      },
+      "item103": {
+        "url": "http://sf.local/item/103",
+        "overflowPx": 0,
+        "hooks": {
+          "seller": true,
+          "priceRow": true,
+          "tagsRow": true,
+          "coreTags": true,
+          "desc": true,
+          "gallery": true,
+          "actionbar": true,
+          "msg": true,
+          "fav": true,
+          "buy": true,
+          "chat": false,
+          "note": true,
+          "qty": true
+        },
+        "order": {
+          "seller": 104,
+          "priceRow": 128,
+          "webTitle": 184,
+          "tagsRow": 219,
+          "coreTags": 243,
+          "desc": 267,
+          "gallery": 128,
+          "actionbar": 534.09
+        },
+        "rects": {
+          "seller": {
+            "x": 20,
+            "y": 104,
+            "w": 1496,
+            "h": 24,
+            "left": 20,
+            "right": 1516,
+            "top": 104,
+            "bottom": 128
+          },
+          "priceRow": {
+            "x": 924,
+            "y": 128,
+            "w": 592,
+            "h": 48,
+            "left": 924,
+            "right": 1516,
+            "top": 128,
+            "bottom": 176
+          },
+          "priceNum": {
+            "x": 935.2,
+            "y": 128,
+            "w": 19.2,
+            "h": 48,
+            "left": 935.2,
+            "right": 954.41,
+            "top": 128,
+            "bottom": 176
+          },
+          "priceCur": {
+            "x": 924,
+            "y": 150,
+            "w": 7.2,
+            "h": 18,
+            "left": 924,
+            "right": 931.2,
+            "top": 150,
+            "bottom": 168
+          },
+          "webTitle": {
+            "x": 924,
+            "y": 184,
+            "w": 592,
+            "h": 27,
+            "left": 924,
+            "right": 1516,
+            "top": 184,
+            "bottom": 211
+          },
+          "tagsRow": {
+            "x": 924,
+            "y": 219,
+            "w": 592,
+            "h": 16,
+            "left": 924,
+            "right": 1516,
+            "top": 219,
+            "bottom": 235
+          },
+          "coreTags": {
+            "x": 924,
+            "y": 243,
+            "w": 592,
+            "h": 16,
+            "left": 924,
+            "right": 1516,
+            "top": 243,
+            "bottom": 259
+          },
+          "desc": {
+            "x": 924,
+            "y": 267,
+            "w": 592,
+            "h": 41.59,
+            "left": 924,
+            "right": 1516,
+            "top": 267,
+            "bottom": 308.59
+          },
+          "gallery": {
+            "x": 20,
+            "y": 128,
+            "w": 888,
+            "h": 320,
+            "left": 20,
+            "right": 908,
+            "top": 128,
+            "bottom": 448
+          },
+          "actionbar": {
+            "x": 924,
+            "y": 534.09,
+            "w": 592,
+            "h": 60,
+            "left": 924,
+            "right": 1516,
+            "top": 534.09,
+            "bottom": 594.09
+          },
+          "cols": {
+            "x": 20,
+            "y": 128,
+            "w": 1496,
+            "h": 466.09,
+            "left": 20,
+            "right": 1516,
+            "top": 128,
+            "bottom": 594.09
+          },
+          "side": {
+            "x": 924,
+            "y": 128,
+            "w": 592,
+            "h": 466.09,
+            "left": 924,
+            "right": 1516,
+            "top": 128,
+            "bottom": 594.09
+          },
+          "grp": {
+            "x": 924,
+            "y": 542.09,
+            "w": 506,
+            "h": 44,
+            "left": 924,
+            "right": 1430,
+            "top": 542.09,
+            "bottom": 586.09
+          },
+          "msg": null,
+          "fav": {
+            "x": 1438,
+            "y": 542.09,
+            "w": 78,
+            "h": 44,
+            "left": 1438,
+            "right": 1516,
+            "top": 542.09,
+            "bottom": 586.09
+          },
+          "buy": {
+            "x": 924,
+            "y": 542.09,
+            "w": 506,
+            "h": 44,
+            "left": 924,
+            "right": 1430,
+            "top": 542.09,
+            "bottom": 586.09
+          },
+          "chat": null,
+          "barLeft": {
+            "x": 1438,
+            "y": 542.09,
+            "w": 78,
+            "h": 44,
+            "left": 1438,
+            "right": 1516,
+            "top": 542.09,
+            "bottom": 586.09
+          },
+          "barRight": {
+            "x": 924,
+            "y": 542.09,
+            "w": 506,
+            "h": 44,
+            "left": 924,
+            "right": 1430,
+            "top": 542.09,
+            "bottom": 586.09
+          },
+          "navPrev": null,
+          "navNext": null,
+          "countsPrice": {
+            "x": 1421.59,
+            "y": 150,
+            "w": 94.41,
+            "h": 18,
+            "left": 1421.59,
+            "right": 1516,
+            "top": 150,
+            "bottom": 168
+          },
+          "countsTags": null,
+          "thumbsCol": {
+            "x": 20,
+            "y": 128,
+            "w": 64,
+            "h": 64,
+            "left": 20,
+            "right": 84,
+            "top": 128,
+            "bottom": 192
+          },
+          "mediaMain": {
+            "x": 92,
+            "y": 128,
+            "w": 320,
+            "h": 320,
+            "left": 92,
+            "right": 412,
+            "top": 128,
+            "bottom": 448
+          }
+        },
+        "colors": {
+          "priceNum": "rgb(255, 77, 0)",
+          "priceCur": "rgb(255, 77, 0)",
+          "priceNumWeight": "700",
+          "condTag": {
+            "text": "细微磕碰划痕",
+            "bg": "rgb(236, 236, 236)",
+            "fg": "rgb(32, 32, 32)",
+            "fontSize": "12px",
+            "fontWeight": "700",
+            "radius": "2px"
+          },
+          "settleTag": null,
+          "statusTag": null,
+          "secTag": null,
+          "buy": {
+            "bg": "rgb(32, 32, 32)",
+            "fg": "rgb(255, 255, 255)",
+            "radius": "999px"
+          },
+          "chat": null,
+          "favStar": {
+            "color": "rgb(32, 32, 32)",
+            "fill": "none"
+          },
+          "msg": {
+            "bg": "rgba(0, 0, 0, 0)",
+            "display": "none"
+          },
+          "grp": {
+            "radius": "999px",
+            "overflow": "hidden",
+            "gap": "0px"
+          },
+          "buyCorners": {
+            "tl": "999px",
+            "tr": "999px",
+            "br": "999px",
+            "bl": "999px"
+          },
+          "chatCorners": null
+        },
+        "bar": {
+          "position": null,
+          "actionbarPosition": "static",
+          "viewportH": 960
+        },
+        "counts": {
+          "priceSlotDisplay": "flex",
+          "tagsSlotDisplay": "none",
+          "wantsTexts": [
+            "2人想要",
+            "2人想要"
+          ],
+          "viewsTexts": [
+            "4人浏览",
+            "4人浏览"
+          ]
+        },
+        "tags": {
+          "shipTagCount": 0,
+          "autoTagCount": 0,
+          "manualOrBuyerTagTexts": []
+        },
+        "media": {
+          "thumbCount": 1,
+          "thumbRects": [
+            {
+              "x": 20,
+              "y": 128,
+              "w": 64,
+              "h": 64,
+              "left": 20,
+              "right": 84,
+              "top": 128,
+              "bottom": 192
+            }
+          ],
+          "activeIdx": 0,
+          "mainImg": "http://sf.local/api/media/fx-one",
+          "navDisplay": null,
+          "navCount": 0,
+          "prevBg": null,
+          "mainImgH": 320,
+          "thumbsDirection": "column"
+        },
+        "descStyle": {
+          "whiteSpace": "pre-wrap",
+          "firstWeight": "500"
+        },
+        "webTitleDisplay": "block",
+        "webTitleWeight": "700",
+        "colsDisplay": "grid",
+        "colsColumns": "888px 592px",
+        "noteText": "物品编号 #103 · 已下架",
+        "actionbarTexts": [
+          "留言",
+          "收藏",
+          "立即购买"
+        ]
+      }
+    },
+    "viewport_css_only": {
+      "url": "http://sf.local/item/101",
+      "wide1": {
+        "colsDisplay": "grid",
+        "colsColumns": "888px 592px",
+        "countsPriceDisplay": "flex",
+        "navDisplay": "flex",
+        "barPosition": "static",
+        "webTitleDisplay": "block"
+      },
+      "narrow": {
+        "colsDisplay": "flex",
+        "colsColumns": "none",
+        "countsPriceDisplay": "none",
+        "countsTagsDisplay": "flex",
+        "navDisplay": "none",
+        "barPosition": "fixed",
+        "webTitleDisplay": "none",
+        "msgVisible": true
+      },
+      "wide2": {
+        "colsDisplay": "grid",
+        "colsColumns": "888px 592px",
+        "countsPriceDisplay": "flex",
+        "navDisplay": "flex",
+        "barPosition": "static"
+      }
+    }
+  },
+  "pageErrors": [],
+  "verdict": {
+    "pageErrorCount": 0,
+    "web1536": {
+      "twoColsGrid": true,
+      "mediaLeftThumbsColumn": true,
+      "countsRightSameLevel": true,
+      "sellerBandFullWidth": true,
+      "capsuleJoined": true,
+      "favSameHeight": true,
+      "webTitleBold": true,
+      "msgHiddenOnWeb": true
+    },
+    "h5_390": {
+      "singleColFlex": true,
+      "barFixed": true,
+      "webTitleHidden": true,
+      "countsMobVisibleDeskHidden": true,
+      "msgVisible": true,
+      "zeroOverflow": true
+    },
+    "viewportCssOnly": {
+      "gridFlexGridNoReload": true,
+      "countsSlotSwapped": true,
+      "barStaticThenFixed": true,
+      "navShownWideHiddenNarrow": true,
+      "webTitleShownWideHiddenNarrow": true,
+      "urlUnchanged": true
+    }
+  }
+}

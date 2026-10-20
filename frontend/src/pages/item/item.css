@@ -683,6 +683,25 @@
   min-width: 0;
 }
 
+/* 底栏四件通用（H5 基础样式 · 非断点默认规则）· 图标文字单行 + 触达 44：
+   Tailwind preflight 把 svg 置 display:block ⇒ 裸 button（inline-block）内 svg 与文字
+   分两行堆叠（H5 390 实测收藏钮 52×55.5、拼接组 44）⇒ Web 档 ≥768 同形修复已验证，
+   本条把同一下沉为四件的基础规则：inline-flex 单行对齐 + min-height 44
+   （--sf-l-cta-h = 60−16 = 44px 两档同值；移动触达 ≥44 硬口径）。
+   ★ 选择器必须保持**单类 (0,1,0)**：≥768 块内 `.sf-item-bar-msg{display:none}` 同为单类、
+   位于本条之后 ⇒ Web 档留言仍被隐藏（复合 (0,2,0) 会反压 hide 规则、留言在 Web 复活
+   ——首轮实测 Web 拼接组 506→462 被挤窄，已按此收窄具体性归零）。
+   桌面档零几何变化：拼接两段本就 height/min-height 44 + inline-flex、
+   收藏 ≥768 块同值覆盖、留言 display:none 胜出；shell.css `.sf-btn` 不声明 display。 */
+.sf-item-bar-msg,
+.sf-item-bar-fav,
+.sf-item-cta-group-seg {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sf-l-cta-icon-gap);
+  min-height: var(--sf-l-cta-h);
+}
+
 /* 留言 = 文本钮（无底无框；触控高由 .sf-item-btn 的 min-height 承担） */
 .sf-btn.sf-item-bar-msg {
   background: transparent;
@@ -915,7 +934,8 @@
     /* 独立收藏胶囊与拼接组同高（44 = --sf-l-cta-h）且图标文字一行：
        Tailwind preflight 把 svg 置为 display:block ⇒ 裸 button（inline-block）内 svg 与文字
        分行堆叠（实测 h=55.5 ≠ 拼接组 44）⇒ Web 档显式 inline-flex + min-height 对齐。
-       ★ 仅 ≥768 生效（H5 ≤767 几何冻结不动；H5 的同形堆叠为步 1 存量形态、另单处置）。 */
+       （H5 同形修复已下沉为底栏四件通用基础规则，见上方 .sf-item-bar-* / .sf-item-cta-group-seg 通用块；
+        本块保留 Web 专属 padding/flex 声明，几何与步 2 验收值逐字不变。） */
     display: inline-flex;
     align-items: center;
     min-height: var(--sf-l-cta-h);
