@@ -1,0 +1,328 @@
+{
+  "out": "ops/wage/front/readings/probe-result-wage-checkin.json",
+  "verdict": {
+    "required": [
+      {
+        "key": "menu.fiveItems",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "menu.noFeedback",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "menu.firstIsWage",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "menu.orderMatches",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "menu.dividers4",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.wrapperPresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.cardPresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.meterPresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.meterHasBattText",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.checkinButtonPresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.mintAreaPresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.listBelowCheckin",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.cardsStillListed",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.readsWired",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.zeroOverflow",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "hashDeepLink.cardPresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "hashDeepLink.cardInViewport",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "hashDeepLink.listStillBelow",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "activitiesGone.pathnameIsActivities",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "activitiesGone.noActivitiesPageHook",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "activitiesGone.catchAllNotFound",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "activitiesGone.notRedirectedToWage",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.tenCards",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.recruitingCards",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.closedCards",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.hiredCardClaimEnabled",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.otherJoinDisabled",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.joinEnabledWhenFree",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.otherHintOneAtATime",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.fullCardDisabledWithHint",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.closedNoAction",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "claimOk.postCount1",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "claimOk.noticeOk",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "claimOk.noticeHasBatt",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "claimOk.cardRefreshedAndGated",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "claimOk.listRefetched",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "claimFail.noticeErr",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "claimFail.noticeIsReason",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "claimFail.noWhiteScreen",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.zeroOverflow390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.zeroOverflow1536",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.cards390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.touchTarget44On390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.zeroPageErrors",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.checkin390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.checkin1536",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.cardsVisible",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.listRendered",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.bannerWithList",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.titleVisible",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.wageVisible",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.currencyExtraVisible",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.joinEnabled",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.joinClickLoginPrompt",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.claimClickLoginPrompt",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.zeroWriteRequests",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.cardsStableAfterClicks",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.zeroOverflowGuest",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.zeroOverflow390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.cards390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.touchTarget44On390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.bannerAndList390",
+        "value": true,
+        "pass": true
+      }
+    ],
+    "failed": [],
+    "pass": true
+  },
+  "pageErrors": [],
+  "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+  ]
+}
+EXIT=0

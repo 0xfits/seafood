@@ -11,11 +11,11 @@ import ShardPage from './pages/ShardPage'
 import AuthPage from './pages/AuthPage'
 import ThemePreviewPage from './pages/ThemePreviewPage'
 import MessagesPage from './pages/MessagesPage'
-// 签到与活动独立页（Kevin 2026-10-14 · 需求③）：电量卡 + 签到区从 /profile 迁出成页。
-import ActivitiesPage from './pages/ActivitiesPage'
-// 领工资（Kevin 2026-10-20 · 需求②）：右侧悬浮菜单第二位入口的落点页。
+// 领工资（Kevin 2026-10-20 · 需求②）：右侧悬浮菜单首位入口的落点页。
 // 消费 /api/project/all（招募中/已截止项目 + my_role）、/api/project/<id>/apply、/api/project/<id>/claim；
 // 未登录不跳转，页内给登录提示（登录引导的既有口径不变）。
+// ★ 2026-10-20 后续指令：电量卡 + 签到区（原 /activities 独立页）已并入本页顶部 ⇒ 旧 `activities`
+//   路由与 `pages/ActivitiesPage.jsx` 硬删（无 301，旧链接落下方 catch-all 提示页）。
 import WagePage from './pages/wage/WagePage'
 // 活动体系（design §26.19 · route §49.18 R1/R2）：`/campaign` 列表 + `/campaign/:ref` 两级详情。
 // 消费 /api/campaign/all、/api/campaign/<ref>、/api/campaign/subtask/<id>/proof（均为已冻结契约）；
@@ -157,8 +157,9 @@ const LangShell = () => {
 
         {/* 个人资料族（需要登录 · Kevin 2026-10-14 桌面侧栏重构）：
             /profile 落地 = 重定向到 我的交易-我买到的（index ⇒ profile/trades/bought）；
-            三个子路径共用同一个 ProfilePage（左菜单 + 右内容，视图由 pathname 派生，见 ProfilePage 头注）；
-            activities 顶层新增（与 messages 平级，同为 ProtectedRoute —— 签到需登录）。 */}
+            三个子路径共用同一个 ProfilePage（左菜单 + 右内容，视图由 pathname 派生，见 ProfilePage 头注）。
+            ★ 原 `activities` 顶层段已删（2026-10-20）：电量卡 + 签到区并入 `/wage` 顶部，
+              旧 `/activities` 及其四语前缀档 ⇒ 落到末位 catch-all 提示页（同 /reward 一族处置）。 */}
         <Route path="profile" element={<ProfileIndexRedirect />} />
         <Route
           path="profile/trades/:subTab"
@@ -181,14 +182,6 @@ const LangShell = () => {
           element={
             <ProtectedRoute>
               <ProfilePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="activities"
-          element={
-            <ProtectedRoute>
-              <ActivitiesPage />
             </ProtectedRoute>
           }
         />

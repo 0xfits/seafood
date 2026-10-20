@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
+import BattCheckinPanel from '../../components/BattCheckinPanel'
 import { applyToWageProject, claimWage, fetchWageCurrencies, fetchWageProjects } from './wage-api'
 import './wage.css'
 
@@ -25,6 +26,14 @@ import './wage.css'
 //     中的项目」），页顶只留一条轻提示；【加入】/【领工资】可点，点击**只弹卡内登录提示、零请求**
 //     （写口一律需登录，不在前端替服务端放行）。
 //   · 零 JS 断点判定：列数交给 `wage.css` 的 auto-fill 栅格（单断点 767），可见性零宽度读数。
+//
+// ★ Kevin 2026-10-20 指令：**电量卡 + 签到区并入本页顶部**（原独立页 /activities 已删）。
+//   · 渲染点 = 页标题之下、项目列表之上（`data-sf-m="wage-checkin"` 包裹）；
+//   · 组件本身一字不动 ⇒ 锚点 `id="batt-checkin"`（常量 `BATT_CHECKIN_ANCHOR_ID`）与
+//     `hash === '#batt-checkin'` ⇒ `scrollIntoView` 的机制随组件一起搬过来，
+//     旧深链 `/wage#batt-checkin` 仍直达签到卡；
+//   · 未登录 ⇒ `BattCheckinPanel` 自身返回 `null`（既有策略：不渲染、不白屏），
+//     本页原有的客态轻提示 + 公开项目列表不受影响；签到写口仍走服务端鉴权。
 // ============================================================================
 
 const num = (value, fallback = 0) => {
@@ -375,6 +384,12 @@ const WagePage = () => {
           <h1 className="sf-panel-title">{t('wage.title')}</h1>
           <p className="sf-foot-note">{t('wage.oneAtATime')}</p>
         </header>
+
+        {/* 电量卡 + 签到区（Kevin 2026-10-20：自 /activities 并入本页顶部，位于项目列表之上）。
+            组件自带锚点 `batt-checkin` 与 hash 滚动；未登录时组件返回 null（不白屏）。 */}
+        <div className="sf-wage-checkin" data-sf-m="wage-checkin">
+          <BattCheckinPanel />
+        </div>
 
         {/* 客态轻提示条（不遮挡列表：项目列表本身是公开浏览面，只有写口需登录） */}
         {!isAuthenticated ? (

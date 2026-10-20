@@ -4,11 +4,14 @@
  * 覆盖：
  *   ① Header 右上角「订单」按钮（图标 + 文案 → /profile；登录态内外都渲染）+ 移动面板「订单」入口
  *   ② ProfilePage 侧栏钩子与视图派生（/profile 落地 = bought；trades/:subTab 非法值 ⇒ bought；favorites/settings）
- *   ③ ActivitiesPage 页根钩子 + BattCheckinPanel 原样搬入（锚点 id 保留）
+ *   ③ `/wage` 页顶部渲染 BattCheckinPanel（签到锚点卡在场 + 项目列表在其下方）
  *   ④ 四语新键齐备（header.orders / profileNav.* / activitiesPage.title / item.favorite*）
  *
  * 断言过期⇒前推记录（本单映射，另见报告）：
- *   r9-84 ③b/⑥、r9-batt-meter ③/JobDetail 例、d1-error-machineface ③：`/profile#batt-checkin` ⇒ `/activities#batt-checkin`
+ *   2026-10-20（签到并入 /wage、/activities 页删除）：③ 由「ActivitiesPage 页根钩子 + 标题」
+ *     前推为「WagePage 顶部签到卡 + 列表顺序」；原页面文件与 `activities.css` 已硬删。
+ *   `activitiesPage.title` 键**保留不删**（键数连锁成本），故 ④ 的两条四语断言一字不动。
+ *   r9-84 ③b/⑥、r9-batt-meter ③/JobDetail 例、d1-error-machineface ③：`/activities#batt-checkin` ⇒ `/wage#batt-checkin`
  *   ledger-flow ①②④⑦：裸渲染路径 '/profile' ⇒ '/profile/settings'（账本面归位 settings 视图）
  *   i18n-batch-b2：'/en/profile' ⇒ '/en/profile/settings'
  *   D7 收尾（阶段二接手单）：
@@ -79,18 +82,29 @@ vi.mock('../../messages-api', () => ({
 }))
 
 vi.mock('../../batt-checkin', () => ({
-  fetchBatt: vi.fn(async () => null),
-  fetchCheckinStatus: vi.fn(async () => null),
+  // 2026-10-20：签到卡并入 /wage ⇒ 本文件的替身改为「有账户」形状（签到按钮才可断言在场）。
+  fetchBatt: vi.fn(async () => ({ batt: 70, capBatt: 100, floorBatt: 0, acceptThresholdBatt: 50, canAccept: true, bttc: null })),
+  fetchCheckinStatus: vi.fn(async () => ({ streakDay: 3, streakCapDays: 7, checkedInToday: false, canMakeup: false, makeupCostUsd: '1' })),
   postCheckin: vi.fn(),
   postMakeup: vi.fn(),
   utcDay: (n) => n,
+}))
+
+// /wage 列表取数替身（本文件只验渲染点与遮挡顺序，不验取数逻辑 ⇒ 单行夹具即可）。
+vi.mock('../../pages/wage/wage-api', () => ({
+  fetchWageProjects: vi.fn(async () => ([
+    { project_id: 101, title: '海鲜打包', description: '每天打包 20 单。', headcount: 3, hired_count: 2, wage_batt_per_claim: 30, wage_cid: 1, wage_currency_amount: 0, wage_interval_hours: 4, status: 'recruiting', my_role: 'none' },
+  ])),
+  fetchWageCurrencies: vi.fn(async () => ([{ cid: 1, symbol: '$' }])),
+  applyToWageProject: vi.fn(),
+  claimWage: vi.fn(),
 }))
 
 vi.mock('../../bttc-api', () => ({ postBttcMint: vi.fn(), postBttcBurn: vi.fn() }))
 
 import Header from '../../components/Header'
 import ProfilePage from '../../pages/ProfilePage'
-import ActivitiesPage from '../../pages/ActivitiesPage'
+import WagePage from '../../pages/wage/WagePage'
 
 const renderAt = (ui, entry) => render(<MemoryRouter initialEntries={[entry]}>{ui}</MemoryRouter>)
 
@@ -253,14 +267,36 @@ describe('sf14 ② · ProfilePage 侧栏与视图派生', () => {
   })
 })
 
-describe('sf14 ③ · ActivitiesPage（签到与活动独立页）', () => {
-  it('页根钩子 activities-page + 标题（activitiesPage.title）+ 签到锚点卡在场（BattCheckinPanel 原样搬入）', async () => {
-    const { container } = renderAt(<ActivitiesPage />, '/activities')
-    expect(container.querySelector('[data-sf-m="activities-page"]')).not.toBeNull()
-    expect(container.querySelector('h1')).not.toBeNull()
-    expect(container.querySelector('h1').textContent).toContain(zh.activitiesPage.title)
-    // 锚点机制保留：BattCheckinPanel 的 id=batt-checkin 卡在本页渲染
-    expect(document.getElementById('batt-checkin')).not.toBeNull()
+describe('sf14 ③ · WagePage 顶部签到区（电量卡 + 签到，自 /activities 并入）', () => {
+  it('签到锚点卡 id=batt-checkin + 电量点阵 + 签到按钮在场，且项目列表位于签到区之下', async () => {
+    const { container } = renderAt(<WagePage />, '/wage')
+
+    // ① 签到卡在场（组件原样搬入 ⇒ 锚点 id 与 BattMeter 钩子都保留）
+    await waitFor(() => expect(document.getElementById('batt-checkin')).not.toBeNull())
+    expect(container.querySelector('[data-sf-m="wage-checkin"]')).not.toBeNull()
+    expect(document.querySelector('[data-sf-m="batt-meter"]')).not.toBeNull()
+
+    // ② 签到按钮在场（未签到态；文案 = 真 zh 词典）
+    await waitFor(() => {
+      const buttons = [...document.querySelectorAll('#batt-checkin button')]
+      expect(buttons.some((b) => b.textContent.trim() === zh.checkinPanel.checkinButton)).toBe(true)
+    })
+
+    // ③ 项目列表仍在，且 DOM 顺序在签到区之后（= 页面上位于其下方）
+    await waitFor(() => expect(container.querySelector('[data-sf-m="wage-list"]')).not.toBeNull())
+    const checkin = container.querySelector('[data-sf-m="wage-checkin"]')
+    const list = container.querySelector('[data-sf-m="wage-list"]')
+    const relation = checkin.compareDocumentPosition(list)
+    expect(relation & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('未登录 ⇒ 签到区不渲染（组件既有策略：返回 null），项目列表照常公开浏览（不白屏）', async () => {
+    AUTH.isAuthenticated = false
+    AUTH.user = null
+    const { container } = renderAt(<WagePage />, '/wage')
+    await waitFor(() => expect(container.querySelector('[data-sf-m="wage-list"]')).not.toBeNull())
+    expect(document.getElementById('batt-checkin')).toBeNull()
+    expect(container.querySelector('[data-sf-m="wage-login"]')).not.toBeNull()
   })
 })
 

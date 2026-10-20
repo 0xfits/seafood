@@ -14,7 +14,7 @@ import { buildLocalizedPath, formatEvmAddress, getLanguageFromUrl } from '../uti
 import { itemLinkId } from '../item-link'
 import { contentStatus, pickLocalized } from '../i18n-content'
 import TranslatingBadge from '../components/i18n/TranslatingBadge'
-// P9②：电量卡 + 签到区（Kevin 2026-10-14 需求③：已迁出至独立页 /activities —— 本文件不再渲染）。
+// P9②：电量卡 + 签到区（Kevin 2026-10-14 需求③：已迁出；2026-10-20 起落点 = /wage 顶部 —— 本文件不再渲染）。
 import RatingTimelinessPanel from '../components/RatingTimelinessPanel'
 // 招工线 / 我的 共用的 token + 栅格层（P4-B4c-ii-a）：与 TaskPage 招工线族同一份样式表
 import './jobs/jobs.css'
@@ -53,7 +53,7 @@ const toDate = (value) => new Date(typeof value === 'number' ? value * 1000 : va
 //   · /profile/settings                     ⇒ 账户设置
 // 左栏菜单（桌面 ≥768 固定宽，手机 ≤767 横向页签，见 profile.css）：我的交易（三子项）/ 我的收藏 / 账户设置。
 // 既有内容归位（派单方裁定）：账户设置 = 基本信息卡（bio 编辑往返）+ 用户资产卡 + 账本读数
-//   + 任务统计与成就徽章 + 碎片持仓 + Telegram 通知卡 + 评分/时效面板；电量卡 + 签到 = /activities 独立页。
+//   + 任务统计与成就徽章 + 碎片持仓 + Telegram 通知卡 + 评分/时效面板；电量卡 + 签到 = `/wage` 顶部。
 // 钩子（§质检探针）：profile-nav（侧栏根）/ profile-nav-trades / profile-nav-{published,sold,bought,favorites,settings}
 //   / trades-{published,sold,bought}-list（各配 -empty）/ fav-list（配 -empty）/ settings-view。
 // ============================================================================

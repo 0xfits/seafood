@@ -299,10 +299,11 @@ const Header = () => {
                   {t('profile')}
                 </Link>
                 {/* R-9-83：直达电量 + 签到区（锚点 `#batt-checkin`），提升签到入口可发现性。
-                    Kevin 2026-10-14 需求③/⑥：签到及营销活动内容独立成页 ⇒ 直达项改指 /activities（锚点机制不变）。
+                    Kevin 2026-10-14 需求③/⑥ → 2026-10-20 改指：签到/活动独立页已删、内容并入
+                    `/wage` 顶部 ⇒ 直达项改指 `/wage`（锚点机制不变）。
                     标签复用既有文案键（签到 + 电量），不新增顶层导航项、不新增 i18n 键。 */}
                 <Link
-                  to={`${buildPath('activities')}#batt-checkin`}
+                  to={`${buildPath('wage')}#batt-checkin`}
                   className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
                   data-sf-m="header-batt-checkin"
                 >
@@ -492,7 +493,7 @@ const Header = () => {
                 {t('profile')}
               </Link>
               <Link
-                to={`${buildPath('activities')}#batt-checkin`}
+                to={`${buildPath('wage')}#batt-checkin`}
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center w-full px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700"
                 data-sf-m="header-batt-checkin-mobile"

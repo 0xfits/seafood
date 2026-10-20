@@ -65,6 +65,21 @@ const apiResponse = (method, pathname) => {
     return ok(STATE.rows)
   }
   if (pathname === '/api/currencies') return ok(CUR)
+  // 签到面（Kevin 2026-10-20：电量卡 + 签到区并入 /wage 顶部 ⇒ 探针必须喂这两个读口）
+  if (pathname === '/api/batt') {
+    STATE.calls.push({ method, path: pathname })
+    return ok({
+      batt: 70, capBatt: 100, floorBatt: 0, acceptThresholdBatt: 50, canAccept: true,
+      bttc: {
+        balance: '12', status: 'listed', canMint: false, canBurn: false, usdBalance: '5',
+        policy: { mintBattCost: 100, mintFeeUsd: 1, burnBttcCost: 1, burnFeeUsd: 1 },
+      },
+    })
+  }
+  if (pathname === '/api/checkin') {
+    STATE.calls.push({ method, path: pathname })
+    return ok({ streakDay: 3, streakCapDays: 7, checkedInToday: false, canMakeup: false, makeupCostUsd: '1' })
+  }
   const claim = pathname.match(/^\/api\/project\/(\d+)\/claim$/)
   if (claim && method === 'POST') {
     STATE.calls.push({ method, path: pathname })
@@ -114,6 +129,36 @@ const SNAP_FN = `(() => {
       hasEmpty: !!q('[data-sf-m="wage-empty"]'),
       hasError: !!q('[data-sf-m="wage-error"]'),
     },
+    // 签到区（电量卡 + 签到；自 /activities 并入本页顶部）
+    checkin: (() => {
+      const card = document.getElementById('batt-checkin')
+      const wrap = q('[data-sf-m="wage-checkin"]')
+      const meter = q('[data-sf-m="batt-meter"]')
+      const list = q('[data-sf-m="wage-list"]')
+      const btns = [...document.querySelectorAll('#batt-checkin button, #batt-checkin a')]
+      const btnTexts = btns.map((el) => txt(el))
+      const r = card ? card.getBoundingClientRect() : null
+      const lr = list ? list.getBoundingClientRect() : null
+      return {
+        wrapperPresent: !!wrap,
+        hasCard: !!card,
+        cardId: card ? card.id : null,
+        hasMeter: !!meter,
+        meterText: meter ? txt(meter) : null,
+        buttonTexts: btnTexts,
+        cardTop: r ? Math.round(r.top * 10) / 10 : null,
+        cardBottom: r ? Math.round(r.bottom * 10) / 10 : null,
+        listTop: lr ? Math.round(lr.top * 10) / 10 : null,
+        listPresent: !!list,
+        cardRight: r ? Math.round(r.right * 10) / 10 : null,
+        // hash 深链：锚点卡落在视口内（'/wage#batt-checkin' 直达可跳过页头）
+        cardInViewport: r ? r.top >= -1 && r.top < innerHeight : null,
+        scrollY: Math.round(scrollY),
+        activitiesPageHooks: qa('[data-sf-m="activities-page"]').length,
+        notFoundHooks: qa('[data-sf-m="not-found-page"]').length,
+        pathname: location.pathname,
+      }
+    })(),
     cards: cards.map((c) => {
       const st = c.querySelector('[data-sf-m="wage-card-status"]')
       const act = c.querySelector('[data-sf-m="wage-card-action"]')
@@ -223,6 +268,60 @@ async function main() {
     labels: menuSnap.floatmenu.labels,
     hrefs: menuSnap.floatmenu.hrefs,
     dividers: menuSnap.floatmenu.dividers,
+  }
+
+  // ============================ ① 签到区（登录态 · /wage 顶部）======================
+  // 口径（Kevin 2026-10-20）：电量卡 + 签到区**并入 /wage 顶部**（原 /activities 已删）。
+  // 断言 = ① 登录态渲染电量点阵 + 签到按钮（mock 会话 + 内存读口）；
+  //        ② 项目列表仍在，且位于签到区**下方**（DOM 位置 + 几何 top 双证）；
+  //        ③ 两个读口真被调用（不是靠本地假数据渲染出来的卡）。
+  const openAny = async (url) => {
+    await page.goto(ORIGIN + url, { waitUntil: 'load' })
+    await settle(page)
+    return page.evaluate(SNAP_FN)
+  }
+  STATE.calls.length = 0
+  const ciSnap = await open('/wage')
+  const ci = ciSnap.checkin
+  out.states['1536_checkin'] = {
+    checkin: ci,
+    page: ciSnap.page,
+    cards: ciSnap.cards.length,
+    overflowPx: ciSnap.overflowPx,
+    apiCalls: STATE.calls.map((c) => c.path),
+  }
+  out.assertions.checkin = {
+    wrapperPresent: ci.wrapperPresent === true,
+    cardPresent: ci.hasCard === true && ci.cardId === 'batt-checkin',
+    meterPresent: ci.hasMeter === true,
+    meterHasBattText: /70/.test(ci.meterText || ''),
+    checkinButtonPresent: (ci.buttonTexts || []).includes(ZH.checkinPanel.checkinButton),
+    mintAreaPresent: (ci.buttonTexts || []).includes(ZH.bttcPanel.mintButton),
+    listBelowCheckin: ci.listPresent === true && ci.cardBottom !== null && ci.listTop !== null && ci.cardBottom <= ci.listTop,
+    gapPx: ci.cardBottom !== null && ci.listTop !== null ? Math.round((ci.listTop - ci.cardBottom) * 10) / 10 : null,
+    cardsStillListed: ciSnap.cards.length === ROWS.length,
+    readsWired: STATE.calls.some((c) => c.path === '/api/batt') && STATE.calls.some((c) => c.path === '/api/checkin'),
+    zeroOverflow: ciSnap.overflowPx === 0,
+  }
+
+  // 旧页面深链的替代落点：`/wage#batt-checkin`（锚点机制随组件搬入 ⇒ 仍可直达签到卡）
+  const hashSnap = await openAny('/wage#batt-checkin')
+  out.states['1536_hash_deeplink'] = hashSnap.checkin
+  out.assertions.hashDeepLink = {
+    cardPresent: hashSnap.checkin.hasCard === true,
+    cardInViewport: hashSnap.checkin.cardInViewport === true,
+    listStillBelow: hashSnap.checkin.listPresent === true,
+  }
+
+  // ============================ ③ 旧页 `/activities` 已删除 ========================
+  // 硬删、无 301（同 /reward 一族）：同 URL 呈现 catch-all「页面不存在」提示页，不再白屏。
+  const goneSnap = await openAny('/activities')
+  out.states['1536_activities_gone'] = goneSnap.checkin
+  out.assertions.activitiesGone = {
+    pathnameIsActivities: goneSnap.checkin.pathname === '/activities',
+    noActivitiesPageHook: goneSnap.checkin.activitiesPageHooks === 0,
+    catchAllNotFound: goneSnap.checkin.notFoundHooks === 1,
+    notRedirectedToWage: goneSnap.page.hasPage === false,
   }
 
   // ============================ ② 列表（1536） =====================================
@@ -335,6 +434,12 @@ async function main() {
       cardRightMax: Math.max(...snap.cards.map((c) => c.right)),
       actionHeights: [...new Set(snap.cards.map((c) => c.actionH).filter(Boolean))],
       floatmenuCount: snap.floatmenu.count,
+      // 签到区在两档都必须在场、且在视口内不溢出（并入顶部后不得把列表挤出去）
+      checkinPresent: snap.checkin.hasCard === true,
+      checkinRight: snap.checkin.cardRight,
+      checkinAboveList: snap.checkin.cardBottom !== null && snap.checkin.listTop !== null
+        && snap.checkin.cardBottom <= snap.checkin.listTop,
+      checkinButtons: snap.checkin.buttonTexts,
     }
   }
   out.assertions.geometry = {
@@ -343,6 +448,11 @@ async function main() {
     cards390: out.states['390_geometry'].cards === 10,
     touchTarget44On390: out.states['390_geometry'].actionHeights.every((h) => h >= 44),
     cardRightWithinViewport390: out.states['390_geometry'].cardRightMax <= 390,
+    checkin390: out.states['390_geometry'].checkinPresent === true
+      && out.states['390_geometry'].checkinAboveList === true
+      && out.states['390_geometry'].checkinRight <= 390,
+    checkin1536: out.states['1536_geometry'].checkinPresent === true
+      && out.states['1536_geometry'].checkinAboveList === true,
     zeroPageErrors: pageErrors.length === 0,
   }
 
@@ -444,15 +554,23 @@ async function main() {
 
   await browser.close()
   out.finishedAt = new Date().toISOString()
+  // ★ 全部臂跑完再复核一次累计 pageerror（含新增的签到 / `/activities` 已删 / 客态臂）
+  out.assertions.geometry.zeroPageErrors = pageErrors.length === 0
   const required = [
     'menu.fiveItems', 'menu.noFeedback', 'menu.firstIsWage', 'menu.orderMatches', 'menu.dividers4',
+    'checkin.wrapperPresent', 'checkin.cardPresent', 'checkin.meterPresent', 'checkin.meterHasBattText',
+    'checkin.checkinButtonPresent', 'checkin.mintAreaPresent', 'checkin.listBelowCheckin',
+    'checkin.cardsStillListed', 'checkin.readsWired', 'checkin.zeroOverflow',
+    'hashDeepLink.cardPresent', 'hashDeepLink.cardInViewport', 'hashDeepLink.listStillBelow',
+    'activitiesGone.pathnameIsActivities', 'activitiesGone.noActivitiesPageHook',
+    'activitiesGone.catchAllNotFound', 'activitiesGone.notRedirectedToWage',
     'list.tenCards', 'list.recruitingCards', 'list.closedCards', 'list.hiredCardClaimEnabled', 'list.otherJoinDisabled',
     'list.joinEnabledWhenFree',
     'list.otherHintOneAtATime', 'list.fullCardDisabledWithHint', 'list.closedNoAction',
     'claimOk.postCount1', 'claimOk.noticeOk', 'claimOk.noticeHasBatt', 'claimOk.cardRefreshedAndGated', 'claimOk.listRefetched',
     'claimFail.noticeErr', 'claimFail.noticeIsReason', 'claimFail.noWhiteScreen',
     'geometry.zeroOverflow390', 'geometry.zeroOverflow1536', 'geometry.cards390',
-    'geometry.touchTarget44On390', 'geometry.zeroPageErrors',
+    'geometry.touchTarget44On390', 'geometry.zeroPageErrors', 'geometry.checkin390', 'geometry.checkin1536',
     // ⑤ 客态公开浏览臂（未登录也渲染列表 + 写口需登录）
     'guest.cardsVisible', 'guest.listRendered', 'guest.bannerWithList', 'guest.titleVisible',
     'guest.wageVisible', 'guest.currencyExtraVisible', 'guest.joinEnabled',

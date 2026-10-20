@@ -21,6 +21,12 @@
   margin-bottom: var(--sf-st-feed-gap-m);
 }
 
+/* 电量卡 + 签到区（自 /activities 并入本页顶部）：只做「与下方列表留白」的页壳间距，
+ * 卡内几何与配色由组件自带 ⇒ 本文件不复制它的样式、不新增主题 token。 */
+.sf-wage-checkin {
+  margin-bottom: var(--sf-st-feed-gap-m);
+}
+
 .sf-wage-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));

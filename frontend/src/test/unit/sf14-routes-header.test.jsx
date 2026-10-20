@@ -4,9 +4,11 @@
  * 覆盖：
  *   ① /profile 落地重定向：index ⇒ /profile/trades/bought（未登录 ⇒ 既有 ProtectedRoute 登录引导）
  *   ② profile/trades/:subTab · profile/favorites · profile/settings 三子路径共用 ProfilePage（ProtectedRoute 包裹）
- *   ③ activities 顶层新增（与 messages 平级，ProtectedRoute —— 签到需登录）
+ *   ③ `/wage` 为签到/电量落点（签到独立页 `/activities` 已于 2026-10-20 硬删 ⇒ 旧段命中 catch-all 提示页）
  *
  * 断言过期⇒前推记录：本文件新增；原 app-routes.test.jsx 只钉 / 与 /login，不受影响。
+ *   2026-10-20（签到并入 /wage）：③a/③b 原为「/activities 渲染独立页 / 未登录落登录引导」⇒
+ *     前推为「/wage 渲染领工资页」＋「/activities 不再命中任何内层段（落 catch-all，登录与否都一样）」。
  */
 import React from 'react'
 import { render, screen } from '@testing-library/react'
@@ -25,7 +27,7 @@ vi.mock('react-i18next', () => ({
 vi.mock('../../pages/HomePage', () => ({ default: () => <div>home page content</div> }))
 vi.mock('../../pages/TaskPage', () => ({ default: () => <div>task page content</div> }))
 vi.mock('../../pages/ProfilePage', () => ({ default: () => <div>profile page content</div> }))
-vi.mock('../../pages/ActivitiesPage', () => ({ default: () => <div>activities page content</div> }))
+vi.mock('../../pages/wage/WagePage', () => ({ default: () => <div>wage page content</div> }))
 vi.mock('../../pages/ShardPage', () => ({ default: () => <div>shard page content</div> }))
 vi.mock('../../pages/AuthPage', () => ({ default: ({ mode }) => <div>{mode} auth page</div> }))
 vi.mock('../../components/Header', () => ({ default: () => <div>site header</div> }))
@@ -47,7 +49,7 @@ const renderAt = (entry) => render(
   </MemoryRouter>,
 )
 
-describe('sf14 · /profile 族与 activities 路由（LangShell 内层相对段）', () => {
+describe('sf14 · /profile 族与 /wage 落点（LangShell 内层相对段）', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -73,15 +75,24 @@ describe('sf14 · /profile 族与 activities 路由（LangShell 内层相对段�
     }
   })
 
-  it('③a 登录访问 /activities ⇒ 渲染 activities 独立页', () => {
+  it('③a 登录访问 /wage ⇒ 渲染领工资页（电量 + 签到区已并入该页顶部）', () => {
     useAuth.mockReturnValue({ isAuthenticated: true, user: { uID: 7 } })
-    renderAt('/activities')
-    expect(screen.getByText('activities page content')).toBeInTheDocument()
+    renderAt('/wage')
+    expect(screen.getByText('wage page content')).toBeInTheDocument()
   })
 
-  it('③b 未登录访问 /activities ⇒ 既有 ProtectedRoute 登录引导（签到需登录）', () => {
+  it('③b `/activities` 已无路由段 ⇒ 登录态也落 catch-all 提示页（不再是签到页）', () => {
+    useAuth.mockReturnValue({ isAuthenticated: true, user: { uID: 7 } })
+    const { container } = renderAt('/activities')
+    expect(screen.queryByText('wage page content')).toBeNull()
+    expect(container.querySelector('[data-sf-m="activities-page"]')).toBeNull()
+    expect(container.querySelector('[data-sf-m="not-found-page"]')).not.toBeNull()
+  })
+
+  it('③c 未登录访问 /activities ⇒ 同为 catch-all 提示页（不再经 ProtectedRoute 出登录引导）', () => {
     useAuth.mockReturnValue({ isAuthenticated: false, user: null })
-    renderAt('/activities')
-    expect(screen.getByText('login auth page')).toBeInTheDocument()
+    const { container } = renderAt('/activities')
+    expect(screen.queryByText('login auth page')).toBeNull()
+    expect(container.querySelector('[data-sf-m="not-found-page"]')).not.toBeNull()
   })
 })

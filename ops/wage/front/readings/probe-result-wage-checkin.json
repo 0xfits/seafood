@@ -1,0 +1,1089 @@
+{
+  "probe": "ops/wage/front/probe-wage.mjs",
+  "startedAt": "2026-10-20T11:33:19.379Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "fixtures": {
+    "rows": 10,
+    "recruiting": 8,
+    "closed": 2,
+    "hired": 1,
+    "auth": "localStorage seed only（零真登录）",
+    "api": "context.route in-probe JSON（零后端 / 零库写）"
+  },
+  "states": {
+    "1536_menu": {
+      "present": true,
+      "count": 5,
+      "keys": [
+        "wage",
+        "sell",
+        "messages",
+        "app",
+        "support"
+      ],
+      "labels": [
+        "领工资",
+        "卖闲置",
+        "消息",
+        "APP",
+        "客服"
+      ],
+      "hrefs": [
+        "/wage",
+        "/item/new",
+        "/messages",
+        null,
+        null
+      ],
+      "dividers": 4,
+      "feedbackHooks": 0,
+      "feedbackFormHooks": 0,
+      "menuText": "领工资卖闲置消息APP客服"
+    },
+    "1536_checkin": {
+      "checkin": {
+        "wrapperPresent": true,
+        "hasCard": true,
+        "cardId": "batt-checkin",
+        "hasMeter": true,
+        "meterText": "70%电量",
+        "buttonTexts": [
+          "铸造",
+          "分解",
+          "签到"
+        ],
+        "cardTop": 136,
+        "cardBottom": 481,
+        "listTop": 490,
+        "listPresent": true,
+        "cardRight": 1516,
+        "cardInViewport": true,
+        "scrollY": 0,
+        "activitiesPageHooks": 0,
+        "notFoundHooks": 0,
+        "pathname": "/wage"
+      },
+      "page": {
+        "hasPage": true,
+        "hasList": true,
+        "hasLogin": false,
+        "hasEmpty": false,
+        "hasError": false
+      },
+      "cards": 10,
+      "overflowPx": 0,
+      "apiCalls": [
+        "/api/batt",
+        "/api/checkin",
+        "/api/project/all"
+      ]
+    },
+    "1536_hash_deeplink": {
+      "wrapperPresent": true,
+      "hasCard": true,
+      "cardId": "batt-checkin",
+      "hasMeter": true,
+      "meterText": "70%电量",
+      "buttonTexts": [
+        "铸造",
+        "分解",
+        "签到"
+      ],
+      "cardTop": 0,
+      "cardBottom": 345,
+      "listTop": 354,
+      "listPresent": true,
+      "cardRight": 1516,
+      "cardInViewport": true,
+      "scrollY": 136,
+      "activitiesPageHooks": 0,
+      "notFoundHooks": 0,
+      "pathname": "/wage"
+    },
+    "1536_activities_gone": {
+      "wrapperPresent": false,
+      "hasCard": false,
+      "cardId": null,
+      "hasMeter": false,
+      "meterText": null,
+      "buttonTexts": [],
+      "cardTop": null,
+      "cardBottom": null,
+      "listTop": null,
+      "listPresent": false,
+      "cardRight": null,
+      "cardInViewport": null,
+      "scrollY": 0,
+      "activitiesPageHooks": 0,
+      "notFoundHooks": 1,
+      "pathname": "/activities"
+    },
+    "1536_list": {
+      "page": {
+        "hasPage": true,
+        "hasList": true,
+        "hasLogin": false,
+        "hasEmpty": false,
+        "hasError": false
+      },
+      "cards": [
+        {
+          "project": "101",
+          "title": "海鲜打包",
+          "statusText": "招募中",
+          "statusState": "recruiting",
+          "headcount": "已招 2/3",
+          "wage": "工资：batt 30/次（间隔 4 小时）",
+          "wageExtra": null,
+          "action": "claim",
+          "actionText": "领工资",
+          "actionDisabled": false,
+          "needLogin": "0",
+          "loginLink": false,
+          "claimable": "1",
+          "remaining": "0",
+          "actionH": 39,
+          "hint": null,
+          "noticeKind": null,
+          "noticeText": null,
+          "right": 312
+        },
+        {
+          "project": "102",
+          "title": "冷库分拣",
+          "statusText": "招募中",
+          "statusState": "recruiting",
+          "headcount": "已招 1/4",
+          "wage": "工资：batt 25/次（间隔 6 小时）",
+          "wageExtra": null,
+          "action": "join",
+          "actionText": "加入",
+          "actionDisabled": true,
+          "needLogin": "0",
+          "loginLink": false,
+          "claimable": null,
+          "remaining": null,
+          "actionH": 39,
+          "hint": "同时只能在一个项目打工",
+          "noticeKind": null,
+          "noticeText": null,
+          "right": 613
+        },
+        {
+          "project": "103",
+          "title": "文案校对",
+          "statusText": "招募中",
+          "statusState": "recruiting",
+          "headcount": "已招 2/5",
+          "wage": "工资：batt 20/次（间隔 8 小时）＋50 BTTC/次",
+          "wageExtra": "＋50 BTTC/次",
+          "action": "join",
+          "actionText": "加入",
+          "actionDisabled": true,
+          "needLogin": "0",
+          "loginLink": false,
+          "claimable": null,
+          "remaining": null,
+          "actionH": 39,
+          "hint": "同时只能在一个项目打工",
+          "noticeKind": null,
+          "noticeText": null,
+          "right": 914
+        },
+        {
+          "project": "104",
+          "title": "客服值守",
+          "statusText": "招募中",
+          "statusState": "recruiting",
+          "headcount": "已招 0/2",
+          "wage": "工资：batt 18/次（间隔 12 小时）",
+          "wageExtra": null,
+          "action": "join",
+          "actionText": "加入",
+          "actionDisabled": true,
+          "needLogin": "0",
+          "loginLink": false,
+          "claimable": null,
+          "remaining": null,
+          "actionH": 39,
+          "hint": "同时只能在一个项目打工",
+          "noticeKind": null,
+          "noticeText": null,
+          "right": 1215
+        },
+        {
+          "project": "105",
+          "title": "图片精修",
+          "statusText": "招募中",
+          "statusState": "recruiting",
+          "headcount": "已招 3/6",
+          "wage": "工资：batt 22/次（间隔 6 小时）",
+          "wageExtra": null,
+          "action": "join",
+          "actionText": "加入",
+          "actionDisabled": true,
+          "needLogin": "0",
+          "loginLink": false,
+          "claimable": null,
+          "remaining": null,
+          "actionH": 39,
+          "hint": "同时只能在一个项目打工",
+          "noticeKind": null,
+          "noticeText": null,
+          "right": 1516
+        },
+        {
+          "project": "106",
+          "title": "同城跑腿",
+          "statusText": "招募中",
+          "statusState": "recruiting",
+          "headcount": "已招 4/8",
+          "wage": "工资：batt 15/次（间隔 10 小时）",
+          "wageExtra": null,
+          "action": "join",
+          "actionText": "加入",
+          "actionDisabled": true,
+          "needLogin": "0",
+          "loginLink": false,
+          "claimable": null,
+          "remaining": null,
+          "actionH": 39,
+          "hint": "同时只能在一个项目打工",
+          "noticeKind": null,
+          "noticeText": null,
+          "right": 312
+        },
+        {
+          "project": "107",
+          "title": "夜间补货",
+          "statusText": "招募中",
+          "statusState": "recruiting",
+          "headcount": "已招 2/2",
+          "wage": "工资：batt 28/次（间隔 12 小时）",
+          "wageExtra": null,
+          "action": "join",
+          "actionText": "加入",
+          "actionDisabled": true,
+          "needLogin": "0",
+          "loginLink": false,
+          "claimable": null,
+          "remaining": null,
+          "actionH": 39,
+          "hint": "同时只能在一个项目打工",
+          "noticeKind": null,
+          "noticeText": null,
+          "right": 613
+        },
+        {
+          "project": "108",
+          "title": "冷库盘点",
+          "statusText": "已截止",
+          "statusState": "closed",
+          "headcount": "已招 3/3",
+          "wage": "工资：batt 12/次（间隔 24 小时）",
+          "wageExtra": null,
+          "action": null,
+          "actionText": null,
+          "actionDisabled": null,
+          "needLogin": null,
+          "loginLink": false,
+          "claimable": null,
+          "remaining": null,
+          "actionH": null,
+          "hint": null,
+          "noticeKind": null,
+          "noticeText": null,
+          "right": 914
+        },
+        {
+          "project": "109",
+          "title": "旧仓搬迁",
+          "statusText": "已截止",
+          "statusState": "closed",
+          "headcount": "已招 4/4",
+          "wage": "工资：batt 10/次（间隔 24 小时）",
+          "wageExtra": null,
+          "action": null,
+          "actionText": null,
+          "actionDisabled": null,
+          "needLogin": null,
+          "loginLink": false,
+          "claimable": null,
+          "remaining": null,
+          "actionH": null,
+          "hint": null,
+          "noticeKind": null,
+          "noticeText": null,
+          "right": 1215
+        },
+        {
+          "project": "110",
+          "title": "跨境选品",
+          "statusText": "招募中",
+          "statusState": "recruiting",
+          "headcount": "已招 1/5",
+          "wage": "工资：batt 35/次（间隔 8 小时）＋80 BTTC/次",
+          "wageExtra": "＋80 BTTC/次",
+          "action": "join",
+          "actionText": "加入",
+          "actionDisabled": true,
+          "needLogin": "0",
+          "loginLink": false,
+          "claimable": null,
+          "remaining": null,
+          "actionH": 39,
+          "hint": "同时只能在一个项目打工",
+          "noticeKind": null,
+          "noticeText": null,
+          "right": 1516
+        }
+      ],
+      "overflowPx": 0
+    },
+    "1536_full_arm": {
+      "c107": {
+        "project": "107",
+        "title": "夜间补货",
+        "statusText": "招募中",
+        "statusState": "recruiting",
+        "headcount": "已招 2/2",
+        "wage": "工资：batt 28/次（间隔 12 小时）",
+        "wageExtra": null,
+        "action": "join",
+        "actionText": "加入",
+        "actionDisabled": true,
+        "needLogin": "0",
+        "loginLink": false,
+        "claimable": null,
+        "remaining": null,
+        "actionH": 39,
+        "hint": "已招满",
+        "noticeKind": null,
+        "noticeText": null,
+        "right": 613
+      },
+      "c102": {
+        "project": "102",
+        "title": "冷库分拣",
+        "statusText": "招募中",
+        "statusState": "recruiting",
+        "headcount": "已招 1/4",
+        "wage": "工资：batt 25/次（间隔 6 小时）",
+        "wageExtra": null,
+        "action": "join",
+        "actionText": "加入",
+        "actionDisabled": false,
+        "needLogin": "0",
+        "loginLink": false,
+        "claimable": null,
+        "remaining": null,
+        "actionH": 39,
+        "hint": null,
+        "noticeKind": null,
+        "noticeText": null,
+        "right": 613
+      }
+    },
+    "1536_claim_ok": {
+      "noticeKind": "ok",
+      "noticeText": "已领到 batt 30",
+      "claimable": "0",
+      "remaining": "14401",
+      "hint": "4:00:01 后可领",
+      "listRefetched": 2,
+      "claimPosts": [
+        {
+          "method": "POST",
+          "path": "/api/project/101/claim"
+        }
+      ]
+    },
+    "1536_claim_fail": {
+      "noticeKind": "err",
+      "noticeText": "领取间隔未到，请稍后再来",
+      "claimable": "0",
+      "remaining": "91",
+      "cards": 10,
+      "bodyTextEmpty": false
+    },
+    "390_geometry": {
+      "overflowPx": 0,
+      "cards": 10,
+      "cardRightMax": 380,
+      "actionHeights": [
+        44
+      ],
+      "floatmenuCount": 5,
+      "checkinPresent": true,
+      "checkinRight": 380,
+      "checkinAboveList": true,
+      "checkinButtons": [
+        "铸造",
+        "分解",
+        "签到"
+      ]
+    },
+    "1536_geometry": {
+      "overflowPx": 0,
+      "cards": 10,
+      "cardRightMax": 1516,
+      "actionHeights": [
+        39
+      ],
+      "floatmenuCount": 5,
+      "checkinPresent": true,
+      "checkinRight": 1516,
+      "checkinAboveList": true,
+      "checkinButtons": [
+        "铸造",
+        "分解",
+        "签到"
+      ]
+    },
+    "1536_guest": {
+      "page": {
+        "hasPage": true,
+        "hasList": true,
+        "hasLogin": true,
+        "hasEmpty": false,
+        "hasError": false
+      },
+      "cardCount": 10,
+      "titles": [
+        "海鲜打包",
+        "冷库分拣",
+        "文案校对",
+        "客服值守",
+        "图片精修",
+        "同城跑腿",
+        "夜间补货",
+        "冷库盘点",
+        "旧仓搬迁",
+        "跨境选品"
+      ],
+      "overflowPx": 0,
+      "c101": {
+        "project": "101",
+        "title": "海鲜打包",
+        "statusText": "招募中",
+        "statusState": "recruiting",
+        "headcount": "已招 2/3",
+        "wage": "工资：batt 30/次（间隔 4 小时）",
+        "wageExtra": null,
+        "action": "claim",
+        "actionText": "领工资",
+        "actionDisabled": false,
+        "needLogin": "1",
+        "loginLink": false,
+        "claimable": "1",
+        "remaining": "0",
+        "actionH": 39,
+        "hint": null,
+        "noticeKind": null,
+        "noticeText": null,
+        "right": 312
+      },
+      "c102": {
+        "project": "102",
+        "title": "冷库分拣",
+        "statusText": "招募中",
+        "statusState": "recruiting",
+        "headcount": "已招 1/4",
+        "wage": "工资：batt 25/次（间隔 6 小时）",
+        "wageExtra": null,
+        "action": "join",
+        "actionText": "加入",
+        "actionDisabled": false,
+        "needLogin": "1",
+        "loginLink": false,
+        "claimable": null,
+        "remaining": null,
+        "actionH": 39,
+        "hint": null,
+        "noticeKind": null,
+        "noticeText": null,
+        "right": 613
+      },
+      "c103": {
+        "project": "103",
+        "title": "文案校对",
+        "statusText": "招募中",
+        "statusState": "recruiting",
+        "headcount": "已招 2/5",
+        "wage": "工资：batt 20/次（间隔 8 小时）＋50 BTTC/次",
+        "wageExtra": "＋50 BTTC/次",
+        "action": "join",
+        "actionText": "加入",
+        "actionDisabled": false,
+        "needLogin": "1",
+        "loginLink": false,
+        "claimable": null,
+        "remaining": null,
+        "actionH": 39,
+        "hint": null,
+        "noticeKind": null,
+        "noticeText": null,
+        "right": 914
+      },
+      "afterJoinClick": {
+        "project": "102",
+        "title": "冷库分拣",
+        "statusText": "招募中",
+        "statusState": "recruiting",
+        "headcount": "已招 1/4",
+        "wage": "工资：batt 25/次（间隔 6 小时）",
+        "wageExtra": null,
+        "action": "join",
+        "actionText": "加入",
+        "actionDisabled": false,
+        "needLogin": "1",
+        "loginLink": true,
+        "claimable": null,
+        "remaining": null,
+        "actionH": 39,
+        "hint": null,
+        "noticeKind": "login",
+        "noticeText": "登录后即可加入项目、领工资去登录",
+        "right": 613
+      },
+      "afterClaimClick": {
+        "project": "101",
+        "title": "海鲜打包",
+        "statusText": "招募中",
+        "statusState": "recruiting",
+        "headcount": "已招 2/3",
+        "wage": "工资：batt 30/次（间隔 4 小时）",
+        "wageExtra": null,
+        "action": "claim",
+        "actionText": "领工资",
+        "actionDisabled": false,
+        "needLogin": "1",
+        "loginLink": true,
+        "claimable": "1",
+        "remaining": "0",
+        "actionH": 39,
+        "hint": null,
+        "noticeKind": "login",
+        "noticeText": "登录后即可加入项目、领工资去登录",
+        "right": 312
+      },
+      "writeCalls": []
+    },
+    "390_guest": {
+      "overflowPx": 0,
+      "cards": 10,
+      "actionHeights": [
+        44
+      ],
+      "cardRightMax": 380,
+      "hasBannerAndList": true
+    }
+  },
+  "assertions": {
+    "menu": {
+      "fiveItems": true,
+      "noFeedback": true,
+      "firstIsWage": true,
+      "orderMatches": true,
+      "dividers4": true,
+      "order": [
+        "wage",
+        "sell",
+        "messages",
+        "app",
+        "support"
+      ],
+      "labels": [
+        "领工资",
+        "卖闲置",
+        "消息",
+        "APP",
+        "客服"
+      ],
+      "hrefs": [
+        "/wage",
+        "/item/new",
+        "/messages",
+        null,
+        null
+      ],
+      "dividers": 4
+    },
+    "checkin": {
+      "wrapperPresent": true,
+      "cardPresent": true,
+      "meterPresent": true,
+      "meterHasBattText": true,
+      "checkinButtonPresent": true,
+      "mintAreaPresent": true,
+      "listBelowCheckin": true,
+      "gapPx": 9,
+      "cardsStillListed": true,
+      "readsWired": true,
+      "zeroOverflow": true
+    },
+    "hashDeepLink": {
+      "cardPresent": true,
+      "cardInViewport": true,
+      "listStillBelow": true
+    },
+    "activitiesGone": {
+      "pathnameIsActivities": true,
+      "noActivitiesPageHook": true,
+      "catchAllNotFound": true,
+      "notRedirectedToWage": true
+    },
+    "list": {
+      "tenCards": true,
+      "recruitingCards": true,
+      "closedCards": true,
+      "recruitingCount": 8,
+      "closedCount": 2,
+      "statusTexts": [
+        "招募中",
+        "已截止"
+      ],
+      "headcountText": "已招 2/3",
+      "wageText": "工资：batt 30/次（间隔 4 小时）",
+      "currencyExtra": "＋50 BTTC/次",
+      "hiredCardClaimEnabled": true,
+      "otherJoinDisabled": true,
+      "otherHintOneAtATime": true,
+      "fullCardDisabledWithHint": true,
+      "closedNoAction": true,
+      "joinEnabledWhenFree": true
+    },
+    "claimOk": {
+      "postCount1": true,
+      "postPath": "/api/project/101/claim",
+      "noticeOk": true,
+      "noticeHasBatt": true,
+      "cardRefreshedAndGated": true,
+      "listRefetched": true,
+      "cardStillPresent": true
+    },
+    "beforeFailClick": {
+      "claimable": "1",
+      "disabled": false
+    },
+    "claimFail": {
+      "noticeErr": true,
+      "noticeIsReason": true,
+      "noWhiteScreen": true,
+      "countdownFromServer": true
+    },
+    "geometry": {
+      "zeroOverflow390": true,
+      "zeroOverflow1536": true,
+      "cards390": true,
+      "touchTarget44On390": true,
+      "cardRightWithinViewport390": true,
+      "checkin390": true,
+      "checkin1536": true,
+      "zeroPageErrors": true
+    },
+    "guest": {
+      "cardsVisible": true,
+      "cardCount": 10,
+      "listRendered": true,
+      "bannerWithList": true,
+      "titleVisible": true,
+      "wageVisible": true,
+      "currencyExtraVisible": true,
+      "joinEnabled": true,
+      "joinClickLoginPrompt": true,
+      "claimClickLoginPrompt": true,
+      "zeroWriteRequests": true,
+      "writeCallPaths": [],
+      "cardsStableAfterClicks": true,
+      "zeroOverflowGuest": true,
+      "zeroOverflow390": true,
+      "cards390": true,
+      "touchTarget44On390": true,
+      "bannerAndList390": true
+    }
+  },
+  "pageErrors": [],
+  "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+  ],
+  "finishedAt": "2026-10-20T11:33:30.674Z",
+  "verdict": {
+    "required": [
+      {
+        "key": "menu.fiveItems",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "menu.noFeedback",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "menu.firstIsWage",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "menu.orderMatches",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "menu.dividers4",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.wrapperPresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.cardPresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.meterPresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.meterHasBattText",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.checkinButtonPresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.mintAreaPresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.listBelowCheckin",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.cardsStillListed",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.readsWired",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.zeroOverflow",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "hashDeepLink.cardPresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "hashDeepLink.cardInViewport",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "hashDeepLink.listStillBelow",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "activitiesGone.pathnameIsActivities",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "activitiesGone.noActivitiesPageHook",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "activitiesGone.catchAllNotFound",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "activitiesGone.notRedirectedToWage",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.tenCards",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.recruitingCards",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.closedCards",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.hiredCardClaimEnabled",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.otherJoinDisabled",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.joinEnabledWhenFree",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.otherHintOneAtATime",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.fullCardDisabledWithHint",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.closedNoAction",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "claimOk.postCount1",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "claimOk.noticeOk",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "claimOk.noticeHasBatt",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "claimOk.cardRefreshedAndGated",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "claimOk.listRefetched",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "claimFail.noticeErr",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "claimFail.noticeIsReason",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "claimFail.noWhiteScreen",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.zeroOverflow390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.zeroOverflow1536",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.cards390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.touchTarget44On390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.zeroPageErrors",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.checkin390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.checkin1536",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.cardsVisible",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.listRendered",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.bannerWithList",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.titleVisible",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.wageVisible",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.currencyExtraVisible",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.joinEnabled",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.joinClickLoginPrompt",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.claimClickLoginPrompt",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.zeroWriteRequests",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.cardsStableAfterClicks",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.zeroOverflowGuest",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.zeroOverflow390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.cards390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.touchTarget44On390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.bannerAndList390",
+        "value": true,
+        "pass": true
+      }
+    ],
+    "failed": [],
+    "pass": true
+  }
+}
