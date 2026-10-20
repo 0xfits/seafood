@@ -1,0 +1,108 @@
+[
+ {
+  "vw": 390,
+  "pageerrors": [],
+  "m": {
+   "barExists": true,
+   "position": "fixed",
+   "bottom": "0px",
+   "barW": 390,
+   "buttons": [
+    {
+     "hook": "item-detail-msg-btn",
+     "x": 12,
+     "right": 48,
+     "w": 36,
+     "h": 44,
+     "bg": "rgba(0, 0, 0, 0)",
+     "color": "rgb(10, 10, 10)",
+     "display": "flex"
+    },
+    {
+     "hook": "fav-toggle",
+     "x": 56,
+     "right": 134,
+     "w": 78,
+     "h": 44,
+     "bg": "rgb(255, 255, 255)",
+     "color": "rgb(32, 32, 32)",
+     "display": "flex"
+    },
+    {
+     "hook": "item-buy-btn",
+     "x": 201,
+     "right": 279,
+     "w": 78,
+     "h": 44,
+     "bg": "rgb(236, 236, 236)",
+     "color": "rgb(32, 32, 32)",
+     "display": "flex"
+    },
+    {
+     "hook": "item-chat-btn",
+     "x": 287,
+     "right": 378,
+     "w": 91,
+     "h": 44,
+     "bg": "rgb(255, 230, 15)",
+     "color": "rgb(32, 32, 32)",
+     "display": "flex"
+    }
+   ],
+   "overflow": 0
+  }
+ },
+ {
+  "vw": 1536,
+  "pageerrors": [],
+  "m": {
+   "barExists": true,
+   "position": "static",
+   "bottom": "auto",
+   "barW": 592,
+   "buttons": [
+    {
+     "hook": "item-detail-msg-btn",
+     "x": 0,
+     "right": 0,
+     "w": 0,
+     "h": 0,
+     "bg": "rgba(0, 0, 0, 0)",
+     "color": "rgb(10, 10, 10)",
+     "display": "none"
+    },
+    {
+     "hook": "fav-toggle",
+     "x": 1438,
+     "right": 1516,
+     "w": 78,
+     "h": 44,
+     "bg": "rgb(255, 255, 255)",
+     "color": "rgb(32, 32, 32)",
+     "display": "flex"
+    },
+    {
+     "hook": "item-buy-btn",
+     "x": 1019,
+     "right": 1430,
+     "w": 411,
+     "h": 44,
+     "bg": "rgb(32, 32, 32)",
+     "color": "rgb(255, 255, 255)",
+     "display": "flex"
+    },
+    {
+     "hook": "item-chat-btn",
+     "x": 924,
+     "right": 1019,
+     "w": 95,
+     "h": 44,
+     "bg": "rgb(255, 230, 15)",
+     "color": "rgb(32, 32, 32)",
+     "display": "flex"
+    }
+   ],
+   "overflow": 0
+  }
+ }
+]

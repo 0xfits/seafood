@@ -1,0 +1,13 @@
+详情页改版 · 生产终验（2026-10-20）
+push = 0a564e2..8d9e48b（规范 / 后端 50 键 / H5 / Web / 去重开关 / H5 收藏钮 / 两缺陷修复 / 成色控件）
+两库 schema 均 0058（0057 view_count+item_condition / 0058 view_log+开关 off）
+同版：js index-BUJFF7Ji.js / css index-DwgaiwBH.css（prod == 本地 HEAD 构建）
+
+生产 /item/9（Kevin 给的那件，PhysicalFreeShip）：
+  详情 50 键（views / wants / condition 在场）；打开一次仅 1 条 /api/prize 请求
+  价格 rgb(255,77,0) 32px；【包邮】黄 rgb(255,230,15)；0人想要 / N人浏览
+  condition=NULL ⇒ 核心标签兜底【平台结算】（无成色签，符合口径）
+  H5 390：底栏 fixed bottom:0，留言 12–48 / 收藏 56–134 / 立即购买 201–279（灰底黑字）/ 聊一聊 287–378（黄底黑字），四件同高 44，后两件右缘对齐
+  Web 1536：底栏 static、留言 display:none；拼接胶囊 924–1430（聊一聊黄｜立即购买黑底白字）+ 独立收藏 1438–1516
+  双档零溢出、零 pageerror
+浏览计数：连读 3 次各 +1（当前开关 off = 不去重）；去重开启时同访客同天只计 1（p58 门 29/29 覆盖）

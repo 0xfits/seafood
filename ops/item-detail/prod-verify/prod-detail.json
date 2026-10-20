@@ -1,0 +1,56 @@
+[
+ {
+  "vw": 390,
+  "pageerrors": [],
+  "consoleErrors": [],
+  "prizeReqs": 1,
+  "m": {
+   "title": "蓝色家的中秋礼盒 1 份",
+   "priceColor": "rgb(255, 77, 0)",
+   "priceSize": "32px",
+   "secondaryTags": [
+    {
+     "t": "包邮",
+     "bg": "rgb(255, 230, 15)"
+    }
+   ],
+   "counts": [
+    "0人想要",
+    "2人浏览"
+   ],
+   "barExists": false,
+   "barFixed": null,
+   "barButtons": [],
+   "overflow": 0,
+   "hasConditionTag": false,
+   "hasPlatformTag": true
+  }
+ },
+ {
+  "vw": 1536,
+  "pageerrors": [],
+  "consoleErrors": [],
+  "prizeReqs": 1,
+  "m": {
+   "title": "蓝色家的中秋礼盒 1 份",
+   "priceColor": "rgb(255, 77, 0)",
+   "priceSize": "32px",
+   "secondaryTags": [
+    {
+     "t": "包邮",
+     "bg": "rgb(255, 230, 15)"
+    }
+   ],
+   "counts": [
+    "0人想要",
+    "2人浏览"
+   ],
+   "barExists": false,
+   "barFixed": null,
+   "barButtons": [],
+   "overflow": 0,
+   "hasConditionTag": false,
+   "hasPlatformTag": true
+  }
+ }
+]
