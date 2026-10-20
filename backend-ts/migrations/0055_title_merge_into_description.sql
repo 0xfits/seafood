@@ -27,6 +27,12 @@
 --     LIKE 会把它们当通配符 ⇒ 该行被**误跳过**（漏回填）⇒ 尾部自检 ③ 当场 `RAISE`。`strpos` 逐字
 --     比较、无通配符语义，与「不以该前缀开头」严格等价（`= 1` 即「从此处开始」）。
 --   · 守卫只挡「已合并」，不挡空标题行（那类行落 `CASE` 的 `description` 原样支、天然无变化）。
+ --   · ★ 2026-10-20 生产实测加固：守卫收敛为**一条** `strpos(description, title) <> 1`
+ --     （描述**不以** title 开头 ⇒ 才合并）。旧两支（`<> title` + `strpos(title||'\n') <> 1`）
+ --     漏了「**无换行超串**」形态（描述 = title + 后续文字、中间无 `\n`，生产 listing 5 实测：
+ --     「高速飞机一个月使用权高速飞机一个月使用权」）⇒ 旧守卫照并 ⇒ 成 `title\ntitle…`
+ --     ⇒ 自检 ⑤ 当场 RAISE（正是自检承重的实证）。新守卫一条覆盖三形态：
+ --     相等 / 无换行超串 / 已带 `title\n` 前缀，全都「已含标题 ⇒ 不再并」。
 --
 -- 文件内**不写 BEGIN/COMMIT**（`scripts/migrate.ts` 逐文件包事务：失败即整文件回滚、
 --   不写版本行）；自检失败一律 `RAISE EXCEPTION` ⇒ 整迁移回滚。
@@ -45,11 +51,12 @@ UPDATE public.listing
                        ELSE title || E'\n' || description
                      END
  WHERE btrim(title) <> ''
-   -- ★ 幂等守卫：描述**尚未**以此 title 开头、且**不等于** title ⇒ 才需要合并
-   --   （「描述原本为空」的行合并后 = **恰 `title`**（无尾随换行）⇒ 必须由 `<> title` 这一支兜住，
-   --    否则重放时被再拼一次成 `title\ntitle`）
-   AND description <> title
-   AND strpos(description, title || E'\n') <> 1;
+   -- ★ 幂等守卫（2026-10-20 收敛为一条）：描述**不以** title 开头 ⇒ 才需要合并。
+   --   一条覆盖三形态（都属「已含标题 ⇒ 不再并」）：① 相等；② 无换行超串（描述 = title + 后续
+   --   文字，生产 listing 5 实测）；③ 已带 `title\n` 前缀（原描述非空、合并过）。
+   --   「描述原本为空」的行合并后 = 恰 `title`（无尾随换行）⇒ 也被本条兜住（重放不再拼）。
+   --   strpos 逐字比较、无 LIKE 通配符语义（用户标题含 % / _ 不会误跳过）。
+   AND strpos(description, title) <> 1;
 
 DO $$
 DECLARE
@@ -85,15 +92,12 @@ BEGIN
     FROM information_schema.columns
    WHERE table_schema = 'public' AND table_name = 'listing' AND column_name = 'title';
 
-  -- 每一条有标题的行：描述必须以该标题开头，且紧随其后的位置是换行（原描述非空）或串尾（原描述为空）
+  -- 每一条有标题的行：描述必须**以该标题开头**（合并过的 = title + '\n' + 原描述；被守卫跳过的
+  --   相等/超串行本就以 title 开头 ⇒ 两类并集 = 「以 title 开头」，2026-10-20 守卫收敛后同口径）
   SELECT count(*) INTO v_merged_ok
     FROM public.listing
    WHERE btrim(title) <> ''
-     AND left(description, length(title)) = title
-     AND (
-           length(description) = length(title)
-           OR substr(description, length(title) + 1, 1) = E'\n'
-         );
+     AND left(description, length(title)) = title;
 
   -- ① 「无标题也无描述」的历史行先报数（这部分无可合并内容，不等于合并失败）
   IF v_both_empty > 0 THEN

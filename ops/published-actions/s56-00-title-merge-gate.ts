@@ -69,8 +69,8 @@ const splitMigration = (text: string): { head: string; tail: string } => {
 const M55 = splitMigration(MIG55);
 const M56 = splitMigration(MIG56);
 
-/** 0055 幂等守卫（逐字取自迁移文件；负控要把它中和掉）：两支 —— 不等于 title ∧ 不以 title+\n 开头 */
-const GUARD_RE = /AND\s+description\s*<>\s*title\s+AND\s+strpos\(description,\s*title\s*\|\|\s*E'\\n'\)\s*<>\s*1/;
+/** 0055 幂等守卫（逐字取自迁移文件；负控要把它中和掉）：2026-10-20 收敛为一条 —— 描述不以 title 开头 */
+const GUARD_RE = /AND\s+strpos\(description,\s*title\)\s*<>\s*1/;
 /** 负控：把守卫谓词中和成 `AND true`（**保留列引用与参数位**，测的是守卫本身而非语法） */
 const stripGuard = (sql: string) => sql.replace(GUARD_RE, 'AND true');
 
@@ -133,7 +133,7 @@ const stripGuard = (sql: string) => sql.replace(GUARD_RE, 'AND true');
     writeReadings.every((w) => w.block_bytes > 0 && w.qualified.length === 0 && !w.insert_title && !w.cur_title),
     JSON.stringify(writeReadings));
 
-  ck.t('A8', '迁移面：`0055` 含**幂等守卫**（`description <> title` ∧ `strpos(description, title || E\'\\n\') <> 1`）＋ 两条重放自检（`double` / `titled_empty_desc`）；`0056` = `DROP COLUMN IF EXISTS title`；两文件内**无顶层 BEGIN/COMMIT**',
+  ck.t('A8', '迁移面：`0055` 含**幂等守卫**（单条 `strpos(description, title) <> 1`：描述不以 title 开头才并 —— 覆盖相等 / 无换行超串 / 已带前缀三形态）＋ 两条重放自检（`double` / `titled_empty_desc`）；`0056` = `DROP COLUMN IF EXISTS title`；两文件内**无顶层 BEGIN/COMMIT**',
     GUARD_RE.test(M55.head)
       && /v_double/.test(M55.tail) && /v_titled_empty_desc/.test(M55.tail)
       && /ALTER TABLE public\.listing DROP COLUMN IF EXISTS title;/.test(M56.head)
@@ -260,7 +260,7 @@ const stripGuard = (sql: string) => sql.replace(GUARD_RE, 'AND true');
                count(*) FILTER (WHERE btrim(title) <> '')::text AS titled,
                count(*) FILTER (WHERE btrim(description) = '')::text AS empty_desc,
                count(*) FILTER (WHERE btrim(title) = '' AND btrim(description) = '')::text AS both_empty,
-               count(*) FILTER (WHERE btrim(title) <> '' AND strpos(description, title || E'\\n') = 1)::text AS already_merged
+               count(*) FILTER (WHERE btrim(title) <> '' AND strpos(description, title) = 1)::text AS already_merged
           FROM public.listing`);
       const dbl = async () => one<Record<string, string>>(`
         SELECT count(*) FILTER (WHERE btrim(title) <> '' AND btrim(description) = '')::text AS titled_empty_desc,
