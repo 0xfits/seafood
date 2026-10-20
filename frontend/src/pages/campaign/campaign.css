@@ -1,0 +1,539 @@
+/* 活动体系页面（`/campaign` · `/campaign/:ref`）
+ *
+ * 纪律（与 wage.css / jobs.css / item.css 同族）：
+ *   · 颜色一律取主题 token（--sf-*，日/夜只差值）；几何取结构常量（--sf-st-*，两档同值）
+ *     ⇒ 切档只变颜色、rect 逐值相等；
+ *   · 本文件**不写**任何按主题分支的规则（无 [data-theme] 选择器、无 matchMedia）；
+ *   · 断点沿用全站唯一 767（≤767 = 活动列表单列 + 主要动作触控目标 ≥44）；列数交给 auto-fill，
+ *     两档之间不新增骨架、不做 JS 宽度判定；
+ *   · 不挂 `.sf-btn` / `.sf-item-btn` 家族基类（该家族另有冻结断言）⇒ 页内动作按钮用
+ *     `.sf-campaign-btn` / `.sf-campaign-vote`，颜色仍逐槽取同一批 token；
+ *   · 活动卡不使用商品卡类名（`sf-listings-card` / `sf-item*`），类名自成 `sf-campaign-*`。
+ */
+
+.sf-campaign-page,
+.sf-campaign-detail {
+  --sf-c-ctl-h: 34px;
+}
+
+.sf-campaign-head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: var(--sf-st-feed-gap-m);
+}
+
+/* ---------------------------------------------------------------- 列表 */
+.sf-campaign-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--sf-st-feed-gap-m);
+  align-items: start;
+}
+
+.sf-campaign-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 13px 14px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.sf-campaign-card:hover .sf-campaign-card-title {
+  text-decoration: underline;
+}
+
+.sf-campaign-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.sf-campaign-card-title {
+  margin: 0;
+  color: var(--sf-title-fg);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.sf-campaign-tag {
+  flex: none;
+  padding: 2px 8px;
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-tag-border);
+  border-radius: var(--sf-st-radius-btna);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.sf-campaign-tag.is-active {
+  background: var(--sf-btna-bg);
+  border-color: var(--sf-btna-border);
+  color: var(--sf-btna-fg);
+}
+
+.sf-campaign-tag.is-ended,
+.sf-campaign-tag.is-draft {
+  background: var(--sf-tag-bg);
+  color: var(--sf-tag-fg);
+}
+
+.sf-campaign-card-desc {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: var(--sf-meta-fg);
+  font-size: 13px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.sf-campaign-card.is-ended .sf-campaign-card-title {
+  color: var(--sf-meta-fg);
+}
+
+.sf-campaign-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  color: var(--sf-meta-fg);
+  font-size: 13px;
+}
+
+.sf-campaign-card-count {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------- 详情头 */
+.sf-campaign-detail-head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  margin-bottom: var(--sf-st-feed-gap-m);
+}
+
+.sf-campaign-detail-head-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.sf-campaign-detail-title {
+  margin: 0;
+  color: var(--sf-title-fg);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.sf-campaign-detail-desc {
+  margin: 0;
+  color: var(--sf-meta-fg);
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.sf-campaign-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  color: var(--sf-meta-fg);
+  font-size: 13px;
+}
+
+.sf-campaign-back {
+  align-self: flex-start;
+  color: var(--sf-meta-fg);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.sf-campaign-back:hover {
+  text-decoration: underline;
+}
+
+/* ---------------------------------------------------------------- 任务卡 */
+.sf-campaign-tasks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sf-st-feed-gap-m);
+}
+
+.sf-campaign-task {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+}
+
+.sf-campaign-task-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.sf-campaign-task-title {
+  margin: 0;
+  color: var(--sf-title-fg);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.sf-campaign-task-desc {
+  margin: 0;
+  color: var(--sf-meta-fg);
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.sf-campaign-task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  color: var(--sf-meta-fg);
+  font-size: 13px;
+}
+
+.sf-campaign-task-reward {
+  color: var(--sf-title-fg);
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.sf-campaign-task-reward-extra {
+  margin-left: 6px;
+  color: var(--sf-meta-fg);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------- 子任务 */
+.sf-campaign-subtasks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sf-campaign-subtask {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-btna);
+  background: var(--sf-panel-bg);
+}
+
+.sf-campaign-subtask-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+}
+
+.sf-campaign-badge {
+  flex: none;
+  padding: 1px 7px;
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-tag-border);
+  border-radius: var(--sf-st-radius-btna);
+  background: var(--sf-tag-bg);
+  color: var(--sf-tag-fg);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.sf-campaign-subtask-title {
+  color: var(--sf-title-fg);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.sf-campaign-req {
+  flex: none;
+  padding: 1px 6px;
+  border-radius: var(--sf-st-radius-btna);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.sf-campaign-req.is-required {
+  background: var(--sf-btna-bg);
+  color: var(--sf-btna-fg);
+}
+
+.sf-campaign-req.is-optional {
+  background: var(--sf-tag-bg);
+  color: var(--sf-tag-fg);
+}
+
+.sf-campaign-subtask-state {
+  margin-left: auto;
+  color: var(--sf-meta-fg);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sf-campaign-subtask-state.is-done {
+  color: var(--sf-up-fg);
+}
+
+.sf-campaign-subtask-content {
+  margin: 0;
+  color: var(--sf-meta-fg);
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* ---------------------------------------------------------------- prediction */
+.sf-campaign-prediction {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sf-campaign-prediction-deadline {
+  color: var(--sf-meta-fg);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.sf-campaign-votes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.sf-campaign-vote {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2px;
+  min-height: 48px;
+  padding: 8px 12px;
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-btna);
+  background: var(--sf-panel-bg);
+  color: var(--sf-title-fg);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sf-campaign-vote.is-picked {
+  border-color: var(--sf-btna-border);
+  background: var(--sf-btna-bg);
+  color: var(--sf-btna-fg);
+}
+
+.sf-campaign-vote.is-correct {
+  border-color: var(--sf-up-fg);
+}
+
+.sf-campaign-vote:disabled {
+  cursor: not-allowed;
+}
+
+.sf-campaign-vote:disabled:not(.is-picked) {
+  opacity: 0.6;
+}
+
+.sf-campaign-vote-key {
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.75;
+}
+
+.sf-campaign-vote-text {
+  overflow-wrap: anywhere;
+}
+
+.sf-campaign-prediction-result {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sf-campaign-prediction-result.is-win {
+  color: var(--sf-up-fg);
+}
+
+.sf-campaign-prediction-result.is-lose {
+  color: var(--sf-down-fg);
+}
+
+.sf-campaign-prediction-result.is-pending {
+  color: var(--sf-meta-fg);
+  font-weight: 500;
+}
+
+.sf-campaign-prediction-pool {
+  color: var(--sf-meta-fg);
+  font-size: 12px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------- 提交面板 */
+.sf-campaign-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sf-campaign-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sf-campaign-field-label {
+  color: var(--sf-meta-fg);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sf-campaign-input,
+.sf-campaign-textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 8px 10px;
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-btna);
+  background: var(--sf-panel-bg);
+  color: var(--sf-title-fg);
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.sf-campaign-textarea {
+  min-height: 84px;
+  resize: vertical;
+}
+
+.sf-campaign-panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.sf-campaign-btn {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--sf-c-ctl-h, 34px);
+  padding: 8px var(--sf-st-padx-btna);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-btna);
+  background: var(--sf-panel-bg);
+  color: var(--sf-title-fg);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.sf-campaign-btn.is-primary {
+  background: var(--sf-btna-bg);
+  border-color: var(--sf-btna-border);
+  color: var(--sf-btna-fg);
+}
+
+.sf-campaign-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.sf-campaign-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sf-campaign-thumb {
+  width: 64px;
+  height: 64px;
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-btna);
+  object-fit: cover;
+}
+
+.sf-campaign-notice {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.sf-campaign-notice.is-ok {
+  color: var(--sf-up-fg);
+}
+
+.sf-campaign-notice.is-err {
+  color: var(--sf-down-fg);
+}
+
+.sf-campaign-login {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  color: var(--sf-meta-fg);
+  font-size: 13px;
+}
+
+.sf-campaign-login p {
+  margin: 0;
+}
+
+/* 手机档：活动列表单列（禁 >1 列）+ 主要动作触控目标 ≥44
+   （只在此单断点内抬高，桌面几何不受影响） */
+@media (max-width: 767px) {
+  .sf-campaign-list {
+    grid-template-columns: 1fr;
+  }
+
+  .sf-campaign-btn {
+    min-height: 44px;
+  }
+}

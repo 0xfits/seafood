@@ -17,6 +17,11 @@ import ActivitiesPage from './pages/ActivitiesPage'
 // 消费 /api/project/all（招募中/已截止项目 + my_role）、/api/project/<id>/apply、/api/project/<id>/claim；
 // 未登录不跳转，页内给登录提示（登录引导的既有口径不变）。
 import WagePage from './pages/wage/WagePage'
+// 活动体系（design §26.19 · route §49.18 R1/R2）：`/campaign` 列表 + `/campaign/:ref` 两级详情。
+// 消费 /api/campaign/all、/api/campaign/<ref>、/api/campaign/subtask/<id>/proof（均为已冻结契约）；
+// 未登录可浏览，提交动作在页内提示登录（不跳转、不白页）。
+import CampaignListPage from './pages/campaign/CampaignListPage'
+import CampaignDetailPage from './pages/campaign/CampaignDetailPage'
 
 // 招工线（P4-B4c-ii-a）：页面挂在既有 `task` 路由族下（任务中心 = 招工列表，见 §1 #9【保留·改接】）。
 // 路由名全部由**已注册 API 路径**派生（/api/job[/<id>]、/api/task-progress/<id>），不自造新域名。
@@ -133,6 +138,12 @@ const LangShell = () => {
         {/* 领工资（Kevin 2026-10-20 需求②）：内层相对段 ⇒ 四语前缀同现有写法（/en/wage 等）。
             入口 = 右侧悬浮菜单第二位；页面自身不包 ProtectedRoute（未登录 ⇒ 页内登录提示）。 */}
         <Route path="wage" element={<WagePage />} />
+
+        {/* 活动体系（design §26.19）：`campaign` 列表 → `campaign/:ref` 两级详情。
+            段数不同 ⇒ 静态 `campaign` 与动态 `campaign/:ref` 不冲突；`ref` 原样透传给读口。
+            公开可浏览（不包 ProtectedRoute），提交动作在页内提示登录。 */}
+        <Route path="campaign" element={<CampaignListPage />} />
+        <Route path="campaign/:ref" element={<CampaignDetailPage />} />
 
         {/* 主题/骨架可交互预览件（地基单 4c-i；四语前缀下同样可达） */}
         <Route path="theme-preview" element={<ThemePreviewPage />} />

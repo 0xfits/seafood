@@ -356,11 +356,11 @@ describe('/wage ④ i18n `wage` 命名空间（四语齐备 + 计数前推）', 
       v && typeof v === 'object' && !Array.isArray(v) ? flat(v, `${p}${k}.`) : [[`${p}${k}`, v]]
     ))
     for (const lang of LANGS) {
-      expect(Object.keys(TABLES[lang]).length, `${lang} top`).toBe(132)
-      expect(flat(TABLES[lang]).length, `${lang} flat`).toBe(1169)
+      expect(Object.keys(TABLES[lang]).length, `${lang} top`).toBe(133) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
+      expect(flat(TABLES[lang]).length, `${lang} flat`).toBe(1223) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
     }
-    expect(Object.keys(TABLES.zh).length * LANGS.length).toBe(528)
-    expect(flat(TABLES.zh).length * LANGS.length).toBe(4676)
+    expect(Object.keys(TABLES.zh).length * LANGS.length).toBe(532) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
+    expect(flat(TABLES.zh).length * LANGS.length).toBe(4892) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
     // 新增命名空间恰 +1 顶层 / +29 拍平键（相对上一版 131 / 1140）
     expect(REQUIRED).toHaveLength(29)
   })
