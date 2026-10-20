@@ -105,6 +105,10 @@ const LangShell = () => {
             ★ Kevin 追加裁定（2026-10-11）：**不再注册「无 id 的 /item 列表路由」** —— 唯一列表 = 首页（HomePage 已取同一份
               feed `/api/prize/all`），`/item`（无 id）重定向首页（「一句话可改」）。 */}
         <Route path="item/new" element={<PublishItemPage />} />
+        {/* ★ 编辑页（`docs/route-layer.spec.md` §49.12.3 · design §26.13）：复用发布页表单（`mode="edit"`），
+            路由 = `item/:itemId/edit`。静态段 `item/new` 仍优先；`item/:itemId` 与 `item/:itemId/edit` 段数不同 ⇒ 不冲突。
+            语言前缀同现有写法（内层相对段，前缀由外层 LangShell 承担）。 */}
+        <Route path="item/:itemId/edit" element={<PublishItemPage mode="edit" />} />
         <Route path="item/:itemId" element={<ItemDetailPage />} />
         <Route path="item" element={<ItemDetailPage />} />
         <Route path="task/:jobId" element={<JobDetailPage />} />

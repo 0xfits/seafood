@@ -187,7 +187,10 @@
     "imageRemove": "Xóa ảnh",
     "imageUploadFail": "Tải ảnh lên thất bại, đã hủy đăng",
     "imageTooLarge": "Mỗi ảnh không được vượt quá 1MB",
-    "freeShipping": "Miễn phí vận chuyển"
+    "freeShipping": "Miễn phí vận chuyển",
+    "editTitle": "Chỉnh sửa mặt hàng",
+    "editOk": "Đã lưu thay đổi",
+    "draftStockLocked": "Không thể sửa số lượng khi còn là bản nháp — hãy đăng bán để sửa số lượng"
   },
   "market": {
     "line": "Dòng sàn giao dịch",

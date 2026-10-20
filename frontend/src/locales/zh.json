@@ -187,7 +187,10 @@
     "imageRemove": "移除图片",
     "imageUploadFail": "图片上传失败，发布已取消",
     "imageTooLarge": "单张图片不能超过 1MB",
-    "freeShipping": "包邮"
+    "freeShipping": "包邮",
+    "editTitle": "编辑闲置",
+    "editOk": "已保存修改",
+    "draftStockLocked": "草稿状态下库存不可修改，上架后即可修改"
   },
   "market": {
     "line": "交易所线",

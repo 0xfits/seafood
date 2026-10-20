@@ -249,6 +249,12 @@
   resize: vertical;
 }
 
+/* 编辑页草稿库存锁（DL60）：禁用输入的视觉态（零新 token，沿用主题前景/描边）。 */
+.sf-item-input[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* 描述框下**常驻**提示（design §26.14 / 判负 #39：不得只靠 placeholder；字号 ≥12px；零新 token）。 */
 .sf-item-hint {
   margin: 0;

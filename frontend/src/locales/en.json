@@ -187,7 +187,10 @@
     "imageRemove": "Remove image",
     "imageUploadFail": "Image upload failed, publish cancelled",
     "imageTooLarge": "Each image must be 1MB or smaller",
-    "freeShipping": "Free shipping"
+    "freeShipping": "Free shipping",
+    "editTitle": "Edit item",
+    "editOk": "Changes saved",
+    "draftStockLocked": "Stock is locked while the item is a draft — it can be changed once listed"
   },
   "market": {
     "line": "Exchange",

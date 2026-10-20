@@ -1,15 +1,17 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
 import { useAuth } from '../../auth-context'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
+import { fetchMyListings } from '../../trades-api'
 import {
   createListingPublishTracker,
   fetchCurrencies,
   listingPublishFingerprint,
   publishListing,
   setListingStatus,
+  updateListingFields,
   uploadMedia,
 } from './item-api'
 import './item.css'
@@ -165,11 +167,42 @@ const toItemType = (type, deliver, ship) => {
   return null
 }
 
-const PublishItemPage = () => {
+/**
+ * `item_type` 四值 ⇒ 级联三控件（**反推**，编辑页预填用；与 `toItemType` 互为逆）。
+ * ★ `NULL` / 闭集外 / 缺键 ⇒ 三控件**全空 = 未选**，**不猜补**（存量未分类就是未分类，猜错无痕）。
+ */
+const fromItemType = (raw) => {
+  switch (String(raw ?? '')) {
+    case 'DigitalAutoDeliver': return { type: 'digital', deliver: 'auto', ship: '' }
+    case 'DigitalManualDeliver': return { type: 'digital', deliver: 'manual', ship: '' }
+    case 'PhysicalFreeShip': return { type: 'physical', deliver: '', ship: 'free' }
+    case 'PhysicalBuyerShip': return { type: 'physical', deliver: '', ship: 'buyer' }
+    default: return { type: '', deliver: '', ship: '' }
+  }
+}
+
+/** 数值字段「是否变化」：两侧都按去空白字符串比对（预填即库内原值的字符串形 ⇒ 未改必相等）。 */
+const sameText = (a, b) => String(a ?? '').trim() === String(b ?? '').trim()
+
+const PublishItemPage = ({ mode = 'publish' }) => {
   const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
+  const { itemId } = useParams()
   const { isAuthenticated, user } = useAuth()
+  // ==========================================================================
+  // 两种模式（`docs/route-layer.spec.md` §49.12.3 · design §26.13）：
+  //   `publish`（`/item/new`）= 本组件原形态，一字未改；
+  //   `edit`（`/item/:itemId/edit`）= 同一表单**预填**自己的挂单（`GET /api/listing/mine` 取对应行），
+  //     保存走**字段模式** `PATCH /api/listing/:listingId`（`updateListingFields`，**禁与 `to_status` 混传**）。
+  // 三条编辑口径：
+  //   ① `cid` **只读**（后端字段模式不收 `cid` ⇒ 可改字段只 5 个：description/price/stock/media_urls/item_type）；
+  //   ② 草稿（`status='draft'`）**库存输入禁用**（DL60：`stock` 变更仅 `listed` 可改否则 409
+  //      `listing_stock_change_requires_listed`）＋ 提示 `item.draftStockLocked`；
+  //   ③ `item_type` **反推级联**（四值 → 一级 + 二级；`NULL` ⇒ 三控件全空 = 未选，**不猜补**）。
+  // `title` 已退役（2026-10-20）：编辑页同样**只有一个描述多行框**，标题 = 描述首行派生。
+  // ==========================================================================
+  const isEdit = mode === 'edit'
   // ★ title 退役（Kevin 2026-10-20 · route §49.13 / design §26.14）：表单**没有**标题字段，
   //   唯一正文字段 = `description`（多行，必填）；标题 = **首行派生**（服务端 `split_part` 出 `title` 键）。
   const [form, setForm] = useState({ cid: DEFAULT_CID, price: '', stock: '1', description: '' })
@@ -180,10 +213,25 @@ const PublishItemPage = () => {
   const [miss, setMiss] = useState({ type: false, deliver: false, ship: false })
   const [images, setImages] = useState([])
   const [imageNotice, setImageNotice] = useState('')
+  // 编辑模式：库内**既有图片**（`/api/media/<id>` 绝对路径），与本地新选图分开存
+  //   ⇒ 保存时 `media_urls = [...既有, ...新上传]`，与库内原值逐项比对决定是否上送。
+  const [existingMedia, setExistingMedia] = useState([])
+  // 编辑模式：本行**原始快照**（用于「只传变化字段」与 `cid`/状态派生）；发布模式恒 `null`。
+  const [source, setSource] = useState(null)
+  const [loadState, setLoadState] = useState({ phase: isEdit ? 'loading' : 'ready', message: '' })
   const [state, setState] = useState({ phase: 'idle', message: '' })
   const [currencies, setCurrencies] = useState(FALLBACK_CURRENCIES)
   const tracker = useMemo(() => createListingPublishTracker(), [])
   const fileInputRef = useRef(null)
+
+  /** 草稿 ⇒ 库存锁定（DL60）。发布模式恒 `false`。 */
+  const stockLocked = isEdit && String(source?.status ?? '') === 'draft'
+
+  /** 只读币种显示文本：`symbol · name`（与下拉同源）；列表里没有 ⇒ 原样显示 cid（已退市币种不猜补）。 */
+  const cidLabel = useMemo(() => {
+    const hit = currencies.find((row) => String(row.cid) === String(form.cid))
+    return hit ? currencyLabel(hit) : String(form.cid ?? '')
+  }, [currencies, form.cid])
 
   // 币种选项：挂载时取一次（公开读口 ⇒ 无 token 也返回）。任一路失败都**回退 $**、绝不拦提交。
   useEffect(() => {
@@ -200,6 +248,9 @@ const PublishItemPage = () => {
         }
         setCurrencies(list)
         // 默认值不在返回列表里 ⇒ 选第一项（否则 select 会停在空值、提交 `Number('')` = 0）。
+        // ★ 编辑模式**不做这项归一**：`cid` 来自库内行、且只读展示（后端字段模式不收 cid）
+        //   ⇒ 已退市币种也必须原样显示，不能被「取第一项」改写。
+        if (isEdit) return
         setForm((prev) => (
           list.some((row) => String(row.cid) === String(prev.cid))
             ? prev
@@ -213,6 +264,47 @@ const PublishItemPage = () => {
     // 刻意只跑一次（挂载时）：选项来源是公开只读面，不随登录态变化而重取。
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // 编辑模式：挂载时取自己的挂单行（`GET /api/listing/mine` 10 键）⇒ 逐字段预填。
+  //   ★ 预填五项 = `description` / `price` / `stock` / `media_urls` / `item_type` 级联；`cid` 只读展示。
+  //   ★ **不做任何「猜补」**：`item_type = NULL` ⇒ 三控件全空；`media_urls` 缺失 ⇒ 空列表。
+  //   ★ 失败 / 行不在列表里 ⇒ 表单不渲染（`loadState.phase='error'` + 服务端文案），绝不空表单可提交。
+  useEffect(() => {
+    if (!isEdit) return undefined
+    if (!isAuthenticated || !itemId) return undefined
+    let cancelled = false
+    setLoadState({ phase: 'loading', message: '' })
+    fetchMyListings(user)
+      .then((rows) => {
+        if (cancelled) return
+        const list = Array.isArray(rows) ? rows : []
+        const row = list.find((item) => String(item?.listing_id ?? item?.bID ?? '') === String(itemId))
+        if (!row) {
+          setLoadState({ phase: 'error', message: t('error') })
+          return
+        }
+        const cascade = fromItemType(row.item_type)
+        setForm({
+          cid: String(row.cid ?? ''),
+          price: String(row.price ?? ''),
+          stock: String(row.stock ?? ''),
+          description: String(row.description ?? ''),
+        })
+        setItemTypeSel(cascade.type)
+        setDeliverSel(cascade.deliver)
+        setShipSel(cascade.ship)
+        setExistingMedia(Array.isArray(row.media_urls) ? row.media_urls.map((u) => String(u)) : [])
+        setSource({ ...row, item_type: row.item_type ?? null })
+        setMiss({ type: false, deliver: false, ship: false })
+        setLoadState({ phase: 'ready', message: '' })
+      })
+      .catch((error) => {
+        if (!cancelled) setLoadState({ phase: 'error', message: String(error?.message || t('error')) })
+      })
+    return () => { cancelled = true }
+    // `user` 只以 `uID` 参与（对象每次渲染可能换引用）
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEdit, itemId, isAuthenticated, user?.uID, t])
 
   const setField = (key) => (event) => setForm((prev) => ({ ...prev, [key]: event.target.value }))
 
@@ -243,7 +335,7 @@ const PublishItemPage = () => {
     const input = event.target
     const picked = Array.from(input.files || []).filter((file) => file && String(file.type || '').startsWith('image/'))
     input.value = '' // 允许再次选择同一文件
-    const room = MAX_IMAGES - images.length
+    const room = MAX_IMAGES - images.length - existingMedia.length
     if (room <= 0 || !picked.length) return
     const accepted = picked.slice(0, room)
     const settled = await Promise.allSettled(accepted.map(compressImage))
@@ -255,8 +347,99 @@ const PublishItemPage = () => {
 
   const removeImage = (index) => setImages((prev) => prev.filter((_, i) => i !== index))
 
+  /** 编辑模式：移除一张**库内既有**图片（保存时 `media_urls` 会随之变短 ⇒ 进变化字段）。 */
+  const removeExistingImage = (index) => setExistingMedia((prev) => prev.filter((_, i) => i !== index))
+
+  /**
+   * 编辑保存（**字段模式** `PATCH /api/listing/:listingId` · route §49.12.3 / §49.13.3）：
+   *   · **只传变化字段**（未变不上送 ⇒ 不改库存、不重置翻译）；
+   *   · `title` / `cid` **永不出现**（`title` 已退役、`cid` 后端字段模式不收）；
+   *   · **草稿不上送 `stock`**（DL60）；库存输入此时也是 `disabled`；
+   *   · 图片：既有 URL 保留在前，新选图逐张上传后追加（任一张失败 ⇒ 整次取消，不提交半截）。
+   * 成功 ⇒ toast `item.editOk` + 回「我发布的」；失败 ⇒ 服务端码映射（409 草稿改库存 / 400 校验）。
+   */
+  const saveEdit = async (event) => {
+    event.preventDefault()
+    if (state.phase === 'loading' || loadState.phase !== 'ready' || !source) return
+
+    const priceText = String(form.price).trim()
+    const stockText = String(form.stock).trim()
+    const description = String(form.description)
+    // ⓪ 本地闸（**零网络调用**）：描述必填 / 价格整数 ≥1 / 库存整数 ≥0 / 分类二级「半选」拦截。
+    //   ★ 分类**未选不清空**：编辑模式允许「原本未分类 ⇒ 本次不动」，不强制补选（不猜补）；
+    //     但一级已选而二级未选 = 半成品 ⇒ 拦（后端把二级缺项映射成 `null` 会静默丢分类）。
+    const deliverMiss = itemTypeSel === 'digital' && !deliverSel
+    const shipMiss = itemTypeSel === 'physical' && !shipSel
+    if (
+      !description.trim()
+      || !/^\d+$/.test(priceText) || Number(priceText) < 1
+      || (!stockLocked && (!/^\d+$/.test(stockText) || Number(stockText) < 0))
+      || deliverMiss || shipMiss
+    ) {
+      setMiss({ type: false, deliver: deliverMiss, ship: shipMiss })
+      setState({ phase: 'error', message: t('uiError.badRequest') })
+      return
+    }
+    setMiss({ type: false, deliver: false, ship: false })
+    setState({ phase: 'loading', message: t('jobs.submitting') })
+
+    // ① 新选图逐张上传（既有图已在库内 ⇒ 不重传）；任一张失败 ⇒ 整次取消。
+    const uploaded = []
+    try {
+      for (const image of images) {
+        const result = await uploadMedia(user, { content_type: image.contentType, data_base64: image.dataBase64 })
+        const url = result?.url
+        if (typeof url !== 'string' || !url) throw new Error(String(t('error')))
+        uploaded.push(url)
+      }
+    } catch (error) {
+      setState({ phase: 'error', message: `${t('item.imageUploadFail')}: ${String(error?.message || t('error'))}` })
+      return
+    }
+
+    // ② 只传变化字段（逐字段比对库内原值）
+    const nextMedia = [...existingMedia, ...uploaded]
+    const prevMedia = Array.isArray(source.media_urls) ? source.media_urls.map((u) => String(u)) : []
+    const nextType = toItemType(itemTypeSel, deliverSel, shipSel)
+    const patch = {}
+    if (description !== String(source.description ?? '')) patch.description = description
+    if (!sameText(priceText, source.price)) patch.price = Number(priceText)
+    if (!stockLocked && !sameText(stockText, source.stock)) patch.stock = Number(stockText)
+    if (JSON.stringify(nextMedia) !== JSON.stringify(prevMedia)) patch.media_urls = nextMedia
+    if (nextType !== (source.item_type ?? null)) patch.item_type = nextType
+
+    // ③ 无变化 ⇒ 不往返（不打扰、也不产生空 patch 的 400 `NO_EDITABLE_FIELD`）
+    if (!Object.keys(patch).length) {
+      toast.success(t('item.editOk'))
+      navigate(root('/profile/trades/published'))
+      return
+    }
+
+    try {
+      const updated = await updateListingFields(itemId, patch, user)
+      // 行形状 = `/api/listing/mine` 同族（10 键）⇒ 就地刷新快照（后续再改仍按「只传变化」判断）
+      setSource((prev) => ({ ...(prev || {}), ...(updated && typeof updated === 'object' ? updated : patch) }))
+      toast.success(t('item.editOk'))
+      navigate(root('/profile/trades/published'))
+    } catch (error) {
+      const code = error?.code
+      const status = error?.status
+      let message
+      if (code === 'listing_stock_change_requires_listed') message = t('item.draftStockLocked')
+      else if (status === 400) message = t('uiError.badRequest')
+      else message = String(error?.message || t('error'))
+      setState({ phase: 'error', message })
+    }
+  }
+
   const onSubmit = async (event) => {
     event.preventDefault()
+    // ★ 编辑模式 ⇒ 走**字段模式** PATCH（`updateListingFields`，禁与 `to_status` 混传）；
+    //   发布链（`POST /api/listing` + `draft→listed`）在本分支之外，一字未改。
+    if (isEdit) {
+      await saveEdit(event)
+      return
+    }
     if (state.phase === 'loading') return
 
     // ⓪ 商品分类级联闸（一级必选 + 分支二级必选）——**先于**图片上传与任何网络调用：
@@ -361,7 +544,7 @@ const PublishItemPage = () => {
       <div className="sf-layout-main">
         <div className="sf-item">
           <div className="sf-item-head" data-sf-m="item-hero">
-            <h1 className="sf-item-title">{t('item.publish')}</h1>
+            <h1 className="sf-item-title">{isEdit ? t('item.editTitle') : t('item.publish')}</h1>
             <p className="sf-item-note">{t('item.priceRoleNote')}</p>
             <div className="sf-item-actions">
               <Link className="sf-item-link" to={root('/')}>{t('item.list')}</Link>
@@ -371,6 +554,15 @@ const PublishItemPage = () => {
             </div>
           </div>
 
+          {/* 编辑模式取数门：行未就绪（loading / 失败 / 行不在自己的挂单里）⇒ **不渲染表单**，
+              绝不让空表单被提交（空 patch 打到后端 = 400 `NO_EDITABLE_FIELD`）。 */}
+          {isEdit && loadState.phase === 'loading' ? (
+            <div className="sf-item-empty" data-sf-m="item-edit-loading">{t('jobs.submitting')}</div>
+          ) : null}
+          {isEdit && loadState.phase === 'error' ? (
+            <div className="sf-item-empty" data-sf-m="item-edit-load-error" role="alert">{loadState.message}</div>
+          ) : null}
+          {(!isEdit || loadState.phase === 'ready') && (
           <form className="sf-item-panel" onSubmit={onSubmit} data-sf-m="item-form">
             <div className="sf-item-form">
               {/* 唯一正文字段（design §26.14）：单描述多行框；**无**标题输入框（`item-input-title` DOM 0 命中）。
@@ -394,8 +586,34 @@ const PublishItemPage = () => {
               </label>
               <label className="sf-item-field">
                 <span className="sf-item-label">{t('item.stock')}</span>
-                <input className="sf-item-input" data-sf-m="item-input-stock" value={form.stock} onChange={setField('stock')} inputMode="numeric" required />
+                <input
+                  className="sf-item-input"
+                  data-sf-m="item-input-stock"
+                  value={form.stock}
+                  onChange={setField('stock')}
+                  inputMode="numeric"
+                  required
+                  disabled={stockLocked}
+                />
+                {/* ★ 草稿库存锁（DL60）：`stock` 仅 `listed` 可改 ⇒ 草稿下输入禁用 + 常驻提示。 */}
+                {stockLocked ? (
+                  <p className="sf-item-hint" data-sf-m="item-stock-locked">{t('item.draftStockLocked')}</p>
+                ) : null}
               </label>
+              {/* 币种：发布 = 下拉（可改）；编辑 = **只读展示**（后端字段模式不收 `cid` ⇒ 不可改，
+                  已退市币种也原样显示 `cid` 数字，不猜补）。 */}
+              {isEdit ? (
+                <label className="sf-item-field">
+                  <span className="sf-item-label">{t('item.cid')}</span>
+                  <input
+                    className="sf-item-input"
+                    data-sf-m="item-cid-readonly"
+                    value={cidLabel}
+                    readOnly
+                    aria-readonly="true"
+                  />
+                </label>
+              ) : (
               <label className="sf-item-field">
                 <span className="sf-item-label">{t('item.cid')}</span>
                 <select className="sf-item-input" data-sf-m="item-select-cid" value={form.cid} onChange={setField('cid')} required>
@@ -404,6 +622,7 @@ const PublishItemPage = () => {
                   ))}
                 </select>
               </label>
+              )}
               {/* 商品分类（Kevin 2026-10-20「2 + 2 两控件」）· 控件 A = 2 选 1（必选）
                   钩子：组容器 `item-select-type`（design §26.12.4 承 `item-select-cid` 体例）+
                   每个选项 `item-input-type-digital` / `item-input-type-physical`。
@@ -507,10 +726,24 @@ const PublishItemPage = () => {
                     type="button"
                     data-sf-m="item-image-add"
                     onClick={() => fileInputRef.current?.click()}
-                    disabled={images.length >= MAX_IMAGES}
+                    disabled={images.length + existingMedia.length >= MAX_IMAGES}
                   >
                     +
                   </button>
+                  {/* 编辑模式：库内**既有**图（URL 直出，不重传）；移除 ⇒ 保存时进 `media_urls` 变化字段 */}
+                  {existingMedia.map((url, index) => (
+                    <div className="sf-item-image-thumb" data-sf-m={`item-image-existing-${index}`} key={`existing:${url}`}>
+                      <img src={url} alt="" />
+                      <button
+                        className="sf-item-image-remove"
+                        type="button"
+                        data-sf-m={`item-image-existing-remove-${index}`}
+                        onClick={() => removeExistingImage(index)}
+                      >
+                        {t('item.imageRemove')}
+                      </button>
+                    </div>
+                  ))}
                   {images.map((image, index) => (
                     <div className="sf-item-image-thumb" data-sf-m={`item-image-thumb-${index}`} key={`${index}:${image.contentType}:${image.preview.length}`}>
                       <img src={image.preview} alt="" />
@@ -530,10 +763,10 @@ const PublishItemPage = () => {
                 ) : null}
               </div>
             </div>
-            <p className="sf-item-meta">{t('item.cidNote')}</p>
+            {isEdit ? null : <p className="sf-item-meta">{t('item.cidNote')}</p>}
             <div className="sf-item-row">
               <button className="sf-btn sf-item-btn" type="submit" data-sf-m="item-primary" disabled={state.phase === 'loading'}>
-                {state.phase === 'loading' ? t('jobs.submitting') : t('item.publish')}
+                {state.phase === 'loading' ? t('jobs.submitting') : (isEdit ? t('item.editOk') : t('item.publish'))}
               </button>
               <span
                 className={`sf-item-status${state.phase === 'error' ? ' sf-item-err' : ''}${state.phase === 'ok' ? ' sf-item-ok' : ''}`}
@@ -545,6 +778,7 @@ const PublishItemPage = () => {
               </span>
             </div>
           </form>
+          )}
         </div>
       </div>
 

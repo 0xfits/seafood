@@ -596,11 +596,11 @@ describe('F · i18n 6 键四语 + 计数前推（top 130 / flat 1123 / nodes 449
   it('计数：top 130 / flat 1123 / 四语节点 4492 / `item` 55（四语逐文件相等）', () => {
     for (const [lang, table] of Object.entries(TABLES)) {
       expect(Object.keys(table).length, `${lang} top`).toBe(130)
-      expect(flat(table), `${lang} flat`).toBe(1123) // [i18n-bump title-merge +1 键 item.descFirstLineHint ⇒ flat 1122⇒1123 / nodes 4488⇒4492 / item 54⇒55]
-      expect(Object.keys(table.item).length, `${lang} item`).toBe(55) // [i18n-bump title-merge +1 键 item.descFirstLineHint ⇒ flat 1122⇒1123 / nodes 4488⇒4492 / item 54⇒55]
+      expect(flat(table), `${lang} flat`).toBe(1126) // [i18n-bump title-merge +1 键 item.descFirstLineHint ⇒ flat 1122⇒1123 / nodes 4488⇒4492 / item 54⇒55] // [i18n-bump edit-page +3 键 item.editTitle/editOk/draftStockLocked ⇒ flat 1123⇒1126 / nodes 4492⇒4504 / item 55⇒58]
+      expect(Object.keys(table.item).length, `${lang} item`).toBe(58) // [i18n-bump title-merge +1 键 item.descFirstLineHint ⇒ flat 1122⇒1123 / nodes 4488⇒4492 / item 54⇒55] // [i18n-bump edit-page +3 键 item.editTitle/editOk/draftStockLocked ⇒ flat 1123⇒1126 / nodes 4492⇒4504 / item 55⇒58]
     }
     expect(Object.keys(zh).length * 4).toBe(520)
-    expect(flat(zh) * 4).toBe(4492) // [i18n-bump title-merge +1 键 item.descFirstLineHint ⇒ flat 1122⇒1123 / nodes 4488⇒4492 / item 54⇒55]
+    expect(flat(zh) * 4).toBe(4504) // [i18n-bump title-merge +1 键 item.descFirstLineHint ⇒ flat 1122⇒1123 / nodes 4488⇒4492 / item 54⇒55] // [i18n-bump edit-page +3 键 item.editTitle/editOk/draftStockLocked ⇒ flat 1123⇒1126 / nodes 4492⇒4504 / item 55⇒58]
   })
 })
 

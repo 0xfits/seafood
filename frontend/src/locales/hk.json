@@ -187,7 +187,10 @@
     "imageRemove": "移除圖片",
     "imageUploadFail": "圖片上傳失敗，發布已取消",
     "imageTooLarge": "單張圖片不能超過 1MB",
-    "freeShipping": "包郵"
+    "freeShipping": "包郵",
+    "editTitle": "編輯閒置",
+    "editOk": "已儲存修改",
+    "draftStockLocked": "草稿狀態下庫存不可修改，上架後即可修改"
   },
   "market": {
     "line": "交易所線",
