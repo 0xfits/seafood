@@ -187,6 +187,14 @@ describe('③ R-9-83 签到入口可发现性', () => {
     // 其余菜单项不受影响
     expect(menu.querySelector('[data-sf-m="header-profile"]')).not.toBeNull()
     expect(menu.querySelector('[data-sf-m="header-logout"]')).not.toBeNull()
+    // 手机汉堡面板同项亦已删（2026-10-20）⇒ 两侧均无 batt-checkin 入口
+    act(() => { fireEvent.click(document.querySelector('[data-sf-m="header-mobile-menu"]')) })
+    const mPanel = document.querySelector('[data-sf-m="header-user-menu-mobile"]')
+    expect(mPanel).not.toBeNull()
+    expect(mPanel.querySelector('[data-sf-m="header-batt-checkin-mobile"]')).toBeNull()
+    expect(document.querySelectorAll('[data-sf-m^="header-batt-checkin"]').length).toBe(0)
+    expect(mPanel.textContent).not.toContain(zh.checkinPanel.checkinButton)
+    expect(mPanel.textContent).not.toContain(zh.battCard.title)
     vi.useRealTimers()
   })
 

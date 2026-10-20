@@ -8,11 +8,12 @@
  * 断言：
  *   ① 右上角恰一个控件（`data-sf-m` 钩子计数 = 1，桌面场景；R-9-84 两个旧入口均为 0）
  *   ② 按钮文案 = 地址缩写形态（`0x` + 4 位 + `...` + 4 位，既有派生）；含 `User` + `ChevronDown`
- *   ③ 下拉含：我的（四语前缀 href 各一例）· 电量与签到（`…/wage#batt-checkin`）·
- *      退出登录 · 积分块；且**不含**「管理后台」（反向断言，R-9-84 结论保持）
+ *   ③ 下拉含：我的（四语前缀 href 各一例）· 退出登录 · 余额区；且**不含**「管理后台」、
+ *      **不含**「签到 · 电量」（2026-10-20 桌面/移动两侧入口均已删，签到/电量只在 `/wage` 页内）
  *   ④ 未登录 ⇒ 桌面 + 移动两处均不渲染
  *   ⑤ 左侧 nav 仍**不含**「我的」（R-9-84 结论保持）
- *   ⑥ 移动端：唯一入口 = 汉堡；点开面板 ⇒ 面板内含与桌面同款各项
+ *   ⑥ 移动端：唯一入口 = 汉堡；面板内 = 我的 / 退出登录，**无** batt-checkin 项（负断言）
+ *   ⑦ 移动面板无 batt-checkin：四语各一例（钩子 0 + 文案 0）
  */
 import React from 'react'
 import { render, cleanup, fireEvent, act } from '@testing-library/react'
@@ -216,22 +217,42 @@ describe('R-9-85 右上角合并为唯一菜单按钮（文案 = 钱包地址缩
     expect(labels).toEqual([zh.task, zh.shard])
   })
 
-  it('⑥ 移动端：唯一入口 = 汉堡；面板内 = 与桌面同款各项（我的 / 电量与签到 / 退出登录）', () => {
+  it('⑥ 移动端：唯一入口 = 汉堡；面板内 = 我的 / 退出登录，**无**「签到 · 电量」', () => {
     renderAt('/')
     // md:hidden 块内只有汉堡一个入口（旧独立 Link 已删）
     expect(document.querySelector(MOBILE_MENU)).not.toBeNull()
     expect(document.querySelector(OLD_MOBILE)).toBeNull()
     act(() => { fireEvent.click(document.querySelector(MOBILE_MENU)) })
     const profile = document.querySelector(MOBILE_PROFILE)
-    const batt = document.querySelector(MOBILE_BATT)
     const logout = document.querySelector(MOBILE_LOGOUT)
     expect(profile).not.toBeNull()
     expect(profile.getAttribute('href')).toBe('/profile')
     expect(profile.textContent).toContain(zh.profile)
-    expect(batt).not.toBeNull()
-    expect(batt.getAttribute('href')).toBe('/wage#batt-checkin')
-    expect(batt.textContent).toContain(zh.checkinPanel.checkinButton)
     expect(logout).not.toBeNull()
     expect(logout.textContent).toContain(zh.logout)
+    // ★ 反向断言（2026-10-20 · Kevin）：手机面板不再有「签到 · 电量」入口
+    expect(document.querySelector(MOBILE_BATT)).toBeNull()
+    expect(document.querySelector('[data-sf-m^="header-batt-checkin"]')).toBeNull()
+    const panel = document.querySelector(MOBILE_USER)
+    expect(panel).not.toBeNull()
+    expect(panel.textContent).not.toContain(zh.checkinPanel.checkinButton)
+    expect(panel.textContent).not.toContain(zh.battCard.title)
+  })
+
+  it('⑦ 移动面板**无** batt-checkin：四语各一例（钩子 0 + 该语文案 0）', () => {
+    const cases = [['/', zh], ['/en', en], ['/hk', hk], ['/vn', vn]]
+    for (const [entry, dict] of cases) {
+      cleanup()
+      H.lang = entry === '/' ? 'zh' : entry.slice(1)
+      renderAt(entry)
+      act(() => { fireEvent.click(document.querySelector(MOBILE_MENU)) })
+      const panel = document.querySelector(MOBILE_USER)
+      expect(panel, `entry=${entry}`).not.toBeNull()
+      expect(panel.querySelector(MOBILE_BATT), `entry=${entry}`).toBeNull()
+      expect(document.querySelectorAll('[data-sf-m^="header-batt-checkin"]').length, `entry=${entry}`).toBe(0)
+      expect(panel.textContent, `entry=${entry}`).not.toContain(dict.checkinPanel.checkinButton)
+      expect(panel.textContent, `entry=${entry}`).not.toContain(dict.battCard.title)
+    }
+    H.lang = 'zh'
   })
 })

@@ -3,6 +3,7 @@
  *
  * 口径（逐条对齐派单验证项）：
  *   ① 两币种 ⇒ 两行（`$` / `€`），无「积分」字样（四语）；桌面下拉无 `header-batt-checkin`；
+ *      390 手机面板亦无 `header-batt-checkin-mobile`（2026-10-20 桌面/移动两侧入口均删）；
  *   ② 单币种 ⇒ 恰一行；
  *   ③ `/api/user/balances` 失败 ⇒ 降级既有 `/api/user/asset/:uID` 的 `$` 单行且页面不白屏；
  *   ④ 390 / 1536 两档：`scrollWidth - clientWidth = 0` + 零 pageerror。
@@ -185,6 +186,35 @@ const openMenuSnap = async (page) => {
   return snap
 }
 
+/**
+ * 390 手机档：点汉堡 ⇒ 手机面板内既无 `header-batt-checkin-mobile` 钩子也无该文案
+ * （2026-10-20 · Kevin：顶部菜单「签到 · 电量」桌面/移动两侧入口均删，只留 `/wage` 页内）
+ */
+async function openMobilePanelSnap(page) {
+  await page.goto(ORIGIN + '/', { waitUntil: 'load' })
+  await settle(page)
+  await page.waitForSelector('[data-sf-m="header-mobile-menu"]', { timeout: 8000 }).catch(() => {})
+  await settle(page)
+  await page.locator('[data-sf-m="header-mobile-menu"]').first().click({ timeout: 5000 }).catch(() => {})
+  await page.waitForSelector('[data-sf-m="header-user-menu-mobile"]', { timeout: 5000 }).catch(() => {})
+  await settle(page)
+  return page.evaluate(`(() => {
+    const q = (s) => document.querySelector(s)
+    const qa = (s) => [...document.querySelectorAll(s)]
+    const txt = (el) => (el ? el.textContent.replace(/\\s+/g, ' ').trim() : null)
+    const panel = q('[data-sf-m="header-user-menu-mobile"]')
+    return {
+      panelPresent: !!panel,
+      battAnyCount: qa('[data-sf-m^="header-batt-checkin"]').length,
+      battDesktopCount: qa('[data-sf-m="header-batt-checkin"]').length,
+      battMobileCount: qa('[data-sf-m="header-batt-checkin-mobile"]').length,
+      panelText: txt(panel),
+      profileInPanel: qa('[data-sf-m="header-profile-mobile"]').length,
+      logoutInPanel: qa('[data-sf-m="header-logout-mobile"]').length,
+    }
+  })()`)
+}
+
 async function main() {
   const browser = await chromium.launch({ executablePath: CHROME, headless: true })
   const out = {
@@ -279,6 +309,34 @@ async function main() {
     notBlank: small.rootLen > 0,
   }
 
+  // ===== ④b 390 手机面板：点汉堡 ⇒ 无 `header-batt-checkin-mobile`（负断言，四语文案亦 0） =====
+  const mobilePanel = await (async () => {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce', deviceScaleFactor: 1 })
+    seedAuth(ctx)
+    await attachRoutes(ctx)
+    const page = await ctx.newPage()
+    const errs = []
+    page.on('pageerror', (e) => errs.push(String(e && e.message)))
+    STATE.arm = 'two'
+    STATE.calls.length = 0
+    const snap = await openMobilePanelSnap(page)
+    snap.pageErrors = errs
+    out.pageErrors.push(...errs.map((e) => `mobile-panel@390: ${e}`))
+    await ctx.close()
+    return snap
+  })()
+  out.states['390_panel'] = mobilePanel
+  const panelText = String(mobilePanel.panelText || '')
+  out.assertions.mobilePanel = {
+    panelPresent: mobilePanel.panelPresent,
+    noBattHook: mobilePanel.battAnyCount === 0,
+    noBattDesktop: mobilePanel.battDesktopCount === 0,
+    noBattMobile: mobilePanel.battMobileCount === 0,
+    noBattWords: [ZH, HK, EN, VN].every((d) => !panelText.includes(d.checkinPanel.checkinButton) && !panelText.includes(d.battCard.title)),
+    otherItemsIntact: mobilePanel.profileInPanel === 1 && mobilePanel.logoutInPanel === 1,
+    zeroPageError: mobilePanel.pageErrors.length === 0,
+  }
+
   // ===== ④ 1536 零溢出（两臂取桌面两币种那条） =====
   // ★ 2026-10-20 口径修正：展开态 110px 溢出经父版对照（git show HEAD:Header.jsx 重建同测）
   //   同值 ⇒ HoverMenu 容器既有定位缺陷（left-0 锚在右缘触发器下），非本批引入。
@@ -299,8 +357,8 @@ async function main() {
     hasBalancesEndpoint: bundle.includes('/api/user/balances'),
     hasRowHook: bundle.includes('header-balance-row'),
     hasBalancesHook: bundle.includes('header-balances'),
-    // 反向：桌面下拉的旧钩子必须已从产物里消失（`-mobile` 那条仍在，故用带引号的精确形态判）
-    oldBattHookAbsent: !/"header-batt-checkin"/.test(bundle),
+    // 反向：旧钩子必须已从产物里消失 —— **桌面与移动两条都不得残留**（2026-10-20 两侧同删）
+    oldBattHookAbsent: !/header-batt-checkin/.test(bundle),
   }
 
   const flat = []

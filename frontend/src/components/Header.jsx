@@ -325,7 +325,8 @@ const Header = () => {
                   {t('profile')}
                 </Link>
                 {/* 2026-10-20 · Kevin：桌面下拉的「签到 · 电量」直达项已删（签到/电量并入 `/wage` 页内，
-                    下拉里不再需要；手机汉堡面板的 `header-batt-checkin-mobile` 原样保留）。 */}
+                    下拉里不再需要）；手机汉堡面板的同项亦于同日删掉 ⇒ 两侧均无 batt-checkin 入口，
+                    统一从 `/wage` 页内进。 */}
                 <button
                   onClick={handleLogout}
                   data-sf-m="header-logout"
@@ -508,14 +509,6 @@ const Header = () => {
               >
                 <User size={18} className="mr-2" />
                 {t('profile')}
-              </Link>
-              <Link
-                to={`${buildPath('wage')}#batt-checkin`}
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center w-full px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700"
-                data-sf-m="header-batt-checkin-mobile"
-              >
-                {t('checkinPanel.checkinButton')} · {t('battCard.title')}
               </Link>
               <button
                 onClick={() => {
