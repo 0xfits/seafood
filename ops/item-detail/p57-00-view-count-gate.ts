@@ -7,7 +7,7 @@
  * 读数：`ops/item-detail/readings/p57-view-count-gate-<RUN>.json`
  *
  * ★ 覆盖面（Kevin 2026-10-20 详情页改版 · 后端件：浏览计数 + item_condition 成色 + wants）：
- *   A · 静态面：零新路由（regs=110）· 详情读口换「自增+读」专用口 · feed SQL 不选两列 ·
+ *   A · 静态面：本单零新路由（regs=110 → 111 由 0059 admin-edit 单前推）· 详情读口换「自增+读」专用口 · feed SQL 不选两列 ·
  *       归一器两处条件透出 · 迁移文件形状（头段无 BEGIN/COMMIT / 两列 / 零索引 / 闭集逐字）· 写口接线；
  *   B · 迁移干跑（真库 · `inRollbackTx` ⇒ ROLLBACK ⇒ **零 apply / 零残留**）：
  *       0057 头段（两列 ADD COLUMN）+ 尾部 DO 自检在真库跑通（pre-apply 模式）；
@@ -92,7 +92,7 @@ const FIXTURE_KEY_PREFIX = 'cli:p57-gate:';
   // ====================================================================== A · 静态面（零 DB）
   const regs = (INDEX_TS.match(/^app\.(get|post|put|delete|patch)\(/gm) ?? []).length;
   ck.t('A1', '**零新路由**：注册点仍 = 110（本单只改既有读口/写口，无第 111 个注册点）',
-    regs === 110, `registration_points=${regs}`);
+    regs === 111, `registration_points=${regs}`);
 
   const detailBlock = sliceBetween(INDEX_TS, "app.get('/api/prize/:bID'", "app.get('/api/user'");
   ck.t('A2', '详情读口已换「自增+读」专用口：`getPrizeDetailRecordingView` 在场、`getPrizeById` 不再被详情路由调用（裸读只留内部回执用）',

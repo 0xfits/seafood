@@ -7,7 +7,7 @@
  * 读数：`ops/item-detail/readings/p58-view-dedup-gate-<RUN>.json`
  *
  * ★ 覆盖面（Kevin 2026-10-20「后台开关」：可选去重/不去重 · **代码默认 = on（去重）· 当前配置 = off**）：
- *   A · 静态面：零新路由（regs=110）· 路由 off/on 两臂接线（off 臂仍字面调既有专用口）·
+ *   A · 静态面：本单零新路由（regs=110 → 111 由 0059 admin-edit 单前推）· 路由 off/on 两臂接线（off 臂仍字面调既有专用口）·
  *       服务层四新口（开关读 / 日志落行 ON CONFLICT / 只读臂 / on 分支编排）·
  *       自增语句全仓仍恰 1 处（单一真源不破）· 白名单 9→10 键 · 迁移文件形状（表/具名唯一约束/
  *       索引/零 FK/开关行 `{"dedup":"off"}`/ON CONFLICT (key) DO NOTHING/头段无 BEGIN/COMMIT）；
@@ -82,8 +82,8 @@ const FIXTURE_KEY_PREFIX = 'cli:p58-gate:';
 
   // ====================================================================== A · 静态面（零 DB）
   const regs = (INDEX_TS.match(/^app\.(get|post|put|delete|patch)\(/gm) ?? []).length;
-  ck.t('A1', '**零新路由**：注册点仍 = 110（本单只改详情读口内部分支，无第 111 个注册点）',
-    regs === 110, `registration_points=${regs}`);
+  ck.t('A1', '**零新路由**：注册点 = 111（本单**零新路由**；111 = 0059 admin-edit 的 `GET /api/listing/:listingId/edit`，本单只改详情读口内部分支）',
+    regs === 111, `registration_points=${regs}`);
 
   const detailBlock = sliceBetween(INDEX_TS, "app.get('/api/prize/:bID'", "app.get('/api/user'");
   ck.t('A2', '路由两臂接线：开关读 `isDetailViewDedupEnabled` 在场 · **off 臂仍字面调** `getPrizeDetailRecordingView(bID)`（P57 专用口不挪窝）· on 臂走 `getPrizeDetailViewWithViewer` · `getPrizeById(` 不在详情路由（裸读不回流）· 仅 on 时解析访客（off 零 cookie/头读取）',

@@ -1,0 +1,563 @@
+{
+  "run": "20261020T051128Zfmmg",
+  "name": "p59b-admin-edit-gate",
+  "at": "2026-10-20T05:11:38.531Z",
+  "script": "ops/admin-edit/p59b-00-admin-edit-gate.ts",
+  "migration": {
+    "file": "backend-ts/migrations/0059_listing_edit_log.sql",
+    "head_stmts": 6
+  },
+  "sql": {
+    "bytes": 4034,
+    "param_order": [
+      "listing_id",
+      "actor_uid",
+      "description",
+      "price",
+      "stock",
+      "media_urls",
+      "item_type",
+      "item_type_set",
+      "item_condition",
+      "item_condition_set",
+      "admin_edit"
+    ]
+  },
+  "preflight": {
+    "migration_chain_top": "0059",
+    "max_applied": "0058",
+    "pending": [
+      "0059"
+    ],
+    "edit_log_exists": false,
+    "listing_counts": {
+      "total": "26",
+      "draft": "15",
+      "listed": "9",
+      "delisted": "2"
+    }
+  },
+  "live": {
+    "result": {
+      "edit_log_pre_existing": false,
+      "edit_log_columns": [
+        {
+          "column_name": "log_id",
+          "data_type": "bigint",
+          "is_nullable": "NO"
+        },
+        {
+          "column_name": "listing_id",
+          "data_type": "bigint",
+          "is_nullable": "NO"
+        },
+        {
+          "column_name": "actor_uid",
+          "data_type": "bigint",
+          "is_nullable": "NO"
+        },
+        {
+          "column_name": "owner_uid",
+          "data_type": "bigint",
+          "is_nullable": "NO"
+        },
+        {
+          "column_name": "admin_edit",
+          "data_type": "boolean",
+          "is_nullable": "NO"
+        },
+        {
+          "column_name": "changed_fields",
+          "data_type": "ARRAY",
+          "is_nullable": "NO"
+        },
+        {
+          "column_name": "time_created",
+          "data_type": "timestamp with time zone",
+          "is_nullable": "NO"
+        }
+      ],
+      "edit_log_checks": [
+        "listing_edit_log_fields_ck",
+        "listing_edit_log_fields_no_null_ck"
+      ],
+      "edit_log_trigger": {
+        "n": 1,
+        "covers": 1,
+        "enabled": "O"
+      },
+      "fixtures": {
+        "draft": {
+          "listing_id": "1",
+          "seller_uid": "970101",
+          "price": "137",
+          "stock": 5,
+          "description": "p4b2c:listing A\np4b2c desc",
+          "media_urls": [],
+          "item_type": null,
+          "item_condition": null
+        },
+        "listed": {
+          "listing_id": "13",
+          "seller_uid": "7",
+          "price": "100",
+          "stock": 0
+        },
+        "delisted": {
+          "listing_id": "7",
+          "seller_uid": "970101"
+        }
+      },
+      "C1": {
+        "ok": true,
+        "price": "148",
+        "logs": 0
+      },
+      "C2": {
+        "ok": true,
+        "db": {
+          "price": "171",
+          "description": "P59 管理员代编描述 20261020T051128Zfmmg",
+          "item_type": "PhysicalFreeShip",
+          "item_condition": "LikeNew"
+        },
+        "logs": [
+          {
+            "listing_id": "1",
+            "actor_uid": "990059",
+            "owner_uid": "970101",
+            "admin_edit": true,
+            "changed_fields": [
+              "description",
+              "price",
+              "item_type",
+              "item_condition"
+            ],
+            "time_created": "2026-10-20T05:11:28.869Z"
+          }
+        ]
+      },
+      "C2b": {
+        "ok": true,
+        "logs": 2,
+        "last_changed": []
+      },
+      "C3": {
+        "res": "403/AUTH_FORBIDDEN/ACTOR_NOT_ALLOWED",
+        "logs": 2,
+        "price": "171"
+      },
+      "C4": {
+        "zero_price": "400/LEDGER_AMOUNT_NOT_POSITIVE/",
+        "digital_condition": "400/LEDGER_AMOUNT_INVALID/ITEM_CONDITION_NOT_APPLICABLE",
+        "logs": 2,
+        "price": "171",
+        "type": "PhysicalFreeShip"
+      },
+      "C5": {
+        "ok": true,
+        "logs": 2
+      },
+      "C6": {
+        "res": "409/LEDGER_CURRENCY_INVALID_TRANSITION/LISTING_STATE_INVALID",
+        "logs": 0,
+        "id": "7"
+      },
+      "D": {
+        "owner": [
+          "cid",
+          "condition",
+          "description",
+          "item_type",
+          "listing_id",
+          "media_urls",
+          "price",
+          "status",
+          "stock",
+          "time_created",
+          "title"
+        ],
+        "admin": [
+          "cid",
+          "condition",
+          "description",
+          "item_type",
+          "listing_id",
+          "media_urls",
+          "price",
+          "status",
+          "stock",
+          "time_created",
+          "title"
+        ],
+        "stranger": "403/AUTH_FORBIDDEN/ACTOR_NOT_ALLOWED",
+        "missing": "404/LEDGER_REF_NOT_FOUND/",
+        "mine": [
+          "cid",
+          "condition",
+          "description",
+          "item_type",
+          "listing_id",
+          "media_urls",
+          "price",
+          "status",
+          "stock",
+          "time_created",
+          "title"
+        ]
+      },
+      "D4": {
+        "view_count_before": "2",
+        "view_count_after": "2",
+        "logs_before": 2,
+        "logs_after": 2
+      },
+      "N1": {
+        "real": "updated",
+        "flag_removed": "not_owner",
+        "owner_uid": 7
+      },
+      "N2": {
+        "outcome": "updated",
+        "logs_before": 1,
+        "logs_after": 1
+      },
+      "N3": {
+        "admin_flag_mutation": true,
+        "audit_mutation": true,
+        "audit_uses_seller_check": true
+      }
+    },
+    "rolled_back": true,
+    "error": null,
+    "ms": 9267
+  },
+  "unit": [
+    {
+      "id": "B1",
+      "what": "准入真源 `isListingEditAdminAccess({\"can_access_admin\":true,\"is_admin\":true,\"permissions\":[]})` ⇒ true（is_admin（permissions 空也放行））",
+      "pass": true,
+      "reading": "true"
+    },
+    {
+      "id": "B2",
+      "what": "准入真源 `isListingEditAdminAccess({\"can_access_admin\":true,\"is_admin\":false,\"permissions\":[\"manage_rewards\"]})` ⇒ true（can_access_admin ∧ manage_rewards）",
+      "pass": true,
+      "reading": "true"
+    },
+    {
+      "id": "B3",
+      "what": "准入真源 `isListingEditAdminAccess({\"can_access_admin\":true,\"is_admin\":false,\"permissions\":[\"manage_points\",\"manage_rewards\"]})` ⇒ true（权限位含 manage_rewards（多权限））",
+      "pass": true,
+      "reading": "true"
+    },
+    {
+      "id": "B4",
+      "what": "准入真源 `isListingEditAdminAccess({\"can_access_admin\":true,\"is_admin\":false,\"permissions\":[\"manage_points\"]})` ⇒ false（能进后台但**无** manage_rewards）",
+      "pass": true,
+      "reading": "false"
+    },
+    {
+      "id": "B5",
+      "what": "准入真源 `isListingEditAdminAccess({\"can_access_admin\":true,\"is_admin\":false,\"permissions\":[]})` ⇒ false（仅角色行（无权限位））",
+      "pass": true,
+      "reading": "false"
+    },
+    {
+      "id": "B6",
+      "what": "准入真源 `isListingEditAdminAccess({\"can_access_admin\":false,\"is_admin\":true,\"permissions\":[\"manage_rewards\"]})` ⇒ false（★ can_access_admin=false ⇒ 一律否（前缀闸））",
+      "pass": true,
+      "reading": "false"
+    },
+    {
+      "id": "B7",
+      "what": "准入真源 `isListingEditAdminAccess({\"can_access_admin\":false,\"is_admin\":false,\"permissions\":[]})` ⇒ false（普通用户）",
+      "pass": true,
+      "reading": "false"
+    },
+    {
+      "id": "B8",
+      "what": "准入真源 `isListingEditAdminAccess(null)` ⇒ false（省略/ null ⇒ 0058 行为（仅本人））",
+      "pass": true,
+      "reading": "false"
+    },
+    {
+      "id": "B9",
+      "what": "服务层透传：`adminAccess` 原样进 `updateListingDetailsRow`（路由层注入 ⇒ 客户端不可声明）；省略时 = `null`",
+      "pass": true,
+      "reading": "{\"with\":null,\"ok\":true}"
+    },
+    {
+      "id": "B10",
+      "what": "读口：本人 200 · 管理员（manage_rewards）200 **同形状 11 键** · 普通用户 403 `ACTOR_NOT_ALLOWED`（与写口同形）",
+      "pass": true,
+      "reading": "{\"keys\":11,\"admin_keys\":11,\"stranger\":\"403/AUTH_FORBIDDEN/ACTOR_NOT_ALLOWED\"}"
+    },
+    {
+      "id": "B11",
+      "what": "读口**先 404 后 403**：行不存在时普通用户 / 本人**都**得 404（不拿 403/404 差异枚举 listing_id 存在性）",
+      "pass": true,
+      "reading": "{\"stranger\":\"404/LEDGER_REF_NOT_FOUND/\",\"owner\":\"404/LEDGER_REF_NOT_FOUND/\"}"
+    }
+  ],
+  "checks": [
+    {
+      "id": "A1",
+      "what": "**注册点 110 → 111**：新增恰好 1 个 `GET /api/listing/:listingId/edit`（编辑页统一预填读口）",
+      "pass": true,
+      "reading": "registration_points=111"
+    },
+    {
+      "id": "A2",
+      "what": "新读口**恰 1 个注册点**且接线正确：`requireActor` → `getListingEditView({ listingId, actorUid, adminAccess: actor.adminAccess })` → `sendVerbError` / `sendSuccess`（授权真源在服务层，路由层不复制闸）",
+      "pass": true,
+      "reading": "route_bytes=1400"
+    },
+    {
+      "id": "A3",
+      "what": "写口路由：`PATCH /api/listing/:listingId` 字段支注入 `adminAccess: actor.adminAccess`（**body 的任何 admin 声明都不读**；状态支原样不动）",
+      "pass": true,
+      "reading": "patch_bytes=5200"
+    },
+    {
+      "id": "A4",
+      "what": "迁移面：`0059_listing_edit_log.sql` 在场且为**最大版本**（文件即版本号；本门**不 apply**）",
+      "pass": true,
+      "reading": "max=0059 count=58"
+    },
+    {
+      "id": "A5",
+      "what": "迁移 0059 形状（静态）：`public.listing_edit_log` 七列齐 · `log_id bigserial PK` · `changed_fields text[] NOT NULL` · 索引 `(listing_id)` · **两条 CHECK**（闭集 `<@` 六字段 + `array_position(…, NULL) IS NULL`）· **append-only 触发器**（`BEFORE UPDATE OR DELETE` 无条件 RAISE，原生 P0001）· **零 FK**（无 `REFERENCES`）· 尾部 `DO $$` 自检 ≥ 11 面",
+      "pass": true,
+      "reading": "{\"bytes\":11652,\"exceptions\":18,\"checks\":[\"listing_edit_log_fields_ck\",\"listing_edit_log_fields_no_null_ck\"],\"refs\":false}"
+    },
+    {
+      "id": "A6",
+      "what": "唯一真源 SQL（`UPDATE_LISTING_DETAILS_SQL`）：归属闸加 `$11::boolean` 放行位 · 同语句 `ins` CTE 插 `listing_edit_log` · 台账只在 `$11 ∧ seller_uid <> $2` 时落行 · `changed_fields` 由逐列 `IS DISTINCT FROM` 计算",
+      "pass": true,
+      "reading": "{\"sql_bytes\":4034,\"placeholders\":[\"$1\",\"$10\",\"$11\",\"$2\",\"$3\",\"$4\",\"$5\",\"$6\",\"$7\",\"$8\",\"$9\"]}"
+    },
+    {
+      "id": "A7",
+      "what": "管理员**不放宽**既有校验闸：可编辑态 / 库存需 listed / 成色适用性三条闸文本与措辞未动（管理员绕不过状态机与 DL60）",
+      "pass": true,
+      "reading": "guards=3"
+    },
+    {
+      "id": "A8",
+      "what": "审计台入册：`AUDIT_TABLES.listing_edit_log` = actor `actor_uid` / target `listing_id` / action `changed_fields`（**数组列** `actionArray=true`）/ timeColumn `time_created` / refId `listing_id` / pk `log_id`；白名单 14 → 15 且新面在表尾",
+      "pass": true,
+      "reading": "{\"faces\":15,\"last\":\"listing_edit_log\",\"map\":{\"actor\":[\"actor_uid\"],\"target\":[\"listing_id\"],\"action\":[\"changed_fields\"],\"timeColumn\":\"time_created\",\"refId\":[\"listing_id\"],\"pk\":\"log_id\",\"actionArray\":true}}"
+    },
+    {
+      "id": "A9",
+      "what": "服务层接线：`updateListingDetails` 透传 `adminAccess`（省略 = null ⇒ 0058 行为）· `getListingEditView` 导出且**先 404 后 403** · 读口不下发 `seller_uid`",
+      "pass": true,
+      "reading": "svc_bytes=36998"
+    },
+    {
+      "id": "A10",
+      "what": "`/api/user` **纯加性** admin 子对象：三键 `can_access_admin / is_admin / permissions` 且**只**这三键（无 `preferred_admin_path` 等）；两处调用点都注入 token 侧 `adminAccess`",
+      "pass": true,
+      "reading": "{\"keys\":[\"can_access_admin:\",\"is_admin:\",\"permissions:\"],\"calls_with_admin\":2}"
+    },
+    {
+      "id": "A11",
+      "what": "**零新错误码**：新读口只借既有码（AUTH_FORBIDDEN），33 码闭集不动；台账入册零新码",
+      "pass": true,
+      "reading": "codes=[\"AUTH_FORBIDDEN\"] close_set=33"
+    },
+    {
+      "id": "B1",
+      "what": "准入真源 `isListingEditAdminAccess({\"can_access_admin\":true,\"is_admin\":true,\"permissions\":[]})` ⇒ true（is_admin（permissions 空也放行））",
+      "pass": true,
+      "reading": "true"
+    },
+    {
+      "id": "B2",
+      "what": "准入真源 `isListingEditAdminAccess({\"can_access_admin\":true,\"is_admin\":false,\"permissions\":[\"manage_rewards\"]})` ⇒ true（can_access_admin ∧ manage_rewards）",
+      "pass": true,
+      "reading": "true"
+    },
+    {
+      "id": "B3",
+      "what": "准入真源 `isListingEditAdminAccess({\"can_access_admin\":true,\"is_admin\":false,\"permissions\":[\"manage_points\",\"manage_rewards\"]})` ⇒ true（权限位含 manage_rewards（多权限））",
+      "pass": true,
+      "reading": "true"
+    },
+    {
+      "id": "B4",
+      "what": "准入真源 `isListingEditAdminAccess({\"can_access_admin\":true,\"is_admin\":false,\"permissions\":[\"manage_points\"]})` ⇒ false（能进后台但**无** manage_rewards）",
+      "pass": true,
+      "reading": "false"
+    },
+    {
+      "id": "B5",
+      "what": "准入真源 `isListingEditAdminAccess({\"can_access_admin\":true,\"is_admin\":false,\"permissions\":[]})` ⇒ false（仅角色行（无权限位））",
+      "pass": true,
+      "reading": "false"
+    },
+    {
+      "id": "B6",
+      "what": "准入真源 `isListingEditAdminAccess({\"can_access_admin\":false,\"is_admin\":true,\"permissions\":[\"manage_rewards\"]})` ⇒ false（★ can_access_admin=false ⇒ 一律否（前缀闸））",
+      "pass": true,
+      "reading": "false"
+    },
+    {
+      "id": "B7",
+      "what": "准入真源 `isListingEditAdminAccess({\"can_access_admin\":false,\"is_admin\":false,\"permissions\":[]})` ⇒ false（普通用户）",
+      "pass": true,
+      "reading": "false"
+    },
+    {
+      "id": "B8",
+      "what": "准入真源 `isListingEditAdminAccess(null)` ⇒ false（省略/ null ⇒ 0058 行为（仅本人））",
+      "pass": true,
+      "reading": "false"
+    },
+    {
+      "id": "B9",
+      "what": "服务层透传：`adminAccess` 原样进 `updateListingDetailsRow`（路由层注入 ⇒ 客户端不可声明）；省略时 = `null`",
+      "pass": true,
+      "reading": "{\"with\":null,\"ok\":true}"
+    },
+    {
+      "id": "B10",
+      "what": "读口：本人 200 · 管理员（manage_rewards）200 **同形状 11 键** · 普通用户 403 `ACTOR_NOT_ALLOWED`（与写口同形）",
+      "pass": true,
+      "reading": "{\"keys\":11,\"admin_keys\":11,\"stranger\":\"403/AUTH_FORBIDDEN/ACTOR_NOT_ALLOWED\"}"
+    },
+    {
+      "id": "B11",
+      "what": "读口**先 404 后 403**：行不存在时普通用户 / 本人**都**得 404（不拿 403/404 差异枚举 listing_id 存在性）",
+      "pass": true,
+      "reading": "{\"stranger\":\"404/LEDGER_REF_NOT_FOUND/\",\"owner\":\"404/LEDGER_REF_NOT_FOUND/\"}"
+    },
+    {
+      "id": "B12",
+      "what": "桩已回收（`updateListingDetailsRow` / `getListingEditRow` 逐字还原）",
+      "pass": true,
+      "reading": "restored"
+    },
+    {
+      "id": "C0",
+      "what": "台账表就位（**事务内按 0059 头 DDL 临时建表**，ROLLBACK 零残留）：7 列 / 零 FK / `(listing_id)` 索引",
+      "pass": true,
+      "reading": "{\"pre_existing\":false,\"cols\":7,\"fk\":0,\"idx\":1}"
+    },
+    {
+      "id": "C0b",
+      "what": "台账表**不受篡改**（真库面）：两条 CHECK 在场（listing_edit_log_fields_ck / listing_edit_log_fields_no_null_ck）· append-only 触发器恰 1 个且 tgenabled='O'、覆盖 BEFORE UPDATE OR DELETE",
+      "pass": true,
+      "reading": "{\"checks\":[\"listing_edit_log_fields_ck\",\"listing_edit_log_fields_no_null_ck\"],\"trigger\":{\"n\":1,\"covers\":1,\"enabled\":\"O\"}}"
+    },
+    {
+      "id": "C1",
+      "what": "① 本人编辑 ⇒ 200、库内 price 137 → 148、**台账 0 行**(`$11=false` 分支不触台账 ⇒ 与 0058 逐字同行为）",
+      "pass": true,
+      "reading": "{\"ok\":true,\"price\":\"148\",\"logs\":0}"
+    },
+    {
+      "id": "C2",
+      "what": "② 管理员（manage_rewards，非 is_admin）编**他人**商品 ⇒ 200、库内四字段全变、台账**恰 1 行**（actor_uid=990059 · owner_uid=970101 · admin_edit=true · changed_fields 逐项 = [\"description\",\"price\",\"item_type\",\"item_condition\"]）",
+      "pass": true,
+      "reading": "{\"ok\":true,\"db\":{\"price\":\"171\",\"description\":\"P59 管理员代编描述 20261020T051128Zfmmg\",\"item_type\":\"PhysicalFreeShip\",\"item_condition\":\"LikeNew\"},\"logs\":[{\"listing_id\":\"1\",\"actor_uid\":\"990059\",\"owner_uid\":\"970101\",\"admin_edit\":true,\"changed_fields\":[\"description\",\"price\",\"item_type\",\"item_condition\"],\"time_created\":\"2026-10-20T05:11:28.869Z\"}]}"
+    },
+    {
+      "id": "C2b",
+      "what": "②′ 管理员**同值重投** ⇒ 200、台账再加 1 行（共 2 行）但该行 `changed_fields = []`（台账记「实际变化」而非「提交字段」）",
+      "pass": true,
+      "reading": "{\"ok\":true,\"logs\":2,\"last_changed\":[]}"
+    },
+    {
+      "id": "C3",
+      "what": "③ 普通用户编他人 ⇒ 403 `AUTH_FORBIDDEN` + `reason=ACTOR_NOT_ALLOWED`、库内 price 未变、台账仍 2 行（零新增）",
+      "pass": true,
+      "reading": "{\"res\":\"403/AUTH_FORBIDDEN/ACTOR_NOT_ALLOWED\",\"logs\":2,\"price\":\"171\"}"
+    },
+    {
+      "id": "C4",
+      "what": "④ 管理员**不放宽**字段校验：`price=0` ⇒ 400 `LEDGER_AMOUNT_NOT_POSITIVE`；数字商品带成色 ⇒ 400 `ITEM_CONDITION_NOT_APPLICABLE`；两者**零写零台账**",
+      "pass": true,
+      "reading": "{\"zero_price\":\"400/LEDGER_AMOUNT_NOT_POSITIVE/\",\"digital_condition\":\"400/LEDGER_AMOUNT_INVALID/ITEM_CONDITION_NOT_APPLICABLE\",\"logs\":2,\"price\":\"171\",\"type\":\"PhysicalFreeShip\"}"
+    },
+    {
+      "id": "C5",
+      "what": "⑤ 本人（即便持管理员旗标）编辑自己的商品 ⇒ 200 且**台账 0 新增**（本人臂不写台账 ⇒ 审计面只记「代编」）",
+      "pass": true,
+      "reading": "{\"ok\":true,\"logs\":2}"
+    },
+    {
+      "id": "C6",
+      "what": "⑥ 管理员编 **delisted 终态**商品（listing 7）⇒ 409 `LISTING_STATE_INVALID`、台账 0 行（状态机与只读面不被管理员绕过）",
+      "pass": true,
+      "reading": "{\"res\":\"409/LEDGER_CURRENCY_INVALID_TRANSITION/LISTING_STATE_INVALID\",\"logs\":0,\"id\":\"7\"}"
+    },
+    {
+      "id": "D1",
+      "what": "读口真库：本人 200 / 管理员 200 / 普通用户 403 `ACTOR_NOT_ALLOWED` / 不存在 404 `LEDGER_REF_NOT_FOUND`",
+      "pass": true,
+      "reading": "{\"owner\":[\"cid\",\"condition\",\"description\",\"item_type\",\"listing_id\",\"media_urls\",\"price\",\"status\",\"stock\",\"time_created\",\"title\"],\"admin\":[\"cid\",\"condition\",\"description\",\"item_type\",\"listing_id\",\"media_urls\",\"price\",\"status\",\"stock\",\"time_created\",\"title\"],\"stranger\":\"403/AUTH_FORBIDDEN/ACTOR_NOT_ALLOWED\",\"missing\":\"404/LEDGER_REF_NOT_FOUND/\",\"mine\":[\"cid\",\"condition\",\"description\",\"item_type\",\"listing_id\",\"media_urls\",\"price\",\"status\",\"stock\",\"time_created\",\"title\"]}"
+    },
+    {
+      "id": "D2",
+      "what": "读口行**与 `GET /api/listing/mine` 行逐键同族 11 键**（本人臂 / 管理员臂同一形状 ⇒ 编辑页一套预填）· `seller_uid` 不下发",
+      "pass": true,
+      "reading": "{\"mine\":[\"cid\",\"condition\",\"description\",\"item_type\",\"listing_id\",\"media_urls\",\"price\",\"status\",\"stock\",\"time_created\",\"title\"],\"owner\":11,\"admin\":11}"
+    },
+    {
+      "id": "D4",
+      "what": "读口**零副作用**：四次调用（本人 / 管理员 / 普通用户 403 / 不存在 404）后 `listing.view_count` 逐字未变、`listing_edit_log` 行数未变（编辑预填不 +1 浏览、不写台账、不触译文）",
+      "pass": true,
+      "reading": "{\"view_count_before\":\"2\",\"view_count_after\":\"2\",\"logs_before\":2,\"logs_after\":2}"
+    },
+    {
+      "id": "D3",
+      "what": "读口读数 = 库内真值（管理员读到的 price/description 与 `readBack` 逐字一致 ⇒ 预填不会给出陈旧值）",
+      "pass": true,
+      "reading": "{\"view_price\":172,\"db_price\":\"172\"}"
+    },
+    {
+      "id": "N1",
+      "what": "★ **负控 ①**：把管理员放行位钉死（`NOT $11::boolean` → `NOT ($11::boolean AND false)`，参数位不动）⇒ 同一非本人管理员输入落 `not_owner` ⇒ **C2/D1 管理员臂必红**（放行判据非恒绿）",
+      "pass": true,
+      "reading": "{\"real\":\"updated\",\"flag_removed\":\"not_owner\",\"owner_uid\":7}"
+    },
+    {
+      "id": "N2",
+      "what": "★ **负控 ②**：把台账 INSERT 的取值条件中和（`WHERE $11::boolean` → `WHERE false`）⇒ 管理员仍 `updated` 但**台账行数不增** ⇒ **C2 的「恰 1 行」断言必红**（审计插入非摆设）",
+      "pass": true,
+      "reading": "{\"outcome\":\"updated\",\"logs_before\":1,\"logs_after\":1}"
+    },
+    {
+      "id": "N3",
+      "what": "负控 ③（静态）：两个摘除器**确实改变**语句文本（不空转 ⇒ N1/N2 不是在未变异的 SQL 上跑）；台账插入带 `seller_uid <> $2` 条件（本人编辑零行）",
+      "pass": true,
+      "reading": "{\"admin_flag_mutation\":true,\"audit_mutation\":true,\"audit_uses_seller_check\":true}"
+    },
+    {
+      "id": "C-",
+      "what": "真库面跑完并**一律 ROLLBACK**（含事务内临时建表与全部 UPDATE/INSERT ⇒ 零残留）",
+      "pass": true,
+      "reading": "error=null rolled_back=true"
+    },
+    {
+      "id": "P1",
+      "what": "preflight（只读·**不 apply**）：迁移**文件链顶** = 0059（0059 admin-edit）· `schema_migration` 已应用顶 = **0058**（0059 未 apply ⇒ 仍 0058；apply 后本门读数自然翻 0059）· PENDING(≥0059) = [0059]",
+      "pass": true,
+      "reading": "{\"project\":\"seafood\",\"chain_top\":\"0059\",\"max\":\"0058\",\"pending\":[\"0059\"]}"
+    },
+    {
+      "id": "P2",
+      "what": "preflight：`listing_edit_log` 存在 = false（false ⇒ 真库探针在事务内建表；true ⇒ 走已建表）· 存量 listing 26 行（draft 15 / listed 9 / delisted 2）",
+      "pass": true,
+      "reading": "{\"migration_chain_top\":\"0059\",\"max_applied\":\"0058\",\"pending\":[\"0059\"],\"edit_log_exists\":false,\"listing_counts\":{\"total\":\"26\",\"draft\":\"15\",\"listed\":\"9\",\"delisted\":\"2\"}}"
+    }
+  ],
+  "summary": {
+    "total": 42,
+    "passed": 42,
+    "failed": 0,
+    "red": []
+  }
+}

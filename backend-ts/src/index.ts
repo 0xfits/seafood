@@ -42,7 +42,7 @@ import { ledgerErrorBody, sendGone, sendVerbError, submitWork } from './job-serv
 // P4-B4a：J1 `publishJob`（§1.8 #1）/ J5 `settleJob` / J6 `refundJob` 由本片注册（`verifyJobSubmission` 沿用）
 import { publishJob, refundJob, settleJob, verifyJobSubmission } from './job-funds-service';
 // P4-B4a：商品面（P1 上架/编辑/下架）—— §1.8 #7/#8；**本片首次导入整个模块**（v0.8 §1.8 现取 `grep` = 0）
-import { createListing, transitionListingStatus, updateListing, updateListingDetails, classifyListingPatchBody } from './listing-service';
+import { createListing, transitionListingStatus, updateListing, updateListingDetails, classifyListingPatchBody, getListingEditView } from './listing-service';
 // P4-B4a：商品**资金**面（P2 购买 / P4 退款）—— §1.8 #9/#10；同样**本片首次导入**（`listing-funds-service` 调用点改前 = 0）
 import { buyListing, refundListingOrder } from './listing-funds-service';
 // P4-B4a：R3 佣金政策插行（§1.8 附注 / §9 A11）；**只读引用**该模块，不改其行为、不改金额来源（§4.8）
@@ -520,12 +520,27 @@ const resolveReviewQueueScope = async (
   return { actor, employerFilterUid: isReviewAdmin ? null : actor.user.uID };
 };
 
-const buildUserPayload = async (user: UserRecord) => {
+/**
+ * `GET /api/user` 载荷。
+ *
+ * ★ 0059（管理员可编辑他人商品 · 前端需知「我是否可代编」）：**加性**补一个 `admin` 子对象
+ *   `{ can_access_admin, is_admin, permissions }` —— 三键全部来自 token 侧 `resolveAdminAccess`
+ *   的既有字段（**不泄漏**任何其它管理信息：无 preferred_admin_path / 无他人数据 / 无角色行明细）。
+ *   · 纯加性：既有顶层键（`...user` / `points` / `requires_profile_completion`）**逐字不变**；
+ *   · 未注入 `adminAccess`（理论上的非 actor 调用）⇒ 三键取保守默认（false / false / []），
+ *     **绝不**臆断为管理员。
+ */
+const buildUserPayload = async (user: UserRecord, adminAccess?: AdminAccessRecord | null) => {
   const asset = await DatabaseService.getUserAsset(user.uID).catch(() => null);
   return {
     ...user,
     points: asset?.points || 0,
     requires_profile_completion: !String(user.bio || '').trim(),
+    admin: {
+      can_access_admin: adminAccess?.can_access_admin === true,
+      is_admin: adminAccess?.is_admin === true,
+      permissions: [...(adminAccess?.permissions ?? [])],
+    },
   };
 };
 
@@ -795,7 +810,8 @@ app.get('/api/user', async (req, res) => {
   if (!actor) return;
 
   try {
-    const payload = await buildUserPayload(actor.user);
+    // ★ 0059：admin 旗标 = token 侧派生值（前端据此决定是否显示「编辑他人商品」入口）
+    const payload = await buildUserPayload(actor.user, actor.adminAccess);
     sendSuccess(res, payload);
   } catch (error) {
     // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
@@ -823,7 +839,8 @@ app.post('/api/user/profile', async (req, res) => {
     // P6-TR-1c-A：bio 译文登记（前台 pending + 后台 waitUntil 翻译；失败不影响本响应）
     await enqueueTranslation({ entityType: 'user', entityId: String(actor.user.uID), fields: { bio }, reset: true });
 
-    const payload = await buildUserPayload(updatedUser);
+    // ★ 0059：同上（profile 更新回执与 /api/user 载荷同源，admin 子对象一并加性带上）
+    const payload = await buildUserPayload(updatedUser, actor.adminAccess);
     sendSuccess(res, payload, 'Profile updated');
   } catch (error) {
     // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
@@ -2913,6 +2930,9 @@ app.patch('/api/listing/:listingId', async (req, res) => {
           //   交 DB 侧 `condition_not_applicable` 守卫臂）。
           itemCondition: body.item_condition,
         },
+        // ★ 0059（Kevin 2026-10-20）：管理员（`can_access_admin ∧ (is_admin ∨ manage_rewards)`）
+        //   可编辑**他人**商品 —— 只注入 token 侧派生值，客户端不得声明；本人编辑行为逐字不变。
+        adminAccess: actor.adminAccess,
       });
       if (!result.ok) return sendVerbError(res, result);
       // ★ 只有 description **实际**变化才重置翻译（`text_changed` 由服务层按 `prev_description` 判定）；
@@ -3001,6 +3021,33 @@ app.get('/api/listing/mine', async (req, res) => {
     sendSuccess(res, rows);
   } catch (error) {
     return sendInfraMapped(res, 'listing.mine', error);
+  }
+});
+
+// ---- G1b · GET /api/listing/:listingId/edit —— 编辑页统一预填（0059 · **注册点 110 → 111**）
+//   授权 = 本人 **或** 管理员（`can_access_admin ∧ (is_admin ∨ permissions∋manage_rewards)`）；
+//   两臂返回**同一形状**（与 `GET /api/listing/mine` 行同族 11 键）⇒ 编辑页只需一套预填逻辑。
+//   无权限 ⇒ 403 `ACTOR_NOT_ALLOWED`（与写口同形）；行不存在 ⇒ 404（先 404 后 403，不给存在性探针）。
+//   ★ 纯读：零写 / 零台账 / 零译文；判定真源 = 服务层 `getListingEditView`（本层不复制授权闸）。
+app.get('/api/listing/:listingId/edit', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  const listingId = parseInteger(req.params.listingId);
+  if (!listingId || listingId <= 0) {
+    return sendRefNotFound(res, 'listing', String(req.params.listingId ?? ''), 'listing_not_found');
+  }
+
+  try {
+    const result = await getListingEditView({
+      listingId,
+      actorUid: actor.user.uID,
+      adminAccess: actor.adminAccess,
+    });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view);
+  } catch (error) {
+    return sendInfraMapped(res, 'listing.edit', error);
   }
 });
 

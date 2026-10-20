@@ -150,9 +150,12 @@ const base: RefundActorInput = { actorUid: 500, sellerUid: 7, buyerUid: 8, canAc
   //     → 110 media-upload（POST /api/media + GET /api/media/:id 各 +1；媒体上传单契约
   //       route-layer.spec v2.39 §48 / data-layer.spec v0.34 §40 · 迁移 0050_media_store.sql，
   //       逐 verb 分解 get 48→49、post 56→57、delete 3、patch 1）。
-  //     净 +21 ⇒ 68 + 21 = 89；A5 再 +10 ⇒ 99；sf14 再 +5 ⇒ 104；6714401 再 +1 ⇒ 105；FIX-CRON GET 再 +1 ⇒ 106；ops-recon GET 再 +1 ⇒ 107；item-cid-select GET 再 +1 ⇒ 108；media-upload 两口再 +2 ⇒ 110。
+  //     → 111 admin-edit（GET /api/listing/:listingId/edit +1；管理员可编辑他人商品单
+  //       route-layer.spec §49.15 / data-layer.spec §40.11 · 迁移 0059_listing_edit_log.sql，
+  //       逐 verb 分解 get 49→50、post 57、delete 3、patch 1 —— 方法只用 GET）。
+  //     净 +21 ⇒ 68 + 21 = 89；A5 再 +10 ⇒ 99；sf14 再 +5 ⇒ 104；6714401 再 +1 ⇒ 105；FIX-CRON GET 再 +1 ⇒ 106；ops-recon GET 再 +1 ⇒ 107；item-cid-select GET 再 +1 ⇒ 108；media-upload 两口再 +2 ⇒ 110；admin-edit 编辑预填 GET 再 +1 ⇒ 111。
   //     `da65f13`/`9bd1df0` 无路由增改（S6b/S16）。
-  ck.t('AC10-2', '注册点 = 110（自 S10 冻结面 68 前推 +21 · A5 收口 +10 · sf14 +5 · 6714401 telegram/bind/confirm +1 · FIX-CRON translate/backfill GET +1 · ops-recon GET +1 · item-cid-select GET /api/currencies +1 · media-upload 两口（route v2.39 §48）+2 = 110；逐 rev 出处见上方注释）', regs === 110, `registration_points=${regs}`);
+  ck.t('AC10-2', '注册点 = 111（自 S10 冻结面 68 前推 +21 · A5 收口 +10 · sf14 +5 · 6714401 telegram/bind/confirm +1 · FIX-CRON translate/backfill GET +1 · ops-recon GET +1 · item-cid-select GET /api/currencies +1 · media-upload 两口（route v2.39 §48）+2 · admin-edit `GET /api/listing/:listingId/edit`（route §49.15）+1 = 111；逐 rev 出处见上方注释）', regs === 111, `registration_points=${regs}`);
   ck.t('AC10-3', '退款路由仍**复用同路径**（无 `/api/admin/listing-orders`）', !/\/api\/admin\/listing-orders/.test(INDEX_TS) && /app\.post\('\/api\/listing-orders\/:orderId\/refund'/.test(INDEX_TS), 'ok');
   ck.t('AC10-4', '对外出口 = 既有 `sendSuccess` + `sendVerbError`（R107；无新增顶层响应键）',
     INDEX_TS.indexOf("sendSuccess(res, result.view, result.replay ? 'Listing order refunded") !== -1 &&

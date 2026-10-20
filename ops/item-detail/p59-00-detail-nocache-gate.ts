@@ -15,7 +15,7 @@
  *   其余读口（`/api/prize/all` / `/api/task/all` / `/api/home` 等）缓存语义**一字不改**。
  *
  * ★ 覆盖面：
- *   A · 静态面（零 DB）：零新路由（regs=110）· 详情块 `setPrivateNoStore` 无条件在场、
+ *   A · 静态面（零 DB）：本单零新路由（regs=110 → 111 由 0059 admin-edit 单前推）· 详情块 `setPrivateNoStore` 无条件在场、
  *       `setPublicCache` / `mintedCookie` 零命中 · 其余四个 `setPublicCache` 调用点原样、
  *       `/api/home` 仍双分支（private+public）且 `Vary: Authorization` 未被挪动 · 详情读口
  *       仍是「自增+读」专用口；
@@ -85,8 +85,8 @@ const req = (port: number, urlPath: string, headers: Record<string, string> = {}
   try {
     // ==================================================================== A · 静态面（零 DB / 零 HTTP）
     const regs = (INDEX_TS.match(/^app\.(get|post|put|delete|patch)\(/gm) ?? []).length;
-    ck.t('A1', '**零新路由**：注册点仍 = 110（本单只改详情路由的响应头，无第 111 个注册点）',
-      regs === 110, `registration_points=${regs}`);
+    ck.t('A1', '**零新路由**：注册点 = 111（本单**零新路由**；111 = 0059 admin-edit 的 `GET /api/listing/:listingId/edit`，本单只改详情路由的响应头）',
+      regs === 111, `registration_points=${regs}`);
 
     const detailBlock = sliceBetween(INDEX_TS, "app.get('/api/prize/:bID'", "app.get('/api/user'");
     const noStoreInDetail = (detailBlock.match(/setPrivateNoStore\(res\)/g) ?? []).length;

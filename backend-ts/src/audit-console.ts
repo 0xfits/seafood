@@ -44,9 +44,19 @@ export interface AuditColumnMap {
   readonly timeColumn: string;
   readonly refId: readonly string[] | null;
   readonly pk: string;
+  /**
+   * ★ 0059：`action` 列是**数组列**（`text[]`，如 `listing_edit_log.changed_fields`）⇒
+   *   匹配语义 = 「数组含该元素」（`$n::text = ANY(col)`），而非标量 `col = $n`。
+   *   省略 ⇒ 标量相等（既有 14 面逐字不变）。
+   */
+  readonly actionArray?: boolean;
 }
 
-/** 14 面白名单闭集（`R-9-74` / `R-9-77` · 逐字 · **排除 `app_config`**）。键 = `public.` 表名。 */
+/**
+ * 白名单闭集（`R-9-74` / `R-9-77` · 逐字 · **排除 `app_config`**）。键 = `public.` 表名。
+ * ★ 0059（管理员编辑他人商品 · 迁移 `0059_listing_edit_log`）**入册第 15 面**：原 14 面逐字未动，
+ *   新面**追加在表尾**（既有 14 面的相对顺序/映射零变化 ⇒ 前端面序与旧读数可比）。
+ */
 export const AUDIT_TABLES: Readonly<Record<string, AuditColumnMap>> = {
   // 1. 调分审计台账（`0023`）：actor=actor_uid / target=target_uid / action∈{action(恒),op,result}
   admin_ops_audit_log: {
@@ -118,9 +128,15 @@ export const AUDIT_TABLES: Readonly<Record<string, AuditColumnMap>> = {
     actor: ['created_by'], target: null, action: null,
     timeColumn: 'time_created', refId: null, pk: 'policy_id',
   },
+  // 15. ★ 0059 商品编辑台账：actor=发起编辑的管理员 · target=被编辑商品 ·
+  //     action=changed_fields（**实际变化字段名数组** ⇒ `actionArray: true`：`$n = ANY(changed_fields)`）
+  listing_edit_log: {
+    actor: ['actor_uid'], target: ['listing_id'], action: ['changed_fields'],
+    timeColumn: 'time_created', refId: ['listing_id'], pk: 'log_id', actionArray: true,
+  },
 };
 
-/** 白名单闭集（14 面 · 稳定顺序 = §32.2 逐字序）。 */
+/** 白名单闭集（15 面 = §32.2 逐字序 14 面 + 0059 追加 `listing_edit_log`）。 */
 export const AUDIT_TABLE_NAMES: readonly string[] = Object.keys(AUDIT_TABLES);
 
 export const AUDIT_LIMIT_DEFAULT = 50;
@@ -270,7 +286,10 @@ export const buildAuditSql = (plan: AuditPlan): { text: string; params: unknown[
   if (f.target !== undefined && spec.target) clauses.push(orEq(spec.target, f.target));
   if (f.refId !== undefined && spec.refId) clauses.push(orEq(spec.refId, f.refId));
   if (f.action !== undefined && spec.action) {
-    clauses.push(`(${spec.action.map((c) => `${c} = ${ph(f.action)}`).join(' OR ')})`);
+    // ★ 0059：数组列（`actionArray`）走「数组含该元素」；标量列仍 `col = $n`（既有 14 面零变化）
+    clauses.push(`(${spec.action.map((c) => (spec.actionArray
+      ? `${ph(f.action)}::text = ANY(${c})`
+      : `${c} = ${ph(f.action)}`)).join(' OR ')})`);
   }
   if (plan.cursor) {
     clauses.push(`(${spec.timeColumn}, ${spec.pk}) < (${ph(plan.cursor.t)}::timestamptz, ${ph(plan.cursor.pk)}::bigint)`);

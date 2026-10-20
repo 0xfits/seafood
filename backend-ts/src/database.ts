@@ -1711,8 +1711,21 @@ const normalizeListingMineRow = (row: RawRow): ListingMineRow => ({
  * `item_condition` 同体例走 `$10::boolean` 开关（P57 · 迁移 0057）。
  * `prev_description` 同语句带回 ⇒ 服务层判「描述是否实际变化」（决定是否重置翻译），零额外往返。
  *
- * 参数位（10 位，**无 title 位**）：$1 listing_id · $2 actor_uid · $3 description · $4 price ·
- *   $5 stock · $6 media_urls · $7 item_type · $8 item_type_set · $9 item_condition · $10 item_condition_set
+ * ★ 0059（管理员可编辑他人商品 · 迁移 `0059_listing_edit_log`）：归属闸加**管理员放行位**
+ *   `$11::boolean`（= `can_access_admin ∧ (is_admin ∨ permissions∋manage_rewards)`；判定真源 =
+ *   `isListingEditAdminAccess`，路由层只注入 token 侧 `adminAccess`，客户端不得声明）：
+ *     · 本人 ⇒ `$11` 分支根本不参与（`seller_uid = $2` ⇒ 通行），**不写台账**（零行为变化）；
+ *     · 非本人 ∧ `$11` ⇒ 放行（跳过 `not_owner`），并且**同一语句内**插一条
+ *       `listing_edit_log`（`admin_edit = true`；`owner_uid` = 行快照 `seller_uid`；
+ *       `changed_fields` = 逐列 `IS DISTINCT FROM` 算出的**实际变化字段名数组**）⇒ 更新与留痕
+ *       同一语句、同一事务，不存在「改了没记账」的窗口；
+ *     · 非本人 ∧ ¬`$11` ⇒ 仍 `not_owner`（⇒ 服务层 403 `ACTOR_NOT_ALLOWED`）。
+ *   ★ 台账 `ins` CTE 只在 `$11 ∧ seller_uid <> $2` 时插行 ⇒ **本人编辑零台账行**（不污染审计面）；
+ *     其余校验闸（可编辑态 / 库存 / 成色适用性）**对管理员同样生效**（管理员不放宽字段规则）。
+ *
+ * 参数位（11 位，**无 title 位**）：$1 listing_id · $2 actor_uid · $3 description · $4 price ·
+ *   $5 stock · $6 media_urls · $7 item_type · $8 item_type_set · $9 item_condition · $10 item_condition_set ·
+ *   $11 admin_edit（0059 管理员放行位）
  */
 const UPDATE_LISTING_DETAILS_SQL = `
       WITH cur AS (
@@ -1725,7 +1738,7 @@ const UPDATE_LISTING_DETAILS_SQL = `
       guarded AS (
         SELECT cur.*,
                CASE
-                 WHEN cur.seller_uid <> $2::bigint THEN 'not_owner'
+                 WHEN cur.seller_uid <> $2::bigint AND NOT $11::boolean THEN 'not_owner'
                  WHEN cur.status NOT IN ('draft', 'listed') THEN 'status_not_editable'
                  WHEN $5::int IS NOT NULL AND $5::int IS DISTINCT FROM cur.stock AND cur.status <> 'listed' THEN 'stock_requires_listed'
                  WHEN (CASE WHEN $10::boolean THEN $9::text ELSE cur.item_condition END) IS NOT NULL
@@ -1750,16 +1763,63 @@ const UPDATE_LISTING_DETAILS_SQL = `
         RETURNING l.listing_id, split_part(l.description, E'\\n', 1) AS title, l.price, l.cid, l.status, l.stock,
                   l.media_urls, l.time_created, l.description, l.item_type, l.item_condition,
                   g.description AS prev_description,
+                  g.seller_uid,
+                  array_remove(ARRAY[
+                    CASE WHEN $3::text IS NOT NULL AND $3::text IS DISTINCT FROM g.description THEN 'description' END,
+                    CASE WHEN $4::bigint IS NOT NULL AND $4::bigint IS DISTINCT FROM g.price THEN 'price' END,
+                    CASE WHEN $5::int IS NOT NULL AND $5::int IS DISTINCT FROM g.stock THEN 'stock' END,
+                    CASE WHEN $6::text[] IS NOT NULL AND $6::text[] IS DISTINCT FROM g.media_urls THEN 'media_urls' END,
+                    CASE WHEN $8::boolean AND $7::text IS DISTINCT FROM g.item_type THEN 'item_type' END,
+                    CASE WHEN $10::boolean AND $9::text IS DISTINCT FROM g.item_condition THEN 'item_condition' END
+                  ], NULL::text) AS changed_fields,
                   'updated'::text AS outcome
+      ),
+      ins AS (
+        INSERT INTO public.listing_edit_log (listing_id, actor_uid, owner_uid, admin_edit, changed_fields)
+        SELECT u.listing_id, $2::bigint, u.seller_uid, true, u.changed_fields
+        FROM upd AS u
+        WHERE $11::boolean
+          AND u.seller_uid <> $2::bigint
+        RETURNING log_id
       )
-      SELECT u.listing_id, u.title, u.price, u.cid, u.status, u.stock, u.media_urls,
-             u.time_created, u.description, u.item_type, u.item_condition, u.prev_description, u.outcome
-      FROM upd AS u
-      UNION ALL
-      SELECT g.listing_id, split_part(g.description, E'\\n', 1) AS title, g.price, g.cid, g.status, g.stock, g.media_urls,
-             g.time_created, g.description, g.item_type, g.item_condition, g.description, g.outcome
-      FROM guarded AS g WHERE g.outcome <> 'ok'
+      SELECT x.listing_id, x.title, x.price, x.cid, x.status, x.stock, x.media_urls,
+             x.time_created, x.description, x.item_type, x.item_condition, x.prev_description, x.outcome,
+             x.seller_uid, x.changed_fields,
+             (SELECT count(*)::int FROM ins) AS edit_log_written
+      FROM (
+        SELECT u.listing_id, u.title, u.price, u.cid, u.status, u.stock, u.media_urls,
+               u.time_created, u.description, u.item_type, u.item_condition, u.prev_description, u.outcome,
+               u.seller_uid, u.changed_fields
+        FROM upd AS u
+        UNION ALL
+        SELECT g.listing_id, split_part(g.description, E'\\n', 1) AS title, g.price, g.cid, g.status, g.stock, g.media_urls,
+               g.time_created, g.description, g.item_type, g.item_condition, g.description, g.outcome,
+               g.seller_uid, '{}'::text[] AS changed_fields
+        FROM guarded AS g WHERE g.outcome <> 'ok'
+      ) AS x
     `;
+
+/**
+ * ★ 0059：**管理员代编他人商品**的准入判定（唯一真源 · 纯函数）。
+ *
+ * 口径 = `adminAccess.can_access_admin ∧ (is_admin ∨ permissions ∋ 'manage_rewards')`
+ *   （与 §6.1 `AdminAccessRecord` 同源；`can_access_admin` 的「有角色行」一支不含权限位时
+ *   仍需 `manage_rewards` 明示 ⇒ **不放宽**：仅「能进后台」不等于「能改商品」）。
+ * ★ 只吃 token 侧派生的 `adminAccess`（路由层注入），**任何来自 body/query 的声明都不进本函数**。
+ * ★ 本函数只回答「是否具备管理员代编**资格**」；**是否真为他人商品**由 SQL 的 `seller_uid <> $2` 判
+ *   —— 本人编辑走「本人」臂，与资格无关（⇒ 管理员编自己的商品同样零台账行）。
+ */
+export const LISTING_EDIT_ADMIN_PERMISSION = 'manage_rewards';
+
+export interface ListingEditAdminAccess {
+  can_access_admin?: boolean;
+  is_admin?: boolean;
+  permissions?: readonly string[];
+}
+
+export const isListingEditAdminAccess = (access?: ListingEditAdminAccess | null): boolean =>
+  access?.can_access_admin === true
+  && (access.is_admin === true || (access.permissions ?? []).includes(LISTING_EDIT_ADMIN_PERMISSION));
 
 const normalizeListingOrderSoldRow = (row: RawRow): ListingOrderSoldRow => ({
   gID: toNumberValue(getValue(row, 'gID')),
@@ -3015,10 +3075,22 @@ export class DatabaseService {
     /** ★ 迁移 0057：`item_condition` 新值（`conditionSet = false` 时语句忽略本参数、保留行现值） */
     itemCondition: string | null;
     conditionSet: boolean;
+    /**
+     * ★ 0059：token 侧管理员旗标（路由层注入 `actor.adminAccess`）—— 判定真源 =
+     * `isListingEditAdminAccess`（本文件同源纯函数），落到 SQL 的 `$11` 放行位。
+     * 省略 / `null` ⇒ 与 0058 及以前**逐字同行为**（`$11 = false` ⇒ 非本人仍 `not_owner`）。
+     */
+    adminAccess?: ListingEditAdminAccess | null;
   }, ex?: SqlRunner): Promise<{
     outcome: 'updated' | 'not_owner' | 'status_not_editable' | 'stock_requires_listed' | 'condition_not_applicable';
     row: ListingMineRow | null;
     prev: { description: string } | null;
+    /** ★ 0059：行快照的 `seller_uid`（`null` = 行不存在）—— 供服务层判「是否本人」/ 台账对拍 */
+    sellerUid: number | null;
+    /** ★ 0059：SQL 内算出的**实际变化字段名数组**（`[description, price, stock, media_urls, item_type, item_condition]` 子集，保序） */
+    changedFields: string[];
+    /** ★ 0059：本语句是否插了一条 `listing_edit_log`（1 = 管理员代编；0 = 本人编辑 / 未放行 / 行不存在） */
+    editLogWritten: boolean;
   }> {
     const rows = await runSql(UPDATE_LISTING_DETAILS_SQL, [
       input.listingId,
@@ -3031,15 +3103,59 @@ export class DatabaseService {
       input.itemTypeSet,
       input.itemCondition,
       input.conditionSet,
+      isListingEditAdminAccess(input.adminAccess),
     ], ex);
     const row = rows[0] || null;
-    if (!row) return { outcome: 'updated', row: null, prev: null };
+    if (!row) {
+      return { outcome: 'updated', row: null, prev: null, sellerUid: null, changedFields: [], editLogWritten: false };
+    }
     const outcome = String(getValue(row, 'outcome')) as
       'updated' | 'not_owner' | 'status_not_editable' | 'stock_requires_listed' | 'condition_not_applicable';
     return {
       outcome,
       row: normalizeListingMineRow(row),
       prev: { description: toStringValue(getValue(row, 'prev_description')) },
+      sellerUid: row.seller_uid === undefined || row.seller_uid === null ? null : Number(row.seller_uid),
+      changedFields: toStringArrayValue(getValue(row, 'changed_fields')),
+      editLogWritten: Number(getValue(row, 'edit_log_written') ?? 0) === 1,
+    };
+  }
+
+  /**
+   * ★ 0059 · **编辑页统一预填读口**（`GET /api/listing/:listingId/edit` 的 DB 侧单一真源）。
+   *
+   * 返回与 `listListingsBySeller`（`GET /api/listing/mine`）**同族 11 键行** + `seller_uid`
+   *   （= 归属判定用的旁路键，**不进** 响应体；权限判定后再剥掉）。
+   * 行不存在 ⇒ `null`（服务层落 404）。纯只读，零写、零锁（编辑页预填不需要行锁；真写口自带 `FOR UPDATE`）。
+   */
+  static async getListingEditRow(listingId: number, ex?: SqlRunner): Promise<{
+    row: ListingMineRow;
+    sellerUid: number;
+  } | null> {
+    const sql = sqlFor(ex);
+    const rows = extractRows(await sql`
+      SELECT
+        l.listing_id,
+        split_part(l.description, E'\\n', 1) AS title,
+        l.price,
+        l.cid,
+        l.status,
+        l.stock,
+        l.media_urls,
+        l.time_created,
+        l.description,
+        l.item_type,
+        l.item_condition,
+        l.seller_uid
+      FROM public.listing AS l
+      WHERE l.listing_id = ${listingId}::bigint
+      LIMIT 1
+    `);
+    const row = rows[0];
+    if (!row) return null;
+    return {
+      row: normalizeListingMineRow(row),
+      sellerUid: Number(getValue(row, 'seller_uid')),
     };
   }
 

@@ -1,0 +1,12 @@
+{
+  "at": "2026-10-20T05:06:25.351Z",
+  "self_check_passed": false,
+  "error": "0059 self-check FAILED: listing_edit_log expect 0 rows on fresh apply, got 2",
+  "sqlstate": "P0001",
+  "rolled_back": true,
+  "ms": 6828,
+  "bad_field_rejected": false,
+  "null_elem_rejected": false,
+  "update_blocked": false,
+  "delete_blocked": false
+}

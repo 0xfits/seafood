@@ -19,7 +19,7 @@
 //     本模块**仅**以 service 直调交付（HTTP 层读数见报告 §3.2/§4）。
 // ============================================================================
 import { createHash } from 'crypto';
-import { DatabaseService } from './database';
+import { DatabaseService, isListingEditAdminAccess, type ListingEditAdminAccess } from './database';
 import { errorMessageOf } from './ledger-errors';
 import {
   ledgerErrorBody,
@@ -636,6 +636,13 @@ export const updateListingDetails = async (params: {
      *  只提成色时有效 item_type 要读行 ⇒ 交 DB 侧守卫臂 `condition_not_applicable`）。 */
     itemCondition?: unknown;
   };
+  /**
+   * ★ 0059：token 侧管理员旗标（路由层注入 `actor.adminAccess`；客户端声明的任何
+   * `admin*` 字段都**不**读）。判定真源 = `isListingEditAdminAccess`
+   * （`can_access_admin ∧ (is_admin ∨ permissions∋manage_rewards)`）。
+   * 省略 / `null` ⇒ 与 0058 及以前**逐字同行为**（仅本人可编辑）。
+   */
+  adminAccess?: ListingEditAdminAccess | null;
 }): Promise<UpdateListingDetailsResult> => {
   const listingId = toBigIntLike(params.listingId, 'listing.listing_id', 1);
   if (!listingId.ok) return listingId.err;
@@ -725,6 +732,8 @@ export const updateListingDetails = async (params: {
     itemTypeSet,
     itemCondition: itemCondition.value,
     conditionSet,
+    // ★ 0059：管理员代编放行位（本人编辑不受影响；非管理员 ⇒ false ⇒ 归属闸照旧 403）
+    adminAccess: params.adminAccess ?? null,
   });
 
   if (!write.row) return gone404('listing', listingId.value);
@@ -768,5 +777,54 @@ export const updateListingDetails = async (params: {
     replay: false,
     view: { ...(write.row as unknown as Record<string, unknown>) },
     text_changed: textChanged,
+  };
+};
+
+/** `getListingEditView` 回执：与 `UpdateListingDetailsResult` 同族，**无** `text_changed`（纯读口，不触译文）。 */
+export type ListingEditViewResult =
+  | VerbErr
+  | { ok: true; replay: false; view: Record<string, unknown> };
+
+/**
+ * ★ 0059 · **编辑页统一预填读口**（`GET /api/listing/:listingId/edit`）。
+ *
+ * 授权（唯一真源，本函数内单点判定）：
+ *   ① 本人（`listing.seller_uid = actorUid`）⇒ 200 —— 与 `GET /api/listing/mine` 的**同一行**
+ *      （同族 11 键：`listing_id / title(派生) / price / cid / status / stock / media_urls /
+ *      time_created / description / item_type / condition`）；
+ *   ② 非本人 ∧ `isListingEditAdminAccess(adminAccess)` ⇒ 200（**同形状**，前端一套预填逻辑）；
+ *   ③ 否则 ⇒ 403 `AUTH_FORBIDDEN` + `reason=ACTOR_NOT_ALLOWED`（与写口 403 逐字同形；
+ *      ★ 判序 = **先 404 后 403**：行不存在时任何 actor 都得 404，不因「无权限」而伪装成 403，
+ *      避免用 403/404 差异枚举 listing_id 的存在性 —— 与写口「行不存在 ⇒ 404」同序）。
+ *
+ * 纯读：零写、零台账、零译文副作用；`title` 仍是 `split_part(description, …)` 派生（title 列已 DROP）。
+ */
+export const getListingEditView = async (params: {
+  listingId: number;
+  actorUid: number;
+  adminAccess?: ListingEditAdminAccess | null;
+}): Promise<ListingEditViewResult> => {
+  const listingId = toBigIntLike(params.listingId, 'listing.listing_id', 1);
+  if (!listingId.ok) return listingId.err;
+  const uidErr = reservedUidGate(Number(params.actorUid), 'actor.uid');
+  if (uidErr) return uidErr;
+
+  const found = await DatabaseService.getListingEditRow(listingId.value);
+  if (!found) return gone404('listing', listingId.value);
+
+  const isOwner = found.sellerUid === Number(params.actorUid);
+  if (!isOwner && !isListingEditAdminAccess(params.adminAccess)) {
+    return fail(403, 'AUTH_FORBIDDEN', {
+      reason: 'ACTOR_NOT_ALLOWED',
+      ref_type: 'listing',
+      ref_id: String(listingId.value),
+    });
+  }
+
+  return {
+    ok: true,
+    replay: false,
+    // ★ 只出 11 键行：`seller_uid` 是归属判定旁路键，**不下发**（读口形状与 listing/mine 逐键同族）
+    view: { ...(found.row as unknown as Record<string, unknown>) },
   };
 };

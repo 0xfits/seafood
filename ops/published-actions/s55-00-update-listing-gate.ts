@@ -11,7 +11,7 @@
  *   译文重置判据 = **`description` 实际变化**；读口对 `title` 列**无硬依赖**（`to_jsonb` 弱取值）。
  *
  * 判据面：
- *   A · 静态面（**零新路由** ⇒ 注册点仍 110 / 零迁移 / 零新错误码 / 零 ledger 写 / 读口加性两键 / 无 title 硬依赖）
+ *   A · 静态面（**本单零新路由** ⇒ 注册点 = 111（110 + 0059 admin-edit 的编辑预填 GET）/ 本单零迁移 / 零新错误码 / 零 ledger 写 / 读口加性两键 / 无 title 硬依赖）
  *   B · verb 分类闸（`classifyListingPatchBody`：title ⇒ NOT_SUPPORTED、字段支 / 状态支 / 混传 400 / 空体 400）
  *   C · 服务层形状闸（price/stock/description/media_urls/item_type/title；非法形状 **零 DB 调用**）
  *   D · 服务层码映射（403 非本人 / 409 非可编辑态 / 409 库存需 listed / 404 行不存在）
@@ -60,7 +60,8 @@ const SQL_START = 'const UPDATE_LISTING_DETAILS_SQL = `';
 const sqlAt = DB.indexOf(SQL_START);
 const sqlEnd = sqlAt >= 0 ? DB.indexOf('`;', sqlAt + SQL_START.length) : -1;
 const SQL_TEXT = sqlAt >= 0 && sqlEnd > sqlAt ? DB.slice(sqlAt + SQL_START.length, sqlEnd) : '';
-const NOT_OWNER_CLAUSE = "cur.seller_uid <> $2::bigint THEN 'not_owner'";
+// ★ 0059：归属闸扩为 `seller_uid <> $2 AND NOT $11::boolean`（$11 = 管理员放行位；本人/非管理员两臂同族）
+const NOT_OWNER_CLAUSE = "cur.seller_uid <> $2::bigint AND NOT $11::boolean THEN 'not_owner'";
 const STATUS_CLAUSE = "cur.status NOT IN ('draft', 'listed') THEN 'status_not_editable'";
 const STOCK_CLAUSE = "$5::int IS DISTINCT FROM cur.stock AND cur.status <> 'listed' THEN 'stock_requires_listed'";
 
@@ -76,6 +77,21 @@ const dropSqlLine = (sql: string, needle: string): string =>
     const tail = needle.slice(needle.indexOf(' THEN '));
     return line.replace(needle, `${head} AND false${tail}`);
   }).join('\n');
+
+/** `$$` 感知的语句切分（0059 头段含 plpgsql 函数体，体内有 `;` ⇒ 裸 `split(';')` 会切坏） */
+const splitSqlStatements = (src: string): string[] => {
+  const out: string[] = [];
+  let buf = '';
+  let inDollar = false;
+  for (let i = 0; i < src.length; i += 1) {
+    if (src.slice(i, i + 2) === '$$') { inDollar = !inDollar; buf += '$$'; i += 1; continue; }
+    const ch = src[i];
+    if (!inDollar && ch === ';') { if (buf.trim()) out.push(buf.trim()); buf = ''; continue; }
+    buf += ch;
+  }
+  if (buf.trim()) out.push(buf.trim());
+  return out.filter((s) => s.replace(/--[^\n]*/g, '').trim().length > 0);
+};
 
 /** 服务层桩行（= `ListingMineRow` 同族 11 键；P57 · 迁移 0057 加 `item_condition` ⇒ 回执键 `condition`） */
 const stubRow = (over: Record<string, unknown> = {}) => ({
@@ -104,8 +120,8 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
 
   // ====================================================================== A · 静态面
   const regs = (INDEX_TS.match(/^app\.(get|post|put|delete|patch)\(/gm) ?? []).length;
-  ck.t('A1', '**零新路由**：注册点仍 = 110（本单只扩既有 `PATCH /api/listing/:listingId`）',
-    regs === 110, `registration_points=${regs}`);
+  ck.t('A1', '**本单零新路由**：注册点 = 111 —— 110（0058 面）+ 1 = 0059 admin-edit 的 `GET /api/listing/:listingId/edit`；本单只扩既有 `PATCH /api/listing/:listingId`',
+    regs === 111, `registration_points=${regs}`);
 
   const patchRoutes = INDEX_TS.match(/^app\.patch\('\/api\/listing\/:listingId'/gm) ?? [];
   ck.t('A2', '`PATCH /api/listing/:listingId` **恰 1 个注册点**（未出现 `/item/:id/edit` 之类第二条写路径）',
@@ -186,8 +202,12 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
   } catch (e) {
     migGit = `GIT_ERR:${String((e as Error).message).slice(0, 60)}`;
   }
-  ck.t('A11', '**零迁移 / 零 DDL**：migrations 最大版本仍 = 0054（同链无 0055）；工作树 migrations/ 无改动',
-    maxMig === '0054' && migGit === '', `max=${maxMig} files=${migFiles.length} git=${JSON.stringify(migGit)}`);
+  const migGitLines = migGit.split('\n').map((l) => l.trim()).filter(Boolean);
+  ck.t('A11', `**本单零迁移 / 零 DDL**：迁移文件链顶 = ${maxMig}（= 0059 admin-edit 单，同树**已落盘、未提交、未 apply**）· 本单不新增/不改任何迁移文件 ⇒ migrations/ 的 git 变更仅该 1 条 \`??\``,
+    maxMig === '0059'
+      && migGitLines.length === 1
+      && /^\?\?\s+backend-ts\/migrations\/0059_listing_edit_log\.sql$/.test(migGitLines[0]),
+    `max=${maxMig} files=${migFiles.length} git=${JSON.stringify(migGitLines)}`);
 
   // ======================================================== B · verb 分类闸（纯函数）
   const cls: Array<{ id: string; body: Record<string, unknown>; expect: string; field?: string }> = [
@@ -400,6 +420,17 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
     const pool = mkPool(1);
     const probe = await inRollbackTx(pool, async (c) => {
       const r: Record<string, unknown> = {};
+      // ★ 0059：写口语句现含 `listing_edit_log` 的 `ins` CTE（表不存在 ⇒ **任何** UPDATE 都 42P01，
+      //   与 $11 真假无关）⇒ 迁移未 apply 时在本事务内按 0059 头段 DDL 建表（ROLLBACK ⇒ 零残留）；
+      //   已 apply 的库走已建表（本分支自然跳过）。
+      const pre59 = await raw1<{ n: number }>(c,
+        "SELECT count(*)::int AS n FROM information_schema.tables WHERE table_schema='public' AND table_name='listing_edit_log'");
+      r.edit_log_pre_existing = Number(pre59?.n ?? 0) === 1;
+      if (!r.edit_log_pre_existing) {
+        const mig59 = fs.readFileSync(path.join(REPO_BACKEND, 'migrations/0059_listing_edit_log.sql'), 'utf8');
+        const head = mig59.slice(0, mig59.indexOf('\nDO $$'));
+        for (const st of splitSqlStatements(head)) await c.query(st);
+      }
       const svcLive = DatabaseService as unknown as Record<string, unknown>;
       const origLive = svcLive.updateListingDetailsRow as (...args: unknown[]) => Promise<unknown>;
       // ex 绑定：服务层调用走**本事务客户端** ⇒ 真 SQL / 真触发器 / 事务末 ROLLBACK 零残留
@@ -472,8 +503,9 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
 
         // F7 · frozen ⇒ 409（INSERT 夹具；BEFORE UPDATE 触发器不拦 INSERT；事务末 ROLLBACK）
         const frozenRow = await raw1<Record<string, unknown>>(c, `
-          INSERT INTO public.listing (seller_uid, cid, price, stock, title, description, media_urls, item_type, status, create_key)
-          SELECT seller_uid, cid, 1000, 1, '', 'S55 门夹具 frozen', '{}'::text[], NULL, 'frozen', $1::text
+          -- ★ title 列已于迁移 0056 DROP ⇒ 夹具不再写该列（标题 = split_part(description, …) 派生）
+          INSERT INTO public.listing (seller_uid, cid, price, stock, description, media_urls, item_type, status, create_key)
+          SELECT seller_uid, cid, 1000, 1, 'S55 门夹具 frozen', '{}'::text[], NULL, 'frozen', $1::text
           FROM public.listing WHERE listing_id = $2::bigint
           RETURNING listing_id, seller_uid::text AS seller_uid`, [`cli:s55:gate:${RUN}:frozen`, draftId]);
         const f7 = frozenRow
@@ -541,14 +573,15 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
         // N · 负控（把闸从 SQL 里摘掉 ⇒ 对应断言必红）
         const runSql = async (sql: string, params: unknown[]) => raw1<Record<string, unknown>>(c, sql, params);
         // ★ P57：UPDATE_LISTING_DETAILS_SQL 参数位 8 → 10（$9 item_condition · $10 item_condition_set）
-        const strangerParams = [draftId, stranger, null, null, null, null, null, false, null, false];
+        // ★ 0059：参数位 10 → 11（$11 admin_edit 管理员放行位；本门一律 false ⇒ 归属闸行为与 0058 逐字相同）
+        const strangerParams = [draftId, stranger, null, null, null, null, null, false, null, false, false];
         const negOwnerReal = await runSql(SQL_TEXT, strangerParams);
         const negNoOwner = await runSql(dropSqlLine(SQL_TEXT, NOT_OWNER_CLAUSE), strangerParams);
         r.N1 = { real: negOwnerReal?.outcome, mutated: negNoOwner?.outcome };
         ck.t('N1', '★ **负控 1**：把归属闸（`seller_uid <> $2 ⇒ not_owner`）从 SQL 摘掉 ⇒ 非本人得 `updated`（不是 `not_owner`）⇒ **F5/D1 断言必红**（归属判据非恒绿）',
           negOwnerReal?.outcome === 'not_owner' && negNoOwner?.outcome === 'updated', JSON.stringify(r.N1));
 
-        const delistedParams = [Number(delisted.listing_id), Number(delisted.seller_uid), null, 5, null, null, null, false, null, false];
+        const delistedParams = [Number(delisted.listing_id), Number(delisted.seller_uid), null, 5, null, null, null, false, null, false, false];
         const negStatusReal = await runSql(SQL_TEXT, delistedParams);
         const negNoStatus = await runSql(dropSqlLine(SQL_TEXT, STATUS_CLAUSE), delistedParams);
         r.N2 = { real: negStatusReal?.outcome, mutated: negNoStatus?.outcome, delisted_id: delisted.listing_id };
@@ -573,7 +606,7 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
     live.rolled_back = probe.rolled_back;
     live.error = probe.error ? String((probe.error as Error).message).slice(0, 300) : null;
     live.ms = probe.ms;
-    ck.t('F0', '真库面跑完并**一律 ROLLBACK**（含 frozen 夹具 INSERT 与全部 UPDATE ⇒ 零残留）',
+    ck.t('F0', `真库面跑完并**一律 ROLLBACK**（含 ${(live.result as Record<string, unknown> | null)?.edit_log_pre_existing === true ? '已 apply 的台账表' : '事务内临时建的 0059 台账表'} / frozen 夹具 INSERT 与全部 UPDATE ⇒ 零残留）`,
       probe.error === null && probe.rolled_back === true, `error=${live.error} rolled_back=${probe.rolled_back}`);
   } catch (e) {
     live.error = String((e as Error).message).slice(0, 300);
@@ -589,9 +622,11 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
       const who = await raw1<{ project: string }>(client, "SELECT current_setting('neon.project_id', true) AS project");
       const top = await raw1<{ version: string }>(client, 'SELECT version FROM schema_migration ORDER BY version DESC LIMIT 1');
       const pend = await raw<{ version: string }>(client,
-        `SELECT v AS version FROM (VALUES ('0050'),('0051'),('0052'),('0053'),('0054')) AS t(v)
+        `SELECT v AS version FROM (VALUES ('0050'),('0051'),('0052'),('0053'),('0054'),('0055'),('0056'),('0057'),('0058'),('0059')) AS t(v)
          WHERE v > $1::text ORDER BY v`, [top?.version ?? '']);
       const pending: string[] = pend.map((p) => p.version);
+      // ★ 0059：迁移**文件链**顶（不 apply ⇒ 只读文件名，不写版本表）
+      const migTop = (fs.readdirSync(path.join(REPO_BACKEND, 'migrations')).filter((f) => f.endsWith('.sql')).sort().pop() ?? '').slice(0, 4);
       const cols = await raw<{ column_name: string; data_type: string; is_nullable: string }>(client,
         `SELECT column_name, data_type, is_nullable FROM information_schema.columns
          WHERE table_schema='public' AND table_name='listing' AND column_name IN ('description','item_type','price','stock','title')
@@ -610,19 +645,20 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
       pre.project = who?.project ?? null;
       pre.max_applied = top?.version ?? null;
       pre.pending = pending;
+      pre.migration_chain_top = migTop;
       pre.columns = cols;
       pre.constraints = cons.map((x) => x.conname);
       pre.counts = counts;
-      ck.t('P1', `preflight 版本面（只读·不 apply）：已应用最大 = **${pre.max_applied}**（本单**零迁移** ⇒ 必须仍是 0054）、PENDING = [${pending.join(',')}]`,
-        String(pre.max_applied) === '0054' && pending.length === 0,
-        JSON.stringify({ project: pre.project, max: pre.max_applied, pending }));
-      ck.t('P2', 'preflight 列面：`price` bigint / `stock` integer / `description` text NOT NULL / `item_type` text **可空**；`title` 列**仍在**（DROP 归另一单，本单不碰）',
-        cols.length === 5
+      ck.t('P1', `preflight 版本面（只读·不 apply）：迁移**文件链顶** = ${migTop}（0059 admin-edit，**未 apply**）· 已应用最大 = **${pre.max_applied}**（0059 未落库 ⇒ 仍 0058）· PENDING = [${pending.join(',')}]`,
+        migTop === '0059' && String(pre.max_applied) === '0058' && pending.length === 1 && pending[0] === '0059',
+        JSON.stringify({ project: pre.project, chain_top: migTop, max: pre.max_applied, pending }));
+      ck.t('P2', 'preflight 列面：`price` bigint / `stock` integer / `description` text NOT NULL / `item_type` text **可空**；`title` 列**已 DROP**（迁移 0056，标题 = `split_part(description, …)` 派生 ⇒ 本门对 title 的断言只看派生值）',
+        cols.length === 4
           && cols.find((c) => c.column_name === 'price')?.data_type === 'bigint'
           && cols.find((c) => c.column_name === 'stock')?.data_type === 'integer'
           && cols.find((c) => c.column_name === 'description')?.is_nullable === 'NO'
           && cols.find((c) => c.column_name === 'item_type')?.is_nullable === 'YES'
-          && cols.some((c) => c.column_name === 'title'),
+          && !cols.some((c) => c.column_name === 'title'),
         JSON.stringify(cols));
       ck.t('P3', 'preflight 约束面：`price > 0` / `stock >= 0` 仍在（服务层有效上限 = JS 安全整数，**更紧**于 bigint 上限）、`item_type` 四值闭集仍在',
         cons.some((c) => c.conname === 'listing_price_positive')
