@@ -1,0 +1,170 @@
+{
+  "run": "20261020T120247Z1n2l",
+  "name": "p64-user-balances-gate",
+  "at": "2026-10-20T12:02:55.597Z",
+  "tx_error": "You are not allowed to mint this currency",
+  "http": {
+    "uid": "11",
+    "status": 200,
+    "cache_control": "private, no-store",
+    "vary": "authorization",
+    "rows": [
+      {
+        "cid": 1,
+        "symbol": "$",
+        "name": "平台积分",
+        "balance": "29374"
+      },
+      {
+        "cid": 4,
+        "symbol": "P4B3A013122",
+        "name": "P4B3A test unit",
+        "balance": "4"
+      },
+      {
+        "cid": 16,
+        "symbol": "P4B3B590800",
+        "name": "P4B3B test unit",
+        "balance": "1"
+      },
+      {
+        "cid": 21,
+        "symbol": "P4B3B590800X",
+        "name": "server default fee",
+        "balance": "1"
+      }
+    ],
+    "real_balance_cids": "4"
+  },
+  "http_note": "H3 触发 `resolveActor` 的 `recordUserActivityHour` 旁路 upsert（1 行该 uid 当小时桶，产品既有行为）",
+  "checks": [
+    {
+      "id": "A1",
+      "what": "注册点 = 128（127 + 本口 GET；get 55 / post 66 / put 0 / delete 3 / patch 4）",
+      "pass": true,
+      "reading": "regs=128 get=55 post=66 put=0 delete=3 patch=4"
+    },
+    {
+      "id": "A2",
+      "what": "路由 `GET /api/user/balances` 恰注册 1 次",
+      "pass": true,
+      "reading": "hits=1"
+    },
+    {
+      "id": "A3",
+      "what": "注册在 catch-all `app.use((req, res) =>` **之前**（否则恒 404）",
+      "pass": true,
+      "reading": "route=37221 catchall=191723"
+    },
+    {
+      "id": "A4",
+      "what": "闸 = `requireActor` 首句（缺 token / 坏 token / 查无此人 ⇒ 既有 401，零新错误码）",
+      "pass": true,
+      "reading": "requireActor_at=74 svc_at=304"
+    },
+    {
+      "id": "A5",
+      "what": "私有缓存头：`setPrivateNoStore(res)` + `Vary: Authorization` 两者都在处理体内",
+      "pass": true,
+      "reading": "noStore=228 vary=190"
+    },
+    {
+      "id": "A6",
+      "what": "零新错误码：`LEDGER_ERROR_CODES` 仍 33 码闭集",
+      "pass": true,
+      "reading": "codes=33"
+    },
+    {
+      "id": "A7",
+      "what": "零新 kind：`LEDGER_KINDS` 仍 24 值（本口纯读，不写台账）",
+      "pass": true,
+      "reading": "kinds=24"
+    },
+    {
+      "id": "A8",
+      "what": "服务层纯 SELECT（DL23）：无 INSERT / UPDATE / DELETE / DDL / upsert / 懒开户",
+      "pass": true,
+      "reading": "svc_len=765"
+    },
+    {
+      "id": "A9",
+      "what": "SQL 契约：`balance > 0` 过滤 · `ORDER BY cid ASC` · `balance::text` 字符串下发 · `account JOIN currency`",
+      "pass": true,
+      "reading": "gt0=true order=true cast=true"
+    },
+    {
+      "id": "A10",
+      "what": "行键**恰四键** `cid` / `symbol` / `name` / `balance`（无 spread、无多余键）",
+      "pass": true,
+      "reading": "mapper_ok=true"
+    },
+    {
+      "id": "A11",
+      "what": "`p7b-03` 的 AC10-2 常量已同步前推（`regs === 128` 且文案写 128）",
+      "pass": true,
+      "reading": "const_ok=true"
+    },
+    {
+      "id": "B0",
+      "what": "服务层夹具事务执行成功",
+      "pass": false,
+      "reading": "error=You are not allowed to mint this currency"
+    },
+    {
+      "id": "H1",
+      "what": "未登录 ⇒ **401** `AUTH_UNAUTHORIZED`（R107 形状：code / message / i18n_key / details）",
+      "pass": true,
+      "reading": "status=401 body={\"error\":{\"code\":\"AUTH_UNAUTHORIZED\",\"message\":\"Authentication is required\",\"i18n_key\":\"auth.err.AUTH_UNAUTHORIZED\",\"details\":{}}}"
+    },
+    {
+      "id": "H2",
+      "what": "坏 token ⇒ 401（同码，零新错误码）",
+      "pass": true,
+      "reading": "status=401 code=AUTH_UNAUTHORIZED"
+    },
+    {
+      "id": "H3",
+      "what": "真 token ⇒ 200 + `Cache-Control: private, no-store` + `Vary: Authorization` + 载荷与同 uid 服务层读数逐项一致",
+      "pass": true,
+      "reading": "status=200 cc=\"private, no-store\" vary=\"authorization\" rows=4 svc=4 same=true real_balance_cids=4"
+    },
+    {
+      "id": "H4",
+      "what": "判负臂：公开读口 `/api/currencies` 的 `Cache-Control` **不含** `no-store`（证明 H3 头断言有分辨力）",
+      "pass": true,
+      "reading": "status=200 cc=\"\""
+    },
+    {
+      "id": "H5",
+      "what": "相邻路径 ⇒ 404（证明 H1 的 401 来自本路由而非 catch-all）",
+      "pass": true,
+      "reading": "status=404"
+    },
+    {
+      "id": "Z1",
+      "what": "零残留：无本门夹具币种（`symbol LIKE qz%`）",
+      "pass": true,
+      "reading": "currency=0"
+    },
+    {
+      "id": "Z2",
+      "what": "零残留：无夹具账户行（uid 区间）",
+      "pass": true,
+      "reading": "account=0"
+    },
+    {
+      "id": "Z3",
+      "what": "零残留：无夹具用户（bio 标记）",
+      "pass": true,
+      "reading": "users=0"
+    }
+  ],
+  "summary": {
+    "total": 20,
+    "passed": 19,
+    "failed": 1,
+    "red": [
+      "B0"
+    ]
+  }
+}

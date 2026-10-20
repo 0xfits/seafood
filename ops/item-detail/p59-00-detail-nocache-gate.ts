@@ -85,8 +85,8 @@ const req = (port: number, urlPath: string, headers: Record<string, string> = {}
   try {
     // ==================================================================== A · 静态面（零 DB / 零 HTTP）
     const regs = (INDEX_TS.match(/^app\.(get|post|put|delete|patch)\(/gm) ?? []).length;
-    ck.t('A1', '**零新路由**：注册点 = 127（118 + campaign-domain 九口 route §49.18；本单零新路由，只改详情路由的响应头）',
-      regs === 127, `registration_points=${regs}`);
+    ck.t('A1', '**零新路由**：注册点 = 128（118 + campaign-domain 九口 route §49.18 ＋ user-balances `GET /api/user/balances` +1；本单零新路由，只改详情路由的响应头）',
+      regs === 128, `registration_points=${regs}`);
 
     const detailBlock = sliceBetween(INDEX_TS, "app.get('/api/prize/:bID'", "app.get('/api/user'");
     const noStoreInDetail = (detailBlock.match(/setPrivateNoStore\(res\)/g) ?? []).length;

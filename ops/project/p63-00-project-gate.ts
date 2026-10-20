@@ -7,7 +7,7 @@
  * 读数：`ops/project/readings/p63-project-gate-<RUN>.json`
  *
  * ★ 覆盖面（data §40.15 · route §49.19）：
- *   A · 静态面（零 DB）：注册点 127（get 54 / post 66 / patch 4 / delete 3；118 + campaign 九口）· R1 注册在 R2 之前 ·
+ *   A · 静态面（零 DB）：注册点 127（get 55 / post 66 / patch 4 / delete 3；118 + campaign 九口）· R1 注册在 R2 之前 ·
  *       七口逐条在场 · 零新 kind（LEDGER_KINDS 仍 24，建费借 `currency_create_fee`）· 零新错误码
  *       （33 码闭集不动）· 两份迁移无 BEGIN/COMMIT、注释无 dollar-dollar、种子按 title 幂等 ·
  *       结算常量 2/1/100 · 状态迁移矩阵 · 入参纯函数（禁带字段 / 两币成对 / interval / headcount）。
@@ -156,8 +156,8 @@ const reasonOf = (r: unknown) => String(((r as { details?: { reason?: unknown } 
   // ======================================================================== A · 静态面（零 DB）
   const regs = (INDEX_TS.match(/^app\.(get|post|put|delete|patch)\(/gm) ?? []).length;
   const countVerb = (v: string) => (INDEX_TS.match(new RegExp(`^app\\.${v}\\(`, 'gm')) ?? []).length;
-  ck.t('A1', '注册点 = 127（118 = 111 + 项目域七口；+9 = campaign 九口 route §49.18；get 54 / post 66 / patch 4 / delete 3 / put 0）',
-    regs === 127 && countVerb('get') === 54 && countVerb('post') === 66 && countVerb('patch') === 4
+  ck.t('A1', '注册点 = 128（118 = 111 + 项目域七口；+9 = campaign 九口 route §49.18 ＋ user-balances `GET /api/user/balances` +1；get 55 / post 66 / patch 4 / delete 3 / put 0）',
+    regs === 128 && countVerb('get') === 55 && countVerb('post') === 66 && countVerb('patch') === 4
       && countVerb('delete') === 3 && countVerb('put') === 0,
     `regs=${regs} get=${countVerb('get')} post=${countVerb('post')} patch=${countVerb('patch')} delete=${countVerb('delete')}`);
 

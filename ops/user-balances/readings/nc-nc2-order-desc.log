@@ -1,0 +1,15 @@
+{
+  "total": 30,
+  "passed": 26,
+  "failed": 4,
+  "red": [
+    "A9",
+    "B3",
+    "B4",
+    "H3"
+  ]
+}
+[readings] /Users/kevin/bistro/seafood/ops/user-balances/readings/p64-user-balances-gate-20261020T120333Ze9fs.json
+npm notice run jinli-backend@1.0.0 npx
+npm notice run 'ts-node' --transpile-only ../ops/user-balances/p64-00-user-balances-gate.ts
+Failed to verify session token: Invalid token format

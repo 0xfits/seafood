@@ -122,8 +122,8 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
 
   // ====================================================================== A · 静态面
   const regs = (INDEX_TS.match(/^app\.(get|post|put|delete|patch)\(/gm) ?? []).length;
-  ck.t('A1', '**注册点 = 127**（111 = 本单 `GET /api/listing/:listingId/edit`；+7 = project-domain 七口 route §49.19；+9 = campaign-domain 九口 route §49.18 —— 本单自身仍恰 +1）',
-    regs === 127, `registration_points=${regs}`);
+  ck.t('A1', '**注册点 = 128**（111 = 本单 `GET /api/listing/:listingId/edit`；+7 = project-domain 七口 route §49.19；+9 = campaign-domain 九口 route §49.18 ＋ user-balances `GET /api/user/balances` +1 —— 本单自身仍恰 +1）',
+    regs === 128, `registration_points=${regs}`);
 
   const editRoutes = INDEX_TS.match(/^app\.get\('\/api\/listing\/:listingId\/edit'/gm) ?? [];
   const routeBlock = (() => {

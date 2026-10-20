@@ -921,6 +921,39 @@ app.get('/api/user/asset/:uID', async (req, res) => {
 
 /**
  * ============================================================================
+ * 注册 `GET /api/user/balances` —— 顶部菜单弹出层的**多币种余额分行显示**读口。
+ * 依据（Kevin 2026-10-20 需求）：菜单里不再显示「积分」二字，改为按币种分行（`$12,234` / `€21,345` …），
+ *   **用户没有的币种不显示**（余额 0 ⇒ 不出行），不再是单币种 `points` 一个数。
+ * 契约：
+ *   · 鉴权 = `requireActor`（**用户本人**，`uid` 只取 token actor，不接受客户端声明）；
+ *     缺 token / 坏 token / 查无此人 ⇒ **既有 401**（R107 形状 `AUTH_UNAUTHORIZED`），零新错误码。
+ *   · 取数 = `account JOIN currency`，`balance > 0` 才出；顺序 = `cid` **升序**（`$` = cid 1 恒首位）。
+ *   · 行键**恰四键** `cid`（number）/ `symbol` / `name` / `balance`（**string**，`bigint::text` ⇒ 大数逐字不丢精度）。
+ *   · 缓存：响应是**账户私有数据** ⇒ 无条件 `private, no-store` ＋ `Vary: Authorization`
+ *     （共享缓存既不可留存余额，也不可把 A 的响应回给 B）。
+ *   · **纯 SELECT**（DL23）：零写副作用、零 DDL、零懒开户、零新 ledger kind。
+ * ============================================================================
+ */
+app.get('/api/user/balances', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  // 私有缓存头 + 认证区分头：两条缺一不可（`no-store` 使缓存键区分失去意义，`Vary` 是纵深防御）。
+  res.setHeader('Vary', 'Authorization');
+  setPrivateNoStore(res);
+
+  try {
+    const balances = await DatabaseService.listUserBalances(actor.user.uID);
+    sendSuccess(res, balances);
+  } catch (error) {
+    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
+    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
+    return sendInfraMapped(res, 'user.balances', error);
+  }
+});
+
+/**
+ * ============================================================================
  * P7-A（批 7-A · Kong）：注册 `GET /api/user/ledger` —— 「我的账单 / 账本流水」读口。
  * 依据（逐字）：
  *   · `route-layer.spec:265`：`GET /api/user/ledger`（`account`/`ledger_entry` 只读派生）

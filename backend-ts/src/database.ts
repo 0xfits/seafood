@@ -2737,6 +2737,38 @@ export class DatabaseService {
   }
 
   /**
+   * 用户多币种余额读口（`GET /api/user/balances` 的落点）。
+   *   · 取数 = `account JOIN currency`，**只出余额 > 0 的币种**（零余额 = 「用户没有这个币」⇒ 不出行）；
+   *   · 顺序 = `cid` **升序**（`$` = cid 1 恒首位，其后按建币顺序），与前端分行渲染一致；
+   *   · `balance` = `bigint` 经 `::text` 下发 ⇒ **字符串**（大数不丢精度；前端禁 `Number()` 截断）；
+   *   · **纯 SELECT**（DL23）：无 DDL / 无懒开户 / 无 `upsert*`，`uid` 只由 token actor 传入。
+   *   · `ex` 可注入（门在回滚事务内跑真路径，与 `getBttcState` 同体例）。
+   */
+  static async listUserBalances(
+    uid: number,
+    ex?: SqlRunner,
+  ): Promise<Array<{ cid: number; symbol: string; name: string; balance: string }>> {
+    const sql = sqlFor(ex);
+    const rows = asItems<Record<string, unknown>>(await sql`
+      SELECT a."cid"::text AS cid,
+             c."symbol"    AS symbol,
+             c."name"      AS name,
+             a."balance"::text AS balance
+      FROM public.account AS a
+      JOIN public.currency AS c ON c."cid" = a."cid"
+      WHERE a."uid" = ${uid}
+        AND a."balance" > 0
+      ORDER BY a."cid" ASC
+    `);
+    return rows.map((row) => ({
+      cid: Number(row.cid),
+      symbol: String(row.symbol ?? ''),
+      name: String(row.name ?? ''),
+      balance: String(row.balance ?? '0'),
+    }));
+  }
+
+  /**
    * P7-A（批 7-A · Kong）：**账本流水纯读**（`GET /api/user/ledger` 的落点）。
    * 依据（逐字）：
    *   · `data-layer.spec` **DL25**（【已冻结】）/ `ledger.spec` **R95**：流水分页**必须 keyset**

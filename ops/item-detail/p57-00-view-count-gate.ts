@@ -103,8 +103,8 @@ const FIXTURE_KEY_PREFIX = 'cli:p57-gate:';
 
   // ====================================================================== A · 静态面（零 DB）
   const regs = (INDEX_TS.match(/^app\.(get|post|put|delete|patch)\(/gm) ?? []).length;
-  ck.t('A1', '**零新路由**：注册点 = 127（118 + campaign-domain 九口 route §49.18 —— 本单只改既有读口/写口，零新注册点）',
-    regs === 127, `registration_points=${regs}`);
+  ck.t('A1', '**零新路由**：注册点 = 128（118 + campaign-domain 九口 route §49.18 ＋ user-balances `GET /api/user/balances` +1 —— 本单只改既有读口/写口，零新注册点）',
+    regs === 128, `registration_points=${regs}`);
 
   const detailBlock = sliceBetween(INDEX_TS, "app.get('/api/prize/:bID'", "app.get('/api/user'");
   ck.t('A2', '详情读口已换「自增+读」专用口：`getPrizeDetailRecordingView` 在场、`getPrizeById` 不再被详情路由调用（裸读只留内部回执用）',
