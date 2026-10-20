@@ -81,7 +81,8 @@ const renderPage = (path) => render(
 const statusNode = (container) => container.querySelector('[data-sf-m="item-status"]')
 
 const submitForm = (container) => {
-  fireEvent.change(container.querySelector('[data-sf-m="item-input-title"]'), { target: { value: '测试商品' } })
+  // title 退役（2026-10-20）：正文填唯一文本框 `item-input-note`
+  fireEvent.change(container.querySelector('[data-sf-m="item-input-note"]'), { target: { value: '测试商品' } })
   fireEvent.change(container.querySelector('[data-sf-m="item-input-price"]'), { target: { value: '7' } })
   // 商品分类（2026-10-20 级联 2+2+2 · 迁移 0054 四值）：一级 + 分支二级均必选闸
   // ⇒ 统一选「数字商品 + 自动发货」（数字分支 ⇒ 运费控件随之不渲染）

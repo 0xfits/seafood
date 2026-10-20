@@ -15,7 +15,7 @@
  *   ⑥ CSS：两枚标签几何逐条相同、**只差底色**（黄 `var(--sf-btna-bg)` / 绿 `var(--sf-reward-tag-auto-bg)`
  *      = 卡内局部常量 `#4ADE80`）；行高 48 / 卡高 392 不动（真渲染几何读数走
  *      `ops/item-type/delivery/front/` 的浏览器探针，jsdom 无布局 ⇒ 此处只钉**声明**）；
- *   ⑦ i18n 6 键四语齐备 + 计数前推（top 130 / flat 1122 / nodes 4488 / `item` 54）。
+ *   ⑦ i18n 6 键四语齐备 + 计数前推（top 130 / flat 1123 / nodes 4492 / `item` 55）。
  *
  * 替身设计（承 `publish-item-cid-select.test.jsx` 体例）：
  *   · `item-api` = `importOriginal + 只桩三个面`（`fetchCurrencies` / `publishListing` /
@@ -91,7 +91,8 @@ const shipGroup = (container) => q(container, 'item-select-ship')
 const statusNode = (container) => q(container, 'item-status')
 
 const fillBasics = (container) => {
-  fireEvent.change(q(container, 'item-input-title'), { target: { value: '测试商品' } })
+  // 单描述框（title 退役）：正文填到唯一文本框 `item-input-note`（首行即派生标题）
+  fireEvent.change(q(container, 'item-input-note'), { target: { value: '测试商品' } })
   fireEvent.change(q(container, 'item-input-price'), { target: { value: '7' } })
 }
 
@@ -342,7 +343,7 @@ describe('C · item-api 线体：`item_type` 单一字段（四值）', () => {
     fetchApiJson.mockResolvedValue({})
 
     for (const itemType of ITEM_TYPES) {
-      await actual.publishListing({ cid: 1, price: '7', stock: '1', title: 'T', description: '', mediaUrls: [], itemType, createKey: 'cli:x', user: null })
+      await actual.publishListing({ cid: 1, price: '7', stock: '1', description: 'T', mediaUrls: [], itemType, createKey: 'cli:x', user: null })
     }
     const bodies = fetchApiJson.mock.calls.map((call) => JSON.parse(call[1].body))
     expect(bodies.map((b) => b.item_type)).toEqual(ITEM_TYPES)
@@ -359,8 +360,8 @@ describe('C · item-api 线体：`item_type` 单一字段（四值）', () => {
     fetchApiJson.mockClear()
     fetchApiJson.mockResolvedValue({})
 
-    await actual.publishListing({ cid: 1, price: '7', stock: '1', title: 'T', description: '', mediaUrls: [], createKey: 'cli:x', user: null })
-    await actual.publishListing({ cid: 1, price: '7', stock: '1', title: 'T', description: '', mediaUrls: [], itemType: null, createKey: 'cli:x', user: null })
+    await actual.publishListing({ cid: 1, price: '7', stock: '1', description: 'T', mediaUrls: [], createKey: 'cli:x', user: null })
+    await actual.publishListing({ cid: 1, price: '7', stock: '1', description: 'T', mediaUrls: [], itemType: null, createKey: 'cli:x', user: null })
     const bodies = fetchApiJson.mock.calls.map((call) => JSON.parse(call[1].body))
     expect(bodies.every((b) => !('item_type' in b))).toBe(true)
     expect(bodies.some((b) => b.item_type === '')).toBe(false)
@@ -558,7 +559,7 @@ describe('E · reward-card.css 两枚标签（同几何 · 只差底色 · 不�
 // ---------------------------------------------------------------------------
 // F · i18n 6 键四语 + 计数前推
 // ---------------------------------------------------------------------------
-describe('F · i18n 6 键四语 + 计数前推（top 130 / flat 1122 / nodes 4488 / item 54）', () => {
+describe('F · i18n 6 键四语 + 计数前推（top 130 / flat 1123 / nodes 4492 / item 55）', () => {
   const TABLES = { zh, en, hk, vn }
   const flat = (o) => Object.values(o).reduce((n, v) => n + (v && typeof v === 'object' ? flat(v) : 1), 0)
 
@@ -592,14 +593,14 @@ describe('F · i18n 6 键四语 + 计数前推（top 130 / flat 1122 / nodes 448
     }
   })
 
-  it('计数：top 130 / flat 1122 / 四语节点 4488 / `item` 54（四语逐文件相等）', () => {
+  it('计数：top 130 / flat 1123 / 四语节点 4492 / `item` 55（四语逐文件相等）', () => {
     for (const [lang, table] of Object.entries(TABLES)) {
       expect(Object.keys(table).length, `${lang} top`).toBe(130)
-      expect(flat(table), `${lang} flat`).toBe(1122)
-      expect(Object.keys(table.item).length, `${lang} item`).toBe(54)
+      expect(flat(table), `${lang} flat`).toBe(1123) // [i18n-bump title-merge +1 键 item.descFirstLineHint ⇒ flat 1122⇒1123 / nodes 4488⇒4492 / item 54⇒55]
+      expect(Object.keys(table.item).length, `${lang} item`).toBe(55) // [i18n-bump title-merge +1 键 item.descFirstLineHint ⇒ flat 1122⇒1123 / nodes 4488⇒4492 / item 54⇒55]
     }
     expect(Object.keys(zh).length * 4).toBe(520)
-    expect(flat(zh) * 4).toBe(4488)
+    expect(flat(zh) * 4).toBe(4492) // [i18n-bump title-merge +1 键 item.descFirstLineHint ⇒ flat 1122⇒1123 / nodes 4488⇒4492 / item 54⇒55]
   })
 })
 

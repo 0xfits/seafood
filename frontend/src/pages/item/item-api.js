@@ -73,12 +73,13 @@ export const fetchCurrencies = (user) => getJson('/api/currencies', user)
  *   **原样逐字**发 `item_type`（未分类 ⇒ `null`）；**不发**第二分类字段。
  *   `''` 属非法（后端 400 `LEDGER_AMOUNT_INVALID` + `reason=NOT_IN_CLOSED_SET`）⇒ 调用方须先过前端必选闸。
  */
-export const publishListing = ({ cid, price, stock, title, description, mediaUrls, itemType = null, createKey, user }) => {
+export const publishListing = ({ cid, price, stock, description, mediaUrls, itemType = null, createKey, user }) => {
   const body = {
     cid,
     price,
     stock,
-    title,
+    // ★ `title` 自 2026-10-20 起**不上送**（route §49.13.2：非空 `title` ⇒ 400 `NOT_SUPPORTED`；
+    //   标题 = `description` 首行派生）。`description` 为**必填正文**（缺省/空白 ⇒ 400 `REQUIRED`）。
     description,
     media_urls: mediaUrls,
   }
@@ -123,9 +124,10 @@ export const receiveListingOrder = (orderId, user) =>
 export const createListingPublishTracker = () => createIdempotencyKeyTracker('cli')
 export const createListingBuyTracker = () => createIdempotencyKeyTracker('cli')
 
-/** 上架表单指纹（决定「是否同一次操作」）：不含随机量 ⇒ 重试同指纹 ⇒ 同键。 */
-export const listingPublishFingerprint = ({ cid, price, stock, title, description }) =>
-  [cid, price, stock, title, description].map((v) => String(v ?? '').trim()).join('\u0001')
+/** 上架表单指纹（决定「是否同一次操作」）：不含随机量 ⇒ 重试同指纹 ⇒ 同键。
+ *  ★ 4 项（route §49.13.5：**去 `title`**）—— 派生 title 不得回填指纹（会随描述漂移）。 */
+export const listingPublishFingerprint = ({ cid, price, stock, description }) =>
+  [cid, price, stock, description].map((v) => String(v ?? '').trim()).join('\u0001')
 
 /** 购买操作指纹（目标商品 + 数量）：同一次点击重试 ⇒ 同键。 */
 export const listingBuyFingerprint = ({ listingId, quantity }) =>

@@ -170,7 +170,9 @@ const PublishItemPage = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const { isAuthenticated, user } = useAuth()
-  const [form, setForm] = useState({ cid: DEFAULT_CID, price: '', stock: '1', title: '', description: '' })
+  // ★ title 退役（Kevin 2026-10-20 · route §49.13 / design §26.14）：表单**没有**标题字段，
+  //   唯一正文字段 = `description`（多行，必填）；标题 = **首行派生**（服务端 `split_part` 出 `title` 键）。
+  const [form, setForm] = useState({ cid: DEFAULT_CID, price: '', stock: '1', description: '' })
   // 商品分类级联三控件（'' = 未选；initial 空 ⇒ 必选未选不可提交）
   const [itemTypeSel, setItemTypeSel] = useState('')
   const [deliverSel, setDeliverSel] = useState('')
@@ -270,6 +272,13 @@ const PublishItemPage = () => {
       return
     }
     setMiss({ type: false, deliver: false, ship: false })
+
+    // ⓪b 描述必填（route §49.13.2：缺省 / `''` / 全空白 ⇒ 后端 400 `listing.description REQUIRED`）
+    //     ⇒ 前端先拦（零网络调用）；提示复用既有键，不新增文案。
+    if (!String(form.description).trim()) {
+      setState({ phase: 'error', message: t('uiError.badRequest') })
+      return
+    }
     setState({ phase: 'loading', message: t('jobs.submitting') })
 
     // ① 先逐张上传（顺序）：任一张失败 ⇒ **取消发布**（不调 publishListing，绝不产生半截商品）。
@@ -293,8 +302,9 @@ const PublishItemPage = () => {
         cid: Number(form.cid),
         price: String(form.price).trim(),
         stock: String(form.stock).trim(),
-        title: form.title.trim(),
-        description: form.description.trim(),
+        // ★ 不上送 `title`（route §49.13.2：非空 title ⇒ 400 NOT_SUPPORTED）；
+        //   首行由服务端从描述派生 ⇒ 前端只需一个正文字段。
+        description: String(form.description).trim(),
         mediaUrls,
         // 单字段四值（`DigitalAutoDeliver` / `DigitalManualDeliver` / `PhysicalFreeShip` / `PhysicalBuyerShip`）——
         // **不发** `shipping` / `free_ship` 之类第二字段（后端不认，route §49.11 ②）；
@@ -363,9 +373,20 @@ const PublishItemPage = () => {
 
           <form className="sf-item-panel" onSubmit={onSubmit} data-sf-m="item-form">
             <div className="sf-item-form">
-              <label className="sf-item-field">
-                <span className="sf-item-label">{t('item.title')}</span>
-                <input className="sf-item-input" data-sf-m="item-input-title" value={form.title} onChange={setField('title')} required />
+              {/* 唯一正文字段（design §26.14）：单描述多行框；**无**标题输入框（`item-input-title` DOM 0 命中）。
+                  框下**常驻**提示「第一行将作为标题」（不是 placeholder）；标题=首行派生，卡面/列表再按 48 显示宽单位截断。 */}
+              <label className="sf-item-field sf-item-field-wide">
+                <span className="sf-item-label">{t('item.description')}</span>
+                <textarea
+                  className="sf-item-textarea"
+                  data-sf-m="item-input-note"
+                  value={form.description}
+                  onChange={setField('description')}
+                  rows={3}
+                  required
+                  aria-describedby="item-desc-hint"
+                />
+                <p className="sf-item-hint" id="item-desc-hint" data-sf-m="item-desc-hint">{t('item.descFirstLineHint')}</p>
               </label>
               <label className="sf-item-field">
                 <span className="sf-item-label">{t('item.price')}</span>
@@ -469,10 +490,6 @@ const PublishItemPage = () => {
                 </div>
               ) : null}
 
-              <label className="sf-item-field sf-item-field-wide">
-                <span className="sf-item-label">{t('item.description')}</span>
-                <textarea className="sf-item-textarea" data-sf-m="item-input-note" value={form.description} onChange={setField('description')} rows={3} />
-              </label>
               <div className="sf-item-field sf-item-field-wide" data-sf-m="item-images">
                 <span className="sf-item-label">{t('item.imagesLabel')}</span>
                 <input

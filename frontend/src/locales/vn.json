@@ -158,6 +158,7 @@
     "cid": "Tiền tệ",
     "cidNote": "Chọn tiền tệ từ danh sách.",
     "description": "Mô tả món đồ",
+    "descFirstLineHint": "Dòng đầu tiên sẽ được dùng làm tiêu đề",
     "status": "Trạng thái",
     "refresh": "Tải lại",
     "empty": "Chưa có món đồ",

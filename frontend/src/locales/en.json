@@ -158,6 +158,7 @@
     "cid": "Currency",
     "cidNote": "Select the currency from the dropdown.",
     "description": "Item description",
+    "descFirstLineHint": "The first line will be used as the title",
     "status": "Status",
     "refresh": "Refresh",
     "empty": "No items yet",

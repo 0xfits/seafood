@@ -158,6 +158,7 @@
     "cid": "币种",
     "cidNote": "请从下拉框选择计价币种",
     "description": "物品说明",
+    "descFirstLineHint": "第一行将作为标题",
     "status": "状态",
     "refresh": "刷新",
     "empty": "暂无闲置物品",

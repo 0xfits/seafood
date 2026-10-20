@@ -158,6 +158,7 @@
     "cid": "幣種",
     "cidNote": "請從下拉框選擇幣種。",
     "description": "物品說明",
+    "descFirstLineHint": "第一行將作為標題",
     "status": "狀態",
     "refresh": "重新整理",
     "empty": "暫無閒置物品",

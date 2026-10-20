@@ -249,6 +249,14 @@
   resize: vertical;
 }
 
+/* 描述框下**常驻**提示（design §26.14 / 判负 #39：不得只靠 placeholder；字号 ≥12px；零新 token）。 */
+.sf-item-hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--sf-meta-fg);
+}
+
 .sf-item-btn {
   /* P6-BTN-IMPL-2：视觉由 .sf-btn 基类按 A 系注入；此处只留位置/尺寸约束 */
   padding: 8px var(--sf-st-padx-btna);

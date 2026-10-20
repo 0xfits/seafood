@@ -123,7 +123,8 @@ const pickFiles = (container, files) => {
 }
 
 const fillRequired = (container) => {
-  fireEvent.change(container.querySelector('[data-sf-m="item-input-title"]'), { target: { value: '测试商品' } })
+  // title 退役（2026-10-20）：正文填唯一文本框 `item-input-note`
+  fireEvent.change(container.querySelector('[data-sf-m="item-input-note"]'), { target: { value: '测试商品' } })
   fireEvent.change(container.querySelector('[data-sf-m="item-input-price"]'), { target: { value: '7' } })
   // 商品分类（2026-10-20 级联 2+2+2 · 迁移 0054 四值）：**一级 + 分支二级均必选** ⇒ 本文件只测图片面，
   // 统一选「数字商品 + 自动发货」过闸（数字分支 ⇒ 运费控件不渲染、不参与载荷）。
@@ -225,7 +226,8 @@ describe('发布商品页 · 商品图片（选图 / 压缩 / 上传 / 失败即
     await waitFor(() => expect(publishListing).toHaveBeenCalledTimes(1))
     const payload = publishListing.mock.calls[0][0]
     expect(payload.mediaUrls).toEqual(['/api/media/11', '/api/media/12'])
-    expect(payload.title).toBe('测试商品')
+    expect(payload.description).toBe('测试商品') // 正文 = 唯一正文字段
+    expect(payload).not.toHaveProperty('title') // ★ title 退役：载荷零 title 键（route §49.13.2）
     expect(payload.price).toBe('7')
     expect(uploadMedia).toHaveBeenCalledTimes(2)
     // 发布成功（无 id 回包 ⇒ 停在 ok 态、不跳转）
@@ -249,7 +251,6 @@ describe('发布商品页 · 商品图片（选图 / 压缩 / 上传 / 失败即
         cid: 1,
         price: '7',
         stock: '1',
-        title: 't',
         description: 'd',
         mediaUrls: ['/api/media/11', '/api/media/12'],
         createKey: 'cli:test-key',
@@ -262,6 +263,7 @@ describe('发布商品页 · 商品图片（选图 / 压缩 / 上传 / 失败即
     expect(url).toBe('/api/listing')
     const body = JSON.parse(options.body)
     expect(body.media_urls).toEqual(['/api/media/11', '/api/media/12'])
+    expect(body).not.toHaveProperty('title')
   })
 
   // ---------------- ⑤ 无图 ⇒ mediaUrls = [] 照常发布 ----------------
