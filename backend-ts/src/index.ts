@@ -6,7 +6,7 @@ import express, { Request, RequestHandler, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 // P4-A1-LEDGER-IMPL（Zang §5.99 / DL96）：路由层计算 `request_fingerprint`（business 字段集合）
-import { createHash, timingSafeEqual } from 'crypto';
+import { createHash, randomUUID, timingSafeEqual } from 'crypto';
 import {
   consumeWalletAuthChallenge,
   createSessionToken,
@@ -210,6 +210,68 @@ const setPrivateNoStore = (res: Response) => {
 const parseInteger = (value: unknown, fallback = 0) => {
   const next = Number(value);
   return Number.isFinite(next) ? Math.trunc(next) : fallback;
+};
+
+// ============================================================================
+// ★ P58 浏览去重开关（迁移 0058）· 详情读口访客标识解析（路由层 · 零 DB）
+// 优先级：① 登录 —— Bearer 会话令牌**纯验签**（`verifySessionToken` 零查库）⇒ `uid:<id>`
+//          （计数标识 = best-effort 身份面：令牌 HMAC 验签即登录态真源，用户行存在性由既有鉴权口
+//          保证；不查库是为详情热路径不加 2-3 次读）；
+//         ② 匿名显式头 `x-sf-viewer`（前端后续会带）⇒ `anon:<值>`（128 字符上限防灌表）；
+//         ③ 匿名 cookie `sf_viewer` ⇒ 复用；缺失/超限 ⇒ 发 `sf_viewer=<uuid4>`
+//            （HttpOnly; SameSite=Lax; Max-Age=1 年）并以其为 key。
+// ★ 仅开关 on 时调用（off 模式零 cookie 写、零头读取 —— 现状行为不变）。
+//   返回 mintedCookie = 本次是否**新发** cookie（调用方据此把响应缓存从 public 降到
+//   private/no-store，防共享缓存把 A 的 Set-Cookie 回放给 B）。
+// ============================================================================
+const DETAIL_VIEWER_HEADER = 'x-sf-viewer';
+const DETAIL_VIEWER_COOKIE = 'sf_viewer';
+const DETAIL_VIEWER_COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 年
+const DETAIL_VIEWER_KEY_MAX = 128;
+
+const readDetailViewCookie = (req: Request): string => {
+  const raw = req.headers.cookie;
+  if (!raw) return '';
+  for (const part of raw.split(';')) {
+    const eq = part.indexOf('=');
+    if (eq <= 0) continue;
+    if (part.slice(0, eq).trim() !== DETAIL_VIEWER_COOKIE) continue;
+    const value = part.slice(eq + 1).trim();
+    try {
+      return decodeURIComponent(value);
+    } catch {
+      return value;
+    }
+  }
+  return '';
+};
+
+const resolveDetailViewViewerKey = (req: Request, res: Response): { viewerKey: string; mintedCookie: boolean } => {
+  const authHeader = req.headers.authorization || '';
+  if (authHeader.startsWith('Bearer ')) {
+    try {
+      const session = verifySessionToken(authHeader.slice('Bearer '.length).trim());
+      if (Number.isFinite(session.uID) && session.uID > 0) {
+        return { viewerKey: `uid:${session.uID}`, mintedCookie: false };
+      }
+    } catch {
+      // 无令牌 / 令牌失效 ⇒ 匿名路径（详情读口本就公开）
+    }
+  }
+
+  const headerKey = String(req.headers[DETAIL_VIEWER_HEADER] ?? '').trim();
+  if (headerKey && headerKey.length <= DETAIL_VIEWER_KEY_MAX) {
+    return { viewerKey: `anon:${headerKey}`, mintedCookie: false };
+  }
+
+  const cookieKey = readDetailViewCookie(req);
+  if (cookieKey && cookieKey.length <= DETAIL_VIEWER_KEY_MAX) {
+    return { viewerKey: `anon:${cookieKey}`, mintedCookie: false };
+  }
+
+  const minted = randomUUID();
+  res.setHeader('Set-Cookie', `${DETAIL_VIEWER_COOKIE}=${minted}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${DETAIL_VIEWER_COOKIE_MAX_AGE}`);
+  return { viewerKey: `anon:${minted}`, mintedCookie: true };
 };
 
 const parseBoolean = (value: unknown, fallback = false) => {
@@ -671,15 +733,28 @@ app.get('/api/prize/:bID', async (req, res) => {
       return sendRefNotFound(res, 'prize', String(req.params.bID ?? ''), 'bID_not_found');
     }
 
-    // ★ P57 详情浏览计数（Kevin 2026-10-20 详情页改版 · 后端件 · 迁移 0057）：详情读口换
+    // ★ P57 详情浏览计数（Kevin 2026-10-20 详情页改版 · 后端件 · 迁移 0057）：详情读口 =
     //   「自增 + 读」专用口 getPrizeDetailRecordingView —— 单语句 CTE 对 listing.view_count +1
     //   并读回**自增后**值 ⇒ 响应加性键 `views`；item_condition 同批透出为 `condition`、
     //   收藏计数同批与 feed 同源透出为 `wants` ⇒ data 顶层 47→**50**（+views +condition +wants）。
-    //   简单计数口径：任何状态都计（不过滤 status）、不区分访问者、
-    //   **卖家自看也计**（去重 / 自看排除策略挂 OPEN-ITEMS 待裁）。
+    //   简单计数口径：任何状态都计（不过滤 status）、**卖家自看也计**。
     //   行不存在 ⇒ CTE 0 行 ⇒ null ⇒ 既有 404 语义不变、**不计数**。零新路由（注册点仍 110）；
     //   feed（/api/prize/all、/api/home）不计数、不加键。
-    const prize = await DatabaseService.getPrizeDetailRecordingView(bID);
+    //
+    // ★ P58 浏览去重开关（迁移 0058 · Kevin 2026-10-20「后台开关」）：
+    //   · off（**当前配置**）⇒ 行为与 P57 现状逐字不变：无条件自增、不写日志、零访客 cookie/头读取；
+    //   · on ⇒ 先落 `listing_view_log`（viewer_key = `uid:<id>` 登录 / `anon:<x-sf-viewer 头或
+    //     sf_viewer cookie>` 匿名；头优先、无头发 HttpOnly+SameSite=Lax 1 年 cookie），
+    //     `ON CONFLICT ON CONSTRAINT listing_view_log_uniq DO NOTHING` —— rowCount=1（新访客/新一天）
+    //     才自增，冲突（同访客同天已见）⇒ 只读不增；**404 不计数不写日志**；
+    //     日志失败 ⇒ fail-open：详情照常返回、按「新访客」落旧口径自增（计数面退化为不去重）；
+    //   · 开关读 = 每请求单行 SELECT（`isDetailViewDedupEnabled`，无缓存体例）；
+    //     行缺席/非法值 ⇒ 服务层 fail-safe 默认 on（去重）。
+    const dedupOn = await DatabaseService.isDetailViewDedupEnabled();
+    const detailViewer = dedupOn ? resolveDetailViewViewerKey(req, res) : null;
+    const prize = detailViewer
+      ? await DatabaseService.getPrizeDetailViewWithViewer(bID, detailViewer.viewerKey)
+      : await DatabaseService.getPrizeDetailRecordingView(bID);
     if (!prize) {
       return sendRefNotFound(res, 'prize', String(bID), 'prize_not_found');
     }
@@ -690,7 +765,13 @@ app.get('/api/prize/:bID', async (req, res) => {
     const sellerResult = await getPrizeSellerView(bID);
     const seller = sellerResult.ok ? sellerResult.seller : null;
 
-    setPublicCache(res);
+    // ★ P58：新发访客 cookie 的响应是「对这个人发的」⇒ 不得进公共共享缓存（`s-maxage` 共享面
+    //   可能把 A 的 Set-Cookie 回放给 B）；其余分支缓存语义与 P57 逐字不变。
+    if (detailViewer?.mintedCookie) {
+      setPrivateNoStore(res);
+    } else {
+      setPublicCache(res);
+    }
     sendSuccess(res, { ...prize, seller });
   } catch (error) {
     // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器

@@ -51,9 +51,10 @@ const DEFAULT_SYSTEM_SETTINGS = {
 //   + 批 8③（`data-layer.spec` v0.12 §23.1 · `AK2` 入册）· `route-layer.spec` v2.5 §20：
 // `app_config` **合法键清单（关闭集）** + **写入门禁的判据真源**。
 // ============================================================================
-// · 顶层合法键（`app_config.key` 取值）**恰好 9 个** = `system_settings`（`AK1`，§21.1）
+// · 顶层合法键（`app_config.key` 取值）**恰好 10 个** = `system_settings`（`AK1`，§21.1）
 //   + `listing_deposit_policy`（`AK2`，§23.1 入册；真源 = `R-8-9` 批准键名）
-//   + P9 候选 7 键（§29.2(B) `B1`–`B7`；`R-9-13`-1 裁准入册 = 变体 Ⅰ）；
+//   + P9 候选 7 键（§29.2(B) `B1`–`B7`；`R-9-13`-1 裁准入册 = 变体 Ⅰ）
+//   + `detail_view_dedup`（P58 · 迁移 0058 · 详情浏览去重开关，只经配置行/迁移改）；
 //   **任何其它键名一律非法**（含 `foo` / `deposit_amount` / `fee_rate` / `rate_bp`）。
 // · ★ **「在册」=「可写」**（`data-layer.spec` v0.13 §24 · `route-layer.spec` v2.6 §21 · `R-8-19`）：
 //   `AK2` 已可经 `POST /api/admin/settings` 的**形态 B**（显式信封 `{key, value}`）**键级寻址**写入
@@ -66,12 +67,15 @@ const DEFAULT_SYSTEM_SETTINGS = {
 // · `value` 内**字段名**亦为**关闭集**：请求体出现清单外的键即按其为「未知键」判负（`AG1`）。
 // ⚠️ 纪律（§21.3 规则①）：**本清单是键名的唯一真源** —— 实现 / 测试 / 探针**不得自拟键名**。
 /**
- * §21.1 `AK1` ∪ §23.1 `AK2` ∪ §29.2(B)（P9 候选 `B1`–`B7` · `R-9-13`-1 裁准入册）：
- * `app_config` 顶层合法键（关闭集 · 恰 9 键）。逐字 9 键 =
+ * §21.1 `AK1` ∪ §23.1 `AK2` ∪ §29.2(B)（P9 候选 `B1`–`B7` · `R-9-13`-1 裁准入册）∪ P58：
+ * `app_config` 顶层合法键（关闭集 · 恰 10 键）。逐字 10 键 =
  *   `system_settings` · `listing_deposit_policy` ·
  *   `batt_policy`(B1) · `checkin_policy`(B2) · `invite_reward_policy`(B3) ·
- *   `mint_burn_policy`(B4) · `rating_policy`(B5) · `site_text_overrides`(B6) · `role_names`(B7)。
- * ★ 「在册 ≠ 可写」仍成立（§29.2(D) 三重复核）：入册后仍须过 `AV2`–`AV5` + `ops:` 键级寻址 + 闸 `manage_settings`。
+ *   `mint_burn_policy`(B4) · `rating_policy`(B5) · `site_text_overrides`(B6) · `role_names`(B7) ·
+ *   `detail_view_dedup`（P58 · 详情浏览去重开关；迁移 0058 落行 `{"dedup":"off"}`）。
+ * ★ 「在册 ≠ 可写」仍成立（§29.2(D) 三重复核）：入册后仍须过 `AV2`–`AV5` + `ops:` 键级寻址 + 闸 `manage_settings`；
+ *   `detail_view_dedup` **在册但不可经 /api/admin/settings 写**（`validateAppConfigValue` 分发无其
+ *   校验器 ⇒ fail-closed 兜底拒；开关只经配置行 / 迁移 0058 改）。
  */
 export const APP_CONFIG_LEGAL_KEYS = [
   'system_settings',
@@ -83,7 +87,18 @@ export const APP_CONFIG_LEGAL_KEYS = [
   'rating_policy',
   'site_text_overrides',
   'role_names',
+  'detail_view_dedup',
 ] as const;
+
+/**
+ * ★ P58（迁移 0058 · 详情浏览去重开关）：开关键 + 值对象字段 + 合法值闭集（判据真源三件套）。
+ * · 存储 = `app_config` 行 `{"dedup": "on"|"off"}`（0017 容器 CHECK ⇒ 裸标量不可存）；
+ * · **代码默认 = on（去重）**：行缺席 / `dedup` 字段缺席 / 非字符串 / 闭集外值 ⇒ 一律按 on（fail-safe，
+ *   见 `parseDetailViewDedupSwitch`）；**当前配置 = off**（迁移 0058 落行，不去重 = 现状行为不变）。
+ */
+export const DETAIL_VIEW_DEDUP_KEY = 'detail_view_dedup' as const;
+export const DETAIL_VIEW_DEDUP_FIELD = 'dedup' as const;
+export const DETAIL_VIEW_DEDUP_LEGAL_VALUES = ['on', 'off'] as const;
 
 /**
  * ★ 批 8③b（`data-layer.spec` v0.13 §24.1(b) · `AW3`）：**形态 A** 的目标键常量（唯一）。
@@ -1074,6 +1089,19 @@ const toTimestamp = (...values: unknown[]) => {
 };
 
 const firstRow = (result: unknown) => extractRows(result)[0] || null;
+
+/**
+ * ★ P58（迁移 0058）`detail_view_dedup` 开关值解析（fail-safe 判据唯一真源）：
+ *   `'on'` ⇒ true（去重）；`'off'` ⇒ false（不去重）；**其余一切** —— 行缺席 / `dedup` 字段缺席 /
+ *   非字符串 / 闭集外值 —— ⇒ **默认 on（去重）**（Kevin 口径「代码默认 = 去重」⇒ 缺配置永不静默关闸）。
+ * 大小写 / 首尾空白 normalize 后比对闭集 `DETAIL_VIEW_DEDUP_LEGAL_VALUES`（单一真源、不二写）。
+ */
+export const parseDetailViewDedupSwitch = (raw: unknown): boolean => {
+  if (typeof raw !== 'string') return true;
+  const normalized = raw.trim().toLowerCase();
+  if (!(DETAIL_VIEW_DEDUP_LEGAL_VALUES as readonly string[]).includes(normalized)) return true;
+  return normalized === 'on';
+};
 
 const slugify = (value: string) => (
   String(value || '')
@@ -4868,6 +4896,116 @@ export class DatabaseService {
       current_shard_supply: toNumberValue(getValue(row, 'current_shard_supply')),
       free_shards_distributed: toNumberValue(getValue(row, 'free_shards_distributed')),
     }, await loadI18nIndex('listing', [String(bID)]));
+  }
+
+  /**
+   * ★ P58 浏览去重开关读（迁移 0058 · Kevin 2026-10-20「后台开关」）：每请求单行 SELECT
+   *   `app_config` 行 `detail_view_dedup` 的 `dedup` 字段（体例 = `AK2` / `batt_policy` 同族的
+   *   **每请求读、无进程内缓存**）。行缺席 / 字段缺席 / 闭集外值 ⇒ fail-safe 默认 on（去重，
+   *   解析唯一真源 = `parseDetailViewDedupSwitch`）；**当前配置 = off**（迁移落行 ⇒ 现状不去重）。
+   *   `ex` = 既有事务内执行口（`R-8-18`）：门探针在事务内翻转配置行后读本方法 ⇒ 同一真源语句。
+   */
+  static async isDetailViewDedupEnabled(ex?: SqlRunner): Promise<boolean> {
+    const sql = sqlFor(ex);
+    const row = firstRow(await sql`
+      SELECT value ->> ${DETAIL_VIEW_DEDUP_FIELD}::text AS dedup
+      FROM public.app_config
+      WHERE key = ${DETAIL_VIEW_DEDUP_KEY}
+      LIMIT 1
+    `);
+    return parseDetailViewDedupSwitch(row ? getValue(row, 'dedup') : undefined);
+  }
+
+  /**
+   * ★ P58 去重日志落行（on 分支判定写）：同访客×同商品×同天至多一行（真源 = 具名约束
+   *   `listing_view_log_uniq`，迁移 0058）。
+   *   · `INSERT … SELECT … WHERE EXISTS(listing)` ⇒ **404 不写日志**（商品行不存在 ⇒ 零行插入）；
+   *   · `ON CONFLICT ON CONSTRAINT listing_view_log_uniq DO NOTHING` + `RETURNING` ⇒
+   *     有返回行 = 本次插入成功（新访客 / 新一天）⇒ `true`；空 = 当天已见（唯一约束冲突）⇒ `false`；
+   *   · 不建 FK（迁移 0058 取舍）：历史商品删除不阻碍日志保留；
+   *   · 抛错由调用方 `getPrizeDetailViewWithViewer` fail-open 承接（日志失败不阻塞详情）。
+   */
+  static async recordDetailViewLog(bID: number, viewerKey: string, ex?: SqlRunner): Promise<boolean> {
+    const sql = sqlFor(ex);
+    const row = firstRow(await sql`
+      INSERT INTO public.listing_view_log (listing_id, viewer_key)
+      SELECT ${bID}, ${viewerKey}
+      WHERE EXISTS (SELECT 1 FROM public.listing WHERE listing_id = ${bID})
+      ON CONFLICT ON CONSTRAINT listing_view_log_uniq DO NOTHING
+      RETURNING listing_id
+    `);
+    return row !== null;
+  }
+
+  /**
+   * ★ P58 已见访客**只读臂**（不增不写）：列清单 = `getPrizeDetailRecordingView` 外层 SELECT 同款
+   *   （+views +condition +wants ⇒ service 层 49 键同形），`view_count` **直读现值**、
+   *   无 `bumped` CTE、零自增（全仓自增语句仍恰 1 处 —— 单一真源不破）。
+   *   ⚠️ 两臂键形一致性由 p58 门同源断言；改详情列清单须两处同步。
+   */
+  static async getPrizeDetailReadOnly(bID: number, ex?: SqlRunner): Promise<BrandRecord | null> {
+    const sql = sqlFor(ex);
+    const row = firstRow(await sql`
+      SELECT
+        l.listing_id, l.seller_uid, l.cid, l.price, l.stock,
+        split_part(l.description, E'\\n', 1) AS title,
+        l.description, l.media_urls, l.status, l.create_key, l.ledger_event_keys,
+        l.item_type, l.item_condition, l.time_created, l.time_updated,
+        l.view_count AS view_count,
+        COALESCE(fav.want_count, 0)::int AS want_count,
+        0::int AS stores_count,
+        0::int AS claims_count,
+        0::int AS activated_count,
+        0::int AS current_shard_supply,
+        0::int AS free_shards_distributed
+      FROM listing AS l
+      LEFT JOIN (
+        SELECT listing_id, count(*)::int AS want_count
+        FROM public.listing_favorite
+        GROUP BY listing_id
+      ) AS fav ON fav.listing_id = l.listing_id
+      WHERE l.listing_id = ${bID}
+      LIMIT 1
+    `);
+
+    if (!row) {
+      return null;
+    }
+
+    return normalizeBrand(row, {
+      stores_count: toNumberValue(getValue(row, 'stores_count')),
+      claims_count: toNumberValue(getValue(row, 'claims_count')),
+      activated_count: toNumberValue(getValue(row, 'activated_count')),
+      current_shard_supply: toNumberValue(getValue(row, 'current_shard_supply')),
+      free_shards_distributed: toNumberValue(getValue(row, 'free_shards_distributed')),
+    }, await loadI18nIndex('listing', [String(bID)]));
+  }
+
+  /**
+   * ★ P58 on 分支编排（路由层开关 on 时走本口）：
+   *   · 落去重日志（`recordDetailViewLog`）→ 有返回行（新访客/新一天）⇒ 走既有「自增 + 读」专用口
+   *     `getPrizeDetailRecordingView`（**同一自增语句**，不二写自增面）；
+   *   · 冲突（当天已见）⇒ `getPrizeDetailReadOnly`（只读不增）；
+   *   · 日志写失败 ⇒ **fail-open**：不阻塞详情返回、按「新访客」落旧口径自增（与 off 模式同形；
+   *     反例 fail-closed = 因日志挂而整读挂，违背「日志失败不阻塞详情」）；
+   *   · `viewerKey` = 路由层解析（`uid:<id>` 登录 / `anon:<x-sf-viewer 头或 sf_viewer cookie>` 匿名）；
+   *     空/缺失 ⇒ 防御性落旧口径自增（理论不达：on 时路由必解出一个 key）。
+   */
+  static async getPrizeDetailViewWithViewer(bID: number, viewerKey: string | null, ex?: SqlRunner): Promise<BrandRecord | null> {
+    if (!viewerKey) {
+      return this.getPrizeDetailRecordingView(bID, ex);
+    }
+
+    let logged: boolean | null;
+    try {
+      logged = await this.recordDetailViewLog(bID, viewerKey, ex);
+    } catch {
+      logged = null; // fail-open：日志失败不阻塞详情返回、按新访客自增
+    }
+
+    return logged === false
+      ? this.getPrizeDetailReadOnly(bID, ex)
+      : this.getPrizeDetailRecordingView(bID, ex);
   }
 
   static async listPrizes(skip = 0, limit = 100): Promise<PrizeRecord[]> {
