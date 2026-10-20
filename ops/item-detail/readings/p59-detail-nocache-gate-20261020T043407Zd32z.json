@@ -1,0 +1,101 @@
+{
+  "run": "20261020T043407Zd32z",
+  "name": "p59-detail-nocache-gate",
+  "at": "2026-10-20T04:34:15.193Z",
+  "script": "ops/item-detail/p59-00-detail-nocache-gate.ts",
+  "target": {
+    "bID": 1,
+    "pre_views": 2,
+    "restored_views": 2,
+    "dedup_on": false
+  },
+  "env": {
+    "project_id": "quiet-math-65207667"
+  },
+  "checks": [
+    {
+      "id": "A1",
+      "what": "**零新路由**：注册点仍 = 110（本单只改详情路由的响应头，无第 111 个注册点）",
+      "pass": true,
+      "reading": "registration_points=110"
+    },
+    {
+      "id": "A2",
+      "what": "详情路由**无条件** no-store：`setPrivateNoStore(res)` 恰 1 处且不在条件分支里（`mintedCookie` 二分已删）· 详情块 `setPublicCache(` **零命中**",
+      "pass": true,
+      "reading": "{\"no_store\":1,\"public_cache\":0,\"conditional\":false,\"minted_cookie\":false}"
+    },
+    {
+      "id": "A3",
+      "what": "其余公开读口**缓存语义零变化**：全仓 `setPublicCache(res)` 调用点 = 4（feed/任务列表/任务详情 + home 匿名臂）· `/api/prize/all`、`/api/task/all`、`/api/task/:tID` 三块各仍有 1 处",
+      "pass": true,
+      "reading": "{\"public_cache_calls\":4,\"blocks\":[[\"/api/prize/all\",true],[\"/api/task/all\",true],[\"/api/task/:tID\",true]]}"
+    },
+    {
+      "id": "A4",
+      "what": "`/api/home` 双分支原样（登录 ⇒ private/no-store、匿名 ⇒ public）且 `Vary: Authorization` 未挪窝（详情块**没有**该头 —— 历史上只有 home 设，故无既有体例需保留）",
+      "pass": true,
+      "reading": "{\"home_private\":true,\"home_public\":true,\"home_vary\":true,\"detail_vary\":false}"
+    },
+    {
+      "id": "A5",
+      "what": "详情读口未被本单顺手换口：`DatabaseService.getPrizeDetailRecordingView(bID)` 字面仍在 · `getPrizeById(` 仍不在详情块（自增语义单一真源）",
+      "pass": true,
+      "reading": "{\"dedicated_read\":true,\"bare_read\":false}"
+    },
+    {
+      "id": "ENV",
+      "what": "库身份自证：neon.project_id = quiet-math-65207667（dev）—— 写库/发文前的前置闸，不符即停手",
+      "pass": true,
+      "reading": "project_id=quiet-math-65207667"
+    },
+    {
+      "id": "B1",
+      "what": "**详情响应头实测**：`Cache-Control` = `private, no-store` · **不含** `public` / `s-maxage` / `max-age`（原缺陷形态）",
+      "pass": true,
+      "reading": "status=200 cache_control=\"private, no-store\""
+    },
+    {
+      "id": "B2",
+      "what": "**每次打开 +1（真 HTTP × 3，无缓存介入）**：views = pre+1, pre+2, pre+3 逐次自增（CDN 缓存形态下第二次起会停在同值）",
+      "pass": true,
+      "reading": "{\"bID\":1,\"pre\":2,\"r1\":3,\"r2\":4,\"r3\":5}"
+    },
+    {
+      "id": "B3",
+      "what": "**无二分**：带 `Authorization`（垃圾令牌 ⇒ 匿名路径）时仍 `private, no-store` · 不发 `Set-Cookie` 的分支也没有 public 回潮",
+      "pass": true,
+      "reading": "status=200 cache_control=\"private, no-store\" set_cookie=none"
+    },
+    {
+      "id": "B4",
+      "what": "**feed 仍 public**（缓存语义一字不改）：`/api/prize/all` 的 `Cache-Control` 实测含 `public` + `s-maxage`（逐字 `public, s-maxage=30, stale-while-revalidate=300`）",
+      "pass": true,
+      "reading": "status=200 cache_control=\"public, s-maxage=30, stale-while-revalidate=300\""
+    },
+    {
+      "id": "B5",
+      "what": "`/api/task/all` 仍 public（同上，逐字 `public, s-maxage=30, stale-while-revalidate=300`）",
+      "pass": true,
+      "reading": "status=200 cache_control=\"public, s-maxage=30, stale-while-revalidate=300\""
+    },
+    {
+      "id": "B6",
+      "what": "`/api/home` 匿名臂仍 public 且 `Vary: Authorization` 在场（双分支体例未被本单波及）",
+      "pass": true,
+      "reading": "status=200 cache_control=\"public, s-maxage=30, stale-while-revalidate=300\" vary=\"Authorization\""
+    },
+    {
+      "id": "E1",
+      "what": "**零残留**：探针自增已回写复原（`view_count` 读回 = 改前值）· 探针 viewer_key 在 `listing_view_log` 命中 = 0（去重开关 off 时本不该写日志）",
+      "pass": true,
+      "reading": "{\"bID\":1,\"pre\":2,\"restored\":2,\"log_rows\":0,\"dedup_on\":false}"
+    }
+  ],
+  "summary": {
+    "total": 13,
+    "passed": 13,
+    "failed": 0,
+    "red": []
+  }
+}

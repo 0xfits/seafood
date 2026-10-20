@@ -1,0 +1,88 @@
+{
+  "run": "20261020T043503Z0icn",
+  "script": "ops/item-detail/p59-01-dev-http-probe.mjs",
+  "base": "http://localhost:5788",
+  "at": "2026-10-20T04:35:19.556Z",
+  "env": {
+    "project_id": "quiet-math-65207667"
+  },
+  "target": {
+    "bID": 1,
+    "pre_views": 2,
+    "restored_views": 2
+  },
+  "headers": {
+    "detail": [
+      {
+        "status": 200,
+        "cache_control": "private, no-store",
+        "set_cookie": null
+      },
+      {
+        "status": 200,
+        "cache_control": "private, no-store",
+        "set_cookie": null
+      },
+      {
+        "status": 200,
+        "cache_control": "private, no-store",
+        "set_cookie": null
+      }
+    ],
+    "feed": {
+      "status": 200,
+      "cache_control": "public, s-maxage=30, stale-while-revalidate=300"
+    },
+    "tasks": {
+      "status": 200,
+      "cache_control": "public, s-maxage=30, stale-while-revalidate=300"
+    },
+    "home": {
+      "status": 200,
+      "cache_control": "public, s-maxage=30, stale-while-revalidate=300",
+      "vary": "Authorization"
+    }
+  },
+  "views_series": [
+    3,
+    4,
+    5
+  ],
+  "checks": [
+    {
+      "id": "D1",
+      "what": "dev 实例详情头 = private, no-store（3 次全同）· 不含 public/s-maxage/max-age",
+      "pass": true
+    },
+    {
+      "id": "D2",
+      "what": "views 逐次 +1（pre=2 ⇒ 3→4→5）",
+      "pass": true
+    },
+    {
+      "id": "D3",
+      "what": "dev 实例 feed /api/prize/all 仍 public + s-maxage=30",
+      "pass": true
+    },
+    {
+      "id": "D4",
+      "what": "dev 实例 /api/task/all 仍 public + s-maxage=30",
+      "pass": true
+    },
+    {
+      "id": "D5",
+      "what": "dev 实例 /api/home 匿名仍 public + Vary: Authorization",
+      "pass": true
+    },
+    {
+      "id": "D6",
+      "what": "探针自增已回写复原（view_count 读回 = 改前值）",
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "passed": 6,
+    "failed": []
+  }
+}

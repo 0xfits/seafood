@@ -1,0 +1,16 @@
+{
+ "saved": "/Users/kevin/bistro/seafood/ops/item-detail/readings/p58-view-dedup-gate-20261020T043459Z0q9u.json",
+ "mode": "post-apply",
+ "env": {
+  "project_id": "quiet-math-65207667",
+  "branch_id": "br-soft-lake-b3iv9tli",
+  "expect_dev": "quiet-math-65207667"
+ },
+ "summary": {
+  "total": 29,
+  "passed": 29,
+  "failed": 0,
+  "red": []
+ },
+ "red": []
+}

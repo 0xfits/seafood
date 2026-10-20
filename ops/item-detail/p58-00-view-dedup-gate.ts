@@ -98,17 +98,20 @@ const FIXTURE_KEY_PREFIX = 'cli:p58-gate:';
     }));
 
   const cookieMint = detailBlock + INDEX_TS.slice(INDEX_TS.indexOf('const DETAIL_VIEWER_HEADER'), INDEX_TS.indexOf('const parseBoolean'));
-  ck.t('A3', '匿名访客面：头 `x-sf-viewer` 优先 · cookie `sf_viewer` 复用 · 缺失**发** `sf_viewer=<uuid4>`（HttpOnly; SameSite=Lax; Max-Age=1 年）· 发 cookie 分支缓存降级 `setPrivateNoStore`（防共享缓存串号）· viewer_key 前缀 uid:/anon: 分域',
+  ck.t('A3', '匿名访客面：头 `x-sf-viewer` 优先 · cookie `sf_viewer` 复用 · 缺失**发** `sf_viewer=<uuid4>`（HttpOnly; SameSite=Lax; Max-Age=1 年）· **P59 后缓存头不再二分**：详情路由无条件 `setPrivateNoStore(res)`（发 cookie 的串号风险被 no-store 整体覆盖）· `setPublicCache` / `mintedCookie` 在详情块**零命中** · viewer_key 前缀 uid:/anon: 分域',
     cookieMint.includes("'x-sf-viewer'") && cookieMint.includes("'sf_viewer'")
     && /HttpOnly; SameSite=Lax; Max-Age=/.test(cookieMint)
     && /60 \* 60 \* 24 \* 365/.test(cookieMint)
     && /randomUUID\(\)/.test(cookieMint)
-    && /detailViewer\?\.mintedCookie/.test(detailBlock) && /setPrivateNoStore\(res\)/.test(detailBlock)
+    && /setPrivateNoStore\(res\)/.test(detailBlock) && !/setPublicCache\(/.test(detailBlock)
+    && !/mintedCookie/.test(detailBlock)
     && /`uid:\$\{session\.uID\}`/.test(cookieMint) && /`anon:\$\{/.test(cookieMint),
     JSON.stringify({
       header: cookieMint.includes("'x-sf-viewer'"), cookie: cookieMint.includes("'sf_viewer'"),
       attrs: /HttpOnly; SameSite=Lax; Max-Age=/.test(cookieMint), uuid: /randomUUID\(\)/.test(cookieMint),
-      cache_downgrade: /setPrivateNoStore\(res\)/.test(detailBlock),
+      unconditional_no_store: /setPrivateNoStore\(res\)/.test(detailBlock),
+      detail_public_cache_hits: /setPublicCache\(/.test(detailBlock),
+      detail_minted_cookie_hits: /mintedCookie/.test(detailBlock),
     }));
 
   const incrHits = (DB.match(/view_count = view_count \+ 1/g) ?? []).length;

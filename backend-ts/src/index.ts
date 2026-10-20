@@ -221,8 +221,11 @@ const parseInteger = (value: unknown, fallback = 0) => {
 //         ③ 匿名 cookie `sf_viewer` ⇒ 复用；缺失/超限 ⇒ 发 `sf_viewer=<uuid4>`
 //            （HttpOnly; SameSite=Lax; Max-Age=1 年）并以其为 key。
 // ★ 仅开关 on 时调用（off 模式零 cookie 写、零头读取 —— 现状行为不变）。
-//   返回 mintedCookie = 本次是否**新发** cookie（调用方据此把响应缓存从 public 降到
-//   private/no-store，防共享缓存把 A 的 Set-Cookie 回放给 B）。
+// ★ P59（2026-10-20 生产实测 · CDN 缓存缺陷）后：返回值**只含 `viewerKey`**。
+//   本口不再用「是否新发 cookie」二分缓存头 —— 详情读口无条件 `private, no-store`
+//   （理由见 `/api/prize/:bID` 路由注释：浏览数要求「每次打开 +1」，任何共享缓存命中都会
+//   破坏该语义）。发 cookie 的响应被 no-store 一并覆盖 ⇒ 防串号诉求自动满足，不再需要
+//   一个只为选缓存头而存在的布尔。
 // ============================================================================
 const DETAIL_VIEWER_HEADER = 'x-sf-viewer';
 const DETAIL_VIEWER_COOKIE = 'sf_viewer';
@@ -246,13 +249,13 @@ const readDetailViewCookie = (req: Request): string => {
   return '';
 };
 
-const resolveDetailViewViewerKey = (req: Request, res: Response): { viewerKey: string; mintedCookie: boolean } => {
+const resolveDetailViewViewerKey = (req: Request, res: Response): string => {
   const authHeader = req.headers.authorization || '';
   if (authHeader.startsWith('Bearer ')) {
     try {
       const session = verifySessionToken(authHeader.slice('Bearer '.length).trim());
       if (Number.isFinite(session.uID) && session.uID > 0) {
-        return { viewerKey: `uid:${session.uID}`, mintedCookie: false };
+        return `uid:${session.uID}`;
       }
     } catch {
       // 无令牌 / 令牌失效 ⇒ 匿名路径（详情读口本就公开）
@@ -261,17 +264,17 @@ const resolveDetailViewViewerKey = (req: Request, res: Response): { viewerKey: s
 
   const headerKey = String(req.headers[DETAIL_VIEWER_HEADER] ?? '').trim();
   if (headerKey && headerKey.length <= DETAIL_VIEWER_KEY_MAX) {
-    return { viewerKey: `anon:${headerKey}`, mintedCookie: false };
+    return `anon:${headerKey}`;
   }
 
   const cookieKey = readDetailViewCookie(req);
   if (cookieKey && cookieKey.length <= DETAIL_VIEWER_KEY_MAX) {
-    return { viewerKey: `anon:${cookieKey}`, mintedCookie: false };
+    return `anon:${cookieKey}`;
   }
 
   const minted = randomUUID();
   res.setHeader('Set-Cookie', `${DETAIL_VIEWER_COOKIE}=${minted}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${DETAIL_VIEWER_COOKIE_MAX_AGE}`);
-  return { viewerKey: `anon:${minted}`, mintedCookie: true };
+  return `anon:${minted}`;
 };
 
 const parseBoolean = (value: unknown, fallback = false) => {
@@ -751,9 +754,9 @@ app.get('/api/prize/:bID', async (req, res) => {
     //   · 开关读 = 每请求单行 SELECT（`isDetailViewDedupEnabled`，无缓存体例）；
     //     行缺席/非法值 ⇒ 服务层 fail-safe 默认 on（去重）。
     const dedupOn = await DatabaseService.isDetailViewDedupEnabled();
-    const detailViewer = dedupOn ? resolveDetailViewViewerKey(req, res) : null;
-    const prize = detailViewer
-      ? await DatabaseService.getPrizeDetailViewWithViewer(bID, detailViewer.viewerKey)
+    const detailViewerKey = dedupOn ? resolveDetailViewViewerKey(req, res) : null;
+    const prize = detailViewerKey
+      ? await DatabaseService.getPrizeDetailViewWithViewer(bID, detailViewerKey)
       : await DatabaseService.getPrizeDetailRecordingView(bID);
     if (!prize) {
       return sendRefNotFound(res, 'prize', String(bID), 'prize_not_found');
@@ -765,13 +768,19 @@ app.get('/api/prize/:bID', async (req, res) => {
     const sellerResult = await getPrizeSellerView(bID);
     const seller = sellerResult.ok ? sellerResult.seller : null;
 
-    // ★ P58：新发访客 cookie 的响应是「对这个人发的」⇒ 不得进公共共享缓存（`s-maxage` 共享面
-    //   可能把 A 的 Set-Cookie 回放给 B）；其余分支缓存语义与 P57 逐字不变。
-    if (detailViewer?.mintedCookie) {
-      setPrivateNoStore(res);
-    } else {
-      setPublicCache(res);
-    }
+    // ★ P59（2026-10-20 生产实测 · CDN 缓存缺陷）：本口**无条件** `private, no-store`。
+    //   两条理由，缺一不可：
+    //   ① 语义：响应带 `views`（自增后值）⇒ 详情浏览计数必须「每次打开 +1」。原实现匿名
+    //      分支挂共享缓存头（`public, s-maxage=30, stale-while-revalidate=300`）⇒ CDN 命中时
+    //      请求根本不到 origin ⇒ 浏览数不增，且读数在「边缘缓存值」与「库内真值」之间跳动
+    //      （生产实测 2→4→4）。
+    //   ② 安全：去重开关 on 时本口可能发 `Set-Cookie: sf_viewer`，共享缓存会把 A 的
+    //      Set-Cookie 回放给 B。
+    //   原「新发 cookie ⇒ 降级 no-store / 其余 ⇒ 共享缓存」的二分已删（它把绝大多数匿名请求
+    //   送进 CDN，正是本缺陷成因）⇒ 登录/匿名、新发/复用 cookie、开关 on/off 一律同语义。
+    //   认证区分头：本路由历史上不设 Authorization 的缓存键响应头（只有 `/api/home` 设），
+    //   故无既有体例需保留；`no-store` 已使缓存键区分失去意义。
+    setPrivateNoStore(res);
     sendSuccess(res, { ...prize, seller });
   } catch (error) {
     // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
