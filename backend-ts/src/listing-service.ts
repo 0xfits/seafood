@@ -20,6 +20,12 @@
 // ============================================================================
 import { createHash } from 'crypto';
 import { DatabaseService, isListingEditAdminAccess, type ListingEditAdminAccess } from './database';
+import {
+  ITEM_ID_CREATE_ATTEMPTS,
+  codeFromSnowflake,
+  isItemIdUniqueViolation,
+  nextSnowflake,
+} from './item-id';
 import { errorMessageOf } from './ledger-errors';
 import {
   ledgerErrorBody,
@@ -357,17 +363,37 @@ export const createListing = async (params: {
   const gate = await currencyGate(cid.value);
   if (gate) return gate;
 
-  const write = await DatabaseService.createListingRow({
-    sellerUid: Number(params.sellerUid),
-    cid: cid.value,
-    price: price.value,
-    stock: stock.value,
-    description: descriptionText,
-    mediaUrls: mediaUrls.value || [],
-    itemType: itemType.value,
-    itemCondition: itemCondition.value,
-    createKey: resolvedKey.key,
-  });
+  // ★ 迁移 0060（Kevin 2026-10-20 指令第 3 条「统一商品 Id」）：对外标识两列由**服务层生成后写入**
+  //   （DB 侧零 default —— 发号策略只在 `item-id.ts` 一处，可单测、门里可注入）。
+  //   · 唯一冲突（23505 且落在 `snowflake_id` / `item_code` 两个具名唯一索引上）⇒ **重生重试 ≤3 次**：
+  //     每次重取雪花（毫秒或序号必进）⇒ 7 位码随之变化 ⇒ 重试必然换码；
+  //   · 3 次仍撞 ⇒ 上抛（发号器/码表异常是**缺陷**，不静默落半行、不编造 id）；
+  //   · `create_key` 撞车**不进**本重试（幂等键语义，`isItemIdUniqueViolation` 已按名排除）。
+  let write: Awaited<ReturnType<typeof DatabaseService.createListingRow>> | null = null;
+  let idWriteError: unknown = null;
+  for (let attempt = 0; attempt < ITEM_ID_CREATE_ATTEMPTS; attempt += 1) {
+    const snowflake = nextSnowflake();
+    try {
+      write = await DatabaseService.createListingRow({
+        sellerUid: Number(params.sellerUid),
+        cid: cid.value,
+        price: price.value,
+        stock: stock.value,
+        description: descriptionText,
+        mediaUrls: mediaUrls.value || [],
+        itemType: itemType.value,
+        itemCondition: itemCondition.value,
+        createKey: resolvedKey.key,
+        snowflakeId: snowflake.toString(),
+        itemCode: codeFromSnowflake(snowflake),
+      });
+      break;
+    } catch (error) {
+      if (!isItemIdUniqueViolation(error)) throw error;
+      idWriteError = error;
+    }
+  }
+  if (!write) throw idWriteError ?? new Error('createListing: listing id generation failed');
 
   // ★ 幂等指纹口径（迁移 0053 选择）：`item_type` **不进**指纹 —— 指纹字段集沿用既有 5 字段
   //   （`seller_uid, cid, price, description, media_urls`，见 `fingerprintOf` 上方注释：可重构不变子集、

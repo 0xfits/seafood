@@ -43,6 +43,9 @@ import { ledgerErrorBody, sendGone, sendVerbError, submitWork } from './job-serv
 import { publishJob, refundJob, settleJob, verifyJobSubmission } from './job-funds-service';
 // P4-B4a：商品面（P1 上架/编辑/下架）—— §1.8 #7/#8；**本片首次导入整个模块**（v0.8 §1.8 现取 `grep` = 0）
 import { createListing, transitionListingStatus, updateListing, updateListingDetails, classifyListingPatchBody, getListingEditView } from './listing-service';
+// ★ 迁移 0060（Kevin 2026-10-20 第 3 条「统一商品 Id」）：详情读口的 `ref` 判定助手
+//   （全数字 ⇒ listing_id · 7 位字母数字 ⇒ item_code）
+import { isItemCode, isNumericRef } from './item-id';
 // P4-B4a：商品**资金**面（P2 购买 / P4 退款）—— §1.8 #9/#10；同样**本片首次导入**（`listing-funds-service` 调用点改前 = 0）
 import { buyListing, refundListingOrder } from './listing-funds-service';
 // P4-B4a：R3 佣金政策插行（§1.8 附注 / §9 A11）；**只读引用**该模块，不改其行为、不改金额来源（§4.8）
@@ -746,9 +749,24 @@ app.get('/api/task/:tID', async (req, res) => {
 
 app.get('/api/prize/:bID', async (req, res) => {
   try {
-    const bID = parseInteger(req.params.bID);
+    // ★★ 迁移 0060（Kevin 2026-10-20 指令第 3 条「页面地址 uri 改用 itemCode」）：
+    //   路径参数位名沿用 `:bID`（**零新路由** ⇒ 注册点仍 111），但取值域扩成 **ref**：
+    //     · **全数字** ⇒ 按 `listing_id` 解释（**向后兼容**：既有 `/item/<数字 id>` 链接、
+    //       外部已发出去的 URL、老前端一律照旧命中）；
+    //     · **7 位字母数字**（`^[0-9A-Za-z]{7}$`，`isItemCode`）⇒ 按 `item_code` 查（现行页面地址）；
+    //     · 其它形状（空 / 8 位以上 / 带符号）⇒ 既有 `bID_not_found` 404（形状闸，零 DB）；
+    //     · 码不存在 ⇒ 与「id 不存在」**同一个 404**（`prize_not_found`，不区分，避免探测面）。
+    //   计数 / 去重 / 缓存头 / seller 合成**逐字不变**：解析出 `listing_id` 之后走原封不动的旧路径
+    //   ⇒ 本单对详情语义的改动只有「入参多了一种解释方式」。
+    const rawRef = String(req.params.bID ?? '').trim();
+    const numericRef = isNumericRef(rawRef) ? parseInteger(rawRef) : 0;
+    const codeRef = numericRef ? null : (isItemCode(rawRef) ? rawRef : null);
+    if (!numericRef && !codeRef) {
+      return sendRefNotFound(res, 'prize', rawRef, 'bID_not_found');
+    }
+    const bID = numericRef || (await DatabaseService.getListingIdByItemCode(codeRef as string));
     if (!bID) {
-      return sendRefNotFound(res, 'prize', String(req.params.bID ?? ''), 'bID_not_found');
+      return sendRefNotFound(res, 'prize', rawRef, 'prize_not_found');
     }
 
     // ★ P57 详情浏览计数（Kevin 2026-10-20 详情页改版 · 后端件 · 迁移 0057）：详情读口 =

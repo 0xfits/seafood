@@ -57,8 +57,11 @@ const CHECK_STMTS = STMTS.filter((s) => isDoBlock(s));
         WHERE n.nspname='public' AND cl.relname='listing_edit_log' AND NOT t.tgisinternal`);
     r.fk = (await raw1<{ n: number }>(c,
       "SELECT count(*)::int AS n FROM pg_constraint WHERE conrelid='public.listing_edit_log'::regclass AND contype='f'"))?.n;
+    // ★ pg_indexes 含 PK 隐式索引（listing_edit_log_pkey）⇒ 总数恒 2；具名业务索引单独点名断
     r.idx = (await raw1<{ n: number }>(c,
       "SELECT count(*)::int AS n FROM pg_indexes WHERE schemaname='public' AND tablename='listing_edit_log'"))?.n;
+    r.idx_listing = (await raw1<{ n: number }>(c,
+      "SELECT count(*)::int AS n FROM pg_indexes WHERE schemaname='public' AND tablename='listing_edit_log' AND indexname='listing_edit_log_listing_idx' AND indexdef LIKE '%(listing_id)%'"))?.n;
 
     // 正控：合法行可插
     const okIns = await sp(c, () => raw1(c,
@@ -110,7 +113,7 @@ const CHECK_STMTS = STMTS.filter((s) => isDoBlock(s));
     rolled_back: res.rolled_back,
     ms: res.ms,
     statements: r.statements, self_check_arms: r.self_check_arms, ddl_idempotent_passes: r.ddl_idempotent_passes,
-    cols: r.cols, checks: r.checks, triggers: r.triggers, fk: r.fk, idx: r.idx,
+    cols: r.cols, checks: r.checks, triggers: r.triggers, fk: r.fk, idx: r.idx, idx_listing: r.idx_listing,
     ok_insert: r.ok_insert, empty_arr: r.empty_arr,
     bad_field_rejected: r.bad_field?.ok === false, bad_field_err: r.bad_field?.err,
     null_elem_rejected: r.null_elem?.ok === false, null_elem_err: r.null_elem?.err,
@@ -126,7 +129,7 @@ const CHECK_STMTS = STMTS.filter((s) => isDoBlock(s));
   const red = [
     verdict.self_check_passed, verdict.bad_field_rejected, verdict.null_elem_rejected,
     verdict.update_blocked, verdict.delete_blocked, verdict.ok_insert?.ok, verdict.empty_arr?.ok,
-    verdict.fk === 0, verdict.idx === 1, verdict.rerun_ok, verdict.triggers_after_rerun === 1,
+    verdict.fk === 0, verdict.idx === 2, verdict.idx_listing === 1, verdict.rerun_ok, verdict.triggers_after_rerun === 1,
   ].filter((x) => x !== true);
   if (red.length) process.exit(1);
 })().catch((e) => { console.error('FATAL', e); process.exit(2); });

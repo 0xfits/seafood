@@ -1166,6 +1166,13 @@ export interface BrandRecord {
    *   ⇒ 本键恒在场、值为 `string | null`（不是缺键）。
    *   feed（`listBrands`）与详情（`getBrandById`）同源 `l.*` ⇒ 两口**各 +1 键**（feed 47→48、详情 46→47）。 */
   item_type: string | null;
+  /** ★ 迁移 0060（Kevin 2026-10-20 第 3 条「统一商品 Id」）：页面地址码（7 位、base56 去混淆
+   *  字母表）。全数字 id / bID 仍是内部键；**对外链接一律用本键**（`/item/<item_code>`）。
+   *  feed 与详情同源 `l.item_code` ⇒ 两口各 +1 键；生产库 pre-apply 过渡态缺列 ⇒ `null`。 */
+  item_code: string | null;
+  /** ★ 迁移 0060：雪花标识，**恒以字符串下发**（63 bit 超出 JS `Number.MAX_SAFE_INTEGER`
+   *  ⇒ 落 Number 会静默丢精度；与 `bID` 并存，前端/外部系统按字符串比对即可）。 */
+  snowflake_id: string | null;
   points: number;
   market_floor_points: number;
   duration_seconds: number;
@@ -1261,6 +1268,10 @@ export interface ListingMineRow {
   /** ★ P57 加性键（行键 10→11）：商品成色（`listing.item_condition`，迁移 0057 四值闭集 或
    *  `null` = 无成色）—— 编辑页（/item/:id/edit）预填成色用；键名与详情读口 `condition` 一致。 */
   condition: string | null;
+  /** ★ 迁移 0060 加性键（行键 11→13）：7 位页面地址码（对外链接 `/item/<item_code>`）。 */
+  item_code: string | null;
+  /** ★ 迁移 0060 加性键：雪花标识，**字符串**（63 bit 超出 JS 安全整数）。 */
+  snowflake_id: string | null;
 }
 
 // 「我卖出的」：行形与买家轴 listPrizeItemsByUser（GET /api/prize-item）同族（gID/bID/uID
@@ -1570,6 +1581,18 @@ const normalizeBrand = (
     //   （feed 47→48、详情 46→47）。值为闭集三字面量之一或 NULL（= 未分类 / 列未迁移时的兜底）；
     //   **恒在场**（不按行缺列选择性省略）——分类是**行属性**不是卖家/聚合派生面，前端按 null 判「无标签」。
     item_type: toStringValue(getValue(row, 'item_type')) || null,
+    // ★ 迁移 0060（页面地址键 + 雪花键，两口同源 `l.item_code` / `l.snowflake_id`）：
+    //   · `item_code` = 7 位码（`char(7)` 回来恒 7 字符；缺列/未回填 ⇒ `null`，不编值）；
+    //   · `snowflake_id` = **字符串**（63 bit ⇒ 落 Number 会静默丢精度；前端按串比对/拼 URL）。
+    //   两键**恒在场**（行属性，不按行缺列选择性省略；feed 48→50、详情 50→52）。
+    item_code: (() => {
+      const rawCode = getValue(row, 'item_code');
+      return rawCode === undefined || rawCode === null ? null : String(rawCode);
+    })(),
+    snowflake_id: (() => {
+      const rawSnowflake = getValue(row, 'snowflake_id');
+      return rawSnowflake === undefined || rawSnowflake === null ? null : String(rawSnowflake);
+    })(),
     points: toNumberValue(getValue(row, 'points', 'price')),
     market_floor_points: marketFloorPoints,
     duration_seconds: durationSeconds,
@@ -1680,6 +1703,18 @@ const normalizeListingMineRow = (row: RawRow): ListingMineRow => ({
     const rawCondition = getValue(row, 'item_condition');
     return rawCondition === undefined || rawCondition === null ? null : String(rawCondition);
   })(),
+  // ★ 迁移 0060（Kevin 2026-10-20 第 3 条）：对外标识两键（行键 11→**13**，尾部追加 ⇒ 零重排）。
+  //   · `item_code` = 7 位页面地址码（编辑页 / 列表页拼 `/item/<item_code>` 用）；
+  //   · `snowflake_id` = **字符串**（63 bit，落 Number 会静默丢精度）。
+  //   三个调用口（mine 列表 / 编辑预填 / PATCH 回执）的 SELECT 与 RETURNING 均恒带这两列。
+  item_code: (() => {
+    const rawCode = getValue(row, 'item_code');
+    return rawCode === undefined || rawCode === null ? null : String(rawCode);
+  })(),
+  snowflake_id: (() => {
+    const rawSnowflake = getValue(row, 'snowflake_id');
+    return rawSnowflake === undefined || rawSnowflake === null ? null : String(rawSnowflake);
+  })(),
 });
 
 /**
@@ -1730,7 +1765,9 @@ const normalizeListingMineRow = (row: RawRow): ListingMineRow => ({
 const UPDATE_LISTING_DETAILS_SQL = `
       WITH cur AS (
         SELECT pl.listing_id, pl.seller_uid, pl.cid, pl.price, pl.stock, pl.description, pl.media_urls, pl.item_type,
-               pl.item_condition, pl.status, pl.time_created
+               pl.item_condition, pl.status, pl.time_created,
+               -- ★ 0060 两列：guarded 走 cur.* ⇒ 这里漏选则下面 UNION 的 g.item_code 直接 42703
+               pl.item_code, pl.snowflake_id
         FROM public.listing AS pl
         WHERE pl.listing_id = $1::bigint
         FOR UPDATE
@@ -1762,6 +1799,7 @@ const UPDATE_LISTING_DETAILS_SQL = `
           AND g.outcome = 'ok'
         RETURNING l.listing_id, split_part(l.description, E'\\n', 1) AS title, l.price, l.cid, l.status, l.stock,
                   l.media_urls, l.time_created, l.description, l.item_type, l.item_condition,
+                  l.item_code, l.snowflake_id,
                   g.description AS prev_description,
                   g.seller_uid,
                   array_remove(ARRAY[
@@ -1783,17 +1821,20 @@ const UPDATE_LISTING_DETAILS_SQL = `
         RETURNING log_id
       )
       SELECT x.listing_id, x.title, x.price, x.cid, x.status, x.stock, x.media_urls,
-             x.time_created, x.description, x.item_type, x.item_condition, x.prev_description, x.outcome,
+             x.time_created, x.description, x.item_type, x.item_condition, x.item_code, x.snowflake_id,
+             x.prev_description, x.outcome,
              x.seller_uid, x.changed_fields,
              (SELECT count(*)::int FROM ins) AS edit_log_written
       FROM (
         SELECT u.listing_id, u.title, u.price, u.cid, u.status, u.stock, u.media_urls,
-               u.time_created, u.description, u.item_type, u.item_condition, u.prev_description, u.outcome,
+               u.time_created, u.description, u.item_type, u.item_condition, u.item_code, u.snowflake_id,
+               u.prev_description, u.outcome,
                u.seller_uid, u.changed_fields
         FROM upd AS u
         UNION ALL
         SELECT g.listing_id, split_part(g.description, E'\\n', 1) AS title, g.price, g.cid, g.status, g.stock, g.media_urls,
-               g.time_created, g.description, g.item_type, g.item_condition, g.description, g.outcome,
+               g.time_created, g.description, g.item_type, g.item_condition, g.item_code, g.snowflake_id,
+               g.description, g.outcome,
                g.seller_uid, '{}'::text[] AS changed_fields
         FROM guarded AS g WHERE g.outcome <> 'ok'
       ) AS x
@@ -2851,8 +2892,8 @@ export class DatabaseService {
     };
   }
 
-  static async listBrands(skip = 0, limit = 100): Promise<BrandRecord[]> {
-    const sql = getSql();
+  static async listBrands(skip = 0, limit = 100, ex?: SqlRunner): Promise<BrandRecord[]> {
+    const sql = sqlFor(ex);
     // P4-B1-c: prize→listing 读侧换表（bID←listing_id、points←price、name←title；description/status/
     // time_created/time_updated 同名核对）。旧 gift_counts/shard_counts/transfer_counts CTE 引用的
     // prize_item/shard/shard_transfer 在新 schema 无对应表（probe.json 三口径 42P01）
@@ -2891,6 +2932,8 @@ export class DatabaseService {
           split_part(l.description, E'\\n', 1) AS title,
           l.description, l.media_urls, l.status, l.create_key, l.ledger_event_keys,
           l.item_type, l.time_created, l.time_updated,
+          -- ★ 迁移 0060：对外标识两列（页面地址码 + 雪花）—— feed 行键 48→50（两口同源加性键）
+          l.item_code, l.snowflake_id,
           0::int AS stores_count,
           0::int AS claims_count,
           0::int AS activated_count,
@@ -3040,7 +3083,10 @@ export class DatabaseService {
         l.time_created,
         l.description,
         l.item_type,
-        l.item_condition
+        l.item_condition,
+        -- ★ 迁移 0060：对外标识两列（行键 11→13；位置追加在既有列之后、既有顺序不动）
+        l.item_code,
+        l.snowflake_id
       FROM public.listing AS l
       WHERE l.seller_uid = ${sellerUid}::bigint
       ORDER BY l.listing_id DESC
@@ -3146,6 +3192,9 @@ export class DatabaseService {
         l.description,
         l.item_type,
         l.item_condition,
+        -- ★ 迁移 0060：对外标识两列（与 mine 行逐键同族）
+        l.item_code,
+        l.snowflake_id,
         l.seller_uid
       FROM public.listing AS l
       WHERE l.listing_id = ${listingId}::bigint
@@ -3949,7 +3998,10 @@ export class DatabaseService {
 
   /** P1-a 上架：幂等 = `listing.create_key` UNIQUE（同键 ⇒ `existing`，由 service 判重放 / 冲突）
    *  ★ 2026-10-20 商品分类枚举（迁移 0053）：`itemType` 可选（`null` = 未分类）；分类**只在创建时定**，
-   *  编辑（`updateListingRow`）与状态迁移都不写该列 ⇒ 本函数是 `item_type` 的**唯一写点**。 */
+   *  编辑（`updateListingRow`）与状态迁移都不写该列 ⇒ 本函数是 `item_type` 的**唯一写点**。
+   *  ★ 迁移 0060（Kevin 2026-10-20 第 3 条「统一商品 Id」）：对外标识两列由**服务层生成后传入**
+   *  （`snowflakeId` / `itemCode`）—— 本层**不设 DB default、不自行发号**：发号策略只在
+   *  `item-id.ts` 一处（可单测、可在门里注入），本层只负责写。 */
   static async createListingRow(input: {
     sellerUid: number;
     cid: number;
@@ -3962,32 +4014,39 @@ export class DatabaseService {
     /** ★ 商品成色（迁移 0057）：可空；非空仅实物两分类（服务层 applicability 闸已把关，本层直存） */
     itemCondition: string | null;
     createKey: string;
+    /** ★ 迁移 0060：snowflake 以**字符串**传入（bigint 超出 JS 安全整数 ⇒ 全程不落 Number） */
+    snowflakeId: string;
+    /** ★ 迁移 0060：7 位页面地址码（字母表/唯一性由 `item-id.ts` + DB 唯一索引双闸） */
+    itemCode: string;
   }, ex?: SqlRunner): Promise<{ outcome: 'inserted' | 'existing'; row: RawRow }> {
     const sql = sqlFor(ex);
     // ★★ 2026-10-20 Kevin 数据模型指令（`listing.title` 退场、正文并入 `description`）：
     //   本语句对 `title` **列零引用**（INSERT 列清单 / CTE 取列 / RETURNING 全去），响应键 `title`
     //   一律**派生** `split_part(description, E'\n', 1)`（与读口 / `deriveListingTitle` 同源）
     //   ⇒ 0056 DROP 后照跑、不会 42P01；行键集与顺序**逐字不变**。
+    // ★ 迁移 0060：两列追加在既有列之后（INSERT 列清单 / existing 取列 / RETURNING / 外层 SELECT
+    //   一律**尾部追加** ⇒ 既有 12 键位置与顺序不动；新增两键 = 回执可直接带出页面地址）。
     const rows = extractRows(await sql`
       WITH existing AS (
-        SELECT listing_id, seller_uid, cid, price, stock, description, media_urls, item_type, status, create_key
+        SELECT listing_id, seller_uid, cid, price, stock, description, media_urls, item_type, status, create_key,
+               snowflake_id, item_code
         FROM public.listing
         WHERE create_key = ${input.createKey}::text
       ),
       ins AS (
-        INSERT INTO public.listing (seller_uid, cid, price, stock, description, media_urls, item_type, item_condition, status, create_key)
-        SELECT ${input.sellerUid}::bigint, ${input.cid}::bigint, ${input.price}::bigint, ${input.stock}::int, ${input.description}::text, ${input.mediaUrls}::text[], ${input.itemType}::text, ${input.itemCondition}::text, 'draft', ${input.createKey}::text
+        INSERT INTO public.listing (seller_uid, cid, price, stock, description, media_urls, item_type, item_condition, status, create_key, snowflake_id, item_code)
+        SELECT ${input.sellerUid}::bigint, ${input.cid}::bigint, ${input.price}::bigint, ${input.stock}::int, ${input.description}::text, ${input.mediaUrls}::text[], ${input.itemType}::text, ${input.itemCondition}::text, 'draft', ${input.createKey}::text, ${input.snowflakeId}::bigint, ${input.itemCode}::char(7)
         WHERE NOT EXISTS (SELECT 1 FROM existing)
-        RETURNING listing_id, seller_uid, cid, price, stock, description, media_urls, item_type, status, create_key, 'inserted'::text AS outcome
+        RETURNING listing_id, seller_uid, cid, price, stock, description, media_urls, item_type, status, create_key, snowflake_id, item_code, 'inserted'::text AS outcome
       )
       SELECT i.listing_id, i.seller_uid, i.cid, i.price, i.stock,
              split_part(i.description, E'\\n', 1) AS title,
-             i.description, i.media_urls, i.item_type, i.status, i.create_key, i.outcome
+             i.description, i.media_urls, i.item_type, i.status, i.create_key, i.snowflake_id, i.item_code, i.outcome
       FROM ins AS i
       UNION ALL
       SELECT e.listing_id, e.seller_uid, e.cid, e.price, e.stock,
              split_part(e.description, E'\\n', 1) AS title,
-             e.description, e.media_urls, e.item_type, e.status, e.create_key, 'existing'::text
+             e.description, e.media_urls, e.item_type, e.status, e.create_key, e.snowflake_id, e.item_code, 'existing'::text
       FROM existing AS e
     `);
     const row = rows[0] || null;
@@ -4912,6 +4971,26 @@ export class DatabaseService {
     };
   }
 
+  /**
+   * ★ 迁移 0060（Kevin 2026-10-20 第 3 条）：`item_code` → `listing_id` 解析（页面地址 → 内部键）。
+   *
+   * 路由层判据（`GET /api/prize/:ref`）：**全数字 ⇒ 按 `listing_id`**（向后兼容既有 `bID` 链接）；
+   * **否则 ⇒ 按 `item_code`**（7 位字母数字，`isItemCode` 先校验形状）⇒ 本方法只做后者。
+   *   · 命中 ⇒ `listing_id`；未命中 ⇒ `null`（路由落既有 404，**不区分**「码不存在」与「码非法」）；
+   *   · `item_code` 是 `char(7)`：入参先按 `char(7)` 绑定（7 位输入 = 原样，索引可用）；
+   *   · 只读单行 SELECT，零锁、零副作用（详情自增仍只发生在 `getPrizeDetailRecordingView`）；
+   *   · `ex` = 既有事务内执行口（门探针在回滚事务里跑同一份语句）。
+   */
+  static async getListingIdByItemCode(itemCode: string, ex?: SqlRunner): Promise<number | null> {
+    const text = typeof itemCode === 'string' ? itemCode.trim() : '';
+    if (text.length !== 7) return null;
+    const sql = sqlFor(ex);
+    const row = firstRow(await sql`
+      SELECT listing_id FROM public.listing WHERE item_code = ${text}::char(7) LIMIT 1
+    `);
+    return row ? Number(getValue(row, 'listing_id')) : null;
+  }
+
   static async getBrandById(bID: number): Promise<BrandRecord | null> {
     const sql = getSql();
     // P4-B1-c: prize→listing 读侧换表（单行，bID=listing_id）；旧 selected_prize/gift_counts/shard_counts/
@@ -4924,6 +5003,8 @@ export class DatabaseService {
         split_part(l.description, E'\\n', 1) AS title,
         l.description, l.media_urls, l.status, l.create_key, l.ledger_event_keys,
         l.item_type, l.time_created, l.time_updated,
+        -- ★ 迁移 0060：对外标识两列（与 feed 同源加性键）
+        l.item_code, l.snowflake_id,
         0::int AS stores_count,
         0::int AS claims_count,
         0::int AS activated_count,
@@ -4982,6 +5063,8 @@ export class DatabaseService {
         split_part(l.description, E'\\n', 1) AS title,
         l.description, l.media_urls, l.status, l.create_key, l.ledger_event_keys,
         l.item_type, l.item_condition, l.time_created, l.time_updated,
+        -- ★ 迁移 0060：对外标识两列（详情与 feed 同形；+item_code +snowflake_id ⇒ 详情 50→52）
+        l.item_code, l.snowflake_id,
         b.view_count AS view_count,
         COALESCE(fav.want_count, 0)::int AS want_count,
         0::int AS stores_count,
@@ -5067,6 +5150,8 @@ export class DatabaseService {
         split_part(l.description, E'\\n', 1) AS title,
         l.description, l.media_urls, l.status, l.create_key, l.ledger_event_keys,
         l.item_type, l.item_condition, l.time_created, l.time_updated,
+        -- ★ 迁移 0060：对外标识两列（只读臂与自增臂**同列清单**，键形一致性由门断言）
+        l.item_code, l.snowflake_id,
         l.view_count AS view_count,
         COALESCE(fav.want_count, 0)::int AS want_count,
         0::int AS stores_count,

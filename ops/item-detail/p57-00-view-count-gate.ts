@@ -13,9 +13,9 @@
  *       0057 头段（两列 ADD COLUMN）+ 尾部 DO 自检在真库跑通（pre-apply 模式）；
  *   C · 详情读口行为（同 tx · **service 层真实代码路径**，经 `sqlFor(ex)` 事务内注入）：
  *       连续两次详情读 ⇒ 第二次 views = 第一次 + 1（自增后读）· 详情 service 层 49 键 / 路由合成后
- *       50 键（+views +condition +wants，wants 走真收藏行 left join）· draft 也计数（任何状态都计）·
+ *       52 键（47→50 由 P57 三键、50→52 由 0060 两键）· draft 也计数（任何状态都计）·
  *       不存在 id ⇒ null（404 语义）且不计数 · feed 行键仍 48 且无 views/condition ·
- *       **mine 行键 11（+condition）**· 成色四值写入（DB 层真实写路径）·
+ *       **mine 行键 13（+condition +item_code +snowflake_id）**· 成色四值写入（DB 层真实写路径）·
  *       PATCH `condition_not_applicable` DB 守卫臂 + 实物合法改写（回执键数 = 11 同族）；
  *   D · 写口校验（**离线 · 桩替 DB 静态方法**，逐字还原）：非法值 400 · 数字带成色 400 ·
  *       未分类带成色 400 · 合法值透传写入口 · PATCH 两闸 · `classifyListingPatchBody` 识别新字段键；
@@ -27,7 +27,7 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
-import { checker, inRollbackTx, mkPool, raw, raw1 } from '../../backend-ts/scripts/p7b-lib';
+import { checker, inRollbackTx, mkPool, raw, raw1, rawRetry, raw1Retry } from '../../backend-ts/scripts/p7b-lib';
 import { DatabaseService } from '../../backend-ts/src/database';
 import type { BrandRecord, SqlRunner } from '../../backend-ts/src/database';
 import {
@@ -38,6 +38,9 @@ import {
   PHYSICAL_ITEM_TYPES,
   ITEM_TYPES,
 } from '../../backend-ts/src/listing-service';
+// ★ 迁移 0060（商品统一 Id）：读口行键 48→50 / 50→52 / 11→13 由两列驱动 ⇒ 本门事务内须先跑
+//   0060 头段 DDL（未 apply 的库上 `l.item_code` 会 42703/42P01），夹具也须给出两键。
+import { codeFromSnowflake, nextSnowflake } from '../../backend-ts/src/item-id';
 
 type ErrLike = { ok: boolean; status?: number; code?: string; details?: Record<string, unknown> };
 const got = (r: ErrLike): string => (r.ok ? 'ok' : `${r.status}/${r.code}/${String(r.details?.reason ?? '')}`);
@@ -57,6 +60,7 @@ const INDEX_TS = readSrc('backend-ts/src/index.ts');
 const DB = readSrc('backend-ts/src/database.ts');
 const SVC = readSrc('backend-ts/src/listing-service.ts');
 const MIG = readSrc('backend-ts/migrations/0057_listing_view_count.sql');
+const MIG60 = readSrc('backend-ts/migrations/0060_item_code_snowflake.sql');
 
 /**
  * 迁移文件切单语句：头段（两列 ALTER，无 BEGIN/COMMIT）+ 尾段（`DO $$ … $$;` 自检块）。
@@ -76,6 +80,12 @@ const splitMigration = (text: string): { head: string; tail: string; headStmts: 
   return { head, tail, headStmts, headCode };
 };
 const M57 = splitMigration(MIG);
+const M60 = splitMigration(MIG60);
+/** 每次建单发一对新标识（与生产 service 同一对函数） */
+const newIds = (): { snowflakeId: string; itemCode: string } => {
+  const sf = nextSnowflake();
+  return { snowflakeId: sf.toString(), itemCode: codeFromSnowflake(sf) };
+};
 
 const sliceBetween = (src: string, startMark: string, endMark: string): string => {
   const a = src.indexOf(startMark);
@@ -106,7 +116,7 @@ const FIXTURE_KEY_PREFIX = 'cli:p57-gate:';
     `increment_sites=${incrHits} in_detail_cte=${/view_count = view_count \+ 1/.test(detailSvc)}`);
 
   const feedSvc = sliceBetween(DB, 'static async listBrands', 'static async listClaimedPrizeIdsByUser');
-  ck.t('A4', 'feed（`listBrands`）SQL **不选** `view_count` / `item_condition` ⇒ 行键 48 不变、两键不出现、不计数',
+  ck.t('A4', 'feed（`listBrands`）SQL **不选** `view_count` / `item_condition` ⇒ 计数两键不出现、不计数（行键 48→50 由 0060 两列驱动）',
     feedSvc.length > 0 && !feedSvc.includes('view_count') && !feedSvc.includes('item_condition'),
     `listBrands_slice_bytes=${feedSvc.length}`);
 
@@ -264,13 +274,13 @@ const FIXTURE_KEY_PREFIX = 'cli:p57-gate:';
 
   // ====================================================================== 真库段（B / C / N / E）
   const pool = mkPool(2);
-  const projRows = await raw(pool as never, "SELECT current_setting('neon.project_id', true) AS project_id, current_setting('neon.branch_id', true) AS branch_id");
+  const projRows = await rawRetry(pool, "SELECT current_setting('neon.project_id', true) AS project_id, current_setting('neon.branch_id', true) AS branch_id");
   const projectId = String(projRows[0]?.project_id ?? '');
   out.env = { project_id: projectId, branch_id: String(projRows[0]?.branch_id ?? ''), expect_dev: 'quiet-math-65207667' };
   ck.t('ENV', '库身份自证：neon.project_id = dev（quiet-math-65207667）—— 读数归因前置',
     projectId === 'quiet-math-65207667', `project_id=${projectId}`);
 
-  const preCols = await raw(pool as never, "SELECT column_name FROM information_schema.columns WHERE table_schema='public' AND table_name='listing' AND column_name IN ('view_count','item_condition')");
+  const preCols = await rawRetry(pool, "SELECT column_name FROM information_schema.columns WHERE table_schema='public' AND table_name='listing' AND column_name IN ('view_count','item_condition')");
   const preHas = (name: string) => preCols.some((r) => r.column_name === name);
   const mode = preHas('view_count') && preHas('item_condition') ? 'post-apply' : (!preHas('view_count') && !preHas('item_condition') ? 'pre-apply' : 'partial-STOP');
   out.mode = mode;
@@ -283,6 +293,8 @@ const FIXTURE_KEY_PREFIX = 'cli:p57-gate:';
     // ---- B · 迁移干跑（回滚事务） ----
     const br = await inRollbackTx(pool, async (c) => {
       for (const stmt of M57.headStmts) await c.query(stmt);
+      for (const stmt of M60.headStmts) await c.query(stmt);   // 0060 未 apply 时补两列（ROLLBACK 零残留）
+
       const cols = await raw(c, "SELECT column_name, data_type, is_nullable, column_default FROM information_schema.columns WHERE table_schema='public' AND table_name='listing' AND column_name IN ('view_count','item_condition') ORDER BY column_name");
       // 尾部 DO 自检（pre-apply 模式：存量全 0 / 全 NULL 的 apply 刻状态成立；post-apply：存量 views 可能 > 0 = 稳态 ⇒ 跳过）
       let tailRan = false;
@@ -311,6 +323,7 @@ const FIXTURE_KEY_PREFIX = 'cli:p57-gate:';
     const cr = await inRollbackTx(pool, async (c) => {
       // 各回滚事务相互独立 ⇒ 本事务内先跑迁移头段（IF NOT EXISTS ⇒ pre/post-apply 皆幂等 no-op 安全）
       for (const stmt of M57.headStmts) await c.query(stmt);
+      for (const stmt of M60.headStmts) await c.query(stmt);   // 0060 两列（读口行键 50/52/13 的前提）
       const ex = c as unknown as SqlRunner;
       const sellerRow = await raw1(c, 'SELECT min(uid)::bigint AS uid FROM public.users WHERE uid > 0');
       const sellerUid = Number(sellerRow?.uid ?? 0);
@@ -321,13 +334,13 @@ const FIXTURE_KEY_PREFIX = 'cli:p57-gate:';
         sellerUid, cid: 1, price: 100, stock: 3,
         description: `p57-gate fixture A · 实物包邮 · 成色 LikeNew · RUN=${RUN}`,
         mediaUrls: [], itemType: 'PhysicalFreeShip', itemCondition: 'LikeNew',
-        createKey: `${FIXTURE_KEY_PREFIX}${RUN}-a`,
+        createKey: `${FIXTURE_KEY_PREFIX}${RUN}-a`, ...newIds(),
       }, ex);
       const mkB = await DatabaseService.createListingRow({
         sellerUid, cid: 1, price: 60, stock: 2,
         description: `p57-gate fixture B · 数字自动发货 · 无成色 · RUN=${RUN}`,
         mediaUrls: [], itemType: 'DigitalAutoDeliver', itemCondition: null,
-        createKey: `${FIXTURE_KEY_PREFIX}${RUN}-b`,
+        createKey: `${FIXTURE_KEY_PREFIX}${RUN}-b`, ...newIds(),
       }, ex);
       const idA = Number(mkA.row ? (mkA.row as Record<string, unknown>).listing_id : 0);
       const idB = Number(mkB.row ? (mkB.row as Record<string, unknown>).listing_id : 0);
@@ -379,7 +392,7 @@ const FIXTURE_KEY_PREFIX = 'cli:p57-gate:';
       const mineRows = await DatabaseService.listListingsBySeller(sellerUid, 0, 100, ex);
       const mineA = mineRows.find((r) => r.listing_id === idA);
       const mineB = mineRows.find((r) => r.listing_id === idB);
-      const mineBadKeys = mineRows.filter((r) => Object.keys(r).length !== 11 || !('condition' in r)).length;
+      const mineBadKeys = mineRows.filter((r) => Object.keys(r).length !== 13 || !('condition' in r)).length;
 
       return {
         sellerUid, idA, idB, ghostId,
@@ -397,6 +410,7 @@ const FIXTURE_KEY_PREFIX = 'cli:p57-gate:';
     });
 
     const R = (cr.result ?? {}) as Record<string, unknown>;
+    if (cr.error) console.error('[p57 C-tx error]', cr.error);   // 事务体抛错时先露原话（否则下面全读 undefined 只会看到 TypeError）
     const rec1 = R.rec1 as BrandRecord | undefined;
     const rec2 = R.rec2 as BrandRecord | undefined;
     const recB1 = R.recB1 as BrandRecord | undefined;
@@ -410,13 +424,13 @@ const FIXTURE_KEY_PREFIX = 'cli:p57-gate:';
       !!rec1 && !!rec2 && rec1.views === 1 && rec2.views === 2 && rec2.views === rec1.views + 1,
       JSON.stringify({ views1: rec1?.views, views2: rec2?.views, type1: typeof rec1?.views }));
 
-    ck.t('C2', '**详情 service 层 49 键**（= 详情 50 − 路由层 seller）：`views`/`condition`/`wants` 三加性键在场 · wants = 1（收藏 left join 生效）· condition = LikeNew',
-      keys1.length === 49 && keys1.includes('views') && keys1.includes('condition') && keys1.includes('wants')
+    ck.t('C2', '**详情 service 层 51 键**（= 详情 52 − 路由层 seller；0060 再 +item_code +snowflake_id）：`views`/`condition`/`wants` 三加性键在场 · wants = 1（收藏 left join 生效）· condition = LikeNew',
+      keys1.length === 51 && keys1.includes('views') && keys1.includes('condition') && keys1.includes('wants')
       && rec1?.condition === 'LikeNew' && rec1?.views === 1 && rec1?.wants === 1,
       JSON.stringify({ keys: keys1.length, has_views: keys1.includes('views'), has_condition: keys1.includes('condition'), has_wants: keys1.includes('wants'), condition: rec1?.condition, wants: rec1?.wants }));
 
-    ck.t('C3', '**详情路由合成后 50 键**（{ ...prize, seller } ⇒ 47→50：+views +condition +wants）',
-      R.routeShapeKeys === 50, `route_shape_keys=${R.routeShapeKeys}`);
+    ck.t('C3', '**详情路由合成后 52 键**（{ ...prize, seller } ⇒ 50→52：0060 的 +item_code +snowflake_id）',
+      R.routeShapeKeys === 52, `route_shape_keys=${R.routeShapeKeys}`);
 
     ck.t('C4', '**draft 也计数**（任何状态都计）且数字商品 `condition` = null（键在场值为 null，不缺键）、未收藏 wants = 0',
       !!recB1 && recB1.views === 1 && 'condition' in recB1 && recB1.condition === null && recB1.wants === 0,
@@ -430,25 +444,31 @@ const FIXTURE_KEY_PREFIX = 'cli:p57-gate:';
       (R.condWriteRows as number[]).length === 4 && (R.condWriteRows as number[]).every((n) => n === 1),
       `row_counts=${JSON.stringify(R.condWriteRows)}`);
 
-    ck.t('C7', '**PATCH DB 守卫臂**：数字行带成色 ⇒ `condition_not_applicable`（400 路径）；实物行合法改写 ⇒ `updated` 且回执 = **11 键**（ListingMineRow 同族，P57 +condition）、库内值已改',
-      R.wBadOutcome === 'condition_not_applicable' && R.wOkOutcome === 'updated' && R.wOkRowKeys === 11 && R.wOkCond === 'HeavyWear',
+    ck.t('C7', '**PATCH DB 守卫臂**：数字行带成色 ⇒ `condition_not_applicable`（400 路径）；实物行合法改写 ⇒ `updated` 且回执 = **13 键**（ListingMineRow 同族：P57 +condition、0060 +两标识）、库内值已改',
+      R.wBadOutcome === 'condition_not_applicable' && R.wOkOutcome === 'updated' && R.wOkRowKeys === 13 && R.wOkCond === 'HeavyWear',
       JSON.stringify({ bad: R.wBadOutcome, ok: R.wOkOutcome, ok_row_keys: R.wOkRowKeys, ok_cond_in_db: R.wOkCond }));
 
-    ck.t('C9', '**mine 行键 10→11**：`listListingsBySeller` 全部行恰 11 键且 `condition` 在场；夹具 A = LikeNew（编辑页预填）/ B（数字）= null',
+    ck.t('C9', '**mine 行键 11→13**：`listListingsBySeller` 全部行恰 13 键且 `condition`/`item_code`/`snowflake_id` 在场；夹具 A = LikeNew（编辑页预填）/ B（数字）= null',
       (R.mineTotal as number) > 0 && R.mineBadKeys === 0
-      && R.mineAKeys === 11 && R.mineAHasCondition === true && R.mineACond === 'LikeNew' && R.mineBCond === null,
+      && R.mineAKeys === 13 && R.mineAHasCondition === true && R.mineACond === 'LikeNew' && R.mineBCond === null,
       JSON.stringify({ mine_total: R.mineTotal, bad_rows: R.mineBadKeys, a_keys: R.mineAKeys, a_has_condition: R.mineAHasCondition, a_cond: R.mineACond, b_cond: R.mineBCond }));
 
     // ---- C6 · feed 键数（http 只读、committed dev 数据；事务外） ----
-    const feed = await DatabaseService.listBrands(0, 8);
-    const feedBad = feed.filter((r) => Object.keys(r).length !== 48 || 'views' in r || 'condition' in r);
-    ck.t('C6', '**feed 行键仍 48**：全部行恰 48 键且 `views`/`condition` 均不出现（feed 不加键、不计数）',
+    const feedTx = await inRollbackTx(pool, async (c) => {
+      for (const stmt of M57.headStmts) await c.query(stmt);
+      for (const stmt of M60.headStmts) await c.query(stmt);
+      return DatabaseService.listBrands(0, 8, c as unknown as SqlRunner);
+    });
+    const feed = feedTx.result ?? [];
+    const feedBad = feed.filter((r) => Object.keys(r).length !== 50 || 'views' in r || 'condition' in r);
+    ck.t('C6', '**feed 行键 50**（48 + 0060 的 item_code + snowflake_id）：全部行恰 50 键且 `views`/`condition` 均不出现（feed 不加计数键、不计数）',
       feed.length > 0 && feedBad.length === 0,
       JSON.stringify({ rows: feed.length, bad_rows: feedBad.length, sample_keys: feed[0] ? Object.keys(feed[0]).length : 0 }));
 
     // ---- N · CHECK 负控（各自独立回滚事务；错误后事务_abort，只能作为末臂） ----
     const negCond = await inRollbackTx(pool, async (c) => {
       for (const stmt of M57.headStmts) await c.query(stmt);
+      for (const stmt of M60.headStmts) await c.query(stmt);
       const ins = await c.query(
         `INSERT INTO public.listing (seller_uid, cid, price, stock, description, media_urls, status, create_key, ledger_event_keys)
          SELECT min(uid), 1, 100, 1, $1, '{}'::text[], 'draft', $2, '{}'::text[] FROM public.users WHERE uid > 0 RETURNING listing_id`, [`p57-gate neg fixture ${RUN}`, `${FIXTURE_KEY_PREFIX}${RUN}-n1`]);
@@ -466,6 +486,7 @@ const FIXTURE_KEY_PREFIX = 'cli:p57-gate:';
 
     const negVc = await inRollbackTx(pool, async (c) => {
       for (const stmt of M57.headStmts) await c.query(stmt);
+      for (const stmt of M60.headStmts) await c.query(stmt);
       const ins = await c.query(
         `INSERT INTO public.listing (seller_uid, cid, price, stock, description, media_urls, status, create_key, ledger_event_keys)
          SELECT min(uid), 1, 100, 1, $1, '{}'::text[], 'draft', $2, '{}'::text[] FROM public.users WHERE uid > 0 RETURNING listing_id`, [`p57-gate neg fixture ${RUN}`, `${FIXTURE_KEY_PREFIX}${RUN}-n2`]);
@@ -482,11 +503,11 @@ const FIXTURE_KEY_PREFIX = 'cli:p57-gate:';
       JSON.stringify({ violated: negVc.result?.violated, sqlstate: negVc.result?.sqlstate, error: negVc.error }));
 
     // ---- E · 零残留证（新连接 = committed 视角） ----
-    const residue = await raw1(pool as never, 'SELECT count(*)::int AS n FROM public.listing WHERE create_key LIKE $1', [`${FIXTURE_KEY_PREFIX}%`]);
+    const residue = await raw1Retry(pool, 'SELECT count(*)::int AS n FROM public.listing WHERE create_key LIKE $1', [`${FIXTURE_KEY_PREFIX}%`]);
     ck.t('E1', '**零残留**：回滚后 `create_key LIKE cli:p57-gate:%` 命中 = 0（含历史 run；> 0 = 有夹具泄漏，fail-loud）',
       Number(residue?.n ?? -1) === 0, `residue_rows=${residue?.n}`);
 
-    const postCols = await raw1(pool as never, "SELECT count(*)::int AS n FROM information_schema.columns WHERE table_schema='public' AND table_name='listing'");
+    const postCols = await raw1Retry(pool, "SELECT count(*)::int AS n FROM information_schema.columns WHERE table_schema='public' AND table_name='listing'");
     const expectCols = mode === 'pre-apply' ? 13 : 15;
     ck.t('E2', `committed 列面与迁移态自洽（pre-apply ⇒ 13 列 / post-apply ⇒ 15 列；实测 mode=${mode}）`,
       Number(postCols?.n ?? -1) === expectCols, `committed_cols=${postCols?.n} expect=${expectCols}`);
