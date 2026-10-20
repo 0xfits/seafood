@@ -31,9 +31,16 @@ vi.mock('react-i18next', () => ({
 
 vi.mock('../../auth-context', () => ({ useAuth: vi.fn() }))
 
+// ★ 2026-10-21 需求②：发布页进页先查在管项目 ⇒ 本文件只关心币种下拉，替身恒给「有项目」
+//   （无项目 / 403 降级两臂见 `publish-job-project-gate.test.jsx`）。
 vi.mock('../../pages/jobs/job-api', async (importOriginal) => {
   const actual = await importOriginal()
-  return { ...actual, fetchCurrencies: vi.fn(), publishJob: vi.fn() }
+  return {
+    ...actual,
+    fetchCurrencies: vi.fn(),
+    publishJob: vi.fn(),
+    fetchProjectList: vi.fn(async () => [{ project_id: '11', owner_uid: 7, status: 'recruiting' }]),
+  }
 })
 
 import { useAuth } from '../../auth-context'

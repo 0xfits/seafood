@@ -1387,5 +1387,21 @@
     "manualDeliver": "手动发货",
     "freeShip": "包邮",
     "buyerShip": "不包邮"
+  },
+  "bountyProject": {
+    "needProject": "发布悬赏需要先拥有一个项目",
+    "needProjectHint": "悬赏酬金由项目方托管，先建好项目再回来发布更稳妥。",
+    "createProject": "新建项目",
+    "title": "项目标题",
+    "description": "项目说明",
+    "headcount": "招工人数",
+    "minDays": "注册天数条件",
+    "battPerClaim": "每次工资（batt）",
+    "intervalHours": "领取间隔（小时）",
+    "currency": "次币（可选）",
+    "currencyAmount": "次币金额",
+    "noCurrency": "不使用次币",
+    "createOk": "项目已创建，可以发布悬赏了",
+    "intervalInvalid": "领取间隔必须是 1 到 100 的整数"
   }
 }

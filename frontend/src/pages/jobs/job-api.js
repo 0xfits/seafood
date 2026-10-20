@@ -98,6 +98,73 @@ export const submitDeliverable = (identifier, deliverable, user) =>
 export const reviewSubmission = (jobId, approved, user, submissionId) =>
   postJson(`/api/job/${jobId}/review`, { approved, submission_id: submissionId }, user)
 
+// ---- 项目（打工 / 工资域）面：发布悬赏的前置准入 + 内嵌「新建项目」-------------
+/**
+ * 项目列表（**公开无闸** · `GET /api/project/all`；匿名也返回数组）。
+ * ★ 本线只用它做「我有没有在管项目」的准入判定（筛 `owner_uid === 我的 uid ∧ status !== 'ended'`），
+ *   **不复用** `/wage` 线的 `wage-api.js`（两条前端线各自包装同一条路径，不跨线 import）。
+ * 行键集（契约）：project_id / snowflake_id / owner_uid / title / description / headcount /
+ *   hired_count / recruit_min_account_days / wage_batt_per_claim / wage_cid / wage_currency_amount /
+ *   wage_interval_hours / status / time_created / time_updated（登录态另加 my_role 三键）。
+ */
+export const fetchProjectList = (user) => getJson('/api/project/all', user)
+
+/**
+ * 在管项目判定（纯函数，便于单测）：`rows` 里是否存在一条「属于 `uid` 且未 ended」的行。
+ * · `uid` 归一成字符串比较（`owner_uid` 是 bigint，经 JSON 过来可能是数字或字符串）；
+ * · `status` 缺失 ⇒ 视为在管（公开列表本就只出 recruiting / working，缺键不得当 ended 处理）；
+ * · 非数组 / 空数组 ⇒ 无在管项目。
+ */
+export const hasOwnedProject = (rows, uid) => {
+  const key = String(uid ?? '').trim()
+  if (!key || !Array.isArray(rows)) return false
+  return rows.some((row) => {
+    if (!row || typeof row !== 'object') return false
+    if (String(row.owner_uid ?? '').trim() !== key) return false
+    // status 缺键 / null ⇒ 视为在管（公开列表只出 recruiting / working；缺键不得当 ended 处理）
+    const status = row.status === undefined || row.status === null ? '' : String(row.status)
+    return status.trim() !== 'ended'
+  })
+}
+
+/**
+ * 建项目（`POST /api/project`）。字段名逐字取服务端 `CREATE_KEYS`（多一个键就 400 NOT_SUPPORTED）：
+ *   title / description / headcount / recruit_min_account_days / wage_batt_per_claim /
+ *   wage_interval_hours / wage_cid + wage_currency_amount（成对，缺一即 400）/ create_key。
+ * ★ 次币两键**成对才发**：任一为空 ⇒ 两键都不发（服务端「同现同缺」闸的合法形态）。
+ * 建费（`app_config.project_create_fee`，默认 10000 $）由服务端同事务扣，余额不足 ⇒ 409，
+ *   前端只把错误文案内联展示（`apiErrorMessage` 已解析成字符串）。
+ */
+export const createProject = ({
+  title, description, headcount, minDays, battPerClaim, intervalHours, cid, currencyAmount, createKey, user,
+}) => {
+  const body = {
+    title: String(title ?? '').trim(),
+    description: String(description ?? ''),
+    headcount: Number(headcount),
+    recruit_min_account_days: Number(minDays || 0),
+    wage_batt_per_claim: String(battPerClaim ?? '').trim(),
+    wage_interval_hours: Number(intervalHours),
+    create_key: createKey,
+  }
+  const cidText = String(cid ?? '').trim()
+  const amountText = String(currencyAmount ?? '').trim()
+  if (cidText && amountText) {
+    body.wage_cid = cidText
+    body.wage_currency_amount = amountText
+  }
+  return postJson('/api/project', body, user)
+}
+
+/** 建项目表单指纹（决定「是否同一次操作」）：不含随机量，保证重试同指纹。 */
+export const projectCreateFingerprint = (form) => [
+  form.title, form.description, form.headcount, form.minDays, form.battPerClaim,
+  form.intervalHours, form.cid, form.currencyAmount,
+].map((v) => String(v ?? '').trim()).join('\u0001')
+
+/** 建项目的幂等键 tracker（键形与服务端同形 `cli:<uuid-v4>`，体例同发布招工面）。 */
+export const createProjectPublishTracker = () => createIdempotencyKeyTracker('cli')
+
 // ---- 幂等键 tracker（发布招工面唯一需要前端供键的面） -------------------------
 /**
  * 键形与服务端同形：`cli:<uuid-v4>`（`frontend/src/idempotency.js:28`）。

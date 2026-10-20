@@ -1,12 +1,22 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
-import { createJobPublishTracker, fetchCurrencies, jobPublishFingerprint, publishJob } from './job-api'
+import {
+  createJobPublishTracker,
+  createProject,
+  createProjectPublishTracker,
+  fetchCurrencies,
+  fetchProjectList,
+  hasOwnedProject,
+  jobPublishFingerprint,
+  projectCreateFingerprint,
+  publishJob,
+} from './job-api'
 import './jobs.css'
 
-// 招工线 · 发布招工（§4.2 J1 · POST /api/job = **已注册**：backend-ts/src/index.ts:1314）
+// 悬赏线 · 发布悬赏（§4.2 J1 · POST /api/job = **已注册**：backend-ts/src/index.ts:1314）
 // 幂等键：**前端提供** `cli:` 键（服务端 fail-loud，缺键 ⇒ 400 LEDGER_IDEMPOTENCY_KEY_REQUIRED，
 //   真源 backend-ts/src/job-funds-service.ts:84）。同一次操作重试 ⇒ tracker 复用同一个键。
 // 金额口径：`reward` = A 类「供给侧自主出价」（§4.8.1）⇒ 客户端可传、原样透传（路由层零计算）。
@@ -15,8 +25,22 @@ import './jobs.css'
 //   加载失败 / 空列表 ⇒ **回退仅 $（cid 1）一项**，表单照常可提交（不白屏、不禁用提交、零新增文案键）。
 const DEFAULT_CID = '1'
 
-/** 回退选项（接口失败 / 空列表时唯一可用项）：平台 `$`，`cid = 1`，无 name。 */
+/**
+ * ★ Kevin 2026-10-21 需求②：发布悬赏**先要在管项目**（悬赏酬金由项目方托管）。
+ * 判据（公开读口 `GET /api/project/all`，行含 `owner_uid`）：
+ *   · 有 ⇒ 行 `owner_uid === 当前 uid ∧ status !== 'ended'` ⇒ **正常渲染发布表单**（行为不变）；
+ *   · 无 ⇒ **不渲染发布表单**，改渲染阻断面板（`jobs-project-gate`）：一句「发布悬赏需要先拥有一个项目」
+ *     ＋【新建项目】入口（点开即**内嵌**表单：标题 / 说明 / 招工人数 / 注册天数条件 / batt 工资每次 /
+ *     领取间隔 1–100 小时 / 可选次币 cid + 金额）⇒ `POST /api/project` 成功后**重跑判定**、
+ *     直接落到发布悬赏表单。
+ * 双保险：后端即将加硬闸（无项目发布 ⇒ 403 `reason=project_required`）⇒ 发布口收到该错误时
+ *   也**转入阻断面板**并顺手展开建项目表单（`error.details.reason` 由 `fetchApiJson` 附在 Error 上）。
+ * 读取失败（网络 / 5xx）⇒ **fail-open**：按「有项目」渲染表单，真正的闸交给服务端 403 兜底
+ *   —— 不因为一次读口抖动就把所有人挡在门外。
+ */
 const FALLBACK_CURRENCIES = [{ cid: 1, symbol: '$', name: '' }]
+const INTERVAL_MIN = 1
+const INTERVAL_MAX = 100
 
 /** 币种选项显示文本：`symbol · name`；**不显示编号**（`cid` 只作 value）。 */
 const currencyLabel = (row) => {
@@ -33,6 +57,34 @@ const PublishJobPage = () => {
   const [state, setState] = useState({ phase: 'idle', message: '' })
   const [currencies, setCurrencies] = useState(FALLBACK_CURRENCIES)
   const tracker = useMemo(() => createJobPublishTracker(), [])
+
+  // ---- 项目准入（需求②） -----------------------------------------------------
+  // phase：`checking` 判定中 / `ok` 有在管项目（= 渲染发布表单）/ `blocked` 无在管项目（= 阻断面板）
+  const [gate, setGate] = useState({ phase: 'checking' })
+  const [showProjectForm, setShowProjectForm] = useState(false)
+  const [projectState, setProjectState] = useState({ phase: 'idle', message: '' })
+  const [projectForm, setProjectForm] = useState({
+    title: '', description: '', headcount: '1', minDays: '0',
+    battPerClaim: '', intervalHours: '24', cid: '', currencyAmount: '',
+  })
+  const projectTracker = useMemo(() => createProjectPublishTracker(), [])
+  const uidKey = String(user?.uID ?? user?.uid ?? '')
+
+  const checkGate = useCallback(async () => {
+    if (!isAuthenticated || !uidKey) return
+    setGate({ phase: 'checking' })
+    try {
+      const rows = await fetchProjectList(user)
+      const owned = hasOwnedProject(rows, uidKey)
+      setGate({ phase: owned ? 'ok' : 'blocked' })
+    } catch (error) {
+      // 读口失败 ⇒ fail-open（不因一次抖动挡住发布）；服务端 403 project_required 仍是最终闸
+      console.warn('Failed to resolve project gate:', error)
+      setGate({ phase: 'ok' })
+    }
+  }, [isAuthenticated, uidKey, user])
+
+  useEffect(() => { checkGate() }, [checkGate])
 
   // 币种选项：挂载时取一次（公开读口 ⇒ 无 token 也返回）。任一路失败都**回退 $**、绝不拦提交。
   useEffect(() => {
@@ -70,6 +122,7 @@ const PublishJobPage = () => {
   const canReview = isAuthenticated
 
   const setField = (key) => (event) => setForm((prev) => ({ ...prev, [key]: event.target.value }))
+  const setProjectField = (key) => (event) => setProjectForm((prev) => ({ ...prev, [key]: event.target.value }))
 
   // S5①：押金提示 = 赏金 × 人数（与服务端托管额同口径：`job-funds-service.ts:181` = `reward × headcount`）。
   //   两入参任一非「数值 / 整数」⇒ 显示占位 `—`（不臆造数值；提交前另有代码闸拦非法人数）。
@@ -109,8 +162,44 @@ const PublishJobPage = () => {
       tracker.reset()
       setState({ phase: 'ok', message: `${t('jobs.publishOk')} · #${data?.job_id ?? '-'}` })
     } catch (error) {
+      // ★ 需求②双保险：后端硬闸（无在管项目 ⇒ 403 `reason=project_required`）⇒ 转阻断面板 + 展开建项目表单。
+      //   判据只认机读 `details.reason`（`fetchApiJson` 已把它附在 Error 上），不解析文案。
+      if (String(error?.details?.reason ?? '') === 'project_required') {
+        setState({ phase: 'idle', message: '' })
+        setGate({ phase: 'blocked' })
+        setShowProjectForm(true)
+        return
+      }
       // R107 链（auth.js apiErrorMessage）已把错误体解析成**字符串**；这里保证永不出现 [object Object]
       setState({ phase: 'error', message: String(error?.message || t('error')) })
+    }
+  }
+
+  // 建项目（内嵌表单）：服务端字段名见 `job-api.js` 注释；成功后**重跑准入判定** ⇒ 直接落发布表单。
+  const onSubmitProject = async (event) => {
+    event.preventDefault()
+    if (projectState.phase === 'loading') return
+    const headcountNum = Number(projectForm.headcount)
+    if (!Number.isInteger(headcountNum) || headcountNum < 1) {
+      setProjectState({ phase: 'error', message: t('jobs.headcountInvalid') })
+      return
+    }
+    const intervalNum = Number(projectForm.intervalHours)
+    if (!Number.isInteger(intervalNum) || intervalNum < INTERVAL_MIN || intervalNum > INTERVAL_MAX) {
+      setProjectState({ phase: 'error', message: t('bountyProject.intervalInvalid') })
+      return
+    }
+    const createKey = projectTracker.keyFor(projectCreateFingerprint(projectForm))
+    setProjectState({ phase: 'loading', message: t('jobs.submitting') })
+    try {
+      await createProject({ ...projectForm, createKey, user })
+      projectTracker.reset()
+      setProjectState({ phase: 'ok', message: t('bountyProject.createOk') })
+      setShowProjectForm(false)
+      await checkGate()
+    } catch (error) {
+      // 409（余额不足建费）/ 400（字段非法）⇒ 内联提示，表单保持可编辑、不清空
+      setProjectState({ phase: 'error', message: String(error?.message || t('error')) })
     }
   }
 
@@ -126,6 +215,69 @@ const PublishJobPage = () => {
     )
   }
 
+  // ---- 内嵌「新建项目」表单（阻断面板内展开；可填可提、错误内联） --------------
+  const projectFormNode = (
+    <form className="sf-jobs-panel" onSubmit={onSubmitProject} data-sf-m="jobs-project-form">
+      <div className="sf-jobs-form">
+        <label className="sf-jobs-field">
+          <span className="sf-jobs-label">{t('bountyProject.title')}</span>
+          <input className="sf-jobs-input" data-sf-m="jobs-project-input-title" value={projectForm.title} onChange={setProjectField('title')} required />
+        </label>
+        <label className="sf-jobs-field">
+          <span className="sf-jobs-label">{t('bountyProject.headcount')}</span>
+          <input className="sf-jobs-input" data-sf-m="jobs-project-input-headcount" value={projectForm.headcount} onChange={setProjectField('headcount')} type="number" inputMode="numeric" min="1" step="1" required />
+        </label>
+        <label className="sf-jobs-field">
+          <span className="sf-jobs-label">{t('bountyProject.minDays')}</span>
+          <input className="sf-jobs-input" data-sf-m="jobs-project-input-min-days" value={projectForm.minDays} onChange={setProjectField('minDays')} type="number" inputMode="numeric" min="0" step="1" />
+        </label>
+        <label className="sf-jobs-field">
+          <span className="sf-jobs-label">{t('bountyProject.battPerClaim')}</span>
+          <input className="sf-jobs-input" data-sf-m="jobs-project-input-batt" value={projectForm.battPerClaim} onChange={setProjectField('battPerClaim')} inputMode="decimal" required />
+        </label>
+        <label className="sf-jobs-field">
+          <span className="sf-jobs-label">{t('bountyProject.intervalHours')}</span>
+          <input className="sf-jobs-input" data-sf-m="jobs-project-input-interval" value={projectForm.intervalHours} onChange={setProjectField('intervalHours')} type="number" inputMode="numeric" min={INTERVAL_MIN} max={INTERVAL_MAX} step="1" required />
+        </label>
+        <label className="sf-jobs-field">
+          <span className="sf-jobs-label">{t('bountyProject.currency')}</span>
+          <select className="sf-jobs-input" data-sf-m="jobs-project-select-cid" value={projectForm.cid} onChange={setProjectField('cid')}>
+            <option value="">{t('bountyProject.noCurrency')}</option>
+            {currencies.map((row) => (
+              <option key={String(row.cid)} value={String(row.cid)}>{currencyLabel(row)}</option>
+            ))}
+          </select>
+        </label>
+        {projectForm.cid !== '' && (
+          <label className="sf-jobs-field">
+            <span className="sf-jobs-label">{t('bountyProject.currencyAmount')}</span>
+            <input className="sf-jobs-input" data-sf-m="jobs-project-input-amount" value={projectForm.currencyAmount} onChange={setProjectField('currencyAmount')} inputMode="decimal" required />
+          </label>
+        )}
+        <label className="sf-jobs-field sf-jobs-field-wide">
+          <span className="sf-jobs-label">{t('bountyProject.description')}</span>
+          <textarea className="sf-jobs-textarea" data-sf-m="jobs-project-input-description" value={projectForm.description} onChange={setProjectField('description')} rows={3} />
+        </label>
+      </div>
+      <div className="sf-jobs-row">
+        <button className="sf-btn sf-jobs-btn" type="submit" data-sf-m="jobs-project-submit" disabled={projectState.phase === 'loading'}>
+          {projectState.phase === 'loading' ? t('jobs.submitting') : t('bountyProject.createProject')}
+        </button>
+        <button className="sf-btn sf-jobs-btn" type="button" data-sf-m="jobs-project-cancel" onClick={() => setShowProjectForm(false)}>
+          {t('cancel')}
+        </button>
+        <span
+          className={`sf-jobs-status${projectState.phase === 'error' ? ' sf-jobs-err' : ''}${projectState.phase === 'ok' ? ' sf-jobs-ok' : ''}`}
+          data-sf-m="jobs-project-status"
+          role="status"
+          data-sf-phase={projectState.phase}
+        >
+          {projectState.message}
+        </span>
+      </div>
+    </form>
+  )
+
   return (
     <div className="sf-layout" data-sf-m="jobs-layout">
       <div className="sf-layout-main">
@@ -140,51 +292,89 @@ const PublishJobPage = () => {
             </div>
           </div>
 
-          <form className="sf-jobs-panel" onSubmit={onSubmit} data-sf-m="jobs-form">
-            <div className="sf-jobs-form">
-              <label className="sf-jobs-field">
-                <span className="sf-jobs-label">{t('jobs.title')}</span>
-                <input className="sf-jobs-input" data-sf-m="jobs-input-title" value={form.title} onChange={setField('title')} required />
-              </label>
-              <label className="sf-jobs-field">
-                <span className="sf-jobs-label">{t('jobs.reward')}</span>
-                <input className="sf-jobs-input" data-sf-m="jobs-input-reward" value={form.reward} onChange={setField('reward')} inputMode="numeric" required />
-              </label>
-              <label className="sf-jobs-field">
-                <span className="sf-jobs-label">{t('jobs.headcount')}</span>
-                <input className="sf-jobs-input" data-sf-m="jobs-input-headcount" value={form.headcount} onChange={setField('headcount')} type="number" inputMode="numeric" min="1" step="1" required />
-              </label>
-              <label className="sf-jobs-field">
-                <span className="sf-jobs-label">{t('jobs.cid')}</span>
-                <select className="sf-jobs-input" data-sf-m="jobs-select-cid" value={form.cid} onChange={setField('cid')} required>
-                  {currencies.map((row) => (
-                    <option key={String(row.cid)} value={String(row.cid)}>{currencyLabel(row)}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="sf-jobs-field sf-jobs-field-wide">
-                <span className="sf-jobs-label">{t('jobs.description')}</span>
-                <textarea className="sf-jobs-textarea" data-sf-m="jobs-input-note" value={form.description} onChange={setField('description')} rows={3} />
-              </label>
-              {/* S5①：押金提示 = 赏金 × 人数（就地展示在金额/人数之后；沿用既有 meta 文案样式，不重设视觉） */}
-              <p className="sf-jobs-meta sf-jobs-field-wide" data-sf-m="jobs-deposit-hint">
-                {t('jobs.depositHint', { deposit, reward: form.reward || '—', headcount: form.headcount || '—' })}
-              </p>
+          {/* 准入判定中：既不出表单也不出阻断面板（避免误填/误拦） */}
+          {gate.phase === 'checking' && (
+            <div className="sf-jobs-panel" data-sf-m="jobs-project-checking">
+              <p className="sf-jobs-meta">{t('common.loadingTasks')}</p>
             </div>
-            <div className="sf-jobs-row">
-              <button className="sf-btn sf-jobs-btn" type="submit" data-sf-m="jobs-primary" disabled={state.phase === 'loading'}>
-                {state.phase === 'loading' ? t('jobs.submitting') : t('jobs.publish')}
-              </button>
-              <span
-                className={`sf-jobs-status${state.phase === 'error' ? ' sf-jobs-err' : ''}${state.phase === 'ok' ? ' sf-jobs-ok' : ''}`}
-                data-sf-m="jobs-status"
-                role="status"
-                data-sf-phase={state.phase}
-              >
-                {state.message}
-              </span>
+          )}
+
+          {/* 无在管项目 ⇒ 阻断面板（不渲染发布表单）＋【新建项目】内嵌表单 */}
+          {gate.phase === 'blocked' && (
+            <div className="sf-jobs-panel" data-sf-m="jobs-project-gate">
+              <p className="sf-jobs-item-title" data-sf-m="jobs-project-gate-text">{t('bountyProject.needProject')}</p>
+              <p className="sf-jobs-meta">{t('bountyProject.needProjectHint')}</p>
+              <div className="sf-jobs-row">
+                <button
+                  className="sf-btn sf-jobs-btn"
+                  type="button"
+                  data-sf-m="jobs-project-open"
+                  aria-expanded={showProjectForm}
+                  onClick={() => setShowProjectForm((prev) => !prev)}
+                >
+                  {t('bountyProject.createProject')}
+                </button>
+                {!showProjectForm && projectState.phase === 'ok' && (
+                  <span className="sf-jobs-status sf-jobs-ok" data-sf-m="jobs-project-status" role="status" data-sf-phase={projectState.phase}>{projectState.message}</span>
+                )}
+              </div>
+              {showProjectForm && projectFormNode}
             </div>
-          </form>
+          )}
+
+          {/* 有在管项目 ⇒ 正常发布表单（行为不变） */}
+          {gate.phase === 'ok' && (
+            <>
+              {projectState.phase === 'ok' && (
+                <p className="sf-jobs-meta sf-jobs-ok" data-sf-m="jobs-project-created">{projectState.message}</p>
+              )}
+              <form className="sf-jobs-panel" onSubmit={onSubmit} data-sf-m="jobs-form">
+                <div className="sf-jobs-form">
+                  <label className="sf-jobs-field">
+                    <span className="sf-jobs-label">{t('jobs.title')}</span>
+                    <input className="sf-jobs-input" data-sf-m="jobs-input-title" value={form.title} onChange={setField('title')} required />
+                  </label>
+                  <label className="sf-jobs-field">
+                    <span className="sf-jobs-label">{t('jobs.reward')}</span>
+                    <input className="sf-jobs-input" data-sf-m="jobs-input-reward" value={form.reward} onChange={setField('reward')} inputMode="numeric" required />
+                  </label>
+                  <label className="sf-jobs-field">
+                    <span className="sf-jobs-label">{t('jobs.headcount')}</span>
+                    <input className="sf-jobs-input" data-sf-m="jobs-input-headcount" value={form.headcount} onChange={setField('headcount')} type="number" inputMode="numeric" min="1" step="1" required />
+                  </label>
+                  <label className="sf-jobs-field">
+                    <span className="sf-jobs-label">{t('jobs.cid')}</span>
+                    <select className="sf-jobs-input" data-sf-m="jobs-select-cid" value={form.cid} onChange={setField('cid')} required>
+                      {currencies.map((row) => (
+                        <option key={String(row.cid)} value={String(row.cid)}>{currencyLabel(row)}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="sf-jobs-field sf-jobs-field-wide">
+                    <span className="sf-jobs-label">{t('jobs.description')}</span>
+                    <textarea className="sf-jobs-textarea" data-sf-m="jobs-input-note" value={form.description} onChange={setField('description')} rows={3} />
+                  </label>
+                  {/* S5①：押金提示 = 赏金 × 人数（就地展示在金额/人数之后；沿用既有 meta 文案样式，不重设视觉） */}
+                  <p className="sf-jobs-meta sf-jobs-field-wide" data-sf-m="jobs-deposit-hint">
+                    {t('jobs.depositHint', { deposit, reward: form.reward || '—', headcount: form.headcount || '—' })}
+                  </p>
+                </div>
+                <div className="sf-jobs-row">
+                  <button className="sf-btn sf-jobs-btn" type="submit" data-sf-m="jobs-primary" disabled={state.phase === 'loading'}>
+                    {state.phase === 'loading' ? t('jobs.submitting') : t('jobs.publish')}
+                  </button>
+                  <span
+                    className={`sf-jobs-status${state.phase === 'error' ? ' sf-jobs-err' : ''}${state.phase === 'ok' ? ' sf-jobs-ok' : ''}`}
+                    data-sf-m="jobs-status"
+                    role="status"
+                    data-sf-phase={state.phase}
+                  >
+                    {state.message}
+                  </span>
+                </div>
+              </form>
+            </>
+          )}
         </div>
       </div>
       <div className="sf-layout-side">

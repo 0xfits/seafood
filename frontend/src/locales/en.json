@@ -1387,5 +1387,21 @@
     "manualDeliver": "Manual delivery",
     "freeShip": "Free shipping",
     "buyerShip": "Buyer pays shipping"
+  },
+  "bountyProject": {
+    "needProject": "Posting a bounty requires an owned project first",
+    "needProjectHint": "Bounty rewards are escrowed by the project owner, so set up your project before posting.",
+    "createProject": "New project",
+    "title": "Project title",
+    "description": "Project description",
+    "headcount": "Headcount",
+    "minDays": "Minimum account age (days)",
+    "battPerClaim": "Wage per claim (batt)",
+    "intervalHours": "Claim interval (hours)",
+    "currency": "Extra currency (optional)",
+    "currencyAmount": "Extra currency amount",
+    "noCurrency": "No extra currency",
+    "createOk": "Project created — you can post bounties now",
+    "intervalInvalid": "Claim interval must be a whole number from 1 to 100"
   }
 }

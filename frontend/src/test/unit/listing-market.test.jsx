@@ -36,7 +36,10 @@ vi.mock('../../auth', async (importOriginal) => {
   const actual = await importOriginal()
   return {
     ...actual,
-    fetchApiJson: vi.fn(async () => []),
+    // ★ 需求②：发布页进页先读 `GET /api/project/all` ⇒ 给「本人名下、招募中」一行（其余面仍 `[]`）
+    fetchApiJson: vi.fn(async (url) => (String(url).includes('/api/project/all')
+      ? [{ project_id: '11', owner_uid: 7, status: 'recruiting' }]
+      : [])),
     getAuthHeaders: vi.fn(() => ({ Authorization: 'Bearer test' })),
   }
 })
@@ -93,7 +96,9 @@ const renderPage = (ui, path = '/') => render(
 describe('商品线 · 接线契约', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    fetchApiJson.mockImplementation(async () => [])
+    fetchApiJson.mockImplementation(async (url) => (String(url).includes('/api/project/all')
+      ? [{ project_id: '11', owner_uid: 7, status: 'recruiting' }]
+      : []))
     useAuth.mockReturnValue({ isAuthenticated: true, user: { uID: 7, token: 'test' } })
   })
 
@@ -182,7 +187,9 @@ describe('商品线 · 接线契约', () => {
 describe('交易所线 · 接线契约', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    fetchApiJson.mockImplementation(async () => [])
+    fetchApiJson.mockImplementation(async (url) => (String(url).includes('/api/project/all')
+      ? [{ project_id: '11', owner_uid: 7, status: 'recruiting' }]
+      : []))
     useAuth.mockReturnValue({ isAuthenticated: true, user: { uID: 7, token: 'test' } })
   })
 
@@ -332,7 +339,9 @@ describe('四语 locale（P4-B4c-ii-c ① / ② 新增键）', () => {
 describe('审核面准入（S17a 队列页「已登录即可」；S18 发布页入口链接同口径）', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    fetchApiJson.mockImplementation(async () => [])
+    fetchApiJson.mockImplementation(async (url) => (String(url).includes('/api/project/all')
+      ? [{ project_id: '11', owner_uid: 7, status: 'recruiting' }]
+      : []))
     useAuth.mockReturnValue({ isAuthenticated: true, user: { uID: 7, token: 'test' } })
   })
 

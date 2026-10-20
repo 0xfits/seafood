@@ -38,11 +38,15 @@ const stableT = (key, opts) => (
 const stableI18n = { changeLanguage: vi.fn(), resolvedLanguage: 'zh', language: 'zh' }
 
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: stableT, i18n: stableI18n }) }))
+// ★ 2026-10-21 需求②：发布页进页先查「我有没有在管项目」（`GET /api/project/all`）⇒ 替身按 URL 分流：
+//   项目列表给「本人名下、招募中」一行（= 有项目 ⇒ 正常渲染发布表单）；其余面维持旧 `[{}]`。
+//   无项目 / 403 降级两臂见 `publish-job-project-gate.test.jsx`。
+const projectRow = { project_id: '11', owner_uid: 7, status: 'recruiting', title: 'p1' }
 vi.mock('../../auth', async (importOriginal) => {
   const actual = await importOriginal()
   return {
     ...actual,
-    fetchApiJson: vi.fn(async () => [{}]),
+    fetchApiJson: vi.fn(async (url) => (String(url).includes('/api/project/all') ? [projectRow] : [{}])),
     getAuthHeaders: vi.fn(() => ({ Authorization: 'Bearer test' })),
   }
 })
@@ -83,12 +87,12 @@ describe('S5① · 新增文案键四语齐备 + 键计数', () => {
   it('键计数：顶层 128 不变 / 拍平 1070 / 四语节点 4280（v1.5 §14.10 +20 叶/语；S8 前推：+jobs.deliverable；S9：+4 ledger.kind；S23 +1 jobs.participantsHeadcount；S25：B7 退役 10 键）', () => {
     for (const l of LANGS) {
     // v1.5 §14 delta①（2026-10-11 收尾单 · Zang 裁定⑧）曾另立新键 'me'：top 128⇒129 / flat 1070⇒1071 / 节点 4280⇒4284；[留痕] 本单（2026-10-11 · Kevin 口径）全站统一 profile 值 = 我的/Me/我的/Tôi 并删 'me' ⇒ 计数回落 top 129⇒128 / flat 1071⇒1070 / 节点 4284⇒4280。
-      expect(Object.keys(readTable(l)).length, `${l} top`).toBe(133) // 卡片改版（2026-10-19）：+1 顶层 `sellerCredit` ×4 键/语 ⇒ top 128⇒129 / flat 1110⇒1114 / 节点 4440⇒4456 // 卡片行结构重定义（2026-10-19）：+1 键（rewardCard.wants，四语对称）⇒ flat 1114⇒1115 / 四语节点 4456⇒4460（top 129 不变） // item-type（2026-10-20）：+5 键（`itemType` 4 + `item.freeShipping` 1，四语对称）⇒ top 129⇒130 / flat 1115⇒1120 / 四语节点 4460⇒4480 // [i18n-bump item-detail +7 键 item.message/platformSettled/views + itemCondition×4 ⇒ top 130⇒131 / flat 1129⇒1136 / nodes 4516⇒4544 / item 61⇒64] // [i18n-bump wage：新增顶层 `wage`(29 键，四语对称) ⇒ top 131⇒132 / flat 1140⇒1169 / 四语节点 4560⇒4676 / top×4 524⇒528] // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
+      expect(Object.keys(readTable(l)).length, `${l} top`).toBe(134) // 卡片改版（2026-10-19）：+1 顶层 `sellerCredit` ×4 键/语 ⇒ top 128⇒129 / flat 1110⇒1114 / 节点 4440⇒4456 // 卡片行结构重定义（2026-10-19）：+1 键（rewardCard.wants，四语对称）⇒ flat 1114⇒1115 / 四语节点 4456⇒4460（top 129 不变） // item-type（2026-10-20）：+5 键（`itemType` 4 + `item.freeShipping` 1，四语对称）⇒ top 129⇒130 / flat 1115⇒1120 / 四语节点 4460⇒4480 // [i18n-bump item-detail +7 键 item.message/platformSettled/views + itemCondition×4 ⇒ top 130⇒131 / flat 1129⇒1136 / nodes 4516⇒4544 / item 61⇒64] // [i18n-bump wage：新增顶层 `wage`(29 键，四语对称) ⇒ top 131⇒132 / flat 1140⇒1169 / 四语节点 4560⇒4676 / top×4 524⇒528] // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
       // S25 计数期望订正（台账 B7 死键退役）：jobs 退役 10 键 ×4 语对称删除 ⇒ 拍平 1060⇒1050（等量下移 −10/语）。
-      expect(FLAT[l].length, `${l} flat`).toBe(1239) // **sf19-msgpanel**：`+1` 键（`messagesPage.close`）⇒ flat `1103⇒1104` / 四语节点 `4412⇒4416`；**sf-bttc-shortfall**：+2 键（`bttcPanel.mintNeedBatt`/`mintNeedUsd`）⇒ flat 1104⇒1109 / 四语节点 4416⇒4436；**media-upload-B（阶段 B 写侧）**：+3 item 键（imagesLabel/imageRemove/imageUploadFail）⇒ flat 1106⇒1109 / 四语节点 4424⇒4436（top 128 不变） ；**media-size-1mb（2026-10-19）**：+1 键（`item.imageTooLarge`）⇒ flat 1109⇒1110 / 四语节点 4436⇒4440（top 128 不变 / item 52⇒53） // 卡片改版（2026-10-19）：+1 顶层 `sellerCredit` ×4 键/语 ⇒ top 128⇒129 / flat 1110⇒1114 / 节点 4440⇒4456 // 卡片行结构重定义（2026-10-19）：+1 键（rewardCard.wants，四语对称）⇒ flat 1114⇒1115 / 四语节点 4456⇒4460（top 129 不变） // item-type（2026-10-20）：+5 键（`itemType` 4 + `item.freeShipping` 1，四语对称）⇒ top 129⇒130 / flat 1115⇒1120 / 四语节点 4460⇒4480 // 0054 数字商品拆分（2026-10-20）：+2 键（`itemType.autoDeliver`/`itemType.manualDeliver`，四语对称）⇒ flat 1120⇒1122 / 四语节点 4480⇒4488（top 130 不变） // [i18n-bump title-merge +1 键 item.descFirstLineHint ⇒ flat 1122⇒1123 / nodes 4488⇒4492 / item 54⇒55] // [i18n-bump edit-page +3 键 item.editTitle/editOk/draftStockLocked ⇒ flat 1123⇒1126 / nodes 4492⇒4504 / item 55⇒58] // [i18n-bump list-actions +3 键 item.lowerPrice/newPrice/lowerPriceInvalid ⇒ flat 1126⇒1129 / nodes 4504⇒4516 / item 58⇒61] // [i18n-bump item-detail +7 键 item.message/platformSettled/views + itemCondition×4 ⇒ top 130⇒131 / flat 1129⇒1136 / nodes 4516⇒4544 / item 61⇒64] // [i18n-bump multi-buy +3 键 item.multiBuyLabel/buyQtyTitle/buyQtyHint ⇒ flat 1137⇒1140 / nodes 4548⇒4560 / item 65⇒68] // [i18n-bump wage：新增顶层 `wage`(29 键，四语对称) ⇒ top 131⇒132 / flat 1140⇒1169 / 四语节点 4560⇒4676 / top×4 524⇒528] // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
+      expect(FLAT[l].length, `${l} flat`).toBe(1253) // **sf19-msgpanel**：`+1` 键（`messagesPage.close`）⇒ flat `1103⇒1104` / 四语节点 `4412⇒4416`；**sf-bttc-shortfall**：+2 键（`bttcPanel.mintNeedBatt`/`mintNeedUsd`）⇒ flat 1104⇒1109 / 四语节点 4416⇒4436；**media-upload-B（阶段 B 写侧）**：+3 item 键（imagesLabel/imageRemove/imageUploadFail）⇒ flat 1106⇒1109 / 四语节点 4424⇒4436（top 128 不变） ；**media-size-1mb（2026-10-19）**：+1 键（`item.imageTooLarge`）⇒ flat 1109⇒1110 / 四语节点 4436⇒4440（top 128 不变 / item 52⇒53） // 卡片改版（2026-10-19）：+1 顶层 `sellerCredit` ×4 键/语 ⇒ top 128⇒129 / flat 1110⇒1114 / 节点 4440⇒4456 // 卡片行结构重定义（2026-10-19）：+1 键（rewardCard.wants，四语对称）⇒ flat 1114⇒1115 / 四语节点 4456⇒4460（top 129 不变） // item-type（2026-10-20）：+5 键（`itemType` 4 + `item.freeShipping` 1，四语对称）⇒ top 129⇒130 / flat 1115⇒1120 / 四语节点 4460⇒4480 // 0054 数字商品拆分（2026-10-20）：+2 键（`itemType.autoDeliver`/`itemType.manualDeliver`，四语对称）⇒ flat 1120⇒1122 / 四语节点 4480⇒4488（top 130 不变） // [i18n-bump title-merge +1 键 item.descFirstLineHint ⇒ flat 1122⇒1123 / nodes 4488⇒4492 / item 54⇒55] // [i18n-bump edit-page +3 键 item.editTitle/editOk/draftStockLocked ⇒ flat 1123⇒1126 / nodes 4492⇒4504 / item 55⇒58] // [i18n-bump list-actions +3 键 item.lowerPrice/newPrice/lowerPriceInvalid ⇒ flat 1126⇒1129 / nodes 4504⇒4516 / item 58⇒61] // [i18n-bump item-detail +7 键 item.message/platformSettled/views + itemCondition×4 ⇒ top 130⇒131 / flat 1129⇒1136 / nodes 4516⇒4544 / item 61⇒64] // [i18n-bump multi-buy +3 键 item.multiBuyLabel/buyQtyTitle/buyQtyHint ⇒ flat 1137⇒1140 / nodes 4548⇒4560 / item 65⇒68] // [i18n-bump wage：新增顶层 `wage`(29 键，四语对称) ⇒ top 131⇒132 / flat 1140⇒1169 / 四语节点 4560⇒4676 / top×4 524⇒528] // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
     }
     // S25：1050 × 4 = 4200（原 1060 × 4 = 4240）。
-    expect(FLAT.zh.length * LANGS.length).toBe(4956) // **sf19-msgpanel**：`+1` 键（`messagesPage.close`）⇒ flat `1103⇒1104` / 四语节点 `4412⇒4416`；**sf-bttc-shortfall**：+2 键（`bttcPanel.mintNeedBatt`/`mintNeedUsd`）⇒ flat 1104⇒1109 / 四语节点 4416⇒4436 // 卡片改版（2026-10-19）：+1 顶层 `sellerCredit` ×4 键/语 ⇒ top 128⇒129 / flat 1110⇒1114 / 节点 4440⇒4456 // 卡片行结构重定义（2026-10-19）：+1 键（rewardCard.wants，四语对称）⇒ flat 1114⇒1115 / 四语节点 4456⇒4460（top 129 不变） // item-type（2026-10-20）：+5 键（`itemType` 4 + `item.freeShipping` 1，四语对称）⇒ top 129⇒130 / flat 1115⇒1120 / 四语节点 4460⇒4480 // 0054 数字商品拆分（2026-10-20）：+2 键（`itemType.autoDeliver`/`itemType.manualDeliver`，四语对称）⇒ flat 1120⇒1122 / 四语节点 4480⇒4488（top 130 不变） // [i18n-bump title-merge +1 键 item.descFirstLineHint ⇒ flat 1122⇒1123 / nodes 4488⇒4492 / item 54⇒55] // [i18n-bump edit-page +3 键 item.editTitle/editOk/draftStockLocked ⇒ flat 1123⇒1126 / nodes 4492⇒4504 / item 55⇒58] // [i18n-bump list-actions +3 键 item.lowerPrice/newPrice/lowerPriceInvalid ⇒ flat 1126⇒1129 / nodes 4504⇒4516 / item 58⇒61] // [i18n-bump item-detail +7 键 item.message/platformSettled/views + itemCondition×4 ⇒ top 130⇒131 / flat 1129⇒1136 / nodes 4516⇒4544 / item 61⇒64] // [i18n-bump multi-buy +3 键 item.multiBuyLabel/buyQtyTitle/buyQtyHint ⇒ flat 1137⇒1140 / nodes 4548⇒4560 / item 65⇒68] // [i18n-bump wage：新增顶层 `wage`(29 键，四语对称) ⇒ top 131⇒132 / flat 1140⇒1169 / 四语节点 4560⇒4676 / top×4 524⇒528] // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
+    expect(FLAT.zh.length * LANGS.length).toBe(5012) // **sf19-msgpanel**：`+1` 键（`messagesPage.close`）⇒ flat `1103⇒1104` / 四语节点 `4412⇒4416`；**sf-bttc-shortfall**：+2 键（`bttcPanel.mintNeedBatt`/`mintNeedUsd`）⇒ flat 1104⇒1109 / 四语节点 4416⇒4436 // 卡片改版（2026-10-19）：+1 顶层 `sellerCredit` ×4 键/语 ⇒ top 128⇒129 / flat 1110⇒1114 / 节点 4440⇒4456 // 卡片行结构重定义（2026-10-19）：+1 键（rewardCard.wants，四语对称）⇒ flat 1114⇒1115 / 四语节点 4456⇒4460（top 129 不变） // item-type（2026-10-20）：+5 键（`itemType` 4 + `item.freeShipping` 1，四语对称）⇒ top 129⇒130 / flat 1115⇒1120 / 四语节点 4460⇒4480 // 0054 数字商品拆分（2026-10-20）：+2 键（`itemType.autoDeliver`/`itemType.manualDeliver`，四语对称）⇒ flat 1120⇒1122 / 四语节点 4480⇒4488（top 130 不变） // [i18n-bump title-merge +1 键 item.descFirstLineHint ⇒ flat 1122⇒1123 / nodes 4488⇒4492 / item 54⇒55] // [i18n-bump edit-page +3 键 item.editTitle/editOk/draftStockLocked ⇒ flat 1123⇒1126 / nodes 4492⇒4504 / item 55⇒58] // [i18n-bump list-actions +3 键 item.lowerPrice/newPrice/lowerPriceInvalid ⇒ flat 1126⇒1129 / nodes 4504⇒4516 / item 58⇒61] // [i18n-bump item-detail +7 键 item.message/platformSettled/views + itemCondition×4 ⇒ top 130⇒131 / flat 1129⇒1136 / nodes 4516⇒4544 / item 61⇒64] // [i18n-bump multi-buy +3 键 item.multiBuyLabel/buyQtyTitle/buyQtyHint ⇒ flat 1137⇒1140 / nodes 4548⇒4560 / item 65⇒68] // [i18n-bump wage：新增顶层 `wage`(29 键，四语对称) ⇒ top 131⇒132 / flat 1140⇒1169 / 四语节点 4560⇒4676 / top×4 524⇒528] // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
   })
 
   it('depositHint 四语均含押金/人数算式占位（逐字锚）', () => {
@@ -100,7 +104,7 @@ describe('S5① · 新增文案键四语齐备 + 键计数', () => {
 })
 
 describe('S5① · job-api 接 headcount', () => {
-  beforeEach(() => { vi.clearAllMocks(); fetchApiJson.mockImplementation(async () => [{}]) })
+  beforeEach(() => { vi.clearAllMocks(); fetchApiJson.mockImplementation(async (url) => (String(url).includes('/api/project/all') ? [projectRow] : [{}])) })
 
   it('publishJob → POST /api/job，body 带 headcount', async () => {
     await publishJob({ cid: 1, reward: '10', title: 't', description: 'd', headcount: '3', createKey: 'cli:x', user: null })
@@ -121,14 +125,20 @@ describe('S5① · job-api 接 headcount', () => {
 describe('S5① · 发布页表单：总人数必填 + 押金提示', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    fetchApiJson.mockImplementation(async () => [{}])
+    fetchApiJson.mockImplementation(async (url) => (String(url).includes('/api/project/all') ? [projectRow] : [{}]))
     useAuth.mockReturnValue({ isAuthenticated: true, user: { uID: 7, token: 'test' } })
   })
 
   const headcountInput = (c) => c.querySelector('[data-sf-m="jobs-input-headcount"]')
+  // 准入判定是异步的（进页先查 `/api/project/all`）⇒ 断言前先等发布表单挂上
+  const awaitForm = async (c) => {
+    await vi.waitFor(() => expect(c.querySelector('[data-sf-m="jobs-form"]')).not.toBeNull())
+    return c
+  }
 
-  it('总人数输入默认 1，且为必填数字框（min=1 / step=1）', () => {
+  it('总人数输入默认 1，且为必填数字框（min=1 / step=1）', async () => {
     const { container } = renderPage(<PublishJobPage />)
+    await awaitForm(container)
     const input = headcountInput(container)
     expect(input).toBeTruthy()
     expect(input.value).toBe('1')
@@ -136,8 +146,9 @@ describe('S5① · 发布页表单：总人数必填 + 押金提示', () => {
     expect(input.getAttribute('min')).toBe('1')
   })
 
-  it('押金提示 = 赏金 × 人数（填 10 与 3 ⇒ deposit=30）；空赏金 ⇒ 占位 —', () => {
+  it('押金提示 = 赏金 × 人数（填 10 与 3 ⇒ deposit=30）；空赏金 ⇒ 占位 —', async () => {
     const { container } = renderPage(<PublishJobPage />)
+    await awaitForm(container)
     const hint = () => container.querySelector('[data-sf-m="jobs-deposit-hint"]').textContent
     // 初始：赏金空 ⇒ 不臆造 0
     expect(hint()).toContain('deposit=—')
@@ -146,8 +157,9 @@ describe('S5① · 发布页表单：总人数必填 + 押金提示', () => {
     expect(hint()).toContain('deposit=30')
   })
 
-  it('人数 < 1（0）⇒ 提交被代码闸拦下：不发起 /api/job，状态= jobs.headcountInvalid', () => {
+  it('人数 < 1（0）⇒ 提交被代码闸拦下：不发起 /api/job，状态= jobs.headcountInvalid', async () => {
     const { container } = renderPage(<PublishJobPage />)
+    await awaitForm(container)
     fireEvent.change(container.querySelector('[data-sf-m="jobs-input-reward"]'), { target: { value: '10' } })
     fireEvent.change(headcountInput(container), { target: { value: '0' } })
     fireEvent.submit(container.querySelector('[data-sf-m="jobs-form"]'))
@@ -157,6 +169,7 @@ describe('S5① · 发布页表单：总人数必填 + 押金提示', () => {
 
   it('人数合法 ⇒ 提交带 headcount 到 /api/job', async () => {
     const { container } = renderPage(<PublishJobPage />)
+    await awaitForm(container)
     fireEvent.change(container.querySelector('[data-sf-m="jobs-input-reward"]'), { target: { value: '10' } })
     fireEvent.change(headcountInput(container), { target: { value: '2' } })
     fireEvent.submit(container.querySelector('[data-sf-m="jobs-form"]'))

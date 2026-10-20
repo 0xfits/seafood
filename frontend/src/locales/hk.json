@@ -1387,5 +1387,21 @@
     "manualDeliver": "手動發貨",
     "freeShip": "包郵",
     "buyerShip": "不包郵"
+  },
+  "bountyProject": {
+    "needProject": "發佈懸賞之前要先擁有一個項目",
+    "needProjectHint": "懸賞酬金由項目方托管，建好項目再返嚟發佈會穩陣啲。",
+    "createProject": "新建項目",
+    "title": "項目標題",
+    "description": "項目說明",
+    "headcount": "招工人數",
+    "minDays": "註冊天數條件",
+    "battPerClaim": "每次工資（batt）",
+    "intervalHours": "領取間隔（小時）",
+    "currency": "次幣（可選）",
+    "currencyAmount": "次幣金額",
+    "noCurrency": "唔用次幣",
+    "createOk": "項目已建立，可以發佈懸賞喇",
+    "intervalInvalid": "領取間隔必須係 1 到 100 嘅整數"
   }
 }

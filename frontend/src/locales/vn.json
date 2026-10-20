@@ -1387,5 +1387,21 @@
     "manualDeliver": "Giao hàng thủ công",
     "freeShip": "Miễn phí vận chuyển",
     "buyerShip": "Người mua trả phí vận chuyển"
+  },
+  "bountyProject": {
+    "needProject": "Cần có một dự án trước khi đăng treo thưởng",
+    "needProjectHint": "Thù lao treo thưởng do chủ dự án ký quỹ, nên hãy tạo dự án trước khi đăng.",
+    "createProject": "Tạo dự án",
+    "title": "Tiêu đề dự án",
+    "description": "Mô tả dự án",
+    "headcount": "Số người cần tuyển",
+    "minDays": "Số ngày tài khoản tối thiểu",
+    "battPerClaim": "Thù lao mỗi lần (batt)",
+    "intervalHours": "Giãn cách nhận (giờ)",
+    "currency": "Tiền tệ phụ (tuỳ chọn)",
+    "currencyAmount": "Số tiền tệ phụ",
+    "noCurrency": "Không dùng tiền tệ phụ",
+    "createOk": "Đã tạo dự án, giờ có thể đăng treo thưởng",
+    "intervalInvalid": "Giãn cách nhận phải là số nguyên từ 1 đến 100"
   }
 }
