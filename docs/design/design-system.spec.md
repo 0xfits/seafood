@@ -4277,3 +4277,39 @@ showEdit     = isAuthenticated && (isOwner || canEditAny) && statusEditable
 - **读数登记项（不判负，供质检取数）**：① 弹层 `z-index` 与底栏实际层叠（`elementFromPoint` 在弹层中心须命中弹层）；② 390×844 下弹层是否溢出（`scrollHeight` vs 视口）；③ 开关命中区实测高度（≥44）与可见文本字号（≥12px）；④ 编辑页 `stock` 改 1 后的 state 快照（`allowMultiBuy === false`）；⑤ `cap` 在 `stock=2/10/25` 三种库存下的取值（`2 / 10 / 10`）。
 - **未实现 / 未测**：开关、降量自动关、弹层、上限常量、i18n 三键 —— **一行前端代码未写**；判负 **#64–#69 一条未跑**；零 HTTP 实测、零库写、零截图。
 - **连带**：`data-layer.spec` §40.13 · `route-layer.spec` §49.17 · `master-plan` §5.445 + 版本行 v0.362 · `ops/multi-buy/SPEC-NOTE.md`。本笔只写 `docs/**` + `ops/multi-buy/**`，零代码 / 零迁移 / 零测试改动 / **不 push**；`git diff --numstat` **删除列 = 0**。
+
+## §26.19 活动任务体系骨架预留：活动列表 `/campaign` ＋ 活动详情 `/campaign/:ref`（H5/Web 两形态 · **零实现、零 token、零 i18n 键落地**）（2026-10-20 · **加性续登、不升版**（承 §26.12–§26.18 体例）· 纯追加）
+
+> **依据**：Kevin 2026-10-20 活动体系四点定案（逐字转引自本单派单；同日两次 OOB —— Subtask Type 先扩 6 再**删 `poll`** 收敛 **5** 类，本节按 5 类登记）。**本节 = 骨架预留 ＋ 判负**（页面路由建议形、区块语义、判负），**一行前端代码未写**（实现归并行前端单）。**连带** = `data-layer.spec` §40.14（五表）· `route-layer.spec` §49.18（七口路由 · 页面路由不计注册点）· `master-plan` §5.446 ＋ 版本行 v0.363 · `ops/campaign/SPEC-NOTE.md`。
+
+#### 26.19.1 页面路由与骨架（建议形，实现单可调）
+
+- **页面路由两条**：`/campaign`（列表）、`/campaign/:ref`（详情；`:ref` 直传后端 R2，形态语义同 route §49.18.1）。
+- **H5 ≤767 列表**：单列卡片流；活动卡 = ①标题 ②时间窗行 ③状态徽标行 ④描述首行（截断体例承 §26.13 显示链）。**禁 >1 列**。
+- **Web ≥768 列表**：≥2 列网格（列数实现单定）；卡片同构 H5。
+- **详情（两形态）**：**两级结构写死** = 活动头（标题/时间窗/状态）→ 任务卡列表（task，含自身状态与时间窗）→ 子任务清单（subtask：标题 ＋ 类型徽标 ＋ required 标 ＋ content）；**禁拍平成单级列表**。
+- **required 承载**：必做/选做必须有视觉区分（建议键 `campaign.requiredTag` / `campaign.optionalTag`）。
+- **时间窗显示**：start/end 任一在场即渲染，格式化走 i18n；**禁 ISO 原串直出**。
+- **类型徽标（5 类）**：`type_code` → 前端 i18n 键 `campaign.type.<type_code>`（**5 键**：`x_verify`/`onchain_snapshot`/`survey`/`prediction`/`quiz`）优先、后端 seed `label`（中文）兜底；**直出英文 code ⇒ 判负 #74**。
+- **ended 终态视觉**：ended 活动卡与 active 有可区分呈现（建议键 `campaign.endedTag`）。
+- **组件隔离**：活动卡**独立组件**，**禁复用 `sf-listings-card` 等商品卡类名/组件**（样式与语义双污染）。
+- **shell 红线不动**：不新增 `data-sf-region`（五恒等集不动）、`shell.css` 一字节不动（唯一 767 断点块断言照旧）、**零新 token**（新色先落页面局部常量，承 §26.18.7 体例）。
+
+#### 26.19.2 i18n（零键落地 · 建议键清单）
+
+- 建议键族 `campaign.*`（`listTitle` / `taskCount` / `timeWindow` / `requiredTag` / `optionalTag` / `endedTag` / `type.*` **5** 键 等）⇒ **本笔零键落地**，计数 **`NOT_MEASURED`**；落地后 top/flat/nodes 以现取回填（现基线 = multi-buy 后 top **131** / flat **1140** / nodes **4560**，转引自 §5.445，本笔未复测）。
+
+#### 26.19.3 判负（**#70–#76** · 承 #51–#69 家族只增不改）
+
+1. **#70 详情拍平**：详情页无 task→subtask 两级结构（单级列表）⇒ 判负。
+2. **#71 required 无承载**：必做/选做不可区分 ⇒ 判负。
+3. **#72 时间窗失格**：ISO 原串直出，或 start/end 缺一渲染成残缺行 ⇒ 判负。
+4. **#73 组件混用**：活动卡复用商品卡类名（`sf-listings-card` 等）⇒ 判负。
+5. **#74 类型直出 code**：无 i18n 键且无 seed label 兜底，页面直出 `x_verify` 等英文 code ⇒ 判负。
+6. **#75 终态不可辨**：ended 与 active 卡视觉不可区分 ⇒ 判负。
+7. **#76 破坏 shell 红线**：新增 `data-sf-region` / 改 `shell.css` / 新 token 进主题层 ⇒ 判负。
+
+#### 26.19.4 落点约束与未做（本笔零代码 · 明账）
+
+- **落点**：新页面 CSS 落页面级文件（`pages/campaign/…` 建议形）；**零 `TOKEN_KEYS` 变更**（免四处 PROV，承 §26.18.7）。
+- **未实现/未测**：两条页面路由、两形态骨架、i18n 键 —— **一行代码未写**；判负 #70–#76 一条未跑；零截图、零 HTTP 实测、零库写。本笔只写 `docs/**` ＋ `ops/campaign/**`，**不 push**；`git diff --numstat` **删除列 = 0**。

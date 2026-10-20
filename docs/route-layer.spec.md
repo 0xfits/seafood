@@ -10046,3 +10046,64 @@ ORDER BY score DESC, l.time_created DESC, l.listing_id DESC
 - **现取（2026-10-20 · HEAD `bde5a4c` · 工作区非干净）**：注册点 **111**（get 50 / post 57 / put 0 / delete 3 / patch 1）· 迁移末位盘上 **`0060_item_code_snowflake.sql`**（untracked、未提交）· `grep -c 0061` = **0** · `LISTING_EDIT_FIELDS` = **6 项**（`listing-service.ts:545`）· `editable_when_creating` = **6 项**（`:328`）· `buyListing` 前置只读位置 = `listing-funds-service.ts:273` 起 · `toPosIntText` = `:226-231` · DB 库存闸 = `0015_listing.sql:583-588` · `LEDGER_INSUFFICIENT_BALANCE` = **409**（`ledger-errors.ts:33`）· `LEDGER_AMOUNT_INVALID` = **400**（`:52`）· 读口 详情 **52** / mine **13** / edit **13** / feed **50**。
 - **未做（`NOT_MEASURED` · 本册不预填）**：`0061` 未落盘 / 两库未 apply；写口两处未改；购买闸未实现；三读口未加键；判负 **#48–#53 一条未跑**；**零 HTTP 实测 / 零库写 / 零代码**。
 - **同树现状披露（并行 item-id 单已改、未提交）**：`M backend-ts/src/{database,index,listing-service}.ts` + `?? backend-ts/migrations/0060_item_code_snowflake.sql` + `?? backend-ts/src/item-id.ts` ⇒ 本单**不代其声明任何落地**，本节只登记形状；契约冲突以上一段与 `data §40.13` 为准。**本笔不 push、不改代码。**
+
+### 49.18 活动任务体系三面路由（公开 2 ＋ 用户 1 ＋ 管理员 4 · **注册点 111 → 118（预计 +7，待实现后现取回填，回填前不冒充实测）** · 零新错误码）· 2026-10-20 · **v2.45**（新路由 ⇒ 升版；**头注不改写**，承 §49.15 体例）· 纯追加
+
+> **依据**：Kevin 2026-10-20 四点定案（逐字转引自本单派单，**原始会话未入仓** ⇒ 出入以 Kevin 一句话为准）—— ① 全新三张主表、旧悬赏体系原封不动；② Subtask Type 起步冻结 **5 种**（同日两次 OOB：先扩 6 再删 `poll`）后续管理员可加；③ Proof **只存不审（提交即通过）**、一人一提交重提覆盖；④ Campaign/Task 时间窗 ＋ 状态机 `draft→active→ended`。**姊妹面** = `data-layer.spec` **§40.14**（五表 `CP-1…CP-10`）＋ `design-system.spec` **§26.19**（骨架）＋ `master-plan` **§5.446 / v0.363** ＋ `ops/campaign/SPEC-NOTE.md`。**本单零代码**（契约冻结，实现归并行后端单）。
+
+#### 49.18.1 作用面（三面 · **逐口登记**）
+
+| # | verb | path | 面 / 闸 | 语义 |
+|---|---|---|---|---|
+| R1 | GET | `/api/campaign/all` | 公开 | `status='active'` 列表，含 task（仅 `active`）→ subtask（全量）嵌套；无分页（行数小；keyset 另单承 DL25）；排序 `sort ASC, task_id ASC` tie-break（全序无并列，承 §49.14 体例） |
+| R2 | GET | `/api/campaign/:ref` | 公开（draft 仅管理员） | `:ref` **纯数字谓词**；单语句 `WHERE campaign_id = $1 OR snowflake_id = $1`（**一次往返**；数值域天然错开 —— 自增个位数量级 vs 雪花 19 位，双行命中不可能）；miss ⇒ 404（reason `campaign_not_found`，借 prize `:ref` 404 体例）；**draft 对公众 = 404**（不泄露存在性、不 403）；**draft 对 `requireAdmin(manage_tasks)` = 200**（管理员要读草稿才能改 —— 同一读口按身份放宽，承 §49.15 体例） |
+| R3 | POST | `/api/campaign/subtask/:subtaskId/proof` | 用户（登录闸，未登录 401 既有中间件） | `:subtaskId` 同 R2 数字谓词（`subtask_id OR snowflake_id`）；**闸链 = 服务层前置只读**：subtask → task.active → campaign.active（任一非 `active` ⇒ 409 借码 ＋ reason `campaign_not_active`，**零写副作用**）；payload 闭集四键（data `40.14.4`）；**重提 = 覆盖 200（非 409）**；响应 = proof 行本体（`proof_id` / `subtask_id` / `payload` / `status` / 时间戳） |
+| R4 | POST | `/api/campaign` | 管理员 `manage_tasks` | 增 campaign；body **禁带** `status`/`snowflake_id`/`campaign_id`（⇒ 400 借码 ＋ `NOT_SUPPORTED`，承 §49.13 title 先例）；`status` 恒落 `'draft'`；时间窗写口先校验 end>start（不撞 DB CHECK） |
+| R5 | PATCH | `/api/campaign/:campaignId` | 管理员 | 改 campaign：可改字段闭集 = `title`/`description`/`time_start`/`time_end`/`status`（状态机闭集 data `CP-6`）；**ended 封板 ⇒ 一切 PATCH 409**；`snowflake_id`/`campaign_id` 禁改 |
+| R6 | POST | `/api/campaign/:campaignId/task` | 管理员 | 增 task；campaign **非 ended** 才可加；task `status` 恒落 `'draft'`；可选 `subtasks[]` 内联（每项 `type_code` ∈ **活跃**枚举闭集，未知/inactive ⇒ 400） |
+| R7 | PATCH | `/api/campaign/task/:taskId` | 管理员 | 改 task：可改闭集 = `title`/`description`/`time_start`/`time_end`/`sort`/`status` ＋ `subtasks[]` **整组 upsert**（带 id/snowflake ⇒ 更新、不带 ⇒ 插入、**永不 DELETE** —— 「不做删除」字面）；campaign ended ⇒ 409 |
+
+- **subtask 增改 = 内联于 task 写口**（`subtasks[]` 整组 upsert，无独立路由）；**type 增 = 迁移受控追加 seed 行**（无路由）。**计数变体登记**：若实现单裁定 subtask 或 type 需独立管理口 ⇒ 每口 +1 并回填（届时 118 → 119+），回填前不冒充实测。
+- **管理面权限键 = `manage_tasks`**（`database.ts:21` 在册闭集），**不是** §49.15 的 `manage_rewards` —— 两键两域，混用 ⇒ #59。
+
+#### 49.18.2 注册点 **111 → 118（预计）**（逐 verb · 现取 → 目标态）
+
+**现取（2026-10-20 · HEAD `09943ba`）**：`grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts` = **111**，逐 verb = get **50** / post **57** / put **0** / delete **3** / patch **1**。
+
+| verb | 现取 | 目标（**预计**） | 增量 | 来源 |
+|---|---|---|---|---|
+| get | 50 | **52** | **+2** | R1 / R2 |
+| post | 57 | **60** | **+3** | R3 / R4 / R6 |
+| put | 0 | 0 | 0 | —— |
+| delete | 3 | 3 | 0 | ——（不做删除，结束用状态机） |
+| patch | 1 | **3** | **+2** | R5 / R7 |
+| **合计** | **111** | **118** | **+7** | 回填硬判据 = 实现后现取逐字 |
+
+- **注册顺序判据（写死）**：R1 `GET /api/campaign/all` 必须注册在 R2 `GET /api/campaign/:ref` **之前** —— Express 按注册序匹配，倒置 ⇒ 字面 `all` 被 `:ref` 吞成 404（#55）。`/api/campaign/*` 与既有 `/api/task/*`、`/api/task-progress/*` 无前缀冲突。
+- **页面路由不计注册点**：`/campaign`、`/campaign/:ref`（App.jsx 建议形，承 §49.15.7「页面路由不计注册点」体例）。
+- `p7b-03-offline-gates.ts` 的 `AC10-2` 常量在本单回填时随 **111 → 118** 同步前推（本单实现前**不动**该门；谁提前改 ⇒ 回填时对数）。
+
+#### 49.18.3 错误码（**零新码 · 33 码闭集不动**）
+
+| 场景 | 码 | 说明 |
+|---|---|---|
+| 未登录提 proof | 401 既有 auth 中间件 | 零新码 |
+| 管理口缺权（非 `manage_tasks`） | 403 `AUTH_FORBIDDEN` ＋ `ACTOR_NOT_ALLOWED` | 承 §49.15 体例 |
+| campaign/task/subtask miss、draft 对公众 | 404 ＋ reason `campaign_not_found` | reason 字符串**不进** 33 码闭集（承 §49.17「新增的只是 details.reason 字符串」先例） |
+| payload 形状/未知键/禁写字段 | 400 借 `LEDGER_AMOUNT_INVALID` ＋ `details.reason`（`NOT_SUPPORTED` 等） | 承 §40.13 借码体例 |
+| 状态机非法迁移 / 链非 active / ended 封板 | 409 借 `LEDGER_INSUFFICIENT_BALANCE` ＋ `details.reason`（`campaign_invalid_transition` / `campaign_not_active` / `campaign_ended_frozen`） | 具体码回填时可在闭集内择近者替换；**零新码为硬判据** |
+
+#### 49.18.4 判负（**#54–#60** · 与 #48–#53、#42–#47、#35–#41、#29–#34 家族**并存、只增不改**）
+
+1. **#54 注册点不符**：回填后注册点 ≠ **118**（或 get ≠ 52 / post ≠ 60 / patch ≠ 3 任一）⇒ 判负；计数变体已登记的除外（须回填注记在场）。
+2. **#55 注册顺序倒置**：`GET /api/campaign/all` 返回 404（被 `:ref` 吞）⇒ 判负（探测 = 该口必须返列表 200）。
+3. **#56 旧体系被连坐**：`/api/task/*`、`/api/task-progress/*`、`/api/tasklist/*`、`/api/job*` 任一路由的码/形状/键数与改前不一致 ⇒ 判负（**负控臂**：改前改后同请求逐字对比）。
+4. **#57 proof 出审核语义**：重提返回 409（而非覆盖 200）/ 响应含 `approved`/`rejected` 字样 / `status ≠ 'submitted'` ⇒ 判负。
+5. **#58 状态机旁路**：`draft→active→ended` 之外的迁移返回 200（含回退、`draft→ended`、ended 后改写）⇒ 判负。
+6. **#59 权限键混用**：`manage_rewards` 持有者调 R4–R7 必须 403；或 R4–R7 放行键不是 `manage_tasks` ⇒ 判负。
+7. **#60 出参形态错**：任一 `snowflake_id` 出 JSON 为 number；或 `:ref` 双形态判定拆成两次往返；或非数字 `:ref` 返回 500（应 404）⇒ 判负。
+
+#### 49.18.5 现取自证 + 未做（明账）
+
+- **现取（2026-10-20 · HEAD `09943ba` · 工作区非干净 12 路径，属并行多件购买/item-id 面，与本单无关）**：注册点 **111**（get 50 / post 57 / put 0 / delete 3 / patch 1）· 迁移末位盘上 **`0061_listing_allow_multi_buy.sql`**（untracked、未提交），`0062` 零命中 · `requireAdmin` 在册（`index.ts:480`，34 处调用）· 权限键闭集含 `manage_tasks`（`database.ts:21`）· 现行迁移链无任何名为 `task` 的表（grep 现取 0）· 旧路由族坐标 `:707`/`:721`/`:1116`/`:1132`/`:1172`/`:1227`/`:2194`–`:2229`/`:2623` 起。
+- **未做（`NOT_MEASURED` · 本册不预填）**：`0062` 未落盘 / 两库未 apply / 七路由未注册 / **118 为预计值未回填** / 计数变体未裁 / 判负 #54–#60 与 CP-N1…N6、#70–#76 一条未跑；**零 HTTP 实测 / 零库写 / 零代码**。本笔只写 `docs/**` ＋ `ops/campaign/**`，**不 push**。

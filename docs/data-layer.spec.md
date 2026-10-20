@@ -5716,3 +5716,77 @@ CONSTRAINT listing_item_code_shape_ck CHECK (
   **以本段为准（收窄）**：该句的判负对象是「**`item_code` / `snowflake_id` 混进可改字段**」，不是「第 7 项一律非法」。本单把 **`allow_multi_buy`** 合法加为第 7 项 ⇒ 现行判据 = **`LISTING_EDIT_FIELDS` 恰 7 项且不含 `item_code` / `snowflake_id`**；出现第 8 项、或两码列任一进场 ⇒ 仍判负。
 - **§40.12.1 列数「15 → 17」不被本单改写**：本单在其后接 **17 → 18**（两节各记自己的增量，**禁**回改 §40.12 的数字）。
 - **§26.17（design）与 `quantity` 语义的冲突**不在本节处置（属设计面），见 design **§26.18.6**。
+
+## §40.14 ★★ v0.44 · 活动任务体系五表契约：`campaign` ＋ `task` ＋ `subtask` ＋ `subtask_type` ＋ `subtask_proof` · 迁移 `0062_campaign_hierarchy.sql`（**本节只追加 · §1–§40.13 一字未动** · 依据 = Kevin 2026-10-20 四点定案「① 全新三张主表，现有 `task_progress`/`job` 悬赏体系**原封不动**；② Subtask Type = 枚举表起步冻结 **5 种**，后续管理员可加〔同日两次 OOB 留痕：先由 3 扩 6，再**删 `poll`（投票）**收敛为 5 —— `poll` 不入 seed、管理员后续如需可自增〕；③ Proof **只存不审（提交即通过）**；④ Campaign/Task 都有 start/end 时间窗 ＋ 状态机 `draft→active→ended`」 · 迁移由实现单落盘 / apply 由 Zang · 零代码 / 零迁移文件改动 / 零库写 / 零 HTTP 写）
+
+> **本节性质**：**只追加**（§40.13 全文逐字保留；**头注版本块不改写**，承 §40.8.1–§40.13「加性续登、不改头注」体例，以本行 **`v0.44`** 为现行版读数）。`DL` 编号域**零改动**（仍 `DL1..DL157`），`EL-*` / `ID-*` / `MB-*` **零改动**；本节以 **`CP-*`** 承载。**姊妹册** = `route-layer.spec` **§49.18**（三面路由矩阵 · v2.45 新路由升版 · 注册点 111 → **118 预计**）＋ `design-system.spec` **§26.19**（活动列表/详情骨架预留）＋ `master-plan` **§5.446 / 版本行 v0.363** ＋ `ops/campaign/SPEC-NOTE.md`。
+
+#### 40.14.1 五表清单与列契约（`CP-1`…`CP-5`）
+
+**表 1 · `campaign`（`CP-1`，9 列）**
+
+| 列 | 契约 | 说明 |
+|---|---|---|
+| `campaign_id` | `bigserial` PK | 内务主键；对外一律用 `snowflake_id` |
+| `snowflake_id` | `bigint NOT NULL UNIQUE` | 对外出参**一律字符串**（承 §40.12 `ID-*`：`2^53−1` 之下 JSON number 末位失真；位划分 41+10+12 / 纪元 `1704067200000` / 时钟回拨口径**全盘承 §40.12，本节零改写零重立**） |
+| `title` | `text NOT NULL` | 活动标题 |
+| `description` | `text NOT NULL DEFAULT ''` | 活动正文 |
+| `status` | `text NOT NULL DEFAULT 'draft'` ＋ 具名 `campaign_status_check` ∈ `('draft','active','ended')` | 状态机见 `40.14.2` |
+| `time_start` / `time_end` | `timestamptz` 均可空 ＋ 具名 `campaign_time_window_check`：同时非空 ⇒ `time_end > time_start` | 单侧为空 = 只锁一端（依据 ④） |
+| `time_created` / `time_updated` | `timestamptz NOT NULL DEFAULT now()` | `time_updated` 承 `0017` BEFORE UPDATE 刷新体例 |
+
+**表 2 · `task`（`CP-2`，11 列）**：`task_id bigserial PK` · `snowflake_id bigint NOT NULL UNIQUE`（出参 string，承上）· `campaign_id bigint NOT NULL REFERENCES campaign(campaign_id) **ON DELETE CASCADE**`（随活动删，派单逐字）· `title text NOT NULL` · `description text NOT NULL DEFAULT ''` · `status text NOT NULL DEFAULT 'draft'` ＋ 具名 `task_status_check`（三值闭集同 CP-1）· `time_start`/`time_end` 可空 ＋ 具名 `task_time_window_check`（同式）· `sort int NOT NULL DEFAULT 0` · 时间戳两列。**零跨表窗口约束**：「task 窗 ⊆ campaign 窗」**不设库面约束**（纯列 CHECK 写不住跨表）；写口软校验 = 实现单口径，回填登记。
+
+**表 3 · `subtask`（`CP-3`，11 列）**：`subtask_id bigserial PK` · `snowflake_id bigint NOT NULL UNIQUE`（出参 string）· `task_id bigint NOT NULL REFERENCES task(task_id) ON DELETE CASCADE`（本单裁定：不级联 = 删任务留孤儿子任务，且本体系无删口可清）· `type_code text NOT NULL REFERENCES subtask_type(type_code)` · `title text NOT NULL` · `content text NULL`（问卷题干等长文；可空 = 结构化型子任务不强制题干）· `payload jsonb NOT NULL DEFAULT '{}'`（选项/地址等结构化配置；**必须是 JSON 对象**，数组/标量/`null` ⇒ 写口 400）· `sort int NOT NULL DEFAULT 0` · `required boolean NOT NULL DEFAULT **false**`（承 §40.13「默认关、不替活动方做决定」纪律；默认 `true` = 替活动方强制，一句话可改）· 时间戳两列。**`subtask` 无 status 列** —— 子任务只有「存在 / required」两态；「完成」由 proof 行的存在表达（完成率 / 发奖结算 = 另单挂账，本单范围 = 结构 ＋ 凭证）。
+
+**表 4 · `subtask_type`（`CP-4`，4 列）**：`type_code text PK` · `label text NOT NULL`（中文，seed 逐字见 `40.14.3`）· `sort int NOT NULL` · `active boolean NOT NULL DEFAULT true`。枚举行**不带时间戳**（枚举表非业务行）。写面唯一入口 = 迁移 seed ＋ 受控追加（管理员加新类型 = 迁移追加 seed 行，**本单不开路由**，见 route §49.18.1 计数变体）；**停用 = `active=false`**（枚举行不删 —— 被 `subtask` 引用的行有 FK，删除必失败；停用 = 新 subtask 不可选、历史不连坐）。
+
+**表 5 · `subtask_proof`（`CP-5`，7 列）**：`proof_id bigserial PK` · `subtask_id bigint NOT NULL REFERENCES subtask(subtask_id) ON DELETE CASCADE` · `uid bigint NOT NULL REFERENCES users(uid)`（体例承 DL54 `worker_uid`）· `payload jsonb NOT NULL DEFAULT '{}'`（键闭集见 `40.14.4`）· `status text NOT NULL DEFAULT 'submitted'` ＋ 具名 `subtask_proof_status_check CHECK (status IN ('submitted'))` —— **单值 CHECK 是结构声明**：把「审核态的存在性」从 schema 层排除（③ 只存不审的库面表达）· `time_created` / `time_updated`。`UNIQUE (subtask_id, uid)` 具名 `subtask_proof_uniq`。
+
+#### 40.14.2 状态机与时间窗（`CP-6`）
+
+- **合法迁移闭集 = {`draft→active`, `active→ended`}`**，`campaign` 与 `task` **各自独立推进**（task 不随 campaign 自动翻转）。**回退（active→draft）、跳变（draft→ended）、ended 后任何改写 ⇒ 一律 409**；ended = **终态封板**（本单裁定；要「作废 draft」能力 ⇒ 一句话加 `draft→ended`）。同值写（active→active）= 幂等 no-op 200。
+- **状态翻转只由管理写口驱动**：零定时器、零触发器、零 cron 自动收口（「到期自动 ended」= 挂账另单，需 Kevin 口径；与「结束用状态机」字面一致）。
+- **时间窗 = 展示与软信息**：本单不设任何时钟硬闸（提 proof 只看 status 链，见 route §49.18.3 R3）；窗口过期而状态未收口 = 管理侧欠账，不做系统代管。
+
+#### 40.14.3 Subtask Type 五类 seed（`CP-7`）
+
+| sort | `type_code` | `label`（seed 中文逐字） | `active` |
+|---|---|---|---|
+| 1 | `x_verify` | X 验证 | `true` |
+| 2 | `onchain_snapshot` | 链上快照 | `true` |
+| 3 | `survey` | 问卷 | `true` |
+| 4 | `prediction` | 预测 | `true` |
+| 5 | `quiz` | 答题 | `true` |
+
+- Seed = `INSERT … ON CONFLICT (type_code) DO NOTHING`（重放安全，承 DL48 幂等）。**起步冻结 5 种**（Kevin 2026-10-20 同日两次 OOB 留痕：先由 3 扩 6、再删 `poll` 收敛 5；此前派单稿「3 种」字面由本表取代，**不删历史行文**）。**`poll`（投票）不入 seed**，管理员后续如需可按「受控追加」自增（同 「后续管理员可加」 口径）。
+- 「后续管理员可加」= 迁移受控追加 seed 行 ＋ `label`/`sort`/`active` 三列自定；`type_code` 一经落库**不再改写**（被 FK 引用）。
+
+#### 40.14.4 Proof 只存不审与 UNIQUE 覆盖语义（`CP-8`）
+
+- **`UNIQUE (subtask_id, uid)` = 一人一提交；重提 = 覆盖**：单语句 `INSERT … ON CONFLICT (subtask_id, uid) DO UPDATE SET payload = EXCLUDED.payload, time_updated = now()` ⇒ **200 ＋ 新 payload**。**与 DL54 语义必须分清**：`job_application` 同键重投 = 200 **回放旧值**（幂等语义），proof 同键重投 = 200 **新值顶替**（last-write-wins）——两条 UNIQUE 并存、方向相反，实现不得互相抄。
+- **禁两步写**：「先 SELECT 查存在 → 再 INSERT/UPDATE」= 两往返竞态（承 D10 单语句体例），必须单语句 upsert。
+- **payload 键闭集四族**：`screenshots`（媒体 id 串数组）· `links`（http(s) URL 串数组）· `answers`（对象：题目键 → 答案值）· `snapshot_addr`（字符串：链上地址 / TxID）。四键**均可缺省**；**未知键 ⇒ 400**（防垃圾进库）。类型↔键 = 约定非约束：`x_verify` ⇒ screenshots＋links / `onchain_snapshot` ⇒ snapshot_addr / `survey`·`prediction`·`quiz` ⇒ answers。URL 形状校验、条数上限、answers 值域 = 实现单口径，回填登记。
+- **零审核面**：无 review 列、无审核路由、无审核回调 —— 「提交即通过」的读法 = **proof 行存在即完成凭证**。
+
+#### 40.14.5 与旧 `task_progress` / `job` 悬赏体系互不干涉声明（`CP-9` ＋ DL26 定向收窄）
+
+- **现行悬赏体系真身（本单零触碰清单）**：`job`（`0013`）/ `job_application`（`0014`，DL54）/ `job_submission`（`0014`，DL56）/ `job_arbitration_log`（`0027`）四表 ＋ 活路由族 `/api/job*`（`index.ts:2623` 起）、`/api/task/*`（`:707`/`:721`）、`/api/task-progress/*`（`:1116`/`:1132`/`:1172`/`:1227`）、`/api/tasklist/*`（`:2194`–`:2229`）。五新表对上述**零 FK、零 JOIN、零引用、零改写**；旧体系任何读数（码/形状/键数）变化 ⇒ route §49.18 #56。
+- **`task_progress`** = 审计期遗留 0 行表，**DL26 明令不得复活** ⇒ 本迁移 `grep -c "task_progress" 0062` 必须 **= 0**。
+- **DL26 定向收窄（旧字面逐字保留，承 §40.12.9 / design §26.18 收窄体例）**：DL26 封禁对象 = **旧招工语义的 `task` 表**（jinli 遗留 `task`/`task_progress`/`tasklist` 链及其列集 `tID`/`jID`）；本单新表 `public.task`（活动任务卡）是**新语义新表** —— 现行迁移链**从未建过任何名为 `task` 的表**（`grep -riE "create table.*task\b" backend-ts/migrations/` 现取 0 命中）⇒ `CREATE TABLE IF NOT EXISTS task` 属**新名启用**、非**旧表复活**。收窄后判据 = ① `0062` 内 `task_progress` 零命中 ② 旧列集（`tID`/`jID`/`tasklist`）零引用 ③ 旧路由族零改动。若实现单裁定回避同名（如 `campaign_task`）⇒ 一句话可改，回填登记。
+
+#### 40.14.6 迁移形状与自检（`CP-10`）
+
+- 迁移 = **`0062_campaign_hierarchy.sql`** 单文件：五张 `CREATE TABLE IF NOT EXISTS`（DL48 幂等）＋ seed 五行 `ON CONFLICT DO NOTHING` ＋ **两枚索引**（`task_campaign_idx (campaign_id, sort)` / `subtask_task_idx (task_id, sort)`；`campaign` 行数小零索引、proof 查询靠 UNIQUE 覆盖）＋ 具名约束/UNIQUE ＋ `DO $$` 形状自检（五表在场 / 三状态 CHECK / 时间窗 CHECK / proof 单值 CHECK / UNIQUE 两列在场 / seed 恰 **5** 行）。文件内**无 `BEGIN`-`COMMIT`**（承 §40.13 体例）；`schema_version` **0061 → 0062**。
+- **编号冲突登记**：§5.445 挂账把「0062」用作多件购买闸加固的**占位语**（非落盘承诺）；两单均未落盘 ⇒ **先落盘者得 0062**，本单若顺延取号则一次性回填本节编号字面（迁移号 = 落盘事实，不以本节字面为准）。
+- 列数契约：`campaign` **9** / `task` **11** / `subtask` **11** / `subtask_type` **4** / `subtask_proof` **7**（DB 实测 **`NOT_MEASURED`** —— 本环境连不上 Neon，apply 后现取复核）。
+
+#### 40.14.7 判负（`CP-N1`…`CP-N6`）与未做（明账）
+
+- **CP-N1 审核态回潮**：proof 出现 `approved`/`rejected` 任意态（改 CHECK / 加列 / 加审核路由）⇒ 判负。
+- **CP-N2 重提返回 409**：UNIQUE 冲突未走覆盖 upsert ⇒ 判负（正确表现 = 200 ＋ 新 payload ＋ `time_updated` 刷新）。
+- **CP-N3 回退/跳变放行**：`active→draft`、`draft→ended`、`ended→` 任何 返回 200 ⇒ 判负。
+- **CP-N4 旧体系连坐**：迁移后 job 四表列集/约束变化，或 `/api/task*`、`/api/task-progress/*`、`/api/tasklist/*`、`/api/job*` 任一读数漂移 ⇒ 判负。
+- **CP-N5 snowflake 出参为 number**：`campaign`/`task`/`subtask` 任一 `snowflake_id` 以 JSON number 出现 ⇒ 判负（承 §40.12）。
+- **CP-N6 seed 漏行/多行**：`subtask_type` ≠ 恰 **5** 行，或 `label`/`sort` 与 `40.14.3` 表不一致，或出现 `poll` ⇒ 判负。
+- **未做（`NOT_MEASURED` · 本册不预填）**：`0062` 未落盘 / 两库未 apply / 七路由未注册 / 状态机与覆盖 upsert 未实现 / 判负 CP-N1…N6 与 route #54–#60、design #70–#76 一条未跑；**零代码 / 零迁移文件 / 零库写 / 零 HTTP 实测 / 不 push**。
