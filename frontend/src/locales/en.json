@@ -35,7 +35,7 @@
     "notHired": "You have not joined this project",
     "claimFailed": "Could not claim this time — please try again later",
     "applyFailed": "Could not join this time — please try again later",
-    "loginRequired": "Sign in to claim your pay",
+    "loginRequired": "Sign in to join a project and claim your pay",
     "loginCta": "Sign in",
     "loadFailed": "Could not load projects",
     "retry": "Retry",

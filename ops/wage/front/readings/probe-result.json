@@ -1,6 +1,6 @@
 {
   "probe": "ops/wage/front/probe-wage.mjs",
-  "startedAt": "2026-10-20T10:33:19.208Z",
+  "startedAt": "2026-10-20T11:23:12.794Z",
   "dist": "/Users/kevin/bistro/seafood/frontend/dist",
   "fixtures": {
     "rows": 10,
@@ -15,22 +15,22 @@
       "present": true,
       "count": 5,
       "keys": [
-        "sell",
         "wage",
+        "sell",
         "messages",
         "app",
         "support"
       ],
       "labels": [
-        "卖闲置",
         "领工资",
+        "卖闲置",
         "消息",
         "APP",
         "客服"
       ],
       "hrefs": [
-        "/item/new",
         "/wage",
+        "/item/new",
         "/messages",
         null,
         null
@@ -38,7 +38,7 @@
       "dividers": 4,
       "feedbackHooks": 0,
       "feedbackFormHooks": 0,
-      "menuText": "卖闲置领工资消息APP客服"
+      "menuText": "领工资卖闲置消息APP客服"
     },
     "1536_list": {
       "page": {
@@ -60,6 +60,8 @@
           "action": "claim",
           "actionText": "领工资",
           "actionDisabled": false,
+          "needLogin": "0",
+          "loginLink": false,
           "claimable": "1",
           "remaining": "0",
           "actionH": 39,
@@ -79,6 +81,8 @@
           "action": "join",
           "actionText": "加入",
           "actionDisabled": true,
+          "needLogin": "0",
+          "loginLink": false,
           "claimable": null,
           "remaining": null,
           "actionH": 39,
@@ -98,6 +102,8 @@
           "action": "join",
           "actionText": "加入",
           "actionDisabled": true,
+          "needLogin": "0",
+          "loginLink": false,
           "claimable": null,
           "remaining": null,
           "actionH": 39,
@@ -117,6 +123,8 @@
           "action": "join",
           "actionText": "加入",
           "actionDisabled": true,
+          "needLogin": "0",
+          "loginLink": false,
           "claimable": null,
           "remaining": null,
           "actionH": 39,
@@ -136,6 +144,8 @@
           "action": "join",
           "actionText": "加入",
           "actionDisabled": true,
+          "needLogin": "0",
+          "loginLink": false,
           "claimable": null,
           "remaining": null,
           "actionH": 39,
@@ -155,6 +165,8 @@
           "action": "join",
           "actionText": "加入",
           "actionDisabled": true,
+          "needLogin": "0",
+          "loginLink": false,
           "claimable": null,
           "remaining": null,
           "actionH": 39,
@@ -174,6 +186,8 @@
           "action": "join",
           "actionText": "加入",
           "actionDisabled": true,
+          "needLogin": "0",
+          "loginLink": false,
           "claimable": null,
           "remaining": null,
           "actionH": 39,
@@ -193,6 +207,8 @@
           "action": null,
           "actionText": null,
           "actionDisabled": null,
+          "needLogin": null,
+          "loginLink": false,
           "claimable": null,
           "remaining": null,
           "actionH": null,
@@ -212,6 +228,8 @@
           "action": null,
           "actionText": null,
           "actionDisabled": null,
+          "needLogin": null,
+          "loginLink": false,
           "claimable": null,
           "remaining": null,
           "actionH": null,
@@ -231,6 +249,8 @@
           "action": "join",
           "actionText": "加入",
           "actionDisabled": true,
+          "needLogin": "0",
+          "loginLink": false,
           "claimable": null,
           "remaining": null,
           "actionH": 39,
@@ -254,6 +274,8 @@
         "action": "join",
         "actionText": "加入",
         "actionDisabled": true,
+        "needLogin": "0",
+        "loginLink": false,
         "claimable": null,
         "remaining": null,
         "actionH": 39,
@@ -273,6 +295,8 @@
         "action": "join",
         "actionText": "加入",
         "actionDisabled": false,
+        "needLogin": "0",
+        "loginLink": false,
         "claimable": null,
         "remaining": null,
         "actionH": 39,
@@ -321,30 +345,170 @@
         39
       ],
       "floatmenuCount": 5
+    },
+    "1536_guest": {
+      "page": {
+        "hasPage": true,
+        "hasList": true,
+        "hasLogin": true,
+        "hasEmpty": false,
+        "hasError": false
+      },
+      "cardCount": 10,
+      "titles": [
+        "海鲜打包",
+        "冷库分拣",
+        "文案校对",
+        "客服值守",
+        "图片精修",
+        "同城跑腿",
+        "夜间补货",
+        "冷库盘点",
+        "旧仓搬迁",
+        "跨境选品"
+      ],
+      "overflowPx": 0,
+      "c101": {
+        "project": "101",
+        "title": "海鲜打包",
+        "statusText": "招募中",
+        "statusState": "recruiting",
+        "headcount": "已招 2/3",
+        "wage": "工资：batt 30/次（间隔 4 小时）",
+        "wageExtra": null,
+        "action": "claim",
+        "actionText": "领工资",
+        "actionDisabled": false,
+        "needLogin": "1",
+        "loginLink": false,
+        "claimable": "1",
+        "remaining": "0",
+        "actionH": 39,
+        "hint": null,
+        "noticeKind": null,
+        "noticeText": null,
+        "right": 312
+      },
+      "c102": {
+        "project": "102",
+        "title": "冷库分拣",
+        "statusText": "招募中",
+        "statusState": "recruiting",
+        "headcount": "已招 1/4",
+        "wage": "工资：batt 25/次（间隔 6 小时）",
+        "wageExtra": null,
+        "action": "join",
+        "actionText": "加入",
+        "actionDisabled": false,
+        "needLogin": "1",
+        "loginLink": false,
+        "claimable": null,
+        "remaining": null,
+        "actionH": 39,
+        "hint": null,
+        "noticeKind": null,
+        "noticeText": null,
+        "right": 613
+      },
+      "c103": {
+        "project": "103",
+        "title": "文案校对",
+        "statusText": "招募中",
+        "statusState": "recruiting",
+        "headcount": "已招 2/5",
+        "wage": "工资：batt 20/次（间隔 8 小时）＋50 BTTC/次",
+        "wageExtra": "＋50 BTTC/次",
+        "action": "join",
+        "actionText": "加入",
+        "actionDisabled": false,
+        "needLogin": "1",
+        "loginLink": false,
+        "claimable": null,
+        "remaining": null,
+        "actionH": 39,
+        "hint": null,
+        "noticeKind": null,
+        "noticeText": null,
+        "right": 914
+      },
+      "afterJoinClick": {
+        "project": "102",
+        "title": "冷库分拣",
+        "statusText": "招募中",
+        "statusState": "recruiting",
+        "headcount": "已招 1/4",
+        "wage": "工资：batt 25/次（间隔 6 小时）",
+        "wageExtra": null,
+        "action": "join",
+        "actionText": "加入",
+        "actionDisabled": false,
+        "needLogin": "1",
+        "loginLink": true,
+        "claimable": null,
+        "remaining": null,
+        "actionH": 39,
+        "hint": null,
+        "noticeKind": "login",
+        "noticeText": "登录后即可加入项目、领工资去登录",
+        "right": 613
+      },
+      "afterClaimClick": {
+        "project": "101",
+        "title": "海鲜打包",
+        "statusText": "招募中",
+        "statusState": "recruiting",
+        "headcount": "已招 2/3",
+        "wage": "工资：batt 30/次（间隔 4 小时）",
+        "wageExtra": null,
+        "action": "claim",
+        "actionText": "领工资",
+        "actionDisabled": false,
+        "needLogin": "1",
+        "loginLink": true,
+        "claimable": "1",
+        "remaining": "0",
+        "actionH": 39,
+        "hint": null,
+        "noticeKind": "login",
+        "noticeText": "登录后即可加入项目、领工资去登录",
+        "right": 312
+      },
+      "writeCalls": []
+    },
+    "390_guest": {
+      "overflowPx": 0,
+      "cards": 10,
+      "actionHeights": [
+        44
+      ],
+      "cardRightMax": 380,
+      "hasBannerAndList": true
     }
   },
   "assertions": {
     "menu": {
       "fiveItems": true,
       "noFeedback": true,
-      "secondIsWage": true,
+      "firstIsWage": true,
+      "orderMatches": true,
+      "dividers4": true,
       "order": [
-        "sell",
         "wage",
+        "sell",
         "messages",
         "app",
         "support"
       ],
       "labels": [
-        "卖闲置",
         "领工资",
+        "卖闲置",
         "消息",
         "APP",
         "客服"
       ],
       "hrefs": [
-        "/item/new",
         "/wage",
+        "/item/new",
         "/messages",
         null,
         null
@@ -397,6 +561,26 @@
       "touchTarget44On390": true,
       "cardRightWithinViewport390": true,
       "zeroPageErrors": true
+    },
+    "guest": {
+      "cardsVisible": true,
+      "cardCount": 10,
+      "listRendered": true,
+      "bannerWithList": true,
+      "titleVisible": true,
+      "wageVisible": true,
+      "currencyExtraVisible": true,
+      "joinEnabled": true,
+      "joinClickLoginPrompt": true,
+      "claimClickLoginPrompt": true,
+      "zeroWriteRequests": true,
+      "writeCallPaths": [],
+      "cardsStableAfterClicks": true,
+      "zeroOverflowGuest": true,
+      "zeroOverflow390": true,
+      "cards390": true,
+      "touchTarget44On390": true,
+      "bannerAndList390": true
     }
   },
   "pageErrors": [],
@@ -451,7 +635,7 @@
     "Failed to load resource: net::ERR_FAILED",
     "Failed to load resource: net::ERR_FAILED"
   ],
-  "finishedAt": "2026-10-20T10:33:29.142Z",
+  "finishedAt": "2026-10-20T11:23:23.776Z",
   "verdict": {
     "required": [
       {
@@ -465,7 +649,17 @@
         "pass": true
       },
       {
-        "key": "menu.secondIsWage",
+        "key": "menu.firstIsWage",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "menu.orderMatches",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "menu.dividers4",
         "value": true,
         "pass": true
       },
@@ -576,6 +770,86 @@
       },
       {
         "key": "geometry.zeroPageErrors",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.cardsVisible",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.listRendered",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.bannerWithList",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.titleVisible",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.wageVisible",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.currencyExtraVisible",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.joinEnabled",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.joinClickLoginPrompt",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.claimClickLoginPrompt",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.zeroWriteRequests",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.cardsStableAfterClicks",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.zeroOverflowGuest",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.zeroOverflow390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.cards390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.touchTarget44On390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.bannerAndList390",
         "value": true,
         "pass": true
       }

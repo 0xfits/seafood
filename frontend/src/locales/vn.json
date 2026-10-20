@@ -35,7 +35,7 @@
     "notHired": "Bạn chưa tham gia dự án này",
     "claimFailed": "Lần này chưa nhận được, vui lòng thử lại sau",
     "applyFailed": "Lần này chưa tham gia được, vui lòng thử lại sau",
-    "loginRequired": "Đăng nhập để nhận lương",
+    "loginRequired": "Đăng nhập để tham gia dự án và nhận lương",
     "loginCta": "Đăng nhập",
     "loadFailed": "Không tải được danh sách dự án",
     "retry": "Thử lại",

@@ -35,7 +35,7 @@
     "notHired": "你还没有加入这个项目",
     "claimFailed": "这次没有领到，请稍后再试",
     "applyFailed": "这次没能加入，请稍后再试",
-    "loginRequired": "登录后即可领工资",
+    "loginRequired": "登录后即可加入项目、领工资",
     "loginCta": "去登录",
     "loadFailed": "项目列表加载失败",
     "retry": "重试",

@@ -35,7 +35,7 @@
     "notHired": "你還未加入這個項目",
     "claimFailed": "這次沒有領到，請稍後再試",
     "applyFailed": "這次沒能加入，請稍後再試",
-    "loginRequired": "登入後即可領工資",
+    "loginRequired": "登入後即可加入項目、領工資",
     "loginCta": "去登入",
     "loadFailed": "項目列表載入失敗",
     "retry": "重試",

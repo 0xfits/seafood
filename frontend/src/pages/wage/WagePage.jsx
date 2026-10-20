@@ -21,7 +21,9 @@ import './wage.css'
 //     `details` 里的下次可领时间/剩余秒数接成倒计时）；不猜、不本地自算间隔。
 //   · 成功 ⇒ 卡内成功提示（含到账 batt/次币数值）+ 重拉列表刷新该项目卡；失败 ⇒ 卡内内联提示，
 //     不白屏、不清列表。
-//   · 未登录 ⇒ 页内登录提示（不跳转、不白页）。
+//   · 未登录 ⇒ **项目列表照常公开浏览**（`GET /api/project/all` 本身无闸，设计意图就是「先看招工
+//     中的项目」），页顶只留一条轻提示；【加入】/【领工资】可点，点击**只弹卡内登录提示、零请求**
+//     （写口一律需登录，不在前端替服务端放行）。
 //   · 零 JS 断点判定：列数交给 `wage.css` 的 auto-fill 栅格（单断点 767），可见性零宽度读数。
 // ============================================================================
 
@@ -126,17 +128,13 @@ const WagePage = () => {
   }, [])
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      setList({ phase: 'guest', rows: [] })
-      return
-    }
+    // 客态也拉：列表读口是公开面（先浏览招工中的项目），写口才需登录。
     load()
   }, [isAuthenticated, uidKey, load]) // eslint-disable-line react-hooks/exhaustive-deps -- user/t 走 ref
 
   // 币种符号（公开读面；失败 ⇒ 空表，卡面退化为只显示 batt 口径，不阻断页面）。
-  // 游客态不取（页内只有登录提示、没有卡面 ⇒ 零请求）。
+  // ★ 客态同样要取 —— 客态也渲染项目卡，次币定额（`wageExtra`）不能因为未登录就消失。
   useEffect(() => {
-    if (!isAuthenticated) return undefined
     let cancelled = false
     fetchWageCurrencies()
       .then((payload) => {
@@ -150,7 +148,7 @@ const WagePage = () => {
       })
       .catch(() => { if (!cancelled) setSymbols({}) })
     return () => { cancelled = true }
-  }, [isAuthenticated])
+  }, [])
 
   // 倒计时驱动：只有存在「未来」的领取时间点时才起定时器（无倒计时 ⇒ 零定时器）。
   useEffect(() => {
@@ -161,9 +159,11 @@ const WagePage = () => {
   }, [claimAt, clock])
 
   const hiredKey = useMemo(() => {
+    // 客态没有「我」的在职行 ⇒ 行内 `my_role` 不参与判定（否则会拿别人的在职业态去置灰【加入】）。
+    if (!isAuthenticated) return ''
     const hiredRow = list.rows.find((row) => row?.my_role === 'hired')
     return hiredRow ? projectKey(hiredRow) : ''
-  }, [list.rows])
+  }, [isAuthenticated, list.rows])
 
   const setNotice = (key, notice) => setNotices((prev) => ({ ...prev, [key]: notice }))
 
@@ -189,9 +189,18 @@ const WagePage = () => {
     }
   }
 
+  /** 写口（加入 / 领工资）一律需登录：客态点击只弹卡内登录提示，**零请求**。 */
+  const guestNotice = (key) => {
+    setNotice(key, { kind: 'login', text: tRef.current('wage.loginRequired') })
+  }
+
   const onJoin = async (row) => {
     const key = projectKey(row)
     if (!key) return
+    if (!isAuthenticated) {
+      guestNotice(key)
+      return
+    }
     markBusy(key, 'join')
     setNotice(key, null)
     try {
@@ -215,6 +224,10 @@ const WagePage = () => {
   const onClaim = async (row) => {
     const key = projectKey(row)
     if (!key) return
+    if (!isAuthenticated) {
+      guestNotice(key)
+      return
+    }
     markBusy(key, 'claim')
     setNotice(key, null)
     try {
@@ -300,6 +313,7 @@ const WagePage = () => {
                 className="sf-wage-btn is-primary"
                 data-sf-m="wage-card-action"
                 data-sf-action="claim"
+                data-sf-need-login={isAuthenticated ? '0' : '1'}
                 data-sf-claimable={claimable ? '1' : '0'}
                 data-sf-remaining={claimable ? '0' : String(Math.ceil(remainingMs / 1000))}
                 disabled={!claimable || busyAction === 'claim'}
@@ -320,6 +334,7 @@ const WagePage = () => {
                 className="sf-wage-btn is-primary"
                 data-sf-m="wage-card-action"
                 data-sf-action="join"
+                data-sf-need-login={isAuthenticated ? '0' : '1'}
                 disabled={joinedElsewhere || isFull || busyAction === 'join'}
                 onClick={() => onJoin(row)}
               >
@@ -336,11 +351,18 @@ const WagePage = () => {
 
         {notice?.text ? (
           <p
-            className={`sf-wage-notice ${notice.kind === 'ok' ? 'is-ok' : 'is-err'}`}
+            className={`sf-wage-notice is-${notice.kind}`}
             data-sf-m="wage-card-notice"
             data-sf-kind={notice.kind}
-            role={notice.kind === 'ok' ? 'status' : 'alert'}
-          >{notice.text}</p>
+            role={notice.kind === 'err' ? 'alert' : 'status'}
+          >
+            {notice.text}
+            {notice.kind === 'login' ? (
+              <Link className="sf-wage-notice-link" data-sf-m="wage-card-login-link" to={buildLocalizedPath(lang, '/login')}>
+                {t('wage.loginCta')}
+              </Link>
+            ) : null}
+          </p>
         ) : null}
       </article>
     )
@@ -354,6 +376,7 @@ const WagePage = () => {
           <p className="sf-foot-note">{t('wage.oneAtATime')}</p>
         </header>
 
+        {/* 客态轻提示条（不遮挡列表：项目列表本身是公开浏览面，只有写口需登录） */}
         {!isAuthenticated ? (
           <div className="sf-panel sf-wage-login" data-sf-m="wage-login">
             <p>{t('wage.loginRequired')}</p>
@@ -361,7 +384,9 @@ const WagePage = () => {
               {t('wage.loginCta')}
             </Link>
           </div>
-        ) : list.phase === 'loading' ? (
+        ) : null}
+
+        {list.phase === 'loading' ? (
           <p className="sf-foot-note" data-sf-m="wage-loading">{t('wage.loading')}</p>
         ) : list.phase === 'error' ? (
           <div className="sf-panel" data-sf-m="wage-error" role="alert">

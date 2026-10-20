@@ -6,7 +6,8 @@
  *      【加入】/【领工资】按钮态与「同时只能在一个项目打工」提示；
  *   ② 领取间隔未到 ⇒ 置灰 + 倒计时文案；行内不带可领时间 ⇒ 可点，由服务端 400 兜底（reason 映射）；
  *   ③ 加入 / 领工资成功 ⇒ 卡内提示 + 重拉列表；失败 ⇒ 卡内内联提示、列表不白屏；
- *   ④ 未登录 ⇒ 页内登录提示（零请求、不跳转）；
+ *   ④ 未登录 ⇒ **也拉列表并渲染项目卡**（公开浏览面），页顶只留轻提示；【加入】/【领工资】可点、
+ *      点击只弹卡内登录提示且零写请求；
  *   ⑤ i18n `wage` 命名空间四语齐备 + 计数前推（top 132 / flat 1169 / 四语节点 4676）。
  *
  * 注：真实浏览器几何（390/1536 零溢出）与真实契约联调由 `ops/wage/front/` 的探针覆盖，
@@ -302,23 +303,83 @@ describe('/wage ② 加入 / 领工资行为', () => {
   })
 })
 
-describe('/wage ③ 未登录 / 空态', () => {
-  it('未登录 ⇒ 页内登录提示，零请求、无列表', async () => {
+describe('/wage ③ 未登录（公开浏览） / 空态', () => {
+  it('未登录 ⇒ 也拉 /api/project/all 并渲染项目卡；页顶只留轻提示（不整页替换）', async () => {
     I18N.lang = 'zh'
     AUTH.isAuthenticated = false
-    const { fn } = installFetch({ rows: [ROW_OPEN] })
+    const { calls } = installFetch({ rows: [ROW_OPEN, ROW_CLOSED] })
     const { container } = mount('/en/wage')
 
-    const login = await waitFor(() => {
-      const el = container.querySelector('[data-sf-m="wage-login"]')
-      expect(el).not.toBeNull()
-      return el
-    })
+    // 列表真渲染（公开浏览面）：项目名 / 简述 / 状态 / 已招 X/Y / 工资行 / 次币
+    await waitFor(() => expect(cards(container)).toHaveLength(2))
+    const open = cardOf(container, '12')
+    expect(open.querySelector('[data-sf-m="wage-card-title"]').textContent).toBe(ROW_OPEN.title)
+    expect(open.querySelector('[data-sf-m="wage-card-desc"]').textContent).toBe(ROW_OPEN.description)
+    expect(open.querySelector('[data-sf-m="wage-card-status"]').textContent).toBe(zh.wage.statusRecruiting)
+    expect(cardOf(container, '13').querySelector('[data-sf-m="wage-card-status"]').textContent)
+      .toBe(zh.wage.statusClosed)
+    expect(open.querySelector('[data-sf-m="wage-card-headcount"]').textContent).toBe('已招 1/5')
+    expect(open.querySelector('[data-sf-m="wage-card-wage"]').textContent).toContain('batt 20/次')
+    // 次币定额：客态也必须拿到币种符号（/api/currencies 是公开读口）
+    expect(open.querySelector('[data-sf-m="wage-card-wage-extra"]').textContent).toContain('BTTC')
+
+    // 页顶轻提示与列表**并存**（旧形态「未登录 ⇒ 整页只有登录块」已作废）
+    const login = container.querySelector('[data-sf-m="wage-login"]')
+    expect(login).not.toBeNull()
     expect(login.textContent).toContain(zh.wage.loginRequired)
-    expect(container.querySelector('[data-sf-m="wage-list"]')).toBeNull()
     // 登录引导保留语言前缀（与 ProtectedRoute 同口径：/en/wage ⇒ /en/login）
     expect(container.querySelector('[data-sf-m="wage-login-cta"]').getAttribute('href')).toBe('/en/login')
-    expect(fn).not.toHaveBeenCalled()
+    expect(container.querySelector('[data-sf-m="wage-list"]')).not.toBeNull()
+
+    // 列表读口是真打了（GET），且**零写请求**
+    expect(calls.filter((c) => c.url.startsWith('/api/project/all')).length).toBeGreaterThanOrEqual(1)
+    expect(calls.filter((c) => /\/apply$|\/claim$/.test(c.url))).toHaveLength(0)
+  })
+
+  it('未登录点【加入】⇒ 可点（不置灰）+ 卡内登录提示 + 零写请求', async () => {
+    AUTH.isAuthenticated = false
+    const { calls } = installFetch({ rows: [ROW_OPEN] })
+    const { container } = mount('/wage')
+    await waitFor(() => expect(cards(container)).toHaveLength(1))
+
+    const joinBtn = cardOf(container, '12').querySelector('[data-sf-action="join"]')
+    expect(joinBtn.disabled).toBe(false)
+    expect(joinBtn.textContent).toBe(zh.wage.join)
+    expect(joinBtn.getAttribute('data-sf-need-login')).toBe('1')
+    fireEvent.click(joinBtn)
+
+    await waitFor(() => {
+      const notice = cardOf(container, '12').querySelector('[data-sf-m="wage-card-notice"]')
+      expect(notice).not.toBeNull()
+      expect(notice.getAttribute('data-sf-kind')).toBe('login')
+      expect(notice.textContent).toContain(zh.wage.loginRequired)
+    })
+    // 卡内带登录入口，且不跳页（当前仍是 /wage 的卡）
+    expect(cardOf(container, '12').querySelector('[data-sf-m="wage-card-login-link"]').getAttribute('href'))
+      .toBe('/login')
+    expect(calls.filter((c) => /\/apply$|\/claim$/.test(c.url))).toHaveLength(0)
+    // 列表没被清空（提示是卡内的，不白屏）
+    expect(cards(container)).toHaveLength(1)
+  })
+
+  it('未登录点【领工资】⇒ 同样只弹登录提示（零 claim 请求）', async () => {
+    AUTH.isAuthenticated = false
+    // 防御臂：真实客态不会有 my_role=hired，但一旦行内带了在职标记也必须被登录闸拦住
+    const { calls } = installFetch({ rows: [rowHired({ next_claim_at: null })] })
+    const { container } = mount('/wage')
+    await waitFor(() => expect(cards(container)).toHaveLength(1))
+
+    const claimBtn = cardOf(container, '11').querySelector('[data-sf-action="claim"]')
+    expect(claimBtn.disabled).toBe(false)
+    expect(claimBtn.getAttribute('data-sf-need-login')).toBe('1')
+    fireEvent.click(claimBtn)
+
+    await waitFor(() => {
+      const notice = cardOf(container, '11').querySelector('[data-sf-m="wage-card-notice"]')
+      expect(notice.getAttribute('data-sf-kind')).toBe('login')
+      expect(notice.textContent).toContain(zh.wage.loginRequired)
+    })
+    expect(calls.filter((c) => /\/claim$/.test(c.url))).toHaveLength(0)
   })
 
   it('空列表 ⇒ 空态文案（不渲染卡片）', async () => {

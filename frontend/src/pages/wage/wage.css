@@ -162,13 +162,40 @@
   color: var(--sf-down-fg);
 }
 
+/* 客态轻提示条：横排一行（提示 + 登录入口），与列表并置 ⇒ 列表照常公开浏览 */
 .sf-wage-login {
-  align-items: flex-start;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  margin-bottom: var(--sf-st-feed-gap-m);
 }
 
 .sf-wage-login p {
   margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
   color: var(--sf-meta-fg);
+  font-size: 13px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.sf-wage-login .sf-wage-btn {
+  flex: none;
+}
+
+/* 客态点【加入】/【领工资】⇒ 卡内登录提示（提示色，与失败红区分） */
+.sf-wage-notice.is-login {
+  color: var(--sf-meta-fg);
+}
+
+.sf-wage-notice-link {
+  margin-left: 8px;
+  color: var(--sf-panel-link-fg);
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 /* 手机档：主要动作触控目标 ≥44（全站口径；只在此单断点内抬高，桌面几何不受影响） */

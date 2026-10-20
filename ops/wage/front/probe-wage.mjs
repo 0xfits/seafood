@@ -6,6 +6,8 @@
  *   ② `/wage` 列表渲染 10 项、招募中/已截止态、加入与领工资按钮态（置灰依据逐条核）；
  *   ③ 领工资成功 ⇒ 卡内到账提示 + 列表重拉；失败（400 间隔未到）⇒ 卡内内联提示、卡仍在；
  *   ④ 390 / 1536 两档：`scrollWidth - clientWidth = 0` + 零 pageerror。
+ *   ⑤ 客态臂（独立 context、无登录种子）：未登录**也**渲染项目卡（项目名 / 工资行 / 次币可见）+
+ *      页顶轻提示与列表并存；点【加入】/【领工资】⇒ 卡内登录提示、**零写请求**（apply/claim 各 0）。
  *
  * 手法（同 ops/v119-msg-panel 体例）：
  *   · 静态服务 = context.route 把 http://sf.local/** 映射到磁盘 dist（零 dev server）；
@@ -130,6 +132,8 @@ const SNAP_FN = `(() => {
         action: act ? act.getAttribute('data-sf-action') : null,
         actionText: txt(act),
         actionDisabled: act ? !!act.disabled : null,
+        needLogin: act ? act.getAttribute('data-sf-need-login') : null,
+        loginLink: !!c.querySelector('[data-sf-m="wage-card-login-link"]'),
         claimable: act ? act.getAttribute('data-sf-claimable') : null,
         remaining: act ? act.getAttribute('data-sf-remaining') : null,
         actionH: act ? Math.round(act.getBoundingClientRect().height * 10) / 10 : null,
@@ -153,15 +157,9 @@ async function settle(page, max = 40) {
   return -1
 }
 
-async function main() {
-  const browser = await chromium.launch({ executablePath: CHROME, headless: true })
-  const context = await browser.newContext({ viewport: { width: 1536, height: 960 }, reducedMotion: 'reduce', deviceScaleFactor: 1 })
-  context.addInitScript(() => {
-    localStorage.setItem('theme', 'light')
-    localStorage.setItem('user', JSON.stringify({ uID: 970213, uid: 970213, token: 'probe-token', bio: 'probe', name: 'Probe' }))
-    localStorage.setItem('token', 'probe-token')
-  })
-  await context.route('**/*', async (route) => {
+// ---- 路由接线（登录态 / 客态两个 context 共用同一套：静态 dist + 页内 API 自截）---------------
+const attachRoutes = async (ctx) => {
+  await ctx.route('**/*', async (route) => {
     const req = route.request()
     const u = new URL(req.url())
     if (u.hostname !== 'sf.local') return route.abort()
@@ -173,6 +171,17 @@ async function main() {
     if (!fs.existsSync(file)) return route.fulfill({ status: 404, body: '' })
     return route.fulfill({ status: 200, headers: { 'content-type': MIME[path.extname(file)] || 'application/octet-stream' }, body: fs.readFileSync(file) })
   })
+}
+
+async function main() {
+  const browser = await chromium.launch({ executablePath: CHROME, headless: true })
+  const context = await browser.newContext({ viewport: { width: 1536, height: 960 }, reducedMotion: 'reduce', deviceScaleFactor: 1 })
+  context.addInitScript(() => {
+    localStorage.setItem('theme', 'light')
+    localStorage.setItem('user', JSON.stringify({ uID: 970213, uid: 970213, token: 'probe-token', bio: 'probe', name: 'Probe' }))
+    localStorage.setItem('token', 'probe-token')
+  })
+  await attachRoutes(context)
 
   const page = await context.newPage()
   const pageErrors = []
@@ -337,6 +346,102 @@ async function main() {
     zeroPageErrors: pageErrors.length === 0,
   }
 
+  // ============================ ⑤ 客态公开浏览臂（独立 context，无登录种子）================
+  // 口径：`/api/project/all` 是无闸公开读口 ⇒ 未登录也必须渲染项目卡；写口（加入 / 领工资）
+  //       点击只弹**卡内登录提示**、零写请求。旧形态「未登录 ⇒ 整页只有登录块、零请求」已作废。
+  const guestCtx = await browser.newContext({ viewport: { width: 1536, height: 960 }, reducedMotion: 'reduce', deviceScaleFactor: 1 })
+  guestCtx.addInitScript(() => { localStorage.setItem('theme', 'light') }) // 只种主题，不种登录态
+  await attachRoutes(guestCtx)
+  const guestPage = await guestCtx.newPage()
+  guestPage.on('pageerror', (e) => pageErrors.push('[guest] ' + String(e && e.message)))
+
+  const openGuest = async (url) => {
+    await guestPage.goto(ORIGIN + url, { waitUntil: 'load' })
+    await settle(guestPage)
+    await guestPage.waitForSelector('[data-sf-m="wage-card"]', { timeout: 8000 }).catch(() => {})
+    await settle(guestPage)
+    return guestPage.evaluate(SNAP_FN)
+  }
+  const clickGuest = async (sel) => {
+    const el = await guestPage.$(sel)
+    if (!el) return false
+    await el.click()
+    await settle(guestPage)
+    return true
+  }
+
+  STATE.calls.length = 0
+  const guestSnap = await openGuest('/wage')
+  const gById = Object.fromEntries(guestSnap.cards.map((c) => [c.project, c]))
+  const guestJoinClicked = await clickGuest('[data-sf-project="102"] [data-sf-action="join"]')
+  const guestAfterJoin = await guestPage.evaluate(SNAP_FN)
+  const g102 = guestAfterJoin.cards.find((c) => c.project === '102')
+  const guestClaimClicked = await clickGuest('[data-sf-project="101"] [data-sf-action="claim"]')
+  const guestAfterClaim = await guestPage.evaluate(SNAP_FN)
+  const g101guest = guestAfterClaim.cards.find((c) => c.project === '101')
+  const writeCalls = STATE.calls.filter((c) => /\/(apply|claim)$/.test(c.path))
+
+  out.states['1536_guest'] = {
+    page: guestSnap.page,
+    cardCount: guestSnap.cards.length,
+    titles: guestSnap.cards.map((c) => c.title),
+    overflowPx: guestSnap.overflowPx,
+    c101: gById['101'],
+    c102: gById['102'],
+    c103: gById['103'],
+    afterJoinClick: g102,
+    afterClaimClick: g101guest,
+    writeCalls,
+  }
+  out.assertions.guest = {
+    cardsVisible: guestSnap.cards.length === ROWS.length,
+    cardCount: guestSnap.cards.length,
+    listRendered: guestSnap.page.hasList === true,
+    bannerWithList: guestSnap.page.hasLogin === true && guestSnap.page.hasList === true,
+    titleVisible: Boolean(gById['102'] && gById['102'].title === '冷库分拣'),
+    wageVisible: Boolean(gById['101'] && /batt\s*30/.test(gById['101'].wage || '')),
+    currencyExtraVisible: Boolean(gById['103'] && /BTTC/.test(gById['103'].wageExtra || '')),
+    joinEnabled: Boolean(
+      gById['102'] && gById['102'].action === 'join'
+        && gById['102'].actionDisabled === false && gById['102'].needLogin === '1'
+    ),
+    joinClickLoginPrompt: guestJoinClicked && Boolean(
+      g102 && g102.noticeKind === 'login' && (g102.noticeText || '').includes(ZH.wage.loginRequired) && g102.loginLink
+    ),
+    claimClickLoginPrompt: guestClaimClicked && Boolean(
+      g101guest && g101guest.noticeKind === 'login' && (g101guest.noticeText || '').includes(ZH.wage.loginRequired)
+    ),
+    zeroWriteRequests: writeCalls.length === 0,
+    writeCallPaths: writeCalls.map((c) => c.path),
+    cardsStableAfterClicks: guestAfterClaim.cards.length === ROWS.length,
+    zeroOverflowGuest: guestSnap.overflowPx === 0,
+  }
+  await guestCtx.close()
+
+  // 客态 390 档（手机 H5 同源）：轻提示条不得把列表挤出横向溢出，触控目标仍 ≥44
+  const guestMobileCtx = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce', deviceScaleFactor: 1 })
+  guestMobileCtx.addInitScript(() => { localStorage.setItem('theme', 'light') })
+  await attachRoutes(guestMobileCtx)
+  const guestMobilePage = await guestMobileCtx.newPage()
+  guestMobilePage.on('pageerror', (e) => pageErrors.push('[guest390] ' + String(e && e.message)))
+  await guestMobilePage.goto(ORIGIN + '/wage', { waitUntil: 'load' })
+  await settle(guestMobilePage)
+  await guestMobilePage.waitForSelector('[data-sf-m="wage-card"]', { timeout: 8000 }).catch(() => {})
+  await settle(guestMobilePage)
+  const guestMobile = await guestMobilePage.evaluate(SNAP_FN)
+  out.states['390_guest'] = {
+    overflowPx: guestMobile.overflowPx,
+    cards: guestMobile.cards.length,
+    actionHeights: [...new Set(guestMobile.cards.map((c) => c.actionH).filter(Boolean))],
+    cardRightMax: Math.max(...guestMobile.cards.map((c) => c.right)),
+    hasBannerAndList: guestMobile.page.hasLogin && guestMobile.page.hasList,
+  }
+  out.assertions.guest.zeroOverflow390 = guestMobile.overflowPx === 0
+  out.assertions.guest.cards390 = guestMobile.cards.length === ROWS.length
+  out.assertions.guest.touchTarget44On390 = out.states['390_guest'].actionHeights.every((h) => h >= 44)
+  out.assertions.guest.bannerAndList390 = guestMobile.page.hasLogin && guestMobile.page.hasList
+  await guestMobileCtx.close()
+
   await browser.close()
   out.finishedAt = new Date().toISOString()
   const required = [
@@ -348,6 +453,12 @@ async function main() {
     'claimFail.noticeErr', 'claimFail.noticeIsReason', 'claimFail.noWhiteScreen',
     'geometry.zeroOverflow390', 'geometry.zeroOverflow1536', 'geometry.cards390',
     'geometry.touchTarget44On390', 'geometry.zeroPageErrors',
+    // ⑤ 客态公开浏览臂（未登录也渲染列表 + 写口需登录）
+    'guest.cardsVisible', 'guest.listRendered', 'guest.bannerWithList', 'guest.titleVisible',
+    'guest.wageVisible', 'guest.currencyExtraVisible', 'guest.joinEnabled',
+    'guest.joinClickLoginPrompt', 'guest.claimClickLoginPrompt', 'guest.zeroWriteRequests',
+    'guest.cardsStableAfterClicks', 'guest.zeroOverflowGuest',
+    'guest.zeroOverflow390', 'guest.cards390', 'guest.touchTarget44On390', 'guest.bannerAndList390',
   ]
   const verdicts = required.map((key) => {
     const [group, field] = key.split('.')
