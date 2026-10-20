@@ -1229,6 +1229,12 @@ export interface BrandRecord {
    *  （服务端只发枚举字面量，与 `item_type` 同体例）。仅详情读口携带（47→50 三加性键之一；
    *  feed 行键 48 不变 ⇒ 键不出现）。 */
   condition?: string | null;
+  /** ★ 迁移 0061 多件购买授权（Kevin 2026-10-20）：加性键 `allow_multi_buy`（详情 data 顶层 52→53）
+   *  = `listing.allow_multi_buy`（boolean，真布尔下发，**不**转 `'true'` 串 / `0-1`）。
+   *  仅详情读口携带（feed 不加：列表卡不参与购买决策）；行未携带该列 ⇒ 键不出现。
+   *  ★ 读面必须容忍「`true` 且 `stock = 1`」这个**正常终态**（购买递减 stock 不回写本列）⇒
+   *  照实返回 `true`，上限收敛由前端算（route §49.17.5 / data §40.13.5）。 */
+  allow_multi_buy?: boolean;
   /** ★ 2026-10-19 商品卡改版（Kevin 第 4 条）：加性键（feed 行键 45→46；详情行经 `getPrizeSellerView`
    *  于路由层合成同构对象 ⇒ 详情顶层键数不变）。形状 = `SellerView`（uid/nickname/avatar/credit）。 */
   seller?: SellerView;
@@ -1272,6 +1278,11 @@ export interface ListingMineRow {
   item_code: string | null;
   /** ★ 迁移 0060 加性键：雪花标识，**字符串**（63 bit 超出 JS 安全整数）。 */
   snowflake_id: string | null;
+  /** ★ 迁移 0061 加性键（行键 13→14）：多件购买授权（`listing.allow_multi_buy`）。
+   *  **真布尔**（`true` / `false`，禁 `'true'` 串 / `0-1`）；编辑页预填与 mine 行逐键同族
+   *  （route §49.16.3 / §49.17.5 同族硬律：`edit` 与 `mine` 键面恒等）。
+   *  读面容忍「`true` 且 `stock = 1`」（购买递减不回写本列）。 */
+  allow_multi_buy: boolean;
 }
 
 // 「我卖出的」：行形与买家轴 listPrizeItemsByUser（GET /api/prize-item）同族（gID/bID/uID
@@ -1664,6 +1675,13 @@ const normalizeBrand = (
   if (row.item_condition !== undefined) {
     record.condition = row.item_condition === null ? null : String(row.item_condition);
   }
+  // ★ 迁移 0061（多件购买授权 · route §49.17.5）：详情行加性键 `allow_multi_buy` ⇒ 详情 52→53。
+  //   仅当行携带该列（详情两个读口：自增臂 + 已见访客只读臂）时透出；feed（`listBrands`）不选该列
+  //   ⇒ feed 行键 50 不变、键不出现（列表卡不参与购买决策）。
+  //   **真布尔**（禁 `'true'` 串 / `0-1`）；`true ∧ stock = 1` 是正常终态 ⇒ 照实返回 true。
+  if (row.allow_multi_buy !== undefined) {
+    record.allow_multi_buy = row.allow_multi_buy === true;
+  }
   // P6-TR-1b：`name_*`/`description_*` 由 applyI18n 生成（有 ready 译文用译文，否则回落源文；含 i18n_status）
   applyI18n('listing', String(record.bID), record, i18nIndex);
   return record as unknown as BrandRecord;
@@ -1715,6 +1733,11 @@ const normalizeListingMineRow = (row: RawRow): ListingMineRow => ({
     const rawSnowflake = getValue(row, 'snowflake_id');
     return rawSnowflake === undefined || rawSnowflake === null ? null : String(rawSnowflake);
   })(),
+  // ★ 迁移 0061（多件购买授权）：加性键 `allow_multi_buy`（行键 13→14，尾部追加 ⇒ 零重排）。
+  //   **真布尔**：`=== true` 归一（DB `boolean` 经驱动回来已是 JS boolean；缺列 / 缺值兜 `false`
+  //   只为不炸 —— 三个调用口 SELECT/RETURNING 均恒带该列，正常路径不会走兜底）。
+  //   禁输出 `'true'` 串 / `0-1`：前端按 `=== true` 判「已授权」，形态漂移 = 静默只卖 1 件。
+  allow_multi_buy: getValue(row, 'allow_multi_buy') === true,
 });
 
 /**
@@ -1767,7 +1790,9 @@ const UPDATE_LISTING_DETAILS_SQL = `
         SELECT pl.listing_id, pl.seller_uid, pl.cid, pl.price, pl.stock, pl.description, pl.media_urls, pl.item_type,
                pl.item_condition, pl.status, pl.time_created,
                -- ★ 0060 两列：guarded 走 cur.* ⇒ 这里漏选则下面 UNION 的 g.item_code 直接 42703
-               pl.item_code, pl.snowflake_id
+               pl.item_code, pl.snowflake_id,
+               -- ★ 0061 多件购买授权：生效 stock 判定（W5 归一 / W7 400）要读行内现值 ⇒ 必须在此取列
+               pl.allow_multi_buy
         FROM public.listing AS pl
         WHERE pl.listing_id = $1::bigint
         FOR UPDATE
@@ -1782,6 +1807,10 @@ const UPDATE_LISTING_DETAILS_SQL = `
                       AND COALESCE(CASE WHEN $8::boolean THEN $7::text ELSE cur.item_type END, '')
                           NOT IN ('PhysicalFreeShip', 'PhysicalBuyerShip')
                       THEN 'condition_not_applicable'
+                 -- ★ 0061（W3 / W7 · route §49.17.3）：显式 true ∧ 生效 stock <= 1 ⇒ 400 MULTI_BUY_NOT_APPLICABLE。
+                 --   生效 stock = COALESCE(请求值 $5, 行内现值 cur.stock) ⇒ **只传 true、不带 stock**（行内 = 1）
+                 --   这一臂（W7，最易漏）在此被抓住。★ 追加在既有四条之后 ⇒ 既有 outcome 优先级逐字不变。
+                 WHEN $12::boolean IS TRUE AND COALESCE($5::int, cur.stock) <= 1 THEN 'multi_buy_not_applicable'
                  ELSE 'ok'
                END AS outcome
         FROM cur
@@ -1793,13 +1822,19 @@ const UPDATE_LISTING_DETAILS_SQL = `
             stock       = COALESCE($5::int, l.stock),
             media_urls  = COALESCE($6::text[], l.media_urls),
             item_type   = CASE WHEN $8::boolean THEN $7::text ELSE l.item_type END,
-            item_condition = CASE WHEN $10::boolean THEN $9::text ELSE l.item_condition END
+            item_condition = CASE WHEN $10::boolean THEN $9::text ELSE l.item_condition END,
+            -- ★ 0061：$12 = NULL ⇒ 未传该键 ⇒ W5 归一（生效 stock <= 1 ⇒ false，否则保留现值，不 400）；
+            --   $12 非 NULL ⇒ 落原值（true 的 stock<=1 情形已被 guarded 臂拦下）。
+            allow_multi_buy = CASE
+              WHEN $12::boolean IS NULL THEN (CASE WHEN COALESCE($5::int, l.stock) <= 1 THEN false ELSE l.allow_multi_buy END)
+              ELSE $12::boolean
+            END
         FROM guarded AS g
         WHERE l.listing_id = $1::bigint
           AND g.outcome = 'ok'
         RETURNING l.listing_id, split_part(l.description, E'\\n', 1) AS title, l.price, l.cid, l.status, l.stock,
                   l.media_urls, l.time_created, l.description, l.item_type, l.item_condition,
-                  l.item_code, l.snowflake_id,
+                  l.item_code, l.snowflake_id, l.allow_multi_buy,
                   g.description AS prev_description,
                   g.seller_uid,
                   array_remove(ARRAY[
@@ -1808,7 +1843,13 @@ const UPDATE_LISTING_DETAILS_SQL = `
                     CASE WHEN $5::int IS NOT NULL AND $5::int IS DISTINCT FROM g.stock THEN 'stock' END,
                     CASE WHEN $6::text[] IS NOT NULL AND $6::text[] IS DISTINCT FROM g.media_urls THEN 'media_urls' END,
                     CASE WHEN $8::boolean AND $7::text IS DISTINCT FROM g.item_type THEN 'item_type' END,
-                    CASE WHEN $10::boolean AND $9::text IS DISTINCT FROM g.item_condition THEN 'item_condition' END
+                    CASE WHEN $10::boolean AND $9::text IS DISTINCT FROM g.item_condition THEN 'item_condition' END,
+                    -- ★ 0061：changed_fields = **实际变化集**（含 W5 归一带来的 false 落值 ——
+                    --   管理员代编他人商品时，只把库存改成 1 也会真实改掉本列 ⇒ 必须入账）
+                    CASE WHEN (CASE
+                                 WHEN $12::boolean IS NULL THEN (CASE WHEN COALESCE($5::int, g.stock) <= 1 THEN false ELSE g.allow_multi_buy END)
+                                 ELSE $12::boolean
+                               END) IS DISTINCT FROM g.allow_multi_buy THEN 'allow_multi_buy' END
                   ], NULL::text) AS changed_fields,
                   'updated'::text AS outcome
       ),
@@ -1822,18 +1863,21 @@ const UPDATE_LISTING_DETAILS_SQL = `
       )
       SELECT x.listing_id, x.title, x.price, x.cid, x.status, x.stock, x.media_urls,
              x.time_created, x.description, x.item_type, x.item_condition, x.item_code, x.snowflake_id,
+             x.allow_multi_buy,
              x.prev_description, x.outcome,
              x.seller_uid, x.changed_fields,
              (SELECT count(*)::int FROM ins) AS edit_log_written
       FROM (
         SELECT u.listing_id, u.title, u.price, u.cid, u.status, u.stock, u.media_urls,
                u.time_created, u.description, u.item_type, u.item_condition, u.item_code, u.snowflake_id,
+               u.allow_multi_buy,
                u.prev_description, u.outcome,
                u.seller_uid, u.changed_fields
         FROM upd AS u
         UNION ALL
         SELECT g.listing_id, split_part(g.description, E'\\n', 1) AS title, g.price, g.cid, g.status, g.stock, g.media_urls,
                g.time_created, g.description, g.item_type, g.item_condition, g.item_code, g.snowflake_id,
+               g.allow_multi_buy,
                g.description, g.outcome,
                g.seller_uid, '{}'::text[] AS changed_fields
         FROM guarded AS g WHERE g.outcome <> 'ok'
@@ -3086,7 +3130,9 @@ export class DatabaseService {
         l.item_condition,
         -- ★ 迁移 0060：对外标识两列（行键 11→13；位置追加在既有列之后、既有顺序不动）
         l.item_code,
-        l.snowflake_id
+        l.snowflake_id,
+        -- ★ 迁移 0061：多件购买授权（行键 13→14；与编辑预填行逐键同族）
+        l.allow_multi_buy
       FROM public.listing AS l
       WHERE l.seller_uid = ${sellerUid}::bigint
       ORDER BY l.listing_id DESC
@@ -3122,13 +3168,20 @@ export class DatabaseService {
     itemCondition: string | null;
     conditionSet: boolean;
     /**
+     * ★ 迁移 0061（多件购买授权）：`allow_multi_buy` 新值 —— **`null` = 未传该键**（`$12` 占位）。
+     *   · `null` ⇒ 语句按 W5 归一（生效 stock ≤ 1 ⇒ 落 `false`；否则保留现值）；
+     *   · 非 null ⇒ 落原值（`true` 且生效 stock ≤ 1 已在服务层/SQL 守卫臂 ⇒ 400，不会走到这里）。
+     *   服务层已把 JSON 非布尔（含 `null` 显式传值）在**入参闸**拦成 400，故 `null` 在这里只表示「未传」。
+     */
+    allowMultiBuy: boolean | null;
+    /**
      * ★ 0059：token 侧管理员旗标（路由层注入 `actor.adminAccess`）—— 判定真源 =
      * `isListingEditAdminAccess`（本文件同源纯函数），落到 SQL 的 `$11` 放行位。
      * 省略 / `null` ⇒ 与 0058 及以前**逐字同行为**（`$11 = false` ⇒ 非本人仍 `not_owner`）。
      */
     adminAccess?: ListingEditAdminAccess | null;
   }, ex?: SqlRunner): Promise<{
-    outcome: 'updated' | 'not_owner' | 'status_not_editable' | 'stock_requires_listed' | 'condition_not_applicable';
+    outcome: 'updated' | 'not_owner' | 'status_not_editable' | 'stock_requires_listed' | 'condition_not_applicable' | 'multi_buy_not_applicable';
     row: ListingMineRow | null;
     prev: { description: string } | null;
     /** ★ 0059：行快照的 `seller_uid`（`null` = 行不存在）—— 供服务层判「是否本人」/ 台账对拍 */
@@ -3150,13 +3203,15 @@ export class DatabaseService {
       input.itemCondition,
       input.conditionSet,
       isListingEditAdminAccess(input.adminAccess),
+      // ★ 0061：$12 —— `null` = 未传该键（语句走 W5 归一）
+      input.allowMultiBuy,
     ], ex);
     const row = rows[0] || null;
     if (!row) {
       return { outcome: 'updated', row: null, prev: null, sellerUid: null, changedFields: [], editLogWritten: false };
     }
     const outcome = String(getValue(row, 'outcome')) as
-      'updated' | 'not_owner' | 'status_not_editable' | 'stock_requires_listed' | 'condition_not_applicable';
+      'updated' | 'not_owner' | 'status_not_editable' | 'stock_requires_listed' | 'condition_not_applicable' | 'multi_buy_not_applicable';
     return {
       outcome,
       row: normalizeListingMineRow(row),
@@ -3195,6 +3250,8 @@ export class DatabaseService {
         -- ★ 迁移 0060：对外标识两列（与 mine 行逐键同族）
         l.item_code,
         l.snowflake_id,
+        -- ★ 迁移 0061：多件购买授权（编辑预填必需 —— 只加 mine 漏 edit ⇒ 开关永远预填不到）
+        l.allow_multi_buy,
         l.seller_uid
       FROM public.listing AS l
       WHERE l.listing_id = ${listingId}::bigint
@@ -3205,6 +3262,37 @@ export class DatabaseService {
     return {
       row: normalizeListingMineRow(row),
       sellerUid: Number(getValue(row, 'seller_uid')),
+    };
+  }
+
+  /**
+   * ★ 迁移 0061 · **购买闸前置只读**（`POST /api/listing/:listingId/buy` 的唯一读点）。
+   *
+   * 只回答两件事：① `allow_multi_buy`（卖家是否授权一次买多件）；② `stock`（供后续诊断/回执口径）。
+   *   · **零写、零锁**（`for update` 不在本方法 —— 真库存闸仍是资金链函数内的事）；
+   *   · 行不存在 ⇒ `null`（**不在此落 404**：404 语义真源仍是 `listing_post_event` 的既有码，
+   *     本方法只做「读到才判」⇒ 缺失时一律放行给 DB 函数，行为与改前逐字一致）；
+   *   · `ex` = 既有事务内执行口（门探针在回滚事务里跑同一份语句）。
+   * ★ 这不是授权真源、也不是库存真源：唯一硬闸仍是 `public.listing_post_event`；
+   *   本方法只承载 route §49.17.4 的 B2 臂（`allow=false ∧ qty>1` ⇒ 400，零 DB 写）。
+   */
+  static async getListingBuyAuthRow(listingId: number, ex?: SqlRunner): Promise<{
+    allowMultiBuy: boolean;
+    stock: number;
+    status: string;
+  } | null> {
+    const sql = sqlFor(ex);
+    const row = firstRow(await sql`
+      SELECT l.allow_multi_buy, l.stock, l.status
+      FROM public.listing AS l
+      WHERE l.listing_id = ${listingId}::bigint
+      LIMIT 1
+    `);
+    if (!row) return null;
+    return {
+      allowMultiBuy: getValue(row, 'allow_multi_buy') === true,
+      stock: toNumberValue(getValue(row, 'stock')),
+      status: toStringValue(getValue(row, 'status')),
     };
   }
 
@@ -4018,6 +4106,12 @@ export class DatabaseService {
     snowflakeId: string;
     /** ★ 迁移 0060：7 位页面地址码（字母表/唯一性由 `item-id.ts` + DB 唯一索引双闸） */
     itemCode: string;
+    /**
+     * ★ 迁移 0061 多件购买授权（route §49.17.2 / data §40.13）：服务层已按 W1–W7 归一后的**真布尔**
+     *   （未传 ⇒ `false`；显式 `true` 且 `stock <= 1` 已在服务层 400、到不了本层）。
+     *   本层只落值、不判业务（归一是写口唯一不变式）。
+     */
+    allowMultiBuy: boolean;
   }, ex?: SqlRunner): Promise<{ outcome: 'inserted' | 'existing'; row: RawRow }> {
     const sql = sqlFor(ex);
     // ★★ 2026-10-20 Kevin 数据模型指令（`listing.title` 退场、正文并入 `description`）：
@@ -4034,8 +4128,8 @@ export class DatabaseService {
         WHERE create_key = ${input.createKey}::text
       ),
       ins AS (
-        INSERT INTO public.listing (seller_uid, cid, price, stock, description, media_urls, item_type, item_condition, status, create_key, snowflake_id, item_code)
-        SELECT ${input.sellerUid}::bigint, ${input.cid}::bigint, ${input.price}::bigint, ${input.stock}::int, ${input.description}::text, ${input.mediaUrls}::text[], ${input.itemType}::text, ${input.itemCondition}::text, 'draft', ${input.createKey}::text, ${input.snowflakeId}::bigint, ${input.itemCode}::char(7)
+        INSERT INTO public.listing (seller_uid, cid, price, stock, description, media_urls, item_type, item_condition, status, create_key, snowflake_id, item_code, allow_multi_buy)
+        SELECT ${input.sellerUid}::bigint, ${input.cid}::bigint, ${input.price}::bigint, ${input.stock}::int, ${input.description}::text, ${input.mediaUrls}::text[], ${input.itemType}::text, ${input.itemCondition}::text, 'draft', ${input.createKey}::text, ${input.snowflakeId}::bigint, ${input.itemCode}::char(7), ${input.allowMultiBuy}::boolean
         WHERE NOT EXISTS (SELECT 1 FROM existing)
         RETURNING listing_id, seller_uid, cid, price, stock, description, media_urls, item_type, status, create_key, snowflake_id, item_code, 'inserted'::text AS outcome
       )
@@ -5065,6 +5159,8 @@ export class DatabaseService {
         l.item_type, l.item_condition, l.time_created, l.time_updated,
         -- ★ 迁移 0060：对外标识两列（详情与 feed 同形；+item_code +snowflake_id ⇒ 详情 50→52）
         l.item_code, l.snowflake_id,
+        -- ★ 迁移 0061：多件购买授权（+1 键 ⇒ 详情 52→53；真布尔直出）
+        l.allow_multi_buy,
         b.view_count AS view_count,
         COALESCE(fav.want_count, 0)::int AS want_count,
         0::int AS stores_count,
@@ -5152,6 +5248,8 @@ export class DatabaseService {
         l.item_type, l.item_condition, l.time_created, l.time_updated,
         -- ★ 迁移 0060：对外标识两列（只读臂与自增臂**同列清单**，键形一致性由门断言）
         l.item_code, l.snowflake_id,
+        -- ★ 迁移 0061：多件购买授权（两臂同列清单 ⇒ 键形一致；只读臂不增计数、照常带本键）
+        l.allow_multi_buy,
         l.view_count AS view_count,
         COALESCE(fav.want_count, 0)::int AS want_count,
         0::int AS stores_count,

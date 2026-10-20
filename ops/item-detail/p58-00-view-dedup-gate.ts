@@ -14,8 +14,10 @@
  *   U · 开关值解析单元（fail-safe：非 on 即 off ⇒ 其余一切默认 on）；解析恒真/恒假不可达；
  *   B · 迁移干跑（真库 · `inRollbackTx` ⇒ ROLLBACK ⇒ **零 apply / 零残留**）：
  *       0058 头段（建表 + 索引 + 开关行）+ 尾部 DO 自检在真库跑通（0057 头段同事务内先行 ⇒ 夹具写路径可用）；
- *       ★ **步序 = 迁移链顺序**：0058「头段 + 尾部自检」整步先于 0060 头段（0058 尾部硬断 listing 15 列，
- *       0060 加两列 ⇒ 顺序颠倒必误红；0060 两列只在其后的读口段加入）；
+ *       ★ **步序 = 迁移链顺序**：0057 头 → 0058 头 → **0058 尾** → 0060 头 → 0061 头 → 读口臂
+ *       （0058 尾部 ⑥ 臂硬断 listing 15 列 —— 该断言只在 0058 自身 apply 时点成立：pre-apply 库上
+ *       照跑；post-apply 库 committed 已 18 列（0060×2 + 0061×1）⇒ 尾部自检按稳态跳过（p57 B2 同体例），
+ *       结构面由 B1 五列实查 + A6 静态形状 + N3 约束负控覆盖，**不放宽迁移断言本身**）；
  *   C · 行为（同 tx · **service 层真实代码路径**，经 `sqlFor(ex)` 事务内注入）：
  *       off ⇒ 连刷 3 次 views 逐次 +1（现状不变）· 事务内改配置 on ⇒ 同 viewer 第二次不涨、
  *       不同 viewer 各 +1（uid / 匿名头）· **不同天不计**（夹具日 = 昨天行不抑制今天自增）·
@@ -72,6 +74,7 @@ const splitMigration = (text: string): { head: string; tail: string; headStmts: 
 const M58 = splitMigration(MIG58);
 const M57 = splitMigration(MIG57);
 const M60 = splitMigration(readSrc('backend-ts/migrations/0060_item_code_snowflake.sql'));
+const M61 = splitMigration(readSrc('backend-ts/migrations/0061_listing_allow_multi_buy.sql'));
 
 const sliceBetween = (src: string, startMark: string, endMark: string): string => {
   const a = src.indexOf(startMark);
@@ -221,16 +224,23 @@ const FIXTURE_KEY_PREFIX = 'cli:p58-gate:';
       const cfg = await raw1(c, "SELECT value ->> 'dedup' AS dedup, jsonb_typeof(value) AS jtype FROM public.app_config WHERE key = 'detail_view_dedup'");
       const switchRead = await DatabaseService.isDetailViewDedupEnabled(c as unknown as SqlRunner);
       const listingColsBefore = await raw1(c, "SELECT count(*)::int AS n FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'listing'");
-      // 0058 尾部 DO 自检（两模式皆跑：自检断「值合法」不断「值 = off」⇒ 运维翻转后重 apply 不误判）
-      // ★ 必须在 0060 头段**之前**（迁移链顺序；自检硬断 listing 15 列）
+      // 0058 尾部 DO 自检 —— 仅 pre-apply 模式整块跑（⑥ 臂硬断「listing 恒 15 列」，该断言只在 0058
+      //   自身 apply 时点成立；post-apply committed 已 18 列（0060×2 + 0061×1）⇒ 重放必误红 ⇒ 按稳态
+      //   跳过（p57 B2 同体例）。判据不放宽：pre-apply 下仍必须整块跑通；post-apply 的结构面由
+      //   B1 五列实查 + A6 静态形状（含 ⑥ 臂源文）+ N3 约束负控覆盖。
+      // ★ 顺序 = 迁移链：0057 头 → 0058 头 → **0058 尾** → 0060 头 → 0061 头（尾部先于链上后续列变更）
       let tailRan = false;
       let tailError: string | null = null;
-      try { await c.query(M58.tail); tailRan = true; } catch (e) { tailError = String((e as Error).message).slice(0, 240); }
+      if (mode === 'pre-apply') {
+        try { await c.query(M58.tail); tailRan = true; } catch (e) { tailError = String((e as Error).message).slice(0, 240); }
+      }
       const listingColsAtTail = await raw1(c, "SELECT count(*)::int AS n FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'listing'");
-      // 链上后续步：0060 头段（未 apply 时补两列 · ROLLBACK 零残留）—— 只补列面，不回头影响 0058 判据
+      // 链上后续步：0060 头段 + 0061 头段（未 apply 时补列 · ROLLBACK 零残留）—— 只补列面，不回头影响 0058 判据
       for (const stmt of M60.headStmts) await c.query(stmt);
+      for (const stmt of M61.headStmts) await c.query(stmt);
       const listingColsAfter60 = await raw1(c, "SELECT count(*)::int AS n FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'listing'");
-      return { cols, uniq, idx, fk, cfg, switchRead, tailRan, tailError, listingColsBefore, listingColsAtTail, listingColsAfter60 };
+      const listingColsAfter61 = await raw1(c, "SELECT count(*)::int AS n FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'listing'");
+      return { cols, uniq, idx, fk, cfg, switchRead, tailRan, tailError, listingColsBefore, listingColsAtTail, listingColsAfter60, listingColsAfter61 };
     });
     const bCols = (br.result?.cols ?? []) as Array<Record<string, unknown>>;
     const colOf = (name: string) => bCols.find((r) => r.column_name === name);
@@ -248,13 +258,16 @@ const FIXTURE_KEY_PREFIX = 'cli:p58-gate:';
       Number(br.result?.uniq?.n ?? -1) === 1 && Number(br.result?.idx?.n ?? -1) === 1 && Number(br.result?.fk?.n ?? -1) === 0
       && br.result?.cfg?.jtype === 'object' && cfgLegal && (mode === 'pre-apply' ? (cfgDedup === 'off' && br.result?.switchRead === false) : true),
       JSON.stringify({ uniq: br.result?.uniq?.n, idx: br.result?.idx?.n, fk: br.result?.fk?.n, cfg: br.result?.cfg, switch_read: br.result?.switchRead, mode }));
-    ck.t('B3', '迁移尾部 DO 自检（真库 · 事务内 · **按迁移链顺序：0057 → 0058 头段 → 0058 尾部 → 0060 头段**）跑通：五列/唯一约束/索引/零 FK/开关行合法（on|off）/**listing 在其自身时点仍 15 列**（尾部断言原样未放宽，0060 两列在其后才加入）',
-      br.result?.tailRan === true && br.result?.tailError === null,
+    ck.t('B3', mode === 'pre-apply'
+      ? '迁移尾部 DO 自检（真库 · 事务内 · **按迁移链顺序：0057 头 → 0058 头 → 0058 尾 → 0060 头 → 0061 头**）跑通：五列/唯一约束/索引/零 FK/开关行合法（on|off）/**listing 在其自身时点仍 15 列**（尾部断言原样未放宽，0060 两列 + 0061 一列在其后才加入）'
+      : '迁移尾部 DO 自检按稳态跳过（post-apply：committed listing 已带 0060 ×2 + 0061 ×1 = 18 列，0058 尾部 ⑥ 臂的「15 列」断言只在其 apply 时点成立 ⇒ 不在异时点重放；结构面已由 B1 五列实查 + A6 静态形状 + N3 约束负控覆盖）',
+      mode === 'pre-apply' ? (br.result?.tailRan === true && br.result?.tailError === null) : true,
       JSON.stringify({
         tail_ran: br.result?.tailRan, tail_error: br.result?.tailError,
         listing_cols_before_tail: br.result?.listingColsBefore?.n,
         listing_cols_at_tail: br.result?.listingColsAtTail?.n,
         listing_cols_after_0060: br.result?.listingColsAfter60?.n,
+        listing_cols_after_0061: br.result?.listingColsAfter61?.n,
       }));
     ck.t('B4', '事务已回滚（`inRollbackTx` 恒 ROLLBACK ⇒ 零 apply / 零版本行 / 零残留）',
       br.rolled_back === true && br.error === null, `rolled_back=${br.rolled_back} ms=${br.ms}`);
@@ -264,6 +277,7 @@ const FIXTURE_KEY_PREFIX = 'cli:p58-gate:';
       for (const stmt of M57.headStmts) await c.query(stmt);
       for (const stmt of M58.headStmts) await c.query(stmt);
       for (const stmt of M60.headStmts) await c.query(stmt);   // 0060 未 apply 时补两列（ROLLBACK 零残留）
+      for (const stmt of M61.headStmts) await c.query(stmt);   // 0061 一列（createListingRow 绑 allow_multi_buy 的前提；post-apply 幂等 no-op）
       const ex = c as unknown as SqlRunner;
       const sellerRow = await raw1(c, 'SELECT min(uid)::bigint AS uid FROM public.users WHERE uid > 0');
       const sellerUid = Number(sellerRow?.uid ?? 0);
@@ -273,7 +287,7 @@ const FIXTURE_KEY_PREFIX = 'cli:p58-gate:';
         sellerUid, cid: 1, price: 100, stock: 3,
         description: `p58-gate fixture A · 去重开关夹具 · RUN=${RUN}`,
         mediaUrls: [], itemType: 'PhysicalFreeShip', itemCondition: 'LikeNew',
-        createKey: `${FIXTURE_KEY_PREFIX}${RUN}-a`, ...newIds(),
+        createKey: `${FIXTURE_KEY_PREFIX}${RUN}-a`, ...newIds(), allowMultiBuy: false,
       }, ex);
       const idA = Number(mkA.row ? (mkA.row as Record<string, unknown>).listing_id : 0);
       await c.query("UPDATE public.listing SET status = 'listed' WHERE listing_id = $1", [idA]);
@@ -311,7 +325,7 @@ const FIXTURE_KEY_PREFIX = 'cli:p58-gate:';
       const logGhost = await raw1(c, 'SELECT count(*)::int AS n FROM public.listing_view_log WHERE listing_id = $1', [ghostId]);
       const vcAfterGhost = await raw1(c, 'SELECT view_count::text AS vc FROM public.listing WHERE listing_id = $1', [idA]);
 
-      // C7 · 只读臂：51 键同形（0060 再 +item_code +snowflake_id）、views = 现值、连读两次零自增
+      // C7 · 只读臂：52 键同形（0060 +item_code +snowflake_id、0061 +allow_multi_buy）、views = 现值、连读两次零自增
       const ro1 = await DatabaseService.getPrizeDetailReadOnly(idA, ex);
       const ro2 = await DatabaseService.getPrizeDetailReadOnly(idA, ex);
       const roKeys = ro1 ? Object.keys(ro1) : [];
@@ -357,7 +371,7 @@ const FIXTURE_KEY_PREFIX = 'cli:p58-gate:';
       JSON.stringify({ ghost: R.recGhost, log_ghost: R.log_ghost, vc_after_ghost: R.vc_after_ghost }));
 
     ck.t('C6', '**只读臂（已见访客路径）**：键形与自增臂完全同源（49 键）· views = 现值 · 连读两次零自增 · wants/condition 加性键照常',
-      R.ro_shape_same === true && R.ro_keys === 51
+      R.ro_shape_same === true && R.ro_keys === 52
       && R.ro_views?.[0] === 7 && R.ro_views?.[1] === 7
       && R.wants === 0 && R.condition === 'LikeNew',
       JSON.stringify({ keys: R.ro_keys, views: R.ro_views, wants: R.wants, condition: R.condition, shape_same: R.ro_shape_same }));
@@ -373,12 +387,13 @@ const FIXTURE_KEY_PREFIX = 'cli:p58-gate:';
         for (const stmt of M57.headStmts) await c.query(stmt);
         for (const stmt of M58.headStmts) await c.query(stmt);
         for (const stmt of M60.headStmts) await c.query(stmt);
+        for (const stmt of M61.headStmts) await c.query(stmt);   // 0061 一列（post-apply 幂等 no-op）
         const ex = c as unknown as SqlRunner;
         const sellerRow = await raw1(c, 'SELECT min(uid)::bigint AS uid FROM public.users WHERE uid > 0');
         const mk = await DatabaseService.createListingRow({
           sellerUid: Number(sellerRow?.uid ?? 0), cid: 1, price: 1, stock: 1,
           description: `p58-gate neg fixture 1 · RUN=${RUN}`, mediaUrls: [],
-          createKey: `${FIXTURE_KEY_PREFIX}${RUN}-n1`, ...newIds(),
+          createKey: `${FIXTURE_KEY_PREFIX}${RUN}-n1`, ...newIds(), allowMultiBuy: false,
         }, ex);
         const idN = Number(mk.row ? (mk.row as Record<string, unknown>).listing_id : 0);
         await c.query("UPDATE public.app_config SET value = '{\"dedup\":\"on\"}'::jsonb WHERE key = 'detail_view_dedup'");
@@ -402,6 +417,7 @@ const FIXTURE_KEY_PREFIX = 'cli:p58-gate:';
       for (const stmt of M57.headStmts) await c.query(stmt);
       for (const stmt of M58.headStmts) await c.query(stmt);
       for (const stmt of M60.headStmts) await c.query(stmt);   // 0060 未 apply 时补两列（ROLLBACK 零残留）
+      for (const stmt of M61.headStmts) await c.query(stmt);   // 0061 一列（createListingRow 绑 allow_multi_buy 的前提；post-apply 幂等 no-op）
       const ex = c as unknown as SqlRunner;
       const read = () => DatabaseService.isDetailViewDedupEnabled(ex);
       await c.query("UPDATE public.app_config SET value = '{\"dedup\":\"banana\"}'::jsonb WHERE key = 'detail_view_dedup'");
@@ -423,11 +439,12 @@ const FIXTURE_KEY_PREFIX = 'cli:p58-gate:';
       for (const stmt of M57.headStmts) await c.query(stmt);
       for (const stmt of M58.headStmts) await c.query(stmt);
       for (const stmt of M60.headStmts) await c.query(stmt);   // 0060 未 apply 时补两列（ROLLBACK 零残留）
+      for (const stmt of M61.headStmts) await c.query(stmt);   // 0061 一列（createListingRow 绑 allow_multi_buy 的前提；post-apply 幂等 no-op）
       const sellerRow = await raw1(c, 'SELECT min(uid)::bigint AS uid FROM public.users WHERE uid > 0');
       const mk = await DatabaseService.createListingRow({
         sellerUid: Number(sellerRow?.uid ?? 0), cid: 1, price: 1, stock: 1,
         description: `p58-gate neg fixture 3 · RUN=${RUN}`, mediaUrls: [],
-        createKey: `${FIXTURE_KEY_PREFIX}${RUN}-n3`, ...newIds(),
+        createKey: `${FIXTURE_KEY_PREFIX}${RUN}-n3`, ...newIds(), allowMultiBuy: false,
       }, c as unknown as SqlRunner);
       const idN = Number(mk.row ? (mk.row as Record<string, unknown>).listing_id : 0);
       await c.query("INSERT INTO public.listing_view_log (listing_id, viewer_key) VALUES ($1, 'uid:neg3')", [idN]);

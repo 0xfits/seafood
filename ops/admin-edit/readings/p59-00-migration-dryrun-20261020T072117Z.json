@@ -1,0 +1,87 @@
+{
+  "at": "2026-10-20T07:21:17.425Z",
+  "self_check_passed": true,
+  "error": null,
+  "sqlstate": null,
+  "rolled_back": true,
+  "ms": 8176,
+  "statements": 7,
+  "self_check_arms": 1,
+  "ddl_idempotent_passes": 2,
+  "cols": [
+    "log_id",
+    "listing_id",
+    "actor_uid",
+    "owner_uid",
+    "admin_edit",
+    "changed_fields",
+    "time_created"
+  ],
+  "checks": [
+    {
+      "conname": "listing_edit_log_fields_ck",
+      "def": "CHECK ((changed_fields <@ ARRAY['description'::text, 'price'::text, 'stock'::text, 'media_urls'::text, 'item_type'::text, 'item_condition'::text]))"
+    },
+    {
+      "conname": "listing_edit_log_fields_no_null_ck",
+      "def": "CHECK ((array_position(changed_fields, NULL::text) IS NULL))"
+    }
+  ],
+  "triggers": [
+    {
+      "tgname": "trg_listing_edit_log_append_only",
+      "tgenabled": "O",
+      "before": true,
+      "del": true,
+      "upd": true
+    }
+  ],
+  "fk": 0,
+  "idx": 2,
+  "idx_listing": 1,
+  "ok_insert": {
+    "ok": true,
+    "id": "20"
+  },
+  "empty_arr": {
+    "ok": true
+  },
+  "bad_field_rejected": true,
+  "bad_field_err": {
+    "sqlstate": "23514",
+    "message": "new row for relation \"listing_edit_log\" violates check constraint \"listing_edit_log_fields_ck\"",
+    "detail": "Failing row contains (21, 1, 2, 3, t, {title}, 2026-10-20 07:21:10.014977+00).",
+    "reason": null,
+    "pg_code": null,
+    "raw_detail": null
+  },
+  "null_elem_rejected": true,
+  "null_elem_err": {
+    "sqlstate": "23514",
+    "message": "new row for relation \"listing_edit_log\" violates check constraint \"listing_edit_log_fields_ck\"",
+    "detail": "Failing row contains (22, 1, 2, 3, t, {price,NULL}, 2026-10-20 07:21:10.014977+00).",
+    "reason": null,
+    "pg_code": null,
+    "raw_detail": null
+  },
+  "update_blocked": true,
+  "update_err": {
+    "sqlstate": "P0001",
+    "message": "listing_edit_log is append-only: UPDATE forbidden (log_id=20)",
+    "detail": null,
+    "reason": null,
+    "pg_code": null,
+    "raw_detail": null
+  },
+  "delete_blocked": true,
+  "delete_err": {
+    "sqlstate": "P0001",
+    "message": "listing_edit_log is append-only: DELETE forbidden (log_id=20)",
+    "detail": null,
+    "reason": null,
+    "pg_code": null,
+    "raw_detail": null
+  },
+  "rerun_ok": true,
+  "triggers_after_rerun": 1
+}

@@ -1,0 +1,266 @@
+{
+  "run": "20261020T064501Zdyp7",
+  "name": "p61-multi-buy-gate",
+  "at": "2026-10-20T06:45:17.338Z",
+  "script": "ops/multi-buy/p61-00-multi-buy-gate.ts",
+  "env": {
+    "project_id": "quiet-math-65207667",
+    "expect_dev": "quiet-math-65207667"
+  },
+  "mode": "post-apply",
+  "migration_state": {
+    "head": "0061",
+    "committed_cols": 18
+  },
+  "checks": [
+    {
+      "id": "A1",
+      "what": "**零新路由**：注册点仍 = 111（get 50 / post 57 / put 0 / delete 3 / patch 1）—— 写口/购买口全是既有端点收新字段",
+      "pass": true,
+      "reading": "registration_points=111 by_verb=[50,57,0,3,1]"
+    },
+    {
+      "id": "A2",
+      "what": "**index.ts 两处透传**：`POST /api/listing` 与 `PATCH /api/listing/:listingId` 各有一次 `allowMultiBuy: body.allow_multi_buy`（全文件恰 2 处；本层不校验、不默认 —— 归一/400 全在服务层）",
+      "pass": false,
+      "reading": "{\"post\":false,\"patch\":false,\"total\":2}"
+    },
+    {
+      "id": "A3",
+      "what": "**第 7 可改字段同批**：`LISTING_EDIT_FIELDS` 恰 7 项（末位 `allow_multi_buy`，不含 title / item_code / snowflake_id）· 创建面 `editable_when_creating` 同批 7 项（退场字段 400 的 details 现取）—— 只改一处 ⇒ 另一半静默忽略（MB-N3 同族），必须两处都在",
+      "pass": true,
+      "reading": "{\"fields\":[\"description\",\"price\",\"stock\",\"media_urls\",\"item_type\",\"item_condition\",\"allow_multi_buy\"],\"editable_when_creating\":[\"description\",\"price\",\"stock\",\"media_urls\",\"item_type\",\"item_condition\",\"allow_multi_buy\"]}"
+    },
+    {
+      "id": "A4",
+      "what": "**归一 / 400 纯函数**（W6/W3 单一真源 · 零 DB）：`normalizeAllowMultiBuy` 只收布尔（`'true'` ⇒ 400 `NOT_A_BOOLEAN` 零 DB；`undefined` ⇒ null = 未传；显式 `null` ⇒ 400）· `multiBuyApplicabilityError` 不变式：`(true, 1)` ⇒ 400 `MULTI_BUY_NOT_APPLICABLE`、`(true, 2)` / `(false, ·)` / `(null, ·)` ⇒ null",
+      "pass": false,
+      "reading": "{\"w6\":{\"field\":\"listing.allow_multi_buy\",\"reason\":\"NOT_A_BOOLEAN\",\"provided_type\":\"string\",\"provided\":\"true\"},\"w3\":{\"field\":\"listing.allow_multi_buy\",\"reason\":\"MULTI_BUY_NOT_APPLICABLE\",\"stock\":1,\"min_stock\":2},\"true2\":null,\"false0\":null,\"null1\":null}"
+    },
+    {
+      "id": "A5",
+      "what": "**购买前置闸位置与形状**（route §49.17.4 写死）：闸在 `toPosIntText` quantity 形状闸之后、`listingPostEvent` 之前（服务层前置只读、零写）· `if (Number(qty.value) > 1)` 包住读库（**qty=1 零读库**，单件链路零额外往返）· `auth && !auth.allowMultiBuy`（**行缺失放行**，404 语义真源不变）· 拒绝形状 = `field:'quantity'` + `reason:'multi_buy_not_allowed'`（借 `LEDGER_AMOUNT_INVALID`，零新码）",
+      "pass": true,
+      "reading": "{\"gate_before_post\":true,\"gate_after_qty\":true,\"qty1_shortcircuit\":true,\"missing_row_pass\":true}"
+    },
+    {
+      "id": "A6",
+      "what": "**迁移 0061 形状**：恰 **1** 条 `ADD COLUMN IF NOT EXISTS` = `allow_multi_buy boolean NOT NULL DEFAULT false` · 头段无 BEGIN/COMMIT · 全文零 `UPDATE`（存量不回填）/ 零 `CREATE INDEX` / 零 `ADD CONSTRAINT`（`true ⇒ stock>=2` 的跨列不变式**只在写口**，库面不设 CHECK —— MB-N1）· 尾部 DO 自检六臂在场（列在场 / 形状 / 零三态 / 首跑全 false · 重放免疫 / 列数 18 / 零 CHECK 引用）",
+      "pass": false,
+      "reading": "{\"adds\":2,\"raises\":8,\"col18\":true,\"first_run_gate\":true}"
+    },
+    {
+      "id": "A7",
+      "what": "**三读口加键、feed 不加**（§49.17.5）：详情自增臂 / 只读臂 / mine / edit / 购买闸读点 SELECT 均含 `allow_multi_buy` · feed（`listBrands`）**不含**（列表卡不参与购买决策）· `getListingBuyAuthRow` 只读 `allow_multi_buy/stock/status` 且零 `for update`（前置只读、零锁）",
+      "pass": false,
+      "reading": "{\"detail_rec\":true,\"detail_ro\":false,\"mine\":true,\"edit\":true,\"auth\":false,\"feed_clean\":true,\"auth_locked\":false}"
+    },
+    {
+      "id": "A8",
+      "what": "**写口语句三件套**（唯一真源 `UPDATE_LISTING_DETAILS_SQL`）：`$12` 参数位在场（≥4 处：guarded / SET / changed_fields / RETURNING）· W5 归一 CASE（`$12 IS NULL ∧ 生效 stock<=1 ⇒ false`，不 400）· W7 守卫臂（`$12 IS TRUE ∧ COALESCE($5, cur.stock) <= 1 ⇒ multi_buy_not_applicable`，**追加在既有 outcome 之后 ⇒ 既有优先级逐字不变**）· changed_fields 含 `allow_multi_buy`（管理员代编降量也入账）",
+      "pass": true,
+      "reading": "{\"dollars12\":7,\"w5_sites\":1,\"w7_guard\":true,\"changed_fields\":true}"
+    },
+    {
+      "id": "A9",
+      "what": "**不进幂等指纹**（MB-N4）：`resolveListingCreateKey` 派生仍 **5 元素**（create / sellerUid / cid / price / stock），`allowMultiBuy` 不在其中 ⇒ 同键重投 200 replay 回库内真值",
+      "pass": false,
+      "reading": "fingerprint_slice=\"resolveListingCreateKey(params.createKeyRaw, ['create', params.sellerUid, cid.value, price.value, stock.value]\""
+    },
+    {
+      "id": "A10",
+      "what": "**400 / 409 借码不改**（33 码闭集不动）：`LEDGER_AMOUNT_INVALID` = 400（B2/W3/W6 拒绝码）· `LEDGER_INSUFFICIENT_BALANCE` = 409（B4 既有码）；`multi_buy_not_allowed` 只是 `details.reason` 字符串，不占码位",
+      "pass": true,
+      "reading": "{\"amount_invalid_400\":true,\"insufficient_409\":true}"
+    },
+    {
+      "id": "ENV",
+      "what": "库身份自证：neon.project_id = dev（quiet-math-65207667）—— 读数归因前置",
+      "pass": true,
+      "reading": "project_id=quiet-math-65207667"
+    },
+    {
+      "id": "ENV2",
+      "what": "迁移态可判读：post-apply（列已 apply ⇒ 校验 committed 形状 + 事务内重放尾部 DO）/ pre-apply（事务内干跑头段 + 尾部 DO ⇒ ROLLBACK 零 apply）",
+      "pass": true,
+      "reading": "mode=post-apply committed_cols=18 has_allow=1"
+    },
+    {
+      "id": "B1",
+      "what": "迁移面（mode=post-apply）：`allow_multi_buy` = **boolean / NOT NULL / DEFAULT false**（两态列，禁三态禁 smallint）· 列数 = **18**（15 @0059 + 0060 ×2 + 本列）· 尾部 DO 自检跑通",
+      "pass": true,
+      "reading": "{\"error\":null,\"tail\":null,\"col\":{\"data_type\":\"boolean\",\"is_nullable\":\"NO\",\"column_default\":\"false\"},\"cols\":18}"
+    },
+    {
+      "id": "B2",
+      "what": "尾部 DO 整块**重跑仍绿**（自检③首跑判据按 `schema_migration` 版本行做**重放免疫**：人工重放不再断言存量全 false ⇒ 迁移可重放）",
+      "pass": true,
+      "reading": "{\"second_run_error\":null}"
+    },
+    {
+      "id": "B3",
+      "what": "**库面零跨列约束**（MB-N1 实查）：`pg_constraint` 上零 CHECK 提及 `allow_multi_buy` · listing 上零触发器 / 零索引引用该列（`stock` 随购买递减 ⇒ 约束会把正常购买打成 23514；不变式只在写口）",
+      "pass": true,
+      "reading": "{\"checks\":0,\"triggers\":0,\"indexes\":0}"
+    },
+    {
+      "id": "B4",
+      "what": "**存量零 NULL**（三态禁令取值面自证）· `schema_migration` 版本行与 mode 自洽（post-apply ⇒ 1 行；pre-apply ⇒ 0 行且本门全程未落版本行）",
+      "pass": true,
+      "reading": "{\"null_rows\":0,\"version_rows\":1,\"mode\":\"post-apply\"}"
+    },
+    {
+      "id": "W1",
+      "what": "**W1**：创建**未传** `allow_multi_buy`（stock=3）⇒ 200，落库 **false**（缺省即未授权，绝不替卖家授权）",
+      "pass": true,
+      "reading": "{\"ok\":true,\"db\":{\"stock\":3,\"allow\":false,\"status\":\"listed\"}}"
+    },
+    {
+      "id": "W2",
+      "what": "**W2**：创建传 `true` ∧ stock≥2 ⇒ 200，落库 **true**（真布尔）",
+      "pass": true,
+      "reading": "{\"ok\":true,\"db\":{\"stock\":3,\"allow\":true,\"status\":\"listed\"}}"
+    },
+    {
+      "id": "W4",
+      "what": "**W4**：创建传显式 `false` ⇒ 200，落库 false",
+      "pass": true,
+      "reading": "{\"ok\":true,\"db\":{\"stock\":3,\"allow\":false,\"status\":\"listed\"}}"
+    },
+    {
+      "id": "W3",
+      "what": "**W3**：创建传 `true` ∧ stock=1 ⇒ 400 `MULTI_BUY_NOT_APPLICABLE` + `details.stock=1` · **零 DB 写**（`createListingRow` 调用数不增）",
+      "pass": true,
+      "reading": "{\"res\":{\"ok\":false,\"status\":400,\"code\":\"LEDGER_AMOUNT_INVALID\",\"details\":{\"field\":\"listing.allow_multi_buy\",\"reason\":\"MULTI_BUY_NOT_APPLICABLE\",\"stock\":1,\"min_stock\":2}},\"create_calls\":3,\"before\":3}"
+    },
+    {
+      "id": "W6",
+      "what": "**W6**（形状闸 · 零 DB）：`'true'` / `1` / 显式 `null`（创建面）与 PATCH 同值 ⇒ 400 `NOT_A_BOOLEAN` + `details.field = 'listing.allow_multi_buy'` · 写桩调用数双双不增",
+      "pass": true,
+      "reading": "{\"a\":{\"ok\":false,\"status\":400,\"code\":\"LEDGER_AMOUNT_INVALID\",\"details\":{\"field\":\"listing.allow_multi_buy\",\"reason\":\"NOT_A_BOOLEAN\",\"provided_type\":\"string\",\"provided\":\"true\"}},\"p\":{\"ok\":false,\"status\":400,\"code\":\"LEDGER_AMOUNT_INVALID\",\"details\":{\"field\":\"listing.allow_multi_buy\",\"reason\":\"NOT_A_BOOLEAN\",\"provided_type\":\"string\",\"provided\":\"true\"}},\"create_calls\":3,\"upd_calls\":0}"
+    },
+    {
+      "id": "W8",
+      "what": "**W3·PATCH 纯预检臂**：同 patch 带 `stock: 1` + `allow_multi_buy: true` ⇒ 生效 stock 已在手 ⇒ 400 `MULTI_BUY_NOT_APPLICABLE`，**零 DB**（`updateListingDetailsRow` 调用数不增）",
+      "pass": true,
+      "reading": "{\"res\":{\"ok\":false,\"status\":400,\"code\":\"LEDGER_AMOUNT_INVALID\",\"details\":{\"field\":\"listing.allow_multi_buy\",\"reason\":\"MULTI_BUY_NOT_APPLICABLE\",\"stock\":1,\"min_stock\":2,\"listing_id\":\"217\"}},\"upd_calls\":0,\"before\":0}"
+    },
+    {
+      "id": "W5",
+      "what": "**W5**：PATCH **未传**该键、只把 stock 改到 1（行内原 true）⇒ 200（**不 400**），服务端归一落 **false**（编辑是合法动作，降量单向自动关的库面真源）",
+      "pass": true,
+      "reading": "{\"ok\":true,\"db\":{\"stock\":1,\"allow\":false,\"status\":\"listed\"}}"
+    },
+    {
+      "id": "W7",
+      "what": "**W7**（最易漏臂）：只传 `allow_multi_buy: true`、**同一请求不改 stock**、行内现值 = 1 ⇒ 400 `MULTI_BUY_NOT_APPLICABLE`（生效 stock 用行内现值 —— SQL 守卫臂真在场）· **零写**（读回 stock/allow 不变）",
+      "pass": true,
+      "reading": "{\"res\":{\"ok\":false,\"status\":400,\"code\":\"LEDGER_AMOUNT_INVALID\",\"details\":{\"field\":\"listing.allow_multi_buy\",\"reason\":\"MULTI_BUY_NOT_APPLICABLE\",\"stock\":1,\"min_stock\":2,\"listing_id\":\"220\"}},\"db\":{\"stock\":1,\"allow\":false,\"status\":\"listed\"}}"
+    },
+    {
+      "id": "M1",
+      "what": "**B1**（改前行为逐字不变）：`allow=false` ∧ **qty=1** ∧ listed ⇒ **200** 成交（订单 1 行 / 库存 3→2 / 买家 −100）· `getListingBuyAuthRow` **零读**（qty=1 短路 ⇒ 单件链路零额外往返）",
+      "pass": false,
+      "reading": "{\"ok\":true,\"order\":{\"quantity\":1,\"status\":\"paid\"},\"stock\":2,\"auth_reads\":0}"
+    },
+    {
+      "id": "M2",
+      "what": "**B2**（本单唯一新拒绝臂）：`allow=false` ∧ qty=2 ⇒ **400** `LEDGER_AMOUNT_INVALID` + `{field:'quantity', reason:'multi_buy_not_allowed', allow_multi_buy:false}` · **零 DB 写**（`listingPostEvent` 调用数 **0** · 该 create_key 订单 **0** 行 · 库存不变）",
+      "pass": true,
+      "reading": "{\"res\":{\"ok\":false,\"status\":400,\"code\":\"LEDGER_AMOUNT_INVALID\",\"details\":{\"field\":\"quantity\",\"reason\":\"multi_buy_not_allowed\",\"listing_id\":\"216\",\"quantity\":\"2\",\"allow_multi_buy\":false,\"stock\":\"2\"}},\"post_calls\":0,\"auth_reads\":1,\"orders\":0,\"stock\":2}"
+    },
+    {
+      "id": "M5",
+      "what": "**闸序**（写死）：`allow=false` ∧ qty=4 > stock=2（B2 与 B4 同时成立）⇒ 报 **B2（400 multi_buy_not_allowed）** 而非 409 —— `allow` 闸先于 `stock` 闸，且零 DB（post 计数不增）",
+      "pass": true,
+      "reading": "{\"res\":{\"ok\":false,\"status\":400,\"code\":\"LEDGER_AMOUNT_INVALID\",\"details\":{\"field\":\"quantity\",\"reason\":\"multi_buy_not_allowed\",\"listing_id\":\"216\",\"quantity\":\"4\",\"allow_multi_buy\":false,\"stock\":\"2\"}},\"post_calls\":0}"
+    },
+    {
+      "id": "M3",
+      "what": "**B3**：`allow=true` ∧ qty=2 ∧ stock=3 ⇒ **200** 成交：订单 quantity=2 · 库存 3→1 · 买家 **−200** / 卖家 **+200**（金额 = price×quantity 服务端取数）· `allow_multi_buy` **保持 true**（购买不回写该列 —— MB-N5）",
+      "pass": true,
+      "reading": "{\"ok\":true,\"order\":{\"quantity\":2,\"status\":\"paid\"},\"stock\":1,\"allow\":true,\"buyer\":[999900,999700],\"seller\":[100,300]}"
+    },
+    {
+      "id": "M4",
+      "what": "**B4**（既有码不动）：`allow=true` ∧ qty=3 > stock=1 ⇒ **409** `LEDGER_INSUFFICIENT_BALANCE` + `details.reason = 'listing_stock_insufficient'`（0015 既有库存闸；本单**不新增**「已售罄」语义）· SAVEPOINT 回滚 ⇒ 零残留",
+      "pass": true,
+      "reading": "{\"res\":{\"ok\":false,\"status\":409,\"code\":\"LEDGER_INSUFFICIENT_BALANCE\",\"details\":{\"uid\":\"2\",\"field\":\"listing.stock\",\"reason\":\"listing_stock_insufficient\",\"required\":\"3\",\"available\":\"1\",\"listing_id\":\"217\"}},\"savepoint_error\":null}"
+    },
+    {
+      "id": "M6",
+      "what": "**B7**（正常终态）：`allow=true` ∧ 库存卖到剩 1 ∧ qty=1 ⇒ **200**（买到最后 1 件后 `allow_multi_buy` 保持 true，**不回写**；读面容忍 `true ∧ stock=1`）",
+      "pass": true,
+      "reading": "{\"ok\":true,\"db\":{\"stock\":0,\"allow\":true,\"status\":\"listed\"}}"
+    },
+    {
+      "id": "N1",
+      "what": "★ **负控①（去写口归一 ⇒ `true∧stock1` 能写 ⇒ 必红）**：对唯一真源 UPDATE 语句做手术（W5 归一 CASE → `COALESCE($12, 现值)` 透传，$5/$12 参数位不动、手术非空转）后，同参重跑（PATCH stock→1、未传键，行内原 true）⇒ `updated` 且落库 **allow=true ∧ stock=1** —— 归一若被摘除，**W5 判据（必须 false）当场变红**；对照组 = W5 臂（真语句同参 ⇒ false）",
+      "pass": false,
+      "reading": "{\"mutation_real\":true,\"outcome\":\"updated\",\"db\":{\"stock\":1,\"allow\":false,\"status\":\"listed\"}}"
+    },
+    {
+      "id": "N2",
+      "what": "★ **负控②（去购买闸 ⇒ qty2 能过 ⇒ 必红）**：绕开服务层闸**直调真 `listing_post_event`**（qty=2、`allow=false`、库存足够）⇒ **照常成交**：订单 1 行（quantity=2）、库存递减、资金两腿 —— **DB 层故意不设授权闸（MB-N1/B3 同源裁定）**，`allow=false ∧ qty>1` 的唯一防线就是服务层前置闸 ⇒ 闸一旦被摘，**B2 判据（必须 400 零写）当场变红**；对照组 = M2 臂（同一请求走 `buyListing` ⇒ 400、零调用）",
+      "pass": true,
+      "reading": "{\"op\":\"buy\",\"orders\":1,\"quantity\":2,\"stock\":0,\"allow\":false,\"savepoint_error\":null}"
+    },
+    {
+      "id": "C1",
+      "what": "**详情 52→53**：service 层 **52 键** + 路由合成 `seller` ⇒ **53 键**；`allow_multi_buy` 在场且为**真布尔**（FB 行 = true）",
+      "pass": true,
+      "reading": "{\"service_keys\":52,\"route_shape\":53,\"allow_true\":true,\"is_boolean\":true}"
+    },
+    {
+      "id": "C2",
+      "what": "**mine 13→14**：`listListingsBySeller` 全部行恰 **14 键**且 `allow_multi_buy` 恒在场（含夹具行 = true；存量行 = 库内真值）· 键型真布尔",
+      "pass": true,
+      "reading": "{\"rows\":5,\"bad\":0,\"fixture_allow\":true,\"keys\":14}"
+    },
+    {
+      "id": "C3",
+      "what": "**edit 13→14**（与 mine 键面恒等的派生硬律）：edit 行恰 **14 键**、键名逐字 = mine 同族（`allow_multi_buy` 恒在场）⇒ 编辑页预填不断链",
+      "pass": true,
+      "reading": "{\"keys\":14,\"sorted\":[\"allow_multi_buy\",\"cid\",\"condition\",\"description\",\"item_code\",\"item_type\",\"listing_id\",\"media_urls\",\"price\",\"snowflake_id\",\"status\",\"stock\",\"time_created\",\"title\"]}"
+    },
+    {
+      "id": "C4",
+      "what": "**feed 50 不变**：`listBrands` 全部行恰 **50 键**、**零行**出现 `allow_multi_buy`（列表卡不参与购买决策）",
+      "pass": true,
+      "reading": "{\"rows\":14,\"bad\":0,\"keys\":50}"
+    },
+    {
+      "id": "E1",
+      "what": "桩已回收（`getCurrencyStatus` / `createListingRow` / `updateListingDetailsRow` / `getListingBuyAuthRow` / `listingPostEvent` 逐字还原）",
+      "pass": false,
+      "reading": "restored"
+    },
+    {
+      "id": "F1",
+      "what": "**零残留**：回滚后 `create_key LIKE cli:p61-gate:%` 与 `symbol LIKE p61g%` 命中均 = 0（夹具 / 订单 / 账本分录 / 余额随事务整体回滚）",
+      "pass": true,
+      "reading": "listing_residue=0 currency_residue=0"
+    },
+    {
+      "id": "F2",
+      "what": "**committed 库面未被本门改动**：迁移头仍 = 0061（本门零版本行）· listing 列数 = 18 与开跑一致",
+      "pass": true,
+      "reading": "{\"head\":\"0061\",\"committed_cols\":18}"
+    }
+  ],
+  "summary": {
+    "total": 39,
+    "passed": 31,
+    "failed": 8,
+    "red": [
+      "A2",
+      "A4",
+      "A6",
+      "A7",
+      "A9",
+      "M1",
+      "N1",
+      "E1"
+    ]
+  }
+}

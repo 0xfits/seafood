@@ -1,0 +1,957 @@
+{
+  "run": "20261020T073049Zch80",
+  "name": "s55-update-listing-gate",
+  "at": "2026-10-20T07:30:58.204Z",
+  "script": "ops/published-actions/s55-00-update-listing-gate.ts",
+  "sql_bytes": 5800,
+  "preflight": {
+    "project": "quiet-math-65207667",
+    "max_applied": "0061",
+    "pending": [],
+    "migration_chain_top": "0061",
+    "columns": [
+      {
+        "column_name": "description",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "item_type",
+        "data_type": "text",
+        "is_nullable": "YES"
+      },
+      {
+        "column_name": "price",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "stock",
+        "data_type": "integer",
+        "is_nullable": "NO"
+      }
+    ],
+    "constraints": [
+      "listing_item_code_format_ck",
+      "listing_item_condition_check",
+      "listing_item_type_check",
+      "listing_price_positive",
+      "listing_status_enum",
+      "listing_stock_nonneg",
+      "listing_view_count_check"
+    ],
+    "counts": {
+      "total": "26",
+      "draft": "15",
+      "listed": "9",
+      "delisted": "2",
+      "frozen": "0",
+      "typed": "0"
+    }
+  },
+  "live": {
+    "result": {
+      "edit_log_pre_existing": true,
+      "fixtures": {
+        "draft": {
+          "listing_id": "1",
+          "seller_uid": "970101",
+          "price": "137",
+          "stock": 5,
+          "title": null,
+          "description": "p4b2c:listing A\np4b2c desc",
+          "media_urls": [],
+          "item_type": null,
+          "status": "draft"
+        },
+        "listed": {
+          "listing_id": "13",
+          "seller_uid": "7",
+          "price": "100",
+          "stock": 0,
+          "description": "b3d happy"
+        },
+        "delisted": {
+          "listing_id": "7",
+          "seller_uid": "970101",
+          "price": "199",
+          "title": null
+        }
+      },
+      "N1": {
+        "real": "not_owner",
+        "mutated": "updated"
+      },
+      "N2": {
+        "real": "status_not_editable",
+        "mutated": "updated",
+        "delisted_id": "7"
+      },
+      "N3": {
+        "not_owner_removed": true,
+        "status_removed": true,
+        "stock_removed": true
+      }
+    },
+    "rolled_back": true,
+    "error": null,
+    "ms": 7560
+  },
+  "unit": [
+    {
+      "id": "B1",
+      "what": "分类 `{\"to_status\":\"delisted\"}` ⇒ status（400 形状 = LEDGER_AMOUNT_INVALID + field=—）",
+      "pass": true,
+      "reading": "status"
+    },
+    {
+      "id": "B2",
+      "what": "分类 `{\"status\":\"listed\"}` ⇒ status（400 形状 = LEDGER_AMOUNT_INVALID + field=—）",
+      "pass": true,
+      "reading": "status"
+    },
+    {
+      "id": "B3",
+      "what": "分类 `{\"price\":999}` ⇒ fields（400 形状 = LEDGER_AMOUNT_INVALID + field=—）",
+      "pass": true,
+      "reading": "fields"
+    },
+    {
+      "id": "B4",
+      "what": "分类 `{\"description\":\"y\"}` ⇒ fields（400 形状 = LEDGER_AMOUNT_INVALID + field=—）",
+      "pass": true,
+      "reading": "fields"
+    },
+    {
+      "id": "B5",
+      "what": "分类 `{\"item_type\":null}` ⇒ fields（400 形状 = LEDGER_AMOUNT_INVALID + field=—）",
+      "pass": true,
+      "reading": "fields"
+    },
+    {
+      "id": "B6",
+      "what": "分类 `{\"media_urls\":[]}` ⇒ fields（400 形状 = LEDGER_AMOUNT_INVALID + field=—）",
+      "pass": true,
+      "reading": "fields"
+    },
+    {
+      "id": "B7",
+      "what": "分类 `{}` ⇒ invalid:NO_EDITABLE_FIELD（400 形状 = LEDGER_AMOUNT_INVALID + field=listing）",
+      "pass": true,
+      "reading": "invalid:NO_EDITABLE_FIELD"
+    },
+    {
+      "id": "B8",
+      "what": "分类 `{}` ⇒ invalid:NO_EDITABLE_FIELD（400 形状 = LEDGER_AMOUNT_INVALID + field=listing）",
+      "pass": true,
+      "reading": "invalid:NO_EDITABLE_FIELD"
+    },
+    {
+      "id": "B9",
+      "what": "分类 `{\"price\":1,\"to_status\":\"delisted\"}` ⇒ invalid:STATUS_AND_FIELDS_EXCLUSIVE（400 形状 = LEDGER_AMOUNT_INVALID + field=listing）",
+      "pass": true,
+      "reading": "invalid:STATUS_AND_FIELDS_EXCLUSIVE"
+    },
+    {
+      "id": "B10",
+      "what": "分类 `{\"status\":\"delisted\",\"description\":\"x\"}` ⇒ invalid:STATUS_AND_FIELDS_EXCLUSIVE（400 形状 = LEDGER_AMOUNT_INVALID + field=listing）",
+      "pass": true,
+      "reading": "invalid:STATUS_AND_FIELDS_EXCLUSIVE"
+    },
+    {
+      "id": "B11",
+      "what": "分类 `{\"status\":\"frozen\",\"item_type\":\"PhysicalFreeShip\"}` ⇒ invalid:STATUS_AND_FIELDS_EXCLUSIVE（400 形状 = LEDGER_AMOUNT_INVALID + field=listing）",
+      "pass": true,
+      "reading": "invalid:STATUS_AND_FIELDS_EXCLUSIVE"
+    },
+    {
+      "id": "B12",
+      "what": "分类 `{\"unknown_key\":1}` ⇒ invalid:NO_EDITABLE_FIELD（400 形状 = LEDGER_AMOUNT_INVALID + field=listing）",
+      "pass": true,
+      "reading": "invalid:NO_EDITABLE_FIELD"
+    },
+    {
+      "id": "B13",
+      "what": "分类 `{\"title\":\"任意标题\"}` ⇒ invalid:NOT_SUPPORTED（400 形状 = LEDGER_AMOUNT_INVALID + field=listing.title）",
+      "pass": true,
+      "reading": "invalid:NOT_SUPPORTED"
+    },
+    {
+      "id": "B14",
+      "what": "分类 `{\"title\":\"\",\"price\":5}` ⇒ invalid:NOT_SUPPORTED（400 形状 = LEDGER_AMOUNT_INVALID + field=listing.title）",
+      "pass": true,
+      "reading": "invalid:NOT_SUPPORTED"
+    },
+    {
+      "id": "B15",
+      "what": "分类 `{\"title\":\"x\",\"to_status\":\"delisted\"}` ⇒ invalid:NOT_SUPPORTED（400 形状 = LEDGER_AMOUNT_INVALID + field=listing.title）",
+      "pass": true,
+      "reading": "invalid:NOT_SUPPORTED"
+    },
+    {
+      "id": "B16",
+      "what": "混传 400 的 details 两侧键**都列出**（status_keys / field_keys ⇒ 前端可定位）",
+      "pass": true,
+      "reading": "status_keys/field_keys"
+    },
+    {
+      "id": "B17",
+      "what": "title 400 的 details 带 `retired_fields` + `editable_fields`（可机读的改法指引），且 `title` **不在** editable_fields",
+      "pass": true,
+      "reading": "retired/editable"
+    },
+    {
+      "id": "C1",
+      "what": "price = 0 ⇒ 400 LEDGER_AMOUNT_NOT_POSITIVE + field=listing.price + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_NOT_POSITIVE/ dbCalls=0"
+    },
+    {
+      "id": "C2",
+      "what": "price = -1 ⇒ 400 LEDGER_AMOUNT_NOT_POSITIVE + field=listing.price + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_NOT_POSITIVE/ dbCalls=0"
+    },
+    {
+      "id": "C3",
+      "what": "price = 'abc' ⇒ 400 LEDGER_AMOUNT_INVALID / NOT_AN_INTEGER + field=listing.price + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/NOT_AN_INTEGER dbCalls=0"
+    },
+    {
+      "id": "C4",
+      "what": "price = 2^53（超 JS 安全整数 = 有效上限） ⇒ 400 LEDGER_AMOUNT_INVALID / OUT_OF_RANGE + field=listing.price + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/OUT_OF_RANGE dbCalls=0"
+    },
+    {
+      "id": "C5",
+      "what": "stock = -1 ⇒ 400 LEDGER_AMOUNT_INVALID / NEGATIVE_OR_NON_INTEGER + field=listing.stock + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/NEGATIVE_OR_NON_INTEGER dbCalls=0"
+    },
+    {
+      "id": "C6",
+      "what": "stock = 1.5 ⇒ 400 LEDGER_AMOUNT_INVALID / NOT_AN_INTEGER + field=listing.stock + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/NOT_AN_INTEGER dbCalls=0"
+    },
+    {
+      "id": "C7",
+      "what": "description = 123（非字符串） ⇒ 400 LEDGER_AMOUNT_INVALID / NOT_A_STRING + field=listing.description + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/NOT_A_STRING dbCalls=0"
+    },
+    {
+      "id": "C8",
+      "what": "item_type = 裸 Digital（退役值） ⇒ 400 LEDGER_AMOUNT_INVALID / NOT_IN_CLOSED_SET + field=listing.item_type + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/NOT_IN_CLOSED_SET dbCalls=0"
+    },
+    {
+      "id": "C9",
+      "what": "item_type = Bogus ⇒ 400 LEDGER_AMOUNT_INVALID / NOT_IN_CLOSED_SET + field=listing.item_type + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/NOT_IN_CLOSED_SET dbCalls=0"
+    },
+    {
+      "id": "C10",
+      "what": "item_type = 空串 ⇒ 400 LEDGER_AMOUNT_INVALID / NOT_IN_CLOSED_SET + field=listing.item_type + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/NOT_IN_CLOSED_SET dbCalls=0"
+    },
+    {
+      "id": "C11",
+      "what": "media_urls = 5 张（超 4） ⇒ 400 LEDGER_AMOUNT_INVALID / TOO_MANY_ITEMS + field=listing.media_urls + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/TOO_MANY_ITEMS dbCalls=0"
+    },
+    {
+      "id": "C12",
+      "what": "media_urls 含非 /api/media 形态 ⇒ 400 LEDGER_AMOUNT_INVALID / INVALID_MEDIA_URL + field=listing.media_urls + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/INVALID_MEDIA_URL dbCalls=0"
+    },
+    {
+      "id": "C13",
+      "what": "media_urls 非数组 ⇒ 400 LEDGER_AMOUNT_INVALID / NOT_A_STRING_ARRAY + field=listing.media_urls + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/NOT_A_STRING_ARRAY dbCalls=0"
+    },
+    {
+      "id": "C14",
+      "what": "空 patch（无任何字段） ⇒ 400 LEDGER_AMOUNT_INVALID / NO_EDITABLE_FIELD + field=listing + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/NO_EDITABLE_FIELD dbCalls=0"
+    },
+    {
+      "id": "C15",
+      "what": "全部字段 undefined（= 未传） ⇒ 400 LEDGER_AMOUNT_INVALID / NO_EDITABLE_FIELD + field=listing + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/NO_EDITABLE_FIELD dbCalls=0"
+    },
+    {
+      "id": "C16",
+      "what": "**title（退场字段）** ⇒ 400 NOT_SUPPORTED ⇒ 400 LEDGER_AMOUNT_INVALID / NOT_SUPPORTED + field=listing.title + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/NOT_SUPPORTED dbCalls=0"
+    },
+    {
+      "id": "C17",
+      "what": "title（退场字段）+ 合法 price ⇒ 仍 400 NOT_SUPPORTED（不半执行） ⇒ 400 LEDGER_AMOUNT_INVALID / NOT_SUPPORTED + field=listing.title + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/NOT_SUPPORTED dbCalls=0"
+    },
+    {
+      "id": "C18",
+      "what": "title = null ⇒ 视为未传 ⇒ NO_EDITABLE_FIELD（不含 title 支） ⇒ 400 LEDGER_AMOUNT_INVALID / NO_EDITABLE_FIELD + field=listing + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/NO_EDITABLE_FIELD dbCalls=0"
+    },
+    {
+      "id": "C19",
+      "what": "合法改价 `price=999` ⇒ 200，写入口收到 `price=999`、其余一律 **null（不动）**、`itemTypeSet=false`",
+      "pass": true,
+      "reading": "{\"listingId\":424242,\"actorUid\":900055,\"description\":null,\"price\":999,\"stock\":null,\"mediaUrls\":null,\"itemType\":null,\"itemTypeSet\":false,\"itemCondition\":null,\"conditionSet\":false,\"allowMultiBuy\":null,\"adminAccess\":null}"
+    },
+    {
+      "id": "C20",
+      "what": "`description` **不 trim**（保留作者排版）且允许 `''`（清空描述）",
+      "pass": true,
+      "reading": "{\"listingId\":424242,\"actorUid\":900055,\"description\":\"  多行\\n排版  \",\"price\":null,\"stock\":null,\"mediaUrls\":null,\"itemType\":null,\"itemTypeSet\":false,\"itemCondition\":null,\"conditionSet\":false,\"allowMultiBuy\":null,\"adminAccess\":null}"
+    },
+    {
+      "id": "C21",
+      "what": "`description = \"\"` ⇒ 透传空串（清空），非「不动」",
+      "pass": true,
+      "reading": "{\"listingId\":424242,\"actorUid\":900055,\"description\":\"\",\"price\":null,\"stock\":null,\"mediaUrls\":null,\"itemType\":null,\"itemTypeSet\":false,\"itemCondition\":null,\"conditionSet\":false,\"allowMultiBuy\":null,\"adminAccess\":null}"
+    },
+    {
+      "id": "C22",
+      "what": "`item_type = null`（显式）⇒ `itemTypeSet=true` 且 `itemType=null`（置未分类，区别于「未传不动」）",
+      "pass": true,
+      "reading": "{\"listingId\":424242,\"actorUid\":900055,\"description\":null,\"price\":null,\"stock\":null,\"mediaUrls\":null,\"itemType\":null,\"itemTypeSet\":true,\"itemCondition\":null,\"conditionSet\":false,\"allowMultiBuy\":null,\"adminAccess\":null}"
+    },
+    {
+      "id": "C23",
+      "what": "`item_type='DigitalAutoDeliver'` ⇒ 200 且原值透传（不派生、不归一）",
+      "pass": true,
+      "reading": "{\"listingId\":424242,\"actorUid\":900055,\"description\":null,\"price\":null,\"stock\":null,\"mediaUrls\":null,\"itemType\":\"DigitalAutoDeliver\",\"itemTypeSet\":true,\"itemCondition\":null,\"conditionSet\":false,\"allowMultiBuy\":null,\"adminAccess\":null}"
+    },
+    {
+      "id": "C24",
+      "what": "`media_urls` 合法两图 ⇒ 200 且元素 **trim**、`[]` = 清空",
+      "pass": true,
+      "reading": "{\"listingId\":424242,\"actorUid\":900055,\"description\":null,\"price\":null,\"stock\":null,\"mediaUrls\":[\"/api/media/7\",\"/api/media/8\"],\"itemType\":null,\"itemTypeSet\":false,\"itemCondition\":null,\"conditionSet\":false,\"allowMultiBuy\":null,\"adminAccess\":null}"
+    },
+    {
+      "id": "D1",
+      "what": "**非本人** ⇒ 403 AUTH_FORBIDDEN / reason=ACTOR_NOT_ALLOWED（+ authDomain）",
+      "pass": true,
+      "reading": {
+        "status": 403,
+        "code": "AUTH_FORBIDDEN",
+        "reason": "ACTOR_NOT_ALLOWED"
+      }
+    },
+    {
+      "id": "D2",
+      "what": "**delisted（终态）** ⇒ 409 LEDGER_CURRENCY_INVALID_TRANSITION / reason=LISTING_STATE_INVALID（details.status=delisted）",
+      "pass": true,
+      "reading": {
+        "status": 409,
+        "reason": "LISTING_STATE_INVALID",
+        "s": "delisted"
+      }
+    },
+    {
+      "id": "D3",
+      "what": "**frozen（冻结）** ⇒ 同 409 LISTING_STATE_INVALID（只读面覆盖 delisted + frozen）",
+      "pass": true,
+      "reading": {
+        "status": 409,
+        "reason": "LISTING_STATE_INVALID",
+        "s": "frozen"
+      }
+    },
+    {
+      "id": "D4",
+      "what": "库存变更但非 listed ⇒ 409 reason=`listing_stock_change_requires_listed`（DL60 同码）",
+      "pass": true,
+      "reading": {
+        "status": 409,
+        "reason": "listing_stock_change_requires_listed"
+      }
+    },
+    {
+      "id": "D5",
+      "what": "行不存在 ⇒ 404 LEDGER_REF_NOT_FOUND + ref_type=listing（沿用既有码，非新码）",
+      "pass": true,
+      "reading": {
+        "status": 404,
+        "code": "LEDGER_REF_NOT_FOUND",
+        "ref": "424242"
+      }
+    },
+    {
+      "id": "E1",
+      "what": "只改价 ⇒ `text_changed=false`（**不重置翻译**）",
+      "pass": true,
+      "reading": "text_changed=false"
+    },
+    {
+      "id": "E2",
+      "what": "description 与库内**相同** ⇒ false（避免无谓重译）",
+      "pass": true,
+      "reading": "text_changed=false"
+    },
+    {
+      "id": "E3",
+      "what": "description 实际变化 ⇒ true（重置回 pending）",
+      "pass": true,
+      "reading": "text_changed=true"
+    },
+    {
+      "id": "E4",
+      "what": "description 清空为 ''（原非空）⇒ true",
+      "pass": true,
+      "reading": "text_changed=true"
+    },
+    {
+      "id": "E5",
+      "what": "price+stock+mediaUrls 变更但未传 description ⇒ false",
+      "pass": true,
+      "reading": "text_changed=false"
+    },
+    {
+      "id": "E6",
+      "what": "item_type 变更 ⇒ false（分类不进译文源）",
+      "pass": true,
+      "reading": "text_changed=false"
+    },
+    {
+      "id": "E7",
+      "what": "回执 `view` 键集与 `GET /api/listing/mine` 行**同族 11 键**（P57 +condition），且 `text_changed` **不在 view 内**（旁路键，不下发）",
+      "pass": true,
+      "reading": "[\"listing_id\",\"title\",\"price\",\"cid\",\"status\",\"stock\",\"media_urls\",\"time_created\",\"description\",\"item_type\",\"item_condition\"]"
+    }
+  ],
+  "checks": [
+    {
+      "id": "A1",
+      "what": "**本单零新路由**：注册点 = 111 —— 110（0058 面）+ 1 = 0059 admin-edit 的 `GET /api/listing/:listingId/edit`；本单只扩既有 `PATCH /api/listing/:listingId`",
+      "pass": true,
+      "reading": "registration_points=111"
+    },
+    {
+      "id": "A2",
+      "what": "`PATCH /api/listing/:listingId` **恰 1 个注册点**（未出现 `/item/:id/edit` 之类第二条写路径）",
+      "pass": true,
+      "reading": "patch_regs=1"
+    },
+    {
+      "id": "A3",
+      "what": "路由体：`classifyListingPatchBody` 分支 + 字段支 `updateListingDetails` + **仅 `text_changed` 时**重置翻译 + 状态支原样保留",
+      "pass": true,
+      "reading": "patch_block_bytes=4600"
+    },
+    {
+      "id": "A4",
+      "what": "服务层导出齐备：`updateListingDetails` / `classifyListingPatchBody` / `LISTING_EDIT_FIELDS`（**7 字段，无 title**；0057 批前推 +`item_condition`、0061 批前推 +`allow_multi_buy`，原 5/6 字面量见 git 历史）/ `LISTING_RETIRED_FIELDS=[title]` / media ≤4",
+      "pass": true,
+      "reading": "{\"fields\":[\"description\",\"price\",\"stock\",\"media_urls\",\"item_type\",\"item_condition\",\"allow_multi_buy\"],\"retired\":[\"title\"],\"media_max\":4}"
+    },
+    {
+      "id": "A5",
+      "what": "SQL 三道闸在场且**顺序**正确（归属 → 可编辑态 → 库存），带 `FOR UPDATE` 行锁 + `prev_description` 同语句带回",
+      "pass": true,
+      "reading": "{\"sql_bytes\":5800,\"iNotOwner\":625,\"iStatus\":714,\"iStock\":825}"
+    },
+    {
+      "id": "A6",
+      "what": "「未传字段不动」= 逐列 `COALESCE($n, l.x)`（**4 列**：description/price/stock/media_urls）+ `item_type` 用 `$8::boolean` 开关区分「未传 / 显式 NULL」",
+      "pass": true,
+      "reading": "coalesce_hits=9"
+    },
+    {
+      "id": "A7",
+      "what": "★ **写路径零 `title`**：唯一真源 SQL **不 SET 也不直接 SELECT `title` 列**（RETURNING 的 title = `split_part(description, …)` 派生；title 列已 0056 DROP）⇒ 本语句不 42P01",
+      "pass": true,
+      "reading": "set_clause_bytes=771 set_title=false hard_col=false"
+    },
+    {
+      "id": "A8",
+      "what": "读口：加性键 `description` / `item_type`（S55，8→10）+ `item_condition`（P57 · 迁移 0057，10→11 ⇒ 回执键 `condition`）；`title` = `split_part` **派生列**（title 列已 0056 DROP，零列引用）",
+      "pass": true,
+      "reading": "iface_keys=14"
+    },
+    {
+      "id": "A9",
+      "what": "**零 ledger 写**：`listing-service.ts` 不 import `./ledger`；新段无 `ledger_post_event` / 无 `create_key` 派生（改价不涉资金、无分录、无幂等键）",
+      "pass": true,
+      "reading": "ledger_imports=0"
+    },
+    {
+      "id": "A10",
+      "what": "**零新错误码**：新函数只借既有码（AUTH_FORBIDDEN / LEDGER_AMOUNT_INVALID），33 码闭集不动",
+      "pass": true,
+      "reading": "codes=[\"AUTH_FORBIDDEN\",\"LEDGER_AMOUNT_INVALID\"] unknown=[] close_set=33"
+    },
+    {
+      "id": "A11",
+      "what": "**本单零迁移 / 零 DDL**：迁移文件链顶 = 0061（同树多单并进：0059 admin-edit → 0060 商品统一 Id → 0061 多件购买授权列）· 本单不新增/不改任何迁移文件 ⇒ migrations/ 的 git 变更全部为 `??` 未跟踪新文件（零 M / 零 D）",
+      "pass": true,
+      "reading": "max=0061 files=60 git=[\"?? backend-ts/migrations/0061_listing_allow_multi_buy.sql\"]"
+    },
+    {
+      "id": "B1",
+      "what": "分类 `{\"to_status\":\"delisted\"}` ⇒ status（400 形状 = LEDGER_AMOUNT_INVALID + field=—）",
+      "pass": true,
+      "reading": "status"
+    },
+    {
+      "id": "B2",
+      "what": "分类 `{\"status\":\"listed\"}` ⇒ status（400 形状 = LEDGER_AMOUNT_INVALID + field=—）",
+      "pass": true,
+      "reading": "status"
+    },
+    {
+      "id": "B3",
+      "what": "分类 `{\"price\":999}` ⇒ fields（400 形状 = LEDGER_AMOUNT_INVALID + field=—）",
+      "pass": true,
+      "reading": "fields"
+    },
+    {
+      "id": "B4",
+      "what": "分类 `{\"description\":\"y\"}` ⇒ fields（400 形状 = LEDGER_AMOUNT_INVALID + field=—）",
+      "pass": true,
+      "reading": "fields"
+    },
+    {
+      "id": "B5",
+      "what": "分类 `{\"item_type\":null}` ⇒ fields（400 形状 = LEDGER_AMOUNT_INVALID + field=—）",
+      "pass": true,
+      "reading": "fields"
+    },
+    {
+      "id": "B6",
+      "what": "分类 `{\"media_urls\":[]}` ⇒ fields（400 形状 = LEDGER_AMOUNT_INVALID + field=—）",
+      "pass": true,
+      "reading": "fields"
+    },
+    {
+      "id": "B7",
+      "what": "分类 `{}` ⇒ invalid:NO_EDITABLE_FIELD（400 形状 = LEDGER_AMOUNT_INVALID + field=listing）",
+      "pass": true,
+      "reading": "invalid:NO_EDITABLE_FIELD"
+    },
+    {
+      "id": "B8",
+      "what": "分类 `{}` ⇒ invalid:NO_EDITABLE_FIELD（400 形状 = LEDGER_AMOUNT_INVALID + field=listing）",
+      "pass": true,
+      "reading": "invalid:NO_EDITABLE_FIELD"
+    },
+    {
+      "id": "B9",
+      "what": "分类 `{\"price\":1,\"to_status\":\"delisted\"}` ⇒ invalid:STATUS_AND_FIELDS_EXCLUSIVE（400 形状 = LEDGER_AMOUNT_INVALID + field=listing）",
+      "pass": true,
+      "reading": "invalid:STATUS_AND_FIELDS_EXCLUSIVE"
+    },
+    {
+      "id": "B10",
+      "what": "分类 `{\"status\":\"delisted\",\"description\":\"x\"}` ⇒ invalid:STATUS_AND_FIELDS_EXCLUSIVE（400 形状 = LEDGER_AMOUNT_INVALID + field=listing）",
+      "pass": true,
+      "reading": "invalid:STATUS_AND_FIELDS_EXCLUSIVE"
+    },
+    {
+      "id": "B11",
+      "what": "分类 `{\"status\":\"frozen\",\"item_type\":\"PhysicalFreeShip\"}` ⇒ invalid:STATUS_AND_FIELDS_EXCLUSIVE（400 形状 = LEDGER_AMOUNT_INVALID + field=listing）",
+      "pass": true,
+      "reading": "invalid:STATUS_AND_FIELDS_EXCLUSIVE"
+    },
+    {
+      "id": "B12",
+      "what": "分类 `{\"unknown_key\":1}` ⇒ invalid:NO_EDITABLE_FIELD（400 形状 = LEDGER_AMOUNT_INVALID + field=listing）",
+      "pass": true,
+      "reading": "invalid:NO_EDITABLE_FIELD"
+    },
+    {
+      "id": "B13",
+      "what": "分类 `{\"title\":\"任意标题\"}` ⇒ invalid:NOT_SUPPORTED（400 形状 = LEDGER_AMOUNT_INVALID + field=listing.title）",
+      "pass": true,
+      "reading": "invalid:NOT_SUPPORTED"
+    },
+    {
+      "id": "B14",
+      "what": "分类 `{\"title\":\"\",\"price\":5}` ⇒ invalid:NOT_SUPPORTED（400 形状 = LEDGER_AMOUNT_INVALID + field=listing.title）",
+      "pass": true,
+      "reading": "invalid:NOT_SUPPORTED"
+    },
+    {
+      "id": "B15",
+      "what": "分类 `{\"title\":\"x\",\"to_status\":\"delisted\"}` ⇒ invalid:NOT_SUPPORTED（400 形状 = LEDGER_AMOUNT_INVALID + field=listing.title）",
+      "pass": true,
+      "reading": "invalid:NOT_SUPPORTED"
+    },
+    {
+      "id": "B16",
+      "what": "混传 400 的 details 两侧键**都列出**（status_keys / field_keys ⇒ 前端可定位）",
+      "pass": true,
+      "reading": "status_keys/field_keys"
+    },
+    {
+      "id": "B17",
+      "what": "title 400 的 details 带 `retired_fields` + `editable_fields`（可机读的改法指引），且 `title` **不在** editable_fields",
+      "pass": true,
+      "reading": "retired/editable"
+    },
+    {
+      "id": "C1",
+      "what": "price = 0 ⇒ 400 LEDGER_AMOUNT_NOT_POSITIVE + field=listing.price + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_NOT_POSITIVE/ dbCalls=0"
+    },
+    {
+      "id": "C2",
+      "what": "price = -1 ⇒ 400 LEDGER_AMOUNT_NOT_POSITIVE + field=listing.price + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_NOT_POSITIVE/ dbCalls=0"
+    },
+    {
+      "id": "C3",
+      "what": "price = 'abc' ⇒ 400 LEDGER_AMOUNT_INVALID / NOT_AN_INTEGER + field=listing.price + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/NOT_AN_INTEGER dbCalls=0"
+    },
+    {
+      "id": "C4",
+      "what": "price = 2^53（超 JS 安全整数 = 有效上限） ⇒ 400 LEDGER_AMOUNT_INVALID / OUT_OF_RANGE + field=listing.price + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/OUT_OF_RANGE dbCalls=0"
+    },
+    {
+      "id": "C5",
+      "what": "stock = -1 ⇒ 400 LEDGER_AMOUNT_INVALID / NEGATIVE_OR_NON_INTEGER + field=listing.stock + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/NEGATIVE_OR_NON_INTEGER dbCalls=0"
+    },
+    {
+      "id": "C6",
+      "what": "stock = 1.5 ⇒ 400 LEDGER_AMOUNT_INVALID / NOT_AN_INTEGER + field=listing.stock + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/NOT_AN_INTEGER dbCalls=0"
+    },
+    {
+      "id": "C7",
+      "what": "description = 123（非字符串） ⇒ 400 LEDGER_AMOUNT_INVALID / NOT_A_STRING + field=listing.description + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/NOT_A_STRING dbCalls=0"
+    },
+    {
+      "id": "C8",
+      "what": "item_type = 裸 Digital（退役值） ⇒ 400 LEDGER_AMOUNT_INVALID / NOT_IN_CLOSED_SET + field=listing.item_type + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/NOT_IN_CLOSED_SET dbCalls=0"
+    },
+    {
+      "id": "C9",
+      "what": "item_type = Bogus ⇒ 400 LEDGER_AMOUNT_INVALID / NOT_IN_CLOSED_SET + field=listing.item_type + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/NOT_IN_CLOSED_SET dbCalls=0"
+    },
+    {
+      "id": "C10",
+      "what": "item_type = 空串 ⇒ 400 LEDGER_AMOUNT_INVALID / NOT_IN_CLOSED_SET + field=listing.item_type + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/NOT_IN_CLOSED_SET dbCalls=0"
+    },
+    {
+      "id": "C11",
+      "what": "media_urls = 5 张（超 4） ⇒ 400 LEDGER_AMOUNT_INVALID / TOO_MANY_ITEMS + field=listing.media_urls + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/TOO_MANY_ITEMS dbCalls=0"
+    },
+    {
+      "id": "C12",
+      "what": "media_urls 含非 /api/media 形态 ⇒ 400 LEDGER_AMOUNT_INVALID / INVALID_MEDIA_URL + field=listing.media_urls + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/INVALID_MEDIA_URL dbCalls=0"
+    },
+    {
+      "id": "C13",
+      "what": "media_urls 非数组 ⇒ 400 LEDGER_AMOUNT_INVALID / NOT_A_STRING_ARRAY + field=listing.media_urls + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/NOT_A_STRING_ARRAY dbCalls=0"
+    },
+    {
+      "id": "C14",
+      "what": "空 patch（无任何字段） ⇒ 400 LEDGER_AMOUNT_INVALID / NO_EDITABLE_FIELD + field=listing + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/NO_EDITABLE_FIELD dbCalls=0"
+    },
+    {
+      "id": "C15",
+      "what": "全部字段 undefined（= 未传） ⇒ 400 LEDGER_AMOUNT_INVALID / NO_EDITABLE_FIELD + field=listing + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/NO_EDITABLE_FIELD dbCalls=0"
+    },
+    {
+      "id": "C16",
+      "what": "**title（退场字段）** ⇒ 400 NOT_SUPPORTED ⇒ 400 LEDGER_AMOUNT_INVALID / NOT_SUPPORTED + field=listing.title + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/NOT_SUPPORTED dbCalls=0"
+    },
+    {
+      "id": "C17",
+      "what": "title（退场字段）+ 合法 price ⇒ 仍 400 NOT_SUPPORTED（不半执行） ⇒ 400 LEDGER_AMOUNT_INVALID / NOT_SUPPORTED + field=listing.title + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/NOT_SUPPORTED dbCalls=0"
+    },
+    {
+      "id": "C18",
+      "what": "title = null ⇒ 视为未传 ⇒ NO_EDITABLE_FIELD（不含 title 支） ⇒ 400 LEDGER_AMOUNT_INVALID / NO_EDITABLE_FIELD + field=listing + **DB 调用 0 次**",
+      "pass": true,
+      "reading": "400/LEDGER_AMOUNT_INVALID/NO_EDITABLE_FIELD dbCalls=0"
+    },
+    {
+      "id": "C19",
+      "what": "合法改价 `price=999` ⇒ 200，写入口收到 `price=999`、其余一律 **null（不动）**、`itemTypeSet=false`",
+      "pass": true,
+      "reading": "{\"listingId\":424242,\"actorUid\":900055,\"description\":null,\"price\":999,\"stock\":null,\"mediaUrls\":null,\"itemType\":null,\"itemTypeSet\":false,\"itemCondition\":null,\"conditionSet\":false,\"allowMultiBuy\":null,\"adminAccess\":null}"
+    },
+    {
+      "id": "C20",
+      "what": "`description` **不 trim**（保留作者排版）且允许 `''`（清空描述）",
+      "pass": true,
+      "reading": "{\"listingId\":424242,\"actorUid\":900055,\"description\":\"  多行\\n排版  \",\"price\":null,\"stock\":null,\"mediaUrls\":null,\"itemType\":null,\"itemTypeSet\":false,\"itemCondition\":null,\"conditionSet\":false,\"allowMultiBuy\":null,\"adminAccess\":null}"
+    },
+    {
+      "id": "C21",
+      "what": "`description = \"\"` ⇒ 透传空串（清空），非「不动」",
+      "pass": true,
+      "reading": "{\"listingId\":424242,\"actorUid\":900055,\"description\":\"\",\"price\":null,\"stock\":null,\"mediaUrls\":null,\"itemType\":null,\"itemTypeSet\":false,\"itemCondition\":null,\"conditionSet\":false,\"allowMultiBuy\":null,\"adminAccess\":null}"
+    },
+    {
+      "id": "C22",
+      "what": "`item_type = null`（显式）⇒ `itemTypeSet=true` 且 `itemType=null`（置未分类，区别于「未传不动」）",
+      "pass": true,
+      "reading": "{\"listingId\":424242,\"actorUid\":900055,\"description\":null,\"price\":null,\"stock\":null,\"mediaUrls\":null,\"itemType\":null,\"itemTypeSet\":true,\"itemCondition\":null,\"conditionSet\":false,\"allowMultiBuy\":null,\"adminAccess\":null}"
+    },
+    {
+      "id": "C23",
+      "what": "`item_type='DigitalAutoDeliver'` ⇒ 200 且原值透传（不派生、不归一）",
+      "pass": true,
+      "reading": "{\"listingId\":424242,\"actorUid\":900055,\"description\":null,\"price\":null,\"stock\":null,\"mediaUrls\":null,\"itemType\":\"DigitalAutoDeliver\",\"itemTypeSet\":true,\"itemCondition\":null,\"conditionSet\":false,\"allowMultiBuy\":null,\"adminAccess\":null}"
+    },
+    {
+      "id": "C24",
+      "what": "`media_urls` 合法两图 ⇒ 200 且元素 **trim**、`[]` = 清空",
+      "pass": true,
+      "reading": "{\"listingId\":424242,\"actorUid\":900055,\"description\":null,\"price\":null,\"stock\":null,\"mediaUrls\":[\"/api/media/7\",\"/api/media/8\"],\"itemType\":null,\"itemTypeSet\":false,\"itemCondition\":null,\"conditionSet\":false,\"allowMultiBuy\":null,\"adminAccess\":null}"
+    },
+    {
+      "id": "D1",
+      "what": "**非本人** ⇒ 403 AUTH_FORBIDDEN / reason=ACTOR_NOT_ALLOWED（+ authDomain）",
+      "pass": true,
+      "reading": "{\"status\":403,\"code\":\"AUTH_FORBIDDEN\",\"reason\":\"ACTOR_NOT_ALLOWED\"}"
+    },
+    {
+      "id": "D2",
+      "what": "**delisted（终态）** ⇒ 409 LEDGER_CURRENCY_INVALID_TRANSITION / reason=LISTING_STATE_INVALID（details.status=delisted）",
+      "pass": true,
+      "reading": "{\"status\":409,\"reason\":\"LISTING_STATE_INVALID\",\"s\":\"delisted\"}"
+    },
+    {
+      "id": "D3",
+      "what": "**frozen（冻结）** ⇒ 同 409 LISTING_STATE_INVALID（只读面覆盖 delisted + frozen）",
+      "pass": true,
+      "reading": "{\"status\":409,\"reason\":\"LISTING_STATE_INVALID\",\"s\":\"frozen\"}"
+    },
+    {
+      "id": "D4",
+      "what": "库存变更但非 listed ⇒ 409 reason=`listing_stock_change_requires_listed`（DL60 同码）",
+      "pass": true,
+      "reading": "{\"status\":409,\"reason\":\"listing_stock_change_requires_listed\"}"
+    },
+    {
+      "id": "D5",
+      "what": "行不存在 ⇒ 404 LEDGER_REF_NOT_FOUND + ref_type=listing（沿用既有码，非新码）",
+      "pass": true,
+      "reading": "{\"status\":404,\"code\":\"LEDGER_REF_NOT_FOUND\",\"ref\":\"424242\"}"
+    },
+    {
+      "id": "E1",
+      "what": "只改价 ⇒ `text_changed=false`（**不重置翻译**）",
+      "pass": true,
+      "reading": "text_changed=false"
+    },
+    {
+      "id": "E2",
+      "what": "description 与库内**相同** ⇒ false（避免无谓重译）",
+      "pass": true,
+      "reading": "text_changed=false"
+    },
+    {
+      "id": "E3",
+      "what": "description 实际变化 ⇒ true（重置回 pending）",
+      "pass": true,
+      "reading": "text_changed=true"
+    },
+    {
+      "id": "E4",
+      "what": "description 清空为 ''（原非空）⇒ true",
+      "pass": true,
+      "reading": "text_changed=true"
+    },
+    {
+      "id": "E5",
+      "what": "price+stock+mediaUrls 变更但未传 description ⇒ false",
+      "pass": true,
+      "reading": "text_changed=false"
+    },
+    {
+      "id": "E6",
+      "what": "item_type 变更 ⇒ false（分类不进译文源）",
+      "pass": true,
+      "reading": "text_changed=false"
+    },
+    {
+      "id": "E7",
+      "what": "回执 `view` 键集与 `GET /api/listing/mine` 行**同族 11 键**（P57 +condition），且 `text_changed` **不在 view 内**（旁路键，不下发）",
+      "pass": true,
+      "reading": "[\"listing_id\",\"title\",\"price\",\"cid\",\"status\",\"stock\",\"media_urls\",\"time_created\",\"description\",\"item_type\",\"item_condition\"]"
+    },
+    {
+      "id": "C0",
+      "what": "桩已回收（`updateListingDetailsRow` 逐字还原）",
+      "pass": true,
+      "reading": "restored"
+    },
+    {
+      "id": "F1",
+      "what": "**合法改价 ⇒ 200 且库内值变**（listing 1：price 137 → 274，库内现取 = 274）",
+      "pass": true,
+      "reading": "{\"before\":137,\"want\":274,\"db\":\"274\"}"
+    },
+    {
+      "id": "F2",
+      "what": "**未传字段不动**：只改 price 后 stock/description/media_urls/item_type 与 `title` 六项逐字未变",
+      "pass": true,
+      "reading": "{\"stock\":5,\"item_type\":null,\"title_unchanged\":true}"
+    },
+    {
+      "id": "F3",
+      "what": "【降价】路径（弹窗只改价）：274 → 267 ⇒ 200、库内 = 267、`text_changed=false`（不重置翻译）",
+      "pass": true,
+      "reading": "text_changed=false"
+    },
+    {
+      "id": "F4",
+      "what": "description 实际变化 ⇒ 200、`text_changed=true`（调用方据此重置翻译回 pending）、库内该列已变",
+      "pass": true,
+      "reading": "{\"text_changed\":true,\"description\":\"S55 门·改描述（正文并入 description）\"}"
+    },
+    {
+      "id": "F5",
+      "what": "**非本人 ⇒ 403** ACTOR_NOT_ALLOWED 且库内 price **未被改写**（归属闸在 SQL 内 ⇒ 零副作用）",
+      "pass": true,
+      "reading": "{\"status\":403,\"reason\":\"ACTOR_NOT_ALLOWED\",\"db_price\":\"267\"}"
+    },
+    {
+      "id": "F6",
+      "what": "**delisted 终态 ⇒ 409** LISTING_STATE_INVALID（listing 7；库内 price 仍 199，未被改写）",
+      "pass": true,
+      "reading": "{\"status\":409,\"code\":\"LEDGER_CURRENCY_INVALID_TRANSITION\",\"reason\":\"LISTING_STATE_INVALID\"}"
+    },
+    {
+      "id": "F7",
+      "what": "**frozen（冻结）⇒ 409** LISTING_STATE_INVALID（新增夹具行，事务末 ROLLBACK 消失）",
+      "pass": true,
+      "reading": "{\"status\":409,\"reason\":\"LISTING_STATE_INVALID\"}"
+    },
+    {
+      "id": "F8",
+      "what": "库存：**listed 生效**（0 → 3，库内 = 3）· **draft 拒 409** `listing_stock_change_requires_listed`（库内仍 = 5，DL60 触发器口径未动）",
+      "pass": true,
+      "reading": "{\"listed\":3,\"draft\":\"listing_stock_change_requires_listed\"}"
+    },
+    {
+      "id": "F9",
+      "what": "item_type：显式 null ⇒ 库内 NULL（null）· 四值写入 ⇒ DigitalManualDeliver · **未传时不动** ⇒ 仍 DigitalManualDeliver",
+      "pass": true,
+      "reading": "{\"null_set\":null,\"four\":\"DigitalManualDeliver\",\"untouched\":\"DigitalManualDeliver\"}"
+    },
+    {
+      "id": "F10",
+      "what": "media_urls：两图覆盖 ⇒ [\"/api/media/11\",\"/api/media/12\"]；`[]` ⇒ 清空 []",
+      "pass": true,
+      "reading": "{\"a\":[\"/api/media/11\",\"/api/media/12\"],\"b\":[]}"
+    },
+    {
+      "id": "F11",
+      "what": "不存在的 listing ⇒ **404** LEDGER_REF_NOT_FOUND（ref_type=listing）",
+      "pass": true,
+      "reading": "{\"status\":404,\"code\":\"LEDGER_REF_NOT_FOUND\"}"
+    },
+    {
+      "id": "F12",
+      "what": "读口行键 **11 → 14**（S55 description/item_type + P57 condition + 0060 item_code/snowflake_id + 0061 allow_multi_buy）且与编辑回执 `view` **逐键同集**；★ `title` ⇒ 400 且库内 title/price **零改动**",
+      "pass": true,
+      "reading": "{\"mine_keys\":[\"allow_multi_buy\",\"cid\",\"condition\",\"description\",\"item_code\",\"item_type\",\"listing_id\",\"media_urls\",\"price\",\"snowflake_id\",\"status\",\"stock\",\"time_created\",\"title\"],\"view_keys\":[\"allow_multi_buy\",\"cid\",\"condition\",\"description\",\"item_code\",\"item_type\",\"listing_id\",\"media_urls\",\"price\",\"snowflake_id\",\"status\",\"stock\",\"time_created\",\"title\"],\"title_res\":\"400/NOT_SUPPORTED\",\"price_after\":\"11\"}"
+    },
+    {
+      "id": "N1",
+      "what": "★ **负控 1**：把归属闸（`seller_uid <> $2 ⇒ not_owner`）从 SQL 摘掉 ⇒ 非本人得 `updated`（不是 `not_owner`）⇒ **F5/D1 断言必红**（归属判据非恒绿）",
+      "pass": true,
+      "reading": "{\"real\":\"not_owner\",\"mutated\":\"updated\"}"
+    },
+    {
+      "id": "N2",
+      "what": "★ **负控 2**：把可编辑态闸（`status NOT IN (draft,listed) ⇒ status_not_editable`）摘掉 ⇒ delisted 行得 `updated` ⇒ **F6/D2 断言必红**（终态只读判据非恒绿）",
+      "pass": true,
+      "reading": "{\"real\":\"status_not_editable\",\"mutated\":\"updated\",\"delisted_id\":\"7\"}"
+    },
+    {
+      "id": "N3",
+      "what": "负控 3（静态）：三条闸的摘除**确实改变**了语句文本（摘除器不空转 ⇒ N1/N2 不是在「未变异」的 SQL 上跑）",
+      "pass": true,
+      "reading": "{\"not_owner_removed\":true,\"status_removed\":true,\"stock_removed\":true}"
+    },
+    {
+      "id": "F0",
+      "what": "真库面跑完并**一律 ROLLBACK**（含 已 apply 的台账表 / frozen 夹具 INSERT 与全部 UPDATE ⇒ 零残留）",
+      "pass": true,
+      "reading": "error=null rolled_back=true"
+    },
+    {
+      "id": "P1",
+      "what": "preflight 版本面（只读·不 apply）：迁移**文件链顶** = 0061（同树 0059 admin-edit → 0060 商品统一 Id → 0061 多件购买授权列）· 已应用最大 = **0061** · PENDING = []（判据 = 链上尚未 apply 的**后缀**；dev 已全 apply ⇒ [] 同算过 = post-apply 模式）",
+      "pass": true,
+      "reading": "{\"project\":\"quiet-math-65207667\",\"chain_top\":\"0061\",\"max\":\"0061\",\"pending\":[]}"
+    },
+    {
+      "id": "P2",
+      "what": "preflight 列面：`price` bigint / `stock` integer / `description` text NOT NULL / `item_type` text **可空**；`title` 列**已 DROP**（迁移 0056，标题 = `split_part(description, …)` 派生 ⇒ 本门对 title 的断言只看派生值）",
+      "pass": true,
+      "reading": "[{\"column_name\":\"description\",\"data_type\":\"text\",\"is_nullable\":\"NO\"},{\"column_name\":\"item_type\",\"data_type\":\"text\",\"is_nullable\":\"YES\"},{\"column_name\":\"price\",\"data_type\":\"bigint\",\"is_nullable\":\"NO\"},{\"column_name\":\"stock\",\"data_type\":\"integer\",\"is_nullable\":\"NO\"}]"
+    },
+    {
+      "id": "P3",
+      "what": "preflight 约束面：`price > 0` / `stock >= 0` 仍在（服务层有效上限 = JS 安全整数，**更紧**于 bigint 上限）、`item_type` 四值闭集仍在",
+      "pass": true,
+      "reading": "[\"listing_item_code_format_ck\",\"listing_item_condition_check\",\"listing_item_type_check\",\"listing_price_positive\",\"listing_status_enum\",\"listing_stock_nonneg\",\"listing_view_count_check\"]"
+    },
+    {
+      "id": "P4",
+      "what": "存量面（只读）：listing 共 26 行（draft 15 / listed 9 / delisted 2 / frozen 0；已分类 0）",
+      "pass": true,
+      "reading": "{\"total\":\"26\",\"draft\":\"15\",\"listed\":\"9\",\"delisted\":\"2\",\"frozen\":\"0\",\"typed\":\"0\"}"
+    }
+  ],
+  "summary": {
+    "total": 85,
+    "passed": 85,
+    "failed": 0,
+    "red": []
+  }
+}

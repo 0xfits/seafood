@@ -75,6 +75,10 @@ const MIG_HEAD_STMTS = splitSqlStatements(MIG_HEAD);
 //   `listListingsBySeller` / `getListingEditRow` 的 SELECT 会 42703 ⇒ 事务内补 0060 头段 DDL。
 const MIG60 = fs.readFileSync(path.join(REPO_BACKEND, 'migrations/0060_item_code_snowflake.sql'), 'utf8');
 const MIG60_HEAD_STMTS = splitSqlStatements(MIG60.slice(0, MIG60.indexOf('\nDO $$')).trim());
+// ★ 迁移 0061（多件购买授权）：UPDATE_LISTING_DETAILS_SQL 引用 `allow_multi_buy` 并绑 `$12` ⇒
+//   未 apply 的库上该语句 42703 ⇒ 事务内补 0061 头段 DDL（单列 ADD，ROLLBACK 零残留）。
+const MIG61 = fs.readFileSync(path.join(REPO_BACKEND, 'migrations/0061_listing_allow_multi_buy.sql'), 'utf8');
+const MIG61_HEAD_STMTS = splitSqlStatements(MIG61.slice(0, MIG61.indexOf('\nDO $$')).trim());
 
 /** 从 `database.ts` 取出唯一真源语句原文（负控要在它上面中和闸，而不是另写一份 SQL） */
 const SQL_START = 'const UPDATE_LISTING_DETAILS_SQL = `';
@@ -90,7 +94,7 @@ const neutralizeAdminFlag = (sql: string): string => sql.replace('NOT $11::boole
 const neutralizeAudit = (sql: string): string => sql.replace(AUDIT_WHERE, 'WHERE false');
 
 const SQL_PARAM_ORDER = ['listing_id', 'actor_uid', 'description', 'price', 'stock', 'media_urls',
-  'item_type', 'item_type_set', 'item_condition', 'item_condition_set', 'admin_edit'];
+  'item_type', 'item_type_set', 'item_condition', 'item_condition_set', 'admin_edit', 'allow_multi_buy'];
 
 const stubRow = (over: Record<string, unknown> = {}) => ({
   listing_id: 515151,
@@ -149,9 +153,9 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
 
   const migFiles = fs.readdirSync(path.join(REPO_BACKEND, 'migrations')).filter((f) => f.endsWith('.sql')).sort();
   const maxMig = (migFiles[migFiles.length - 1].match(/^(\d+)/) ?? [, ''])[1];
-  ck.t('A4', '迁移面：`0059_listing_edit_log.sql` 在场 · **文件链顶已前推至 `0060_item_code_snowflake.sql`**（文件即版本号；两文件都必须在，本门**不 apply**，0060 = 商品统一 Id 单）',
-    maxMig === '0060' && migFiles.includes('0059_listing_edit_log.sql') && migFiles.includes('0060_item_code_snowflake.sql'),
-    `max=${maxMig} count=${migFiles.length} has_0059=${migFiles.includes('0059_listing_edit_log.sql')} has_0060=${migFiles.includes('0060_item_code_snowflake.sql')}`);
+  ck.t('A4', '迁移面：`0059_listing_edit_log.sql` 在场 · **文件链顶已前推至 `0061_listing_allow_multi_buy.sql`**（文件即版本号；三文件都必须在，本门**不 apply**；0060 = 商品统一 Id 单、0061 = 多件购买授权列单）',
+    maxMig === '0061' && migFiles.includes('0059_listing_edit_log.sql') && migFiles.includes('0060_item_code_snowflake.sql') && migFiles.includes('0061_listing_allow_multi_buy.sql'),
+    `max=${maxMig} count=${migFiles.length} has_0059=${migFiles.includes('0059_listing_edit_log.sql')} has_0060=${migFiles.includes('0060_item_code_snowflake.sql')} has_0061=${migFiles.includes('0061_listing_allow_multi_buy.sql')}`);
 
   const migCols = ['log_id', 'listing_id', 'actor_uid', 'owner_uid', 'admin_edit', 'changed_fields', 'time_created'];
   const checkDefs = Array.from(MIG.matchAll(/CONSTRAINT\s+(listing_edit_log_\w+_ck)\s+CHECK \(([\s\S]*?)\)\s*[,)]/g))
@@ -320,6 +324,13 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
       r.id_columns_pre_existing = Number(idCols?.n ?? 0) === 2;
       if (!r.id_columns_pre_existing) {
         for (const stmt of MIG60_HEAD_STMTS) await c.query(stmt);
+      }
+      // 0061 一列同理：UPDATE_LISTING_DETAILS_SQL 引用 `allow_multi_buy` / 绑 $12 ⇒ pre-apply 库上 42703
+      const mbCols = await raw1<{ n: number }>(c,
+        "SELECT count(*)::int AS n FROM information_schema.columns WHERE table_schema='public' AND table_name='listing' AND column_name = 'allow_multi_buy'");
+      r.mb_column_pre_existing = Number(mbCols?.n ?? 0) === 1;
+      if (!r.mb_column_pre_existing) {
+        for (const stmt of MIG61_HEAD_STMTS) await c.query(stmt);
       }
       const shape = await raw<{ column_name: string; data_type: string; is_nullable: string }>(c,
         `SELECT column_name, data_type, is_nullable FROM information_schema.columns
@@ -491,9 +502,9 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
             && !dStranger.ok && dStranger.status === 403 && dStranger.details?.reason === 'ACTOR_NOT_ALLOWED'
             && !dMissing.ok && dMissing.status === 404 && dMissing.code === 'LEDGER_REF_NOT_FOUND',
           JSON.stringify(r.D));
-        ck.t('D2', '读口行**与 `GET /api/listing/mine` 行逐键同族 13 键**（11 + 0060 的 `item_code` / `snowflake_id`；本人臂 / 管理员臂同一形状 ⇒ 编辑页一套预填）· `seller_uid` 不下发',
-          mineKeys.length === 13
-            && JSON.stringify(mineKeys) === JSON.stringify(['cid', 'condition', 'description', 'item_code', 'item_type', 'listing_id', 'media_urls', 'price', 'snowflake_id', 'status', 'stock', 'time_created', 'title'])
+        ck.t('D2', '读口行**与 `GET /api/listing/mine` 行逐键同族 14 键**（11 + 0060 的 `item_code` / `snowflake_id` + 0061 的 `allow_multi_buy`；本人臂 / 管理员臂同一形状 ⇒ 编辑页一套预填）· `seller_uid` 不下发',
+          mineKeys.length === 14
+            && JSON.stringify(mineKeys) === JSON.stringify(['allow_multi_buy', 'cid', 'condition', 'description', 'item_code', 'item_type', 'listing_id', 'media_urls', 'price', 'snowflake_id', 'status', 'stock', 'time_created', 'title'])
             && dOwner.ok && JSON.stringify(Object.keys(dOwner.view).sort()) === JSON.stringify(mineKeys)
             && dAdmin.ok && JSON.stringify(Object.keys(dAdmin.view).sort()) === JSON.stringify(mineKeys)
             && dOwner.ok && !('seller_uid' in dOwner.view) && dAdmin.ok && !('seller_uid' in dAdmin.view),
@@ -526,7 +537,8 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
         // ---- N · 负控（判负自证）
         const listedId = listed ? Number(listed.listing_id) : draftId;
         const listedOwner = listed ? Number(listed.seller_uid) : ownerUid;
-        const paramPack = (adminEdit: boolean) => [listedId, adminUid, null, 424242, null, null, null, false, null, false, adminEdit];
+        // $12 = `allow_multi_buy`（0061 第 12 参数位；null = 未传 ⇒ 语句走 W5 归一）
+        const paramPack = (adminEdit: boolean) => [listedId, adminUid, null, 424242, null, null, null, false, null, false, adminEdit, null];
         const realAdmin = await raw1<Record<string, unknown>>(c, SQL_TEXT, paramPack(true));
         const noFlagAdmin = await raw1<Record<string, unknown>>(c, neutralizeAdminFlag(SQL_TEXT), paramPack(true));
         r.N1 = { real: realAdmin?.outcome, flag_removed: noFlagAdmin?.outcome, owner_uid: listedOwner };
@@ -534,7 +546,7 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
           realAdmin?.outcome === 'updated' && noFlagAdmin?.outcome === 'not_owner', JSON.stringify(r.N1));
 
         const beforeNeg = await logCount(listedId);
-        const auditRemoved = await raw1<Record<string, unknown>>(c, neutralizeAudit(SQL_TEXT), [listedId, adminUid, 'P59 neg-audit desc', null, null, null, null, false, null, false, true]);
+        const auditRemoved = await raw1<Record<string, unknown>>(c, neutralizeAudit(SQL_TEXT), [listedId, adminUid, 'P59 neg-audit desc', null, null, null, null, false, null, false, true, null]);
         const afterNeg = await logCount(listedId);
         r.N2 = { outcome: auditRemoved?.outcome, logs_before: beforeNeg, logs_after: afterNeg };
         ck.t('N2', '★ **负控 ②**：把台账 INSERT 的取值条件中和（`WHERE $11::boolean` → `WHERE false`）⇒ 管理员仍 `updated` 但**台账行数不增** ⇒ **C2 的「恰 1 行」断言必红**（审计插入非摆设）',
@@ -574,7 +586,7 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
     try {
       const top = await raw1<{ version: string }>(client as never, 'SELECT version FROM schema_migration ORDER BY version DESC LIMIT 1');
       const pending = await raw<{ version: string }>(client as never,
-        `SELECT v AS version FROM (VALUES ('0059'), ('0060')) AS t(v) WHERE v > $1::text ORDER BY v`, [top?.version ?? '']);
+        `SELECT v AS version FROM (VALUES ('0059'), ('0060'), ('0061')) AS t(v) WHERE v > $1::text ORDER BY v`, [top?.version ?? '']);
       const exists = await raw1<{ n: number }>(client as never,
         "SELECT count(*)::int AS n FROM information_schema.tables WHERE table_schema='public' AND table_name='listing_edit_log'");
       const counts = await raw1<Record<string, string>>(client as never,
@@ -588,12 +600,15 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
       pre.pending = pending.map((p) => p.version);
       pre.edit_log_exists = Number(exists?.n ?? 0) === 1;
       pre.listing_counts = counts;
-      ck.t('P1', `preflight（只读·**不 apply**）：迁移**文件链顶** = ${migTop}（0060 商品统一 Id；0059 admin-edit 在其前）· \`schema_migration\` 已应用顶 = **${pre.max_applied}**（0060 未 apply ⇒ 仍 0059；apply 后本门读数自然翻 0060）· PENDING(≥0059) = [${(pre.pending as string[]).join(',')}]`,
-        migTop === '0060'
-          && (pre.pending as string[]).every((v) => v === '0059' || v === '0060')
-          && (pre.max_applied !== '0059' || JSON.stringify(pre.pending) === JSON.stringify(['0060']))
-          && (pre.max_applied === '0058' || pre.max_applied === '0059'),
-        JSON.stringify({ project: 'seafood', chain_top: migTop, max: pre.max_applied, pending: pre.pending }));
+      // 判据 = 「PENDING 恰为链上尚未 apply 的**后缀**」——dev 现态已全 apply（max=0061 ⇒ pending=[]）
+      // 同样成立（post-apply 模式）；旧冻结「max=0059 ⇒ pending=[0060]」只是该不变式的一个时点特例。
+      const maxApplied = String(pre.max_applied ?? '');
+      const expectPending = (['0059', '0060', '0061'] as string[]).filter((v) => v > maxApplied);
+      ck.t('P1', `preflight（只读·**不 apply**）：迁移**文件链顶** = ${migTop}（0059 admin-edit → 0060 商品统一 Id → 0061 多件购买授权列）· \`schema_migration\` 已应用顶 = **${maxApplied}** · PENDING(≥0059) = [${(pre.pending as string[]).join(',')}]（判据 = 链上尚未 apply 的后缀；dev 已全 apply ⇒ [] 同算过 = post-apply 模式）`,
+        migTop === '0061'
+          && ['0058', '0059', '0060', '0061'].includes(maxApplied)
+          && JSON.stringify(pre.pending) === JSON.stringify(expectPending),
+        JSON.stringify({ project: 'seafood', chain_top: migTop, max: maxApplied, pending: pre.pending, expect_pending: expectPending }));
       ck.t('P2', `preflight：\`listing_edit_log\` 存在 = ${pre.edit_log_exists}（false ⇒ 真库探针在事务内建表；true ⇒ 走已建表）· 存量 listing ${counts?.total} 行（draft ${counts?.draft} / listed ${counts?.listed} / delisted ${counts?.delisted}）`,
         Number(counts?.total ?? -1) > 0, JSON.stringify(pre));
     } finally {

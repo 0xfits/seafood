@@ -2867,6 +2867,10 @@ app.post('/api/listing', async (req, res) => {
       //   （数字商品 / 未分类带值 ⇒ 400 `ITEM_CONDITION_NOT_APPLICABLE`，服务层 applicability 闸；
       //   非法值同 item_type 体例 400 `NOT_IN_CLOSED_SET`）。两闸都在 currencyGate 之前 ⇒ 零 DB 调用。
       itemCondition: body.item_condition,
+      // ★ 迁移 0061 多件购买授权（route §49.17.2）：可选严格布尔；未传 ⇒ 落 `false`。
+      //   形状闸 / 归一 / 400 全在服务层（`normalizeAllowMultiBuy` + `multiBuyApplicabilityError`），
+      //   本层**不校验、不默认**（同 price/stock 体例：客户端值原样交服务层）。
+      allowMultiBuy: body.allow_multi_buy,
       createKeyRaw: body.create_key,
     });
     if (!result.ok) return sendVerbError(res, result);
@@ -2947,6 +2951,9 @@ app.patch('/api/listing/:listingId', async (req, res) => {
           //   带值 = 改成色（仅实物两分类允许非空 —— 同 patch 提交类型时纯预检零 DB，只提成色时
           //   交 DB 侧 `condition_not_applicable` 守卫臂）。
           itemCondition: body.item_condition,
+          // ★ 迁移 0061 多件购买授权（第 7 可改字段 · route §49.17.3）：`undefined` = 不动 /
+          //   `true`|`false` = 落值（严格布尔，串/数字/`null` ⇒ 400 NOT_A_BOOLEAN，零 DB）。
+          allowMultiBuy: body.allow_multi_buy,
         },
         // ★ 0059（Kevin 2026-10-20）：管理员（`can_access_admin ∧ (is_admin ∨ manage_rewards)`）
         //   可编辑**他人**商品 —— 只注入 token 侧派生值，客户端不得声明；本人编辑行为逐字不变。

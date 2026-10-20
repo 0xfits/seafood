@@ -20,7 +20,7 @@
  *       行数不变 · 触发器恢复启用 · **尾部重跑一次仍绿**（幂等）；
  *   N · 负控（同 tx · SAVEPOINT 包住预期失败）：纯数字码 ⇒ 23514 · 缺码（NULL）⇒ 23502 ·
  *       6 位码 ⇒ 23514 · 撞码 ⇒ 23505（唯一索引真在场）；三个负控都过 ⇒ 判据非恒绿；
- *   C · 读口键数（同 tx）：feed **50** · 详情路由合成 **52**（服务层 51）· mine **13** · edit **13**；
+ *   C · 读口键数（同 tx）：feed **50** · 详情路由合成 **53**（服务层 52，0061 +allow_multi_buy）· mine **14** · edit **14**；
  *   D · 行为（同 tx）：`createListingRow` 两键落库（码合法非纯数字、雪花递增）·
  *       `getListingIdByItemCode` 往返命中 / 未知码 null · 码解析出的 id 与数字 id **读同一行**（逐键等价）；
  *   E · 冲突重试臂（离线 · 桩替 DB，逐字还原）：连续两次 23505 ⇒ **第 3 次成功**且两次候选码不同 ·
@@ -421,13 +421,13 @@ const tx = async <T>(
       sellerUid, cid: 1, price: 100, stock: 3,
       description: `p60-gate fixture A · 详情/链接用码 · RUN=${RUN}`,
       mediaUrls: [], itemType: 'PhysicalFreeShip', itemCondition: 'LikeNew',
-      createKey: `${FIXTURE_KEY_PREFIX}${RUN}-a`, ...a,
+      createKey: `${FIXTURE_KEY_PREFIX}${RUN}-a`, ...a, allowMultiBuy: false,
     }, ex);
     const mkB = await DatabaseService.createListingRow({
       sellerUid, cid: 1, price: 60, stock: 2,
       description: `p60-gate fixture B · RUN=${RUN}`,
       mediaUrls: [], itemType: 'DigitalAutoDeliver', itemCondition: null,
-      createKey: `${FIXTURE_KEY_PREFIX}${RUN}-b`, ...b,
+      createKey: `${FIXTURE_KEY_PREFIX}${RUN}-b`, ...b, allowMultiBuy: false,
     }, ex);
     const idA = Number((mkA.row as Record<string, unknown>)?.listing_id ?? 0);
     const idB = Number((mkB.row as Record<string, unknown>)?.listing_id ?? 0);
@@ -455,7 +455,7 @@ const tx = async <T>(
 
     const mine = await DatabaseService.listListingsBySeller(sellerUid, 0, 100, ex);
     const mineA = mine.find((r) => r.listing_id === idA);
-    const mineBad = mine.filter((r) => Object.keys(r).length !== 13 || !('item_code' in r) || !('snowflake_id' in r));
+    const mineBad = mine.filter((r) => Object.keys(r).length !== 14 || !('item_code' in r) || !('snowflake_id' in r) || !('allow_multi_buy' in r));
 
     const edit = await DatabaseService.getListingEditRow(idA, ex);
     const editKeys = edit ? Object.keys(edit.row) : [];
@@ -499,20 +499,20 @@ const tx = async <T>(
     && R.resolvedUnknown === null && R.resolvedShort === null,
     JSON.stringify({ a: R.resolvedA, idA: R.idA, unknown: R.resolvedUnknown, short: R.resolvedShort }));
 
-  ck.t('C3', '**`GET /api/prize/<code>` ≡ `GET /api/prize/<数字 id>`**（路由层把码解析成 `listing_id` 后走同一读口 ⇒ 两次读的服务层行**除 `views` 外逐键逐值相同**，且 `views` 恰 +1 —— 证明确实读到同一行、且自增语义未被入参形态改变）· 行内 `item_code` = 该码 · 详情服务层 **51 键** / 路由合成（+seller）**52 键**',
+  ck.t('C3', '**`GET /api/prize/<code>` ≡ `GET /api/prize/<数字 id>`**（路由层把码解析成 `listing_id` 后走同一读口 ⇒ 两次读的服务层行**除 `views` 外逐键逐值相同**，且 `views` 恰 +1 —— 证明确实读到同一行、且自增语义未被入参形态改变）· 行内 `item_code` = 该码 · 详情服务层 **52 键**（0061 +allow_multi_buy）/ 路由合成（+seller）**53 键**',
     R.sameRow === true && R.viewsStep === 1 && R.detailHasCode === true && String(R.detailCode) === String(R.codeA)
-    && dKeys.length === 51 && dKeys.includes('item_code') && dKeys.includes('snowflake_id')
-    && R.routeShapeKeys === 52,
+    && dKeys.length === 52 && dKeys.includes('item_code') && dKeys.includes('snowflake_id') && dKeys.includes('allow_multi_buy')
+    && R.routeShapeKeys === 53,
     JSON.stringify({ same_row: R.sameRow, views_step: R.viewsStep, detail_keys: dKeys.length, route_shape: R.routeShapeKeys, detail_code: R.detailCode, code: R.codeA }));
 
   ck.t('C4', '**feed 行键 50**（48 + item_code + snowflake_id）：全部行恰 50 键、两键恒在场、码全部合法且非纯数字（存量回填行同样成立）',
     Number(R.feedRows) > 0 && Number(R.feedBad) === 0 && fKeys.length === 50,
     JSON.stringify({ rows: R.feedRows, bad: R.feedBad, keys: fKeys.length }));
 
-  ck.t('C5', '**mine 行键 13**（11 + item_code + snowflake_id）：全部行恰 13 键且两键在场 · **edit 读口同族 13 键**（编辑页一套预填）',
-    Number(R.mineTotal) > 0 && Number(R.mineBad) === 0 && R.mineAKeys === 13
-    && (R.editKeys as string[]).length === 13
-    && JSON.stringify((R.editKeys as string[]).slice().sort()) === JSON.stringify((['cid', 'condition', 'description', 'item_code', 'item_type', 'listing_id', 'media_urls', 'price', 'snowflake_id', 'status', 'stock', 'time_created', 'title'])),
+  ck.t('C5', '**mine 行键 14**（11 + item_code + snowflake_id + allow_multi_buy）：全部行恰 14 键且三键在场 · **edit 读口同族 14 键**（编辑页一套预填）',
+    Number(R.mineTotal) > 0 && Number(R.mineBad) === 0 && R.mineAKeys === 14
+    && (R.editKeys as string[]).length === 14
+    && JSON.stringify((R.editKeys as string[]).slice().sort()) === JSON.stringify((['allow_multi_buy', 'cid', 'condition', 'description', 'item_code', 'item_type', 'listing_id', 'media_urls', 'price', 'snowflake_id', 'status', 'stock', 'time_created', 'title'])),
     JSON.stringify({ mine_total: R.mineTotal, mine_bad: R.mineBad, mine_keys: R.mineAKeys, edit_keys: (R.editKeys as string[]).length }));
 
   // ====================================================================== E · 冲突重试臂（离线 · 桩替 DB）

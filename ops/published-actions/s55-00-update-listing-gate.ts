@@ -36,6 +36,8 @@ import {
   ITEM_TYPES,
 } from '../../backend-ts/src/listing-service';
 import { LEDGER_ERROR_CODES } from '../../backend-ts/src/ledger-errors';
+// ★ 0060 两列为 NOT NULL 无默认 ⇒ 本门 listing 夹具 INSERT 必须自带标识两键（p57 N1/N2 同体例）
+import { codeFromSnowflake, nextSnowflake } from '../../backend-ts/src/item-id';
 
 type ErrLike = { ok: boolean; status?: number; code?: string; details?: Record<string, unknown> };
 const got = (r: ErrLike): string => (r.ok ? 'ok' : `${r.status}/${r.code}/${String(r.details?.reason ?? '')}`);
@@ -137,10 +139,10 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
       && /await transitionListingStatus\(\{/.test(patchBlock),
     `patch_block_bytes=${patchBlock.length}`);
 
-  ck.t('A4', '服务层导出齐备：`updateListingDetails` / `classifyListingPatchBody` / `LISTING_EDIT_FIELDS`（**6 字段，无 title**；0057 批前推 +`item_condition`，原 5 字面量见 git 历史）/ `LISTING_RETIRED_FIELDS=[title]` / media ≤4',
+  ck.t('A4', '服务层导出齐备：`updateListingDetails` / `classifyListingPatchBody` / `LISTING_EDIT_FIELDS`（**7 字段，无 title**；0057 批前推 +`item_condition`、0061 批前推 +`allow_multi_buy`，原 5/6 字面量见 git 历史）/ `LISTING_RETIRED_FIELDS=[title]` / media ≤4',
     typeof updateListingDetails === 'function'
       && typeof classifyListingPatchBody === 'function'
-      && JSON.stringify([...LISTING_EDIT_FIELDS]) === JSON.stringify(['description', 'price', 'stock', 'media_urls', 'item_type', 'item_condition'])
+      && JSON.stringify([...LISTING_EDIT_FIELDS]) === JSON.stringify(['description', 'price', 'stock', 'media_urls', 'item_type', 'item_condition', 'allow_multi_buy'])
       && JSON.stringify([...LISTING_RETIRED_FIELDS]) === JSON.stringify(['title'])
       && MAX_LISTING_MEDIA_ITEMS === 4,
     JSON.stringify({ fields: LISTING_EDIT_FIELDS, retired: LISTING_RETIRED_FIELDS, media_max: MAX_LISTING_MEDIA_ITEMS }));
@@ -203,10 +205,10 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
     migGit = `GIT_ERR:${String((e as Error).message).slice(0, 60)}`;
   }
   const migGitLines = migGit.split('\n').map((l) => l.trim()).filter(Boolean);
-  ck.t('A11', `**本单零迁移 / 零 DDL**：迁移文件链顶 = ${maxMig}（= 0059 admin-edit 单，同树**已落盘、未提交、未 apply**）· 本单不新增/不改任何迁移文件 ⇒ migrations/ 的 git 变更仅该 1 条 \`??\``,
-    maxMig === '0059'
-      && migGitLines.length === 1
-      && /^\?\?\s+backend-ts\/migrations\/0059_listing_edit_log\.sql$/.test(migGitLines[0]),
+  ck.t('A11', `**本单零迁移 / 零 DDL**：迁移文件链顶 = ${maxMig}（同树多单并进：0059 admin-edit → 0060 商品统一 Id → 0061 多件购买授权列）· 本单不新增/不改任何迁移文件 ⇒ migrations/ 的 git 变更全部为 \`??\` 未跟踪新文件（零 M / 零 D）`,
+    maxMig === '0061'
+      && migGitLines.length >= 1
+      && migGitLines.every((l) => l.startsWith('?? backend-ts/migrations/')),
     `max=${maxMig} files=${migFiles.length} git=${JSON.stringify(migGitLines)}`);
 
   // ======================================================== B · verb 分类闸（纯函数）
@@ -502,12 +504,14 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
           f6.ok ? 'ok?' : JSON.stringify({ status: f6.status, code: f6.code, reason: f6.details.reason }));
 
         // F7 · frozen ⇒ 409（INSERT 夹具；BEFORE UPDATE 触发器不拦 INSERT；事务末 ROLLBACK）
+        const sfFrozen = nextSnowflake();
         const frozenRow = await raw1<Record<string, unknown>>(c, `
           -- ★ title 列已于迁移 0056 DROP ⇒ 夹具不再写该列（标题 = split_part(description, …) 派生）
-          INSERT INTO public.listing (seller_uid, cid, price, stock, description, media_urls, item_type, status, create_key)
-          SELECT seller_uid, cid, 1000, 1, 'S55 门夹具 frozen', '{}'::text[], NULL, 'frozen', $1::text
+          -- ★ 0060 两列为 NOT NULL 无默认 ⇒ 夹具自带全新标识两键（UNIQUE ⇒ 不可复制源行值）
+          INSERT INTO public.listing (seller_uid, cid, price, stock, description, media_urls, item_type, status, create_key, snowflake_id, item_code)
+          SELECT seller_uid, cid, 1000, 1, 'S55 门夹具 frozen', '{}'::text[], NULL, 'frozen', $1::text, $3::bigint, $4::char(7)
           FROM public.listing WHERE listing_id = $2::bigint
-          RETURNING listing_id, seller_uid::text AS seller_uid`, [`cli:s55:gate:${RUN}:frozen`, draftId]);
+          RETURNING listing_id, seller_uid::text AS seller_uid`, [`cli:s55:gate:${RUN}:frozen`, draftId, sfFrozen.toString(), codeFromSnowflake(sfFrozen)]);
         const f7 = frozenRow
           ? await updateListingDetails({ listingId: Number(frozenRow.listing_id), actorUid: Number(frozenRow.seller_uid), patch: { price: 5 } })
           : null;
@@ -562,9 +566,9 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
         const mineKeys = mineRows.length ? Object.keys(mineRows[0]).sort() : [];
         const f12 = await updateListingDetails({ listingId: draftId, actorUid: owner, patch: { title: '不该被写进去的标题', price: 12 } });
         const a12 = await readBack(draftId);
-        ck.t('F12', '读口行键 **10 → 11**（S55 description/item_type + P57 condition）且与编辑回执 `view` **逐键同集**；★ `title` ⇒ 400 且库内 title/price **零改动**',
-          mineKeys.length === 11
-            && JSON.stringify(mineKeys) === JSON.stringify(['cid', 'condition', 'description', 'item_type', 'listing_id', 'media_urls', 'price', 'status', 'stock', 'time_created', 'title'])
+        ck.t('F12', '读口行键 **11 → 14**（S55 description/item_type + P57 condition + 0060 item_code/snowflake_id + 0061 allow_multi_buy）且与编辑回执 `view` **逐键同集**；★ `title` ⇒ 400 且库内 title/price **零改动**',
+          mineKeys.length === 14
+            && JSON.stringify(mineKeys) === JSON.stringify(['allow_multi_buy', 'cid', 'condition', 'description', 'item_code', 'item_type', 'listing_id', 'media_urls', 'price', 'snowflake_id', 'status', 'stock', 'time_created', 'title'])
             && JSON.stringify(viewKeys) === JSON.stringify(mineKeys)
             && !f12.ok && f12.status === 400 && f12.details.reason === 'NOT_SUPPORTED'
             && Number(a12?.price) === 11 && String(a12?.title ?? '') === String(draft.title ?? ''),
@@ -574,14 +578,15 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
         const runSql = async (sql: string, params: unknown[]) => raw1<Record<string, unknown>>(c, sql, params);
         // ★ P57：UPDATE_LISTING_DETAILS_SQL 参数位 8 → 10（$9 item_condition · $10 item_condition_set）
         // ★ 0059：参数位 10 → 11（$11 admin_edit 管理员放行位；本门一律 false ⇒ 归属闸行为与 0058 逐字相同）
-        const strangerParams = [draftId, stranger, null, null, null, null, null, false, null, false, false];
+        // ★ 0061：参数位 11 → 12（$12 allow_multi_buy；null = 未传 ⇒ 语句走 W5 归一）
+        const strangerParams = [draftId, stranger, null, null, null, null, null, false, null, false, false, null];
         const negOwnerReal = await runSql(SQL_TEXT, strangerParams);
         const negNoOwner = await runSql(dropSqlLine(SQL_TEXT, NOT_OWNER_CLAUSE), strangerParams);
         r.N1 = { real: negOwnerReal?.outcome, mutated: negNoOwner?.outcome };
         ck.t('N1', '★ **负控 1**：把归属闸（`seller_uid <> $2 ⇒ not_owner`）从 SQL 摘掉 ⇒ 非本人得 `updated`（不是 `not_owner`）⇒ **F5/D1 断言必红**（归属判据非恒绿）',
           negOwnerReal?.outcome === 'not_owner' && negNoOwner?.outcome === 'updated', JSON.stringify(r.N1));
 
-        const delistedParams = [Number(delisted.listing_id), Number(delisted.seller_uid), null, 5, null, null, null, false, null, false, false];
+        const delistedParams = [Number(delisted.listing_id), Number(delisted.seller_uid), null, 5, null, null, null, false, null, false, false, null];
         const negStatusReal = await runSql(SQL_TEXT, delistedParams);
         const negNoStatus = await runSql(dropSqlLine(SQL_TEXT, STATUS_CLAUSE), delistedParams);
         r.N2 = { real: negStatusReal?.outcome, mutated: negNoStatus?.outcome, delisted_id: delisted.listing_id };
@@ -622,7 +627,7 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
       const who = await raw1<{ project: string }>(client, "SELECT current_setting('neon.project_id', true) AS project");
       const top = await raw1<{ version: string }>(client, 'SELECT version FROM schema_migration ORDER BY version DESC LIMIT 1');
       const pend = await raw<{ version: string }>(client,
-        `SELECT v AS version FROM (VALUES ('0050'),('0051'),('0052'),('0053'),('0054'),('0055'),('0056'),('0057'),('0058'),('0059')) AS t(v)
+        `SELECT v AS version FROM (VALUES ('0050'),('0051'),('0052'),('0053'),('0054'),('0055'),('0056'),('0057'),('0058'),('0059'),('0060'),('0061')) AS t(v)
          WHERE v > $1::text ORDER BY v`, [top?.version ?? '']);
       const pending: string[] = pend.map((p) => p.version);
       // ★ 0059：迁移**文件链**顶（不 apply ⇒ 只读文件名，不写版本表）
@@ -649,8 +654,10 @@ const stubRow = (over: Record<string, unknown> = {}) => ({
       pre.columns = cols;
       pre.constraints = cons.map((x) => x.conname);
       pre.counts = counts;
-      ck.t('P1', `preflight 版本面（只读·不 apply）：迁移**文件链顶** = ${migTop}（0059 admin-edit，**未 apply**）· 已应用最大 = **${pre.max_applied}**（0059 未落库 ⇒ 仍 0058）· PENDING = [${pending.join(',')}]`,
-        migTop === '0059' && String(pre.max_applied) === '0058' && pending.length === 1 && pending[0] === '0059',
+      ck.t('P1', `preflight 版本面（只读·不 apply）：迁移**文件链顶** = ${migTop}（同树 0059 admin-edit → 0060 商品统一 Id → 0061 多件购买授权列）· 已应用最大 = **${pre.max_applied}** · PENDING = [${pending.join(',')}]（判据 = 链上尚未 apply 的**后缀**；dev 已全 apply ⇒ [] 同算过 = post-apply 模式）`,
+        migTop === '0061'
+          && ['0058', '0059', '0060', '0061'].includes(String(pre.max_applied))
+          && JSON.stringify(pending) === JSON.stringify((['0059', '0060', '0061'] as string[]).filter((v) => v > String(pre.max_applied))),
         JSON.stringify({ project: pre.project, chain_top: migTop, max: pre.max_applied, pending }));
       ck.t('P2', 'preflight 列面：`price` bigint / `stock` integer / `description` text NOT NULL / `item_type` text **可空**；`title` 列**已 DROP**（迁移 0056，标题 = `split_part(description, …)` 派生 ⇒ 本门对 title 的断言只看派生值）',
         cols.length === 4

@@ -201,6 +201,68 @@ export const itemConditionApplicabilityError = (
         'Request shape is invalid',
       );
 
+// ---- 多件购买授权（迁移 0061 · route §49.17.2/§49.17.3 · data §40.13.2）----------
+/**
+ * `allow_multi_buy` **入参形状闸**（W6 · 严格布尔）。
+ *
+ * 只收 JSON `true` / `false`；`undefined` = **未传**（⇒ `value = null`，交给归一规则）。
+ * **字符串 `'true'` / `'1'` / `'0'`、数字 `1` / `0`、`null`（显式传值）一律 400**
+ * `LEDGER_AMOUNT_INVALID` + `details:{field:'listing.allow_multi_buy', reason:'NOT_A_BOOLEAN'}`
+ * （零新错误码 —— 33 码闭集不动）。
+ * ★ 为什么连 `'false'` 串也拒：JS 里 `Boolean('false') === true` ⇒ 收串 = 前端一个笔误就把
+ *   「关」落成「开」，而这个开关直接放大成交件数（data §40.13.3）。
+ */
+export const normalizeAllowMultiBuy = (
+  raw: unknown,
+): { ok: true; value: boolean | null } | { ok: false; err: VerbErr } => {
+  if (raw === undefined) return { ok: true, value: null };
+  if (typeof raw !== 'boolean') {
+    return {
+      ok: false,
+      err: fail(
+        400,
+        'LEDGER_AMOUNT_INVALID',
+        {
+          field: 'listing.allow_multi_buy',
+          reason: 'NOT_A_BOOLEAN',
+          provided_type: raw === null ? 'null' : typeof raw,
+          provided: typeof raw === 'string' ? raw.slice(0, 16) : undefined,
+        },
+        'Request shape is invalid',
+      ),
+    };
+  }
+  return { ok: true, value: raw };
+};
+
+/**
+ * 归一 / 400 的**唯一不变式**（W3 / W7 · data §40.13.2 #3）：显式 `true` ∧ 生效 `stock <= 1`
+ * ⇒ 400 `MULTI_BUY_NOT_APPLICABLE`（借码 `LEDGER_AMOUNT_INVALID`，`details.stock` 带生效值）。
+ * ★ 库面**不设**该跨列约束（`stock` 随购买递减 ⇒ 写进 CHECK 会打断正常购买）；故这是唯一闸。
+ * ★ 与「未传 ⇒ 归一 false」（W1 / W5）**不得混成同一个行为**（MB-N2）：
+ *   · 显式 `true` + `stock ≤ 1` ⇒ **400**（调用方以为开了、实际关了 = 最难的账实不符）；
+ *   · 未传 + 生效 `stock ≤ 1` ⇒ **归一 false**（合法编辑，不 400）。
+ */
+export const multiBuyApplicabilityError = (
+  allowMultiBuy: boolean | null,
+  effectiveStock: number,
+  listingId?: number,
+): VerbErr | null =>
+  allowMultiBuy === true && effectiveStock <= 1
+    ? fail(
+        400,
+        'LEDGER_AMOUNT_INVALID',
+        {
+          field: 'listing.allow_multi_buy',
+          reason: 'MULTI_BUY_NOT_APPLICABLE',
+          stock: effectiveStock,
+          min_stock: 2,
+          ...(listingId === undefined ? {} : { listing_id: String(listingId) }),
+        },
+        'Request shape is invalid',
+      )
+    : null;
+
 // ---- 派生标题（`listing.title` 退场后的唯一口径）------------------------------
 // ★★ 2026-10-20 Kevin 数据模型指令：**取消商品标题字段，正文并入 `description`**
 //   · 标题 = 描述首个 `\n` 之前（`split_part(description, E'\n', 1)`）；
@@ -315,6 +377,16 @@ export const createListing = async (params: {
    *  **仅实物两分类允许非空**（数字两分类 / 未分类带值 ⇒ 400 `ITEM_CONDITION_NOT_APPLICABLE`，
    *  闸在 currencyGate 之前 ⇒ 零 DB 调用）。不进幂等指纹（与 `item_type` 同口径，见下方注释）。 */
   itemCondition?: unknown;
+  /**
+   * ★ 迁移 0061 多件购买授权（route §49.17.2）：可选布尔。
+   *   · 未传 ⇒ 落 `false`（W1）；
+   *   · `true` ∧ 生效 `stock >= 2` ⇒ 落 `true`（W2）；
+   *   · `true` ∧ 生效 `stock <= 1` ⇒ **400 `MULTI_BUY_NOT_APPLICABLE`**（W3，零 DB）；
+   *   · `false` ⇒ 落 `false`（W4）；
+   *   · `'true'` / `1` / `'1'` / `null` ⇒ **400 `NOT_A_BOOLEAN`**（W6，零 DB）。
+   * 不进幂等指纹（同键重投 ⇒ 200 replay 回库内真值，route §49.17.2 / MB-N4）。
+   */
+  allowMultiBuy?: unknown;
   createKeyRaw?: unknown;
 }): Promise<VerbResult> => {
   const uidErr = reservedUidGate(Number(params.sellerUid), 'listing.seller_uid');
@@ -325,7 +397,7 @@ export const createListing = async (params: {
     return listingShapeError('listing.title', 'NOT_SUPPORTED', {
       retired_fields: [...LISTING_RETIRED_FIELDS],
       reason_detail: 'listing.title retired: put the title on the first line of description',
-      editable_when_creating: ['description', 'price', 'stock', 'media_urls', 'item_type', 'item_condition'],
+      editable_when_creating: ['description', 'price', 'stock', 'media_urls', 'item_type', 'item_condition', 'allow_multi_buy'],
     });
   }
 
@@ -355,6 +427,15 @@ export const createListing = async (params: {
   if (!itemCondition.ok) return itemCondition.err;
   const conditionAppErr = itemConditionApplicabilityError(itemType.value, itemCondition.value);
   if (conditionAppErr) return conditionAppErr;
+
+  // ★ 迁移 0061 多件购买授权（route §49.17.2 校验序 ②③④）：布尔形状闸 ⇒ 生效 stock（= 请求 stock，
+  //   创建场景无行内现值）⇒ 归一 / 400。三闸都在 currencyGate 与任何 DB 调用之前。
+  const allowMultiBuy = normalizeAllowMultiBuy(params.allowMultiBuy);
+  if (!allowMultiBuy.ok) return allowMultiBuy.err;
+  const multiBuyErr = multiBuyApplicabilityError(allowMultiBuy.value, stock.value);
+  if (multiBuyErr) return multiBuyErr;
+  // 未传 ⇒ false（W1）；显式 false ⇒ false（W4）；仅显式 true ∧ stock ≥ 2 才为 true（W2）
+  const allowMultiBuyValue = allowMultiBuy.value === true;
 
   // ★ 派生键去 `title`（6 段 → 5 段）：同键重投的键不再随标题变化（标题已并入 description）
   const resolvedKey = resolveListingCreateKey(params.createKeyRaw, ['create', params.sellerUid, cid.value, price.value, stock.value]);
@@ -386,6 +467,7 @@ export const createListing = async (params: {
         createKey: resolvedKey.key,
         snowflakeId: snowflake.toString(),
         itemCode: codeFromSnowflake(snowflake),
+        allowMultiBuy: allowMultiBuyValue,
       });
       break;
     } catch (error) {
@@ -536,13 +618,18 @@ export const transitionListingStatus = async (params: {
 //     · **零新路由**（扩既有 `PATCH /api/listing/:listingId`）· **零迁移** · **零新错误码** ·
 //       **零 ledger 写**（改价不涉资金 ⇒ 无分录、无幂等键；本文件仍不 import `./ledger`）。
 //     · **可编辑态 = `draft` | `listed`**（`delisted` 终态 / `frozen` 冻结 = 只读 ⇒ 409）；
-//     · **可改字段 = `description / price / stock / media_urls / item_type`**（`title` ⇒ 400 NOT_SUPPORTED）；
+//     · **可改字段 = `description / price / stock / media_urls / item_type / item_condition / allow_multi_buy`**
+//       （7 项 · `title` ⇒ 400 NOT_SUPPORTED；`item_code` / `snowflake_id` 不在集内）；
 //     · **归属闸在 SQL 内**（`updateListingDetailsRow` 的 `not_owner`）⇒ 服务层只做码映射 ↦ 403，
 //       与 `transitionListingStatus` 逐字同形（`AUTH_FORBIDDEN` + `reason=ACTOR_NOT_ALLOWED`）。
 // ============================================================================
 
-/** 可编辑字段闭集（`PATCH /api/listing/:listingId` 字段支；顺序即错误 `field_keys` 的列出顺序） */
-export const LISTING_EDIT_FIELDS = ['description', 'price', 'stock', 'media_urls', 'item_type', 'item_condition'] as const;
+/**
+ * 可编辑字段闭集（`PATCH /api/listing/:listingId` 字段支；顺序即错误 `field_keys` 的列出顺序）
+ * ★ 迁移 0061：第 7 项 `allow_multi_buy`（多件购买授权；与创建面 `editable_when_creating` 7 项同批）。
+ *   `item_code` / `snowflake_id` **永不进本集**（对外标识两列 = 服务层生成，客户端不可写）。
+ */
+export const LISTING_EDIT_FIELDS = ['description', 'price', 'stock', 'media_urls', 'item_type', 'item_condition', 'allow_multi_buy'] as const;
 export type ListingEditField = (typeof LISTING_EDIT_FIELDS)[number];
 
 /**
@@ -642,9 +729,12 @@ export type UpdateListingDetailsResult =
  *   · `media_urls`：字符串数组（`toOptionalUrls` 同口径）→ 元素 `trim` 后须匹配 `/api/media/<id>`、
  *     张数 ≤4；`[]` = 清空
  *   · `item_type`：四值闭集 或 `null`（`normalizeItemType`；裸 `Digital` = 退役 ⇒ 400）
+ *   · `allow_multi_buy`（★ 迁移 0061 · 第 7 可改字段）：**严格布尔**（`'true'` / `1` / `'1'` / `null` ⇒ 400
+ *     `NOT_A_BOOLEAN`）；显式 `true` ∧ 生效 `stock ≤ 1` ⇒ 400 `MULTI_BUY_NOT_APPLICABLE`（同 patch 带
+ *     `stock` ⇒ 纯预检零 DB；不带 ⇒ DB 守卫臂读行内现值）；未传 ∧ 改后 `stock ≤ 1` ⇒ 归一 `false`（不 400）
  *
  * 译文：**只有 `description` 实际变化**才置 `text_changed=true`（调用方据此重置翻译回 `pending`）；
- *   改价 / 库存 / 图片 / 分类**不触翻译**（`media_urls` 不进译文源白名单）。
+ *   改价 / 库存 / 图片 / 分类 / 多件授权**不触翻译**（`media_urls` 不进译文源白名单）。
  */
 export const updateListingDetails = async (params: {
   listingId: number;
@@ -661,6 +751,11 @@ export const updateListingDetails = async (params: {
      *  带值 = 改成色（**仅实物两分类允许非空** —— 与 item_type 同 patch 提交时纯预检零 DB；
      *  只提成色时有效 item_type 要读行 ⇒ 交 DB 侧守卫臂 `condition_not_applicable`）。 */
     itemCondition?: unknown;
+    /** ★ 迁移 0061 多件购买授权（route §49.17.3）：`undefined` = 不动；
+     *  `true`/`false` = 落值（严格布尔，`'true'`/`1`/`null` ⇒ 400 `NOT_A_BOOLEAN`，零 DB）；
+     *  `true` ∧ 生效 `stock ≤ 1` ⇒ **400 `MULTI_BUY_NOT_APPLICABLE`**（同 patch 带 `stock` ⇒ 纯预检零 DB；
+     *  不带 `stock` ⇒ 交 SQL 守卫臂 `multi_buy_not_applicable` 读行内现值）。 */
+    allowMultiBuy?: unknown;
   };
   /**
    * ★ 0059：token 侧管理员旗标（路由层注入 `actor.adminAccess`；客户端声明的任何
@@ -743,7 +838,19 @@ export const updateListingDetails = async (params: {
     if (appErr) return appErr;
   }
 
-  if (description === null && price === null && stock === null && mediaUrls === null && !itemTypeSet && !conditionSet) {
+  // ★ 迁移 0061 多件购买授权（第 7 可改字段）：形状闸（严格布尔）⇒ 生效 stock 适用性。
+  //   · `undefined` = 不动（但 SQL 仍按 W5 归一：改后 stock ≤ 1 ⇒ 落 false，**不 400**）；
+  //   · 同 patch 带 `stock` ⇒ 生效 stock 已在手 ⇒ **纯预检零 DB**（W3 最易漏的一臂：`true` + `stock:1`）；
+  //   · 只传 `allow_multi_buy: true` ⇒ 生效 stock = 行内现值 ⇒ 交 SQL 守卫臂（W7，读行后才判）。
+  const allowMultiBuy = normalizeAllowMultiBuy(patch.allowMultiBuy);
+  if (!allowMultiBuy.ok) return allowMultiBuy.err;
+  if (stock !== null) {
+    const multiBuyErr = multiBuyApplicabilityError(allowMultiBuy.value, stock, listingId.value);
+    if (multiBuyErr) return multiBuyErr;
+  }
+
+  if (description === null && price === null && stock === null && mediaUrls === null && !itemTypeSet && !conditionSet
+    && allowMultiBuy.value === null) {
     return shapeError('listing', 'NO_EDITABLE_FIELD', { editable_fields: [...LISTING_EDIT_FIELDS] });
   }
 
@@ -758,6 +865,8 @@ export const updateListingDetails = async (params: {
     itemTypeSet,
     itemCondition: itemCondition.value,
     conditionSet,
+    // ★ 迁移 0061：`null` = 未传该键（语句按 W5 归一）
+    allowMultiBuy: allowMultiBuy.value,
     // ★ 0059：管理员代编放行位（本人编辑不受影响；非管理员 ⇒ false ⇒ 归属闸照旧 403）
     adminAccess: params.adminAccess ?? null,
   });
@@ -789,6 +898,16 @@ export const updateListingDetails = async (params: {
         item_type: effectiveType,
         requires_item_type: [...PHYSICAL_ITEM_TYPES],
       }, 'Request shape is invalid');
+    }
+    case 'multi_buy_not_applicable': {
+      // ★ 迁移 0061（W7 · route §49.17.3）：只传 `allow_multi_buy: true`、行内生效 stock ≤ 1 ⇒ 400。
+      //   与创建面 / 同 patch 带 stock 的纯预检**同一形状**（`multiBuyApplicabilityError` 单一真源），
+      //   生效 stock 取行快照值（write.row.stock）。
+      return multiBuyApplicabilityError(true, Number(write.row.stock), listingId.value)
+        ?? stateConflict('listing.allow_multi_buy', 'MULTI_BUY_NOT_APPLICABLE', {
+          listing_id: String(listingId.value),
+          stock: write.row.stock,
+        });
     }
     default:
       break;

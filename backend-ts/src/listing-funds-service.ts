@@ -23,8 +23,9 @@
 //     也**被丢弃**）⇒ 代他人付款在结构上不可能。
 //   · **kind 白名单零自由度**（DL85【已冻结】）：buy ⇒ 只 `purchase`/`sale`；refund ⇒ 只 `purchase_refund`。
 //     DB 侧为硬闸（`0015:744-755`，事后核对 ⇒ 越界 = `LEDGER_ACCOUNT_GUARD_VIOLATION` 500 defect）。
-//   · **前置闸最小化**：本文件只做「token 侧身份」「create_key 形状（fail-loud）」「退款发起人」
-//     三道**应用层**闸；其余一切入参/状态/币种/余额/库存闸**一律交 DB 编排函数**（其码 = §4.2 期望码真源），
+//   · **前置闸最小化**：本文件只做「token 侧身份」「create_key 形状（fail-loud）」「quantity 形状」
+//     「退款发起人」「★ 迁移 0061 多件购买授权（`allow=false ∧ qty>1` ⇒ 400，前置只读零写）」几道
+//     **应用层**闸；其余一切入参/状态/币种/余额/库存闸**一律交 DB 编排函数**（其码 = §4.2 期望码真源），
 //     异常经 `ledgerErrorFromDbError` → `normalizeLedgerError` 原码/原 status 映射（§3.3-4）。
 //   · **`src/ledger.ts` / `src/commission.ts` 只读引用**：唯一 `./ledger` 引用 = `:36` 的错误映射助手
 //     ⇒ 「零自拼分录」是结构保证（§4.0 R1 ②，同批 3b 口径）。
@@ -295,6 +296,27 @@ export const buyListing = async (params: {
   // ③ quantity：正整数形状（语义闸「≤ int4 / 库存」交 DB）
   const qty = toPosIntText(body.quantity, 'quantity');
   if (!qty.ok) return qty.err;
+
+  // ③′ ★ 迁移 0061 多件购买授权闸（route §49.17.4 · **前置只读、零写**）：
+  //   `allow_multi_buy = false ∧ quantity > 1` ⇒ **400 `LEDGER_AMOUNT_INVALID` + `{field:'quantity',
+  //   reason:'multi_buy_not_allowed'}`**，**零 DB 写**（买家单方放大成交件数 ⇒ 结构上不可能）。
+  //   · 闸序 **allow 先于 stock**：本闸在任何库存判据之前落判（库存/余额/状态真源仍是
+  //     `listing_post_event`，本闸**不复制**那些判据）；
+  //   · `quantity = 1` ⇒ **不读库**（既有单件链路零额外往返、零行为变化 —— 判负面 `route #52` 的对拍臂）；
+  //   · 行不存在 ⇒ **放行给 DB 函数**（404 语义真源不变，本闸只做「读到才判」）；
+  //   · 已知竞态（毫秒级、单向、无资金敞口）：读到 `true` 后卖家同刻关闭 ⇒ 本次多件仍成交 ——
+  //     登记不隐匿（函数级原子化 = 独立单 0062，见 SPEC-NOTE §3-3）。
+  if (Number(qty.value) > 1) {
+    const auth = await DatabaseService.getListingBuyAuthRow(Number(listingIdText));
+    if (auth && !auth.allowMultiBuy) {
+      return shapeError('quantity', 'multi_buy_not_allowed', {
+        listing_id: listingIdText,
+        quantity: qty.value,
+        allow_multi_buy: false,
+        stock: String(auth.stock),
+      });
+    }
+  }
 
   // ④ 买方 = **actor**（硬口径 #1）：`buyer_uid` 由服务端注入，客户端传值（若有）被忽略并登记
   const ignoredBuyer = body.buyer_uid === undefined || body.buyer_uid === null ? null : String(body.buyer_uid);
