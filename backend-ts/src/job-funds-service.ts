@@ -27,6 +27,7 @@
 // ============================================================================
 import { createHash } from 'crypto';
 import { DatabaseService } from './database';
+import { hasManagedProject } from './project-service';
 import { ledgerErrorFromDbError, normalizeLedgerError } from './ledger';
 import { errorMessageOf } from './ledger-errors';
 import type { TxClient } from './db';
@@ -154,10 +155,25 @@ const jobEventView = (r: Record<string, unknown>): Record<string, unknown> => {
 export const publishJob = async (params: {
   actorUid: number;
   body: Record<string, unknown> | undefined;
-}): Promise<VerbResult> => {
+}, ex?: TxClient): Promise<VerbResult> => {
   const body = params.body || {};
   const actor = actorGate(params.actorUid);
   if (!actor.ok) return actor.err;
+
+  // ⓪ ★ 发布前提闸（Kevin 2026-10-21 裁定）——**本函数最前**，早于 create_key 形状 / 余额 / 托管 / 幂等
+  //   任何写库动作：发布者必须**拥有且正在管理**至少一个项目
+  //   （`project.owner_uid = 本人 ∧ status <> 'ended'`；他人项目不算）。
+  //   0 行 ⇒ `403 AUTH_FORBIDDEN` + `details.reason='project_required'`（借既有闭集：零新错误码、
+  //   零新 kind、零新路由）；i18n_key 落既有 `auth.err.AUTH_FORBIDDEN`（零新文案键）。
+  //   ★ 判据是**零写库**的：本闸只发一条只读 SELECT，被拒时 `job` 行数 / 托管台账 / 余额全不变。
+  if (!(await hasManagedProject(actor.uid, ex))) {
+    return fail(
+      403,
+      'AUTH_FORBIDDEN',
+      { reason: 'project_required', field: 'project.owner_uid' },
+      'A managed project is required to publish a job',
+    );
+  }
 
   // ① 代他人出资 ⇒ 403（§6.2 附表；不得替他人托管）
   let employerUid = actor.uid;
@@ -203,7 +219,8 @@ export const publishJob = async (params: {
 
   let row: Record<string, unknown>;
   try {
-    row = await DatabaseService.jobPostEvent(payload);
+    // ★ `ex` 注入（可省略）：门在回滚事务内跑真路径；HTTP 路径不传 ⇒ 走 neon 单语句隐式事务。
+    row = await DatabaseService.jobPostEvent(payload, ex);
   } catch (e) {
     return fromLedgerError(e);
   }

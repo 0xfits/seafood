@@ -504,6 +504,29 @@ const REF_PATTERN = /^\d+$/;
 export const isProjectRef = (ref: unknown): boolean =>
   typeof ref === 'string' && REF_PATTERN.test(ref) && ref.length <= 20;
 
+/**
+ * **发布悬赏前置闸的读口**（Kevin 2026-10-21 裁定）：本人是否**拥有且正在管理**至少一个项目
+ *   = `project.owner_uid = 本人 ∧ status <> 'ended'` 至少 1 行。
+ * 口径：
+ *   · **纯 SELECT**（零写、零新路由、零新错误码、零新 kind）—— 只给 `publishJob` 的前置闸用；
+ *   · `status IN ('recruiting','working')` 与 `<> 'ended'` 等价的写法取后者（闭集三值；
+ *     未来若新增非终态值，闸自动放行而非误拦，fail-open on new active states）；
+ *   · 他人项目**不算**（`owner_uid` 严格等值 —— 只是受雇于别人的项目不能发布悬赏）；
+ *   · `ex` 注入供门在回滚事务内跑真路径（迁移干跑未提交 ⇒ 别的连接看不到表）。
+ */
+export const hasManagedProject = async (uid: number, ex?: TxClient): Promise<boolean> => {
+  if (!Number.isSafeInteger(uid) || uid <= 0) return false;
+  const rows = await readRows<Row>(
+    `SELECT 1 AS hit
+       FROM public.project
+      WHERE owner_uid = $1::bigint AND status <> 'ended'
+      LIMIT 1`,
+    [String(uid)],
+    ex,
+  );
+  return rows.length > 0;
+};
+
 // ============================================================================
 // 建项目（R3）：建行 + 扣建费 + 平台收入 = 同一事务同一幂等键
 // ============================================================================
