@@ -1,0 +1,279 @@
+{
+  "run": "20261020T103736Z6ily",
+  "name": "p60-item-id-gate",
+  "at": "2026-10-20T10:37:46.419Z",
+  "script": "ops/item-id/p60-00-item-id-gate.ts",
+  "env": {
+    "project_id": "quiet-math-65207667",
+    "branch_id": "br-soft-lake-b3iv9tli",
+    "expect_dev": "quiet-math-65207667"
+  },
+  "mode": "post-apply",
+  "migration_state": {
+    "head": "0061",
+    "committed_id_columns": 2
+  },
+  "migration": {
+    "head_stmts": 4,
+    "head_bytes": 4101,
+    "tail_bytes": 9480
+  },
+  "unit": [
+    {
+      "id": "E1",
+      "what": "撞码**重试臂**：前两次 23505（item_code）⇒ 第 3 次成功 · 恰 3 次写库调用 · 三次候选码互不相同（重生必换码）· 雪花亦不相同",
+      "pass": true,
+      "reading": "{\"ok\":true,\"calls\":3,\"codes\":[\"t5g9PTf\",\"t5gEnFa\",\"t5gLC3V\"],\"snowflakes\":[\"362190708637696\",\"362190708637697\",\"362190708637698\"]}"
+    },
+    {
+      "id": "E2",
+      "what": "★ **负控①（重试用尽必须上抛）**：恒 23505 ⇒ 恰 3 次尝试后**抛错**（`code=23505`）· 绝不「第 4 次成功」、绝不返回半成品",
+      "pass": true,
+      "reading": "{\"calls\":3,\"thrown\":\"23505\"}"
+    },
+    {
+      "id": "E3",
+      "what": "**负控②（幂等键不被 id 重试吞掉）**：`create_key` 撞车 ⇒ **1 次即上抛**（`isItemIdUniqueViolation` 按名排除 `create_key`）⇒ 幂等语义不被改写成「换个 id 重投」",
+      "pass": true,
+      "reading": "{\"calls\":1,\"thrown\":\"listing_create_key_key\"}"
+    },
+    {
+      "id": "E4",
+      "what": "每次尝试的写库载荷都带 `snowflakeId`（字符串）+ `itemCode`（7 位非纯数字）—— 两键**同批**进 INSERT，无「先写后补」窗口",
+      "pass": true,
+      "reading": "{\"last_calls\":3}"
+    }
+  ],
+  "checks": [
+    {
+      "id": "A1",
+      "what": "**零新路由**：注册点仍 = 111（`:ref` 只扩既有 `GET /api/prize/:bID` 的参数取值域，不新增注册点）",
+      "pass": false,
+      "reading": "registration_points=118"
+    },
+    {
+      "id": "A2",
+      "what": "**`:ref` 双形态真接线**：全数字 ⇒ `parseInteger` 走 `listing_id` · 7 位字母数字 ⇒ `getListingIdByItemCode` · 其它形状 ⇒ 404 `bID_not_found`（**零 DB**）· 码/ id 不存在 ⇒ 同一 404 `prize_not_found` · **两处 404 都原样回显 `rawRef`** · 旧的 `parseInteger(req.params.bID)` 单形态已不在",
+      "pass": true,
+      "reading": "{\"numeric\":true,\"code\":true,\"resolver\":true,\"shape404\":true,\"miss404\":true,\"legacyParse\":false}"
+    },
+    {
+      "id": "A3",
+      "what": "计数 / 去重 / 缓存头 / seller 合成**逐字未动**（解析出 `listing_id` 之后走原封不动的旧路径 ⇒ 本单对详情语义只多了一种入参解释方式）",
+      "pass": true,
+      "reading": "{\"recording\":true,\"dedup\":true,\"noStore\":true,\"seller\":true}"
+    },
+    {
+      "id": "A4",
+      "what": "服务层**生成 + 重试**接线：每次尝试先 `nextSnowflake()` 再 `codeFromSnowflake(snowflake)`（同源一对函数）· 上限 = `ITEM_ID_CREATE_ATTEMPTS` · 只对 `isItemIdUniqueViolation` 重试 · 用尽**上抛**（`if (!write) throw`）",
+      "pass": true,
+      "reading": "{\"snowflake\":true,\"code\":true,\"attempts\":true,\"predicate\":true,\"rethrow\":true}"
+    },
+    {
+      "id": "A5",
+      "what": "库层解析口 `getListingIdByItemCode`：**精确等值**（`item_code = $1::char(7)`、无 `lower()` / `ILIKE`）· 长度 ≠ 7 直接 null（零查询）· 只读单行 SELECT（零锁零副作用）",
+      "pass": true,
+      "reading": "resolver_bytes=433"
+    },
+    {
+      "id": "A6",
+      "what": "迁移 0060 形状：**两列** `ADD COLUMN IF NOT EXISTS`（snowflake_id / item_code）· **两唯一索引** · 头段**无 BEGIN/COMMIT** · 回填期 DISABLE / 末尾 ENABLE `trg_listing_touch_time_updated`",
+      "pass": true,
+      "reading": "{\"adds\":2,\"head_stmts\":4,\"begins\":false,\"commits\":false}"
+    },
+    {
+      "id": "A7",
+      "what": "**纯数字码禁令三处同口径**：① CHECK 两条件（`~ ^[0-9A-Za-z]{7}$` ∧ `!~ ^[0-9]{7}$`）· ② 回填循环 `EXIT WHEN v_code !~ ^[0-9]{7}$`（候选纯数字就 +1）· ③ 尾部自检「纯数字码 0 行」反断言",
+      "pass": true,
+      "reading": "{\"check_two_clauses\":true,\"backfill_skip\":true,\"selfcheck_digit\":true}"
+    },
+    {
+      "id": "A8",
+      "what": "**单一真源对拍**：迁移常量 ≡ `item-id.ts`（57 字符去混淆字母表 / 纪元 1704067200000 / 打散 1000003 / 12 位序号 / 10 位机器）· **`c_radix` = 字母表长度 = 57**（两者不等 ⇒ 回填码与服务层码不同基、同雪花不同码 —— 本门首跑即抓到这个缺陷）· 路由与库层都从 `item-id.ts` 取值（无第二份字母本）",
+      "pass": true,
+      "reading": "{\"alphabet\":true,\"radixParity\":true,\"epoch\":true,\"mix\":true,\"seqBits\":true,\"machineBits\":true,\"deconfused\":true,\"pattern\":true,\"routeImport\":true,\"retryConst\":true}"
+    },
+    {
+      "id": "G1",
+      "what": "生成器 1000 次：雪花**无重号**且**严格递增** · 码**无重复**（1000/1000）",
+      "pass": true,
+      "reading": "{\"snowflakes\":1000,\"codes\":1000,\"monotonic\":true,\"n\":1000}"
+    },
+    {
+      "id": "G2",
+      "what": "生成器 1000 次：每码恒 **7 位**、恒在 ^[0-9A-Za-z]{7}$、**纯数字码 0 个**（+1 跳码生效）",
+      "pass": true,
+      "reading": "{\"bad_shape\":0,\"all_digit\":0}"
+    },
+    {
+      "id": "G3",
+      "what": "编码确定性：同雪花恒同码（回填与服务层同口径）· `offset` 1 位即换码（撞码重试必然前进，不死循环）",
+      "pass": true,
+      "reading": "{\"same\":true,\"offset_differs\":true}"
+    },
+    {
+      "id": "G4",
+      "what": "判别子无歧义：**纯数字 7 位两判据同时为真**（这就是必须从库级禁掉纯数字码的理由）· 真实码形态（含字母）与纯数字 id 互斥；`isItemIdUniqueViolation` 只认 23505 且排除 `create_key`",
+      "pass": true,
+      "reading": "{\"ambiguity\":true,\"disjoint\":true}"
+    },
+    {
+      "id": "ENV",
+      "what": "库身份自证：neon.project_id = dev（quiet-math-65207667）—— 读数归因前置",
+      "pass": true,
+      "reading": "project_id=quiet-math-65207667"
+    },
+    {
+      "id": "ENV2",
+      "what": "迁移态可判读：pre-apply（两列缺席 ⇒ 本门在事务内干跑 0060）/ post-apply（两列在场 ⇒ 头段 no-op）· partial = STOP",
+      "pass": true,
+      "reading": "mode=post-apply columns=2"
+    },
+    {
+      "id": "B1",
+      "what": "迁移 0060 干跑（真库 · 事务内）：两列 = `snowflake_id bigint NOT NULL` / `item_code char(7) NOT NULL`（长度 7）",
+      "pass": true,
+      "reading": "{\"error\":null,\"tail\":null,\"snowflake_id\":{\"column_name\":\"snowflake_id\",\"data_type\":\"bigint\",\"is_nullable\":\"NO\",\"character_maximum_length\":null},\"item_code\":{\"column_name\":\"item_code\",\"data_type\":\"character\",\"is_nullable\":\"NO\",\"character_maximum_length\":7}}"
+    },
+    {
+      "id": "B2",
+      "what": "两条唯一索引在场且**确为 UNIQUE**（不是同名空壳）",
+      "pass": true,
+      "reading": "[\"listing_item_code_uidx\",\"listing_snowflake_id_uidx\"]"
+    },
+    {
+      "id": "B3",
+      "what": "CHECK 干跑后为**两条件版**：形状正则 ∧ `!~ ^[0-9]{7}$`（纯数字禁令已在库级落地）",
+      "pass": true,
+      "reading": "CHECK (((item_code ~ '^[0-9A-Za-z]{7}$'::text) AND (item_code !~ '^[0-9]{7}$'::text)))"
+    },
+    {
+      "id": "B4",
+      "what": "存量**全量回填**（26 行）：码非空 / 形状合法 / 全在 56 字母表 / **纯数字码 0 行** · 两列取值各自唯一（码 26 / 雪花 26）· 雪花恒正",
+      "pass": true,
+      "reading": "{\"total\":26,\"null_ids\":0,\"digit_codes\":0,\"bad_shape\":0,\"off_alphabet\":0,\"distinct_codes\":26,\"distinct_snowflakes\":26,\"nonpositive\":0}"
+    },
+    {
+      "id": "B5",
+      "what": "**行数不变**（回填只补标识列，不增不删）· 回填期摘掉的 `trg_listing_touch_time_updated` 已恢复 `tgenabled=O` 且 listing 上零禁用触发器",
+      "pass": true,
+      "reading": "{\"before\":26,\"after\":26,\"trigger\":{\"enabled\":\"O\",\"disabled\":0}}"
+    },
+    {
+      "id": "B6",
+      "what": "尾部 DO 整块**重跑仍绿**（回填 `WHERE IS NULL` / `SET NOT NULL` / CHECK 已是两条件 ⇒ 全 no-op）⇒ 迁移可重放、码一旦下发不再变",
+      "pass": true,
+      "reading": "{\"second_run_error\":null}"
+    },
+    {
+      "id": "B7",
+      "what": "事务一律回滚（`inRollbackTx` ⇒ 零 apply / 零版本行 / 零 DDL 残留）",
+      "pass": true,
+      "reading": "rolled_back=true ms=4585"
+    },
+    {
+      "id": "N1",
+      "what": "★ **负控①（纯数字码禁令）**：直接插 `item_code = '1234567'` ⇒ **23514** + `listing_item_code_format_ck`（库级拒收；若这项绿着而生成器坏，纯数字码就会入库并让 `:ref` 判别失效）",
+      "pass": true,
+      "reading": "{\"sqlstate\":\"23514\",\"constraint\":\"listing_item_code_format_ck\"}"
+    },
+    {
+      "id": "N2",
+      "what": "负控②：缺码（`item_code = NULL`）⇒ **23502** not_null_violation（NOT NULL 真在场）· 6 位码 ⇒ **23514**（形状闸真在场）",
+      "pass": true,
+      "reading": "{\"null_code\":{\"sqlstate\":\"23502\",\"constraint\":\"\"},\"short\":{\"sqlstate\":\"23514\"}}"
+    },
+    {
+      "id": "N3",
+      "what": "负控③：撞已有码 ⇒ **23505** + `listing_item_code_uidx` · 撞已有雪花 ⇒ **23505** + `listing_snowflake_id_uidx`（两唯一索引都不是摆设）",
+      "pass": true,
+      "reading": "{\"dup_code\":{\"sqlstate\":\"23505\",\"constraint\":\"listing_item_code_uidx\"},\"dup_sf\":{\"sqlstate\":\"23505\",\"constraint\":\"listing_snowflake_id_uidx\"}}"
+    },
+    {
+      "id": "C0",
+      "what": "夹具自建走**真 `createListingRow` 写路径**（0060 头段 + 尾部先在同事务跑一遍 ⇒ 真 apply 态的 NOT NULL + CHECK 下写入）",
+      "pass": true,
+      "reading": "{\"error\":null,\"a\":\"inserted\",\"b\":\"inserted\",\"idA\":276,\"idB\":277}"
+    },
+    {
+      "id": "C1",
+      "what": "**建商品两键写入**：库内 `item_code` / `snowflake_id` 均非空 · 码恒 7 位、全在字母表、**非纯数字** · 两次发号的雪花与码都不相同",
+      "pass": true,
+      "reading": "{\"codeA\":\"3dB4GTN\",\"codeB\":\"3dB9fFH\",\"sfA\":\"362190697201664\",\"sfB\":\"362190697201665\"}"
+    },
+    {
+      "id": "C2",
+      "what": "**码 → id 往返**：`getListingIdByItemCode(code)` = 建单返回的 `listing_id`（两行各一次）· 未知码（`ZZZZZZZ`）与过短串（`abc`）⇒ `null`（零查询 / 不命中，语义 = 404 不区分）",
+      "pass": true,
+      "reading": "{\"a\":276,\"idA\":276,\"unknown\":null,\"short\":null}"
+    },
+    {
+      "id": "C3",
+      "what": "**`GET /api/prize/<code>` ≡ `GET /api/prize/<数字 id>`**（路由层把码解析成 `listing_id` 后走同一读口 ⇒ 两次读的服务层行**除 `views` 外逐键逐值相同**，且 `views` 恰 +1 —— 证明确实读到同一行、且自增语义未被入参形态改变）· 行内 `item_code` = 该码 · 详情服务层 **52 键**（0061 +allow_multi_buy）/ 路由合成（+seller）**53 键**",
+      "pass": true,
+      "reading": "{\"same_row\":true,\"views_step\":1,\"detail_keys\":52,\"route_shape\":53,\"detail_code\":\"3dB4GTN\",\"code\":\"3dB4GTN\"}"
+    },
+    {
+      "id": "C4",
+      "what": "**feed 行键 50**（48 + item_code + snowflake_id）：全部行恰 50 键、两键恒在场、码全部合法且非纯数字（存量回填行同样成立）",
+      "pass": true,
+      "reading": "{\"rows\":8,\"bad\":0,\"keys\":50}"
+    },
+    {
+      "id": "C5",
+      "what": "**mine 行键 14**（11 + item_code + snowflake_id + allow_multi_buy）：全部行恰 14 键且三键在场 · **edit 读口同族 14 键**（编辑页一套预填）",
+      "pass": true,
+      "reading": "{\"mine_total\":6,\"mine_bad\":0,\"mine_keys\":14,\"edit_keys\":14}"
+    },
+    {
+      "id": "E1",
+      "what": "撞码**重试臂**：前两次 23505（item_code）⇒ 第 3 次成功 · 恰 3 次写库调用 · 三次候选码互不相同（重生必换码）· 雪花亦不相同",
+      "pass": true,
+      "reading": "{\"ok\":true,\"calls\":3,\"codes\":[\"t5g9PTf\",\"t5gEnFa\",\"t5gLC3V\"],\"snowflakes\":[\"362190708637696\",\"362190708637697\",\"362190708637698\"]}"
+    },
+    {
+      "id": "E2",
+      "what": "★ **负控①（重试用尽必须上抛）**：恒 23505 ⇒ 恰 3 次尝试后**抛错**（`code=23505`）· 绝不「第 4 次成功」、绝不返回半成品",
+      "pass": true,
+      "reading": "{\"calls\":3,\"thrown\":\"23505\"}"
+    },
+    {
+      "id": "E3",
+      "what": "**负控②（幂等键不被 id 重试吞掉）**：`create_key` 撞车 ⇒ **1 次即上抛**（`isItemIdUniqueViolation` 按名排除 `create_key`）⇒ 幂等语义不被改写成「换个 id 重投」",
+      "pass": true,
+      "reading": "{\"calls\":1,\"thrown\":\"listing_create_key_key\"}"
+    },
+    {
+      "id": "E4",
+      "what": "每次尝试的写库载荷都带 `snowflakeId`（字符串）+ `itemCode`（7 位非纯数字）—— 两键**同批**进 INSERT，无「先写后补」窗口",
+      "pass": true,
+      "reading": "{\"last_calls\":3}"
+    },
+    {
+      "id": "E5",
+      "what": "桩已回收（`getCurrencyStatus` / `createListingRow` 逐字还原）",
+      "pass": true,
+      "reading": "restored"
+    },
+    {
+      "id": "F1",
+      "what": "**零残留**：回滚后 `create_key LIKE cli:p60-gate:%` 命中 = 0（含历史 run）+ 0060 **未 apply**（`schema_migration` 顶仍 0059 或更低 ⇒ 本门全程未落版本行）",
+      "pass": true,
+      "reading": "residue_rows=0"
+    },
+    {
+      "id": "F2",
+      "what": "**committed 库面未被本门改动**（列数与开跑时的迁移态一致：pre-apply ⇒ 0 列 / post-apply ⇒ 2 列）",
+      "pass": true,
+      "reading": "{\"head\":\"0061\",\"committed_id_columns\":2}"
+    }
+  ],
+  "summary": {
+    "total": 37,
+    "passed": 36,
+    "failed": 1,
+    "red": [
+      "A1"
+    ]
+  }
+}

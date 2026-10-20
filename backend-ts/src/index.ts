@@ -105,6 +105,20 @@ import {
   sendMessage,
   totalUnread,
 } from './messages-service';
+// ★ 项目（打工/工资）域（data-layer.spec §40.15 · route-layer.spec §49.19 · 迁移 0063/0064）
+//   七口：R1/R2 公开读、R3–R6 用户写（登录闸）、R7 管理员（manage_tasks）。
+//   ★ 活动小时桶埋点 `recordUserActivityHour` 的调用点在 `resolveActor` 成功出口（旁路、不 await）。
+import {
+  applyProjectVerb,
+  claimProjectWageVerb,
+  createProjectVerb,
+  getProjectByRef,
+  isProjectRef,
+  leaveProjectVerb,
+  listProjects,
+  patchProjectVerb,
+  recordUserActivityHour,
+} from './project-service';
 import {
   checkConfirmRateLimit,
   confirmErrorForOutcome,
@@ -390,6 +404,10 @@ const resolveActor = async (req: Request): Promise<ActorContext | ActorFailure> 
     }
 
     const adminAccess = await DatabaseService.resolveAdminAccess(user);
+    // ★ 项目域活动小时桶（data §40.15.3 PR-6 埋点面）：**登录态请求**旁路 +1。
+    //   纪律：`void …` 不 await ⇒ 零主路径延迟；`recordUserActivityHour` 自身吞错 ⇒
+    //   最坏该小时桶缺行（该小时按离线计），绝不把埋点失败变成业务失败（PR-N5）。
+    void recordUserActivityHour(Number(user.uID)).catch(() => undefined);
     return {
       session,
       user,
@@ -3974,6 +3992,122 @@ app.get('/api/media/:id', async (req, res) => {
     return res.status(200).send(media.bytes);
   } catch (error) {
     return sendInfraMapped(res, 'media.get', error);
+  }
+});
+
+// ============================================================================
+// ★★ 项目（打工 / 工资）域 · 七口（data-layer.spec §40.15 · route-layer.spec §49.19）
+// ----------------------------------------------------------------------------
+// R1 GET  /api/project/all              公开 · 列表（仅 recruiting / working；带在职数派生）
+// R2 GET  /api/project/:ref             公开 · 详情（纯数字 ⇒ project_id OR snowflake_id，一次往返）
+// R3 POST /api/project                  用户 · 建项目 + 同事务扣建费入平台收入
+// R4 POST /api/project/:id/apply        用户 · 招工（满足即直接录用；招满同事务转 working）
+// R5 POST /api/project/:id/claim        用户 · 领工资（逐小时桶 batt + 币种定额，两腿同事务）
+// R6 POST /api/project/:id/leave        用户 · 离职（幂等）
+// R7 PATCH /api/project/:projectId      管理员 `manage_tasks` · 状态机 / 名额扩缩 / 工资与间隔
+//
+// 注册顺序判据（route #62）：R1 必须在 R2 **之前**（否则 `all` 被 `:ref` 吞成 404）。
+// 错误码：零新码 —— 400 `LEDGER_AMOUNT_INVALID` / 404 `LEDGER_REF_NOT_FOUND` /
+//   409 `LEDGER_INSUFFICIENT_BALANCE` / 403 `AUTH_FORBIDDEN`，逐场景理由在 `details.reason`。
+// 注册点 111 → 118（get 50→52 / post 57→61 / patch 1→2 / delete 3）。
+// ============================================================================
+app.get('/api/project/all', async (_req, res) => {
+  try {
+    const rows = await listProjects();
+    return sendSuccess(res, rows, 'Project list (public)');
+  } catch (error) {
+    return sendInfraMapped(res, 'project.list', error);
+  }
+});
+
+app.get('/api/project/:ref', async (req, res) => {
+  const ref = String(req.params.ref ?? '');
+  // 非数字 ref ⇒ 404（**不得** 500 —— route #67）
+  if (!isProjectRef(ref)) return sendRefNotFound(res, 'project', ref, 'project_not_found');
+  try {
+    const view = await getProjectByRef(ref);
+    if (!view) return sendRefNotFound(res, 'project', ref, 'project_not_found');
+    return sendSuccess(res, view, 'Project detail (public)');
+  } catch (error) {
+    return sendInfraMapped(res, 'project.get', error);
+  }
+});
+
+app.post('/api/project', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  try {
+    const result = await createProjectVerb({
+      actorUid: Number(actor.user.uID),
+      body: req.body ?? {},
+      headerKey: req.header('idempotency-key'),
+    });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(
+      res,
+      result.view,
+      result.replay ? 'Project created (idempotent replay)' : 'Project created',
+      result.replay ? 200 : 201,
+    );
+  } catch (error) {
+    return sendInfraMapped(res, 'project.create', error);
+  }
+});
+
+app.post('/api/project/:id/apply', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  try {
+    const ref = String(req.params.id ?? '');
+    if (!isProjectRef(ref)) return sendRefNotFound(res, 'project', ref, 'project_not_found');
+    const result = await applyProjectVerb({ actorUid: Number(actor.user.uID), ref });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, result.replay ? 'Project application (already hired)' : 'Project application accepted');
+  } catch (error) {
+    return sendInfraMapped(res, 'project.apply', error);
+  }
+});
+
+app.post('/api/project/:id/claim', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  try {
+    const ref = String(req.params.id ?? '');
+    if (!isProjectRef(ref)) return sendRefNotFound(res, 'project', ref, 'project_not_found');
+    const result = await claimProjectWageVerb({ actorUid: Number(actor.user.uID), ref });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, 'Project wage claimed');
+  } catch (error) {
+    return sendInfraMapped(res, 'project.claim', error);
+  }
+});
+
+app.post('/api/project/:id/leave', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  try {
+    const ref = String(req.params.id ?? '');
+    if (!isProjectRef(ref)) return sendRefNotFound(res, 'project', ref, 'project_not_found');
+    const result = await leaveProjectVerb({ actorUid: Number(actor.user.uID), ref });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, result.replay ? 'Project leave (no-op)' : 'Project left');
+  } catch (error) {
+    return sendInfraMapped(res, 'project.leave', error);
+  }
+});
+
+app.patch('/api/project/:projectId', async (req, res) => {
+  // 管理面权限键 = `manage_tasks`（**不是** manage_rewards —— §49.19.1 / 判负 #66）
+  const actor = await requireAdmin(req, res, 'manage_tasks');
+  if (!actor) return;
+  try {
+    const ref = String(req.params.projectId ?? '');
+    if (!isProjectRef(ref)) return sendRefNotFound(res, 'project', ref, 'project_not_found');
+    const result = await patchProjectVerb({ ref, body: req.body ?? {} });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, 'Project updated');
+  } catch (error) {
+    return sendInfraMapped(res, 'project.patch', error);
   }
 });
 

@@ -153,9 +153,14 @@ const base: RefundActorInput = { actorUid: 500, sellerUid: 7, buyerUid: 8, canAc
   //     → 111 admin-edit（GET /api/listing/:listingId/edit +1；管理员可编辑他人商品单
   //       route-layer.spec §49.15 / data-layer.spec §40.11 · 迁移 0059_listing_edit_log.sql，
   //       逐 verb 分解 get 49→50、post 57、delete 3、patch 1 —— 方法只用 GET）。
-  //     净 +21 ⇒ 68 + 21 = 89；A5 再 +10 ⇒ 99；sf14 再 +5 ⇒ 104；6714401 再 +1 ⇒ 105；FIX-CRON GET 再 +1 ⇒ 106；ops-recon GET 再 +1 ⇒ 107；item-cid-select GET 再 +1 ⇒ 108；media-upload 两口再 +2 ⇒ 110；admin-edit 编辑预填 GET 再 +1 ⇒ 111。
+  //     → 118 project-domain（route §49.19 七口：GET /api/project/all + GET /api/project/:ref、
+  //       POST /api/project + :id/apply + :id/claim + :id/leave、PATCH /api/project/:projectId；
+  //       逐 verb 分解 get 50→52、post 57→61、patch 1→2、delete 3 —— 迁移 0063/0064 项目域）。
+  //       ★ route §49.19.2 写「111 → 125」是**两级预计**（含 §49.18 campaign 七口）⇒ campaign 未落盘，
+  //       故实测 = 111 + 7 = **118**；campaign 落地时再前推 +7 到 125。
+  //     净 +21 ⇒ 68 + 21 = 89；A5 再 +10 ⇒ 99；sf14 再 +5 ⇒ 104；6714401 再 +1 ⇒ 105；FIX-CRON GET 再 +1 ⇒ 106；ops-recon GET 再 +1 ⇒ 107；item-cid-select GET 再 +1 ⇒ 108；media-upload 两口再 +2 ⇒ 110；admin-edit 编辑预填 GET 再 +1 ⇒ 111；project-domain 七口再 +7 ⇒ 118。
   //     `da65f13`/`9bd1df0` 无路由增改（S6b/S16）。
-  ck.t('AC10-2', '注册点 = 111（自 S10 冻结面 68 前推 +21 · A5 收口 +10 · sf14 +5 · 6714401 telegram/bind/confirm +1 · FIX-CRON translate/backfill GET +1 · ops-recon GET +1 · item-cid-select GET /api/currencies +1 · media-upload 两口（route v2.39 §48）+2 · admin-edit `GET /api/listing/:listingId/edit`（route §49.15）+1 = 111；逐 rev 出处见上方注释）', regs === 111, `registration_points=${regs}`);
+  ck.t('AC10-2', '注册点 = 118（自 S10 冻结面 68 前推 +21 · A5 收口 +10 · sf14 +5 · 6714401 telegram/bind/confirm +1 · FIX-CRON translate/backfill GET +1 · ops-recon GET +1 · item-cid-select GET /api/currencies +1 · media-upload 两口（route v2.39 §48）+2 · admin-edit `GET /api/listing/:listingId/edit`（route §49.15）+1 · project-domain 七口（route §49.19）+7 = 118；逐 rev 出处见上方注释）', regs === 118, `registration_points=${regs}`);
   ck.t('AC10-3', '退款路由仍**复用同路径**（无 `/api/admin/listing-orders`）', !/\/api\/admin\/listing-orders/.test(INDEX_TS) && /app\.post\('\/api\/listing-orders\/:orderId\/refund'/.test(INDEX_TS), 'ok');
   ck.t('AC10-4', '对外出口 = 既有 `sendSuccess` + `sendVerbError`（R107；无新增顶层响应键）',
     INDEX_TS.indexOf("sendSuccess(res, result.view, result.replay ? 'Listing order refunded") !== -1 &&

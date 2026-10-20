@@ -1,0 +1,248 @@
+{
+  "run": "20261020T104035Z8b3v",
+  "name": "p63-project-gate",
+  "at": "2026-10-20T10:41:11.365Z",
+  "readings": {
+    "fixture_users": [
+      908301,
+      908302,
+      908303,
+      908304,
+      908305
+    ],
+    "mig63": {
+      "version_rows_before": 0,
+      "version_rows_after": 0
+    },
+    "list": {
+      "n": 10,
+      "first_status": "recruiting",
+      "snowflake_type": "string"
+    },
+    "fixture_money": {
+      "fee": "10000",
+      "owner_usd": "85000",
+      "sec_cid": 407,
+      "owner_sec": "10000"
+    },
+    "committed_touch": "none (single rollback tx)"
+  },
+  "checks": [
+    {
+      "id": "A1",
+      "what": "注册点 = 118（111 + 项目域七口；get 52 / post 61 / patch 2 / delete 3 / put 0）",
+      "pass": true,
+      "reading": "regs=118 get=52 post=61 patch=2 delete=3"
+    },
+    {
+      "id": "A2",
+      "what": "七口逐条在场（R1–R7）",
+      "pass": true,
+      "reading": "missing=[]"
+    },
+    {
+      "id": "A3",
+      "what": "注册顺序：`/api/project/all` 在 `/api/project/:ref` **之前**（route #62）",
+      "pass": true,
+      "reading": "all=177273 ref=177516"
+    },
+    {
+      "id": "A4",
+      "what": "R7 闸 = `requireAdmin(req, res, 'manage_tasks')`（不是 manage_rewards —— #66）",
+      "pass": true,
+      "reading": "manage_tasks_at=180587"
+    },
+    {
+      "id": "A5",
+      "what": "活动桶埋点在 `resolveActor` 成功出口且**不 await**（旁路；PR-N5）",
+      "pass": true,
+      "reading": "void_hook=true await_hook=false"
+    },
+    {
+      "id": "A6",
+      "what": "零新 kind：`LEDGER_KINDS` 仍 24 值、且不含 project_create_fee（建费借 `currency_create_fee`）",
+      "pass": true,
+      "reading": "kinds=24 borrowed=true"
+    },
+    {
+      "id": "A7",
+      "what": "零新错误码：33 码闭集不动",
+      "pass": true,
+      "reading": "codes=33"
+    },
+    {
+      "id": "A8",
+      "what": "结算常量：活跃 2/时 · 离线 1/时 · 上限 100h · 默认费 10000",
+      "pass": true,
+      "reading": "2/1/100/10000"
+    },
+    {
+      "id": "A9",
+      "what": "状态迁移矩阵：recruiting→{working,ended} · working→{recruiting,ended} · ended→∅",
+      "pass": true,
+      "reading": "{\"recruiting\":[\"working\",\"ended\"],\"working\":[\"recruiting\",\"ended\"],\"ended\":[]}"
+    },
+    {
+      "id": "A10",
+      "what": "两份迁移文件内无 BEGIN/COMMIT · 注释零 dollar-dollar · 零行首竖线",
+      "pass": true,
+      "reading": "{\"63\":{\"label\":\"0063\",\"noTx\":true,\"commentDollar\":0,\"noPipe\":true},\"64\":{\"label\":\"0064\",\"noTx\":true,\"commentDollar\":0,\"noPipe\":true}}"
+    },
+    {
+      "id": "A11",
+      "what": "种子按 `title` 幂等（`NOT EXISTS (… WHERE x.title = p.title)`）· 十链标题逐条在场",
+      "pass": true,
+      "reading": "idem=true"
+    },
+    {
+      "id": "A12",
+      "what": "迁移号：0063 DDL / 0064 种子（0062 未落盘 ⇒ 本单取 0063 顺延）",
+      "pass": true,
+      "reading": "files ok"
+    },
+    {
+      "id": "A13",
+      "what": "入参纯函数：禁带四键 / 两币成对 / interval 1–100 / headcount>0 / 闭集外键 ⇒ 均 400 `LEDGER_AMOUNT_INVALID`",
+      "pass": true,
+      "reading": "{\"forbid\":\"NOT_SUPPORTED\",\"pair\":\"PROJECT_WAGE_CURRENCY_PAIR_REQUIRED\",\"interval\":\"PROJECT_INTERVAL_INVALID\",\"head\":\"PROJECT_HEADCOUNT_INVALID\",\"unknown\":\"NOT_SUPPORTED\",\"ok\":true}"
+    },
+    {
+      "id": "A14",
+      "what": "`isProjectRef`：纯数字才放行（`all` / 非数字 ⇒ false，route #67 靠它落 404 而非 500）",
+      "pass": true,
+      "reading": "ok"
+    },
+    {
+      "id": "B1",
+      "what": "0063 干跑全绿：四表在场 · 物理列 14/6/10/4 · 部分唯一索引 = UNIQUE(uid) WHERE status=hired · 配置 fee=10000 · 版本行未写",
+      "pass": true,
+      "reading": "{\"tables\":4,\"cols\":{\"project\":14,\"project_wage_claim\":10,\"project_worker\":6,\"user_activity_hour\":4},\"index\":\"CREATE UNIQUE INDEX project_worker_single_hired_uniq ON public.project_worker USING btree (uid) WHERE (status = 'hired'::text)\",\"fee\":\"10000\",\"version_before\":0,\"version_after\":0}"
+    },
+    {
+      "id": "B2",
+      "what": "0064 种子：恰 10 行 · 十个 interval 互不相同 · 十个 batt 互不相同 · 全 recruiting · headcount 5–20 · **重跑不增行**（幂等）",
+      "pass": true,
+      "reading": "{\"first\":10,\"rerun\":10,\"intervals\":10,\"batts\":10,\"rec\":0,\"min_h\":5,\"max_h\":20}"
+    },
+    {
+      "id": "B3",
+      "what": "公开读口：列表 ≥ 10 行且只含 recruiting/working · `snowflake_id` 出参**字符串** · 双形态详情命中 · miss ⇒ null",
+      "pass": true,
+      "reading": "{\"n\":10,\"first_status\":\"recruiting\",\"snowflake_type\":\"string\"}"
+    },
+    {
+      "id": "S1",
+      "what": "建项目：status 恒 recruiting · 创建者 $ 恰扣 fee · 平台收入 −1 恰加 fee · 台账两条（同键同事务）",
+      "pass": true,
+      "reading": "{\"created\":true,\"owner_delta\":\"10000\",\"platform_delta\":\"10000\",\"entries\":2,\"status\":\"recruiting\"}"
+    },
+    {
+      "id": "S2",
+      "what": "建项幂等：同键重投 ⇒ 200 replay · 同 project_id · 行数不变 · 余额不变",
+      "pass": true,
+      "reading": "{\"replay\":true,\"rows\":[11,11]}"
+    },
+    {
+      "id": "S3",
+      "what": "招工：首次 200 录用 · 同项目重投 200 no-op（单行） · 二人满员后**同事务自动转 working**",
+      "pass": true,
+      "reading": "{\"a1\":true,\"again\":true,\"w1_rows\":1,\"a2\":true,\"status\":\"working\",\"hired\":2}"
+    },
+    {
+      "id": "S4",
+      "what": "非招募期 apply ⇒ 409 `project_not_recruiting`（管理员 working 停招后）",
+      "pass": true,
+      "reading": "{\"stop\":true,\"status\":409,\"reason\":\"project_not_recruiting\"}"
+    },
+    {
+      "id": "S5",
+      "what": "满员 apply ⇒ 409 `project_headcount_full`（在职数 = headcount 且重开招募）",
+      "pass": true,
+      "reading": "{\"hire\":true,\"reopen\":true,\"status\":409,\"reason\":\"project_headcount_full\"}"
+    },
+    {
+      "id": "S6",
+      "what": "注册天数不足 apply ⇒ 409 `project_min_days_unmet`（新号 vs 30 天门槛）",
+      "pass": true,
+      "reading": "{\"status\":409,\"reason\":\"project_min_days_unmet\"}"
+    },
+    {
+      "id": "S7",
+      "what": "注册 ≥ 门槛 ⇒ 同项目放行（闸有分辨力，非恒拒）",
+      "pass": true,
+      "reading": "ok=true"
+    },
+    {
+      "id": "S8",
+      "what": "他项目在职 apply ⇒ 409 `worker_already_hired`（W1 已在 P1）",
+      "pass": true,
+      "reading": "{\"status\":409,\"reason\":\"worker_already_hired\"}"
+    },
+    {
+      "id": "S9",
+      "what": "领薪闸：未录用 ⇒ 403 `worker_not_hired` · 间隔未到 ⇒ 400 `wage_interval_not_reached`",
+      "pass": true,
+      "reading": "{\"not_hired\":[403,\"worker_not_hired\"],\"interval\":[400,\"wage_interval_not_reached\"]}"
+    },
+    {
+      "id": "S10",
+      "what": "领薪逐小时桶：3h 窗口 / 2 活跃 / 1 离线 ⇒ batt = 2×2 + 1×1 = **5** · claim 行 1 · batt 台账入账 5 · 币种腿 = 每次固定额 25",
+      "pass": true,
+      "reading": "{\"ok\":true,\"hours\":\"3\",\"active\":\"2\",\"offline\":\"1\",\"batt\":\"5\",\"batt_acct\":5,\"claims\":1,\"currency\":\"25\"}"
+    },
+    {
+      "id": "S11",
+      "what": "100h 上限：150h 窗口 ⇒ hours_elapsed **恰 100**（超出不补）· 全离线 ⇒ batt 100 · batt 账户封顶 100",
+      "pass": true,
+      "reading": "{\"ok\":true,\"hours\":\"100\",\"active\":\"0\",\"batt\":\"100\",\"batt_acct\":100,\"uncapped_would_be\":150}"
+    },
+    {
+      "id": "S12",
+      "what": "ended 封板：领薪 ⇒ 409 `project_ended_frozen` · 再次 PATCH ⇒ 409 `project_ended_frozen`",
+      "pass": true,
+      "reading": "{\"end\":true,\"claim\":[409,\"project_ended_frozen\"],\"patch\":[409,\"project_ended_frozen\"]}"
+    },
+    {
+      "id": "S13",
+      "what": "离职：首次 left=true · 再次 200 no-op（left=false） · 离职后领薪 ⇒ 403 `worker_not_hired`",
+      "pass": true,
+      "reading": "{\"first\":true,\"again\":false,\"claim\":403}"
+    },
+    {
+      "id": "S14",
+      "what": "管理员缩容低于在职 ⇒ 409 `project_headcount_below_hired` · 扩容 + 工资/间隔修改 ⇒ 200 落库",
+      "pass": true,
+      "reading": "{\"hired\":[true,true],\"shrink\":[409,\"project_headcount_below_hired\"],\"grow\":true}"
+    },
+    {
+      "id": "N1",
+      "what": "★负控① 部分唯一索引：**去索引** ⇒ 同 uid 双项目在职可现（hired 行数=2）；**复索引** ⇒ 23505。⇒ 「S8 / PR-N1」判据对索引缺失敏感",
+      "pass": true,
+      "reading": "{\"without_index\":{\"hired_rows\":2,\"sqlstate\":null},\"with_index\":\"23505\"}"
+    },
+    {
+      "id": "N2",
+      "what": "★负控② 100h 上限：直插 hours=150 ⇒ 23514（CHECK 挡在库面）；函数位若去 cap 则该窗口=150 > 100 ⇒ 「S11 hours=100」判据必红",
+      "pass": true,
+      "reading": "{\"db_check\":\"23514\",\"uncapped_counterfactual\":150,\"capped_measured\":\"100\"}"
+    },
+    {
+      "id": "N3",
+      "what": "★负控③ 建费：穷号建项 ⇒ 409 `project_create_fee_insufficient` · 项目行**不增** · 同键台账 **0** 条；反事实「无扣费腿直插」⇒ 行数 +1（免费建项可现）",
+      "pass": true,
+      "reading": "{\"status\":409,\"reason\":\"project_create_fee_insufficient\",\"rows\":[16,16],\"ledger\":0,\"bypass_rows\":17}"
+    },
+    {
+      "id": "Z1",
+      "what": "零 apply / 零残留：提交面**无** project 四表、**无** project_create_fee 行（本门全程单回滚事务）",
+      "pass": true,
+      "reading": "{\"tables\":0,\"fee\":0}"
+    }
+  ],
+  "summary": {
+    "total": 35,
+    "passed": 35,
+    "failed": 0,
+    "red": []
+  }
+}
