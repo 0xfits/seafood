@@ -5809,6 +5809,23 @@ CONSTRAINT listing_item_code_shape_ck CHECK (
   - **CP-PN4 重复投票放行**：prediction 同键重提返回 200（覆盖 choice 或新增行）⇒ 判负（一人一票不可改）。
 - **未做（`NOT_MEASURED` · 本册不预填）**：CP-P1…P7 未实现 / settle 口未注册 / 分发未落台账 / 判负 CP-PN1…PN4 一条未跑；本笔零代码 / 零迁移文件改动 / 零库写 / 零 HTTP 写。
 
+#### 40.14.9 奖励货币规则（`CP-R1`…`CP-R6` ＋ 判负 `CP-N7`…`CP-N10` · 追加于本节末、不新开节 · 依据 = Kevin 2026-10-20 奖励货币规则登记 ＋ **同日再裁**（OOB 留痕，覆盖派单初稿预算扣发读法），逐字转引自派单，**原始会话未入仓 ⇒ 出入以 Kevin 一句话为准**）
+
+> **状态改写式声明**：派单初稿「subtask 层奖励……**从 task 的 $ 预算中出**」旧字面**逐字保留**于本段 `CP-R4` 引号内 ⇒ **以本段为准（同日再裁覆盖）**：subtask 奖励与 task 预算**相互独立、零扣减关系**。§40.14.1–§40.14.8 与 §40.12 全文一字未动；本段只立**口径**（零列改、零迁移、零实现）。**姊妹册** = `design-system.spec` **§26.19.6**（表单口径）＋ `ops/campaign/SPEC-NOTE.md` **§7**。
+
+- **CP-R1 task 层奖励预算字段口径**：`reward_amount_primary`（**$，必填**）＋ `reward_cid_secondary` / `reward_amount_secondary`（**可选，成对出现**）。$ = 平台内部积分 `currency.cid = 1`（`decimals = 0`，§31 种子行），单位锁死 ⇒ **不设 `reward_cid_primary`**；次币 = **任意平台货币**、由 project（活动方）自定：`reward_cid_secondary bigint NULL REFERENCES currency(cid)`（须 `status = 'listed'`，承 §40.15.3 币别体例）＋ `reward_amount_secondary numeric NULL`。三字段**不进 CP-2 现取 11 列契约**（列数契约一字不动）；字段落库由发奖另单承接，届时 CP-2 列数一次性回填登记（类型/约束为建议形，落库为准）。
+- **CP-R2 成对约束**：`reward_cid_secondary` 与 `reward_amount_secondary` **同空同非空**（具名 CHECK 同式承 §40.15.1 `project_wage_currency_pair_check`）；次币**不得取 `$`（cid = 1）**——与主奖励同币 ⇒ 判负 CP-N8。
+- **CP-R3 subtask 层 = 只有 $ 一种计量**：prediction 奖池、后续其他类型（管理员自增）的奖励**一律 $**（prediction 已由 §40.14.8 `CP-P1` 锁 `prize_amount` 单位恒 $、不设币种键——同律非本段新裁）；**$ 即时发放**（几乎即时领取）。
+- **CP-R4 独立性（同日再裁 · 以本段为准）**：派单初稿「subtask 层奖励……**从 task 的 $ 预算中出**」⇒ **以本段为准（覆盖）**：**subtask 奖励与 task 预算相互独立**，subtask 奖励**不从 task 预算扣发**（与 $ 预算、次币预算均**零扣减关系**）。
+- **CP-R5 task 总奖励 = 额外完成奖（同日再裁）**：task 奖励（$ 必有 ＋ 次币可选）是**额外的完成奖励**——**全部 subtask 都完成后才发**，一般延后；发放动作 = **管理员/项目方手动**（另单自动化 = 挂账，**先登记为手动**）；发放两腿实现归发奖另单。
+- **CP-R6 台账纪律（沿用、不另立）**：task 两币预算的扣减顺序与余数纪律**沿用仓内既有分账**——账务部分 = `ledger_post_event` 单语句（D10 / DL18）＋ 编排函数同事务带幂等键（DL20 / DL141–DL144）；整数余数 = **floor ＋ 余数进平台收入、不零花**（承 §40.14.8 `CP-P6` 同款既有整数分账纪律）；平台收入腿 `uid = −1` 不真 burn（承 §31.5）。
+- **判负（`CP-N7`…`CP-N10` · 与 CP-N1…N6、CP-PN1…PN4 并存、只增不改）**：
+  1. **CP-N7 subtask 非 $ 计量**：subtask 奖励面出现 $ 以外计量（次币字段 / 币种键 / 其他单位）⇒ 判负。
+  2. **CP-N8 task 两币同币**：task 预算次币取 `$`（cid = 1）与主奖励同币 ⇒ 判负。
+  3. **CP-N9 次币缺 cid 有金额**：`reward_amount_secondary` 非空而 `reward_cid_secondary` 为空（或反之）——成对 CHECK 被破 ⇒ 判负。
+  4. **CP-N10 预算扣发（同日再裁 ③ · 以本段为准）**：把 subtask 奖励从 task 预算扣减的实现 ⇒ 判负（两账独立）。
+- **未做（`NOT_MEASURED` · 本册不预填）**：三字段未落库（CP-2 列数契约未动）/ subtask 即时发放与 task 延后完成奖两腿未实现 / 判负 CP-N7…N10 一条未跑；本段零代码 / 零迁移文件 / 零库写 / 零 HTTP 写。
+
 ## §40.15 ★★ v0.45 · 项目（打工/工资体系）六面契约：四张新表 `project` ＋ `project_worker` ＋ `project_wage_claim` ＋ `user_activity_hour` ＋ `app_config` 新键 `project_create_fee` ＋ 台账/batt 衔接面 · 迁移 `0063_project_jobs.sql`（**预计** · 0062 已被 §40.14 占用）（**本节只追加 · §1–§40.14 一字未动** · 依据 = Kevin 2026-10-20 四点 clarify「① 活跃/离线判定 = 近 1 小时内有任意登录态请求 = 活跃（2/时），否则离线（1/时）；② 电量**只在被招工期间累积**（未招工不累积，被招后从入职时刻起算）；③ 原 H5【招工】入口文案改为【任务】；④ 建项目费：从创建者 $ 余额扣、走既有积分台账入平台收入，费额存 `app_config` 键 `project_create_fee`（默认 10000，管理员可改）」 · 迁移由实现单落盘 / apply 由 Zang · 零代码 / 零迁移文件改动 / 零库写 / 零 HTTP 写）
 
 > **本节性质**：**只追加**（§40.14 全文逐字保留；**头注版本块不改写**，承 §40.8.1–§40.14「加性续登、不改头注」体例，以本行 **`v0.45`** 为现行版读数）。`DL` 编号域**零改动**（仍 `DL1..DL157`），`EL-*` / `ID-*` / `MB-*` / `CP-*` **零改动**；本节以 **`PR-*`** 承载。**姊妹册** = `route-layer.spec` **§49.19**（七口路由矩阵 · v2.46 新路由升版）＋ `design-system.spec` **§26.20**（招工→任务文案 ＋ 项目页面骨架）＋ `master-plan` **§5.447 / 版本行 v0.364** ＋ `ops/project/SPEC-NOTE.md`。**计数披露**：派单称「六表」，实为新表 **4** 张 ＋ 既有面 **2** 处（`app_config` 键面、ledger/batt 台账衔接面），本节按实数落册、不虚增。
