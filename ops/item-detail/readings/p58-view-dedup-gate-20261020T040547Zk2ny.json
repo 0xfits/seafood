@@ -1,0 +1,236 @@
+{
+  "run": "20261020T040547Zk2ny",
+  "name": "p58-view-dedup-gate",
+  "at": "2026-10-20T04:06:04.647Z",
+  "script": "ops/item-detail/p58-00-view-dedup-gate.ts",
+  "env": {
+    "project_id": "quiet-math-65207667",
+    "branch_id": "br-soft-lake-b3iv9tli",
+    "expect_dev": "quiet-math-65207667"
+  },
+  "mode": "post-apply",
+  "migration": {
+    "head_stmts": 3,
+    "head_bytes": 2760,
+    "tail_bytes": 5319
+  },
+  "unit": [
+    {
+      "id": "U1",
+      "what": "解析正例：`on` ⇒ true（去重）· `off` ⇒ false（不去重）",
+      "pass": true,
+      "reading": {
+        "on": true,
+        "off": false
+      }
+    },
+    {
+      "id": "U2",
+      "what": "解析 normalize：`ON` / ` OFF `（大小写·首尾空白）同合法值",
+      "pass": true,
+      "reading": {
+        "ON": true,
+        "spaced_off": false
+      }
+    },
+    {
+      "id": "U3",
+      "what": "**fail-safe 全臂**：非法串 `banana` / 空串 / 非字符串（boolean·null·undefined·对象）⇒ 一律默认 **on（去重）**——缺配置永不静默关闸",
+      "pass": true,
+      "reading": {
+        "banana": true,
+        "empty": true,
+        "bool": true,
+        "obj": true
+      }
+    },
+    {
+      "id": "U4",
+      "what": "合法值闭集真源 = `DETAIL_VIEW_DEDUP_LEGAL_VALUES`（恰 on|off · 迁移自检同族）",
+      "pass": true,
+      "reading": "[\"on\",\"off\"]"
+    }
+  ],
+  "checks": [
+    {
+      "id": "A1",
+      "what": "**零新路由**：注册点仍 = 110（本单只改详情读口内部分支，无第 111 个注册点）",
+      "pass": true,
+      "reading": "registration_points=110"
+    },
+    {
+      "id": "A2",
+      "what": "路由两臂接线：开关读 `isDetailViewDedupEnabled` 在场 · **off 臂仍字面调** `getPrizeDetailRecordingView(bID)`（P57 专用口不挪窝）· on 臂走 `getPrizeDetailViewWithViewer` · `getPrizeById(` 不在详情路由（裸读不回流）· 仅 on 时解析访客（off 零 cookie/头读取）",
+      "pass": true,
+      "reading": "{\"switch_read\":true,\"off_arm_literal\":true,\"on_arm\":true,\"bare_read回流\":false}"
+    },
+    {
+      "id": "A3",
+      "what": "匿名访客面：头 `x-sf-viewer` 优先 · cookie `sf_viewer` 复用 · 缺失**发** `sf_viewer=<uuid4>`（HttpOnly; SameSite=Lax; Max-Age=1 年）· 发 cookie 分支缓存降级 `setPrivateNoStore`（防共享缓存串号）· viewer_key 前缀 uid:/anon: 分域",
+      "pass": true,
+      "reading": "{\"header\":true,\"cookie\":true,\"attrs\":true,\"uuid\":true,\"cache_downgrade\":true}"
+    },
+    {
+      "id": "A4",
+      "what": "服务层四新口在场且**单一真源不破**：`view_count = view_count + 1` 全仓仍恰 1 处（在既有 CTE 内）· `isDetailViewDedupEnabled` / `recordDetailViewLog` / `getPrizeDetailViewWithViewer` / `getPrizeDetailReadOnly` 齐 · 只读臂**零自增零 UPDATE** · 日志口 `ON CONFLICT ON CONSTRAINT listing_view_log_uniq DO NOTHING` 在场 · 编排口 fail-open（catch ⇒ null）",
+      "pass": true,
+      "reading": "increment_sites=1 log_slice=733 readonly_slice=1974"
+    },
+    {
+      "id": "A5",
+      "what": "app_config 合法键白名单同步前推：恰 **10** 键且含 `detail_view_dedup`（真源常量断言 · 在册 ≠ 可写：无 AV2 校验器 ⇒ /api/admin/settings 写该键仍 fail-closed 拒）",
+      "pass": true,
+      "reading": "legal_keys=10 has_key=true"
+    },
+    {
+      "id": "A6",
+      "what": "迁移 0058 形状：`CREATE TABLE IF NOT EXISTS public.listing_view_log`（五列逐字：bigserial PK / listing_id bigint NOT NULL / viewer_key text NOT NULL / view_day date NOT NULL DEFAULT current_date / time_created timestamptz NOT NULL DEFAULT now()）· 具名 `listing_view_log_uniq UNIQUE (listing_id, viewer_key, view_day)` · 索引 `listing_view_log_listing_idx` · **零 REFERENCES（不建 FK）** · 头段代码行无 BEGIN/COMMIT · `ADD COLUMN` 零处（listing 列面不动）",
+      "pass": true,
+      "reading": "{\"table\":true,\"uniq\":true,\"idx\":true,\"fk\":false,\"begins\":false,\"adds\":0}"
+    },
+    {
+      "id": "A7",
+      "what": "迁移 0058 开关行：键 `detail_view_dedup` · 值 `{\"dedup\":\"off\"}`（**当前不去重**；0017 容器 CHECK ⇒ 对象包裹）· `ON CONFLICT (key) DO NOTHING`（反复 apply 不覆盖运维翻转值）· 尾部 DO 自检在场",
+      "pass": true,
+      "reading": "{\"row\":true,\"idempotent\":true}"
+    },
+    {
+      "id": "U1",
+      "what": "解析正例：`on` ⇒ true（去重）· `off` ⇒ false（不去重）",
+      "pass": true,
+      "reading": "{\"on\":true,\"off\":false}"
+    },
+    {
+      "id": "U2",
+      "what": "解析 normalize：`ON` / ` OFF `（大小写·首尾空白）同合法值",
+      "pass": true,
+      "reading": "{\"ON\":true,\"spaced_off\":false}"
+    },
+    {
+      "id": "U3",
+      "what": "**fail-safe 全臂**：非法串 `banana` / 空串 / 非字符串（boolean·null·undefined·对象）⇒ 一律默认 **on（去重）**——缺配置永不静默关闸",
+      "pass": true,
+      "reading": "{\"banana\":true,\"empty\":true,\"bool\":true,\"obj\":true}"
+    },
+    {
+      "id": "U4",
+      "what": "合法值闭集真源 = `DETAIL_VIEW_DEDUP_LEGAL_VALUES`（恰 on|off · 迁移自检同族）",
+      "pass": true,
+      "reading": "[\"on\",\"off\"]"
+    },
+    {
+      "id": "ENV",
+      "what": "库身份自证：neon.project_id = dev（quiet-math-65207667）—— 读数归因前置",
+      "pass": true,
+      "reading": "project_id=quiet-math-65207667"
+    },
+    {
+      "id": "ENV2",
+      "what": "迁移态可判读（pre-apply = 表与开关行均缺席 ⇒ 事务内干跑；post-apply = 均在场 ⇒ 头段幂等 no-op；partial = STOP）",
+      "pass": true,
+      "reading": "mode=post-apply table=true config_row=true"
+    },
+    {
+      "id": "B1",
+      "what": "迁移头段干跑（事务内）⇒ 表五列逐字：id bigserial PK · listing_id bigint · viewer_key text · view_day date DEFAULT current_date · time_created timestamptz —— 且**全 NOT NULL**",
+      "pass": true,
+      "reading": "{\"error\":null,\"cols\":[{\"column_name\":\"id\",\"data_type\":\"bigint\",\"is_nullable\":\"NO\",\"column_default\":\"nextval('listing_view_log_id_seq'::regclass)\"},{\"column_name\":\"listing_id\",\"data_type\":\"bigint\",\"is_nullable\":\"NO\",\"column_default\":null},{\"column_name\":\"viewer_key\",\"data_type\":\"text\",\"is_nullable\":\"NO\",\"column_default\":null},{\"column_name\":\"view_day\",\"data_type\":\"date\",\"is_nullable\":\"NO\",\"column_default\":\"CURRENT_DATE\"},{\"column_name\":\"time_created\",\"data_type\":\"timestamp with time zone\",\"is_nul"
+    },
+    {
+      "id": "B2",
+      "what": "约束面：具名唯一约束 `listing_view_log_uniq` 恰 1 · 索引 `listing_view_log_listing_idx` 恰 1 · **FK = 0**（历史商品删除不阻碍日志保留）· 开关行 object 且值合法（pre-apply 干跑落行 = off；post-apply = 运维现值 on|off 均过）· pre-apply 下服务层开关读（同事务）= false（off ⇒ 不去重）",
+      "pass": true,
+      "reading": "{\"uniq\":1,\"idx\":1,\"fk\":0,\"cfg\":{\"dedup\":\"off\",\"jtype\":\"object\"},\"switch_read\":false,\"mode\":\"post-apply\"}"
+    },
+    {
+      "id": "B3",
+      "what": "迁移尾部 DO 自检（真库 · 事务内）跑通：五列/唯一约束/索引/零 FK/开关行合法（on|off）/listing 15 列守恒全过",
+      "pass": true,
+      "reading": "{\"tail_ran\":true,\"tail_error\":null}"
+    },
+    {
+      "id": "B4",
+      "what": "事务已回滚（`inRollbackTx` 恒 ROLLBACK ⇒ 零 apply / 零版本行 / 零残留）",
+      "pass": true,
+      "reading": "rolled_back=true ms=2149"
+    },
+    {
+      "id": "C0",
+      "what": "夹具自建走**真 createListingRow 写路径**（0057+0058 头段同事务先行）⇒ inserted · 开关读两态：干跑行 = false（off）· 事务内改配置后 = true（on）",
+      "pass": true,
+      "reading": "{\"error\":null,\"idA\":146,\"off\":false,\"on\":true}"
+    },
+    {
+      "id": "C1",
+      "what": "**开关 off（当前配置）⇒ 行为不变**：连刷 3 次 views = 1→2→3 逐次 +1（P57 口径原样）",
+      "pass": true,
+      "reading": "off_views=[1,2,3]"
+    },
+    {
+      "id": "C2",
+      "what": "**on · 同 viewer 第二次不涨**：首次 +1（4）→ 再刷仍 4（`ON CONFLICT … DO NOTHING` rowCount=0 ⇒ 只读不增）· 同 viewer 同天日志恰 **1** 行",
+      "pass": true,
+      "reading": "v1=4 v2=4 log_rows=1"
+    },
+    {
+      "id": "C3",
+      "what": "**on · 不同 viewer 各 +1**：`uid:900102` ⇒ 5 · 匿名头 `anon:hdr-p58-1` ⇒ 6（uid:/anon: 两形态均判新访客）",
+      "pass": true,
+      "reading": "v3=5 v4=6"
+    },
+    {
+      "id": "C4",
+      "what": "**on · 不同天不计（夹具日）**：昨日已有日志的访客今天再访 ⇒ 自增（7）· 该 viewer 日志恰 2 行（昨天 + 今天各一）",
+      "pass": true,
+      "reading": "v5=7 viewer_rows=2"
+    },
+    {
+      "id": "C5",
+      "what": "**404 不计数不写日志**：ghost 读数 null · ghost 的日志 0 行 · 夹具 view_count 仍 7",
+      "pass": true,
+      "reading": "{\"ghost\":null,\"log_ghost\":0,\"vc_after_ghost\":\"7\"}"
+    },
+    {
+      "id": "C6",
+      "what": "**只读臂（已见访客路径）**：键形与自增臂完全同源（49 键）· views = 现值 · 连读两次零自增 · wants/condition 加性键照常",
+      "pass": true,
+      "reading": "{\"keys\":49,\"views\":[7,7],\"wants\":0,\"condition\":\"LikeNew\",\"shape_same\":true}"
+    },
+    {
+      "id": "N1",
+      "what": "**负控①（判定中和）**：桩替日志判定恒 true（= 去掉 ON CONFLICT 判定）⇒ on 模式同 viewer 连刷 **必涨** 1→2→3 —— 证明 C2 判据非恒绿、门必红",
+      "pass": true,
+      "reading": "{\"v1\":1,\"v2\":2,\"v3\":3,\"restored\":true}"
+    },
+    {
+      "id": "N2",
+      "what": "**负控②（非法值 fail-safe）**：值 `banana` / 非串（boolean）/ 缺 `dedup` 字段 / 行缺席 ⇒ 全部按默认 **on（去重）** 处理",
+      "pass": true,
+      "reading": "{\"r1\":true,\"r2\":true,\"r3\":true,\"r4\":true}"
+    },
+    {
+      "id": "N3",
+      "what": "**负控③（约束真在场）**：同 (listing, viewer, day) 裸重复 INSERT ⇒ 23505 unique_violation（`listing_view_log_uniq` 真闸，判据非恒绿）",
+      "pass": true,
+      "reading": "{\"violated\":true,\"sqlstate\":\"23505\"}"
+    },
+    {
+      "id": "E1",
+      "what": "**零残留**：回滚后 `create_key LIKE cli:p58-gate:%` 命中 = 0（含历史 run；> 0 = 有夹具泄漏，fail-loud）",
+      "pass": true,
+      "reading": "residue_rows=0"
+    },
+    {
+      "id": "E2",
+      "what": "committed 态与迁移态自洽（post-apply ⇒ listing_view_log=在场 · 开关行=在场；实测 table=true row=true）",
+      "pass": true,
+      "reading": "table=true row=true mode=post-apply"
+    }
+  ],
+  "summary": {
+    "total": 29,
+    "passed": 29,
+    "failed": 0,
+    "red": []
+  }
+}

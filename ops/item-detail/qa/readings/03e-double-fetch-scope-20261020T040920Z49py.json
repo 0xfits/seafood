@@ -1,0 +1,75 @@
+{
+  "run": "20261020T040920Z49py",
+  "name": "03e-double-fetch-scope",
+  "at": "2026-10-20T04:09:33.345Z",
+  "routes": [
+    {
+      "label": "首页",
+      "path": "/",
+      "counts": {
+        "/api/role-names": 1,
+        "/api/admin/me": 1,
+        "/api/home": 1,
+        "/api/prize/all": 1,
+        "/api/messages/unread-count": 1,
+        "/api/user/asset/971228": 1,
+        "/api/media/10": 1,
+        "/api/media/8": 1
+      },
+      "doubled": []
+    },
+    {
+      "label": "详情页",
+      "path": "/item/137",
+      "counts": {
+        "/api/role-names": 1,
+        "/api/admin/me": 1,
+        "/api/prize/137": 2,
+        "/api/messages/unread-count": 1,
+        "/api/user/asset/971228": 1,
+        "/api/favorites": 1,
+        "/api/media/10": 1
+      },
+      "doubled": [
+        [
+          "/api/prize/137",
+          2
+        ]
+      ]
+    },
+    {
+      "label": "我的-发布列表",
+      "path": "/profile/trades/published",
+      "counts": {
+        "/api/role-names": 1,
+        "/api/admin/me": 2,
+        "/api/messages/unread-count": 2,
+        "/api/user": 1,
+        "/api/user/asset/971228": 3,
+        "/api/task-progress": 1,
+        "/api/prize-item": 1,
+        "/api/user/ledger": 1,
+        "/api/listing/mine": 1
+      },
+      "doubled": [
+        [
+          "/api/admin/me",
+          2
+        ],
+        [
+          "/api/messages/unread-count",
+          2
+        ],
+        [
+          "/api/user/asset/971228",
+          3
+        ]
+      ]
+    }
+  ],
+  "db": {
+    "project_id": "quiet-math-65207667",
+    "branch_id": "br-soft-lake-b3iv9tli",
+    "database": "neondb"
+  }
+}

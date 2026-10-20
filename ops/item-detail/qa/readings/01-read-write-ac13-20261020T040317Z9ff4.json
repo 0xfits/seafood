@@ -1,0 +1,427 @@
+{
+  "run": "20261020T040317Z9ff4",
+  "name": "01-read-write-ac13",
+  "at": "2026-10-20T04:03:42.471Z",
+  "api": "http://localhost:5788",
+  "steps": [
+    {
+      "name": "db + counts before",
+      "db": {
+        "project_id": "quiet-math-65207667",
+        "branch_id": "br-soft-lake-b3iv9tli",
+        "database": "neondb"
+      },
+      "counts": {
+        "listing": 26,
+        "listing_favorite": 0,
+        "listing_view_log": 0
+      }
+    },
+    {
+      "name": "create 4 physical conditions + digital",
+      "BNS": {
+        "status": 200,
+        "listing_id": "137",
+        "item_condition": null,
+        "item_type": "PhysicalFreeShip",
+        "err": null,
+        "db_item_condition": "BrandNewSealed",
+        "db_item_type": "PhysicalFreeShip",
+        "verbatim_ok": true
+      },
+      "LN": {
+        "status": 200,
+        "listing_id": "138",
+        "item_condition": null,
+        "item_type": "PhysicalBuyerShip",
+        "err": null,
+        "db_item_condition": "LikeNew",
+        "db_item_type": "PhysicalBuyerShip",
+        "verbatim_ok": true
+      },
+      "MW": {
+        "status": 200,
+        "listing_id": "139",
+        "item_condition": null,
+        "item_type": "PhysicalFreeShip",
+        "err": null,
+        "db_item_condition": "MinorWear",
+        "db_item_type": "PhysicalFreeShip",
+        "verbatim_ok": true
+      },
+      "HW": {
+        "status": 200,
+        "listing_id": "140",
+        "item_condition": null,
+        "item_type": "PhysicalFreeShip",
+        "err": null,
+        "db_item_condition": "HeavyWear",
+        "db_item_type": "PhysicalFreeShip",
+        "verbatim_ok": true
+      },
+      "DIG": {
+        "status": 200,
+        "listing_id": "141",
+        "item_condition": null,
+        "item_type": "DigitalAutoDeliver",
+        "err": null,
+        "db_item_condition": null,
+        "db_item_type": "DigitalAutoDeliver",
+        "verbatim_ok": false
+      }
+    }
+  ],
+  "db": {
+    "project_id": "quiet-math-65207667",
+    "branch_id": "br-soft-lake-b3iv9tli",
+    "database": "neondb"
+  },
+  "counts_before": {
+    "listing": 26,
+    "listing_favorite": 0,
+    "listing_view_log": 0
+  },
+  "accounts": {
+    "A": {
+      "uid": 971227,
+      "evm": "0x50db6b1feed1740e37e00904a342cb452f458940"
+    },
+    "B": {
+      "uid": 971228,
+      "evm": "0x4d988d950d04d7f29a2757aa1fd6bee8c58e817d"
+    }
+  },
+  "media": {
+    "m1": {
+      "status": 200,
+      "data": {
+        "url": "/api/media/10",
+        "media_id": 10,
+        "sha256": "6b7fa434f92a8b80aab02d9bf1a12e49ffcae424e4013a1c4f68b67e3d2bbcd0",
+        "size_bytes": 70,
+        "deduplicated": false
+      }
+    },
+    "m2": {
+      "status": 200,
+      "data": {
+        "url": "/api/media/10",
+        "media_id": 10,
+        "sha256": "6b7fa434f92a8b80aab02d9bf1a12e49ffcae424e4013a1c4f68b67e3d2bbcd0",
+        "size_bytes": 70,
+        "deduplicated": true
+      }
+    }
+  },
+  "created": {
+    "BNS": {
+      "status": 200,
+      "listing_id": "137",
+      "item_condition": null,
+      "item_type": "PhysicalFreeShip",
+      "err": null,
+      "db_item_condition": "BrandNewSealed",
+      "db_item_type": "PhysicalFreeShip",
+      "verbatim_ok": true
+    },
+    "LN": {
+      "status": 200,
+      "listing_id": "138",
+      "item_condition": null,
+      "item_type": "PhysicalBuyerShip",
+      "err": null,
+      "db_item_condition": "LikeNew",
+      "db_item_type": "PhysicalBuyerShip",
+      "verbatim_ok": true
+    },
+    "MW": {
+      "status": 200,
+      "listing_id": "139",
+      "item_condition": null,
+      "item_type": "PhysicalFreeShip",
+      "err": null,
+      "db_item_condition": "MinorWear",
+      "db_item_type": "PhysicalFreeShip",
+      "verbatim_ok": true
+    },
+    "HW": {
+      "status": 200,
+      "listing_id": "140",
+      "item_condition": null,
+      "item_type": "PhysicalFreeShip",
+      "err": null,
+      "db_item_condition": "HeavyWear",
+      "db_item_type": "PhysicalFreeShip",
+      "verbatim_ok": true
+    },
+    "DIG": {
+      "status": 200,
+      "listing_id": "141",
+      "item_condition": null,
+      "item_type": "DigitalAutoDeliver",
+      "err": null,
+      "db_item_condition": null,
+      "db_item_type": "DigitalAutoDeliver",
+      "verbatim_ok": false
+    }
+  },
+  "negative": {
+    "digital_with_condition": {
+      "status": 400,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "reason": "ITEM_CONDITION_NOT_APPLICABLE",
+      "message": null
+    },
+    "invalid_condition": {
+      "status": 400,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "reason": "NOT_IN_CLOSED_SET"
+    },
+    "no_type_with_condition": {
+      "status": 400,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "reason": "ITEM_CONDITION_NOT_APPLICABLE"
+    }
+  },
+  "patch_condition": {
+    "listing_id": "138",
+    "status": 200,
+    "body_condition": null,
+    "db_before": "LikeNew",
+    "db_after": "HeavyWear",
+    "changed": true
+  },
+  "detail_keys": {
+    "status": 200,
+    "count": 50,
+    "keys": [
+      "activated_count",
+      "available_quantity",
+      "bID",
+      "circulation_seconds",
+      "claims_count",
+      "condition",
+      "current_shard_supply",
+      "description",
+      "description_en",
+      "description_hk",
+      "description_vn",
+      "duration_seconds",
+      "free_shard_quota",
+      "free_shard_ratio",
+      "free_shards_distributed",
+      "free_shards_remaining",
+      "gift_limit",
+      "i18n_status",
+      "image_url",
+      "issued_quantity",
+      "item_type",
+      "lifecycle_status",
+      "liquidation_seconds",
+      "market_floor_points",
+      "market_is_open",
+      "market_shard_cap",
+      "media_urls",
+      "minimum_shard_price",
+      "name",
+      "name_en",
+      "name_hk",
+      "name_vn",
+      "points",
+      "price_floor_active",
+      "price_floor_eligible",
+      "price_floor_enabled",
+      "redeemed_quantity",
+      "remaining_market_shards",
+      "seller",
+      "stores_count",
+      "symbol",
+      "time_actived",
+      "time_created",
+      "time_end",
+      "time_start",
+      "time_updated",
+      "total_quantity",
+      "url_image",
+      "views",
+      "wants"
+    ],
+    "has_wants": true,
+    "has_views": true,
+    "has_condition": true,
+    "views_value": 1,
+    "wants_value": 0,
+    "condition_value": "BrandNewSealed"
+  },
+  "feed_keys": {
+    "status": 200,
+    "rows": 9,
+    "distinct_key_counts": [
+      48
+    ],
+    "distinct_key_sets": 1,
+    "my_row_keys": null,
+    "has_views": false,
+    "has_condition": false,
+    "has_item_condition": false
+  },
+  "mine_keys": {
+    "status": 200,
+    "rows": 5,
+    "key_count": 11,
+    "keys": [
+      "cid",
+      "condition",
+      "description",
+      "item_type",
+      "listing_id",
+      "media_urls",
+      "price",
+      "status",
+      "stock",
+      "time_created",
+      "title"
+    ],
+    "has_condition": true,
+    "condition_values": [
+      {
+        "id": 141,
+        "condition": null
+      },
+      {
+        "id": 140,
+        "condition": "HeavyWear"
+      },
+      {
+        "id": 139,
+        "condition": "MinorWear"
+      },
+      {
+        "id": 138,
+        "condition": "HeavyWear"
+      },
+      {
+        "id": 137,
+        "condition": "BrandNewSealed"
+      }
+    ]
+  },
+  "views_increment": {
+    "listing_id": "139",
+    "seq": [
+      {
+        "i": 1,
+        "status": 200,
+        "views": 1,
+        "wants": 0
+      },
+      {
+        "i": 2,
+        "status": 200,
+        "views": 2,
+        "wants": 0
+      },
+      {
+        "i": 3,
+        "status": 200,
+        "views": 3,
+        "wants": 0
+      }
+    ],
+    "db_view_count": "3",
+    "deltas": [
+      1,
+      1
+    ]
+  },
+  "miss_404": {
+    "statuses": [
+      404,
+      404
+    ],
+    "codes": [
+      "LEDGER_REF_NOT_FOUND",
+      "LEDGER_REF_NOT_FOUND"
+    ],
+    "log_total_before": 0,
+    "log_total_after": 0,
+    "log_for_miss_before": 0,
+    "log_for_miss_after": 0,
+    "log_delta": 0
+  },
+  "condition_visibility": {
+    "detail_condition": "HeavyWear",
+    "mine_condition": "HeavyWear",
+    "db_condition": "HeavyWear"
+  },
+  "fixtures": [
+    {
+      "listing_id": "137",
+      "seller_uid": "971227",
+      "status": "draft",
+      "item_type": "PhysicalFreeShip",
+      "item_condition": "BrandNewSealed",
+      "view_count": "1",
+      "title": "QAID50-BNS-20261020T040317Z9ff4",
+      "media_urls": [
+        "/api/media/10",
+        "/api/media/10"
+      ]
+    },
+    {
+      "listing_id": "138",
+      "seller_uid": "971227",
+      "status": "draft",
+      "item_type": "PhysicalBuyerShip",
+      "item_condition": "HeavyWear",
+      "view_count": "1",
+      "title": "QAID50-LN-20261020T040317Z9ff4",
+      "media_urls": [
+        "/api/media/10"
+      ]
+    },
+    {
+      "listing_id": "139",
+      "seller_uid": "971227",
+      "status": "draft",
+      "item_type": "PhysicalFreeShip",
+      "item_condition": "MinorWear",
+      "view_count": "3",
+      "title": "QAID50-MW-20261020T040317Z9ff4",
+      "media_urls": []
+    },
+    {
+      "listing_id": "140",
+      "seller_uid": "971227",
+      "status": "draft",
+      "item_type": "PhysicalFreeShip",
+      "item_condition": "HeavyWear",
+      "view_count": "0",
+      "title": "QAID50-HW-20261020T040317Z9ff4",
+      "media_urls": []
+    },
+    {
+      "listing_id": "141",
+      "seller_uid": "971227",
+      "status": "draft",
+      "item_type": "DigitalAutoDeliver",
+      "item_condition": null,
+      "view_count": "0",
+      "title": "QAID50-DIG-20261020T040317Z9ff4",
+      "media_urls": []
+    }
+  ],
+  "counts_after": {
+    "listing": 31,
+    "listing_favorite": 0,
+    "listing_view_log": 0
+  },
+  "accounts_full": {
+    "A": {
+      "uid": 971227
+    },
+    "B": {
+      "uid": 971228
+    }
+  }
+}

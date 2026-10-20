@@ -1,0 +1,62 @@
+{
+  "run": "20261020T040453Z83wy",
+  "name": "02b-dedup-failsafe-fix",
+  "at": "2026-10-20T04:05:02.216Z",
+  "listing": "137",
+  "arms": [
+    {
+      "arm": "缺字段 {\"other\":\"on\"} ⇒ 按 on（首访 +1 / 复读 +0 / 日志 1 行）",
+      "config": {
+        "other": "on"
+      },
+      "statuses": [
+        200,
+        200
+      ],
+      "views": [
+        1,
+        2,
+        2
+      ],
+      "deltas": [
+        1,
+        0
+      ],
+      "log_rows": [
+        0,
+        1
+      ],
+      "log_delta": 1,
+      "pass": true
+    },
+    {
+      "arm": "缺行 ⇒ 按 on（已有当日日志 ⇒ 不涨）",
+      "views": [
+        2,
+        2
+      ],
+      "delta": 0,
+      "pass": true
+    }
+  ],
+  "db": {
+    "project_id": "quiet-math-65207667",
+    "branch_id": "br-soft-lake-b3iv9tli",
+    "database": "neondb"
+  },
+  "config_before": {
+    "dedup": "off"
+  },
+  "config_set": {
+    "other": "on"
+  },
+  "config_read": {
+    "other": "on"
+  },
+  "row_absent_read": null,
+  "row_absent_config_row_count": 0,
+  "config_restored": {
+    "dedup": "off"
+  },
+  "all_pass": true
+}

@@ -1,0 +1,109 @@
+{
+  "run": "20261020T040808Zbvya",
+  "name": "03c-views-doublefetch-diagnosis",
+  "at": "2026-10-20T04:08:24.555Z",
+  "listing": "137",
+  "runs": [
+    {
+      "label": "路由 /item/<id>",
+      "pathname": "/item/137",
+      "requests": 2,
+      "hitTimesMs": [
+        0,
+        1
+      ],
+      "db_delta": 2,
+      "dom": {
+        "layouts": 1,
+        "buyForms": 1,
+        "roots": 2,
+        "viewsNodes": [
+          {
+            "text": "19人浏览",
+            "display": "inline",
+            "slot": "price"
+          },
+          {
+            "text": "19人浏览",
+            "display": "block",
+            "slot": "tags"
+          }
+        ],
+        "counts": 2,
+        "reactRootMarkers": [
+          "__reactContainer$esp3psgl9bg"
+        ]
+      },
+      "pageErrors": []
+    },
+    {
+      "label": "兼容形态 /item?id=<id>",
+      "pathname": "/item?id=137",
+      "requests": 2,
+      "hitTimesMs": [
+        0,
+        1
+      ],
+      "db_delta": 2,
+      "dom": {
+        "layouts": 1,
+        "buyForms": 1,
+        "roots": 2,
+        "viewsNodes": [
+          {
+            "text": "21人浏览",
+            "display": "inline",
+            "slot": "price"
+          },
+          {
+            "text": "21人浏览",
+            "display": "block",
+            "slot": "tags"
+          }
+        ],
+        "counts": 2,
+        "reactRootMarkers": [
+          "__reactContainer$7ufq987k3ei"
+        ]
+      },
+      "pageErrors": []
+    },
+    {
+      "label": "同页二次（reload 由新 context 模拟）",
+      "pathname": "/item/137",
+      "requests": 2,
+      "hitTimesMs": [
+        0,
+        1
+      ],
+      "db_delta": 2,
+      "dom": {
+        "layouts": 1,
+        "buyForms": 1,
+        "roots": 2,
+        "viewsNodes": [
+          {
+            "text": "22人浏览",
+            "display": "inline",
+            "slot": "price"
+          },
+          {
+            "text": "22人浏览",
+            "display": "block",
+            "slot": "tags"
+          }
+        ],
+        "counts": 2,
+        "reactRootMarkers": [
+          "__reactContainer$2p7ja4t1w2c"
+        ]
+      },
+      "pageErrors": []
+    }
+  ],
+  "db": {
+    "project_id": "quiet-math-65207667",
+    "branch_id": "br-soft-lake-b3iv9tli",
+    "database": "neondb"
+  }
+}

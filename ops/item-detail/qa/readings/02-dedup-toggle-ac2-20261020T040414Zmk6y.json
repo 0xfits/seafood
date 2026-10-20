@@ -1,0 +1,207 @@
+{
+  "run": "20261020T040414Zmk6y",
+  "name": "02-dedup-toggle-ac2",
+  "at": "2026-10-20T04:04:38.004Z",
+  "api": "http://localhost:5788",
+  "listing_hw": "140",
+  "listing_mw": "139",
+  "arms": [
+    {
+      "arm": "on · 同 uid 连续 2 次",
+      "views": [
+        0,
+        1,
+        1
+      ],
+      "view_delta_total": 1,
+      "resp_views": [
+        1,
+        1
+      ],
+      "statuses": [
+        200,
+        200
+      ],
+      "log_rows_before": 0,
+      "log_rows_after": 1,
+      "log_delta": 1,
+      "pass": true
+    },
+    {
+      "arm": "on · 异 uid（B）",
+      "status": 200,
+      "views": [
+        1,
+        2
+      ],
+      "view_delta": 1,
+      "log_delta": 1,
+      "pass": true
+    },
+    {
+      "arm": "on · 异 x-sf-viewer 头（同头两次 + 换头一次）",
+      "statuses": [
+        200,
+        200,
+        200
+      ],
+      "views": [
+        2,
+        3,
+        3,
+        4
+      ],
+      "deltas": [
+        1,
+        0,
+        1
+      ],
+      "log_rows": 4,
+      "log_delta": 2,
+      "rows": [
+        {
+          "viewer_key": "anon:qa-anon-11111111",
+          "view_day": "2026-10-19T16:00:00.000Z",
+          "n": 1
+        },
+        {
+          "viewer_key": "anon:qa-anon-22222222",
+          "view_day": "2026-10-19T16:00:00.000Z",
+          "n": 1
+        },
+        {
+          "viewer_key": "uid:971227",
+          "view_day": "2026-10-19T16:00:00.000Z",
+          "n": 1
+        },
+        {
+          "viewer_key": "uid:971228",
+          "view_day": "2026-10-19T16:00:00.000Z",
+          "n": 1
+        }
+      ],
+      "pass": true
+    },
+    {
+      "arm": "on · 匿名无头无 cookie（发 cookie，同访客复读不涨）",
+      "statuses": [
+        200,
+        200
+      ],
+      "set_cookie_present": true,
+      "cache_control_after_mint": "private, no-store",
+      "views": [
+        4,
+        5,
+        5
+      ],
+      "view_delta": 1,
+      "log_delta": 1,
+      "pass": true
+    },
+    {
+      "arm": "on · 404 不写日志不计数",
+      "status": 404,
+      "log_total": [
+        5,
+        5
+      ],
+      "log_delta": 0,
+      "pass": true
+    },
+    {
+      "arm": "off · 同 uid 连刷 3 次必涨",
+      "statuses": [
+        200,
+        200,
+        200
+      ],
+      "resp_views": [
+        4,
+        5,
+        6
+      ],
+      "views": [
+        3,
+        6
+      ],
+      "view_delta": 3,
+      "log_delta": 0,
+      "pass": true
+    },
+    {
+      "arm": "非法值 \"banana\" ⇒ 按 on（同 uid 二次不涨）",
+      "statuses": [
+        200,
+        200
+      ],
+      "views": [
+        5,
+        5,
+        5
+      ],
+      "view_delta": 0,
+      "log_rows_total_for_listing": 5,
+      "pass": true
+    },
+    {
+      "arm": "缺字段 {\"other\":\"on\"} ⇒ 按 on",
+      "views": [
+        6,
+        7
+      ],
+      "view_delta": 1,
+      "pass": false
+    },
+    {
+      "arm": "复原后复读：off ⇒ 连刷涨（行为回到现状）",
+      "views": [
+        7,
+        9
+      ],
+      "view_delta": 2,
+      "pass": true
+    }
+  ],
+  "db": {
+    "project_id": "quiet-math-65207667",
+    "branch_id": "br-soft-lake-b3iv9tli",
+    "database": "neondb"
+  },
+  "config_before": {
+    "dedup": "off"
+  },
+  "counts_before": {
+    "listing": 31,
+    "listing_favorite": 0,
+    "listing_view_log": 0
+  },
+  "accounts": {
+    "A": 971227,
+    "B": 971228
+  },
+  "config_set_on": {
+    "dedup": "on"
+  },
+  "config_set_off": {
+    "dedup": "off"
+  },
+  "config_set_invalid": {
+    "dedup": "banana"
+  },
+  "config_set_missing_field": {
+    "other": "on"
+  },
+  "config_restored": {
+    "dedup": "off"
+  },
+  "restore_verify": {
+    "dedup": "off"
+  },
+  "counts_after": {
+    "listing": 31,
+    "listing_favorite": 0,
+    "listing_view_log": 6
+  },
+  "all_pass": false
+}

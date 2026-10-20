@@ -1,0 +1,267 @@
+{
+  "run": "20261020T040738Zxhnr",
+  "name": "03b-views-attribution-web",
+  "at": "2026-10-20T04:07:53.915Z",
+  "listing": "137",
+  "loads": [
+    {
+      "label": "首次冷启",
+      "db_before": 11,
+      "db_after": 13,
+      "db_delta": 2,
+      "api_prize_requests": 2,
+      "hits": [
+        {
+          "path": "/api/prize/137",
+          "resourceType": "fetch",
+          "status": 200,
+          "views": 13,
+          "cacheControl": "public, s-maxage=30, stale-while-revalidate=300",
+          "ms": 1634,
+          "initiator": "http://sf.local/item/137"
+        },
+        {
+          "path": "/api/prize/137",
+          "resourceType": "fetch",
+          "status": 200,
+          "views": 12,
+          "cacheControl": "public, s-maxage=30, stale-while-revalidate=300",
+          "ms": 1643,
+          "initiator": "http://sf.local/item/137"
+        }
+      ],
+      "dom_views_text": "12人浏览",
+      "attribution": "k 请求 = k 自增"
+    },
+    {
+      "label": "reload",
+      "db_before": 13,
+      "db_after": 15,
+      "db_delta": 2,
+      "api_prize_requests": 2,
+      "hits": [
+        {
+          "path": "/api/prize/137",
+          "resourceType": "fetch",
+          "status": 200,
+          "views": 15,
+          "cacheControl": "public, s-maxage=30, stale-while-revalidate=300",
+          "ms": 614,
+          "initiator": "http://sf.local/item/137"
+        },
+        {
+          "path": "/api/prize/137",
+          "resourceType": "fetch",
+          "status": 200,
+          "views": 14,
+          "cacheControl": "public, s-maxage=30, stale-while-revalidate=300",
+          "ms": 646,
+          "initiator": "http://sf.local/item/137"
+        }
+      ],
+      "dom_views_text": "14人浏览",
+      "attribution": "k 请求 = k 自增"
+    },
+    {
+      "label": "reload #2",
+      "db_before": 15,
+      "db_after": 17,
+      "db_delta": 2,
+      "api_prize_requests": 2,
+      "hits": [
+        {
+          "path": "/api/prize/137",
+          "resourceType": "fetch",
+          "status": 200,
+          "views": 16,
+          "cacheControl": "public, s-maxage=30, stale-while-revalidate=300",
+          "ms": 631,
+          "initiator": "http://sf.local/item/137"
+        },
+        {
+          "path": "/api/prize/137",
+          "resourceType": "fetch",
+          "status": 200,
+          "views": 17,
+          "cacheControl": "public, s-maxage=30, stale-while-revalidate=300",
+          "ms": 633,
+          "initiator": "http://sf.local/item/137"
+        }
+      ],
+      "dom_views_text": "17人浏览",
+      "attribution": "k 请求 = k 自增"
+    }
+  ],
+  "db": {
+    "project_id": "quiet-math-65207667",
+    "branch_id": "br-soft-lake-b3iv9tli",
+    "database": "neondb"
+  },
+  "web": {
+    "present": {
+      "seller": true,
+      "cols": true,
+      "gallery": true,
+      "side": true,
+      "priceRow": true,
+      "group": true
+    },
+    "seller": {
+      "x": 20,
+      "y": 104,
+      "w": 1496,
+      "h": 24,
+      "right": 1516,
+      "bottom": 128
+    },
+    "cols": {
+      "x": 20,
+      "y": 128,
+      "w": 1496,
+      "h": 466.1,
+      "right": 1516,
+      "bottom": 594.1
+    },
+    "gallery": {
+      "x": 20,
+      "y": 128,
+      "w": 888,
+      "h": 320,
+      "right": 908,
+      "bottom": 448
+    },
+    "thumbs": {
+      "x": 20,
+      "y": 128,
+      "w": 64,
+      "h": 136,
+      "right": 84,
+      "bottom": 264
+    },
+    "main": {
+      "x": 92,
+      "y": 128,
+      "w": 304.2,
+      "h": 320,
+      "right": 396.2,
+      "bottom": 448
+    },
+    "side": {
+      "x": 924,
+      "y": 128,
+      "w": 592,
+      "h": 466.1,
+      "right": 1516,
+      "bottom": 594.1
+    },
+    "priceRow": {
+      "x": 924,
+      "y": 128,
+      "w": 592,
+      "h": 48,
+      "right": 1516,
+      "bottom": 176
+    },
+    "thumbCount": 2,
+    "arrows": {
+      "prev": true,
+      "next": true
+    },
+    "countsDesk": {
+      "text": "1人想要\n17人浏览",
+      "rect": {
+        "x": 1414.4,
+        "y": 150,
+        "w": 101.6,
+        "h": 18,
+        "right": 1516,
+        "bottom": 168
+      }
+    },
+    "countsMobDisplay": "none",
+    "group": {
+      "rect": {
+        "x": 924,
+        "y": 542.1,
+        "w": 493,
+        "h": 44,
+        "right": 1417,
+        "bottom": 586.1
+      },
+      "radius": "999px",
+      "overflow": "hidden",
+      "position": "static",
+      "children": [
+        {
+          "cls": "sf-btn sf-item-btn sf-item-cta-group-seg sf-item-cta-buy",
+          "rect": {
+            "x": 1019,
+            "y": 542.1,
+            "w": 398,
+            "h": 44,
+            "right": 1417,
+            "bottom": 586.1
+          },
+          "radius": "0px"
+        },
+        {
+          "cls": "sf-btn sf-item-btn sf-item-cta-group-seg sf-item-cta-chat",
+          "rect": {
+            "x": 924,
+            "y": 542.1,
+            "w": 95,
+            "h": 44,
+            "right": 1019,
+            "bottom": 586.1
+          },
+          "radius": "0px"
+        }
+      ]
+    },
+    "fav": {
+      "rect": {
+        "x": 1425,
+        "y": 542.1,
+        "w": 91,
+        "h": 44,
+        "right": 1516,
+        "bottom": 586.1
+      },
+      "radius": "999px"
+    },
+    "buy": {
+      "x": 1019,
+      "y": 542.1,
+      "w": 398,
+      "h": 44,
+      "right": 1417,
+      "bottom": 586.1
+    },
+    "chat": {
+      "x": 924,
+      "y": 542.1,
+      "w": 95,
+      "h": 44,
+      "right": 1019,
+      "bottom": 586.1
+    },
+    "msgDisplay": "none",
+    "bar": {
+      "rect": {
+        "x": 924,
+        "y": 534.1,
+        "w": 592,
+        "h": 60,
+        "right": 1516,
+        "bottom": 594.1
+      },
+      "position": "static"
+    },
+    "webTitle": {
+      "text": "QAID50-BNS-20261020T040317Z9ff4",
+      "visible": true,
+      "weight": "700"
+    }
+  },
+  "pageErrors": []
+}

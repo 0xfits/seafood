@@ -1,0 +1,25 @@
+{
+  "run": "20261020T040947Zwhp8",
+  "name": "03f-double-fetch-mechanism",
+  "at": "2026-10-20T04:09:55.493Z",
+  "db": {
+    "project_id": "quiet-math-65207667",
+    "branch_id": "br-soft-lake-b3iv9tli",
+    "database": "neondb"
+  },
+  "qa": {
+    "layoutsAdded": 1,
+    "layoutsRemoved": 0,
+    "history": [
+      {
+        "fn": "replaceState",
+        "url": ""
+      }
+    ],
+    "langChanges": []
+  },
+  "detailRequests": 2,
+  "gapMs": [
+    3
+  ]
+}

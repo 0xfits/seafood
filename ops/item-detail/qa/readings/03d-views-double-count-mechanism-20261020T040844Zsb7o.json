@@ -1,0 +1,79 @@
+{
+  "run": "20261020T040844Zsb7o",
+  "name": "03d-views-double-count-mechanism",
+  "at": "2026-10-20T04:08:57.309Z",
+  "listing": "137",
+  "arms": [
+    {
+      "label": "游客态（无 localStorage 会话）",
+      "loggedIn": false,
+      "detail_requests": 2,
+      "db_delta": 2,
+      "detail_calls": [
+        {
+          "path": "/api/prize/137",
+          "auth": false,
+          "status": 200,
+          "x_session_token": false
+        },
+        {
+          "path": "/api/prize/137",
+          "auth": false,
+          "status": 200,
+          "x_session_token": false
+        }
+      ],
+      "authenticated_calls": [],
+      "calls_with_session_token": [],
+      "all_paths": [
+        "/api/role-names",
+        "/api/prize/137",
+        "/api/prize/137",
+        "/api/media/10"
+      ]
+    },
+    {
+      "label": "登录态（真 token）",
+      "loggedIn": true,
+      "detail_requests": 2,
+      "db_delta": 2,
+      "detail_calls": [
+        {
+          "path": "/api/prize/137",
+          "auth": true,
+          "status": 200,
+          "x_session_token": false
+        },
+        {
+          "path": "/api/prize/137",
+          "auth": true,
+          "status": 200,
+          "x_session_token": false
+        }
+      ],
+      "authenticated_calls": [
+        "/api/messages/unread-count",
+        "/api/admin/me",
+        "/api/prize/137",
+        "/api/prize/137",
+        "/api/favorites"
+      ],
+      "calls_with_session_token": [],
+      "all_paths": [
+        "/api/role-names",
+        "/api/messages/unread-count",
+        "/api/admin/me",
+        "/api/user/asset/971228",
+        "/api/prize/137",
+        "/api/prize/137",
+        "/api/media/10",
+        "/api/favorites"
+      ]
+    }
+  ],
+  "db": {
+    "project_id": "quiet-math-65207667",
+    "branch_id": "br-soft-lake-b3iv9tli",
+    "database": "neondb"
+  }
+}
