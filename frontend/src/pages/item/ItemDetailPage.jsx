@@ -10,6 +10,9 @@ import TranslatingBadge from '../../components/i18n/TranslatingBadge'
 // 媒体单前端阶段 A：详情面板真图优先（media_urls[0]），无媒体 ⇒ 机械鱼占位（T94 勘误：真图填原几何盒）。
 import { PLACEHOLDER_IMAGE } from '../../assets/placeholder'
 import { buyListing, createListingBuyTracker, fetchListingDetail, listingBuyFingerprint } from './item-api'
+// ★ 0059 · 管理员代编能力（`/api/user` 的 `admin` 三键 · 与后端 `isListingEditAdminAccess` 同式）
+//   ⇒ 详情页【编辑】入口的可见性之一（本人 ∨ 管理员）。
+import { isListingEditAdmin, loadListingEditAdmin } from './item-edit-access'
 // v1.17 §20.2 T100：「聊一聊」第 3 格 = 站内信 `POST /api/messages/conversations`（自然幂等、前端不供键）。
 import { openConversation } from '../../messages-api'
 // sf14 需求⑦（Kevin 2026-10-14 解冻第 2 格「收藏」）：收藏/已收藏 toggle（trades-api 幂等写口）。
@@ -21,6 +24,10 @@ import './item.css'
 //   （现取：`backend-ts/migrations/0015_listing.sql:137` ⇒ `draft|listed|delisted|frozen`，默认 `draft`）
 //   与列表（首页）同一键族 `item.statusLabel.*`（四语齐备）。
 const LISTING_STATUS_KEYS = ['draft', 'listed', 'delisted', 'frozen']
+
+// ★ 0059 · 可编辑态（与后端 `updateListingDetails` 的可编辑态闸逐字一致：`draft|listed`）——
+//   `delisted` / `frozen` / 未知态 ⇒ 详情页**不渲染**【编辑】入口（点了也只会吃 409）。
+const EDITABLE_STATUSES = ['draft', 'listed']
 
 // ============================================================================
 // 闲置物品线 · 详情 + 购买（原 `pages/listings/ListingDetailPage.jsx`；2026-10-11 合并单改名单为 `item`）
@@ -86,6 +93,8 @@ const ItemDetailPage = () => {
   const [fav, setFav] = useState({ phase: 'idle', favored: false })
   // 详情页改版 ⑤：媒体画廊当前选中下标（轮播/缩略图共用；换商品即复位，越界钳制兜底）。
   const [mediaIndex, setMediaIndex] = useState(0)
+  // ★ 0059：【编辑】入口的「管理员可代编」臂（`/api/user` 的 admin 三键派生；非管理员恒 false）。
+  const [canEditAny, setCanEditAny] = useState(false)
   const tracker = useMemo(() => createListingBuyTracker(), [])
 
   // TR-2：当前语言（`utils.SUPPORTED_LANGS` 同一白名单）
@@ -153,6 +162,34 @@ const ItemDetailPage = () => {
       .catch(() => {})
     return () => { alive = false }
   }, [isAuthenticated, id, detail.phase, user])
+
+  // ★ 0059 · 【编辑】入口的「管理员可代编」臂（本人在此**不**补取 —— 本人入口恒可见）。
+  //   触发条件：已登录 ∧ 详情已就绪 ∧ 观看者**不是**卖家（`row.seller.uid` 与当前 uID 不同）。
+  //   取数 = `/api/user` 的 `admin` 三键（`item-edit-access` 内按 uID 缓存 + 并发合并）；
+  //   失败 / 未登录 ⇒ `canEditAny = false`（fail-safe：少显示入口，绝不把普通用户当管理员）。
+  const sellerUidKey = detail.row?.seller?.uid ?? null
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setCanEditAny(false)
+      return undefined
+    }
+    // 详情未就绪 ⇒ 还不知道「是不是本人」，先不取（避免为本人白发一条 `/api/user`）。
+    if (detail.phase !== 'ok') {
+      setCanEditAny(false)
+      return undefined
+    }
+    if (sellerUidKey != null && uidKey != null && String(sellerUidKey) === String(uidKey)) {
+      setCanEditAny(false)
+      return undefined
+    }
+    let alive = true
+    loadListingEditAdmin(userRef.current)
+      .then((flags) => { if (alive) setCanEditAny(isListingEditAdmin(flags)) })
+      .catch(() => { if (alive) setCanEditAny(false) })
+    return () => { alive = false }
+    // `user` 走 ref（对象引用抖动不重取）；依赖收敛到「登录态 / 卖家归属 / uID」三个原始值。
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, uidKey, sellerUidKey, detail.phase])
 
   // 无 id（`/item` 且无 `?id`）⇒ 自洽处理：重定向首页（保留语言前缀；Kevin 口径「一句话可改」）。
   if (!id) {
@@ -289,15 +326,35 @@ const ItemDetailPage = () => {
       ? t(`item.statusLabel.${statusRaw}`)
       : t('item.statusLabel.unknown'))
 
+  // ★ 0059 · 【编辑】入口可见性 = **已登录 ∧ (本人 ∨ 管理员可代编) ∧ status ∈ {draft, listed}**。
+  //   位置 = 页头右端（与返回箭头同一行，`.sf-item-topbar` 的右端；H5 = 顶栏右侧、
+  //   Web = 页头/卖家通栏上方同一行右端）——**不碰** H5 底栏四件与 Web 拼接胶囊。
+  //   管理员臂 `canEditAny` 由 `/api/user` 的 `admin` 三键派生（见 `item-edit-access.js`）；
+  //   未取到 / 普通用户 ⇒ false ⇒ 只有本人看得到。
+  const showEditLink = isAuthenticated
+    && EDITABLE_STATUSES.includes(statusRaw)
+    && (isSellerSelf || canEditAny)
+
   return (
     <div className="sf-layout" data-sf-m="item-detail-layout">
       <div className="sf-layout-main">
         <div className="sf-item sf-item-detail">
-          {/* 页内顶栏 · 返回箭头（T96：固定回首页；a11y 名复用 item.list；触控复用 .sf-tap-sq）—— Web 两栏改版后保留 */}
+          {/* 页内顶栏 · 返回箭头（T96：固定回首页；a11y 名复用 item.list；触控复用 .sf-tap-sq）
+              ＋ ★ 0059 右端【编辑】入口（可见性见 `showEditLink`；钩子 `item-edit-link`）。
+              DOM 恒在顶栏内 ⇒ 两档同一节点、零重复渲染（不吃断点 JS）。 */}
           <div className="sf-item-topbar">
             <Link className="sf-item-back sf-tap-sq" to={root('/')} data-sf-m="item-back" aria-label={t('item.list')}>
               <ChevronLeft size={22} aria-hidden="true" />
             </Link>
+            {showEditLink ? (
+              <Link
+                className="sf-item-edit-link"
+                to={root(`/item/${id}/edit`)}
+                data-sf-m="item-edit-link"
+              >
+                {t('common.edit')}
+              </Link>
+            ) : null}
           </div>
 
           {detail.phase !== 'ok' ? (

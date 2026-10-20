@@ -8,12 +8,14 @@ import { fetchMyListings } from '../../trades-api'
 import {
   createListingPublishTracker,
   fetchCurrencies,
+  fetchListingEdit,
   listingPublishFingerprint,
   publishListing,
   setListingStatus,
   updateListingFields,
   uploadMedia,
 } from './item-api'
+import { isListingEditAdmin, loadListingEditAdmin } from './item-edit-access'
 import './item.css'
 
 // ============================================================================
@@ -218,9 +220,10 @@ const PublishItemPage = ({ mode = 'publish' }) => {
   const { itemId } = useParams()
   const { isAuthenticated, user } = useAuth()
   // ==========================================================================
-  // 两种模式（`docs/route-layer.spec.md` §49.12.3 · design §26.13）：
+  // 两种模式（`docs/route-layer.spec.md` §49.12.3 · design §26.13 / §26.16）：
   //   `publish`（`/item/new`）= 本组件原形态，一字未改；
-  //   `edit`（`/item/:itemId/edit`）= 同一表单**预填**自己的挂单（`GET /api/listing/mine` 取对应行），
+  //   `edit`（`/item/:itemId/edit`）= 同一表单**预填**，取数走**编辑读口**
+  //     `GET /api/listing/:listingId/edit`（0059；本人 **或** 管理员 200，同一 11 键行），
   //     保存走**字段模式** `PATCH /api/listing/:listingId`（`updateListingFields`，**禁与 `to_status` 混传**）。
   // 三条编辑口径：
   //   ① `cid` **只读**（后端字段模式不收 `cid` ⇒ 可改字段 6 个：description/price/stock/media_urls/item_type/item_condition）；
@@ -248,6 +251,11 @@ const PublishItemPage = ({ mode = 'publish' }) => {
   // 编辑模式：本行**原始快照**（用于「只传变化字段」与 `cid`/状态派生）；发布模式恒 `null`。
   const [source, setSource] = useState(null)
   const [loadState, setLoadState] = useState({ phase: isEdit ? 'loading' : 'ready', message: '' })
+  // ★ 0059 · 「管理员编辑」态：编辑页 200 而该行**不是我发布的** ⇒ 管理员代编他人商品 ⇒ 页头提示条。
+  //   判定 = `canEditAny`（`/api/user` 三键）∧ 该 id 不在 `GET /api/listing/mine` 里
+  //   （读口不下发 `seller_uid`，故归属只能用「我的发布」成员判定；**仅此用途**，
+  //     预填一律走 `GET /api/listing/:id/edit`）。
+  const [adminEdit, setAdminEdit] = useState(false)
   const [state, setState] = useState({ phase: 'idle', message: '' })
   const [currencies, setCurrencies] = useState(FALLBACK_CURRENCIES)
   const tracker = useMemo(() => createListingPublishTracker(), [])
@@ -294,22 +302,27 @@ const PublishItemPage = ({ mode = 'publish' }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // 编辑模式：挂载时取自己的挂单行（`GET /api/listing/mine` 10 键）⇒ 逐字段预填。
-  //   ★ 预填五项 = `description` / `price` / `stock` / `media_urls` / `item_type` 级联；`cid` 只读展示。
-  //   ★ **不做任何「猜补」**：`item_type = NULL` ⇒ 三控件全空；`media_urls` 缺失 ⇒ 空列表。
-  //   ★ 失败 / 行不在列表里 ⇒ 表单不渲染（`loadState.phase='error'` + 服务端文案），绝不空表单可提交。
+  // 编辑模式：挂载时取**编辑读口** `GET /api/listing/:id/edit`（0059 · route §49.15）⇒ 逐字段预填。
+  //   ★ 为什么换口：旧实现按 `GET /api/listing/mine` 匹配 ⇒ 管理员编辑**他人**商品时该行永不在
+  //     「我发布的」里 ⇒ 只能报错（结构性不可用）。新读口两臂（本人 / 管理员）返回**同一 11 键行**。
+  //   ★ 预填五项 = `description` / `price` / `stock` / `media_urls` / `item_type` 级联（+ `condition`，
+  //     `cid` 只读展示）；**不做任何「猜补」**：`item_type = NULL` ⇒ 三控件全空。
+  //   ★ 失败面按状态码分流（**不白屏、不留空表单可提交**）：
+  //       403 ⇒ `uiError.forbidden`（无权限；普通用户直访他人 id 即此态）
+  //       404 ⇒ `uiError.notFound`（商品不存在）
+  //       其它 ⇒ 服务端文案 / `error` 键
   useEffect(() => {
     if (!isEdit) return undefined
     if (!isAuthenticated || !itemId) return undefined
     let cancelled = false
     setLoadState({ phase: 'loading', message: '' })
-    fetchMyListings(user)
-      .then((rows) => {
+    setAdminEdit(false)
+    fetchListingEdit(itemId, user)
+      .then((row) => {
         if (cancelled) return
-        const list = Array.isArray(rows) ? rows : []
-        const row = list.find((item) => String(item?.listing_id ?? item?.bID ?? '') === String(itemId))
-        if (!row) {
-          setLoadState({ phase: 'error', message: t('error') })
+        // 读口恒回单行对象；形状不对（空 / 非对象）⇒ 按失败处理（绝不空表单可提交）
+        if (!row || typeof row !== 'object') {
+          setLoadState({ phase: 'error', message: t('uiError.notFound') })
           return
         }
         const cascade = fromItemType(row.item_type)
@@ -322,7 +335,7 @@ const PublishItemPage = ({ mode = 'publish' }) => {
         setItemTypeSel(cascade.type)
         setDeliverSel(cascade.deliver)
         setShipSel(cascade.ship)
-        // 成色预填：`/api/listing/mine` 行键 `condition`（P57 加性键，值 = 四值闭集字面量或 null）。
+        // 成色预填：行键 `condition`（P57 加性键，值 = 四值闭集字面量或 null）。
         //   ★ 闭集外 / 缺键 ⇒ ''（未选），**不猜补**；实物行的 NULL 也保持未选（编辑不强制补选）。
         const rawCondition = String(row.condition ?? '')
         setConditionSel(ITEM_CONDITIONS.includes(rawCondition) ? rawCondition : '')
@@ -330,9 +343,31 @@ const PublishItemPage = ({ mode = 'publish' }) => {
         setSource({ ...row, item_type: row.item_type ?? null, condition: row.condition ?? null })
         setMiss({ type: false, deliver: false, ship: false, condition: false })
         setLoadState({ phase: 'ready', message: '' })
+
+        // ★ 0059 · 管理员代编提示条（**不阻塞预填**、失败静默）：读口 200 且我具备代编能力 ⇒
+        //   再判「这行是不是我的」——读口不下发 `seller_uid`，故用「我的发布」成员判定；
+        //   取不到「我的发布」⇒ **不显示**提示条（宁可少提示，也不把本人编辑误标成管理员编辑）。
+        return loadListingEditAdmin(user)
+          .then((flags) => {
+            if (cancelled || !isListingEditAdmin(flags)) return null
+            return fetchMyListings(user)
+              .then((mine) => {
+                if (cancelled || !Array.isArray(mine)) return
+                const isMine = mine.some((item) => String(item?.listing_id ?? item?.bID ?? '') === String(itemId))
+                setAdminEdit(!isMine)
+              })
+              .catch(() => {})
+          })
+          .catch(() => {})
       })
       .catch((error) => {
-        if (!cancelled) setLoadState({ phase: 'error', message: String(error?.message || t('error')) })
+        if (cancelled) return
+        const status = error?.status
+        let message
+        if (status === 403) message = t('uiError.forbidden')
+        else if (status === 404) message = t('uiError.notFound')
+        else message = String(error?.message || t('error'))
+        setLoadState({ phase: 'error', message })
       })
     return () => { cancelled = true }
     // `user` 只以 `uID` 参与（对象每次渲染可能换引用）
@@ -591,6 +626,12 @@ const PublishItemPage = ({ mode = 'publish' }) => {
       <div className="sf-layout-main">
         <div className="sf-item">
           <div className="sf-item-head" data-sf-m="item-hero">
+            {/* ★ 0059 · 管理员编辑他人商品 ⇒ 页头提示条（读口 200 + 非本人行；本人编辑恒不渲染） */}
+            {isEdit && adminEdit ? (
+              <p className="sf-item-admin-note" data-sf-m="item-admin-note" role="status">
+                {t('item.adminEditing')}
+              </p>
+            ) : null}
             <h1 className="sf-item-title">{isEdit ? t('item.editTitle') : t('item.publish')}</h1>
             <p className="sf-item-note">{t('item.priceRoleNote')}</p>
             <div className="sf-item-actions">
@@ -607,7 +648,11 @@ const PublishItemPage = ({ mode = 'publish' }) => {
             <div className="sf-item-empty" data-sf-m="item-edit-loading">{t('jobs.submitting')}</div>
           ) : null}
           {isEdit && loadState.phase === 'error' ? (
-            <div className="sf-item-empty" data-sf-m="item-edit-load-error" role="alert">{loadState.message}</div>
+            <div className="sf-item-empty" data-sf-m="item-edit-load-error" role="alert">
+              <span>{loadState.message}</span>
+              {/* ★ 失败态不白屏：给回「商品列表」的出口（复用既有键 `item.list`，零新增文案） */}
+              <Link className="sf-item-link" to={root('/')}>{t('item.list')}</Link>
+            </div>
           ) : null}
           {(!isEdit || loadState.phase === 'ready') && (
           <form className="sf-item-panel" onSubmit={onSubmit} data-sf-m="item-form">

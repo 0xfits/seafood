@@ -1,0 +1,123 @@
+{
+  "probe": "ops/admin-edit/front/probe-negative-controls.mjs",
+  "purpose": "五臂探针的灵敏度自证：反事实注入后对应判据必须翻红；本文件绿 = 尺子有分辨力（≠ 产品通过）",
+  "generatedAt": "2026-10-20T05:29:13.105Z",
+  "verdict": "SENSITIVE",
+  "controls": [
+    {
+      "id": "NC-1",
+      "inject": "夹具：/api/user 的 admin 三键 = {can_access_admin:false,is_admin:false,permissions:[]}（卖家仍是他人）",
+      "expect": "入口**消失**（item-edit-link = null）",
+      "observed": {
+        "linkPresent": false,
+        "userProbeCount": 1,
+        "pageErrors": []
+      },
+      "sensitive": true
+    },
+    {
+      "id": "NC-2",
+      "inject": "夹具：GET /api/listing/mine ⇒ [{listing_id:501}]（该行属「我发布的」）",
+      "expect": "`item-admin-note` **不渲染**，表单照常在",
+      "observed": {
+        "noteText": null,
+        "formPresent": true,
+        "pageErrors": []
+      },
+      "sensitive": true
+    },
+    {
+      "id": "NC-3@390x844",
+      "inject": "页面内联样式 `.sf-item-edit-link{position:fixed;left:8px;bottom:8px}`（390×844）",
+      "expect": "改前相交面积 = 0（真形态）／改后 > 0（尺子有分辨力）",
+      "observed": {
+        "beforeOverlap": 0,
+        "afterOverlap": 2288,
+        "beforeLink": {
+          "x": 278,
+          "y": 81,
+          "w": 52,
+          "h": 44,
+          "left": 278,
+          "right": 330,
+          "top": 81,
+          "bottom": 125
+        },
+        "afterLink": {
+          "x": 4,
+          "y": 787,
+          "w": 52,
+          "h": 44,
+          "left": 4,
+          "right": 56,
+          "top": 787,
+          "bottom": 831
+        },
+        "bar": {
+          "x": 0,
+          "y": 783,
+          "w": 390,
+          "h": 61,
+          "left": 0,
+          "right": 390,
+          "top": 783,
+          "bottom": 844
+        },
+        "pageErrors": []
+      },
+      "sensitive": true
+    },
+    {
+      "id": "NC-3@1536x900",
+      "inject": "页面内联样式 `.sf-item-edit-link{position:fixed;left:8px;bottom:8px}`（1536×900）",
+      "expect": "改前相交面积 = 0（真形态）／改后 > 0（尺子有分辨力）",
+      "observed": {
+        "beforeOverlap": 0,
+        "afterOverlap": 1632,
+        "beforeLink": {
+          "x": 1468,
+          "y": 73,
+          "w": 48,
+          "h": 34,
+          "left": 1468,
+          "right": 1516,
+          "top": 73,
+          "bottom": 107
+        },
+        "afterLink": {
+          "x": 928,
+          "y": 550,
+          "w": 48,
+          "h": 34,
+          "left": 928,
+          "right": 976,
+          "top": 550,
+          "bottom": 584
+        },
+        "bar": {
+          "x": 924,
+          "y": 534.09,
+          "w": 592,
+          "h": 60,
+          "left": 924,
+          "right": 1516,
+          "top": 534.09,
+          "bottom": 594.09
+        },
+        "pageErrors": []
+      },
+      "sensitive": true
+    },
+    {
+      "id": "NC-4",
+      "inject": "夹具：读口 404 `LEDGER_REF_NOT_FOUND`（对照 AC-4 的 403）",
+      "expect": "文案 = 未找到类（含「不存在/未找到」），**不含**「权限不足」；无表单",
+      "observed": {
+        "text": "请求的资源不存在闲置物品列表",
+        "formPresent": false,
+        "pageErrors": []
+      },
+      "sensitive": true
+    }
+  ]
+}

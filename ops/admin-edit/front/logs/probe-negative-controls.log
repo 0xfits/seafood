@@ -1,0 +1,7 @@
+SENSITIVE  NC-1  NC-1 三键关掉 ⇒ 入口消失
+SENSITIVE  NC-2  NC-2 行属我 ⇒ 提示条消失
+SENSITIVE  NC-3@390x844  NC-3 强制压操作栏 ⇒ 相交 > 0（390）
+SENSITIVE  NC-3@1536x900  NC-3 强制压操作栏 ⇒ 相交 > 0（1536）
+SENSITIVE  NC-4  NC-4 404 分流 ⇒ 文案不同源
+
+verdict=SENSITIVE  controls=5  out=/Users/kevin/bistro/seafood/ops/admin-edit/front/readings/negative-controls.json

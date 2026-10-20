@@ -392,6 +392,41 @@
   text-decoration: none;
 }
 
+/* ★ 0059 · 页头右端【编辑】入口（详情页 · 钩子 `item-edit-link`）：
+   与返回箭头同一行、`margin-left:auto` 顶到右端；黄底黑字 = 全站主 CTA 同族（`--sf-btna-*`）。
+   ★ 只占顶栏行内空间 ⇒ 不进入 H5 底栏四件 / Web 拼接胶囊，也不改它们的任何几何。
+   触控目标：桌面取 `--sf-l-ctl-h`（与按钮同高，零新增值）；≤767 档抬到 44（见文件末 767 块）。 */
+.sf-item-edit-link {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--sf-l-ctl-h);
+  padding: 0 var(--sf-st-padx-btna);
+  border-radius: var(--sf-st-radius-pill);
+  background: var(--sf-btna-bg);
+  color: var(--sf-btna-fg);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+/* ★ 0059 · 编辑页「管理员编辑」提示条（钩子 `item-admin-note`）：
+   仅在**管理员编辑他人商品**时渲染（本人编辑恒不渲染）；单行提示、可换行，不挤压表单布局。 */
+.sf-item-admin-note {
+  display: block;
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border-radius: var(--sf-st-radius-pill);
+  background: var(--sf-btna-bg);
+  color: var(--sf-btna-fg);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+}
+
 .sf-item-title-l {
   font-size: var(--sf-l-detail-title-size);
 }
@@ -799,6 +834,12 @@
 
   .sf-item-detail {
     padding-bottom: calc(var(--sf-l-actionbar-h) + var(--sf-l-actionbar-safe));
+  }
+
+  /* ★ 0059 · 页头【编辑】入口在手机档抬到 ≥44 触控目标（口径 = 主要操作路径） */
+  .sf-item-edit-link {
+    min-height: 44px;
+    padding: 0 14px;
   }
 
   /* R-D 补齐（本单实测）：shell 页脚（.sf-region-foot）在路由容器**之外** ⇒ 上一条内边距只

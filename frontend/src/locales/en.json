@@ -126,6 +126,7 @@
     "reviewUnqualifiedOk": "Marked not qualified"
   },
   "item": {
+    "adminEditing": "Admin editing",
     "favorite": "Save",
     "favorited": "Saved",
     "favoriteOk": "Saved to favorites",

@@ -54,6 +54,23 @@ export const fetchListingFeed = (user, limit = 60) => getJson(`/api/prize/all?li
 /** 商品详情。`listingId` = `listing_id`（= 列表行的 `bID`）。miss ⇒ 404（R107）。 */
 export const fetchListingDetail = (listingId, user) => getJson(`/api/prize/${listingId}`, user)
 
+/**
+ * ★ 0059 · **编辑页统一预填读口**（`GET /api/listing/:listingId/edit` · route §49.15）。
+ *
+ * 授权 = 本人 **或** 管理员（`can_access_admin ∧ (is_admin ∨ permissions∋manage_rewards)`）——
+ *   两臂返回**同一形状**（与 `GET /api/listing/mine` 行同族 **11 键**：`listing_id / title(派生) /
+ *   price / cid / status / stock / media_urls / time_created / description / item_type / condition`）
+ *   ⇒ 编辑页只有**一套**预填逻辑，不再按「我发布的」列表匹配（旧路径对管理员编辑他人商品结构性不可用：
+ *   他人的行不会出现在 `listing/mine` 里）。
+ *
+ * 失败面（全部由调用方按 `error.status` 分流，本层只透传）：
+ *   · `403` ⇒ 无权限（`AUTH_FORBIDDEN` + `details.reason = ACTOR_NOT_ALLOWED`，与写口同形）；
+ *   · `404` ⇒ 商品不存在（`LEDGER_REF_NOT_FOUND`）；判序 = **先 404 后 403**（不给存在性探针）；
+ *   · `401` ⇒ `fetchApiJson` 的既有全局治理（清会话），本层不另写。
+ * 纯读面（零写 / 零台账 / 零译文），无幂等键。
+ */
+export const fetchListingEdit = (listingId, user) => getJson(`/api/listing/${listingId}/edit`, user)
+
 /** 我的商品订单（**买家轴**：`listing_order.buyer_uid = me`；行键 `gID`=order_id、`bID`=listing_id）。 */
 export const fetchMyListingOrders = (user) => getJson('/api/prize-item', user)
 

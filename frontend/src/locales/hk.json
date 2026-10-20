@@ -126,6 +126,7 @@
     "reviewUnqualifiedOk": "已判定不合格"
   },
   "item": {
+    "adminEditing": "管理員編輯",
     "favorite": "收藏",
     "favorited": "已收藏",
     "favoriteOk": "收藏成功",

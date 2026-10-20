@@ -1,0 +1,264 @@
+{
+  "probe": "ops/admin-edit/front/probe-five-arms.mjs",
+  "generatedAt": "2026-10-20T05:27:14.065Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "head": null,
+  "verdict": "PASS",
+  "arms": [
+    {
+      "id": "AC-1",
+      "title": "详情页【编辑】入口可见性（本人 / 陌生人 / 管理员）",
+      "pass": true,
+      "cases": [
+        {
+          "arm": "本人看自己的商品（seller.uid === me）",
+          "expectPresent": true,
+          "present": true,
+          "href": "/item/9/edit",
+          "rect": {
+            "x": 1372,
+            "y": 73,
+            "w": 48,
+            "h": 34,
+            "left": 1372,
+            "right": 1420,
+            "top": 73,
+            "bottom": 107
+          },
+          "userProbeCount": 0,
+          "sellerUid": 7001,
+          "meUid": 7001,
+          "pageErrors": [],
+          "consoleErrors": [],
+          "pass": true
+        },
+        {
+          "arm": "陌生人（非本人 ∧ 非管理员）",
+          "expectPresent": false,
+          "present": false,
+          "href": null,
+          "rect": null,
+          "userProbeCount": 1,
+          "sellerUid": 9001,
+          "meUid": 7001,
+          "pageErrors": [],
+          "consoleErrors": [],
+          "pass": true
+        },
+        {
+          "arm": "管理员看他人商品（can_access_admin ∧ manage_rewards）",
+          "expectPresent": true,
+          "present": true,
+          "href": "/item/9/edit",
+          "rect": {
+            "x": 1372,
+            "y": 73,
+            "w": 48,
+            "h": 34,
+            "left": 1372,
+            "right": 1420,
+            "top": 73,
+            "bottom": 107
+          },
+          "userProbeCount": 1,
+          "sellerUid": 9001,
+          "meUid": 7001,
+          "pageErrors": [],
+          "consoleErrors": [],
+          "pass": true
+        }
+      ]
+    },
+    {
+      "id": "AC-2",
+      "title": "管理员编辑页：五项预填 + `item-admin-note` 提示条",
+      "pass": true,
+      "checks": {
+        "descriptionPrefilled": true,
+        "pricePrefilled": true,
+        "stockPrefilled": true,
+        "itemTypeCascade": true,
+        "conditionPrefilled": true,
+        "mediaPrefilled": true,
+        "cidReadonly": true,
+        "adminNotePresent": true,
+        "zeroPageError": true
+      },
+      "observed": {
+        "description": "旧描述首行\n旧描述第二行",
+        "price": "9",
+        "stock": "4",
+        "typePhysical": true,
+        "typeDigital": false,
+        "shipFree": true,
+        "shipBuyer": false,
+        "deliverAuto": false,
+        "conditionLikeNew": true,
+        "existingMedia0": true,
+        "cidReadonly": true,
+        "noteText": "管理员编辑",
+        "formPresent": true,
+        "pageErrors": [],
+        "consoleErrors": [],
+        "userProbeCount": 1
+      }
+    },
+    {
+      "id": "AC-3",
+      "title": "管理员保存（字段支 PATCH）⇒ 恰一次 `{price:15}` ⇒ 回列表",
+      "pass": true,
+      "checks": {
+        "patchOnce": true,
+        "patchPriceOnly": true,
+        "noTitleNoCid": true,
+        "leftForm": true,
+        "pathname": "http://sf.local/profile/trades/published",
+        "backToList": true,
+        "zeroPageError": true
+      },
+      "observed": {
+        "patch": [
+          {
+            "price": 15
+          }
+        ],
+        "consoleErrors": [
+          "Failed to load resource: net::ERR_CONNECTION_CLOSED"
+        ]
+      }
+    },
+    {
+      "id": "AC-4",
+      "title": "普通用户直访他人编辑页：403 ⇒ 有文案、无表单、不白屏、零 pageerror",
+      "pass": true,
+      "checks": {
+        "errorRendered": true,
+        "notForbiddenLeak": true,
+        "noForm": true,
+        "notBlank": true,
+        "zeroPageError": true
+      },
+      "observed": {
+        "errorPresent": true,
+        "errorText": "权限不足闲置物品列表",
+        "backLink": true,
+        "formPresent": false,
+        "rootChildren": 2,
+        "rootHtmlLen": 14596,
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "AC-5@390x844",
+      "title": "入口位置（390×844）：不压底栏 / 不压操作胶囊 / 零溢出 / 零 pageerror",
+      "pass": true,
+      "checks": {
+        "linkPresent": true,
+        "insideViewport": true,
+        "notOverTabbar": true,
+        "notOverActionbar": true,
+        "inTopbarRow": true,
+        "touchTargetOk": true,
+        "fontMin": true,
+        "zeroOverflow": true,
+        "zeroPageError": true
+      },
+      "observed": {
+        "link": {
+          "left": 278,
+          "right": 330,
+          "top": 81,
+          "bottom": 125,
+          "w": 52,
+          "h": 44
+        },
+        "actionbar": {
+          "left": 0,
+          "right": 390,
+          "top": 783,
+          "bottom": 844,
+          "w": 390,
+          "h": 61
+        },
+        "tabbar": null,
+        "topbar": {
+          "left": 10,
+          "right": 330,
+          "top": 81,
+          "bottom": 125,
+          "w": 320,
+          "h": 44
+        },
+        "tabbarDisplay": "none",
+        "tabbarClass": "sf-tabbar is-detail",
+        "linkFontSize": "12px",
+        "linkBg": "rgb(255, 230, 15)",
+        "linkFg": "rgb(32, 32, 32)",
+        "overflowPx": 0,
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "tabbarOverlap": 0,
+        "actionbarOverlap": 0,
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "AC-5@1536x900",
+      "title": "入口位置（1536×900）：不压底栏 / 不压操作胶囊 / 零溢出 / 零 pageerror",
+      "pass": true,
+      "checks": {
+        "linkPresent": true,
+        "insideViewport": true,
+        "notOverTabbar": true,
+        "notOverActionbar": true,
+        "inTopbarRow": true,
+        "touchTargetOk": true,
+        "fontMin": true,
+        "zeroOverflow": true,
+        "zeroPageError": true
+      },
+      "observed": {
+        "link": {
+          "left": 1468,
+          "right": 1516,
+          "top": 73,
+          "bottom": 107,
+          "w": 48,
+          "h": 34
+        },
+        "actionbar": {
+          "left": 924,
+          "right": 1516,
+          "top": 546.09,
+          "bottom": 606.09,
+          "w": 592,
+          "h": 60
+        },
+        "tabbar": null,
+        "topbar": {
+          "left": 20,
+          "right": 1516,
+          "top": 73,
+          "bottom": 107,
+          "w": 1496,
+          "h": 34
+        },
+        "tabbarDisplay": "none",
+        "tabbarClass": "sf-tabbar is-detail",
+        "linkFontSize": "12px",
+        "linkBg": "rgb(255, 230, 15)",
+        "linkFg": "rgb(32, 32, 32)",
+        "overflowPx": 0,
+        "viewport": {
+          "w": 1536,
+          "h": 900
+        },
+        "tabbarOverlap": 0,
+        "actionbarOverlap": 0,
+        "pageErrors": []
+      }
+    }
+  ]
+}

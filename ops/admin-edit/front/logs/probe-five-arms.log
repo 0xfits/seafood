@@ -1,0 +1,8 @@
+PASS  AC-1  AC-1 入口可见性
+PASS  AC-2  AC-2 预填 + 提示条
+PASS  AC-3  AC-3 管理员保存
+PASS  AC-4  AC-4 403 不白屏
+PASS  AC-5@390x844  AC-5 390
+PASS  AC-5@1536x900  AC-5 1536
+
+verdict=PASS  arms=6  out=/Users/kevin/bistro/seafood/ops/admin-edit/front/readings/five-arms.json

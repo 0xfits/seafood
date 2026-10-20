@@ -56,6 +56,7 @@ vi.mock('../../pages/item/item-api', async (importOriginal) => {
   return {
     ...actual,
     fetchCurrencies: vi.fn(),
+    fetchListingEdit: vi.fn(),
     publishListing: vi.fn(),
     setListingStatus: vi.fn(),
     updateListingFields: vi.fn(),
@@ -66,7 +67,7 @@ import { useAuth } from '../../auth-context'
 import { fetchApiJson } from '../../auth'
 import { fetchMyListings } from '../../trades-api'
 import {
-  fetchCurrencies, publishListing, setListingStatus, updateListingFields,
+  fetchCurrencies, fetchListingEdit, publishListing, setListingStatus, updateListingFields,
 } from '../../pages/item/item-api'
 import PublishItemPage from '../../pages/item/PublishItemPage'
 import zh from '../../locales/zh.json'
@@ -129,7 +130,10 @@ beforeEach(() => {
   publishListing.mockResolvedValue({})
   setListingStatus.mockResolvedValue({})
   updateListingFields.mockResolvedValue({})
-  fetchMyListings.mockResolvedValue([mineRow()])
+  fetchListingEdit.mockResolvedValue(mineRow())
+  // ★ 0059：编辑页预填改走 `GET /api/listing/:id/edit`（本人/管理员同一 11 键行）——
+  //   本文件只关心成色字段，故让读口直接回同一行；`mine` 仍桩着（管理员提示条归属判定用，本文件不触发）。
+  fetchListingEdit.mockResolvedValue(mineRow())
 })
 
 // ---------------------------------------------------------------------------
@@ -340,7 +344,7 @@ describe('D · 编辑页预填与保存（草稿 / 在售均可改）', () => {
   })
 
   it('草稿行（`status = draft`）同样可改成色（后端无状态限制）', async () => {
-    fetchMyListings.mockResolvedValue([mineRow({ status: 'draft', condition: 'MinorWear' })])
+    fetchListingEdit.mockResolvedValue(mineRow({ status: 'draft', condition: 'MinorWear' }))
     const { container } = renderEdit()
     await waitFor(() => expect(condGroup(container)).not.toBeNull())
 
@@ -362,7 +366,7 @@ describe('D · 编辑页预填与保存（草稿 / 在售均可改）', () => {
   })
 
   it('实物行 `condition = null`（存量）⇒ 控件在场但**未选**、且不强制补选（改价仍可保存）', async () => {
-    fetchMyListings.mockResolvedValue([mineRow({ condition: null })])
+    fetchListingEdit.mockResolvedValue(mineRow({ condition: null }))
     const { container } = renderEdit()
     await waitFor(() => expect(condGroup(container)).not.toBeNull())
 
@@ -375,9 +379,9 @@ describe('D · 编辑页预填与保存（草稿 / 在售均可改）', () => {
   })
 
   it('数字行 ⇒ 成色控件零渲染；改成色不可达、PATCH 无 `item_condition`', async () => {
-    fetchMyListings.mockResolvedValue([mineRow({
+    fetchListingEdit.mockResolvedValue(mineRow({
       item_type: 'DigitalAutoDeliver', condition: null,
-    })])
+    }))
     const { container } = renderEdit()
     await waitFor(() => expect(q(container, 'item-input-type-digital')).not.toBeNull())
     await waitFor(() => expect(q(container, 'item-input-type-digital').checked).toBe(true))
@@ -390,7 +394,7 @@ describe('D · 编辑页预填与保存（草稿 / 在售均可改）', () => {
   })
 
   it('闭集外 / 缺键的 `condition`（异常行）⇒ 一律未选，**不猜补**', async () => {
-    fetchMyListings.mockResolvedValue([mineRow({ condition: 'BrandNew' })])
+    fetchListingEdit.mockResolvedValue(mineRow({ condition: 'BrandNew' }))
     const { container } = renderEdit()
     await waitFor(() => expect(condGroup(container)).not.toBeNull())
     expect([...condGroup(container).querySelectorAll('input')].every((el) => el.checked === false)).toBe(true)
