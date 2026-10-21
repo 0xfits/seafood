@@ -1,0 +1,421 @@
+{
+  "probe": "ops/profile-nav/probe-profile-nav-swap.mjs",
+  "startedAt": "2026-10-21T07:03:57.465Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "fixtures": {
+    "auth": "localStorage seed only（零真登录）",
+    "api": "context.route in-probe JSON（零后端 / 零库写）",
+    "negativeControl": false
+  },
+  "newTitles": {
+    "zh": "我的置换",
+    "en": "My Swaps",
+    "hk": "我的置換",
+    "vn": "Trao đổi của tôi"
+  },
+  "oldTitles": {
+    "zh": "我的交易",
+    "en": "My Trades",
+    "hk": "我的交易",
+    "vn": "Giao dịch của tôi"
+  },
+  "pendingReview": {
+    "vn": "Trao đổi của tôi 为派单待复核译名"
+  },
+  "states": {
+    "390": {
+      "trades_bought": {
+        "overflowPx": 0,
+        "groupTitle": "我的置换",
+        "navAriaLabel": "我的置换",
+        "h1Text": "我的置换 · 我买到的",
+        "oldTitleInRootText": false
+      },
+      "settings": {
+        "overflowPx": 0,
+        "oldTitleInRootText": false
+      }
+    },
+    "1536_trades_zh": {
+      "published": {
+        "pathname": "/profile/trades/published",
+        "overflowPx": 0,
+        "groupTitle": "我的置换",
+        "navAriaLabel": "我的置换",
+        "h1Text": "我的置换 · 我发布的",
+        "linkHooks": [
+          "profile-nav-assets",
+          "profile-nav-published",
+          "profile-nav-sold",
+          "profile-nav-bought",
+          "profile-nav-favorites",
+          "profile-nav-settings"
+        ],
+        "oldTitleInRootText": false
+      },
+      "sold": {
+        "pathname": "/profile/trades/sold",
+        "overflowPx": 0,
+        "groupTitle": "我的置换",
+        "navAriaLabel": "我的置换",
+        "h1Text": "我的置换 · 我卖出的",
+        "linkHooks": [
+          "profile-nav-assets",
+          "profile-nav-published",
+          "profile-nav-sold",
+          "profile-nav-bought",
+          "profile-nav-favorites",
+          "profile-nav-settings"
+        ],
+        "oldTitleInRootText": false
+      },
+      "bought": {
+        "pathname": "/profile/trades/bought",
+        "overflowPx": 0,
+        "groupTitle": "我的置换",
+        "navAriaLabel": "我的置换",
+        "h1Text": "我的置换 · 我买到的",
+        "linkHooks": [
+          "profile-nav-assets",
+          "profile-nav-published",
+          "profile-nav-sold",
+          "profile-nav-bought",
+          "profile-nav-favorites",
+          "profile-nav-settings"
+        ],
+        "oldTitleInRootText": false
+      }
+    },
+    "1536_trades_en": {
+      "published": {
+        "pathname": "/en/profile/trades/published",
+        "overflowPx": 0,
+        "groupTitle": "My Swaps",
+        "navAriaLabel": "My Swaps",
+        "h1Text": "My Swaps · My Listings",
+        "linkHooks": [
+          "profile-nav-assets",
+          "profile-nav-published",
+          "profile-nav-sold",
+          "profile-nav-bought",
+          "profile-nav-favorites",
+          "profile-nav-settings"
+        ],
+        "oldTitleInRootText": false
+      },
+      "sold": {
+        "pathname": "/en/profile/trades/sold",
+        "overflowPx": 0,
+        "groupTitle": "My Swaps",
+        "navAriaLabel": "My Swaps",
+        "h1Text": "My Swaps · Sold",
+        "linkHooks": [
+          "profile-nav-assets",
+          "profile-nav-published",
+          "profile-nav-sold",
+          "profile-nav-bought",
+          "profile-nav-favorites",
+          "profile-nav-settings"
+        ],
+        "oldTitleInRootText": false
+      },
+      "bought": {
+        "pathname": "/en/profile/trades/bought",
+        "overflowPx": 0,
+        "groupTitle": "My Swaps",
+        "navAriaLabel": "My Swaps",
+        "h1Text": "My Swaps · Purchases",
+        "linkHooks": [
+          "profile-nav-assets",
+          "profile-nav-published",
+          "profile-nav-sold",
+          "profile-nav-bought",
+          "profile-nav-favorites",
+          "profile-nav-settings"
+        ],
+        "oldTitleInRootText": false
+      }
+    },
+    "1536_trades_hk": {
+      "published": {
+        "pathname": "/hk/profile/trades/published",
+        "overflowPx": 0,
+        "groupTitle": "我的置換",
+        "navAriaLabel": "我的置換",
+        "h1Text": "我的置換 · 我發佈的",
+        "linkHooks": [
+          "profile-nav-assets",
+          "profile-nav-published",
+          "profile-nav-sold",
+          "profile-nav-bought",
+          "profile-nav-favorites",
+          "profile-nav-settings"
+        ],
+        "oldTitleInRootText": false
+      },
+      "sold": {
+        "pathname": "/hk/profile/trades/sold",
+        "overflowPx": 0,
+        "groupTitle": "我的置換",
+        "navAriaLabel": "我的置換",
+        "h1Text": "我的置換 · 我賣出的",
+        "linkHooks": [
+          "profile-nav-assets",
+          "profile-nav-published",
+          "profile-nav-sold",
+          "profile-nav-bought",
+          "profile-nav-favorites",
+          "profile-nav-settings"
+        ],
+        "oldTitleInRootText": false
+      },
+      "bought": {
+        "pathname": "/hk/profile/trades/bought",
+        "overflowPx": 0,
+        "groupTitle": "我的置換",
+        "navAriaLabel": "我的置換",
+        "h1Text": "我的置換 · 我買到的",
+        "linkHooks": [
+          "profile-nav-assets",
+          "profile-nav-published",
+          "profile-nav-sold",
+          "profile-nav-bought",
+          "profile-nav-favorites",
+          "profile-nav-settings"
+        ],
+        "oldTitleInRootText": false
+      }
+    },
+    "1536_trades_vn": {
+      "published": {
+        "pathname": "/vn/profile/trades/published",
+        "overflowPx": 0,
+        "groupTitle": "Trao đổi của tôi",
+        "navAriaLabel": "Trao đổi của tôi",
+        "h1Text": "Trao đổi của tôi · Tin đăng của tôi",
+        "linkHooks": [
+          "profile-nav-assets",
+          "profile-nav-published",
+          "profile-nav-sold",
+          "profile-nav-bought",
+          "profile-nav-favorites",
+          "profile-nav-settings"
+        ],
+        "oldTitleInRootText": false
+      },
+      "sold": {
+        "pathname": "/vn/profile/trades/sold",
+        "overflowPx": 0,
+        "groupTitle": "Trao đổi của tôi",
+        "navAriaLabel": "Trao đổi của tôi",
+        "h1Text": "Trao đổi của tôi · Đã bán",
+        "linkHooks": [
+          "profile-nav-assets",
+          "profile-nav-published",
+          "profile-nav-sold",
+          "profile-nav-bought",
+          "profile-nav-favorites",
+          "profile-nav-settings"
+        ],
+        "oldTitleInRootText": false
+      },
+      "bought": {
+        "pathname": "/vn/profile/trades/bought",
+        "overflowPx": 0,
+        "groupTitle": "Trao đổi của tôi",
+        "navAriaLabel": "Trao đổi của tôi",
+        "h1Text": "Trao đổi của tôi · Đã mua",
+        "linkHooks": [
+          "profile-nav-assets",
+          "profile-nav-published",
+          "profile-nav-sold",
+          "profile-nav-bought",
+          "profile-nav-favorites",
+          "profile-nav-settings"
+        ],
+        "oldTitleInRootText": false
+      }
+    },
+    "1536_zh_extras": {
+      "settings": {
+        "pathname": "/profile/settings",
+        "overflowPx": 0,
+        "groupTitle": "我的置换",
+        "navAriaLabel": "我的置换",
+        "oldTitleInRootText": false
+      },
+      "assets": {
+        "pathname": "/profile/assets",
+        "overflowPx": 0,
+        "groupTitle": "我的置换",
+        "navAriaLabel": "我的置换",
+        "oldTitleInRootText": false
+      }
+    }
+  },
+  "assertions": {
+    "trades_zh": {
+      "published_navPresent": true,
+      "published_groupPresent": true,
+      "published_groupTitleEqualsNew": true,
+      "published_ariaEqualsNew": true,
+      "published_h1ContainsNew": true,
+      "published_h1ContainsUnchangedSub": true,
+      "published_hooksUnchanged": true,
+      "oldAbsentRoot_published": true,
+      "published_zeroOverflow": true,
+      "sold_navPresent": true,
+      "sold_groupPresent": true,
+      "sold_groupTitleEqualsNew": true,
+      "sold_ariaEqualsNew": true,
+      "sold_h1ContainsNew": true,
+      "sold_h1ContainsUnchangedSub": true,
+      "sold_hooksUnchanged": true,
+      "oldAbsentRoot_sold": true,
+      "sold_zeroOverflow": true,
+      "bought_navPresent": true,
+      "bought_groupPresent": true,
+      "bought_groupTitleEqualsNew": true,
+      "bought_ariaEqualsNew": true,
+      "bought_h1ContainsNew": true,
+      "bought_h1ContainsUnchangedSub": true,
+      "bought_hooksUnchanged": true,
+      "oldAbsentRoot_bought": true,
+      "bought_zeroOverflow": true
+    },
+    "trades_en": {
+      "published_navPresent": true,
+      "published_groupPresent": true,
+      "published_groupTitleEqualsNew": true,
+      "published_ariaEqualsNew": true,
+      "published_h1ContainsNew": true,
+      "published_h1ContainsUnchangedSub": true,
+      "published_hooksUnchanged": true,
+      "oldAbsentRoot_published": true,
+      "published_zeroOverflow": true,
+      "sold_navPresent": true,
+      "sold_groupPresent": true,
+      "sold_groupTitleEqualsNew": true,
+      "sold_ariaEqualsNew": true,
+      "sold_h1ContainsNew": true,
+      "sold_h1ContainsUnchangedSub": true,
+      "sold_hooksUnchanged": true,
+      "oldAbsentRoot_sold": true,
+      "sold_zeroOverflow": true,
+      "bought_navPresent": true,
+      "bought_groupPresent": true,
+      "bought_groupTitleEqualsNew": true,
+      "bought_ariaEqualsNew": true,
+      "bought_h1ContainsNew": true,
+      "bought_h1ContainsUnchangedSub": true,
+      "bought_hooksUnchanged": true,
+      "oldAbsentRoot_bought": true,
+      "bought_zeroOverflow": true
+    },
+    "trades_hk": {
+      "published_navPresent": true,
+      "published_groupPresent": true,
+      "published_groupTitleEqualsNew": true,
+      "published_ariaEqualsNew": true,
+      "published_h1ContainsNew": true,
+      "published_h1ContainsUnchangedSub": true,
+      "published_hooksUnchanged": true,
+      "oldAbsentRoot_published": true,
+      "published_zeroOverflow": true,
+      "sold_navPresent": true,
+      "sold_groupPresent": true,
+      "sold_groupTitleEqualsNew": true,
+      "sold_ariaEqualsNew": true,
+      "sold_h1ContainsNew": true,
+      "sold_h1ContainsUnchangedSub": true,
+      "sold_hooksUnchanged": true,
+      "oldAbsentRoot_sold": true,
+      "sold_zeroOverflow": true,
+      "bought_navPresent": true,
+      "bought_groupPresent": true,
+      "bought_groupTitleEqualsNew": true,
+      "bought_ariaEqualsNew": true,
+      "bought_h1ContainsNew": true,
+      "bought_h1ContainsUnchangedSub": true,
+      "bought_hooksUnchanged": true,
+      "oldAbsentRoot_bought": true,
+      "bought_zeroOverflow": true
+    },
+    "trades_vn": {
+      "published_navPresent": true,
+      "published_groupPresent": true,
+      "published_groupTitleEqualsNew": true,
+      "published_ariaEqualsNew": true,
+      "published_h1ContainsNew": true,
+      "published_h1ContainsUnchangedSub": true,
+      "published_hooksUnchanged": true,
+      "oldAbsentRoot_published": true,
+      "published_zeroOverflow": true,
+      "sold_navPresent": true,
+      "sold_groupPresent": true,
+      "sold_groupTitleEqualsNew": true,
+      "sold_ariaEqualsNew": true,
+      "sold_h1ContainsNew": true,
+      "sold_h1ContainsUnchangedSub": true,
+      "sold_hooksUnchanged": true,
+      "oldAbsentRoot_sold": true,
+      "sold_zeroOverflow": true,
+      "bought_navPresent": true,
+      "bought_groupPresent": true,
+      "bought_groupTitleEqualsNew": true,
+      "bought_ariaEqualsNew": true,
+      "bought_h1ContainsNew": true,
+      "bought_h1ContainsUnchangedSub": true,
+      "bought_hooksUnchanged": true,
+      "oldAbsentRoot_bought": true,
+      "bought_zeroOverflow": true
+    },
+    "zhExtras": {
+      "settings_groupTitleEqualsNew": true,
+      "oldAbsentRoot_settings": true,
+      "settings_zeroOverflow": true,
+      "assets_groupTitleEqualsNew": true,
+      "oldAbsentRoot_assets": true,
+      "assets_zeroOverflow": true
+    },
+    "desktopClean": {
+      "zeroPageError": true,
+      "zeroConsoleError": true
+    },
+    "mobile390": {
+      "boughtGroupTitleEqualsNew": true,
+      "boughtAriaEqualsNew": true,
+      "boughtH1ContainsNew": true,
+      "boughtZeroOverflow": true,
+      "settingsZeroOverflow": true,
+      "oldAbsentRoot_bought": true,
+      "oldAbsentRoot_settings": true
+    },
+    "mobileClean": {
+      "zeroPageError": true,
+      "zeroConsoleError": true
+    }
+  },
+  "errors": {
+    "390": {
+      "pageErrors": [],
+      "consoleErrors": [],
+      "resourceErrors": []
+    },
+    "1536": {
+      "pageErrors": [],
+      "consoleErrors": [],
+      "resourceErrors": []
+    }
+  },
+  "summary": {
+    "checks": 125,
+    "passed": 125,
+    "failed": [],
+    "pageErrors": 0,
+    "consoleErrors": 0,
+    "resourceErrors": 0,
+    "verdict": "PASS"
+  },
+  "finishedAt": "2026-10-21T07:04:00.869Z"
+}

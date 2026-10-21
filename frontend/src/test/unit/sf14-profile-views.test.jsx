@@ -391,7 +391,7 @@ describe('sf14 ④ · 四语新键齐备（键集逐文件相同）', () => {
     expect(en.header.orders).toBe('Orders')
     expect(hk.header.orders).toBe('訂單')
     expect(vn.header.orders).toBe('Đơn hàng')
-    expect(zh.profileNav.title).toBe('我的交易')
+    expect(zh.profileNav.title).toBe('我的置换')
     expect(en.profileNav.bought).toBe('Purchases')
     expect(hk.profileNav.settings).toBe('賬戶設置')
     expect(vn.activitiesPage.title).toBe('Điểm danh & Hoạt động')

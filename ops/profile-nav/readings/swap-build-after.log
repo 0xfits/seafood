@@ -1,0 +1,79 @@
+
+> jinli-frontend@0.0.0 build
+> vite build
+
+vite v5.4.20 building for production...
+transforming...
+✓ 1847 modules transformed.
+rendering chunks...
+warnings when minifying css:
+▲ [WARNING] Comments in CSS use "/* ... */" instead of "//" [js-comment-in-css]
+
+    <stdin>:3298:0:
+      3298 │ // =============================================================...
+           ╵ ~~
+
+
+▲ [WARNING] Comments in CSS use "/* ... */" instead of "//" [js-comment-in-css]
+
+    <stdin>:3299:0:
+      3299 │ // 项目页 `/:slug` 页面级样式（`sf-project-*` 自成一...
+           ╵ ~~
+
+
+▲ [WARNING] Comments in CSS use "/* ... */" instead of "//" [js-comment-in-css]
+
+    <stdin>:3300:0:
+      3300 │ // -------------------------------------------------------------...
+           ╵ ~~
+
+
+▲ [WARNING] Comments in CSS use "/* ... */" instead of "//" [js-comment-in-css]
+
+    <stdin>:3301:0:
+      3301 │ // 红线（design §26.20.2 同族口径）：零新主题 toke...
+           ╵ ~~
+
+
+▲ [WARNING] Comments in CSS use "/* ... */" instead of "//" [js-comment-in-css]
+
+    <stdin>:3302:0:
+      3302 │ // 禁复用 `sf-item*` 商品卡类名/组件；布局骨架复...
+           ╵ ~~
+
+
+▲ [WARNING] Comments in CSS use "/* ... */" instead of "//" [js-comment-in-css]
+
+    <stdin>:3303:0:
+      3303 │ // `.sf-panel-title` / `.sf-foot-note`（shell.css），本文�...
+           ╵ ~~
+
+
+▲ [WARNING] Comments in CSS use "/* ... */" instead of "//" [js-comment-in-css]
+
+    <stdin>:3304:0:
+      3304 │ // =============================================================...
+           ╵ ~~
+
+
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) /Users/kevin/bistro/seafood/frontend/src/i18n.js is dynamically imported by /Users/kevin/bistro/seafood/frontend/src/auth.js but also statically imported by /Users/kevin/bistro/seafood/frontend/src/main.jsx, dynamic import will not move module into another chunk.
+
+computing gzip size...
+dist/assets/hk-DJjlsSdH.svg                   4.61 kB │ gzip:   2.01 kB
+dist/index.html                               6.69 kB │ gzip:   3.60 kB
+dist/assets/us-BUggRluv.svg                   7.87 kB │ gzip:   1.24 kB
+dist/assets/placeholder-item-ChYVGMSM.webp   12.62 kB
+dist/assets/index-DI_M5sy6.css              160.66 kB │ gzip:  28.20 kB
+dist/assets/vendor-AmHF8z37.js                9.11 kB │ gzip:   4.01 kB
+dist/assets/vendor-router-DiMdLYdS.js        12.64 kB │ gzip:   4.64 kB
+dist/assets/vendor-ui-Dt6WgZ6c.js            39.06 kB │ gzip:  10.57 kB
+dist/assets/vendor-i18n-Dv2xmCnL.js          53.54 kB │ gzip:  16.60 kB
+dist/assets/vendor-react-CZtNYldG.js        166.55 kB │ gzip:  54.38 kB
+dist/assets/index-WW7H_eBY.js               595.18 kB │ gzip: 175.25 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 1.95s

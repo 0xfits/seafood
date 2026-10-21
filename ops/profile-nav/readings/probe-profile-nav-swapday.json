@@ -1,0 +1,481 @@
+{
+  "probe": "ops/profile-nav/probe-profile-nav.mjs",
+  "startedAt": "2026-10-21T07:04:16.260Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "fixtures": {
+    "auth": "localStorage seed only（零真登录）",
+    "api": "context.route in-probe JSON（零后端 / 零库写）",
+    "negativeControl": false
+  },
+  "expected": {
+    "navOrder": [
+      "profile-nav-assets",
+      "profile-nav-published",
+      "profile-nav-sold",
+      "profile-nav-bought",
+      "profile-nav-favorites",
+      "profile-nav-settings"
+    ],
+    "navAllHooks": [
+      "profile-nav-assets",
+      "profile-nav-trades",
+      "profile-nav-published",
+      "profile-nav-sold",
+      "profile-nav-bought",
+      "profile-nav-favorites",
+      "profile-nav-settings"
+    ]
+  },
+  "states": {
+    "390": {
+      "profile_settings": {
+        "overflowPx": 0,
+        "nav": {
+          "present": true,
+          "linkHooks": [
+            "profile-nav-assets",
+            "profile-nav-published",
+            "profile-nav-sold",
+            "profile-nav-bought",
+            "profile-nav-favorites",
+            "profile-nav-settings"
+          ],
+          "allHooks": [
+            "profile-nav-assets",
+            "profile-nav-trades",
+            "profile-nav-published",
+            "profile-nav-sold",
+            "profile-nav-bought",
+            "profile-nav-favorites",
+            "profile-nav-settings"
+          ],
+          "groupHooks": [
+            "profile-nav-published",
+            "profile-nav-sold",
+            "profile-nav-bought"
+          ],
+          "groupChildren": [
+            "span",
+            "profile-nav-published",
+            "profile-nav-sold",
+            "profile-nav-bought"
+          ],
+          "labels": [
+            "我的资产",
+            "我发布的",
+            "我卖出的",
+            "我买到的",
+            "我的收藏",
+            "账户设置"
+          ],
+          "ariaCurrent": [
+            "profile-nav-settings"
+          ],
+          "hrefs": [
+            "/profile/assets",
+            "/profile/trades/published",
+            "/profile/trades/sold",
+            "/profile/trades/bought",
+            "/profile/favorites",
+            "/profile/settings"
+          ],
+          "box": {
+            "x": 26,
+            "y": 89,
+            "w": 338,
+            "h": 60
+          },
+          "flexDirection": "row",
+          "rects": [
+            {
+              "hook": "profile-nav-assets",
+              "x": 26,
+              "y": 89,
+              "w": 80,
+              "h": 58
+            },
+            {
+              "hook": "profile-nav-published",
+              "x": 185,
+              "y": 96,
+              "w": 80,
+              "h": 44
+            },
+            {
+              "hook": "profile-nav-sold",
+              "x": 271,
+              "y": 96,
+              "w": 80,
+              "h": 44
+            },
+            {
+              "hook": "profile-nav-bought",
+              "x": 357,
+              "y": 96,
+              "w": 80,
+              "h": 44
+            },
+            {
+              "hook": "profile-nav-favorites",
+              "x": 450,
+              "y": 89,
+              "w": 80,
+              "h": 58
+            },
+            {
+              "hook": "profile-nav-settings",
+              "x": 536,
+              "y": 89,
+              "w": 80,
+              "h": 58
+            }
+          ]
+        },
+        "offenders": [
+          "div.sf-prof-nav-group@444",
+          "a.sf-prof-link@437",
+          "a.sf-prof-link@530",
+          "a.sf-prof-link.is-active@616"
+        ]
+      },
+      "task_new": {
+        "overflowPx": 0,
+        "offenders": [],
+        "submitText": null
+      }
+    },
+    "1536_profile_settings": {
+      "pathname": "/profile/settings",
+      "overflowPx": 0,
+      "nav": {
+        "present": true,
+        "linkHooks": [
+          "profile-nav-assets",
+          "profile-nav-published",
+          "profile-nav-sold",
+          "profile-nav-bought",
+          "profile-nav-favorites",
+          "profile-nav-settings"
+        ],
+        "allHooks": [
+          "profile-nav-assets",
+          "profile-nav-trades",
+          "profile-nav-published",
+          "profile-nav-sold",
+          "profile-nav-bought",
+          "profile-nav-favorites",
+          "profile-nav-settings"
+        ],
+        "groupHooks": [
+          "profile-nav-published",
+          "profile-nav-sold",
+          "profile-nav-bought"
+        ],
+        "groupChildren": [
+          "span",
+          "profile-nav-published",
+          "profile-nav-sold",
+          "profile-nav-bought"
+        ],
+        "labels": [
+          "我的资产",
+          "我发布的",
+          "我卖出的",
+          "我买到的",
+          "我的收藏",
+          "账户设置"
+        ],
+        "ariaCurrent": [
+          "profile-nav-settings"
+        ],
+        "hrefs": [
+          "/profile/assets",
+          "/profile/trades/published",
+          "/profile/trades/sold",
+          "/profile/trades/bought",
+          "/profile/favorites",
+          "/profile/settings"
+        ],
+        "box": {
+          "x": 52,
+          "y": 97,
+          "w": 232,
+          "h": 304
+        },
+        "flexDirection": "column",
+        "rects": [
+          {
+            "hook": "profile-nav-assets",
+            "x": 52,
+            "y": 97,
+            "w": 232,
+            "h": 38
+          },
+          {
+            "hook": "profile-nav-published",
+            "x": 61,
+            "y": 182,
+            "w": 214,
+            "h": 38
+          },
+          {
+            "hook": "profile-nav-sold",
+            "x": 61,
+            "y": 222,
+            "w": 214,
+            "h": 38
+          },
+          {
+            "hook": "profile-nav-bought",
+            "x": 61,
+            "y": 262,
+            "w": 214,
+            "h": 38
+          },
+          {
+            "hook": "profile-nav-favorites",
+            "x": 52,
+            "y": 317,
+            "w": 232,
+            "h": 38
+          },
+          {
+            "hook": "profile-nav-settings",
+            "x": 52,
+            "y": 363,
+            "w": 232,
+            "h": 38
+          }
+        ]
+      },
+      "expectedLabels": true
+    },
+    "1536_task_new": {
+      "zh": {
+        "pathname": "/task/new",
+        "hero": true,
+        "form": false,
+        "titleInput": false,
+        "submitText": null,
+        "sideTitle": "悬赏线发布后酬金会从可用余额转入托管，悬赏审核通过后才发放。",
+        "overflowPx": 0,
+        "textSample": "Seafood 海鲜市场悬赏市场订单语言发布悬赏请从下拉框选择币种悬赏列表审核入口发布悬赏需要先拥有一个项目悬赏酬金由项目方托管，先建好项目再回来发布更稳妥。新建项目悬赏线发布后酬金会从可用余额转入托管，悬赏审核通过后才发放。简体中文English粤语Tiếng Việt© 2024-2026 Abbey Quant & Jinli Club. 保留所有权利。本网站支持简体中文、英文、粤语和越南语。联系我们：contact@jinli.club海鲜市场卖闲置消息我的领工资卖闲置消息APP客服",
+        "oldValues": [
+          "悬赏线",
+          "悬赏列表",
+          "发布悬赏",
+          "悬赏已发布并托管酬金",
+          "悬赏详情",
+          "悬赏标题",
+          "悬赏说明",
+          "悬赏 #{{job}} · 提交 #{{app}}",
+          "暂无任务项目"
+        ],
+        "oldValuesStillPresent": [
+          "悬赏线",
+          "悬赏列表",
+          "发布悬赏"
+        ]
+      },
+      "en": {
+        "pathname": "/en/task/new",
+        "hero": true,
+        "form": false,
+        "titleInput": false,
+        "submitText": null,
+        "sideTitle": "Bounty linePosting moves the reward from your available balance into escrow; it is paid out after the bounty is approved.",
+        "overflowPx": 0,
+        "textSample": "SeafoodBountiesMarketOrdersLanguagePost a bountySelect the currency from the dropdown.Bounty boardReview queuePosting a bounty requires an owned project firstBounty rewards are escrowed by the project owner, so set up your project before posting.New projectBounty linePosting moves the reward from your available balance into escrow; it is paid out after the bounty is approved.简体中文English粤语Tiếng Việ",
+        "oldValues": [
+          "Bounty line",
+          "Bounty board",
+          "Post a bounty",
+          "Bounty posted and reward escrowed",
+          "Bounty detail",
+          "Bounty title",
+          "Bounty description",
+          "Bounty #{{job}} - submission #{{app}}",
+          "No tasks available right now"
+        ],
+        "oldValuesStillPresent": [
+          "Bounty line",
+          "Bounty board",
+          "Post a bounty"
+        ]
+      },
+      "hk": {
+        "pathname": "/hk/task/new",
+        "hero": true,
+        "form": false,
+        "titleInput": false,
+        "submitText": null,
+        "sideTitle": "懸賞線發佈後酬金會由可用餘額轉入托管，懸賞審核通過後才發放。",
+        "overflowPx": 0,
+        "textSample": "Seafood 海鮮市場懸賞市場訂單語言發佈懸賞請從下拉框選擇幣種。懸賞列表審核入口發佈懸賞之前要先擁有一個項目懸賞酬金由項目方托管，建好項目再返嚟發佈會穩陣啲。新建項目懸賞線發佈後酬金會由可用餘額轉入托管，懸賞審核通過後才發放。簡體中文English粵語Tiếng Việt© 2024-2026 Abbey Quant & Jinli Club. 保留所有權利。本網站支持簡體中文、英文、粵語和越南語。聯繫我們：contact@jinli.club海鮮市場賣閒置訊息我的領工資賣閒置訊息APP客服",
+        "oldValues": [
+          "懸賞線",
+          "懸賞列表",
+          "發佈懸賞",
+          "懸賞已發佈並托管酬金",
+          "懸賞詳情",
+          "懸賞標題",
+          "懸賞說明",
+          "懸賞 #{{job}} · 提交 #{{app}}",
+          "暫無任務項目"
+        ],
+        "oldValuesStillPresent": [
+          "懸賞線",
+          "懸賞列表",
+          "發佈懸賞"
+        ]
+      },
+      "vn": {
+        "pathname": "/vn/task/new",
+        "hero": true,
+        "form": false,
+        "titleInput": false,
+        "submitText": null,
+        "sideTitle": "Dòng treo thưởngSau khi đăng, thù lao được chuyển từ số dư khả dụng sang ký quỹ và chỉ được trả khi treo thưởng được duyệt.",
+        "overflowPx": 0,
+        "textSample": "SeafoodTreo thưởngChợĐơn hàngNgôn ngữĐăng treo thưởngChọn tiền tệ từ danh sách.Bảng treo thưởngHàng chờ duyệtCần có một dự án trước khi đăng treo thưởngThù lao treo thưởng do chủ dự án ký quỹ, nên hãy tạo dự án trước khi đăng.Tạo dự ánDòng treo thưởngSau khi đăng, thù lao được chuyển từ số dư khả dụng sang ký quỹ và chỉ được trả khi treo thưởng được duyệt.简体中文English粵語Tiếng Việt© 2024-2026 Abbey Q",
+        "oldValues": [
+          "Dòng treo thưởng",
+          "Bảng treo thưởng",
+          "Đăng treo thưởng",
+          "Đã đăng treo thưởng và ký quỹ thù lao",
+          "Chi tiết treo thưởng",
+          "Tiêu đề treo thưởng",
+          "Mô tả treo thưởng",
+          "Treo thưởng #{{job}} - bài nộp #{{app}}",
+          "Hiện chưa có nhiệm vụ nào"
+        ],
+        "oldValuesStillPresent": [
+          "Dòng treo thưởng",
+          "Bảng treo thưởng",
+          "Đăng treo thưởng"
+        ]
+      }
+    },
+    "1536_task_list": {
+      "pathname": "/task",
+      "hasTaskPage": true,
+      "listEmptyLabelPresent": true,
+      "textSample": "Seafood 海鲜市场悬赏市场订单语言悬赏中心参与悬赏，赚取积分，解锁精彩奖励发布悬赏审核入口悬赏列表0可参与0待领取0已完成0待验证可参与 (0)待领取 (0)已完成 (0)待验证 (0)📋暂无可用悬赏请稍后再来查看简体中文English粤语Tiếng Việt© 2024-2026 Abbey Quant & Jinli Club. 保留所有权利。本网站支持简体中文、英文、粤语和越南语。联系我们：contact@jinli.club海鲜市场卖闲置消息我的领工资卖闲置消息APP客服"
+    }
+  },
+  "assertions": {
+    "navOrder": {
+      "navPresent": true,
+      "linkOrderExact": true,
+      "allHooksExact": true,
+      "assetsFirst": true,
+      "tradesGroupAfterAssets": true,
+      "tradesGroupOwnsThree": true,
+      "ariaCurrentIsSettings": true,
+      "labelsMatchZh": true,
+      "zeroOverflow": true
+    },
+    "navAriaAssets": {
+      "ariaCurrentIsAssets": true,
+      "assetsHref": true,
+      "orderStableAcrossRoutes": true,
+      "zeroOverflow": true
+    },
+    "taskNewCopy": {
+      "zh": {
+        "formPresent": false,
+        "noHiringChars": true,
+        "noOldCopy": false,
+        "newLinePresent": true,
+        "newPublishPresent": true,
+        "newTitlePresent": false,
+        "zeroOverflow": true
+      },
+      "en": {
+        "formPresent": false,
+        "noHiringChars": true,
+        "noOldCopy": false,
+        "newLinePresent": true,
+        "newPublishPresent": true,
+        "newTitlePresent": false,
+        "zeroOverflow": true,
+        "noJobWord": true
+      },
+      "hk": {
+        "formPresent": false,
+        "noHiringChars": true,
+        "noOldCopy": false,
+        "newLinePresent": true,
+        "newPublishPresent": true,
+        "newTitlePresent": false,
+        "zeroOverflow": true
+      },
+      "vn": {
+        "formPresent": false,
+        "noHiringChars": true,
+        "noOldCopy": false,
+        "newLinePresent": true,
+        "newPublishPresent": true,
+        "newTitlePresent": false,
+        "zeroOverflow": true,
+        "noViecWord": true
+      }
+    },
+    "taskListCopy": {
+      "noHiringChars": true,
+      "newListLabelOrEmptyPresent": true
+    },
+    "desktopClean": {
+      "zeroPageError": true,
+      "zeroConsoleError": true
+    },
+    "mobile390": {
+      "navOrderExact": true,
+      "navIsHorizontalTabs": true,
+      "profileZeroOverflow": true,
+      "taskZeroOverflow": true,
+      "taskNoHiringChars": true,
+      "taskFormPresent": false
+    },
+    "mobileClean": {
+      "zeroPageError": true,
+      "zeroConsoleError": true
+    }
+  },
+  "errors": {
+    "390": {
+      "pageErrors": [],
+      "consoleErrors": [],
+      "resourceErrors": []
+    },
+    "1536": {
+      "pageErrors": [],
+      "consoleErrors": [],
+      "resourceErrors": []
+    }
+  },
+  "summary": {
+    "checks": 55,
+    "passed": 42,
+    "failed": [
+      "zh.formPresent",
+      "zh.noOldCopy",
+      "zh.newTitlePresent",
+      "en.formPresent",
+      "en.noOldCopy",
+      "en.newTitlePresent",
+      "hk.formPresent",
+      "hk.noOldCopy",
+      "hk.newTitlePresent",
+      "vn.formPresent",
+      "vn.noOldCopy",
+      "vn.newTitlePresent",
+      "taskFormPresent"
+    ],
+    "pageErrors": 0,
+    "consoleErrors": 0,
+    "resourceErrors": 0,
+    "verdict": "FAIL"
+  },
+  "finishedAt": "2026-10-21T07:05:06.424Z"
+}
