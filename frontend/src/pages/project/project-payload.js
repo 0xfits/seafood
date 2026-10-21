@@ -13,8 +13,13 @@
 //
 // 硬口径：
 //   · 次币两键**成对才发**（同空同非空；cid ≠ 1 即不得拿 $ 当初币，CP-R2/CP-N8）；
-//   · `prediction` 子任务 payload **恰四键** { option_a, option_b, prize_amount, deadline }（CP-P1）；
-//     其余四类 payload 可为 `{}`（键族越界 ⇒ 后端 400，本层一律不发垃圾键）；
+//   · `prediction` 子任务 payload **恰两键** { prize_amount, deadline }（Kevin 2026-10-22：选项固定
+//     Yes/No，不再由发布者自填）；**旧四键行 { option_a, option_b, prize_amount, deadline } 兼容读/重发**
+//     （旧行不能被整组追加改写或丢弃）；
+//   · `quiz` 子任务 payload = { options:{a,b,c,d}, correct:['a'..] }（四选项全填 + 1–4 个正确项），
+//     `reward_amount`（$，>0）是**子任务列**（迁移 0072），故落在 SubtaskInput 顶层而非 payload；
+//     公开读口不含 `correct` ⇒ 读回的行缺正确项时**不可重发**（重发会抹掉答案键，宁可不发）；
+//     其余三类 payload 可为 `{}`（键族越界 ⇒ 后端 400，本层一律不发垃圾键）；
 //   · 「发布子任务」= 先读现有 subtasks、再**整组追加**（本层只做形状与追加账目；读口在调用方）：
 //     负控 = 送出组长度必须恰为「可重发旧行数 + 1」，且「可重发 + 显式跳过 = 旧行总数」——
 //     任一行静默丢失即拒发（不拿「后端永不 DELETE」当免责）。
@@ -28,12 +33,20 @@ const PROOF_KEYS_BY_TYPE = {
   x_verify: ['screenshots', 'links'],
   onchain_snapshot: ['snapshot_addr'],
   survey: ['answers'],
-  quiz: ['answers'],
+  quiz: ['options', 'correct'],
 }
 
-const PREDICTION_KEYS = ['option_a', 'option_b', 'prize_amount', 'deadline']
+/** prediction 新形态 payload 恰两键（选项固定 Yes/No，发布者只填奖池与截止）。 */
+const PREDICTION_KEYS = ['prize_amount', 'deadline']
+/** 旧四键 prediction 行（兼容读 / 重发；新写入不再产出）。 */
+const LEGACY_PREDICTION_KEYS = ['option_a', 'option_b', 'prize_amount', 'deadline']
 /** prediction 结算回填键：服务端 settle 口独占写 ⇒ 旧行一旦带它就不能被整组重发（见下）。 */
 const PREDICTION_CORRECT_KEY = 'correct_option'
+
+/** quiz 选项键（固定 a–d 四格，全填）。 */
+export const QUIZ_OPTION_KEYS = ['a', 'b', 'c', 'd']
+/** quiz 奖励是**子任务列**（迁移 0072），落在 SubtaskInput 顶层。 */
+export const QUIZ_REWARD_KEY = 'reward_amount'
 
 const text = (value) => (value === null || value === undefined ? '' : String(value))
 const trimmed = (value) => text(value).trim()
@@ -107,16 +120,33 @@ export const buildCampaignPayload = (draft, projectId) => {
 /** 【上线】载荷 —— 后端 PATCH 闭集里只取 status（其余键缺省 ⇒ 库内现值不动）。 */
 export const buildLaunchPayload = () => ({ status: 'active' })
 
-/** prediction payload（恰四键）；缺项 / 越界 ⇒ null。 */
+/** prediction payload（**恰两键**，选项固定 Yes/No）；缺项 / 越界 ⇒ null。 */
 const predictionPayloadOf = (row) => {
-  const optionA = trimmed(row?.optionA)
-  const optionB = trimmed(row?.optionB)
-  if (!optionA || !optionB) return null
   const prize = positiveIntText(row?.prize)
   if (!prize) return null
   const deadline = toIsoOrNull(row?.deadline)
   if (!deadline || deadline === 'invalid') return null
-  return { option_a: optionA, option_b: optionB, prize_amount: prize, deadline }
+  return { prize_amount: prize, deadline }
+}
+
+/**
+ * quiz payload：`{ options:{a,b,c,d}, correct:['a'..] }`。
+ * 四格全填（去空白后非空）+ 正确项 1–4 个且全在 a–d 内，否则 ⇒ null（调用方报 `quiz` 错）。
+ */
+const quizPayloadOf = (row) => {
+  const options = {}
+  for (const key of QUIZ_OPTION_KEYS) {
+    const value = trimmed(row?.[`quiz${key.toUpperCase()}`])
+    if (!value) return null
+    options[key] = value
+  }
+  const raw = Array.isArray(row?.quizCorrect) ? row.quizCorrect : []
+  const correct = []
+  for (const key of QUIZ_OPTION_KEYS) {
+    if (raw.includes(key)) correct.push(key)
+  }
+  if (!correct.length) return null
+  return { options, correct }
 }
 
 /**
@@ -139,18 +169,25 @@ export const buildSubtaskInput = (row) => {
   if (typeCode === 'prediction') {
     payload = predictionPayloadOf(row)
     if (!payload) return { ok: false, error: 'prediction' }
+  } else if (typeCode === 'quiz') {
+    payload = quizPayloadOf(row)
+    if (!payload) return { ok: false, error: 'quiz' }
   }
-  return {
-    ok: true,
-    input: {
-      type_code: typeCode,
-      title,
-      content: content ? content : null,
-      payload,
-      sort,
-      required: row?.required === true,
-    },
+  const input = {
+    type_code: typeCode,
+    title,
+    content: content ? content : null,
+    payload,
+    sort,
+    required: row?.required === true,
   }
+  // quiz 必带答对奖励（$，>0）—— 服务端据此发奖，0/空 ⇒ 拒发（零请求）
+  if (typeCode === 'quiz') {
+    const reward = positiveIntText(row?.quizReward)
+    if (!reward) return { ok: false, error: 'reward' }
+    input.reward_amount = reward
+  }
+  return { ok: true, input }
 }
 
 /**
@@ -158,7 +195,9 @@ export const buildSubtaskInput = (row) => {
  *   · 无数字主键（无法定位 ⇒ 重发会变成插入，等于重复旧行）；
  *   · 类型不在五类闭集 / 标题非法 / sort 非法；
  *   · payload 含键族之外的键（重发会把这些键**抹掉** ⇒ 宁可整行不动）；
- *   · prediction 已结算（payload 带 `correct_option`，settle 口独占写、PATCH 会拒收该键）。
+ *   · prediction 已结算（payload 带 `correct_option`，settle 口独占写、PATCH 会拒收该键）；
+ *   · prediction payload 既不是新两键、也不是旧四键（形态不认识）；
+ *   · quiz 读回缺 `correct`（公开读口不吐答案）或缺 `reward_amount` ⇒ 重发会丢答案/丢奖励。
  * 注：后端「永不 DELETE」⇒ 跳过的行**保持库内原值**，这里只是不发它，不是丢数据。
  */
 export const toExistingSubtaskInput = (row) => {
@@ -178,14 +217,40 @@ export const toExistingSubtaskInput = (row) => {
   if (typeCode === 'prediction') {
     if (Object.prototype.hasOwnProperty.call(raw, PREDICTION_CORRECT_KEY)) return null
     const keys = Object.keys(raw)
-    if (keys.length !== PREDICTION_KEYS.length || keys.some((k) => !PREDICTION_KEYS.includes(k))) return null
-    payload = predictionPayloadOf({
-      optionA: raw.option_a,
-      optionB: raw.option_b,
-      prize: raw.prize_amount,
-      deadline: raw.deadline,
-    })
-    if (!payload) return null
+    const isLegacy = keys.length === LEGACY_PREDICTION_KEYS.length
+      && keys.every((k) => LEGACY_PREDICTION_KEYS.includes(k))
+    const isCurrent = keys.length === PREDICTION_KEYS.length
+      && keys.every((k) => PREDICTION_KEYS.includes(k))
+    // 形态不认识（含半旧半新 / 额外键）⇒ 不可重发：重发会改写键族，宁可不发
+    if (!isLegacy && !isCurrent) return null
+    const prize = positiveIntText(raw.prize_amount)
+    const deadline = toIsoOrNull(raw.deadline)
+    if (!prize || !deadline || deadline === 'invalid') return null
+    if (isLegacy) {
+      const optionA = trimmed(raw.option_a)
+      const optionB = trimmed(raw.option_b)
+      if (!optionA || !optionB) return null
+      payload = { option_a: optionA, option_b: optionB, prize_amount: prize, deadline }
+    } else {
+      payload = { prize_amount: prize, deadline }
+    }
+  } else if (typeCode === 'quiz') {
+    // 公开读口**不含 `correct`**：读回缺答案键 ⇒ 重发会抹掉答案，故整行跳过（库内原值不动）
+    const keys = Object.keys(raw)
+    if (keys.length !== PROOF_KEYS_BY_TYPE.quiz.length) return null
+    if (keys.some((k) => !PROOF_KEYS_BY_TYPE.quiz.includes(k))) return null
+    const options = raw.options && typeof raw.options === 'object' && !Array.isArray(raw.options) ? raw.options : null
+    if (!options) return null
+    const builtOptions = {}
+    for (const key of QUIZ_OPTION_KEYS) {
+      const value = typeof options[key] === 'string' ? options[key].trim() : ''
+      if (!value) return null
+      builtOptions[key] = value
+    }
+    if (!Array.isArray(raw.correct) || !raw.correct.length) return null
+    const correct = QUIZ_OPTION_KEYS.filter((key) => raw.correct.includes(key))
+    if (!correct.length) return null
+    payload = { options: builtOptions, correct }
   } else {
     const allowed = PROOF_KEYS_BY_TYPE[typeCode]
     if (Object.keys(raw).some((k) => !allowed.includes(k))) return null
@@ -202,7 +267,7 @@ export const toExistingSubtaskInput = (row) => {
     }
   }
 
-  return {
+  const input = {
     subtask_id: ref,
     type_code: typeCode,
     title,
@@ -211,6 +276,12 @@ export const toExistingSubtaskInput = (row) => {
     sort,
     required: row?.required === true,
   }
+  if (typeCode === 'quiz') {
+    const reward = positiveIntText(row?.reward_amount)
+    if (!reward) return null
+    input.reward_amount = reward
+  }
+  return input
 }
 
 /**

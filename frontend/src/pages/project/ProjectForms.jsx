@@ -45,10 +45,16 @@ const blankRow = (overrides = {}) => ({
   content: '',
   required: true,
   sort: '0',
-  optionA: '',
-  optionB: '',
+  // prediction：选项固定 Yes/No（无自填文案）⇒ 只填奖池与截止
   prize: '',
   deadline: '',
+  // quiz：四选项 + 正确项（1–4）+ 答对奖励（$，>0）
+  quizA: '',
+  quizB: '',
+  quizC: '',
+  quizD: '',
+  quizCorrect: [],
+  quizReward: '',
   ...overrides,
 })
 
@@ -64,6 +70,7 @@ const errorTextOf = (code, t) => {
     case 'rewardPair': return t('project.errRewardPair')
     case 'type': return t('project.errNeedType')
     case 'prediction': return t('project.predictionInvalid')
+    case 'quiz': return t('project.quizInvalid')
     case 'subtask': return t('project.errNeedSubtask')
     case 'assert': return t('project.errGroupAssert')
     case 'campaign': return t('project.errNeedCampaign')
@@ -79,10 +86,15 @@ const Field = ({ label, children }) => (
   </label>
 )
 
-/** 子任务行编辑器（task 表单可多行；subtask 表单单行）——prediction 追加四键输入。 */
+/** 子任务行编辑器（task 表单可多行；subtask 表单单行）——prediction 只填奖池/截止，quiz 填四选项+正确项+奖励。 */
 const SubtaskRowEditor = ({ row, index, t, onChange, onRemove, canRemove }) => {
   const set = (patch) => onChange({ ...row, ...patch })
   const isPrediction = row.typeCode === 'prediction'
+  const isQuiz = row.typeCode === 'quiz'
+  const toggleCorrect = (key) => {
+    const picks = Array.isArray(row.quizCorrect) ? row.quizCorrect : []
+    set({ quizCorrect: picks.includes(key) ? picks.filter((item) => item !== key) : [...picks, key] })
+  }
   return (
     <div className="sf-project-row" data-sf-m="project-row" data-sf-row={index} data-sf-type={row.typeCode}>
       <div className="sf-project-row-head">
@@ -127,23 +139,12 @@ const SubtaskRowEditor = ({ row, index, t, onChange, onRemove, canRemove }) => {
       />
 
       {isPrediction ? (
-        <div className="sf-project-row-grid">
-          <input
-            className="sf-project-input"
-            data-sf-field="optionA"
-            aria-label={t('project.fOptionA')}
-            placeholder={t('project.fOptionA')}
-            value={row.optionA}
-            onChange={(event) => set({ optionA: event.target.value })}
-          />
-          <input
-            className="sf-project-input"
-            data-sf-field="optionB"
-            aria-label={t('project.fOptionB')}
-            placeholder={t('project.fOptionB')}
-            value={row.optionB}
-            onChange={(event) => set({ optionB: event.target.value })}
-          />
+        <div className="sf-project-row-grid" data-sf-m="project-prediction-fields">
+          {/* 选项固定 Yes / No：**只展示、不可编辑**（Kevin 2026-10-22） */}
+          <div className="sf-project-fixed-choices" data-sf-m="project-prediction-choices" aria-readonly="true">
+            <span className="sf-project-fixed-choice" data-sf-choice="yes">{t('campaign.predictionYes')}</span>
+            <span className="sf-project-fixed-choice" data-sf-choice="no">{t('campaign.predictionNo')}</span>
+          </div>
           <input
             className="sf-project-input"
             data-sf-field="prize"
@@ -160,6 +161,53 @@ const SubtaskRowEditor = ({ row, index, t, onChange, onRemove, canRemove }) => {
             type="datetime-local"
             value={row.deadline}
             onChange={(event) => set({ deadline: event.target.value })}
+          />
+        </div>
+      ) : null}
+
+      {isQuiz ? (
+        <div className="sf-project-quiz" data-sf-m="project-quiz-fields">
+          <div className="sf-project-row-grid">
+            {['A', 'B', 'C', 'D'].map((upper) => {
+              const key = upper.toLowerCase()
+              return (
+                <input
+                  className="sf-project-input"
+                  data-sf-field={`quiz-${key}`}
+                  key={key}
+                  aria-label={t('project.fQuizOption', { key: upper })}
+                  placeholder={t('project.fQuizOption', { key: upper })}
+                  value={row[`quiz${upper}`] ?? ''}
+                  onChange={(event) => set({ [`quiz${upper}`]: event.target.value })}
+                />
+              )
+            })}
+          </div>
+          <div className="sf-project-row-grid" data-sf-m="project-quiz-correct">
+            <span className="sf-project-field-label">{t('project.fQuizCorrect')}</span>
+            {['a', 'b', 'c', 'd'].map((key) => {
+              const picked = (Array.isArray(row.quizCorrect) ? row.quizCorrect : []).includes(key)
+              return (
+                <label className={`sf-project-check${picked ? ' is-picked' : ''}`} key={key}>
+                  <input
+                    type="checkbox"
+                    data-sf-field={`quiz-correct-${key}`}
+                    checked={picked}
+                    onChange={() => toggleCorrect(key)}
+                  />
+                  <span>{key.toUpperCase()}</span>
+                </label>
+              )
+            })}
+          </div>
+          <input
+            className="sf-project-input"
+            data-sf-field="quiz-reward"
+            aria-label={t('project.fQuizReward')}
+            placeholder={t('project.fQuizReward')}
+            inputMode="numeric"
+            value={row.quizReward}
+            onChange={(event) => set({ quizReward: event.target.value })}
           />
         </div>
       ) : null}

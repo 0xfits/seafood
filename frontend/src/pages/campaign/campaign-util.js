@@ -106,30 +106,50 @@ export const typeKeyOf = (typeCode) => {
 export const PREDICTION_STATES = ['open', 'deadline_reached', 'settled']
 
 /**
- * prediction 的两个选项：**服务端 payload 的 `option_a` / `option_b` 为准**（CP-P1 四键合同）。
- * 两枚都非空才返回数组（否则 `[]` ⇒ 调用方整块不渲染：宁可少渲染，不渲染半个预测）。
+ * prediction 选项 = **固定 Yes / No**（Kevin 2026-10-22：发布者不再自填文案）。
+ * `PREDICTION_CHOICES` 是唯一来源（面板据此渲染两枚按钮，i18n 键 `campaign.predictionYes/No`）。
+ */
+export const PREDICTION_CHOICES = ['yes', 'no']
+
+/**
+ * 选项归一：**新票 = `yes`/`no`**；旧行/旧票的 `a`/`b` 按 `a→yes`、`b→no` 兼容读（只读兼容，不再写旧值）。
+ * 非法值 ⇒ `null`。
+ */
+export const normalizePredictionChoice = (value) => {
+  const raw = String(value ?? '').trim().toLowerCase()
+  if (raw === 'yes' || raw === 'a') return 'yes'
+  if (raw === 'no' || raw === 'b') return 'no'
+  return null
+}
+
+/**
+ * 两个选项（恒两枚；文案走 i18n `labelKey`）。
+ * `legacyText` = 旧四键行的 `option_a/option_b` 原文（仅作副行提示，不参与选择集；新行恒空）。
  */
 export const predictionOptionsOf = (subtask) => {
   const payload = subtask?.payload && typeof subtask.payload === 'object' ? subtask.payload : {}
-  const a = typeof payload.option_a === 'string' ? payload.option_a.trim() : ''
-  const b = typeof payload.option_b === 'string' ? payload.option_b.trim() : ''
-  if (!a || !b) return []
-  return [{ choice: 'a', text: a }, { choice: 'b', text: b }]
+  const legacy = {
+    yes: typeof payload.option_a === 'string' ? payload.option_a.trim() : '',
+    no: typeof payload.option_b === 'string' ? payload.option_b.trim() : '',
+  }
+  return PREDICTION_CHOICES.map((choice) => ({
+    choice,
+    labelKey: choice === 'yes' ? 'campaign.predictionYes' : 'campaign.predictionNo',
+    legacyText: legacy[choice],
+  }))
 }
 
 /**
  * prediction 展示元信息。
  * · `state`：**服务端 `prediction_state` 优先**（读时派生，含 open/deadline_reached/settled）；
  *   旧读口未带该字段时按 `correct_option` + `deadline` 本地派生（同一套三态，无新状态）；
- * · `correct`：只在结算后由 settle 口回填 ⇒ 有值即「已结算」，是正确项高亮的唯一依据；
+ * · `correct`：只在结算后由 settle 口回填（旧值 `a`/`b` 归一成 `yes`/`no`），是正确项高亮的唯一依据；
  * · `prize`：奖池 `$`（数字串），显示用，不做任何分摊计算（payout 一律服务端给）。
  */
 export const predictionMetaOf = (subtask) => {
   const payload = subtask?.payload && typeof subtask.payload === 'object' ? subtask.payload : {}
   const rawState = String(subtask?.prediction_state || '')
-  const correct = payload.correct_option === 'a' || payload.correct_option === 'b'
-    ? payload.correct_option
-    : null
+  const correct = normalizePredictionChoice(payload.correct_option)
   let state = PREDICTION_STATES.includes(rawState) ? rawState : null
   if (!state) {
     if (correct) state = 'settled'
@@ -145,7 +165,8 @@ export const predictionMetaOf = (subtask) => {
 }
 
 /**
- * 个人预测结果：**服务端 `my_outcome` 优先**（`{choice, won, payout}`，payout 服务端算）；
+ * 个人预测结果：**服务端 `my_outcome` 优先**（`{choice, won, payout}`，payout 服务端算）；选项按
+ * `normalizePredictionChoice` 归一（旧行 `a/b` ⇒ `yes/no`）。
  * 旧读口未带该字段时，只做「结算后 + 本机回执有选项」的**降级推导**（`won` 由公开的
  * `correct_option` 比对得出，`payout` **留空** —— 前端绝不自己算钱）。
  */
@@ -154,16 +175,76 @@ export const predictionOutcomeOf = (subtask, proof) => {
   if (server && typeof server === 'object') {
     const won = server.won === true ? true : server.won === false ? false : null
     return {
-      choice: server.choice === 'a' || server.choice === 'b' ? server.choice : null,
+      choice: normalizePredictionChoice(server.choice),
       won,
       payout: server.payout === null || server.payout === undefined || server.payout === '' ? null : String(server.payout),
       source: 'server',
     }
   }
   const meta = predictionMetaOf(subtask)
-  const choice = proof?.payload?.choice
-  if (!meta.correct || (choice !== 'a' && choice !== 'b')) return null
+  const choice = normalizePredictionChoice(proof?.payload?.choice)
+  if (!meta.correct || !choice) return null
   return { choice, won: choice === meta.correct, payout: null, source: 'local' }
+}
+
+// ============================================================================
+// quiz（答题）—— 四选项多选 + 服务端判分
+// ----------------------------------------------------------------------------
+// 口径（Kevin 2026-10-22）：
+//   · 发布侧填 4 个选项（a–d）与 1–4 个正确项；**公开读口不吐 `correct`** ⇒ 参与侧**不得本地推算答案**，
+//     对错与发货金额一律取服务端字段（提交响应 / `my_outcome`）；
+//   · 参与票 = `{answers:{picks:[...]}}`；答题奖励 `reward_amount` 是子任务列（迁移 0072）。
+// ============================================================================
+export const QUIZ_OPTION_KEYS = ['a', 'b', 'c', 'd']
+
+/** quiz 选项数组：`payload.options` 的 a–d 逐格取文本（缺格/空串 ⇒ 该格不渲染）。 */
+export const quizOptionsOf = (subtask) => {
+  const payload = subtask?.payload && typeof subtask.payload === 'object' ? subtask.payload : {}
+  const options = payload.options && typeof payload.options === 'object' && !Array.isArray(payload.options)
+    ? payload.options
+    : null
+  if (!options) return []
+  return QUIZ_OPTION_KEYS
+    .map((key) => ({ key, text: typeof options[key] === 'string' ? options[key].trim() : '' }))
+    .filter((option) => option.text)
+}
+
+/** quiz 答对奖励 `$`（子任务列优先，旧读口回落 payload）；缺失 ⇒ `null`。 */
+export const quizRewardOf = (subtask) => {
+  const payload = subtask?.payload && typeof subtask.payload === 'object' ? subtask.payload : {}
+  const raw = subtask?.reward_amount ?? payload.reward_amount
+  return raw === null || raw === undefined || raw === '' ? null : String(raw)
+}
+
+/** 本机/服务端已提交的选项（`my_proof.payload.answers.picks` 或回执同形）。 */
+export const quizPicksOf = (proof) => {
+  const picks = proof?.payload?.answers?.picks
+  if (!Array.isArray(picks)) return []
+  return QUIZ_OPTION_KEYS.filter((key) => picks.includes(key))
+}
+
+const boolOrNull = (value) => (value === true ? true : value === false ? false : null)
+
+/**
+ * quiz 判分结果（**只取服务端**，绝不本地比对答案）：
+ *   ① `subtask.my_outcome`（读口给）→ ② `subtask.my_proof`（提交回执落库后的行）→ ③ `local`（本次提交响应）。
+ * 字段吃 `quiz_correct`/`correct`/`won` 与 `reward_paid`/`payout`/`reward`。
+ * 无任何判定 ⇒ `null`。
+ */
+export const quizOutcomeOf = (subtask, proof, local) => {
+  const candidates = [subtask?.my_outcome, subtask?.my_proof, proof, local]
+  for (const row of candidates) {
+    if (!row || typeof row !== 'object') continue
+    const correct = boolOrNull(row.quiz_correct ?? row.correct ?? row.won)
+    const paidRaw = row.reward_paid ?? row.payout ?? row.reward
+    if (correct === null && (paidRaw === undefined || paidRaw === null || paidRaw === '')) continue
+    return {
+      correct,
+      reward: paidRaw === null || paidRaw === undefined || paidRaw === '' ? null : String(paidRaw),
+      source: row === local ? 'local' : 'server',
+    }
+  }
+  return null
 }
 
 /** 任务完成奖：主奖励恒 `$`（读口是数字串）+ 可选次币（`reward_cid_secondary` + 金额）。 */

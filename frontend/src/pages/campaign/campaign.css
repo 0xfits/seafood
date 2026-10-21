@@ -581,6 +581,49 @@ a.sf-campaign-card-task:hover .sf-campaign-card-task-title {
   font-weight: 600;
 }
 
+/* quiz：选项行（键位 + 文案）与判分/奖励行（对错与发货金额只来自服务端） */
+.sf-campaign-choice-key {
+  flex: none;
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.75;
+}
+
+.sf-campaign-choice-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.sf-campaign-choice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sf-campaign-quiz-reward {
+  color: var(--sf-meta-fg);
+  font-size: 12px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.sf-campaign-quiz-result {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sf-campaign-quiz-result.is-win {
+  color: var(--sf-up-fg);
+}
+
+.sf-campaign-quiz-result.is-lose {
+  color: var(--sf-down-fg);
+}
+
 .sf-campaign-input,
 .sf-campaign-textarea {
   box-sizing: border-box;

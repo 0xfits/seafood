@@ -1396,6 +1396,15 @@
       "cta": "Vote",
       "pickOne": "Pick an option first",
       "payout": "Payout ${{amount}}"
+    },
+    "predictionYes": "Yes",
+    "predictionNo": "No",
+    "quiz": {
+      "picks": "Select the correct answers (multiple)",
+      "pickAtLeastOne": "Pick at least one answer",
+      "right": "Correct",
+      "wrong": "Not correct",
+      "reward": "Correct-answer reward ${{amount}}"
     }
   },
   "itemType": {
@@ -1479,6 +1488,11 @@
     "timeInvalid": "End time must be after start time.",
     "rewardInvalid": "Reward must be a number greater than 0.",
     "predictionInvalid": "Prediction needs two options, a prize pool and a deadline.",
+    "fQuizOptions": "Options a–d (all required)",
+    "fQuizOption": "Option {{key}}",
+    "fQuizCorrect": "Correct answers (1–4)",
+    "fQuizReward": "Correct-answer reward ($, required)",
+    "quizInvalid": "Quiz needs all four options and at least one correct answer",
     "loadFailed": "Failed to load this project, please try again later.",
     "retry": "Retry",
     "fTitle": "Title",

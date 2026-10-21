@@ -92,9 +92,16 @@ afterEach(() => {
 
 // ============================================================================
 describe('campaign-util · prediction 派生（纯函数）', () => {
-  it('选项取 payload.option_a/b；缺一枚 ⇒ 空数组（不渲染半个预测）', () => {
-    expect(predictionOptionsOf(subtask())).toEqual([{ choice: 'a', text: '甲队' }, { choice: 'b', text: '乙队' }])
-    expect(predictionOptionsOf(subtask({ payload: { option_a: '只一个' } }))).toEqual([])
+  it('选项恒为 Yes/No 两枚（与 payload 无关）；旧四键行的 option_a/b 只作副行原文', () => {
+    const fixed = predictionOptionsOf(subtask())
+    expect(fixed.map((o) => o.choice)).toEqual(['yes', 'no'])
+    expect(fixed.map((o) => o.labelKey)).toEqual(['campaign.predictionYes', 'campaign.predictionNo'])
+    // 旧四键行：原文只落 legacyText（不再参与选择集）
+    expect(fixed.map((o) => o.legacyText)).toEqual(['甲队', '乙队'])
+    // 新两键行（无选项文案）⇒ 仍两枚，legacyText 皆空
+    const fresh = predictionOptionsOf(subtask({ payload: { prize_amount: '100', deadline: new Date(Date.now() + 2 * HOUR).toISOString() } }))
+    expect(fresh.map((o) => o.legacyText)).toEqual(['', ''])
+    expect(fresh).toHaveLength(2)
   })
 
   it('三态：服务端字段优先；缺字段时按 correct_option / deadline 派生', () => {
@@ -107,11 +114,13 @@ describe('campaign-util · prediction 派生（纯函数）', () => {
   it('个人结果：my_outcome 优先（payout 服务端给）；无该字段时只做 won 降级、payout 留空', () => {
     const settled = subtask({ payload: { ...subtask().payload, correct_option: 'b' } })
     expect(predictionOutcomeOf(settled, { payload: { choice: 'b' } })).toEqual({
-      choice: 'b', won: true, payout: null, source: 'local',
+      choice: 'no', won: true, payout: null, source: 'local',
     })
     expect(predictionOutcomeOf({ ...settled, my_outcome: { choice: 'b', won: true, payout: '50' } }, { payload: { choice: 'b' } })).toEqual({
-      choice: 'b', won: true, payout: '50', source: 'server',
+      choice: 'no', won: true, payout: '50', source: 'server',
     })
+    // 新票形态 yes/no 直通
+    expect(predictionOutcomeOf({ ...settled, my_outcome: { choice: 'no', won: true, payout: '50' } }, { payload: { choice: 'no' } }).choice).toBe('no')
     expect(predictionOutcomeOf(settled, null)).toBeNull()
   })
 })
@@ -135,12 +144,12 @@ describe('prediction 面板', () => {
   it('投票成功 ⇒ 立即锁定、提示已投、触发复读', async () => {
     API.submitSubtaskProof.mockResolvedValue({ proof_id: '9', payload: { choice: 'a' }, time_created: '2026-10-20T10:00:00.000Z' })
     const { container } = renderItem(subtask())
-    fireEvent.click(container.querySelector('[data-sf-m="campaign-vote"][data-sf-choice="a"]'))
+    fireEvent.click(container.querySelector('[data-sf-m="campaign-vote"][data-sf-choice="yes"]'))
     fireEvent.click(container.querySelector('[data-sf-m="campaign-prediction-submit"]'))
 
     await waitFor(() => expect(API.submitSubtaskProof).toHaveBeenCalledTimes(1))
     expect(API.submitSubtaskProof.mock.calls[0][0]).toBe(5011)
-    expect(API.submitSubtaskProof.mock.calls[0][1]).toEqual({ choice: 'a' })
+    expect(API.submitSubtaskProof.mock.calls[0][1]).toEqual({ choice: 'yes' })
 
     await waitFor(() => {
       const panel = container.querySelector('[data-sf-m="campaign-prediction"]')
@@ -163,7 +172,7 @@ describe('prediction 面板', () => {
     expect(votes[1].getAttribute('data-sf-picked')).toBe('1')
     expect(votes.every((node) => node.disabled)).toBe(true)
     expect(container.querySelector('[data-sf-m="campaign-prediction-result"]').textContent)
-      .toContain(t('campaign.prediction.voted', { option: '乙队' }))
+      .toContain(t('campaign.prediction.voted', { option: zh.campaign.predictionNo }))
   })
 
   it('服务端 409 prediction_vote_locked ⇒ 锁定 + 提示 + 复读', async () => {
@@ -171,7 +180,7 @@ describe('prediction 面板', () => {
     error.code = 'prediction_vote_locked'
     API.submitSubtaskProof.mockRejectedValue(error)
     const { container } = renderItem(subtask())
-    fireEvent.click(container.querySelector('[data-sf-m="campaign-vote"][data-sf-choice="b"]'))
+    fireEvent.click(container.querySelector('[data-sf-m="campaign-vote"][data-sf-choice="no"]'))
     fireEvent.click(container.querySelector('[data-sf-m="campaign-prediction-submit"]'))
 
     await waitFor(() => {
@@ -212,7 +221,7 @@ describe('prediction 面板', () => {
   it('未登录：点击选项只给登录提示（零请求）', async () => {
     AUTH.isAuthenticated = false
     const { container } = renderItem(subtask())
-    fireEvent.click(container.querySelector('[data-sf-m="campaign-vote"][data-sf-choice="a"]'))
+    fireEvent.click(container.querySelector('[data-sf-m="campaign-vote"][data-sf-choice="yes"]'))
     await waitFor(() => {
       expect(container.querySelector('[data-sf-m="campaign-prediction-notice"]').textContent).toContain(zh.campaign.submit.needLogin)
     })

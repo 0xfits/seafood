@@ -500,6 +500,38 @@ textarea.sf-project-input {
   height: 18px;
 }
 
+/* prediction：选项固定 Yes/No —— **只读展示**（无 input，不可编辑） */
+.sf-project-fixed-choices {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.sf-project-fixed-choice {
+  box-sizing: border-box;
+  padding: 6px 12px;
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-btna);
+  background: var(--sf-panel-bg);
+  color: var(--sf-title-fg, #1f2328);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* quiz：四选项 + 正确项（1–4）+ 答对奖励 的一组纵向字段 */
+.sf-project-quiz {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.sf-project-check.is-picked {
+  font-weight: 600;
+}
+
 .sf-project-rows {
   display: flex;
   flex-direction: column;

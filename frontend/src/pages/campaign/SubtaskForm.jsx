@@ -2,23 +2,36 @@ import React, { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { buildLocalizedPath } from '../../utils'
 import { submitSubtaskProof, uploadProofImage } from './campaign-api'
-import { formatDateTime, predictionMetaOf, predictionOutcomeOf } from './campaign-util'
+import {
+  PREDICTION_CHOICES,
+  formatDateTime,
+  normalizePredictionChoice,
+  predictionMetaOf,
+  predictionOutcomeOf,
+  quizOptionsOf,
+  quizOutcomeOf,
+  quizPicksOf,
+  quizRewardOf,
+} from './campaign-util'
 import { readProof, writeProof } from './proof-store'
 
 // ============================================================================
-// 子任务的**可写面**：prediction 双选（锁定 / 结算展示）＋ 其余四类提交面板
+// 子任务的**可写面**：prediction 固定 Yes/No 双选 ＋ quiz 四选项多选 ＋ 其余三类提交面板
 // ----------------------------------------------------------------------------
 // 状态真源（硬口径）：登录态下服务端 `GET /api/campaign/:ref` 的每个 subtask 带
-//   `my_proof`（`null` | `{payload, time_created}`）与 prediction 结算后的
-//   `my_outcome`（`null` | `{choice, won, payout}`，`payout` 服务端算）
-//   ⇒ **有该字段就以服务端为准**（`null` 也当真：本机回执不得覆盖服务端事实）。
+//   `my_proof`（`null` | `{payload, time_created}`）与结算后的
+//   `my_outcome`（prediction `{choice, won, payout}` / quiz `{quiz_correct, reward_paid}`）⇒ **有该字段就以服务端为准**
+//   （`null` 也当真：本机回执不得覆盖服务端事实）。
 // 本机回执（`proof-store.js`）只在读口未带字段时降级兜底（旧读口 / 未登录），
 //   提交成功后两路同时置位，随后 `onRefresh()` 拉详情拿服务端字段（步 3）。
 //
 // 提交闸（前端只做提示与形态校验，判定权全在服务端）：
-//   · prediction = 一人一票：首票即锁；`409 prediction_vote_locked` ⇒ 也锁并提示已投；
+//   · prediction = 一人一票：首票即锁；`choice` 恒 `'yes'|'no'`（旧行 `a/b` 只读归一）；
+//     `409 prediction_vote_locked` ⇒ 也锁并提示已投；
 //     `409 prediction_deadline_passed / prediction_already_settled` ⇒ 锁 + 截止文案；
-//   · 通用四类 = 提交即通过、重提覆盖（服务端 200），故面板不隐藏、用回执预填；
+//   · quiz = 四选项多选，票形 `{answers:{picks:[...]}}`；**公开读口不吐 `correct`** ⇒ 对错与发货金额
+//     一律取服务端（`quiz_correct` / `reward_paid`），前端**绝不本地推算答案**；重提覆盖（服务端 200）；
+//   · 通用三类 = 提交即通过、重提覆盖（服务端 200），故面板不隐藏、用回执预填；
 //   · 未登录 ⇒ 任何写动作零请求，只给登录提示（`campaign.submit.needLogin`）。
 // ============================================================================
 
@@ -36,11 +49,6 @@ const normalizeProof = (value) => {
     return { payload: value.payload, time_created: typeof value.time_created === 'string' ? value.time_created : null }
   }
   return null
-}
-
-const choiceTextOf = (options, choice) => {
-  const found = options.find((option) => option.choice === choice)
-  return found ? found.text : ''
 }
 
 const readFileBase64 = (file) => new Promise((resolve, reject) => {
@@ -88,10 +96,12 @@ const Notice = ({ notice, t, lang, m, showLogin }) => {
 }
 
 // ---------------------------------------------------------------- prediction
+const choiceLabelOf = (t, choice) => t(choice === 'no' ? 'campaign.predictionNo' : 'campaign.predictionYes')
+
 const PredictionPanel = ({ subtask, t, lang, user, isAuthenticated, proof, onSaved, onRefresh }) => {
   const meta = predictionMetaOf(subtask)
   const outcome = predictionOutcomeOf(subtask, proof)
-  const proofChoice = proof?.payload?.choice === 'a' || proof?.payload?.choice === 'b' ? proof.payload.choice : null
+  const proofChoice = normalizePredictionChoice(proof?.payload?.choice)
   const myChoice = outcome?.choice || proofChoice
   const settled = meta.state === 'settled'
   const closed = meta.state === 'deadline_reached'
@@ -99,8 +109,6 @@ const PredictionPanel = ({ subtask, t, lang, user, isAuthenticated, proof, onSav
   const [busy, setBusy] = useState(false)
   const [locked, setLocked] = useState(false)
   const [notice, setNotice] = useState(null)
-
-  if (!meta.options.length) return null
 
   const lockedFinal = settled || closed || Boolean(proof) || locked
   const deadlineText = formatDateTime(meta.deadline, lang)
@@ -169,11 +177,11 @@ const PredictionPanel = ({ subtask, t, lang, user, isAuthenticated, proof, onSav
         </div>
       ) : null}
 
-      <div className="sf-campaign-votes" data-sf-m="campaign-votes">
+      <div className="sf-campaign-votes" data-sf-m="campaign-votes" data-sf-choices={PREDICTION_CHOICES.join(',')}>
         {meta.options.map((option) => {
           const isPicked = myChoice === option.choice || picked === option.choice
           const isCorrect = settled && meta.correct === option.choice
-          const isWrong = settled && meta.correct !== option.choice
+          const isWrong = settled && meta.correct && meta.correct !== option.choice
           return (
             <button
               type="button"
@@ -188,10 +196,12 @@ const PredictionPanel = ({ subtask, t, lang, user, isAuthenticated, proof, onSav
               onClick={() => pick(option.choice)}
             >
               <span className="sf-campaign-vote-key">
-                {option.choice === 'a' ? 'A' : 'B'}
+                {t(option.labelKey)}
                 {isCorrect ? ` · ${t('campaign.prediction.correct')}` : ''}
               </span>
-              <span className="sf-campaign-vote-text">{option.text}</span>
+              {option.legacyText ? (
+                <span className="sf-campaign-vote-text" data-sf-m="campaign-vote-legacy">{option.legacyText}</span>
+              ) : null}
             </button>
           )
         })}
@@ -234,7 +244,7 @@ const PredictionPanel = ({ subtask, t, lang, user, isAuthenticated, proof, onSav
       ) : myChoice ? (
         <div className="sf-campaign-prediction-result is-pending" data-sf-m="campaign-prediction-result" data-sf-won="">
           <span>{t('campaign.prediction.voteLocked')}</span>
-          <span>{t('campaign.prediction.voted', { option: choiceTextOf(meta.options, myChoice) })}</span>
+          <span>{t('campaign.prediction.voted', { option: choiceLabelOf(t, myChoice) })}</span>
           {closed ? <span>{t('campaign.prediction.awaitSettle')}</span> : null}
         </div>
       ) : closed ? (
@@ -583,6 +593,131 @@ const ProofPanel = ({ subtask, t, lang, user, isAuthenticated, proof, onSaved, o
   )
 }
 
+// ---------------------------------------------------------------- quiz
+/**
+ * 答题面板：四选项**多选** + 提交。
+ * · 票形 = `{answers:{picks:['a'..]}}`（1–4 个选项，去重）；
+ * · **公开读口不吐 `correct`** ⇒ 本组件不做任何本地判分：对错与发货金额只取服务端
+ *   （提交响应 `quiz_correct` / `reward_paid`，或复读后的 `my_outcome`）；
+ * · 有服务端判定才渲染 `campaign-quiz-result`（`data-sf-correct` / `data-sf-reward` 供探针取证）。
+ */
+const QuizPanel = ({ subtask, t, lang, user, isAuthenticated, proof, onSaved, onRefresh }) => {
+  const options = quizOptionsOf(subtask)
+  const reward = quizRewardOf(subtask)
+  const [picks, setPicks] = useState(() => quizPicksOf(proof))
+  const [busy, setBusy] = useState(false)
+  const [notice, setNotice] = useState(null)
+  const [localResult, setLocalResult] = useState(null)
+
+  const outcome = quizOutcomeOf(subtask, proof, localResult)
+  const submittedAt = proof?.time_created ? formatDateTime(proof.time_created, lang) : null
+
+  if (!options.length) return null
+
+  const toggle = (key) => {
+    if (busy) return
+    setPicks((prev) => (prev.includes(key) ? prev.filter((item) => item !== key) : [...prev, key]))
+    setNotice(null)
+  }
+
+  const submit = async () => {
+    if (!isAuthenticated) {
+      setNotice({ kind: 'err', key: 'campaign.submit.needLogin' })
+      return
+    }
+    if (!picks.length) {
+      setNotice({ kind: 'err', key: 'campaign.quiz.pickAtLeastOne' })
+      return
+    }
+    setBusy(true)
+    setNotice(null)
+    try {
+      const payload = { answers: { picks } }
+      const view = await submitSubtaskProof(subtask?.subtask_id, payload, user)
+      writeProof(user?.uID ?? user?.uid, subtask?.subtask_id, payload)
+      setLocalResult(view && typeof view === 'object' ? view : {})
+      onSaved?.({ payload, time_created: typeof view?.time_created === 'string' ? view.time_created : null })
+      setNotice({ kind: 'ok', key: 'campaign.submit.ok' })
+      onRefresh?.()
+    } catch (error) {
+      setNotice({ kind: 'err', key: 'campaign.submit.failed' })
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="sf-campaign-panel sf-campaign-quiz" data-sf-m="campaign-quiz-panel" data-sf-type="quiz">
+      {proof ? (
+        <p className="sf-campaign-notice is-ok" data-sf-m="campaign-proof-submitted">
+          {t('campaign.submitted')}
+          {submittedAt ? ` · ${submittedAt}` : null}
+        </p>
+      ) : null}
+
+      <span className="sf-campaign-field-label" data-sf-m="campaign-quiz-picks-label">
+        {t('campaign.quiz.picks')}
+      </span>
+      <div className="sf-campaign-choices" data-sf-m="campaign-quiz-options">
+        {options.map((option) => {
+          const picked = picks.includes(option.key)
+          return (
+            <button
+              type="button"
+              key={option.key}
+              className={`sf-campaign-choice${picked ? ' is-picked' : ''}`}
+              data-sf-m="campaign-quiz-option"
+              data-sf-pick={option.key}
+              data-sf-picked={picked ? '1' : '0'}
+              aria-pressed={picked}
+              disabled={busy}
+              onClick={() => toggle(option.key)}
+            >
+              <span className="sf-campaign-choice-key">{option.key.toUpperCase()}</span>
+              <span className="sf-campaign-choice-text">{option.text}</span>
+            </button>
+          )
+        })}
+      </div>
+
+      {reward ? (
+        <div className="sf-campaign-quiz-reward" data-sf-m="campaign-quiz-reward" data-sf-amount={reward}>
+          {t('campaign.quiz.reward', { amount: reward })}
+        </div>
+      ) : null}
+
+      <div className="sf-campaign-panel-actions">
+        <button
+          type="button"
+          className="sf-campaign-btn is-primary"
+          data-sf-m="campaign-quiz-submit"
+          disabled={busy}
+          onClick={submit}
+        >
+          {busy ? t('campaign.submit.sending') : t('campaign.submit.cta')}
+        </button>
+      </div>
+
+      {outcome ? (
+        <div
+          className={`sf-campaign-quiz-result${outcome.correct === true ? ' is-win' : outcome.correct === false ? ' is-lose' : ''}`}
+          data-sf-m="campaign-quiz-result"
+          data-sf-correct={outcome.correct === true ? '1' : outcome.correct === false ? '0' : ''}
+          data-sf-reward={outcome.reward ?? ''}
+        >
+          {outcome.correct === true ? <span>{t('campaign.quiz.right')}</span> : null}
+          {outcome.correct === false ? <span>{t('campaign.quiz.wrong')}</span> : null}
+          {outcome.correct === true && outcome.reward ? (
+            <span data-sf-m="campaign-quiz-paid">{t('campaign.prediction.payout', { amount: outcome.reward })}</span>
+          ) : null}
+        </div>
+      ) : null}
+
+      <Notice notice={notice} t={t} lang={lang} m="campaign-quiz-notice" showLogin={!isAuthenticated} />
+    </div>
+  )
+}
+
 // ---------------------------------------------------------------- 壳
 const SubtaskForm = ({ subtask, t, lang, user, isAuthenticated, onRefresh }) => {
   const [saved, setSaved] = useState(null)
@@ -602,9 +737,11 @@ const SubtaskForm = ({ subtask, t, lang, user, isAuthenticated, onRefresh }) => 
     onRefresh,
   }
 
-  return String(subtask.type_code) === 'prediction'
-    ? <PredictionPanel {...shared} />
-    : <ProofPanel {...shared} />
+  const type = String(subtask.type_code)
+  if (type === 'prediction') return <PredictionPanel {...shared} />
+  // quiz：payload 带 a–d 四选项 ⇒ 走多选判分面板；旧文本答题（payload 无 options）仍走文本面板
+  if (type === 'quiz' && quizOptionsOf(subtask).length) return <QuizPanel {...shared} />
+  return <ProofPanel {...shared} />
 }
 
 export default SubtaskForm

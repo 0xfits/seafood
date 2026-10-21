@@ -1396,6 +1396,15 @@
       "cta": "投票",
       "pickOne": "請先選擇一個選項",
       "payout": "獎金 ${{amount}}"
+    },
+    "predictionYes": "是",
+    "predictionNo": "否",
+    "quiz": {
+      "picks": "選出正確答案（可多選）",
+      "pickAtLeastOne": "請至少選一個答案",
+      "right": "答對了",
+      "wrong": "答錯了",
+      "reward": "答對獎勵 ${{amount}}"
     }
   },
   "itemType": {
@@ -1479,6 +1488,11 @@
     "timeInvalid": "結束時間要遲過開始時間。",
     "rewardInvalid": "獎勵要係大於 0 嘅數字。",
     "predictionInvalid": "預測需要兩個選項、獎池同截止時間。",
+    "fQuizOptions": "選項 a–d（全填）",
+    "fQuizOption": "選項 {{key}}",
+    "fQuizCorrect": "正確項（1–4 個，可多選）",
+    "fQuizReward": "答對獎勵（$，必填）",
+    "quizInvalid": "答題需填滿四個選項並至少選 1 個正確項",
     "loadFailed": "項目載入失敗，請稍後再試。",
     "retry": "重試",
     "fTitle": "標題",

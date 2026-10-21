@@ -5,6 +5,7 @@ import { useAuth } from '../../auth-context'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import { fetchCampaignCurrencies, fetchCampaignTask } from './campaign-api'
 import { statusKeyOf, taskRewardOf, timeWindowOf, typeKeyOf } from './campaign-util'
+import SubtaskForm from './SubtaskForm'
 import NotFoundPage from '../NotFoundPage'
 import './campaign.css'
 
@@ -24,9 +25,10 @@ import './campaign.css'
 //   · **可见性**：draft 任务对匿名 / 非 owner 一律服务端 `404`（owner / admin 可见）。
 //     前端不另造判据——读口 404 ⇒ 落 `<NotFoundPage />`；另加一条**匿名 + draft 就地兜底**
 //     （服务端若把 draft 行透给匿名，页面仍按 404 呈现，不泄露草稿）。
-//   · **公开读**：不包 `ProtectedRoute`、未登录不拦截阅读；参与动作 = 底部 CTA 回活动页
-//     （真正写面在 `/campaign/:id` 的子任务面板里，本页零写口）。
-//   · 文案键**全部复用既有键**（`campaign.*` / `jobs.*` / `common.*`），本页零新增 i18n 键：
+//   · **公开读**：不包 `ProtectedRoute`、未登录不拦截阅读；子任务清单里就地挂载参与面板
+//     （`SubtaskForm`：prediction 固定 Yes/No、quiz 四选项多选 + 提交），未登录点提交只提示登录（零请求）；
+//     底部仍保留【去参与】CTA 回活动页。
+//   · 文案键**全部复用既有键**（`campaign.*` / `jobs.*` / `common.*`）+ 2026-10-22 的 quiz/Yes-No 新键：
 //     状态徽标 `campaign.statusActive|statusEnded|statusDraft`、时间窗 `campaign.timeWindow*`、
 //     奖励 `campaign.rewardCompletion|rewardSecondary`、参与数 `jobs.participantsHeadcount|participants`、
 //     子任务 `campaign.requiredTag|optionalTag` + `campaign.type.<code>`、CTA `common.joinNow`。
@@ -238,6 +240,16 @@ const CampaignTaskPage = () => {
                       {subtask?.content ? (
                         <p className="sf-task-subtask-content" data-sf-m="task-subtask-content">{subtask.content}</p>
                       ) : null}
+                      {/* 参与面就地挂载（Kevin 2026-10-22）：prediction = Yes/No 两枚按钮、quiz = 四选项多选 + 提交；
+                          写口与活动页同一组件（`SubtaskForm`），未登录只提示登录、零请求。 */}
+                      <SubtaskForm
+                        subtask={subtask}
+                        t={t}
+                        lang={lang}
+                        user={user}
+                        isAuthenticated={isAuthenticated}
+                        onRefresh={load}
+                      />
                     </article>
                   )
                 })}

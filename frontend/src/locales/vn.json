@@ -1396,6 +1396,15 @@
       "cta": "Bỏ phiếu",
       "pickOne": "Hãy chọn một phương án trước",
       "payout": "Tiền thưởng ${{amount}}"
+    },
+    "predictionYes": "Có",
+    "predictionNo": "Không",
+    "quiz": {
+      "picks": "Chọn đáp án đúng (có thể chọn nhiều)",
+      "pickAtLeastOne": "Vui lòng chọn ít nhất một đáp án",
+      "right": "Chính xác",
+      "wrong": "Chưa đúng",
+      "reward": "Thưởng khi trả lời đúng ${{amount}}"
     }
   },
   "itemType": {
@@ -1479,6 +1488,11 @@
     "timeInvalid": "Thời gian kết thúc phải sau thời gian bắt đầu.",
     "rewardInvalid": "Thưởng phải là số lớn hơn 0.",
     "predictionInvalid": "Cần hai phương án, quỹ thưởng và hạn chót.",
+    "fQuizOptions": "Lựa chọn a–d (bắt buộc đủ)",
+    "fQuizOption": "Lựa chọn {{key}}",
+    "fQuizCorrect": "Đáp án đúng (1–4)",
+    "fQuizReward": "Thưởng trả lời đúng ($, bắt buộc)",
+    "quizInvalid": "Câu hỏi cần đủ bốn lựa chọn và ít nhất một đáp án đúng",
     "loadFailed": "Không tải được dự án, vui lòng thử lại sau.",
     "retry": "Thử lại",
     "fTitle": "Tiêu đề",

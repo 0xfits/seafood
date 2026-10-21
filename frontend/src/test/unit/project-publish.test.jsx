@@ -265,19 +265,49 @@ describe('① 载荷构造器 = 后端闭集（逐键）', () => {
     expect(paired.payload.reward_amount_secondary).toBe('10')
   })
 
-  it('subtask：prediction ⇒ payload 恰四键；缺选项 / 奖池 / 截止 ⇒ 拒发', () => {
+  it('subtask：prediction ⇒ payload 恰两键（选项固定 Yes/No）；quiz ⇒ 四选项+正确项+奖励；缺项 ⇒ 拒发', () => {
     const ok = buildSubtaskInput({
       typeCode: 'prediction', title: '猜冠军', content: '', required: false, sort: '3',
-      optionA: 'A 队', optionB: 'B 队', prize: '100', deadline: '2026-12-01T12:00',
+      prize: '100', deadline: '2026-12-01T12:00',
     })
     expect(ok.ok).toBe(true)
-    expect(Object.keys(ok.input.payload)).toEqual(['option_a', 'option_b', 'prize_amount', 'deadline'])
+    // 选项固定 Yes/No ⇒ 载荷只剩奖池与截止（不再有 option_a / option_b）
+    expect(Object.keys(ok.input.payload)).toEqual(['prize_amount', 'deadline'])
     expect(ok.input.payload.prize_amount).toBe('100')
+    expect(ok.input).not.toHaveProperty('option_a')
+    expect(ok.input).not.toHaveProperty('reward_amount')
+
+    // 旧四键行的字段即使被传进来也不进载荷（新写入只产两键）
+    const withLegacy = buildSubtaskInput({
+      typeCode: 'prediction', title: '猜冠军', content: '', required: false, sort: '0',
+      optionA: 'A 队', optionB: 'B 队', prize: '50', deadline: '2026-12-01T12:00',
+    })
+    expect(Object.keys(withLegacy.input.payload)).toEqual(['prize_amount', 'deadline'])
 
     const missing = buildSubtaskInput({
-      typeCode: 'prediction', title: '猜冠军', content: '', required: false, sort: '0', optionA: 'A 队', optionB: '',
+      typeCode: 'prediction', title: '猜冠军', content: '', required: false, sort: '0', prize: '100',
     })
     expect(missing).toEqual({ ok: false, error: 'prediction' })
+  })
+
+  it('subtask：quiz ⇒ {options:{a,b,c,d}, correct:[...]} + 顶层 reward_amount；空选项/无正确项/奖励≤0 ⇒ 拒发', () => {
+    const base = {
+      typeCode: 'quiz', title: '海鲜常识', content: '', required: true, sort: '4',
+      quizA: '虾', quizB: '鱼', quizC: '蟹', quizD: '贝', quizCorrect: ['a', 'c'], quizReward: '8',
+    }
+    const ok = buildSubtaskInput(base)
+    expect(ok.ok).toBe(true)
+    expect(ok.input.payload).toEqual({ options: { a: '虾', b: '鱼', c: '蟹', d: '贝' }, correct: ['a', 'c'] })
+    expect(ok.input.reward_amount).toBe('8')
+    expect(Object.keys(ok.input)).toEqual([...SUBTASK_KEYS, 'reward_amount'])
+
+    // 空选项（任一格）⇒ quiz 拒发
+    expect(buildSubtaskInput({ ...base, quizC: '   ' })).toEqual({ ok: false, error: 'quiz' })
+    // 全不选正确项 ⇒ 拒发
+    expect(buildSubtaskInput({ ...base, quizCorrect: [] })).toEqual({ ok: false, error: 'quiz' })
+    // 奖励 0 / 空 / 非正整数 ⇒ 拒发（服务端不发奖，前端零请求）
+    expect(buildSubtaskInput({ ...base, quizReward: '0' })).toEqual({ ok: false, error: 'reward' })
+    expect(buildSubtaskInput({ ...base, quizReward: '' })).toEqual({ ok: false, error: 'reward' })
   })
 })
 
@@ -335,15 +365,37 @@ describe('② 子任务整组追加：旧行一条不少 + 新行一条', () => 
     expect(buildSubtaskAppendGroup(subtasks(), 'x')).toEqual({ ok: false, error: 'subtask' })
   })
 
-  it('toExistingSubtaskInput：空 payload（四类非 prediction）原样回送；prediction 缺键 ⇒ 跳过', () => {
+  it('toExistingSubtaskInput：空 payload（四类非 prediction）原样回送；prediction/quiz 缺键 ⇒ 跳过', () => {
     expect(toExistingSubtaskInput({
-      subtask_id: 905, type_code: 'quiz', title: '答题', content: '', payload: {}, sort: 6, required: true,
+      subtask_id: 905, type_code: 'x_verify', title: '旧验证行', content: '', payload: {}, sort: 6, required: true,
     })).toEqual({
-      subtask_id: '905', type_code: 'quiz', title: '答题', content: null, payload: {}, sort: 6, required: true,
+      subtask_id: '905', type_code: 'x_verify', title: '旧验证行', content: null, payload: {}, sort: 6, required: true,
     })
     expect(toExistingSubtaskInput({
       subtask_id: 906, type_code: 'prediction', title: '缺键', content: null, payload: { option_a: 'A' }, sort: 7, required: false,
     })).toBeNull()
+    // 旧四键 prediction 行仍可原样回送（兼容）——新两键行同样可回送
+    expect(toExistingSubtaskInput({
+      subtask_id: 907, type_code: 'prediction', title: '旧四键', content: null, sort: 8, required: false,
+      payload: { option_a: 'A', option_b: 'B', prize_amount: '10', deadline: '2026-12-01T00:00:00.000Z' },
+    }).payload).toEqual({ option_a: 'A', option_b: 'B', prize_amount: '10', deadline: '2026-12-01T00:00:00.000Z' })
+    expect(toExistingSubtaskInput({
+      subtask_id: 908, type_code: 'prediction', title: '新两键', content: null, sort: 9, required: false,
+      payload: { prize_amount: '10', deadline: '2026-12-01T00:00:00.000Z' },
+    }).payload).toEqual({ prize_amount: '10', deadline: '2026-12-01T00:00:00.000Z' })
+    // quiz：公开读口不吐 correct ⇒ 缺正确项不可重发（否则会抹掉答案键）；带齐才回送 + reward_amount
+    expect(toExistingSubtaskInput({
+      subtask_id: 909, type_code: 'quiz', title: '公开读回', content: null, sort: 10, required: true,
+      payload: { options: { a: '1', b: '2', c: '3', d: '4' } }, reward_amount: '5',
+    })).toBeNull()
+    expect(toExistingSubtaskInput({
+      subtask_id: 910, type_code: 'quiz', title: '带答案', content: null, sort: 11, required: true,
+      payload: { options: { a: '1', b: '2', c: '3', d: '4' }, correct: ['b'] }, reward_amount: '5',
+    })).toEqual({
+      subtask_id: '910', type_code: 'quiz', title: '带答案', content: null,
+      payload: { options: { a: '1', b: '2', c: '3', d: '4' }, correct: ['b'] },
+      sort: 11, required: true, reward_amount: '5',
+    })
   })
 })
 
