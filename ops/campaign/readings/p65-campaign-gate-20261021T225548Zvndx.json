@@ -1,0 +1,167 @@
+{
+  "run": "20261021T225548Zvndx",
+  "name": "p65-campaign-gate",
+  "at": "2026-10-21T22:56:08.906Z",
+  "mode": "post-apply",
+  "tx_error": "column \"reward_amount\" of relation \"subtask\" does not exist",
+  "checks": [
+    {
+      "id": "A1",
+      "what": "注册点 = 130（128 + home-campaign-tasks `GET /api/home/campaign-tasks` +1 + task-detail `GET /api/campaign/task/:taskId` +1；get 57 / post 66 / patch 4 / delete 3 / put 0 —— 两笔均**读口**，本门九口与写口零改动）",
+      "pass": false,
+      "reading": "regs=109 get=49 post=53 patch=4 delete=3"
+    },
+    {
+      "id": "A2",
+      "what": "九口逐条在场（R1–R9）",
+      "pass": true,
+      "reading": "missing=[]"
+    },
+    {
+      "id": "A3",
+      "what": "注册顺序：`/api/campaign/all` 在 `/api/campaign/:ref` **之前**（route #55）",
+      "pass": true,
+      "reading": "all=160343 ref=160596"
+    },
+    {
+      "id": "A4",
+      "what": "权限键：`requireAdmin(manage_tasks)` 仍 **4 处**（非创建口）· 创建口 **3 处**走 `authorizeProjectScopedCreate`（管理员 ∨ owner，p68 扩容）· 活动块内**零** manage_rewards · 提凭证口 = 登录闸 `requireActor`",
+      "pass": true,
+      "reading": "manage_tasks_gates=4 scoped_creates=3 block_has_manage_rewards=false proof_uses_actor=true"
+    },
+    {
+      "id": "A5",
+      "what": "零新 ledger kind：`LEDGER_KINDS` 仍 24 值，平台出账借 `invite_first_task_reward`（−1 唯一合法 debit）",
+      "pass": true,
+      "reading": "kinds=24 payout_kind=invite_first_task_reward"
+    },
+    {
+      "id": "A6",
+      "what": "零新错误码：33 码闭集不动",
+      "pass": true,
+      "reading": "codes=33"
+    },
+    {
+      "id": "A7",
+      "what": "迁移形状：无 BEGIN/COMMIT · 注释零 dollar-dollar · 恰一个 DO 块 · 零行首竖线",
+      "pass": true,
+      "reading": "{\"comment_dollar\":0,\"do_blocks\":1,\"begin\":false}"
+    },
+    {
+      "id": "A8",
+      "what": "seed 恰 5 类逐字（x_verify/onchain_snapshot/survey/prediction/quiz）· 排序 1–5 · **无 poll**",
+      "pass": true,
+      "reading": "{\"codes\":[\"x_verify\",\"onchain_snapshot\",\"survey\",\"prediction\",\"quiz\"],\"has_poll\":false}"
+    },
+    {
+      "id": "A9",
+      "what": "五表 `CREATE TABLE IF NOT EXISTS` · 三条 CASCADE（task→campaign / subtask→task / proof→subtask）· 两索引",
+      "pass": true,
+      "reading": "cascade_fks=3"
+    },
+    {
+      "id": "A10",
+      "what": "状态迁移矩阵：draft→{active} · active→{ended} · ended→∅（回退/跳变/封板后改写全 409）",
+      "pass": true,
+      "reading": "{\"draft\":[\"active\"],\"active\":[\"ended\"],\"ended\":[]}"
+    },
+    {
+      "id": "A11",
+      "what": "迁移号 = 0065（0062 已被跳过、0063/0064 被项目域占用）· 旧迁移零改动痕迹",
+      "pass": true,
+      "reading": "files ok"
+    },
+    {
+      "id": "A12",
+      "what": "活动入参：建口禁带 status（400 NOT_SUPPORTED）· 缺 project_id 400（0068）· 时间窗倒置 400 · 状态越集 400 · 合法体通过",
+      "pass": true,
+      "reading": "{\"forbid\":\"NOT_SUPPORTED\",\"no_proj\":\"CAMPAIGN_PROJECT_REQUIRED\",\"window\":\"CAMPAIGN_TIME_WINDOW_INVALID\",\"status\":\"CAMPAIGN_STATUS_INVALID\"}"
+    },
+    {
+      "id": "A13",
+      "what": "任务入参：主奖缺 ⇒ 400 · 次币缺对 ⇒ 400 · 次币取 $ ⇒ 400（CP-N8）· 未知 type（poll）⇒ 400 · prediction 缺 deadline ⇒ 400 · 合法体通过",
+      "pass": false,
+      "reading": "{\"no_reward\":\"TASK_REWARD_PRIMARY_INVALID\",\"one_cid\":\"TASK_REWARD_SECONDARY_PAIR_REQUIRED\",\"usd_sec\":\"TASK_REWARD_SECONDARY_CID_INVALID\",\"bad_type\":\"SUBTASK_TYPE_INVALID\",\"bad_pred\":\"PREDICTION_PAYLOAD_SHAPE\",\"ok\":false}"
+    },
+    {
+      "id": "A14",
+      "what": "prediction 入参：三选项 ⇒ 400（未知键）· 币种键 ⇒ 400 PREDICTION_PRIZE_NOT_USD（CP-PN1）· prize 0 ⇒ 400 · 投票多键/越值 ⇒ 400 · 合法体通过",
+      "pass": false,
+      "reading": "{\"three\":\"PREDICTION_PAYLOAD_SHAPE\",\"currency\":\"PREDICTION_PRIZE_NOT_USD\",\"zero\":\"PREDICTION_PRIZE_INVALID\",\"extra\":\"PREDICTION_CHOICE_SHAPE\",\"out\":\"PREDICTION_CHOICE_SHAPE\"}"
+    },
+    {
+      "id": "A15",
+      "what": "`isCampaignRef`：纯数字才放行（`all` / 非数字 / 空 ⇒ false ⇒ 路由落 404 而非 500）",
+      "pass": true,
+      "reading": "ok"
+    },
+    {
+      "id": "B1",
+      "what": "[post-apply] 0065 干跑全绿：五表 · 列数 10/14/11/4/7（0068 已 apply ⇒ campaign=10 含 project_id，旧尾跳过、期望前推） · 三 CASCADE · UNIQUE(subtask_id,uid) · proof status 单值 · 两索引 · 三触发器 · 版本行 0065 稳态 1（干跑零新增）",
+      "pass": true,
+      "reading": "{\"tables\":5,\"cols\":{\"campaign\":10,\"subtask\":11,\"subtask_proof\":7,\"subtask_type\":4,\"task\":14},\"cascades\":3,\"uniq\":\"UNIQUE (subtask_id, uid)\",\"status\":\"CHECK ((status = 'submitted'::text))\",\"idx\":2,\"trg\":3,\"version\":[1,1]}"
+    },
+    {
+      "id": "B2",
+      "what": "seed 恰 5 行且 (type_code,label,sort) 与 §40.14.3 逐字一致 · 全 active · 无 poll",
+      "pass": true,
+      "reading": "[{\"type_code\":\"x_verify\",\"label\":\"X 验证\",\"sort\":1,\"active\":true},{\"type_code\":\"onchain_snapshot\",\"label\":\"链上快照\",\"sort\":2,\"active\":true},{\"type_code\":\"survey\",\"label\":\"问卷\",\"sort\":3,\"active\":true},{\"type_code\":\"prediction\",\"label\":\"预测\",\"sort\":4,\"active\":true},{\"type_code\":\"quiz\",\"label\":\"答题\",\"sort\":5,\"active\":true}]"
+    },
+    {
+      "id": "B3",
+      "what": "迁移幂等：头段**二次执行** ⇒ seed 仍恰 5 行（ON CONFLICT DO NOTHING）",
+      "pass": true,
+      "reading": "seed_rows=5"
+    },
+    {
+      "id": "S1",
+      "what": "建活动：status 恒 `draft` · snowflake 出参字符串 · 双形态详情命中（id / snowflake）· **draft 公众 404（null）/ 管理员 200**",
+      "pass": true,
+      "reading": "{\"ok\":true,\"status\":\"draft\",\"snowflake\":\"362726035529728\",\"public_draft\":true,\"admin_draft\":true}"
+    },
+    {
+      "id": "S2",
+      "what": "状态机：`draft→ended` ⇒ 409 `campaign_invalid_transition` · 时间窗倒置 ⇒ 400 · `draft→active` ⇒ 200 · 同值写幂等 200",
+      "pass": true,
+      "reading": "{\"ended\":[409,\"campaign_invalid_transition\"],\"window\":[400,\"CAMPAIGN_TIME_WINDOW_INVALID\"],\"active\":\"active\"}"
+    },
+    {
+      "id": "S3",
+      "what": "建任务：status 恒 draft · 主奖 100$ + 次币 25 · 内联 4 子任务（x_verify / 2×prediction / quiz）· 全部 snowflake 字符串",
+      "pass": false,
+      "reading": "{\"ok\":false,\"subtasks\":0,\"ids\":{\"X_VERIFY\":\"\",\"PRED_PAST\":\"\",\"PRED_FUTURE\":\"\",\"QUIZ\":\"\"},\"states\":[]}"
+    },
+    {
+      "id": "B4",
+      "what": "库面闸反证：status 越集 23514 · 时间窗倒置 23514 · 主奖 0 ⇒ 23514 · 次币取 $ ⇒ 23514 · 次币缺 cid ⇒ 23514 · 未知 type ⇒ 23503 · payload 数组 ⇒ 23514 · proof 审核态 ⇒ 23514 · proof 一人两条 ⇒ 23505",
+      "pass": false,
+      "reading": "{\"campaign_status\":\"23514\",\"campaign_window\":\"23514\",\"task_reward_zero\":\"23514\",\"task_secondary_usd\":\"23514\",\"task_secondary_unpaired\":\"23514\",\"subtask_unknown_type\":\"22P02\",\"subtask_payload_array\":\"22P02\",\"proof_audit_state\":\"22P02\",\"proof_dup\":\"22P02\"}"
+    },
+    {
+      "id": "S4",
+      "what": "公开列表：active 活动嵌套 active 任务 → 全量子任务 · snowflake 全字符串 · 任务 draft→active 200",
+      "pass": false,
+      "reading": "{\"t_active\":false,\"campaigns\":6,\"tasks\":0}"
+    },
+    {
+      "id": "X",
+      "what": "事务内全链执行未抛未预期异常",
+      "pass": false,
+      "reading": "error=column \"reward_amount\" of relation \"subtask\" does not exist"
+    }
+  ],
+  "summary": {
+    "total": 24,
+    "passed": 17,
+    "failed": 7,
+    "red": [
+      "A1",
+      "A13",
+      "A14",
+      "S3",
+      "B4",
+      "S4",
+      "X"
+    ]
+  }
+}

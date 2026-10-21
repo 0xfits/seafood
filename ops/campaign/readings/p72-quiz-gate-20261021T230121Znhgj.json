@@ -1,0 +1,224 @@
+{
+  "run": "20261021T230121Znhgj",
+  "name": "p72-quiz-gate",
+  "at": "2026-10-21T23:01:44.554Z",
+  "baseline": {
+    "subtask": 0,
+    "proofs": 0,
+    "ledger": 509,
+    "migrations": 69,
+    "reward_col": 0
+  },
+  "readings": {
+    "fixture_users": [
+      972001,
+      972002,
+      972003,
+      972004
+    ],
+    "fixture_project": "5",
+    "fixture_money": {
+      "platform_usd": "173659",
+      "u1_usd": "0"
+    },
+    "fixture": {
+      "campaign_id": "101",
+      "task_id": "101",
+      "quiz": "91",
+      "prediction": "92",
+      "x_verify": "93",
+      "qid": "p72-gate"
+    },
+    "committed_touch": "none (single rollback tx)"
+  },
+  "checks": [
+    {
+      "id": "A1",
+      "what": "★0072 文件形状：无 BEGIN/COMMIT · 注释零 dollar-dollar · 恰 2 个 DO 块 · 只 ALTER 一张表（subtask，1 处）· 零业务行 INSERT/UPDATE/DELETE · 幂等（ADD COLUMN IF NOT EXISTS ＋ 约束存在性守卫 ＋ 约束名固定 `subtask_reward_amount_nonneg`）",
+      "pass": false,
+      "reading": "{\"comment_dollar\":0,\"do_blocks\":2,\"alters\":2,\"biz_writes\":0}"
+    },
+    {
+      "id": "A2",
+      "what": "★常量契约（判据真源，改动即口径变更）：新 payload 恰 2 键 `[prize_amount, deadline]` · 存量 4 键 `[option_a, option_b, prize_amount, deadline]` · 行为两口径 yes_no / ab_legacy · 值域 `yes_no=[yes,no]` / `ab_legacy=[a,b]` · quiz payload 恰 2 键 `[options, correct]` · options 恰 a–d · `correct` 键名 · 奖励列名 `reward_amount`",
+      "pass": true,
+      "reading": "{\"new_keys\":[\"prize_amount\",\"deadline\"],\"legacy_keys\":[\"option_a\",\"option_b\",\"prize_amount\",\"deadline\"],\"styles\":[\"yes_no\",\"ab_legacy\"],\"choices\":{\"yes_no\":[\"yes\",\"no\"],\"ab_legacy\":[\"a\",\"b\"]},\"quiz\":[\"options\",\"correct\"],\"reward_col\":\"reward_amount\"}"
+    },
+    {
+      "id": "A3",
+      "what": "★口径判别唯一真源：`predictionOptionStyle` 只按库内 payload 形状判（带 option_a 或 option_b ⇒ `ab_legacy`，否则 `yes_no`；混合形状也落 legacy ⇒ 不产生第三条路）· `predictionChoicesFor` 派生值域 · `parsePredictionChoice(raw, style)` 第二参存在且值域取自 `predictionChoicesFor`（源码无硬编码 a|b 判定）",
+      "pass": true,
+      "reading": "{\"probe\":\"yes_no\",\"legacy\":\"ab_legacy\",\"mixed\":\"ab_legacy\"}"
+    },
+    {
+      "id": "A4",
+      "what": "★禁双开：建口只收新两键（`mode === create` 且 payload 为 `ab_legacy` ⇒ 400 `PREDICTION_PAYLOAD_SHAPE`）· 改口口径不可换（`PREDICTION_OPTION_STYLE_IMMUTABLE` 闸：存量四键行仍用四键、新两键行仍用两键）",
+      "pass": true,
+      "reading": "{\"create_guard\":true,\"style_immutable\":1}"
+    },
+    {
+      "id": "A5",
+      "what": "★奖励是**列**不是 payload 键：`insertSubtask` / `updateSubtask` 两条 SQL 都带 `reward_amount` 列（$n::numeric）· quiz payload 内出现 `reward_amount` ⇒ 400 `QUIZ_PAYLOAD_SHAPE`（提示「是列」）· 非 quiz 类型带 `reward_amount` ⇒ 400 `SUBTASK_REWARD_NOT_APPLICABLE` · quiz 缺 ⇒ 400 `QUIZ_REWARD_REQUIRED`",
+      "pass": false,
+      "reading": "{\"insert_has_col\":true,\"update_has_col\":true}"
+    },
+    {
+      "id": "A6",
+      "what": "★quiz 发奖：**同一事务两腿**（平台 −N / 用户 +N）· kind 借 `PLATFORM_PAYOUT_KIND`（零新 kind）· 幂等键 `biz:campaign:quiz:<subtaskId>:<uid>` · 仅 `quizCorrect` 且 reward > 0 才发 · 答错分支零 `postEvent`（proof 落库即返回）",
+      "pass": true,
+      "reading": "{\"bytes\":2288,\"same_tx\":true,\"legs\":[2,1]}"
+    },
+    {
+      "id": "A7",
+      "what": "★脱敏：`publicSubtaskPayload` 在**两处公开读口**（`normalizeSubtaskRow` 与 `getTaskDetailByRef` 的子任务映射）都被调用 · 服务端 `correct` 的读取**只在 submitProofVerb 一处**（`payload[QUIZ_CORRECT_KEY]` 计数 = 1）⇒ 读面与判分面物理分离",
+      "pass": false,
+      "reading": "{\"sanitizer_calls\":2,\"correct_reads\":1}"
+    },
+    {
+      "id": "A8",
+      "what": "★零新错误码：闭集仍 **33** 值 · 活动域字面量 ⊆ 借码四值（`LEDGER_AMOUNT_INVALID` / `LEDGER_REF_NOT_FOUND` / `LEDGER_INSUFFICIENT_BALANCE` / `AUTH_FORBIDDEN`）· QUIZ_* / PREDICTION_* / SUBTASK_REWARD_* 全部只作 `details.reason`（不进闭集）· 零新 ledger kind（24 值不动，发奖借 `invite_first_task_reward`）",
+      "pass": true,
+      "reading": "{\"codes\":33,\"kinds\":24,\"svc_codes\":[\"LEDGER_AMOUNT_INVALID\",\"LEDGER_REF_NOT_FOUND\",\"LEDGER_INSUFFICIENT_BALANCE\",\"AUTH_FORBIDDEN\"]}"
+    },
+    {
+      "id": "A9",
+      "what": "★零新路由 / 零新迁移号冲突：注册点仍 **109**（get 49 / post 53 / patch 4 / delete 3 / put 0，本单只改服务层内部）· 九口逐条在场 · 迁移目录里 0072 前缀**恰一个**文件 · `subtask_type` 仍 5 类（本单不加类型）",
+      "pass": true,
+      "reading": "{\"regs\":109,\"get\":49,\"post\":53,\"mig72\":[\"0072_subtask_reward_and_quiz.sql\"],\"types\":5}"
+    },
+    {
+      "id": "A10",
+      "what": "quiz 入参纯函数：四选项+correct 合法体通过且 `correct` **去重排序**（`[\"c\",\"a\"] → [\"a\",\"c\"]`）· payload 带 `reward_amount` ⇒ 400（奖励是列）· 三选项 ⇒ 400 · correct 重复 / 空 / 越集 ⇒ 400 · 答题凭证 `{answers:{picks}}` 合法体通过（排序后）· picks 重复 / 越集 / 缺 `answers` 包装 ⇒ 400",
+      "pass": true,
+      "reading": "{\"ok\":[\"a\",\"c\"],\"reward_key\":\"QUIZ_PAYLOAD_SHAPE\",\"three\":\"QUIZ_OPTIONS_INVALID\",\"dup\":\"QUIZ_CORRECT_INVALID\",\"empty\":\"QUIZ_CORRECT_INVALID\",\"picks\":[\"b\",\"d\"],\"pk_dup\":\"QUIZ_ANSWER_SHAPE\",\"pk_wrap\":\"QUIZ_ANSWER_SHAPE\"}"
+    },
+    {
+      "id": "A11",
+      "what": "判分判据 `samePickSet`：**集合相等**（`[a,c]` vs `[c,a]` ⇒ true）· 子集不算对（`[a]` vs `[a,c]` ⇒ false）· 超集不算对（`[a,b,c]` vs `[a,c]` ⇒ false）· 空集恒 false（零答案不可蒙对）",
+      "pass": true,
+      "reading": "{\"eq\":true,\"subset\":false,\"empty\":false}"
+    },
+    {
+      "id": "A12",
+      "what": "脱敏纯函数 `publicSubtaskPayload`：quiz ⇒ 返回**新对象**且无 `correct`（`options` 原样保留）· 入参对象**未被修改**（库内值/调用方引用零污染）· 非 quiz（prediction / survey）⇒ 原引用透出（零形状变更）",
+      "pass": true,
+      "reading": "{\"sanitized\":{\"options\":{\"a\":\"1\",\"b\":\"2\",\"c\":\"3\",\"d\":\"4\"}},\"raw_kept\":{\"options\":{\"a\":\"1\",\"b\":\"2\",\"c\":\"3\",\"d\":\"4\"},\"correct\":[\"a\"]}}"
+    },
+    {
+      "id": "B1",
+      "what": "0072 干跑全绿（真库 · 回滚事务内）：列 `subtask.reward_amount` 恰 1 枚 `numeric` 且**可空**（兼容存量行）· CHECK `subtask_reward_amount_nonneg` 恰 1 枚且定义含 `reward_amount >= 0` · **二次执行幂等**（再跑一遍列/约束仍各 1）· 尾部自检 DO 未抛（存量 0 行零违规）",
+      "pass": false,
+      "reading": "{\"col\":{\"data_type\":\"numeric\",\"is_nullable\":\"YES\"},\"col_count\":1,\"constraint\":\"CHECK (((reward_amount IS NULL) OR (reward_amount >= (0)::numeric)))\"}"
+    },
+    {
+      "id": "S0",
+      "what": "夹具就位：quiz 子任务带 `reward_amount`=7 且 payload 两键（options 四键 + correct 两项）· prediction 新两键 · 任务/活动 active（后续九臂的真路径前提）",
+      "pass": false,
+      "reading": "{\"ok\":true,\"subtasks\":[{\"id\":\"91\",\"type\":\"quiz\",\"reward\":\"7\"},{\"id\":\"92\",\"type\":\"prediction\",\"reward\":null},{\"id\":\"93\",\"type\":\"x_verify\",\"reward\":null}]}"
+    },
+    {
+      "id": "B2",
+      "what": "★库面 CHECK 反证：`reward_amount = -1` ⇒ **23514**（`subtask_reward_amount_nonneg` 承重）· `NULL` 合法（存量行兼容，0 也合法 —— 「quiz 必 > 0」由服务层写口守，不靠库面收紧）",
+      "pass": true,
+      "reading": "{\"negative\":\"23514\",\"null_ok\":null}"
+    },
+    {
+      "id": "B3",
+      "what": "★迁移自检反证：插一行**三选项** prediction（存量形状缺 `option_b`）后再跑 0072 尾部自检 DO ⇒ **P0001** `0072 self-check FAILED: prediction 存量 payload 形状违规` ⇒ 自检不是空转（真能挡住半迁移）",
+      "pass": true,
+      "reading": "{\"sqlstate\":\"P0001\",\"message\":\"0072 self-check FAILED: prediction 存量 payload 形状违规 1 行\"}"
+    },
+    {
+      "id": "S1",
+      "what": "★prediction 新两键**落库与读口逐字一致**：库内 payload 恰 `{prize_amount, deadline}`（无 option_a/b、无 correct_option）· 读口 `payload` 与之相等 · `prediction_state`=`open` · `reward_amount`=`null`（奖励列只服务 quiz）",
+      "pass": true,
+      "reading": "{\"db\":{\"payload\":{\"deadline\":\"2026-10-22T00:01:25.771Z\",\"prize_amount\":\"101\"},\"reward_amount\":null},\"view\":{\"subtask_id\":\"92\",\"snowflake_id\":\"362727369240576\",\"task_id\":\"101\",\"type_code\":\"prediction\",\"type_label\":\"预测\",\"title\":\"预测（新两键）\",\"content\":null,\"payload\":{\"deadline\":\"2026-10-22T00:01:25.771Z\",\"prize_amount\":\"101\"},\"sort\":2,\"required\":false,\"reward_amount\":null,\"prediction_state\":\"open\",\"time_created\":\"2026-10-21T23:01:22.943Z\",\"time_updated\":\"2026-10-21T23:01:22.943Z\"}}"
+    },
+    {
+      "id": "S2",
+      "what": "★新两键全链：`yes` / `no` 各 200 · **`choice:\"a\"` ⇒ 400 `PREDICTION_CHOICE_SHAPE`（口径交叉拒绝）** · deadline 前 settle ⇒ 409 `prediction_deadline_not_reached` · 到点后 `correct_option:\"yes\"` ⇒ 200（prize 101 / 选对 1 ⇒ per 101 · 台账 2 条 · U1 +101 · 平台 −101）· 重复 settle ⇒ 409（零二次分发）",
+      "pass": true,
+      "reading": "{\"votes\":[true,true],\"cross\":[400,\"PREDICTION_CHOICE_SHAPE\"],\"early\":[409,\"prediction_deadline_not_reached\"],\"settled\":{\"subtask_id\":\"92\",\"type_code\":\"prediction\",\"prediction_state\":\"settled\",\"correct_option\":\"yes\",\"prize_amount\":\"101\",\"winner_count\":1,\"per_winner_amount\":\"101\",\"distributed_total\":\"101\",\"platform_retained\":\"0\",\"ledger_entries\":2,\"idempotency_key\":\"biz:campaign:settle:92:yes\"},\"again\":[409,\"prediction_already_settled\"]}"
+    },
+    {
+      "id": "S3",
+      "what": "★存量四键行**双路共存**：直插存量形状（option_a/option_b）⇒ 读口 `prediction_state`=`open` 且 payload 原样（含两枚文案）· 投票 `a` ⇒ 200、`yes` ⇒ 400（该行口径 = ab_legacy）· 结算 `yes` ⇒ 400 `PREDICTION_CORRECT_OPTION_INVALID`、`a` ⇒ 200 且回填 `correct_option=\"a\"`（新两键行的 `yes_no` 口径不被污染）",
+      "pass": true,
+      "reading": "{\"view\":{\"subtask_id\":\"95\",\"snowflake_id\":\"9920000000000002\",\"task_id\":\"101\",\"type_code\":\"prediction\",\"type_label\":\"预测\",\"title\":\"存量四键\",\"content\":null,\"payload\":{\"deadline\":\"2026-10-22T00:01:25.771Z\",\"option_a\":\"Yes\",\"option_b\":\"No\",\"prize_amount\":\"50\"},\"sort\":9,\"required\":false,\"reward_amount\":null,\"prediction_state\":\"open\",\"time_created\":\"2026-10-21T23:01:22.943Z\",\"time_updated\":\"2026-10-21T23:01:22.943Z\"},\"cross_vote\":[400,\"PREDICTION_CHOICE_SHAPE\"],\"vote\":true,\"cross_settle\":[400,\"PREDICTION_CORRECT_OPTION_INVALID\"],\"settle\":true,\"backfill\":\"a\"}"
+    },
+    {
+      "id": "S4",
+      "what": "★禁双开（写口两条闸）：建口传四键 ⇒ 400 `PREDICTION_PAYLOAD_SHAPE`（建口只收新两键）· 新两键行改口成四键 ⇒ 400 `PREDICTION_OPTION_STYLE_IMMUTABLE`（口径不可换）· 存量四键行继续用四键改口 ⇒ **200** 且标题落库（「两条路共存、禁双开」不是只有拒绝）",
+      "pass": true,
+      "reading": "{\"create\":[400,\"PREDICTION_PAYLOAD_SHAPE\"],\"flip\":[400,\"PREDICTION_OPTION_STYLE_IMMUTABLE\"],\"legacy_repatch\":true,\"legacy_title\":\"存量四键（改名）\"}"
+    },
+    {
+      "id": "S5",
+      "what": "★quiz 答对即发奖（**账实两腿**）：picks `[\"c\",\"a\"]` 与 correct `[\"a\",\"c\"]` **顺序无关** ⇒ 200 且 `quiz_correct=true`、`reward_paid=\"7\"` · **account**：U1 +7 / 平台 −7 · **ledger**：同幂等键 2 腿（U1 汇总 +7、平台 −7）",
+      "pass": true,
+      "reading": "{\"view\":{\"proof_id\":\"142\",\"subtask_id\":\"91\",\"uid\":\"972002\",\"payload\":{\"answers\":{\"picks\":[\"a\",\"c\"]}},\"status\":\"submitted\",\"time_created\":\"2026-10-21T23:01:22.943Z\",\"time_updated\":\"2026-10-21T23:01:22.943Z\",\"quiz_correct\":true,\"reward_paid\":\"7\"},\"deltas\":{\"u1\":\"7\",\"platform\":\"7\"},\"ledger\":{\"rows\":2,\"u1\":\"7\",\"platform\":\"-7\"}}"
+    },
+    {
+      "id": "S6",
+      "what": "★quiz 答错零发奖：`picks=[\"b\"]` ⇏ `[\"a\",\"c\"]` ⇒ 200 且 `quiz_correct=false`、`reward_paid=\"0\"` · **proof 仍落库**（提交即通过，1 行）· U2 余额**不变**、平台不变 · 该户零分录（0 条）",
+      "pass": true,
+      "reading": "{\"view\":{\"proof_id\":\"143\",\"subtask_id\":\"91\",\"uid\":\"972003\",\"payload\":{\"answers\":{\"picks\":[\"b\"]}},\"status\":\"submitted\",\"time_created\":\"2026-10-21T23:01:22.943Z\",\"time_updated\":\"2026-10-21T23:01:22.943Z\",\"quiz_correct\":false,\"reward_paid\":\"0\"},\"proof_rows\":1,\"u2_delta\":\"0\",\"ledger\":0}"
+    },
+    {
+      "id": "S7",
+      "what": "★quiz 同一 uid 重提 ⇒ 409 `quiz_already_answered`（与 prediction 一人一票同族）· proof 仍 **2 行**（U1/U2 各一）· 发奖台账**仍 2 腿**（零二次发奖，即便第二次答案也正确）",
+      "pass": true,
+      "reading": "{\"again\":[409,\"quiz_already_answered\"],\"proof_rows\":2,\"ledger\":2}"
+    },
+    {
+      "id": "S8",
+      "what": "★公开读口 `correct` **零泄漏**：列表 / 活动详情（匿名）/ 任务详情（匿名）三处 JSON 均无 `\"correct\"` 键 · 登录本人（已作答）的任务详情同样无 · quiz payload 其余形状不变（`options` 四键原样）· 库内 payload 仍带 `correct`（脱敏只发生在出参边界）",
+      "pass": false,
+      "reading": "{\"list_leak\":false,\"campaign_leak\":false,\"task_leak\":false,\"self_leak\":false,\"public_payload\":{\"options\":{\"a\":\"一\",\"b\":\"二\",\"c\":\"三\",\"d\":\"四\"}}}"
+    },
+    {
+      "id": "S9",
+      "what": "★奖励载体闸：非 quiz 子任务带 `reward_amount` ⇒ 400 `SUBTASK_REWARD_NOT_APPLICABLE`（奖励列只服务 quiz）· quiz 缺奖励 ⇒ 400 `QUIZ_REWARD_REQUIRED`（答对即发 ⇒ 必填 > 0）· quiz **payload 内**塞 `reward_amount` ⇒ 400 `QUIZ_PAYLOAD_SHAPE`（是列不是键）",
+      "pass": true,
+      "reading": "{\"non_quiz\":[400,\"SUBTASK_REWARD_NOT_APPLICABLE\"],\"quiz_no_reward\":[400,\"QUIZ_REWARD_REQUIRED\"],\"reward_in_payload\":[400,\"QUIZ_PAYLOAD_SHAPE\"]}"
+    },
+    {
+      "id": "N1",
+      "what": "★负控① 集合相等承重：真实判据 `samePickSet([\"b\"], [\"a\",\"c\"])` = **false**（子集不算对）· **把判据换成「子集即算对」** ⇒ 答错的 U2 也能落 +7 分录（余额真 +7）⇒ S6「答错零发奖」判据必红",
+      "pass": false,
+      "reading": "{\"real_same_set\":false,\"mutant\":{\"mutant_right\":false,\"paid\":\"0\",\"delta\":\"0\"}}"
+    },
+    {
+      "id": "N2",
+      "what": "★负控② 脱敏承重：把出参换成「payload 原样透出」（不剥 `correct`）⇒ JSON **含** `\"correct\"` ⇒ S8 三读口断言必红；走 `publicSubtaskPayload` ⇒ 不含 ⇒ 判据可证伪（不是空转）",
+      "pass": true,
+      "reading": "{\"leaky_has_correct\":true,\"sanitized\":\"{\\\"options\\\":{\\\"a\\\":\\\"一\\\",\\\"b\\\":\\\"二\\\",\\\"c\\\":\\\"三\\\",\\\"d\\\":\\\"四\\\"}}\"}"
+    },
+    {
+      "id": "N3",
+      "what": "★负控③ 奖励载体闸承重：非 quiz 带 `reward_amount` ⇒ **400 `SUBTASK_REWARD_NOT_APPLICABLE`**；而**绕过写口直写库**时同一列为 `x_verify` 落值 **成功**（库面只兜非负）⇒ 该 400 是防止「非 quiz 静默挂奖励」的唯一屏障（去掉即静默落库）",
+      "pass": true,
+      "reading": "{\"verb\":[400,\"SUBTASK_REWARD_NOT_APPLICABLE\"],\"db_direct\":\"5\"}"
+    },
+    {
+      "id": "Z1",
+      "what": "零残留（mode-aware）：subtask / subtask_proof / ledger_entry / schema_migration 行数与 `subtask.reward_amount` 列存在性**事务前 = 事务后**（0072 只在事务内干跑 ⇒ DDL 与业务写均未泄漏；基线 {\"subtask\":0,\"proofs\":0,\"ledger\":509,\"migrations\":69,\"reward_col\":0}）",
+      "pass": true,
+      "reading": "{\"before\":{\"subtask\":0,\"proofs\":0,\"ledger\":509,\"migrations\":69,\"reward_col\":0},\"after\":{\"subtask\":0,\"proofs\":0,\"ledger\":509,\"migrations\":69,\"reward_col\":0}}"
+    }
+  ],
+  "summary": {
+    "total": 29,
+    "passed": 22,
+    "failed": 7,
+    "red": [
+      "A1",
+      "A5",
+      "A7",
+      "B1",
+      "S0",
+      "S8",
+      "N1"
+    ]
+  }
+}

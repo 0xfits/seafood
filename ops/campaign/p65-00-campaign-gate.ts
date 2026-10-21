@@ -7,12 +7,13 @@
  * 读数：`ops/campaign/readings/p65-campaign-gate-<RUN>.json`
  *
  * ★ 覆盖面（data §40.14 · route §49.18）：
- *   A · 静态面（零 DB）：注册点 130（get 57 / post 66 / patch 4 / delete 3 / put 0）· 九口在场 ·
+ *   A · 静态面（零 DB）：注册点 109（get 49 / post 53 / patch 4 / delete 3 / put 0；job 下线后实测）· 九口在场 ·
  *       `/api/campaign/all` 注册在 `:ref` 之前 · 六条管理口闸 = `manage_tasks`（非 manage_rewards）·
  *       零新 kind（LEDGER_KINDS 仍 24，平台出账借 `invite_first_task_reward`）· 零新错误码（33 码不动）·
  *       迁移无 BEGIN/COMMIT、注释零 dollar-dollar、恰一个 DO 块 · seed 恰 5 类且无 poll ·
  *       五表 IF NOT EXISTS + 三条 CASCADE · 状态迁移矩阵 · 五类枚举常量 · 入参纯函数。
- *   B · 迁移干跑（真库 · 回滚事务内）：0065 头段 + 尾部 DO 全绿（五表 / 列数 9-14-11-4-7 / 具名约束 /
+ *   B · 迁移干跑（真库 · 回滚事务内）：0065 头段 + 尾部 DO 全绿（五表 / 列数 9-14-**12**-4-7 —— subtask 12 列
+ *       含 0072 的 reward_amount / 具名约束 /
  *       三 CASCADE / 两索引 / 三触发器 / seed 5 行逐字 / 版本行未写）· 重跑幂等（seed 不增行）·
  *       库面闸反证（status 越集 / 时间窗倒置 / 主奖 0 / 次币取 $ / 次币缺 cid / 未知 type_code /
  *       proof 审核态 / proof 一人两条 ⇒ 各自 SQLSTATE）。
@@ -35,6 +36,9 @@
  *   Z · 残留（mode-aware）：**事务前**取提交面基线（五表数 / 0065 版本行数），**事务后**读数须与基线
  *       逐项相等 ⇒ 本门全程单回滚事务、未向提交面额外写入。pre-apply 时基线 = 0/0（即旧的「无五表、
  *       无 0065 版本行」）；post-apply（dev 已 apply 0065）时基线 = 5/1（已 apply 稳态）。
+ *
+ *   0072（quiz 奖励列 `subtask.reward_amount`）同样**只在回滚事务内全量干跑**（ALTER + 两个 DO 块 + 尾部自检），
+ *   随后 insertSubtask / 读口才拿得到该列 —— 提交面 DDL 零泄漏由 Z1 的 `reward_col` 前后相等守。
  *
  * 纪律：**不 apply、不写版本表**；一切 DDL / DML / 资金夹具都在回滚事务内（`inRollbackTx`），
  *   失败 / 须撤销的臂再包 SAVEPOINT ⇒ 零残留。凭据只读 `backend-ts/.env.local`（dev 库）。
@@ -95,6 +99,8 @@ const SVC = readSrc('backend-ts/src/campaign-service.ts');
 const MIG65 = readSrc('backend-ts/migrations/0065_campaign_hierarchy.sql');
 // 0068（p68 单）：createCampaignVerb 的 INSERT / 归属链读口需要 campaign.project_id 在场 ⇒ 干跑其头段（幂等）
 const MIG68 = readSrc('backend-ts/migrations/0068_project_slug_campaign_link.sql');
+// 0072（p72 单）：quiz 奖励列 `subtask.reward_amount` —— 服务层写口/读口都带该列 ⇒ 干跑（幂等）
+const MIG72 = readSrc('backend-ts/migrations/0072_subtask_reward_and_quiz.sql');
 
 // ---------------------------------------------------------------- SQL 切分（dollar-dollar 感知）
 const stripSqlComments = (src: string): string => {
@@ -173,8 +179,8 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
   // ======================================================================== A · 静态面（零 DB）
   const regs = (INDEX_TS.match(/^app\.(get|post|put|delete|patch)\(/gm) ?? []).length;
   const countVerb = (v: string) => (INDEX_TS.match(new RegExp(`^app\\.${v}\\(`, 'gm')) ?? []).length;
-  ck.t('A1', '注册点 = 130（128 + home-campaign-tasks `GET /api/home/campaign-tasks` +1 + task-detail `GET /api/campaign/task/:taskId` +1；get 57 / post 66 / patch 4 / delete 3 / put 0 —— 两笔均**读口**，本门九口与写口零改动）',
-    regs === 130 && countVerb('get') === 57 && countVerb('post') === 66
+  ck.t('A1', '注册点 = 109（**job 体系下线后实测**；get 49 / post 53 / patch 4 / delete 3 / put 0）—— 本门九口与写口零改动（130 是 job 下线前的旧常量，属存量红，本单顺手改对）',
+    regs === 109 && countVerb('get') === 49 && countVerb('post') === 53
       && countVerb('patch') === 4 && countVerb('delete') === 3 && countVerb('put') === 0,
     `regs=${regs} get=${countVerb('get')} post=${countVerb('post')} patch=${countVerb('patch')} delete=${countVerb('delete')}`);
 
@@ -276,40 +282,66 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
   }, 'create');
   const tBadPred = parseTaskPayload({
     title: 'x', reward_amount_primary: '100',
-    subtasks: [{ type_code: 'prediction', title: 'p', payload: { option_a: 'A', option_b: 'B', prize_amount: '10' } }],
+    subtasks: [{ type_code: 'prediction', title: 'p', payload: { prize_amount: '10' } }],
+  }, 'create');
+  // quiz：新契约 = 四选项 + 正确答案 + 奖励列；缺奖励 ⇒ 400 QUIZ_REWARD_REQUIRED
+  const QUIZ_FIXTURE_PAYLOAD = { options: { a: '甲', b: '乙', c: '丙', d: '丁' }, correct: ['a', 'c'] };
+  const tQuizNoReward = parseTaskPayload({
+    title: 'x', reward_amount_primary: '100',
+    subtasks: [{ type_code: 'quiz', title: 'q', payload: QUIZ_FIXTURE_PAYLOAD }],
+  }, 'create');
+  const tQuizOk = parseTaskPayload({
+    title: 'x', reward_amount_primary: '100',
+    subtasks: [{ type_code: 'quiz', title: 'q', payload: QUIZ_FIXTURE_PAYLOAD, reward_amount: '7', required: true }],
   }, 'create');
   const tOk = parseTaskPayload({
     title: 'x', reward_amount_primary: '100', reward_cid_secondary: '5', reward_amount_secondary: '25',
-    subtasks: [{ type_code: 'quiz', title: 'q', payload: { answers: { q1: 'yes' } }, required: true }],
+    subtasks: [
+      { type_code: 'quiz', title: 'q', payload: QUIZ_FIXTURE_PAYLOAD, reward_amount: '7', required: true },
+      { type_code: 'prediction', title: 'p', payload: { prize_amount: '10', deadline: '2026-10-21T00:00:00Z' } },
+    ],
   }, 'create');
-  ck.t('A13', '任务入参：主奖缺 ⇒ 400 · 次币缺对 ⇒ 400 · 次币取 $ ⇒ 400（CP-N8）· 未知 type（poll）⇒ 400 · prediction 缺 deadline ⇒ 400 · 合法体通过',
+  ck.t('A13', '任务入参：主奖缺 ⇒ 400 · 次币缺对 ⇒ 400 · 次币取 $ ⇒ 400（CP-N8）· 未知 type（poll）⇒ 400 · prediction 缺 deadline ⇒ 400 · **quiz 缺 reward_amount ⇒ 400 QUIZ_REWARD_REQUIRED**（新契约：答对即发奖 ⇒ 奖励列必填）· quiz 合法体（四选项+correct+reward）通过 · 混合体通过',
     verbOf(errOf(tNoReward)) === 400 && reasonOf(errOf(tNoReward)) === 'TASK_REWARD_PRIMARY_INVALID'
       && verbOf(errOf(tOneCid)) === 400 && reasonOf(errOf(tOneCid)) === 'TASK_REWARD_SECONDARY_PAIR_REQUIRED'
       && verbOf(errOf(tUsdSec)) === 400 && reasonOf(errOf(tUsdSec)) === 'TASK_REWARD_SECONDARY_CID_INVALID'
       && verbOf(errOf(tBadSubtask)) === 400 && reasonOf(errOf(tBadSubtask)) === 'SUBTASK_TYPE_INVALID'
       && verbOf(errOf(tBadPred)) === 400 && reasonOf(errOf(tBadPred)) === 'PREDICTION_PAYLOAD_SHAPE'
-      && 'payload' in tOk,
+      && verbOf(errOf(tQuizNoReward)) === 400 && reasonOf(errOf(tQuizNoReward)) === 'QUIZ_REWARD_REQUIRED'
+      && 'payload' in tQuizOk && 'payload' in tOk,
     JSON.stringify({
       no_reward: reasonOf(errOf(tNoReward)), one_cid: reasonOf(errOf(tOneCid)), usd_sec: reasonOf(errOf(tUsdSec)),
-      bad_type: reasonOf(errOf(tBadSubtask)), bad_pred: reasonOf(errOf(tBadPred)), ok: 'payload' in tOk,
+      bad_type: reasonOf(errOf(tBadSubtask)), bad_pred: reasonOf(errOf(tBadPred)),
+      quiz_no_reward: reasonOf(errOf(tQuizNoReward)), quiz_ok: 'payload' in tQuizOk, ok: 'payload' in tOk,
     }));
 
   const pThreeOpt = parsePredictionPayload({ option_a: 'A', option_b: 'B', option_c: 'C', prize_amount: '10', deadline: '2026-10-21T00:00:00Z' });
   const pCurrency = parsePredictionPayload({ option_a: 'A', option_b: 'B', prize_amount: '10', deadline: '2026-10-21T00:00:00Z', currency_cid: '5' });
   const pZeroPrize = parsePredictionPayload({ option_a: 'A', option_b: 'B', prize_amount: '0', deadline: '2026-10-21T00:00:00Z' });
   const pOk = parsePredictionPayload({ option_a: 'A', option_b: 'B', prize_amount: '101', deadline: '2026-10-21T00:00:00Z' });
-  const chExtra = parsePredictionChoice({ choice: 'a', note: 'x' });
-  const chOut = parsePredictionChoice({ choice: 'c' });
-  const chOk = parsePredictionChoice({ choice: 'b' });
-  ck.t('A14', 'prediction 入参：三选项 ⇒ 400（未知键）· 币种键 ⇒ 400 PREDICTION_PRIZE_NOT_USD（CP-PN1）· prize 0 ⇒ 400 · 投票多键/越值 ⇒ 400 · 合法体通过',
+  const pNewOk = parsePredictionPayload({ prize_amount: '101', deadline: '2026-10-21T00:00:00Z' });
+  // 混合形状（既有新两键又带 option_a）⇒ 落 legacy 支 ⇒ 缺 option_b ⇒ 400（禁双开的结构面证明）
+  const pMixed = parsePredictionPayload({ option_a: 'A', prize_amount: '101', deadline: '2026-10-21T00:00:00Z' });
+  const chExtra = parsePredictionChoice({ choice: 'a', note: 'x' }, 'ab_legacy');
+  const chOut = parsePredictionChoice({ choice: 'c' }, 'yes_no');
+  const chCrossStyle = parsePredictionChoice({ choice: 'a' }, 'yes_no');
+  const chOk = parsePredictionChoice({ choice: 'b' }, 'ab_legacy');
+  const chYes = parsePredictionChoice({ choice: 'yes' }, 'yes_no');
+  ck.t('A14', 'prediction 入参**两形状**：三选项 ⇒ 400（未知键）· 币种键 ⇒ 400 PREDICTION_PRIZE_NOT_USD（CP-PN1）· prize 0 ⇒ 400 · **混合形状（新两键 ＋ option_a）⇒ 400 禁双开** · 新两键合法体 ⇒ `option_style=yes_no` 且 payload 不含 option_a/b · 投票：多键/越值 ⇒ 400 · **口径交叉（`ab_legacy` 行收 `yes`、`yes_no` 行收 `a`）⇒ 400** · 两口径各自合法体通过',
     verbOf(errOf(pThreeOpt)) === 400 && reasonOf(errOf(pThreeOpt)) === 'PREDICTION_PAYLOAD_SHAPE'
       && verbOf(errOf(pCurrency)) === 400 && reasonOf(errOf(pCurrency)) === 'PREDICTION_PRIZE_NOT_USD'
       && verbOf(errOf(pZeroPrize)) === 400 && reasonOf(errOf(pZeroPrize)) === 'PREDICTION_PRIZE_INVALID'
+      && verbOf(errOf(pMixed)) === 400 && reasonOf(errOf(pMixed)) === 'PREDICTION_PAYLOAD_SHAPE'
+      && !('err' in pNewOk) && pNewOk.option_style === 'yes_no'
+      && !('option_a' in pNewOk.payload) && 'payload' in pOk && pOk.option_style === 'ab_legacy'
       && verbOf(errOf(chExtra)) === 400 && reasonOf(errOf(chExtra)) === 'PREDICTION_CHOICE_SHAPE'
-      && verbOf(errOf(chOut)) === 400 && 'payload' in pOk && 'choice' in chOk,
+      && verbOf(errOf(chOut)) === 400 && verbOf(errOf(chCrossStyle)) === 400
+      && 'choice' in chOk && chOk.choice === 'b' && 'choice' in chYes && chYes.choice === 'yes',
     JSON.stringify({
       three: reasonOf(errOf(pThreeOpt)), currency: reasonOf(errOf(pCurrency)), zero: reasonOf(errOf(pZeroPrize)),
-      extra: reasonOf(errOf(chExtra)), out: reasonOf(errOf(chOut)),
+      mixed: reasonOf(errOf(pMixed)), new_style: ('err' in pNewOk ? 'err' : pNewOk.option_style),
+      legacy_style: ('err' in pOk ? 'err' : pOk.option_style),
+      extra: reasonOf(errOf(chExtra)), out: reasonOf(errOf(chOut)), cross_style: reasonOf(errOf(chCrossStyle)),
     }));
   ck.t('A15', '`isCampaignRef`：纯数字才放行（`all` / 非数字 / 空 ⇒ false ⇒ 路由落 404 而非 500）',
     isCampaignRef('123') && isCampaignRef('700000000000000001') && !isCampaignRef('all')
@@ -327,11 +359,14 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
   out.mode = MODE;
   // ★ Z1 基线（**事务前**取提交面读数）：0065 已进 dev 库 ⇒ 「无五表 / 无版本行」是过时断言。
   //   改为「本门未额外写入」：事务后读数必须与事务前基线**逐项相等**（两种 mode 同一判据，判据数不减）。
-  const committedResidue = async (): Promise<{ tables: number; version_rows: number }> => {
+  const committedResidue = async (): Promise<{ tables: number; version_rows: number; reward_col: number }> => {
     const t = await qRetry<{ n: number }>(pool,
       "SELECT count(*)::int AS n FROM information_schema.tables WHERE table_schema='public' AND table_name IN ('campaign','task','subtask','subtask_type','subtask_proof')");
     const v = await qRetry<{ n: number }>(pool, "SELECT count(*)::int AS n FROM public.schema_migration WHERE version = '0065'");
-    return { tables: Number(t[0]?.n ?? -1), version_rows: Number(v[0]?.n ?? -1) };
+    // 0072 的 DDL 面残留：提交面上 subtask.reward_amount 列的存在性（pre-apply = 0 / 已 apply = 1）
+    const c7 = await qRetry<{ n: number }>(pool,
+      "SELECT count(*)::int AS n FROM information_schema.columns WHERE table_schema='public' AND table_name='subtask' AND column_name='reward_amount'");
+    return { tables: Number(t[0]?.n ?? -1), version_rows: Number(v[0]?.n ?? -1), reward_col: Number(c7[0]?.n ?? -1) };
   };
   const baseline = await committedResidue();
   const r = await tx(pool, async (c) => {
@@ -364,6 +399,12 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
     const before65 = await raw1<{ n: number }>(c, "SELECT count(*)::int AS n FROM public.schema_migration WHERE version = '0065'");
     if (!applied68) await c.query(M65_TAIL);
     const after65 = await raw1<{ n: number }>(c, "SELECT count(*)::int AS n FROM public.schema_migration WHERE version = '0065'");
+    // ---- 0072 全量干跑（ALTER + 两个 DO 块，含尾部自检）：服务层 insertSubtask / 读口都带 reward_amount 列
+    for (const stmt of splitSqlStatements(MIG72)) await c.query(stmt);
+    const rewardCol = await raw1<{ n: number }>(c,
+      `SELECT count(*)::int AS n FROM information_schema.columns
+        WHERE table_schema='public' AND table_name='subtask' AND column_name='reward_amount'
+          AND data_type='numeric' AND is_nullable='YES'`);
 
     const tables = await raw1<{ n: number }>(c,
       "SELECT count(*)::int AS n FROM information_schema.tables WHERE table_schema='public' AND table_name IN ('campaign','task','subtask','subtask_type','subtask_proof')");
@@ -388,14 +429,19 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
         WHERE n.nspname='public' AND c.relname IN ('campaign','task','subtask')
           AND NOT t.tgisinternal AND t.tgenabled='O'
           AND t.tgname IN ('trg_campaign_touch_updated','trg_task_touch_updated','trg_subtask_touch_updated')`);
-    ck.t('B1', `[${applied65 ? 'post-apply' : 'pre-apply'}] 0065 干跑全绿：五表 · 列数 ${applied68 ? '10' : '9'}/14/11/4/7${applied68 ? '（0068 已 apply ⇒ campaign=10 含 project_id，旧尾跳过、期望前推）' : ''} · 三 CASCADE · UNIQUE(subtask_id,uid) · proof status 单值 · 两索引 · 三触发器 · ${applied65 ? '版本行 0065 稳态 1（干跑零新增）' : '版本行未写'}`,
-      Number(tables?.n ?? 0) === 5 && colMap.campaign === (applied68 ? 10 : 9) && colMap.task === 14 && colMap.subtask === 11
+    const rewardCons = await raw1<{ n: number }>(c,
+      `SELECT count(*)::int AS n FROM pg_constraint
+        WHERE conrelid='public.subtask'::regclass AND conname='subtask_reward_amount_nonneg' AND contype='c'
+          AND pg_get_constraintdef(oid) LIKE '%reward_amount%'`);
+    ck.t('B1', `[${applied65 ? 'post-apply' : 'pre-apply'}] 0065 干跑全绿：五表 · 列数 ${applied68 ? '10' : '9'}/14/**12**/4/7（subtask 11 → **12**：0072 干跑加 reward_amount numeric NULL）${applied68 ? '（0068 已 apply ⇒ campaign=10 含 project_id，旧尾跳过、期望前推）' : ''} · 三 CASCADE · UNIQUE(subtask_id,uid) · proof status 单值 · 两索引 · 三触发器 · **0072 CHECK subtask_reward_amount_nonneg 在场** · ${applied65 ? '版本行 0065 稳态 1（干跑零新增）' : '版本行未写'}`,
+      Number(tables?.n ?? 0) === 5 && colMap.campaign === (applied68 ? 10 : 9) && colMap.task === 14 && colMap.subtask === 12
         && colMap.subtask_type === 4 && colMap.subtask_proof === 7
         && Number(cascades?.n ?? 0) === 3 && /subtask_id/.test(String(uniqDef?.def ?? '')) && /uid/.test(String(uniqDef?.def ?? ''))
         && /submitted/.test(String(statusDef?.def ?? '')) && !/approved/.test(String(statusDef?.def ?? ''))
         && Number(idx?.n ?? 0) === 2 && Number(trg?.n ?? 0) === 3
+        && Number(rewardCol?.n ?? 0) === 1 && Number(rewardCons?.n ?? 0) === 1
         && Number(before65?.n ?? -1) === (applied65 ? 1 : 0) && Number(after65?.n ?? -1) === (applied65 ? 1 : 0),
-      JSON.stringify({ tables: tables?.n, cols: colMap, cascades: cascades?.n, uniq: uniqDef?.def, status: statusDef?.def, idx: idx?.n, trg: trg?.n, version: [before65?.n, after65?.n] }));
+      JSON.stringify({ tables: tables?.n, cols: colMap, cascades: cascades?.n, uniq: uniqDef?.def, status: statusDef?.def, idx: idx?.n, trg: trg?.n, reward_col: rewardCol?.n, reward_check: rewardCons?.n, version: [before65?.n, after65?.n] }));
 
     ck.t('B2', 'seed 恰 5 行且 (type_code,label,sort) 与 §40.14.3 逐字一致 · 全 active · 无 poll',
       seedRows.length === 5
@@ -510,9 +556,11 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
         reward_amount_secondary: '25',
         subtasks: [
           { type_code: 'x_verify', title: 'X 验证', payload: { screenshots: ['m1'], links: ['https://x.com/a'] }, required: true },
-          { type_code: 'prediction', title: '预测（待截止）', payload: { option_a: 'Yes', option_b: 'No', prize_amount: '101', deadline: futureDl } },
-          { type_code: 'prediction', title: '预测（未截止）', payload: { option_a: 'Up', option_b: 'Down', prize_amount: '50', deadline: futureDl } },
-          { type_code: 'quiz', title: '答题', payload: { answers: { q1: 'yes' } } },
+          // prediction 新契约：**恰两键**（选项文案由前端 i18n 恒 Yes / No）+ 投票值域 yes|no
+          { type_code: 'prediction', title: '预测（待截止）', payload: { prize_amount: '101', deadline: futureDl } },
+          { type_code: 'prediction', title: '预测（未截止）', payload: { prize_amount: '50', deadline: futureDl } },
+          // quiz 新契约：四选项 + correct（服务端密钥）+ 奖励列（答对即发）
+          { type_code: 'quiz', title: '答题', payload: QUIZ_FIXTURE_PAYLOAD, reward_amount: '7' },
         ],
         ...over,
       },
@@ -624,13 +672,13 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
         && verbOf(unknownKey) === 400 && reasonOf(unknownKey) === 'PROOF_PAYLOAD_UNKNOWN_KEY',
       JSON.stringify({ mismatch: reasonOf(badPayload), unknown: reasonOf(unknownKey) }));
 
-    // ---- S8 · prediction 投票：一人一票（重提 409）· 截止后拒票
-    const vote = (uid: number, sub: string, choice: 'a' | 'b') =>
+    // ---- S8 · prediction 投票：一人一票（重提 409）· 截止后拒票（新契约值域 yes|no）
+    const vote = (uid: number, sub: string, choice: 'yes' | 'no') =>
       submitProofVerb({ actorUid: uid, subtaskRef: sub, body: { choice }, ex });
-    const v1 = await vote(U1, PRED_PAST, 'a');
-    const v2 = await vote(U2, PRED_PAST, 'a');
-    const v3 = await vote(U3, PRED_PAST, 'b');
-    const v1again = await vote(U1, PRED_PAST, 'b');
+    const v1 = await vote(U1, PRED_PAST, 'yes');
+    const v2 = await vote(U2, PRED_PAST, 'yes');
+    const v3 = await vote(U3, PRED_PAST, 'no');
+    const v1again = await vote(U1, PRED_PAST, 'no');
     const pastVoteRows = await raw1<{ n: number }>(c,
       'SELECT count(*)::int AS n FROM public.subtask_proof WHERE subtask_id = $1::bigint', [PRED_PAST]);
     // 时间推进夹具：把 deadline 推到过去（等价于「到点」，零新列零定时器 ⇒ 读时派生即切换）
@@ -638,7 +686,7 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
       `UPDATE public.subtask SET payload = payload || jsonb_build_object('deadline', $2::text) WHERE subtask_id = $1::bigint`,
       [PRED_PAST, pastDl],
     );
-    const lateVote = await vote(U4, PRED_PAST, 'a');
+    const lateVote = await vote(U4, PRED_PAST, 'yes');
     const stateAfter = await raw1<{ payload: Record<string, unknown> }>(c, 'SELECT payload FROM public.subtask WHERE subtask_id = $1::bigint', [PRED_PAST]);
     ck.t('S8', 'prediction 投票：三票各 200 · **重提 409 `prediction_vote_locked`**（票数仍 3、choice 未改写）· 到点后投票 409 `prediction_deadline_passed`',
       v1.ok === true && v2.ok === true && v3.ok === true
@@ -649,9 +697,9 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
       JSON.stringify({ votes: [v1.ok, v2.ok, v3.ok], again: [verbOf(v1again), reasonOf(v1again)], rows: pastVoteRows?.n, late: [verbOf(lateVote), reasonOf(lateVote)] }));
 
     // ---- S9 · settle 闸：未截止 409 · 非 prediction 400 · 重复 settle 409（S11）
-    await vote(U1, PRED_FUTURE, 'a');
-    const early = await settlePredictionVerb({ subtaskRef: PRED_FUTURE, body: { correct_option: 'a' }, ex });
-    const wrongType = await settlePredictionVerb({ subtaskRef: X_VERIFY, body: { correct_option: 'a' }, ex });
+    await vote(U1, PRED_FUTURE, 'yes');
+    const early = await settlePredictionVerb({ subtaskRef: PRED_FUTURE, body: { correct_option: 'yes' }, ex });
+    const wrongType = await settlePredictionVerb({ subtaskRef: X_VERIFY, body: { correct_option: 'yes' }, ex });
     ck.t('S9', 'settle 闸：deadline 前 ⇒ 409 `prediction_deadline_not_reached`（零分发）· 非 prediction 子任务 ⇒ 400 `PREDICTION_TYPE_MISMATCH`',
       verbOf(early) === 409 && reasonOf(early) === 'prediction_deadline_not_reached'
         && verbOf(wrongType) === 400 && reasonOf(wrongType) === 'PREDICTION_TYPE_MISMATCH',
@@ -662,8 +710,8 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
     const u2Before = BigInt(await bal(U2, USD_CID));
     const u3Before = BigInt(await bal(U3, USD_CID));
     const platBefore = BigInt(await bal(-1, USD_CID));
-    const settleKey = `biz:campaign:settle:${PRED_PAST}:a`;
-    const settled = await settlePredictionVerb({ subtaskRef: PRED_PAST, body: { correct_option: 'a' }, ex });
+    const settleKey = `biz:campaign:settle:${PRED_PAST}:yes`;
+    const settled = await settlePredictionVerb({ subtaskRef: PRED_PAST, body: { correct_option: 'yes' }, ex });
     const sv = viewOf<Record<string, unknown>>(settled);
     const rowAfter = await raw1<{ payload: Record<string, unknown> }>(c, 'SELECT payload FROM public.subtask WHERE subtask_id = $1::bigint', [PRED_PAST]);
     ck.t('S10', 'settle 分发（floor + 余数进平台）：prize 101 / 选对 2 ⇒ per 50 · distributed 100 · retained 1 · 台账 3 条 · 逐户 +50 · 平台 −100 · correct_option 回填 · state settled',
@@ -674,12 +722,12 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
         && BigInt(await bal(U2, USD_CID)) - u2Before === 50n
         && BigInt(await bal(U3, USD_CID)) - u3Before === 0n
         && platBefore - BigInt(await bal(-1, USD_CID)) === 100n
-        && String((rowAfter?.payload ?? {}).correct_option ?? '') === 'a'
+        && String((rowAfter?.payload ?? {}).correct_option ?? '') === 'yes'
         && Number(await ledgerRows(settleKey)) === 3,
       JSON.stringify({ ok: settled.ok, ...sv, deltas: { u1: (BigInt(await bal(U1, USD_CID)) - u1Before).toString(), platform: (platBefore - BigInt(await bal(-1, USD_CID))).toString() }, backfill: (rowAfter?.payload ?? {}).correct_option }));
 
     // ---- S11 · 重复 settle ⇒ 409（一次性封板）· 零第二笔分发
-    const settleAgain = await settlePredictionVerb({ subtaskRef: PRED_PAST, body: { correct_option: 'b' }, ex });
+    const settleAgain = await settlePredictionVerb({ subtaskRef: PRED_PAST, body: { correct_option: 'no' }, ex });
     const ledAfterRepeat = await ledgerRows(settleKey);
     ck.t('S11', '重复 settle ⇒ 409 `prediction_already_settled` · 分发台账**仍 3 条**（禁二次分发）· 首票结论未被改写',
       verbOf(settleAgain) === 409 && reasonOf(settleAgain) === 'prediction_already_settled' && ledAfterRepeat === 3,
@@ -690,27 +738,27 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
       campaignRef: C1,
       body: {
         title: 'zero-winner task', reward_amount_primary: '10',
-        subtasks: [{ type_code: 'prediction', title: '无人选对', payload: { option_a: 'A', option_b: 'B', prize_amount: '77', deadline: futureDl } }],
+        subtasks: [{ type_code: 'prediction', title: '无人选对', payload: { prize_amount: '77', deadline: futureDl } }],
       },
       ex,
     });
     const T_ZERO = String(viewOf<{ task_id?: string }>(tZero).task_id ?? '');
     const ZERO_SUB = String((viewOf<{ subtasks?: Array<Record<string, unknown>> }>(tZero).subtasks ?? [])[0]?.subtask_id ?? '');
     await patchTaskVerb({ ref: T_ZERO, body: { status: 'active' }, ex });
-    await vote(U3, ZERO_SUB, 'b');
+    await vote(U3, ZERO_SUB, 'no');
     // 时间推进：到点后才可 settle
     await c.query(
       `UPDATE public.subtask SET payload = payload || jsonb_build_object('deadline', $2::text) WHERE subtask_id = $1::bigint`,
       [ZERO_SUB, pastDl],
     );
     const platBeforeZero = BigInt(await bal(-1, USD_CID));
-    const settledZero = await settlePredictionVerb({ subtaskRef: ZERO_SUB, body: { correct_option: 'a' }, ex });
+    const settledZero = await settlePredictionVerb({ subtaskRef: ZERO_SUB, body: { correct_option: 'yes' }, ex });
     const zv = viewOf<Record<string, unknown>>(settledZero);
     ck.t('S12', '选对人数 = 0 ⇒ winner 0 · per 0 · distributed 0 · **retained 77 整笔留平台** · 零台账分录 · 平台余额不变 · 仍封板',
       settledZero.ok === true && Number(zv.winner_count) === 0 && Number(zv.distributed_total) === 0
         && Number(zv.platform_retained) === 77 && Number(zv.ledger_entries) === 0
         && BigInt(await bal(-1, USD_CID)) === platBeforeZero
-        && (await settlePredictionVerb({ subtaskRef: ZERO_SUB, body: { correct_option: 'b' }, ex })).ok === false,
+        && (await settlePredictionVerb({ subtaskRef: ZERO_SUB, body: { correct_option: 'no' }, ex })).ok === false,
       JSON.stringify({ ok: settledZero.ok, ...zv, platform_delta: (BigInt(await bal(-1, USD_CID)) - platBeforeZero).toString() }));
 
     // ---- S13 · task 完成奖闸：未完成 ⇒ 409
@@ -727,8 +775,8 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
       JSON.stringify({ status: verbOf(earlyReward), reason: reasonOf(earlyReward), counts: countsBefore }));
 
     // ---- S14 · 补齐凭证 ⇒ 完成奖两币各一笔 + 幂等
-    await submitProofVerb({ actorUid: U1, subtaskRef: PRED_FUTURE, body: { choice: 'a' }, ex });
-    await submitProofVerb({ actorUid: U1, subtaskRef: QUIZ, body: { answers: { q1: 'yes', q2: 'no' } }, ex });
+    await submitProofVerb({ actorUid: U1, subtaskRef: PRED_FUTURE, body: { choice: 'yes' }, ex });
+    const quizProof = await submitProofVerb({ actorUid: U1, subtaskRef: QUIZ, body: { answers: { picks: ['b'] } }, ex });
     const u1UsdBefore = BigInt(await bal(U1, USD_CID));
     const u1SecBefore = BigInt(await bal(U1, SEC));
     const platUsdBefore = BigInt(await bal(-1, USD_CID));
@@ -748,9 +796,12 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
         && platSecBefore - BigInt(await bal(-1, SEC)) === 25n
         && rewardEntries === 2 && rewardEntriesSec === 2
         && rewardReplay.ok === true && (rewardReplay as { replay?: boolean }).replay === true
-        && (await ledgerRows(rewardKey)) === rewardEntriesAfter,
+        && (await ledgerRows(rewardKey)) === rewardEntriesAfter
+        // quiz 答错（correct=[a,c]，投 b）⇒ proof 落库、奖励零发（发奖账实由 p72 门独占）
+        && quizProof.ok === true && String((viewOf<{ reward_paid?: string }>(quizProof)).reward_paid) === '0',
       JSON.stringify({
         ok: reward.ok, entries: [rewardEntries, rewardEntriesSec], replay: (rewardReplay as { replay?: boolean }).replay,
+        quiz_reward_paid: viewOf<{ reward_paid?: string }>(quizProof).reward_paid,
         repro_entries: rewardEntriesAfter,
         deltas: { usd: (BigInt(await bal(U1, USD_CID)) - u1UsdBefore).toString(), sec: (BigInt(await bal(U1, SEC)) - u1SecBefore).toString() },
       }));
@@ -761,18 +812,19 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
       ref: T1,
       body: {
         subtasks: [
-          { subtask_id: QUIZ, type_code: 'quiz', title: '答题（改名）', payload: { answers: { q1: 'yes' } }, required: true },
+          { subtask_id: QUIZ, type_code: 'quiz', title: '答题（改名）', payload: QUIZ_FIXTURE_PAYLOAD, reward_amount: '9', required: true },
           { type_code: 'survey', title: '新增问卷', payload: { answers: { q: 'a' } } },
         ],
       },
       ex,
     });
     const tAfterPatch = await raw1<{ n: number }>(c, 'SELECT count(*)::int AS n FROM public.subtask WHERE task_id = $1::bigint', [T1]);
-    const quizTitle = await raw1<{ title: string }>(c, 'SELECT title FROM public.subtask WHERE subtask_id = $1::bigint', [QUIZ]);
-    ck.t('S15', '子任务写口：带 id ⇒ 更新（标题改写生效）· 不带 ⇒ 插入 · **永不 DELETE**（4 → 5 行）· 整组 upsert 200',
+    const quizAfterPatch = await raw1<{ title: string; reward_amount: string | null }>(c,
+      'SELECT title, reward_amount::text AS reward_amount FROM public.subtask WHERE subtask_id = $1::bigint', [QUIZ]);
+    ck.t('S15', '子任务写口：带 id ⇒ 更新（标题改写生效 · **奖励列 7 → 9 随整组 upsert 落库**）· 不带 ⇒ 插入 · **永不 DELETE**（4 → 5 行）· 整组 upsert 200',
       patchedTask.ok === true && Number(tBeforePatch?.n ?? -1) === 4 && Number(tAfterPatch?.n ?? -1) === 5
-        && /改名/.test(String(quizTitle?.title ?? '')),
-      JSON.stringify({ before: tBeforePatch?.n, after: tAfterPatch?.n, quiz_title: quizTitle?.title }));
+        && /改名/.test(String(quizAfterPatch?.title ?? '')) && String(quizAfterPatch?.reward_amount ?? '') === '9',
+      JSON.stringify({ before: tBeforePatch?.n, after: tAfterPatch?.n, quiz_title: quizAfterPatch?.title, reward_amount: quizAfterPatch?.reward_amount }));
 
     const c1End = await patchCampaignVerb({ ref: C1, body: { status: 'ended' }, ex });
     const patchAfterEnd = await patchCampaignVerb({ ref: C1, body: { title: 'nope' }, ex });
@@ -797,12 +849,12 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
     const predProofU1 = (subOf(flatU1, PRED_PAST)?.my_proof ?? null) as { payload: Record<string, unknown> } | null;
     const predProofU3 = (subOf(flatU3, PRED_PAST)?.my_proof ?? null) as { payload: Record<string, unknown> } | null;
     const surveyU1 = flatU1.find((s) => String(s.type_code) === 'survey');
-    ck.t('S17', '★登录态详情加性 `my_proof`：每子任务键**恒在场**（`null` = 未提交）· U1 通用凭证回读 screenshots 2 条 + `time_created` ISO · 投票 choice 逐人不同（U1 a / U3 b）· 未提交子任务 ⇒ `null`（非缺键）',
+    ck.t('S17', '★登录态详情加性 `my_proof`：每子任务键**恒在场**（`null` = 未提交）· U1 通用凭证回读 screenshots 2 条 + `time_created` ISO · 投票 choice 逐人不同（U1 yes / U3 no）· 未提交子任务 ⇒ `null`（非缺键）',
       detailU1 !== null && flatU1.length > 0 && flatU1.every((s) => 'my_proof' in s)
         && xProofU1 !== null && Number((xProofU1.payload.screenshots as unknown[] | undefined)?.length ?? -1) === 2
         && typeof xProofU1.time_created === 'string' && !Number.isNaN(Date.parse(String(xProofU1.time_created)))
-        && predProofU1 !== null && String(predProofU1.payload.choice ?? '') === 'a'
-        && predProofU3 !== null && String(predProofU3.payload.choice ?? '') === 'b'
+        && predProofU1 !== null && String(predProofU1.payload.choice ?? '') === 'yes'
+        && predProofU3 !== null && String(predProofU3.payload.choice ?? '') === 'no'
         && surveyU1 !== undefined && surveyU1.my_proof === null,
       JSON.stringify({
         subtasks: flatU1.length, keys_all_present: flatU1.every((s) => 'my_proof' in s),
@@ -856,14 +908,14 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
     // 灵敏度自证：同一人、赢家人数按 1 算 ⇒ payout 应变 101（≠ 实测 50）⇒ 判据对「赢家人数」敏感、payout 非写死
     const cfPer = String(derivePredictionOutcome(
       (subOf(flatU1, PRED_PAST)?.payload ?? {}) as Record<string, unknown>,
-      { payload: { choice: 'a' }, time_created: null },
+      { payload: { choice: 'yes' }, time_created: null },
       1,
     )?.payout ?? '');
     ck.t('S19', '★`my_outcome` = `{choice, won, payout}` 且 **payout 对拍服务端真到账**：U1 选对 ⇒ won · payout 50 = settle `per_winner_amount` = 台账该户 +50 · U3 选错 ⇒ won false · payout 0 = 台账 0 · U4 未投票 ⇒ `null`（键在场）· 未结算 prediction 无该键 · 无人选对 ⇒ 输家 payout 0 · 反事实（赢家数 1）⇒ 101 ≠ 50（判据可红）',
       detailU1 !== null && detailU3 !== null && detailU4 !== null
-        && out1 !== undefined && out1 !== null && String(out1.choice) === 'a' && out1.won === true
+        && out1 !== undefined && out1 !== null && String(out1.choice) === 'yes' && out1.won === true
         && String(out1.payout) === svPer && String(out1.payout) === u1Paid && BigInt(u1Paid) > 0n
-        && out3 !== undefined && out3 !== null && String(out3.choice) === 'b' && out3.won === false
+        && out3 !== undefined && out3 !== null && String(out3.choice) === 'no' && out3.won === false
         && String(out3.payout) === '0' && u3Paid === '0'
         && out4Sub !== undefined && 'my_outcome' in out4Sub && out4 === null
         && futureSub !== undefined && !('my_outcome' in futureSub) && futureSub.prediction_state === 'open'
@@ -879,14 +931,14 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
     // ① 去 UNIQUE ⇒ 同一人重复投票可入（第二行可现）；复 UNIQUE ⇒ 23505
     const nc1 = await undoAfter(c, 'nc1', async () => {
       await c.query('ALTER TABLE public.subtask_proof DROP CONSTRAINT subtask_proof_uniq');
-      await c.query(`INSERT INTO public.subtask_proof (subtask_id, uid, payload) VALUES ($1::bigint, $2::bigint, '{"choice":"b"}'::jsonb)`,
+      await c.query(`INSERT INTO public.subtask_proof (subtask_id, uid, payload) VALUES ($1::bigint, $2::bigint, '{"choice":"no"}'::jsonb)`,
         [PRED_PAST, String(U1)]);
       return Number((await raw1<{ n: number }>(c,
         'SELECT count(*)::int AS n FROM public.subtask_proof WHERE subtask_id = $1::bigint AND uid = $2::bigint',
         [PRED_PAST, String(U1)]))?.n ?? -1);
     });
     const nc1Keep = await undoAfter(c, 'nc1b', async () => {
-      await c.query(`INSERT INTO public.subtask_proof (subtask_id, uid, payload) VALUES ($1::bigint, $2::bigint, '{"choice":"b"}'::jsonb)`,
+      await c.query(`INSERT INTO public.subtask_proof (subtask_id, uid, payload) VALUES ($1::bigint, $2::bigint, '{"choice":"no"}'::jsonb)`,
         [PRED_PAST, String(U1)]);
       return 'inserted';
     });
@@ -964,9 +1016,10 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
     const after = await committedResidue();
     const sameTables = after.tables === baseline.tables;
     const sameVersion = after.version_rows === baseline.version_rows;
-    ck.t('Z1', `[${MODE}] 零残留（mode-aware）：提交面五表数与 0065 版本行数**事务前 = 事务后**（本门全程单回滚事务，未额外写入；基线 tables=${baseline.tables} / version_rows=${baseline.version_rows}${applied65 ? ' = 已 apply 稳态' : ' = 未 apply ⇒ 即「无五表、无版本行」'}）`,
-      sameTables && sameVersion,
-      JSON.stringify({ mode: MODE, baseline, after, same_tables: sameTables, same_version_rows: sameVersion }));
+    const sameRewardCol = after.reward_col === baseline.reward_col;
+    ck.t('Z1', `[${MODE}] 零残留（mode-aware）：提交面五表数、0065 版本行数、**0072 的 subtask.reward_amount 列存在性** 三项**事务前 = 事务后**（本门全程单回滚事务，0072 只在事务内干跑 ⇒ DDL 未泄漏到提交面；基线 tables=${baseline.tables} / version_rows=${baseline.version_rows} / reward_col=${baseline.reward_col}${applied65 ? ' = 已 apply 稳态' : ' = 未 apply ⇒ 即「无五表、无版本行、无奖励列」'}）`,
+      sameTables && sameVersion && sameRewardCol,
+      JSON.stringify({ mode: MODE, baseline, after, same_tables: sameTables, same_version_rows: sameVersion, same_reward_col: sameRewardCol }));
   }
   await pool.end().catch(() => undefined);
 

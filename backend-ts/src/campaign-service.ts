@@ -15,9 +15,19 @@
 //   ② Task 奖励 = **额外完成奖**：全部 subtask 完成后发、一般延后（先手动）；
 //      `reward_amount_primary`（$ 必填）＋ 可选次币 `reward_cid_secondary` / `reward_amount_secondary`（成对）。
 //   ③ Subtask 奖励**锁 $**、即时发放，**与 task 预算零扣减**（CP-R4 / CP-N10）。
-//   ④ prediction：payload 恰四键 {option_a, option_b, prize_amount($), deadline}；用户 {choice:'a'|'b'}
-//      一人一票（重提 409）；截止后管理员 settle 回填 correct_option ⇒ **同一事务**分发
+//   ④ prediction：**选项恒 Yes / No**（选项文案由前端 i18n 固定，payload 不再存选项文案）
+//      ⇒ 新 payload = 恰两键 {prize_amount($), deadline}；用户 `{choice:'yes'|'no'}`
+//      一人一票（重提 409）；截止后管理员 settle 回填 correct_option ∈ {'yes','no'} ⇒ **同一事务**分发
 //      floor(prize ÷ 选对人数)，余数归平台；正确人数 0 ⇒ 整笔归平台（无预扣 ⇒ 无分录，实际留在平台收入）。
+//      **存量兼容**：payload 仍是旧四键 {option_a, option_b, prize_amount, deadline} 的行，
+//      读（三态）/写（proof）/结算（correct_option）一律维持 `a|b` 口径 —— 按 payload 形状分支，
+//      两条路共存，**禁双开**（同一子任务的 payload 形状不可在改口里换口径）。
+//   ⑤ quiz：payload 恰两键 {options:{a,b,c,d}(四键非空字符串), correct:['a'…]}（correct 1–4 个、
+//      去重、均在 a–d）；`correct` **永不出公开读口**（脱敏体例同 prediction 的结算键）。
+//      用户 `{answers:{picks:[…]}}`；提交时**集合相等**即答对 ⇒ **同一事务**发 `subtask.reward_amount`
+//      （平台 −N → 用户 +N，借 PLATFORM_PAYOUT_KIND）；答错也落 proof（提交即通过）但零发奖；
+//      同一 uid 同一子任务重提 ⇒ 409（与 prediction 一人一票同族）。
+//      奖励载体 = 列 `subtask.reward_amount`（迁移 0072；quiz 必填 > 0，非 quiz 传 ⇒ 400）。
 //
 // 五条结构性纪律（超范围即缺陷）：
 //   · **零新错误码**（33 码闭集不动）：400 借 `LEDGER_AMOUNT_INVALID` / 404 借 `LEDGER_REF_NOT_FOUND` /
@@ -91,8 +101,32 @@ export const PROOF_KEYS_BY_TYPE: Record<string, readonly string[]> = {
   quiz: ['answers'],
   prediction: ['choice'],
 };
-/** prediction 子任务 payload 恰四键（§40.14.8 CP-P1） */
-export const PREDICTION_PAYLOAD_KEYS = ['option_a', 'option_b', 'prize_amount', 'deadline'] as const;
+/**
+ * prediction 子任务 payload **新形状**：恰两键（选项文案由前端 i18n 恒 Yes / No ⇒ payload 不存文案）
+ * —— 判据真源，改动 = 口径变更，须回写 §40.14.8。
+ */
+export const PREDICTION_PAYLOAD_KEYS = ['prize_amount', 'deadline'] as const;
+/**
+ * prediction 子任务 payload **旧形状**（存量行；迁移前落库的 option_a / option_b 两枚文案）。
+ * 只读兼容用途：**新写口不再产出**，改口若把存量行改写成新形状 ⇒ 400（禁双开）。
+ */
+export const PREDICTION_LEGACY_PAYLOAD_KEYS = ['option_a', 'option_b', 'prize_amount', 'deadline'] as const;
+/** 选项口径两值：`yes_no` = 新（Yes / No）· `ab_legacy` = 存量（a / b + option_a/option_b 文案） */
+export const PREDICTION_OPTION_STYLES = ['yes_no', 'ab_legacy'] as const;
+export type PredictionOptionStyle = (typeof PREDICTION_OPTION_STYLES)[number];
+/** 各口径的合法 choice / correct_option 值域（settle 与 proof 共用，单一真源） */
+export const PREDICTION_CHOICES: Record<PredictionOptionStyle, readonly string[]> = {
+  yes_no: ['yes', 'no'],
+  ab_legacy: ['a', 'b'],
+};
+/** quiz 子任务 payload 恰两键（0072 引入；`correct` 是**服务端密钥**，永不出公开读口） */
+export const QUIZ_PAYLOAD_KEYS = ['options', 'correct'] as const;
+/** quiz 四选项键闭集（顺序即展示序） */
+export const QUIZ_OPTION_KEYS = ['a', 'b', 'c', 'd'] as const;
+/** quiz 正确答案键（脱敏：任何出参 payload 均剥除） */
+export const QUIZ_CORRECT_KEY = 'correct';
+/** quiz 奖励载体列（迁移 0072 `subtask.reward_amount`；quiz 必填 > 0、非 quiz 恒 NULL） */
+export const SUBTASK_REWARD_COLUMN = 'reward_amount';
 /** 结算回填键（settle 口独占写 · 零新列 · §40.14.8 CP-P2） */
 export const PREDICTION_CORRECT_OPTION_KEY = 'correct_option';
 /** prediction 生命周期三态（读时派生，零新列零定时器 · CP-P5） */
@@ -148,6 +182,43 @@ export const isCampaignRef = (ref: unknown): boolean =>
   typeof ref === 'string' && REF_PATTERN.test(ref) && ref.length <= 20;
 
 // ============================================================================
+// 口径分支工具（prediction 新两键 / 存量四键 · quiz 脱敏）
+// ============================================================================
+/**
+ * 子任务 payload 的 prediction **选项口径**（唯一判别函数：读 / 写 / 结算三处共用）：
+ *   · 带 `option_a` / `option_b` 任一 ⇒ `ab_legacy`（存量四键行，choice/correct 用 a|b）；
+ *   · 否则 ⇒ `yes_no`（新两键行，choice/correct 用 yes|no）。
+ * 判别只看**已落库的 payload 形状**，不看请求体 ⇒ 「同一行两条路」在结构上不可能同时成立。
+ */
+export const predictionOptionStyle = (payload: Row): PredictionOptionStyle =>
+  (Object.prototype.hasOwnProperty.call(payload, 'option_a')
+    || Object.prototype.hasOwnProperty.call(payload, 'option_b')) ? 'ab_legacy' : 'yes_no';
+
+/** 该口径下合法 choice / correct_option 值域（`'yes'|'no'` 或 `'a'|'b'`） */
+export const predictionChoicesFor = (style: PredictionOptionStyle): readonly string[] =>
+  PREDICTION_CHOICES[style] ?? PREDICTION_CHOICES.yes_no;
+
+/** 值是否落在该口径值域内（越值 ⇒ false） */
+export const isPredictionChoice = (style: PredictionOptionStyle, v: unknown): boolean =>
+  typeof v === 'string' && predictionChoicesFor(style).includes(v);
+
+/**
+ * **公开读口脱敏**：quiz 的 `correct`（正确答案）永不出任何出参 payload ——
+ * 与 prediction 的结算键同体例（服务端密钥不进读面）。其余类型原样透出（零形状变更）。
+ * 入参是 `asObject(row.payload)` 的副本语义：返回**新对象**，不改库内值、不改调用方引用。
+ */
+export const publicSubtaskPayload = (typeCode: string, payload: Row): Row => {
+  if (typeCode !== 'quiz') return payload;
+  if (!Object.prototype.hasOwnProperty.call(payload, QUIZ_CORRECT_KEY)) return payload;
+  const out: Row = {};
+  for (const [k, v] of Object.entries(payload)) {
+    if (k === QUIZ_CORRECT_KEY) continue;
+    out[k] = v;
+  }
+  return out;
+};
+
+// ============================================================================
 // 出参形状（bigint / numeric 一律字符串 —— route #60 / CP-N5）
 // ============================================================================
 /** 登录态附加：本人该子任务的凭证摘要（`subtask_proof` 单行投影；未登录 ⇒ 键缺省） */
@@ -162,7 +233,8 @@ export interface MyProofView {
  * ⇒ 前端**禁自算**，只展示（CP-P6 单一算式真源）。
  */
 export interface MyOutcomeView {
-  choice: 'a' | 'b';
+  /** 新两键行 = `'yes'|'no'`；存量四键行 = `'a'|'b'` */
+  choice: 'a' | 'b' | 'yes' | 'no';
   won: boolean;
   payout: string;
 }
@@ -178,6 +250,8 @@ export interface SubtaskView {
   payload: Row;
   sort: number;
   required: boolean;
+  /** quiz 答对奖励（`$`；迁移 0072 加性列；非 quiz 恒 `null`） */
+  reward_amount: string | null;
   /** 仅 prediction 类型：读时派生的生命周期态（open / deadline_reached / settled） */
   prediction_state: PredictionState | null;
   time_created: string | null;
@@ -230,20 +304,24 @@ export interface ProofView {
   status: string;
   time_created: string | null;
   time_updated: string | null;
+  /** **加性 · 仅 quiz**：本次是否答对（答错亦落 proof，零发奖） */
+  quiz_correct?: boolean;
+  /** **加性 · 仅 quiz**：本次实发奖励（`$`；答错 / 子任务无奖励 ⇒ `'0'`） */
+  reward_paid?: string;
 }
 
-/** prediction 生命周期派生（读时，零列零定时器） */
+/** prediction 生命周期派生（读时，零列零定时器）—— 两种口径共用：`correct_option` 落在该口径值域即 settled */
 export const derivePredictionState = (payload: Row, nowMs: number = Date.now()): PredictionState => {
-  const co = payload[PREDICTION_CORRECT_OPTION_KEY];
-  if (co === 'a' || co === 'b') return 'settled';
+  const style = predictionOptionStyle(payload);
+  if (isPredictionChoice(style, payload[PREDICTION_CORRECT_OPTION_KEY])) return 'settled';
   const dl = iso(payload.deadline);
   if (dl === null) return 'open';
   return nowMs >= Date.parse(dl) ? 'deadline_reached' : 'open';
 };
 
 const normalizeSubtaskRow = (row: Row): SubtaskView => {
-  const payload = asObject(row.payload);
   const typeCode = str(row.type_code);
+  const payload = publicSubtaskPayload(typeCode, asObject(row.payload));
   return {
     subtask_id: str(row.subtask_id),
     snowflake_id: str(row.snowflake_id),
@@ -255,6 +333,7 @@ const normalizeSubtaskRow = (row: Row): SubtaskView => {
     payload,
     sort: int(row.sort),
     required: row.required === true,
+    reward_amount: strOrNull(row.reward_amount),
     prediction_state: typeCode === 'prediction' ? derivePredictionState(payload) : null,
     time_created: iso(row.time_created),
     time_updated: iso(row.time_updated),
@@ -372,7 +451,7 @@ const asNonNegInt = (v: unknown): number | null => {
 
 /**
  * prediction 输赢派生（**与 R8 settle 分发同一条 floor 算式** —— 单一真源，前端禁自算）。
- * 未投票 / choice 越集 / 未结算 ⇒ `null`；payout 一律字符串（bigint 口径）。
+ * 未投票 / choice 越集（按该行 payload 口径）/ 未结算 ⇒ `null`；payout 一律字符串（bigint 口径）。
  */
 export const derivePredictionOutcome = (
   payload: Row,
@@ -380,16 +459,17 @@ export const derivePredictionOutcome = (
   winnerCount: number,
 ): MyOutcomeView | null => {
   if (!proof) return null;
+  const style = predictionOptionStyle(payload);
   const choice = proof.payload.choice;
-  if (choice !== 'a' && choice !== 'b') return null;
+  if (!isPredictionChoice(style, choice)) return null;
   const correct = payload[PREDICTION_CORRECT_OPTION_KEY];
-  if (correct !== 'a' && correct !== 'b') return null;
+  if (!isPredictionChoice(style, correct)) return null;
   const prizeText = asPositiveIntText(payload.prize_amount);
   const prize = prizeText === null ? 0n : BigInt(prizeText);
   const winners = Number.isFinite(winnerCount) && winnerCount > 0 ? BigInt(Math.trunc(winnerCount)) : 0n;
   const perWinner = winners > 0n ? prize / winners : 0n;
   const won = choice === correct;
-  return { choice, won, payout: (won ? perWinner : 0n).toString() };
+  return { choice: choice as MyOutcomeView['choice'], won, payout: (won ? perWinner : 0n).toString() };
 };
 
 const asTitle = (v: unknown): string | null => {
@@ -487,10 +567,19 @@ export const parseCampaignPayload = (
 // ============================================================================
 // 入参校验 —— subtask payload（类型级）
 // ============================================================================
-/** prediction 子任务 payload：恰四键 · 选项两枚非空 · prize 正整数（$）· deadline 可解析（CP-P1） */
-export const parsePredictionPayload = (raw: unknown): { payload: { option_a: string; option_b: string; prize_amount: string; deadline: string } } | { err: VerbErr } => {
+/**
+ * prediction 子任务 payload（**两条形状共存**，按请求体形状判别，产出一枚 `option_style` 标记）：
+ *   · 新形状（默认，Kevin 2026-10-22）：**恰两键** `{prize_amount, deadline}` ⇒ `yes_no`；
+ *   · 存量形状：**恰四键** `{option_a, option_b, prize_amount, deadline}` ⇒ `ab_legacy`
+ *     （只有「改存量行」才可能走到；建口**拒收**，见 `parseSubtaskInput`）。
+ * prize 正整数（$）、deadline 可解析、币种键与结算键一律 400（CP-PN1 / CP-P2）。
+ */
+export const parsePredictionPayload = (raw: unknown): {
+  payload: { option_a?: string; option_b?: string; prize_amount: string; deadline: string };
+  option_style: PredictionOptionStyle;
+} | { err: VerbErr } => {
   if (!isPlainObject(raw)) {
-    return { err: badRequest('PREDICTION_PAYLOAD_SHAPE', { expected: 'object_with_4_keys', got: Array.isArray(raw) ? 'array' : typeof raw }) };
+    return { err: badRequest('PREDICTION_PAYLOAD_SHAPE', { expected: 'object_with_2_keys', got: Array.isArray(raw) ? 'array' : typeof raw }) };
   }
   // 币种键 ⇒ 400（CP-PN1 奖池非 $：prediction 奖池单位恒 $，不设币种键）
   const currencyKeys = ['currency', 'currency_cid', 'cid', 'prize_cid', 'unit', 'currency_symbol', PREDICTION_CORRECT_OPTION_KEY];
@@ -498,18 +587,27 @@ export const parsePredictionPayload = (raw: unknown): { payload: { option_a: str
   if (bad.length) {
     return { err: badRequest('PREDICTION_PRIZE_NOT_USD', { fields: bad, hint: 'prediction 奖池单位恒 $，且 correct_option 只由 settle 口写' }) };
   }
-  const unknown = Object.keys(raw).filter((k) => !(PREDICTION_PAYLOAD_KEYS as readonly string[]).includes(k));
+  // 形状判别：出现 option_a / option_b 任一 ⇒ 存量四键支；否则 ⇒ 新两键支
+  const legacy = Object.prototype.hasOwnProperty.call(raw, 'option_a')
+    || Object.prototype.hasOwnProperty.call(raw, 'option_b');
+  const legal: readonly string[] = legacy ? PREDICTION_LEGACY_PAYLOAD_KEYS : PREDICTION_PAYLOAD_KEYS;
+  const optionStyle: PredictionOptionStyle = legacy ? 'ab_legacy' : 'yes_no';
+  const unknown = Object.keys(raw).filter((k) => !legal.includes(k));
   if (unknown.length) {
-    return { err: badRequest('PREDICTION_PAYLOAD_SHAPE', { unknown_keys: unknown, legal_keys: PREDICTION_PAYLOAD_KEYS }) };
+    return { err: badRequest('PREDICTION_PAYLOAD_SHAPE', { unknown_keys: unknown, legal_keys: legal, option_style: optionStyle }) };
   }
-  const missing = (PREDICTION_PAYLOAD_KEYS as readonly string[]).filter((k) => !Object.prototype.hasOwnProperty.call(raw, k));
+  const missing = legal.filter((k) => !Object.prototype.hasOwnProperty.call(raw, k));
   if (missing.length) {
-    return { err: badRequest('PREDICTION_PAYLOAD_SHAPE', { missing_keys: missing, expected: 'exactly_4_keys' }) };
+    return { err: badRequest('PREDICTION_PAYLOAD_SHAPE', { missing_keys: missing, expected: `exactly_${legal.length}_keys`, option_style: optionStyle }) };
   }
-  const a = typeof raw.option_a === 'string' ? raw.option_a.trim() : '';
-  const b = typeof raw.option_b === 'string' ? raw.option_b.trim() : '';
-  if (!a || !b) {
-    return { err: badRequest('PREDICTION_OPTIONS_INVALID', { expected: 'exactly_two_non_empty_options', option_a: a, option_b: b }) };
+  let a: string | undefined;
+  let b: string | undefined;
+  if (legacy) {
+    a = typeof raw.option_a === 'string' ? raw.option_a.trim() : '';
+    b = typeof raw.option_b === 'string' ? raw.option_b.trim() : '';
+    if (!a || !b) {
+      return { err: badRequest('PREDICTION_OPTIONS_INVALID', { expected: 'exactly_two_non_empty_options', option_a: a, option_b: b }) };
+    }
   }
   const prize = asPositiveIntText(raw.prize_amount);
   if (prize === null) {
@@ -519,7 +617,99 @@ export const parsePredictionPayload = (raw: unknown): { payload: { option_a: str
   if ('err' in dl || dl.value === null) {
     return { err: badRequest('PREDICTION_DEADLINE_INVALID', { field: 'deadline', expected: 'ISO-8601' }) };
   }
-  return { payload: { option_a: a, option_b: b, prize_amount: prize, deadline: dl.value } };
+  return legacy
+    ? { payload: { option_a: a, option_b: b, prize_amount: prize, deadline: dl.value }, option_style: 'ab_legacy' }
+    : { payload: { prize_amount: prize, deadline: dl.value }, option_style: 'yes_no' };
+};
+
+/**
+ * quiz 子任务 payload：**恰两键** `{options:{a,b,c,d}, correct:['a'…]}`。
+ *   · options：plain object，键集**恰等于** a/b/c/d，逐值非空字符串（≤200）；
+ *   · correct：数组 **1–4 个**、去重、逐值 ∈ a–d（「多选正确」是合法形态 —— 用户须全中）。
+ * `reward_amount` 是**列**不是 payload 键 ⇒ 出现在 payload 内按未知键 400。
+ */
+export const parseQuizPayload = (raw: unknown): {
+  payload: { options: Record<string, string>; correct: string[] };
+} | { err: VerbErr } => {
+  if (!isPlainObject(raw)) {
+    return { err: badRequest('QUIZ_PAYLOAD_SHAPE', { expected: 'object_with_2_keys', got: Array.isArray(raw) ? 'array' : typeof raw }) };
+  }
+  const unknown = Object.keys(raw).filter((k) => !(QUIZ_PAYLOAD_KEYS as readonly string[]).includes(k));
+  if (unknown.length) {
+    return { err: badRequest('QUIZ_PAYLOAD_SHAPE', { unknown_keys: unknown, legal_keys: QUIZ_PAYLOAD_KEYS, hint: `${SUBTASK_REWARD_COLUMN} 是子任务列，不写进 payload` }) };
+  }
+  const missing = (QUIZ_PAYLOAD_KEYS as readonly string[]).filter((k) => !Object.prototype.hasOwnProperty.call(raw, k));
+  if (missing.length) {
+    return { err: badRequest('QUIZ_PAYLOAD_SHAPE', { missing_keys: missing, expected: 'exactly_2_keys' }) };
+  }
+  if (!isPlainObject(raw.options)) {
+    return { err: badRequest('QUIZ_OPTIONS_INVALID', { field: 'options', expected: 'object_with_exactly_4_keys' }) };
+  }
+  const optKeys = Object.keys(raw.options);
+  const badOpt = optKeys.filter((k) => !(QUIZ_OPTION_KEYS as readonly string[]).includes(k));
+  const missOpt = (QUIZ_OPTION_KEYS as readonly string[]).filter((k) => !Object.prototype.hasOwnProperty.call(raw.options as Row, k));
+  if (badOpt.length || missOpt.length) {
+    return { err: badRequest('QUIZ_OPTIONS_INVALID', { field: 'options', unknown_keys: badOpt, missing_keys: missOpt, expected: QUIZ_OPTION_KEYS }) };
+  }
+  const options: Record<string, string> = {};
+  for (const k of QUIZ_OPTION_KEYS) {
+    const v = (raw.options as Row)[k];
+    const text = typeof v === 'string' ? v.trim() : '';
+    if (!text || text.length > 200) {
+      return { err: badRequest('QUIZ_OPTIONS_INVALID', { field: `options.${k}`, expected: 'non_empty_string<=200' }) };
+    }
+    options[k] = text;
+  }
+  if (!Array.isArray(raw.correct)) {
+    return { err: badRequest('QUIZ_CORRECT_INVALID', { field: 'correct', expected: 'array_of_1_to_4_option_keys' }) };
+  }
+  const picks = raw.correct.map((v) => (typeof v === 'string' ? v.trim() : ''));
+  if (picks.length < 1 || picks.length > QUIZ_OPTION_KEYS.length) {
+    return { err: badRequest('QUIZ_CORRECT_INVALID', { field: 'correct', expected: '1_to_4_picks', got_length: picks.length }) };
+  }
+  if (new Set(picks).size !== picks.length) {
+    return { err: badRequest('QUIZ_CORRECT_INVALID', { field: 'correct', reason_hint: 'duplicates', got: picks }) };
+  }
+  const outOfSet = picks.filter((p) => !(QUIZ_OPTION_KEYS as readonly string[]).includes(p));
+  if (outOfSet.length) {
+    return { err: badRequest('QUIZ_CORRECT_INVALID', { field: 'correct', out_of_set: outOfSet, expected: QUIZ_OPTION_KEYS }) };
+  }
+  return { payload: { options, correct: [...picks].sort() } };
+};
+
+/** quiz 答题凭证：`{answers:{picks:[…]}}`（1–4 个、去重、∈a–d）；形状外一律 400 */
+export const parseQuizProof = (raw: unknown): { picks: string[] } | { err: VerbErr } => {
+  if (!isPlainObject(raw)) {
+    return { err: badRequest('QUIZ_ANSWER_SHAPE', { expected: "{answers:{picks:['a'…]}}", got: Array.isArray(raw) ? 'array' : typeof raw }) };
+  }
+  const keys = Object.keys(raw);
+  if (keys.length !== 1 || keys[0] !== 'answers' || !isPlainObject(raw.answers)) {
+    return { err: badRequest('QUIZ_ANSWER_SHAPE', { expected: "{answers:{picks:['a'…]}}", got_keys: keys }) };
+  }
+  const inner = Object.keys(raw.answers as Row);
+  if (inner.length !== 1 || inner[0] !== 'picks' || !Array.isArray((raw.answers as Row).picks)) {
+    return { err: badRequest('QUIZ_ANSWER_SHAPE', { expected: '{picks:[…]}', got_keys: inner }) };
+  }
+  const picks = ((raw.answers as Row).picks as unknown[]).map((v) => (typeof v === 'string' ? v.trim() : ''));
+  if (picks.length < 1 || picks.length > QUIZ_OPTION_KEYS.length) {
+    return { err: badRequest('QUIZ_ANSWER_SHAPE', { field: 'picks', expected: '1_to_4_picks', got_length: picks.length }) };
+  }
+  if (new Set(picks).size !== picks.length) {
+    return { err: badRequest('QUIZ_ANSWER_SHAPE', { field: 'picks', reason_hint: 'duplicates', got: picks }) };
+  }
+  const outOfSet = picks.filter((p) => !(QUIZ_OPTION_KEYS as readonly string[]).includes(p));
+  if (outOfSet.length) {
+    return { err: badRequest('QUIZ_ANSWER_SHAPE', { field: 'picks', out_of_set: outOfSet, expected: QUIZ_OPTION_KEYS }) };
+  }
+  return { picks: [...picks].sort() };
+};
+
+/** 集合相等（quiz 判分唯一判据：与顺序无关、与重复无关 —— 入参已去重排序） */
+export const samePickSet = (a: readonly string[], b: readonly string[]): boolean => {
+  if (a.length !== b.length || a.length === 0) return false;
+  const sa = new Set(a);
+  if (sa.size !== b.length) return false;
+  return b.every((x) => sa.has(x));
 };
 
 const isStringArray = (v: unknown): boolean =>
@@ -577,20 +767,26 @@ export const parseTypedPayload = (typeCode: string, raw: unknown, scope: 'subtas
   return { payload: out };
 };
 
-/** prediction 投票凭证：单键 { choice: 'a'|'b' }（CP-P3）；越值 / 多键 / 缺键 ⇒ 400 */
-export const parsePredictionChoice = (raw: unknown): { choice: 'a' | 'b' } | { err: VerbErr } => {
+/**
+ * prediction 投票凭证：单键 `{choice}`（CP-P3）。**值域由该行 payload 口径决定**：
+ *   · `yes_no`（新两键行）⇒ `'yes'|'no'`；· `ab_legacy`（存量四键行）⇒ `'a'|'b'`。
+ * 越值 / 多键 / 缺键 ⇒ 400（零新码，理由落 details.reason）。
+ */
+export const parsePredictionChoice = (raw: unknown, style: PredictionOptionStyle): { choice: string } | { err: VerbErr } => {
+  const legal = predictionChoicesFor(style);
+  const expected = `{choice:'${legal.join("'|'")}'}`;
   if (!isPlainObject(raw)) {
-    return { err: badRequest('PREDICTION_CHOICE_SHAPE', { expected: "{choice:'a'|'b'}", got: Array.isArray(raw) ? 'array' : typeof raw }) };
+    return { err: badRequest('PREDICTION_CHOICE_SHAPE', { expected, got: Array.isArray(raw) ? 'array' : typeof raw }) };
   }
   const keys = Object.keys(raw);
   if (keys.length !== 1 || keys[0] !== 'choice') {
-    return { err: badRequest('PREDICTION_CHOICE_SHAPE', { expected: "{choice:'a'|'b'}", got_keys: keys }) };
+    return { err: badRequest('PREDICTION_CHOICE_SHAPE', { expected, got_keys: keys }) };
   }
   const choice = raw.choice;
-  if (choice !== 'a' && choice !== 'b') {
-    return { err: badRequest('PREDICTION_CHOICE_SHAPE', { field: 'choice', expected: "'a'|'b'", got: typeof choice === 'string' ? choice : null }) };
+  if (!isPredictionChoice(style, choice)) {
+    return { err: badRequest('PREDICTION_CHOICE_SHAPE', { field: 'choice', expected, got: typeof choice === 'string' ? choice : null }) };
   }
-  return { choice };
+  return { choice: choice as string };
 };
 
 // ============================================================================
@@ -610,6 +806,10 @@ export interface SubtaskInput {
   title: string;
   content: string | null;
   payload: Row;
+  /** quiz 答对奖励（`$`；quiz 必填 > 0，其余类型恒 null —— 0072 列） */
+  reward_amount: string | null;
+  /** **仅 prediction**：payload 口径标记（`yes_no` 新两键 / `ab_legacy` 存量四键；写口据此禁双开） */
+  option_style?: PredictionOptionStyle;
   sort: number;
   required: boolean;
 }
@@ -631,7 +831,7 @@ const parseSubtaskInput = (raw: unknown, index: number): { input: SubtaskInput }
   if (!isPlainObject(raw)) {
     return { err: badRequest('SUBTASK_INPUT_INVALID', { index, expected: 'object' }) };
   }
-  const legal = ['subtask_id', 'snowflake_id', 'type_code', 'title', 'content', 'payload', 'sort', 'required'];
+  const legal = ['subtask_id', 'snowflake_id', 'type_code', 'title', 'content', 'payload', 'sort', 'required', 'reward_amount'];
   const unknown = Object.keys(raw).filter((k) => !legal.includes(k));
   if (unknown.length) return { err: badRequest('SUBTASK_INPUT_INVALID', { index, unknown_keys: unknown, legal_keys: legal }) };
 
@@ -652,20 +852,52 @@ const parseSubtaskInput = (raw: unknown, index: number): { input: SubtaskInput }
     return { err: badRequest('SUBTASK_INPUT_INVALID', { index, field: 'required', expected: 'boolean' }) };
   }
 
+  // payload 按类型分派：prediction 两形状（带口径标记）· quiz 四选项+正确答案 · 其余四类闭集键族
   const rawPayload = raw.payload === undefined ? {} : raw.payload;
-  const payloadParsed = typeCode === 'prediction'
-    ? parsePredictionPayload(rawPayload)
-    : parseTypedPayload(typeCode, rawPayload, 'subtask');
-  if ('err' in payloadParsed) return { err: payloadParsed.err };
+  let payload: Row;
+  let optionStyle: PredictionOptionStyle | null = null;
+  if (typeCode === 'prediction') {
+    const parsed = parsePredictionPayload(rawPayload);
+    if ('err' in parsed) return { err: parsed.err };
+    payload = parsed.payload as Row;
+    optionStyle = parsed.option_style;
+  } else if (typeCode === 'quiz') {
+    const parsed = parseQuizPayload(rawPayload);
+    if ('err' in parsed) return { err: parsed.err };
+    payload = parsed.payload as Row;
+  } else {
+    const parsed = parseTypedPayload(typeCode, rawPayload, 'subtask');
+    if ('err' in parsed) return { err: parsed.err };
+    payload = parsed.payload as Row;
+  }
+
+  // 奖励列：**quiz 必填 > 0**（答对即发）；非 quiz 传了 ⇒ 400（奖励载体只服务 quiz）
+  const rewardGiven = Object.prototype.hasOwnProperty.call(raw, 'reward_amount')
+    && raw.reward_amount !== null && raw.reward_amount !== undefined && raw.reward_amount !== '';
+  let rewardAmount: string | null = null;
+  if (typeCode === 'quiz') {
+    if (!rewardGiven) {
+      return { err: badRequest('QUIZ_REWARD_REQUIRED', { index, field: 'reward_amount', expected: 'positive_integer_usd', hint: 'quiz 答对即发奖 ⇒ 奖励必填且 > 0' }) };
+    }
+    const reward = asPositiveIntText(raw.reward_amount);
+    if (reward === null) {
+      return { err: badRequest('QUIZ_REWARD_INVALID', { index, field: 'reward_amount', expected: 'positive_integer_usd' }) };
+    }
+    rewardAmount = reward;
+  } else if (rewardGiven) {
+    return { err: badRequest('SUBTASK_REWARD_NOT_APPLICABLE', { index, field: 'reward_amount', type_code: typeCode, hint: 'reward_amount 只服务 quiz' }) };
+  }
 
   const out: SubtaskInput = {
     type_code: typeCode,
     title,
     content: contentRaw as string | null,
-    payload: payloadParsed.payload as Row,
+    payload,
+    reward_amount: rewardAmount,
     sort,
     required: raw.required === true,
   };
+  if (optionStyle !== null) out.option_style = optionStyle;
   for (const key of ['subtask_id', 'snowflake_id'] as const) {
     if (raw[key] !== undefined && raw[key] !== null) {
       const v = asPositiveIntText(raw[key]);
@@ -774,6 +1006,17 @@ export const parseTaskPayload = (
     for (let i = 0; i < input.subtasks.length; i += 1) {
       const parsed = parseSubtaskInput((input.subtasks as unknown[])[i], i);
       if ('err' in parsed) return { err: parsed.err };
+      // 建口只收新口径（选项恒 Yes/No）；四键旧形状仅服务「存量行改口」⇒ 建口带四键 = 400（禁双开）
+      if (mode === 'create' && parsed.input.option_style === 'ab_legacy') {
+        return {
+          err: badRequest('PREDICTION_PAYLOAD_SHAPE', {
+            index: i,
+            expected: 'exactly_2_keys',
+            got_option_style: 'ab_legacy',
+            hint: 'prediction 选项恒 Yes / No ⇒ 建口 payload = {prize_amount, deadline}',
+          }),
+        };
+      }
       items.push(parsed.input);
     }
     out.subtasks = items;
@@ -1002,6 +1245,8 @@ export interface TaskDetailSubtaskView {
   payload: Row;
   sort: number;
   required: boolean;
+  /** quiz 答对奖励（`$`；0072 加性列；非 quiz 恒 `null`） */
+  reward_amount: string | null;
   /** 加性可选：当前 DB 无 `subtask.status` 列 ⇒ **键缺省**（不是 null） */
   status?: string;
 }
@@ -1139,9 +1384,10 @@ export const getTaskDetailByRef = async (
       type_code: str(s.type_code),
       title: str(s.title),
       content: strOrNull(s.content),
-      payload: asObject(s.payload),
+      payload: publicSubtaskPayload(str(s.type_code), asObject(s.payload)),
       sort: int(s.sort),
       required: s.required === true,
+      reward_amount: strOrNull(s.reward_amount),
     })),
   };
 };
@@ -1301,7 +1547,8 @@ export const submitProofVerb = async (input: {
 }): Promise<VerbResult<ProofView>> => {
   if (!isCampaignRef(input.subtaskRef)) return notFound('subtask_not_found');
 
-  return runInTx<VerbResult<ProofView>>(input.ex, async (tx) => {
+  try {
+    return await runInTx<VerbResult<ProofView>>(input.ex, async (tx) => {
     const q = (text: string, params?: unknown[]) => txQuery<Row>(tx, text, params);
     const chain = await loadSubtaskChain(q, input.subtaskRef, false);
     if (!chain) return notFound('subtask_not_found');
@@ -1322,12 +1569,13 @@ export const submitProofVerb = async (input: {
     // ---- prediction：单键 {choice} + 一人一票（首票即定）----
     if (typeCode === 'prediction') {
       const payload = asObject(chain.payload);
+      const style = predictionOptionStyle(payload);   // ★ 口径由**库内 payload 形状**定，不由请求体定
       const state = derivePredictionState(payload, nowMs);
       if (state === 'settled') return conflict('prediction_already_settled', { subtask_id: subtaskId });
       if (state === 'deadline_reached') {
         return conflict('prediction_deadline_passed', { subtask_id: subtaskId, deadline: iso(payload.deadline) });
       }
-      const parsed = parsePredictionChoice(input.body);
+      const parsed = parsePredictionChoice(input.body, style);
       if ('err' in parsed) return parsed.err;
 
       // ★ 单语句 + DO NOTHING：0 行 = 已有票 ⇒ 409（不覆盖、不新增行 —— CP-P4 / CP-PN4）
@@ -1336,13 +1584,64 @@ export const submitProofVerb = async (input: {
          VALUES ($1::bigint, $2::bigint, $3::jsonb, 'submitted')
          ON CONFLICT (subtask_id, uid) DO NOTHING
          RETURNING *`,
-        [subtaskId, uid, JSON.stringify(parsed)],
+        [subtaskId, uid, JSON.stringify({ choice: parsed.choice })],
       );
       if (!inserted.length) return conflict('prediction_vote_locked', { subtask_id: subtaskId });
       return { ok: true, view: normalizeProofRow(inserted[0]), replay: false };
     }
 
-    // ---- 通用四类：闭集四键 + 重提覆盖（last-write-wins，200）----
+    // ---- quiz：{answers:{picks}}（1–4 个 ∈a–d）⇒ 集合相等即答对 ⇒ **同一事务**发奖 ----
+    //   答错也落 proof（提交即通过体例）但零发奖；同一 uid 重提 ⇒ 409（与 prediction 一人一票同族）。
+    if (typeCode === 'quiz') {
+      const payload = asObject(chain.payload);
+      const parsed = parseQuizProof(input.body);
+      if ('err' in parsed) return parsed.err;
+      // 正确答案只在这里读（公开读口已脱敏）；库内形状异常 ⇒ 视为「无正确答案」⇒ 判错（不 500）
+      const correctRaw = payload[QUIZ_CORRECT_KEY];
+      const correct = Array.isArray(correctRaw)
+        ? correctRaw
+          .map((v) => (typeof v === 'string' ? v.trim() : ''))
+          .filter((v) => (QUIZ_OPTION_KEYS as readonly string[]).includes(v))
+        : [];
+      const quizCorrect = samePickSet(parsed.picks, correct);
+      const rewardText = asPositiveIntText(chain.reward_amount) ?? '0';
+      const reward = BigInt(rewardText);
+
+      const inserted = await q(
+        `INSERT INTO public.subtask_proof (subtask_id, uid, payload, status)
+         VALUES ($1::bigint, $2::bigint, $3::jsonb, 'submitted')
+         ON CONFLICT (subtask_id, uid) DO NOTHING
+         RETURNING *`,
+        [subtaskId, uid, JSON.stringify({ answers: { picks: parsed.picks } })],
+      );
+      if (!inserted.length) return conflict('quiz_already_answered', { subtask_id: subtaskId });
+
+      let rewardPaid = '0';
+      if (quizCorrect && reward > 0n) {
+        const key = `biz:campaign:quiz:${subtaskId}:${uid}`;
+        await postEvent({
+          op: 'entries',
+          idempotencyKey: key,
+          requestFingerprint: fingerprintOf(['campaign.quiz', subtaskId, uid, rewardText]),
+          refType: 'system',
+          refId: subtaskId,
+          memo: `campaign_quiz_reward:${subtaskId}:${uid}`,
+          entries: [
+            { uid: String(PLATFORM_UID), cid: String(USD_CID), delta: (-reward).toString(), kind: PLATFORM_PAYOUT_KIND },
+            { uid, cid: String(USD_CID), delta: reward.toString(), kind: PLATFORM_PAYOUT_KIND },
+          ],
+          ex: tx as unknown as { query: (t: string, p?: unknown[]) => Promise<{ rows: Array<Record<string, unknown>> }> },
+        });
+        rewardPaid = rewardText;
+      }
+      return {
+        ok: true,
+        view: { ...normalizeProofRow(inserted[0]), quiz_correct: quizCorrect, reward_paid: rewardPaid },
+        replay: false,
+      };
+    }
+
+    // ---- 通用三类（x_verify / onchain_snapshot / survey）：闭集四键 + 重提覆盖（last-write-wins，200）----
     const parsed = parseTypedPayload(typeCode, input.body, 'proof');
     if ('err' in parsed) return parsed.err;
     const upserted = await q(
@@ -1354,7 +1653,14 @@ export const submitProofVerb = async (input: {
       [subtaskId, uid, JSON.stringify(parsed.payload)],
     );
     return { ok: true, view: normalizeProofRow(upserted[0]), replay: false };
-  });
+    });
+  } catch (e) {
+    const normalized = normalizeLedgerError(e);
+    if (normalized.code === 'LEDGER_INSUFFICIENT_BALANCE') {
+      return conflict('quiz_reward_pool_insufficient', { ledger_code: normalized.code });
+    }
+    throw e;
+  }
 };
 
 // ============================================================================
@@ -1364,7 +1670,8 @@ export interface SettlementView {
   subtask_id: string;
   type_code: string;
   prediction_state: PredictionState;
-  correct_option: 'a' | 'b';
+  /** 新两键行 = `'yes'|'no'`；存量四键行 = `'a'|'b'` */
+  correct_option: 'a' | 'b' | 'yes' | 'no';
   prize_amount: string;
   winner_count: number;
   per_winner_amount: string;
@@ -1385,10 +1692,14 @@ export const settlePredictionVerb = async (input: {
   const body = isPlainObject(input.body) ? input.body : {};
   const unknown = Object.keys(body).filter((k) => k !== PREDICTION_CORRECT_OPTION_KEY);
   if (unknown.length) return badRequest('PREDICTION_SETTLE_BODY_INVALID', { unknown_keys: unknown, legal_keys: [PREDICTION_CORRECT_OPTION_KEY] });
-  const option = body[PREDICTION_CORRECT_OPTION_KEY];
-  if (option !== 'a' && option !== 'b') {
-    return badRequest('PREDICTION_CORRECT_OPTION_INVALID', { field: PREDICTION_CORRECT_OPTION_KEY, expected: "'a'|'b'" });
+  // 值域不能在此定（要读行才知道口径）⇒ 先做「字符串且在并集内」的粗筛，事务内再按行口径细判
+  const optionRaw = body[PREDICTION_CORRECT_OPTION_KEY];
+  const optionAny = typeof optionRaw === 'string' ? optionRaw : '';
+  const union = [...PREDICTION_CHOICES.yes_no, ...PREDICTION_CHOICES.ab_legacy];
+  if (!union.includes(optionAny)) {
+    return badRequest('PREDICTION_CORRECT_OPTION_INVALID', { field: PREDICTION_CORRECT_OPTION_KEY, expected: "'yes'|'no'（新两键行）或 'a'|'b'（存量四键行）" });
   }
+  const option = optionAny;
 
   try {
     return await runInTx<VerbResult<SettlementView>>(input.ex, async (tx) => {
@@ -1401,9 +1712,19 @@ export const settlePredictionVerb = async (input: {
       }
       const subtaskId = str(chain.subtask_id);
       const payload = asObject(chain.payload);
+      const style = predictionOptionStyle(payload);
+
+      // 回填值必须落在**该行口径**的值域（新两键 ⇒ yes|no；存量四键 ⇒ a|b）—— 跨口径 ⇒ 400（禁双开）
+      if (!isPredictionChoice(style, option)) {
+        return badRequest('PREDICTION_CORRECT_OPTION_INVALID', {
+          field: PREDICTION_CORRECT_OPTION_KEY,
+          option_style: style,
+          expected: predictionChoicesFor(style),
+        });
+      }
 
       // 一次性封板：已回填 ⇒ 409（防二次分发 —— CP-P5 / #64）
-      if (payload[PREDICTION_CORRECT_OPTION_KEY] === 'a' || payload[PREDICTION_CORRECT_OPTION_KEY] === 'b') {
+      if (isPredictionChoice(style, payload[PREDICTION_CORRECT_OPTION_KEY])) {
         return conflict('prediction_already_settled', {
           subtask_id: subtaskId,
           correct_option: str(payload[PREDICTION_CORRECT_OPTION_KEY]),
@@ -1570,12 +1891,12 @@ export const patchCampaignVerb = async (input: { ref: string; body: unknown; ex?
 const insertSubtask = async (tx: TxClient, taskId: string, item: SubtaskInput): Promise<Row> => {
   const rows = await txQuery<Row>(
     tx,
-    `INSERT INTO public.subtask (snowflake_id, task_id, type_code, title, content, payload, sort, required)
-     VALUES ($1::bigint, $2::bigint, $3::text, $4::text, $5::text, $6::jsonb, $7::int, $8::boolean)
+    `INSERT INTO public.subtask (snowflake_id, task_id, type_code, title, content, payload, reward_amount, sort, required)
+     VALUES ($1::bigint, $2::bigint, $3::text, $4::text, $5::text, $6::jsonb, $7::numeric, $8::int, $9::boolean)
      RETURNING *`,
     [
       nextSnowflake().toString(), taskId, item.type_code, item.title, item.content,
-      JSON.stringify(item.payload), item.sort, item.required,
+      JSON.stringify(item.payload), item.reward_amount ?? null, item.sort, item.required,
     ],
   );
   return rows[0];
@@ -1585,15 +1906,16 @@ const updateSubtask = async (tx: TxClient, ref: string, item: SubtaskInput): Pro
   const rows = await txQuery<Row>(
     tx,
     `UPDATE public.subtask SET
-       type_code = $2::text,
-       title     = $3::text,
-       content   = $4::text,
-       payload   = $5::jsonb,
-       sort      = $6::int,
-       required  = $7::boolean
+       type_code     = $2::text,
+       title         = $3::text,
+       content       = $4::text,
+       payload       = $5::jsonb,
+       reward_amount = $6::numeric,
+       sort          = $7::int,
+       required      = $8::boolean
      WHERE subtask_id = $1::bigint OR snowflake_id = $1::bigint
      RETURNING *`,
-    [ref, item.type_code, item.title, item.content, JSON.stringify(item.payload), item.sort, item.required],
+    [ref, item.type_code, item.title, item.content, JSON.stringify(item.payload), item.reward_amount ?? null, item.sort, item.required],
   );
   return rows.length ? rows[0] : null;
 };
@@ -1719,12 +2041,25 @@ export const patchTaskVerb = async (input: { ref: string; body: unknown; ex?: Tx
       if (item.subtask_id !== undefined || item.snowflake_id !== undefined) {
         const ref = item.subtask_id ?? item.snowflake_id ?? '';
         const owned = await q(
-          `SELECT task_id::text AS task_id FROM public.subtask
+          `SELECT task_id::text AS task_id, type_code, payload FROM public.subtask
             WHERE subtask_id = $1::bigint OR snowflake_id = $1::bigint LIMIT 1`,
           [ref],
         );
         if (!owned.length || str(owned[0].task_id) !== taskId) {
           return notFound('subtask_not_found');
+        }
+        // ★ 禁双开：存量四键行的改口必须继续用四键（a|b），新两键行必须继续用两键（yes|no）
+        //   —— payload 口径不可在同一行上来回换；换口径会同时改掉已有 proof 的 choice 语义（不可逆）。
+        if (item.type_code === 'prediction' && str(owned[0].type_code) === 'prediction' && item.option_style) {
+          const existing = predictionOptionStyle(asObject(owned[0].payload));
+          if (existing !== item.option_style) {
+            return badRequest('PREDICTION_OPTION_STYLE_IMMUTABLE', {
+              subtask_id: str(owned[0].subtask_id ?? ref),
+              existing_option_style: existing,
+              payload_option_style: item.option_style,
+              hint: '存量四键行改口仍用 {option_a, option_b, prize_amount, deadline}；新行恒 {prize_amount, deadline}',
+            });
+          }
         }
       }
     }

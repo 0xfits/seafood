@@ -15,7 +15,7 @@
  *     （`details.reason='task_not_public'`，借码零新码）；owner（`project.owner_uid`=本人）∨
  *     `manage_tasks` 管理员 ⇒ **同一形状** 200（同一读口按身份放宽）；
  *   · `joined_count = count(DISTINCT subtask_proof.uid)`（同一人在 2 个子任务各有凭证 ⇒ 仍算 1 人）；
- *   · 注册点 129 → **130**（get 56 → 57）；零新错误码；写口一字不动。
+ *   · 注册点 **109**（get 49 / post 53 / patch 4 / delete 3 / put 0；job 体系下线后实测）；零新错误码；写口一字不动。
  *
  * 判据面：
  *   A · 静态（零 DB）：注册点 130 逐 verb · 新口接线（公开 / 缓存分流 / 404 reason / 基建映射）·
@@ -73,6 +73,9 @@ const readSrc = (p: string) => fs.readFileSync(path.resolve(REPO_ROOT, p), 'utf8
 
 const INDEX_TS = readSrc('backend-ts/src/index.ts');
 const CAMP_SVC = readSrc('backend-ts/src/campaign-service.ts');
+// 0072（quiz 奖励列 subtask.reward_amount）：写口带该列 ⇒ 事务内全量干跑（单条简单查询协议，
+//   ALTER + 两个 DO 块一次提交；回滚事务内执行 ⇒ 提交面零 DDL 残留，Z1 的 reward_col 前后相等守）
+const MIG72 = readSrc('backend-ts/migrations/0072_subtask_reward_and_quiz.sql');
 
 /** 路由块切片（静态接线断言用；**截到下一个注册点**，避免把相邻 handler 的 requireActor 误读进来） */
 const routeBlock = (startMarker: string, maxLen = 4000): string => {
@@ -130,7 +133,8 @@ const STATIC_KEYS = [
 ].sort();
 const CAMPAIGN_KEYS = ['id', 'status', 'title'].sort();
 const PROJECT_KEYS = ['avatar_url', 'id', 'slug', 'status', 'title'].sort();
-const SUBTASK_KEYS = ['content', 'payload', 'required', 'sort', 'subtask_id', 'title', 'type_code'].sort();
+// quiz 奖励列（0072 加性列）⇒ subtask 出参 7 键 → **8 键**
+const SUBTASK_KEYS = ['content', 'payload', 'required', 'reward_amount', 'sort', 'subtask_id', 'title', 'type_code'].sort();
 
 const undoAfter = async <T>(c: Qx, tag: string, fn: () => Promise<T>): Promise<{ value: T | null; sqlstate: string | null; message: string }> => {
   const sp = `p70_${tag}`;
@@ -184,8 +188,8 @@ const sameKeys = (a: string[], b: string[]) => JSON.stringify(a) === JSON.string
   // ======================================================================== A · 静态面（零 DB）
   const block = routeBlock("app.get('/api/campaign/task/:taskId'");
   ck.t('A1',
-    '★路由面：注册点 **130**（get 57 / post 66 / patch 4 / delete 3 / put 0）· 新口 `GET /api/campaign/task/:taskId` 在场且**公开**（块内零 `requireActor`）· 身份只经 `resolveOptionalCampaignViewer`（与 R2 同源）· 非数字 ref ⇒ 404 `task_not_found` · view=null ⇒ 404 `task_not_public` · 公开面 `setPublicCache(res)` / 非公开面 `setPrivateNoStore(res)` **分流**（draft 绝不进 CDN）· `sendSuccess(res, view, …)` · 异常走 `sendInfraMapped(res, \'campaign.task.detail\')`',
-    regs === 130 && countVerb('get') === 57 && countVerb('post') === 66 && countVerb('patch') === 4
+    '★路由面：注册点 **109**（get 49 / post 53 / patch 4 / delete 3 / put 0；job 下线后实测 —— 130 是旧常量，属存量红）· 新口 `GET /api/campaign/task/:taskId` 在场且**公开**（块内零 `requireActor`）· 身份只经 `resolveOptionalCampaignViewer`（与 R2 同源）· 非数字 ref ⇒ 404 `task_not_found` · view=null ⇒ 404 `task_not_public` · 公开面 `setPublicCache(res)` / 非公开面 `setPrivateNoStore(res)` **分流**（draft 绝不进 CDN）· `sendSuccess(res, view, …)` · 异常走 `sendInfraMapped(res, \'campaign.task.detail\')`',
+    regs === 109 && countVerb('get') === 49 && countVerb('post') === 53 && countVerb('patch') === 4
       && countVerb('delete') === 3 && countVerb('put') === 0
       && block.length > 0
       && !/requireActor\(/.test(block) && !/requireAdmin\(/.test(block)
@@ -271,6 +275,9 @@ const sameKeys = (a: string[], b: string[]) => JSON.stringify(a) === JSON.string
     subtasks: Number((await qRetry<{ n: number }>(pool, 'SELECT count(*)::int AS n FROM public.subtask'))[0]?.n ?? -1),
     proofs: Number((await qRetry<{ n: number }>(pool, 'SELECT count(*)::int AS n FROM public.subtask_proof'))[0]?.n ?? -1),
     migrations: Number((await qRetry<{ n: number }>(pool, 'SELECT count(*)::int AS n FROM public.schema_migration'))[0]?.n ?? -1),
+    // 0072 的 DDL 面（列存在性）：干跑发生在回滚事务内 ⇒ 提交面必须前后相等
+    reward_col: Number((await qRetry<{ n: number }>(pool,
+      "SELECT count(*)::int AS n FROM information_schema.columns WHERE table_schema='public' AND table_name='subtask' AND column_name='reward_amount'"))[0]?.n ?? -1),
   };
   out.committed_before = committedBefore;
 
@@ -278,6 +285,9 @@ const sameKeys = (a: string[], b: string[]) => JSON.stringify(a) === JSON.string
     const R: Record<string, unknown> = {};
     const ex = c as unknown as TxClient;
     const q1 = async <T = Record<string, unknown>>(sql: string, params: unknown[] = []) => raw1<T>(c, sql, params);
+
+    // ---- 0072 干跑（必须先于任何 subtask 写：insertSubtask 带 reward_amount 列）
+    await c.query(MIG72);
 
     // ---- 夹具：项目 owner ＋ 两个参与者
     const uids: number[] = [];
@@ -316,7 +326,11 @@ const sameKeys = (a: string[], b: string[]) => JSON.stringify(a) === JSON.string
       body: {
         title: `p70 task ${RUN}`, description: '任务详情页夹具描述', reward_amount_primary: '10', sort: 3,
         subtasks: [
-          { type_code: 'quiz', title: '答题一', content: '内容一', payload: { answers: { q1: 'yes' } }, sort: 1, required: true },
+          // quiz 新契约：payload 恰两键 options{a..d} + correct[]（服务端密钥）；奖励走列 reward_amount
+          {
+            type_code: 'quiz', title: '答题一', content: '内容一', sort: 1, required: true, reward_amount: '5',
+            payload: { options: { a: '甲', b: '乙', c: '丙', d: '丁' }, correct: ['b'] },
+          },
           { type_code: 'survey', title: '问卷二', payload: { answers: { q2: 'no' } }, sort: 2 },
         ],
       },
@@ -351,7 +365,7 @@ const sameKeys = (a: string[], b: string[]) => JSON.stringify(a) === JSON.string
     const sub0 = pub?.subtasks?.[0];
     const sub1 = pub?.subtasks?.[1];
     ck.t('S1',
-      `★公开可见臂（= 路由 200 的唯一决策点）：匿名读 active 任务 ⇒ **有 view** · 顶层 15 键齐无缺无多 · \`title\`/\`description\`/\`status='active'\`/\`sort=3\`/\`reward_amount_primary='10'\` 逐字 · \`joined_count\`=**2**（3 行凭证 / 2 个去重人 ⇒ DISTINCT 承重）· \`headcount\`=2（项目额定人数）· \`campaign\`{${CAMPAIGN_KEYS.join(',')}} · \`project\`{${PROJECT_KEYS.join(',')}} · \`subtasks\` 2 条、每条 7 键、\`sort\` 升序、\`payload\` 原样透出、\`required\` 布尔`,
+      `★公开可见臂（= 路由 200 的唯一决策点）：匿名读 active 任务 ⇒ **有 view** · 顶层 15 键齐无缺无多 · \`title\`/\`description\`/\`status='active'\`/\`sort=3\`/\`reward_amount_primary='10'\` 逐字 · \`joined_count\`=**2**（3 行凭证 / 2 个去重人 ⇒ DISTINCT 承重）· \`headcount\`=2（项目额定人数）· \`campaign\`{${CAMPAIGN_KEYS.join(',')}} · \`project\`{${PROJECT_KEYS.join(',')}} · \`subtasks\` 2 条、每条 **8** 键、\`sort\` 升序、\`payload\` **quiz 脱敏后的 payload**（correct 键剥除）、\`required\` 布尔、quiz \`reward_amount\`='5' / survey \`null\``,
       pub !== null
         && sameKeys(topKeys, STATIC_KEYS)
         && pub.title === `p70 task ${RUN}`
@@ -370,11 +384,17 @@ const sameKeys = (a: string[], b: string[]) => JSON.stringify(a) === JSON.string
         && sameKeys(keysOf(sub0), SUBTASK_KEYS) && sameKeys(keysOf(sub1), SUBTASK_KEYS)
         && sub0.type_code === 'quiz' && sub0.title === '答题一' && sub0.content === '内容一'
         && sub0.sort === 1 && sub0.required === true
-        && JSON.stringify(sub0.payload) === JSON.stringify({ answers: { q1: 'yes' } })
-        && sub1.type_code === 'survey' && sub1.required === false && sub1.content === null,
+        // quiz 公开读口 payload **严格相等**：`correct` 被剥除、`options` 四键原样（脱敏后零多余键）
+        && JSON.stringify(sub0.payload) === JSON.stringify({ options: { a: '甲', b: '乙', c: '丙', d: '丁' } })
+        && !JSON.stringify(sub0.payload).includes('correct')
+        && sub0.reward_amount === '5'
+        && sub1.type_code === 'survey' && sub1.required === false && sub1.content === null
+        && sub1.reward_amount === null
+        && JSON.stringify(sub1.payload) === JSON.stringify({ answers: { q2: 'no' } }),
       JSON.stringify({
         view: pub, keys: topKeys, proofs: proofRows,
         dist_ok: pub?.joined_count === 2,
+        sub0_keys: keysOf(sub0), sub0_payload: sub0?.payload, sub0_reward: sub0?.reward_amount,
       }));
 
     // ==================================================================== S2 · draft 三面
@@ -627,12 +647,15 @@ const sameKeys = (a: string[], b: string[]) => JSON.stringify(a) === JSON.string
       subtasks: Number((await qRetry<{ n: number }>(pool, 'SELECT count(*)::int AS n FROM public.subtask'))[0]?.n ?? -2),
       proofs: Number((await qRetry<{ n: number }>(pool, 'SELECT count(*)::int AS n FROM public.subtask_proof'))[0]?.n ?? -2),
       migrations: Number((await qRetry<{ n: number }>(pool, 'SELECT count(*)::int AS n FROM public.schema_migration'))[0]?.n ?? -2),
+      reward_col: Number((await qRetry<{ n: number }>(pool,
+        "SELECT count(*)::int AS n FROM information_schema.columns WHERE table_schema='public' AND table_name='subtask' AND column_name='reward_amount'"))[0]?.n ?? -2),
     };
     ck.t('Z1',
-      `零残留：project ${committedBefore.projects} / campaign ${committedBefore.campaigns} / task ${committedBefore.tasks} / subtask ${committedBefore.subtasks} / subtask_proof ${committedBefore.proofs} / schema_migration ${committedBefore.migrations} 行数**不变**（夹具全在单回滚事务内）`,
+      `零残留：project ${committedBefore.projects} / campaign ${committedBefore.campaigns} / task ${committedBefore.tasks} / subtask ${committedBefore.subtasks} / subtask_proof ${committedBefore.proofs} / schema_migration ${committedBefore.migrations} 行数**不变**、subtask.reward_amount 列存在性 ${committedBefore.reward_col} 前后相等（夹具与 0072 干跑全在单回滚事务内）`,
       now.projects === committedBefore.projects && now.campaigns === committedBefore.campaigns
         && now.tasks === committedBefore.tasks && now.subtasks === committedBefore.subtasks
-        && now.proofs === committedBefore.proofs && now.migrations === committedBefore.migrations,
+        && now.proofs === committedBefore.proofs && now.migrations === committedBefore.migrations
+        && now.reward_col === committedBefore.reward_col,
       JSON.stringify({ before: committedBefore, after: now }));
 
     const fixtureLeft = Number((await qRetry<{ n: number }>(pool,
