@@ -45,6 +45,8 @@ vi.mock('../../pages/market/market-api', () => ({
   fetchMyOrders: vi.fn(),
   fetchOrderBook: vi.fn(async () => []),
   fetchMarketTrades: vi.fn(async () => []),
+  // 2026-10-21 combobox 化：页面挂载读公开币种表 ⇒ 替身与真模块导出面保持对齐
+  fetchCurrencies: vi.fn(async () => []),
   placeOrder: vi.fn(),
   cancelOrder: vi.fn(),
   cancelAllOrders: vi.fn(),

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
@@ -10,6 +10,7 @@ import {
   cancelAllOrders,
   cancelOrder,
   createOrderPlaceTracker,
+  fetchCurrencies,
   fetchMarketTrades,
   fetchMyOrders,
   fetchOrderBook,
@@ -50,12 +51,37 @@ const MARKET_LIMIT = 50
 const MARKET_ORDER_STATUS_KEYS = ['open', 'partial', 'filled', 'cancelled']
 const MARKET_ORDER_SIDE_KEYS = ['buy', 'sell']
 
+// 「标的币种」combobox（Kevin 2026-10-21）：选项行文案 = `symbol · name · #cid`
+//   （symbol 为展示符号、可为空；空段跳过，`#cid` 恒在场）。
+const baseOptionText = (row) => {
+  const parts = [row?.symbol, row?.name].map((v) => String(v ?? '').trim()).filter(Boolean)
+  parts.push(`#${row?.cid}`)
+  return parts.join(' · ')
+}
+
+// 匹配口径：输入词对 `symbol` / `name` / cid 数字**不区分大小写包含**（`bttc` 命中 name=BTTC；
+//   纯数字同时命中 cid 数字串，如 `39` 命中 #399）。
+const normNeedle = (v) => String(v ?? '').trim().toLowerCase()
+
 const MarketPage = () => {
   const { t } = useTranslation()
   const location = useLocation()
   const { isAuthenticated, user } = useAuth()
+  const [searchParams, setSearchParams] = useSearchParams()
 
-  const [base, setBase] = useState('')
+  // 「标的币种」combobox（Kevin 2026-10-21）：
+  //   · `base` 仍是**已提交**的币种编号（挂单/盘口的唯一真源，语义与旧手填一致）；
+  //   · 初值取 URL `?base=`（合法正整数才采纳；`?base=N` 直进 ⇒ 回显对应 symbol，无对应 ⇒ 回显数字）；
+  //   · 面板内输入只进 `query`（过滤用），**提交动作** = 点选 / Enter（选项）或纯数字失焦；
+  //   · Esc / 失焦关闭面板且**零请求**（关面板纯本地态，不发任何网络调用）。
+  const [base, setBase] = useState(() => {
+    const raw = String(searchParams.get('base') ?? '').trim()
+    return /^\d+$/.test(raw) && Number(raw) > 0 ? String(Number(raw)) : ''
+  })
+  const [currencies, setCurrencies] = useState([]) // `GET /api/currencies` 选项源（公开面，挂载取一次）
+  const [panelOpen, setPanelOpen] = useState(false)
+  const [query, setQuery] = useState('')
+  const [activeIdx, setActiveIdx] = useState(-1)
   const [form, setForm] = useState({ side: 'buy', price: '', amount: '' })
   const [book, setBook] = useState({ phase: 'idle', rows: [], message: '' })
   const [trades, setTrades] = useState({ phase: 'idle', rows: [], message: '' })
@@ -147,6 +173,104 @@ const MarketPage = () => {
   }, [isAuthenticated, user, t])
 
   useEffect(() => { loadLedger(null) }, [loadLedger])
+
+  // combobox 选项源：`GET /api/currencies`（公开面，未登录也 200）⇒ 挂载取一次。
+  //   失败 / 空列表 ⇒ 空选项（面板无可选项），**纯数字手填路径照旧可用**（不白屏、不加文案键）。
+  useEffect(() => {
+    let cancelled = false
+    fetchCurrencies(user)
+      .then((rows) => {
+        if (cancelled) return
+        setCurrencies(Array.isArray(rows) ? rows.filter((row) => row && row.cid !== undefined && row.cid !== null) : [])
+      })
+      .catch(() => { if (!cancelled) setCurrencies([]) })
+    return () => { cancelled = true }
+    // 选项源是公开静态面，挂载取一次即可（登录态变化不重取；`user` 只作透传）。
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // ---- combobox 派生态与提交动作 ---------------------------------------------
+  //   · 选项池 = listed 币**排除 cid 1**（§5.103：`$` 对自身 = 退化币对，不可作 base 选中）；
+  //   · 回显 = 已提交 base 对应行的 `symbol`（查**全量**表，cid 1 也能回显 `$`）；无对应 ⇒ 回显数字；
+  //   · 提交动作统一走 `commitBase` ⇒ `base` 状态 + URL `?base=`（replace，不刷历史栈）双写。
+  const optionPool = useMemo(
+    () => currencies.filter((row) => Number(row.cid) !== QUOTE_CID),
+    [currencies],
+  )
+  const needle = normNeedle(query)
+  const filtered = useMemo(() => {
+    if (!needle) return optionPool
+    return optionPool.filter((row) => (
+      normNeedle(row.symbol).includes(needle)
+      || normNeedle(row.name).includes(needle)
+      || String(row.cid).includes(needle)
+    ))
+  }, [optionPool, needle])
+  const selectedRow = useMemo(
+    () => currencies.find((row) => Number(row.cid) === baseCid),
+    [currencies, baseCid],
+  )
+  const baseEcho = base === '' ? '' : String((selectedRow && (selectedRow.symbol || selectedRow.name)) || base)
+
+  const closeBasePanel = useCallback(() => {
+    setPanelOpen(false)
+    setQuery('')
+    setActiveIdx(-1)
+  }, [])
+
+  const commitBase = useCallback((cid) => {
+    setBase(cid)
+    const next = new URLSearchParams(searchParams)
+    next.set('base', String(cid))
+    setSearchParams(next, { replace: true })
+  }, [searchParams, setSearchParams])
+
+  const selectBaseOption = useCallback((row) => {
+    commitBase(String(row.cid))
+    closeBasePanel()
+  }, [commitBase, closeBasePanel])
+
+  const onBaseFocus = () => {
+    // 面板打开时清显全文，便于改搜（关面板后由 `baseEcho` 恢复选中币 symbol）
+    setPanelOpen(true)
+    setQuery('')
+    setActiveIdx(-1)
+  }
+
+  const onBaseChange = (event) => {
+    const text = event.target.value
+    if (!panelOpen) setPanelOpen(true)
+    setQuery(text)
+  }
+
+  const onBaseBlur = () => {
+    const text = normNeedle(query)
+    closeBasePanel()
+    // 纯数字直输 ⇒ 既有行为：base = 该 cid（404/无效走现兜底）；非数字文本 = 放弃本次搜索（零请求）。
+    if (/^\d+$/.test(text)) {
+      const normalized = String(Number(text))
+      if (normalized !== base) commitBase(normalized)
+    }
+  }
+
+  const onBaseKeyDown = (event) => {
+    if (!panelOpen) return // 面板关闭时 Enter 走表单默认提交（既有行为）
+    if (event.key === 'ArrowDown') {
+      event.preventDefault()
+      setActiveIdx((i) => (filtered.length ? Math.min(i + 1, filtered.length - 1) : -1))
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault()
+      setActiveIdx((i) => (i <= 0 ? -1 : i - 1))
+    } else if (event.key === 'Enter') {
+      // 面板开着 ⇒ Enter 永不提交表单：有高亮选中高亮项，否则选第一项；零命中 ⇒ 不动作
+      event.preventDefault()
+      const idx = activeIdx >= 0 && filtered[activeIdx] ? activeIdx : (filtered.length ? 0 : -1)
+      if (idx >= 0) selectBaseOption(filtered[idx])
+    } else if (event.key === 'Escape') {
+      event.preventDefault()
+      closeBasePanel()
+    }
+  }
 
   const refresh = async () => {
     await Promise.all([loadMarket(), loadMine(), loadLedger(null)])
@@ -251,17 +375,57 @@ const MarketPage = () => {
                   <option value="sell">{t('market.sell')}</option>
                 </select>
               </label>
-              <label className="sf-mkt-field">
-                <span className="sf-mkt-label">{t('market.baseCid')}</span>
-                <input
-                  className="sf-mkt-input"
-                  data-sf-m="mkt-input-base"
-                  value={base}
-                  inputMode="numeric"
-                  onChange={(e) => setBase(e.target.value)}
-                  placeholder={t('market.baseNote')}
-                />
-              </label>
+              {/* 「标的币种」combobox（Kevin 2026-10-21）：可下拉选 / 可输入名称过滤命中（如 bttc ⇒ BTTC）。
+                  A11y：input role=combobox + aria-expanded/controls/activedescendant，
+                  面板 role=listbox、行 role=option（站内首例，无既有 combobox 体例可承）。
+                  结构说明：面板**不得**置于 <label> 内（label 内容模型只许 phrasing），
+                  故改用 `htmlFor` + `id` 显式关联；`.sf-mkt-base-anchor` 为定位锚。 */}
+              <div className="sf-mkt-field sf-mkt-field-base" data-sf-m="mkt-base-field">
+                <label className="sf-mkt-label" htmlFor="sf-mkt-base-input">{t('market.baseCid')}</label>
+                <div className="sf-mkt-base-anchor">
+                  <input
+                    id="sf-mkt-base-input"
+                    className="sf-mkt-input"
+                    data-sf-m="mkt-input-base"
+                    role="combobox"
+                    aria-expanded={panelOpen}
+                    aria-controls={panelOpen ? 'sf-mkt-base-listbox' : undefined}
+                    aria-activedescendant={panelOpen && activeIdx >= 0 && filtered[activeIdx] ? `sf-mkt-base-opt-${activeIdx}` : undefined}
+                    aria-autocomplete="list"
+                    autoComplete="off"
+                    value={panelOpen ? query : baseEcho}
+                    placeholder={t('market.baseNote')}
+                    onFocus={onBaseFocus}
+                    onChange={onBaseChange}
+                    onBlur={onBaseBlur}
+                    onKeyDown={onBaseKeyDown}
+                  />
+                  {panelOpen && (
+                    <div
+                      className="sf-mkt-base-panel"
+                      data-sf-m="mkt-base-listbox"
+                      role="listbox"
+                      id="sf-mkt-base-listbox"
+                      aria-label={t('market.baseCid')}
+                    >
+                      {filtered.map((row, i) => (
+                        <div
+                          key={String(row.cid)}
+                          id={`sf-mkt-base-opt-${i}`}
+                          role="option"
+                          aria-selected={i === activeIdx}
+                          className={`sf-mkt-base-opt${i === activeIdx ? ' sf-mkt-base-opt-active' : ''}`}
+                          data-sf-m="mkt-base-option"
+                          data-sf-cid={String(row.cid)}
+                          onMouseDown={(e) => { e.preventDefault(); selectBaseOption(row) }}
+                        >
+                          {baseOptionText(row)}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
               <label className="sf-mkt-field">
                 <span className="sf-mkt-label">{t('market.price')}</span>
                 <input

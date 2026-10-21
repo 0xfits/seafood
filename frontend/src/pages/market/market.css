@@ -264,6 +264,60 @@
      · `.sf-layout` —— 主列与侧栏的**共同祖先**；侧栏是 `.sf-layout > .sf-layout-side > .sf-mkt-panel`，
        **不在 `.sf-mkt` 子树内** ⇒ 只挂主列根时侧栏里的 `min-height: var(--sf-k-ctl-h)` 取空值
        ⇒ 回退 `auto`（实测 78×37.5，「全体撕单」）。 */
+/* 「标的币种」combobox（Kevin 2026-10-21）：面板锚定输入框（absolute）、z 高于表单其余字段、可滚动。
+   铁律同本文件头：颜色 / 描边 / 圆角 / 高度全部取既有 token 与本文件结构常量 —— 零新色值、零新断点、
+   无 [data-theme] 分支。高亮行 = 按钮 A 系 accent（--sf-btna-bg/--sf-btna-fg，日/夜同值）；
+   行高走 --sf-k-ctl-h（桌面 34px；≤767 档由上方既有覆盖变 44px ⇒ 触控 ≥44 自动生效）。 */
+.sf-mkt-field-base {
+  position: relative;
+}
+
+.sf-mkt-base-anchor {
+  position: relative;
+}
+
+.sf-mkt-base-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 30; /* 高于表单内后续字段（页面内无其它 z 层，本地明确层即可） */
+  margin: 2px 0 0;
+  padding: 4px;
+  max-height: 240px;
+  overflow-y: auto;
+  background: var(--sf-panel-bg);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none;
+}
+
+.sf-mkt-base-opt {
+  display: flex;
+  align-items: center;
+  min-height: var(--sf-k-ctl-h);
+  padding: 4px 8px;
+  border-radius: var(--sf-st-radius-btna);
+  font-size: 13px;
+  color: var(--sf-jrow-fg);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sf-mkt-base-opt:hover {
+  background: var(--sf-jobcard-bg);
+}
+
+/* 高亮行：复合选择器 (0,2,0) 压过同具体性的 :hover（两规则都在，hover 命中高亮行仍显 accent）。 */
+.sf-mkt-base-opt.sf-mkt-base-opt-active {
+  background: var(--sf-btna-bg);
+  color: var(--sf-btna-fg);
+}
+
 @media (max-width: 767px) {
   .sf-mkt,
   .sf-layout {

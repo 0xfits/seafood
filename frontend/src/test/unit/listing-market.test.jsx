@@ -275,7 +275,9 @@ describe('交易所线 · 接线契约', () => {
     await waitFor(() => expect(screen.getByText('market.mineEmpty')).toBeTruthy())
 
     const input = container.querySelector('[data-sf-m="mkt-input-base"]')
+    // 2026-10-21 combobox 化（Kevin）：输入只进过滤 query，**失焦提交**（纯数字 ⇒ base = 该 cid）
     fireEvent.change(input, { target: { value: '1' } })
+    fireEvent.blur(input)
 
     await waitFor(() => expect(screen.getAllByText('market.pairDegenerate').length).toBeGreaterThan(0))
     expect(callsTo('/api/market/').length).toBe(0)
@@ -286,7 +288,9 @@ describe('交易所线 · 接线契约', () => {
   it('§5.103 ②：真无挂单（base_cid=7、回包 = 空数组）⇒ 请求确实发出，空态 = `market.bookEmpty`（与退化区分）', async () => {
     const { container } = renderPage(<MarketPage />, '/shard')
     const input = container.querySelector('[data-sf-m="mkt-input-base"]')
+    // 2026-10-21 combobox 化：change 只进 query ⇒ 补 blur 提交（纯数字直输保持旧行为）
     fireEvent.change(input, { target: { value: '7' } })
+    fireEvent.blur(input)
 
     await waitFor(() => expect(callsTo('/api/market/7/orderbook').length).toBe(1))
     await waitFor(() => expect(screen.getByText('market.bookEmpty')).toBeTruthy())

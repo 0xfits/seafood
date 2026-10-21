@@ -57,6 +57,14 @@ export const fetchOrderBook = (baseCid, user) => getJson(`/api/market/${baseCid}
 export const fetchMarketTrades = (baseCid, user, limit = 50) =>
   getJson(`/api/market/${baseCid}/trades?limit=${limit}`, user)
 
+/**
+ * 公开币种表（`GET /api/currencies`，**公开只读** · 未登录也 200）。仅 `status='listed'`，
+ * 行键集冻结 = 恰三键 `cid` / `symbol` / `name`，按 `cid` 升序。
+ * 本线用途（Kevin 2026-10-21）= 挂单表单「标的币种」combobox 的**选项源** + `?base=` 回显 symbol。
+ * ★ 与 item/job 线同体例：**各线在自己的 api 层包装、不跨线 import**（选项文案由页面层拼装）。
+ */
+export const fetchCurrencies = (user) => getJson('/api/currencies', user)
+
 // ---- 写面 -------------------------------------------------------------------
 /**
  * M1 挂单。`side` ∈ {buy, sell}；买单冻结 `amount × price` 的 `$`（cid=1），卖单冻结 base 币 `amount`。
