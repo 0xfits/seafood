@@ -168,9 +168,13 @@ const base: RefundActorInput = { actorUid: 500, sellerUid: 7, buyerUid: 8, canAc
   //       `account JOIN currency`、余额 > 0 才出、cid 升序、`balance` 走 `::text` 字符串；零新错误码 /
   //       零新 kind / 私有缓存头 `private, no-store` + `Vary: Authorization`；
   //       逐 verb 分解 get 54→55、post 66、patch 4、delete 3 —— 方法只用 GET）。
-  //     净 +21 ⇒ 68 + 21 = 89；A5 再 +10 ⇒ 99；sf14 再 +5 ⇒ 104；6714401 再 +1 ⇒ 105；FIX-CRON GET 再 +1 ⇒ 106；ops-recon GET 再 +1 ⇒ 107；item-cid-select GET 再 +1 ⇒ 108；media-upload 两口再 +2 ⇒ 110；admin-edit 编辑预填 GET 再 +1 ⇒ 111；project-domain 七口再 +7 ⇒ 118；campaign-domain 九口再 +9 ⇒ 127；user-balances 读口 GET 再 +1 ⇒ 128。
+  //     → 129 home-campaign-tasks（GET /api/home/campaign-tasks +1；首页「热门任务」卡的公开读口 ——
+  //       active campaign 下非 draft task（project 非 ended）、`joined_count` = 子任务凭证去重人数、
+  //       description ≤120、time_created DESC LIMIT 20、空 ⇒ 200 []、`setPublicCache` 30s 同族；
+  //       逐 verb 分解 get 55→56、post 66、patch 4、delete 3 —— 方法只用 GET）。
+  //     净 +21 ⇒ 68 + 21 = 89；A5 再 +10 ⇒ 99；sf14 再 +5 ⇒ 104；6714401 再 +1 ⇒ 105；FIX-CRON GET 再 +1 ⇒ 106；ops-recon GET 再 +1 ⇒ 107；item-cid-select GET 再 +1 ⇒ 108；media-upload 两口再 +2 ⇒ 110；admin-edit 编辑预填 GET 再 +1 ⇒ 111；project-domain 七口再 +7 ⇒ 118；campaign-domain 九口再 +9 ⇒ 127；user-balances 读口 GET 再 +1 ⇒ 128；home-campaign-tasks GET 再 +1 ⇒ 129。
   //     `da65f13`/`9bd1df0` 无路由增改（S6b/S16）。
-  ck.t('AC10-2', '注册点 = 128（自 S10 冻结面 68 前推 +21 · A5 收口 +10 · sf14 +5 · 6714401 telegram/bind/confirm +1 · FIX-CRON translate/backfill GET +1 · ops-recon GET +1 · item-cid-select GET /api/currencies +1 · media-upload 两口（route v2.39 §48）+2 · admin-edit `GET /api/listing/:listingId/edit`（route §49.15）+1 · project-domain 七口（route §49.19）+7 = 118 · campaign-domain 九口（route §49.18）再 +9 = 127 · user-balances `GET /api/user/balances` +1 = 128；逐 verb = get 55 / post 66 / patch 4 / delete 3 / put 0；逐 rev 出处见上方注释）', regs === 128, `registration_points=${regs}`);
+  ck.t('AC10-2', '注册点 = 129（自 S10 冻结面 68 前推 +21 · A5 收口 +10 · sf14 +5 · 6714401 telegram/bind/confirm +1 · FIX-CRON translate/backfill GET +1 · ops-recon GET +1 · item-cid-select GET /api/currencies +1 · media-upload 两口（route v2.39 §48）+2 · admin-edit `GET /api/listing/:listingId/edit`（route §49.15）+1 · project-domain 七口（route §49.19）+7 = 118 · campaign-domain 九口（route §49.18）再 +9 = 127 · user-balances `GET /api/user/balances` +1 = 128 · home-campaign-tasks `GET /api/home/campaign-tasks` +1 = 129；逐 verb = get 56 / post 66 / patch 4 / delete 3 / put 0；逐 rev 出处见上方注释）', regs === 129, `registration_points=${regs}`);
   ck.t('AC10-3', '退款路由仍**复用同路径**（无 `/api/admin/listing-orders`）', !/\/api\/admin\/listing-orders/.test(INDEX_TS) && /app\.post\('\/api\/listing-orders\/:orderId\/refund'/.test(INDEX_TS), 'ok');
   ck.t('AC10-4', '对外出口 = 既有 `sendSuccess` + `sendVerbError`（R107；无新增顶层响应键）',
     INDEX_TS.indexOf("sendSuccess(res, result.view, result.replay ? 'Listing order refunded") !== -1 &&

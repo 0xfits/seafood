@@ -118,6 +118,7 @@ import {
   isProjectReadRef,
   isProjectRef,
   leaveProjectVerb,
+  listHomeCampaignTasks,
   listProjects,
   patchProjectVerb,
   recordUserActivityHour,
@@ -4120,6 +4121,26 @@ app.get('/api/project/:ref', async (req, res) => {
     return sendSuccess(res, view, 'Project detail (public)');
   } catch (error) {
     return sendInfraMapped(res, 'project.get', error);
+  }
+});
+
+// ============================================================================
+// ★ 首页「热门任务」公开读口（0069 · 2026-10-21 派单 · 后端小步单）
+// ----------------------------------------------------------------------------
+// GET /api/home/campaign-tasks —— 首页热门任务卡的数据面（公开 · 零门禁）：
+//   · 行集 = active campaign 下非 draft task（project 非 ended），按 time_created DESC 取 20；
+//   · 空 ⇒ 200 []（前端按「无真数据 ⇒ mock 补足」降级，版块不塌）；
+//   · 公共缓存 = 同族 `setPublicCache`（30s + stale-while-revalidate 300s）；
+//   · 基础设施异常 ⇒ `sendInfraMapped`（503 + 机读 reason），**绝不**硬编码 500。
+// 注册点 128 ⇒ 129（get 55 ⇒ 56）。
+// ============================================================================
+app.get('/api/home/campaign-tasks', async (_req, res) => {
+  try {
+    const rows = await listHomeCampaignTasks();
+    setPublicCache(res);
+    return sendSuccess(res, rows, 'Home campaign tasks (public)');
+  } catch (error) {
+    return sendInfraMapped(res, 'home.campaign_tasks', error);
   }
 });
 

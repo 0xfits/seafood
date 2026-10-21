@@ -1,0 +1,186 @@
+{
+  "run": "20261021T100912Zoe2h",
+  "name": "p69-avatar-home-gate",
+  "at": "2026-10-21T10:09:29.996Z",
+  "mode": "pre-apply",
+  "committed_before": {
+    "projects": 10,
+    "campaigns": 0,
+    "tasks": 0,
+    "avatar_nonnull": -1,
+    "constraint": -1
+  },
+  "readings": {
+    "mode": "pre-apply",
+    "fixture_users": [
+      909901,
+      909902,
+      909903
+    ],
+    "fixture": {
+      "project_id": "88",
+      "campaign_id": "29",
+      "task_id": "22",
+      "proofs": 3
+    },
+    "committed_touch": "none (single rollback tx)"
+  },
+  "checks": [
+    {
+      "id": "A1",
+      "what": "0069 形状：`ADD COLUMN IF NOT EXISTS avatar_url text NULL` · 列注释 · 具名 CHECK `project_avatar_url_format_check`（body = `avatar_url IS NULL OR avatar_url ~ '^/api/media/[0-9]{1,12}$'`· pg_constraint 守卫）· 无 BEGIN/COMMIT · 注释零 dollar-dollar",
+      "pass": true,
+      "reading": "{\"commentDollar\":0,\"fmt\":\"CHECK (avatar_url IS NULL OR avatar_url ~ '^/api/media/[0-9]{1,12}$')\"}"
+    },
+    {
+      "id": "A2",
+      "what": "0069 尾部自检四臂在场：③ 列 nullable text · ④ 约束体带正则（防同名异体）· ⑤ 数据面越线 0 行 · ⑥ 真实行试写外链必被拒（23514）且「被接受 ⇒ 自检主动 RAISE」",
+      "pass": true,
+      "reading": "tail tokens ok"
+    },
+    {
+      "id": "A3",
+      "what": "服务层：`PROJECT_AVATAR_URL_PATTERN.source` = `^/api/media/[0-9]{1,12}$`（与 DB 约束同口径）· PATCH 键集含 `avatar_url` · CREATE 键集**不含**（create 面拒收）· `normalizeProjectRow` 加性 `avatar_url: strOrNull(...)`（存量 NULL ⇒ null，不造 \"\")",
+      "pass": true,
+      "reading": "{\"pattern\":\"^\\\\/api\\\\/media\\\\/[0-9]{1,12}$\",\"create_has\":false,\"patch_has\":true,\"patch_keys\":[\"'title'\",\"'slug'\",\"'description'\",\"'headcount'\",\"'recruit_min_account_days'\",\"'wage_batt_per_claim'\",\"'wage_cid'\",\"'wage_currency_amount'\",\"'wage_interval_hours'\",\"'status'\",\"'avatar_url'\"]}"
+    },
+    {
+      "id": "A4",
+      "what": "PATCH 写口显式分支（NULL 有语义 ⇒ 不用 COALESCE）：`const avatarNext = ...hasOwnProperty.call(body, 'avatar_url')` · UPDATE 里 `avatar_url = $12::text` 直赋（未提供额外键时静态保留库内现值）· 解析侧 `mode === 'patch' && has('avatar_url')` · 非法 ⇒ 400 `AVATAR_URL_INVALID`（借码 + reason，零新错误码）",
+      "pass": true,
+      "reading": "explicit branch ok"
+    },
+    {
+      "id": "A5",
+      "what": "★路由面：注册点 **129**（get 56 / post 66 / patch 4 / delete 3）· 读口 `GET /api/home/campaign-tasks` 公开（块内零 `requireActor`）· `listHomeCampaignTasks()` → `setPublicCache(res)` → `sendSuccess` · 异常走 `sendInfraMapped(res, 'home.campaign_tasks')`（绝不硬编码 500）",
+      "pass": true,
+      "reading": "{\"regs\":129,\"get\":56,\"post\":66,\"patch\":4,\"delete\":3}"
+    },
+    {
+      "id": "A6",
+      "what": "★PATCH 路由准入一字不动：`app.patch('/api/project/:projectId')` 仍 `requireAdmin(req, res, 'manage_tasks')`（头像不是新的权限面）",
+      "pass": true,
+      "reading": "{\"has_manage_tasks\":true}"
+    },
+    {
+      "id": "A7",
+      "what": "★读口 SQL：`(to_jsonb(pr) ->> 'avatar_url')` 取值（pre-apply 窗口不报 42703）且**无裸列引用** `pr.avatar_url` · `count(DISTINCT p.uid)` 去重人数 · 三处过滤（`c.status = 'active'` / `t.status <> 'draft'` / `pr.status <> 'ended'`）· `ORDER BY t.time_created DESC, t.task_id DESC LIMIT 20`",
+      "pass": true,
+      "reading": "{\"to_jsonb\":true,\"bare_col\":false,\"limit20\":true}"
+    },
+    {
+      "id": "A8",
+      "what": "读出口径与形状：`HOME_TASK_DESCRIPTION_MAX = 120` 且在 normalize 里 `slice(0, HOME_TASK_DESCRIPTION_MAX)`（裁剪只在服务层，前端拿到的即展示值）· `joined_count` 走 `int()`（永不 null）· 出参 bigint 皆 `::text`（task_id/campaign_id/project_id/reward_*）· `listHomeCampaignTasks` 空行集 ⇒ `[]`",
+      "pass": true,
+      "reading": "shape ok"
+    },
+    {
+      "id": "A9",
+      "what": "★头像解析（借码 400 + details.reason，零新错误码）：合法 4 臂（含 12 位上限与前导零）逐字回显 · 非法 6 臂（外链 / data: / 空串 / 非数字 / 13 位 / javascript:）⇒ 400 `LEDGER_AMOUNT_INVALID` + reason=`AVATAR_URL_INVALID` · `null` ⇒ 键在场值 null（清空）· 未提供 ⇒ 键**缺席**（保留库内现值）· create 面 ⇒ 400 `NOT_SUPPORTED`（field=avatar_url）",
+      "pass": true,
+      "reading": "{\"ok\":[{\"input\":\"/api/media/1\",\"got\":\"/api/media/1\",\"ok\":true},{\"input\":\"/api/media/900001\",\"got\":\"/api/media/900001\",\"ok\":true},{\"input\":\"/api/media/123456789012\",\"got\":\"/api/media/123456789012\",\"ok\":true},{\"input\":\"/api/media/000123\",\"got\":\"/api/media/000123\",\"ok\":true}],\"bad\":[{\"input\":\"https://evil.example.com/a.png\",\"ok\":true,\"status\":400,\"reason\":\"AVATAR_URL_INVALID\",\"code\":\"LEDGER_AMOUNT_INVALID\"},{\"input\":\"data:image/png;base64,iVBORw0KGgo=\",\"ok\":true,\"status\":400,\"reason\":\"AVATAR_URL_INVALID\",\"code\":\"LEDGER_AMOUNT_INVALID\"},{\"input\":\"\",\"ok\":true,\"status\":400,\"reason\":\"AVATAR_URL_INVALID\",\"code\":\"LEDGER_AMOUNT_INVALID\"},{\"input\":\"/api/media/abc\",\"ok\":true,\"status\":400,\"reason\":\"AVATAR_URL_INVALID\",\"code\":\"LEDGER_AMOUNT_INVALID\"},{\"input\":\"/api/media/1234567890123\",\"ok\":true,\"status\":400,\"reason\":\"AVATAR_URL_INVALID\",\"code\":\"LEDGER_AMOUNT_INVALID\"},{\"input\":\"javascript:alert(1)\",\"ok\":true,\"status\":400,\"reason\":\"AVATAR_URL_INVALID\",\"code\":\"LEDGER_AMOUNT_INVALID\"}],\"null_arm\":true,\"absent_arm\":true,\"create\":[400,\"NOT_SUPPORTED\"]}"
+    },
+    {
+      "id": "B1",
+      "what": "[pre-apply] 0069 干跑全绿：`avatar_url` = nullable text（无默认）· 具名 CHECK 在场且约束体带 `[0-9]{1,12}` · 列注释在场 · 尾部自检未 RAISE · 版本行未写（0→0）",
+      "pass": true,
+      "reading": "{\"version\":[0,0],\"col\":{\"is_nullable\":\"YES\",\"data_type\":\"text\",\"col_default\":null},\"con\":\"CHECK (((avatar_url IS NULL) OR (avatar_url ~ '^/api/media/[0-9]{1,12}$'::text)))\",\"con_count\":1,\"comment\":\"项目头像（0069 加性）：站内媒体相对路径 ^/api/media/[0-9]{1,12}$；NULL = 未设头像（前端按项目名首字渐变兜底）。\"}"
+    },
+    {
+      "id": "B2",
+      "what": "0069 幂等：重跑头段 + 尾部 DO ⇒ 无异常、列仍恰 1、约束仍恰 1（不重复挂 / 不报 42710）· 数据面越线 0 行（存量全 NULL ⇒ 无回填压力）",
+      "pass": true,
+      "reading": "{\"con\":1,\"col\":1,\"viol\":{\"bad\":0,\"nonnull\":0,\"total\":11}}"
+    },
+    {
+      "id": "S1",
+      "what": "★PATCH 设头像：200 · view.avatar_url 逐字回显 `/api/media/900001` · 库内列真写入",
+      "pass": true,
+      "reading": "{\"status\":200,\"view\":\"/api/media/900001\"}"
+    },
+    {
+      "id": "S2",
+      "what": "★读口有数据臂：行在场 · `project_avatar_url` = /api/media/900001 · `joined_count` = 2（**3 行凭证 / 2 个去重人** ⇒ DISTINCT 承重，非行数）· `description` 裁到 120（原 151 字）· 16 键齐（加性，无缺无多）· 首行 = 最新任务（time_created DESC）· 行数 ≤ 20",
+      "pass": true,
+      "reading": "{\"rows\":1,\"first\":\"22\",\"hit\":{\"task_id\":\"22\",\"title\":\"p69 task 20261021T100912Zoe2h\",\"description\":\"P69 门夹具长描述：甲乙丙丁戊己庚辛壬癸甲乙丙丁戊己庚辛壬癸甲乙丙丁戊己庚辛壬癸甲乙丙丁戊己庚辛壬癸甲乙丙丁戊己庚辛壬癸甲乙丙丁戊己庚辛壬癸甲乙丙丁戊己庚辛壬癸甲乙丙丁戊己庚辛壬癸甲乙丙丁戊己庚辛壬癸甲乙丙丁戊己庚辛壬癸甲乙丙丁戊己庚辛壬\",\"status\":\"active\",\"joined_count\":2,\"reward_amount_primary\":\"10\",\"reward_cid_secondary\":null,\"reward_amount_secondary\":null,\"time_start\":null,\"time_end\":null,\"campaign_id\":\"29\",\"campaign_title\":\"p69 campaign 20261021T100912Zoe2h\",\"project_id\":\"88\",\"project_title\":\"p69 gate project 20261021T100912Zoe2h\",\"project_slug\":\"p69ard4u20\",\"project_avatar_url\":\"/api/media/900001\"},\"desc_len\":120,\"proofs\":3,\"keys_ok\":true}"
+    },
+    {
+      "id": "S3",
+      "what": "★PATCH 清空：body `{avatar_url: null}` ⇒ 200 · view.avatar_url = null · 读口同行 `project_avatar_url` = null（NULL = 未设头像，前端按项目名首字兜底；不造空串）",
+      "pass": true,
+      "reading": "{\"status\":200,\"view\":null,\"read\":\"missing\"}"
+    },
+    {
+      "id": "S4",
+      "what": "★PATCH 非法 6 臂（外链 / data: / 空串 / 非数字 / 13 位 / javascript:）⇒ 全部 400 `AVATAR_URL_INVALID` · 库内值不动（仍 /api/media/900001）⇒ 服务层先拒，零脏写",
+      "pass": true,
+      "reading": "[{\"input\":\"https://evil.example.com/a.png\",\"status\":400,\"reason\":\"AVATAR_URL_INVALID\",\"code\":\"LEDGER_AMOUNT_INVALID\",\"db_after\":\"/api/media/900001\"},{\"input\":\"data:image/png;base64,iVBORw0KGgo=\",\"status\":400,\"reason\":\"AVATAR_URL_INVALID\",\"code\":\"LEDGER_AMOUNT_INVALID\",\"db_after\":\"/api/media/900001\"},{\"input\":\"\",\"status\":400,\"reason\":\"AVATAR_URL_INVALID\",\"code\":\"LEDGER_AMOUNT_INVALID\",\"db_after\":\"/api/media/900001\"},{\"input\":\"/api/media/abc\",\"status\":400,\"reason\":\"AVATAR_URL_INVALID\",\"code\":\"LEDGER_AMOUNT_INVALID\",\"db_after\":\"/api/media/900001\"},{\"input\":\"/api/media/1234567890123\",\"status\":400,\"reason\":\"AVATAR_URL_INVALID\",\"code\":\"LEDGER_AMOUNT_INVALID\",\"db_after\":\"/api/media/900001\"},{\"input\":\"javascript:alert(1)\",\"status\":400,\"reason\":\"AVATAR_URL_INVALID\",\"code\":\"LEDGER_AMOUNT_INVALID\",\"db_after\":\"/api/media/900001\"}]"
+    },
+    {
+      "id": "S5",
+      "what": "★create 面不收 `avatar_url`（闭集 = 建项九键）：带此键 ⇒ 400 `NOT_SUPPORTED`（details.field = avatar_url · 未知键清单在场）· 零建项、零扣费（早于任何写）",
+      "pass": true,
+      "reading": "{\"status\":400,\"reason\":\"NOT_SUPPORTED\",\"details\":{\"reason\":\"NOT_SUPPORTED\",\"field\":\"avatar_url\",\"unknown_keys\":[\"avatar_url\"],\"legal_keys\":[\"title\",\"slug\",\"description\",\"headcount\",\"recruit_min_account_days\",\"wage_batt_per_claim\",\"wage_cid\",\"wage_currency_amount\",\"wage_interval_hours\",\"create_key\"]}}"
+    },
+    {
+      "id": "S6",
+      "what": "★读口空集臂：无 active 活动 ⇒ `listHomeCampaignTasks` 返回空数组（`[]` ⇒ 路由 200 + `sendSuccess([])`，前端按「无真数据 ⇒ mock 补足」降级；绝不 404/500）",
+      "pass": true,
+      "reading": "{\"arm\":{\"len\":0,\"isArray\":true},\"sqlstate\":null,\"msg\":\"\"}"
+    },
+    {
+      "id": "S7",
+      "what": "★读口退化臂（= 代码先于 DDL 上线的窗口期）：`DROP COLUMN avatar_url` 后同一 SQL ⇒ **不抛 42703** · 行集照常在场 · `project_avatar_url` = null（`to_jsonb` 键缺席归 NULL）⇒ 读口恒 200，退化不 500",
+      "pass": true,
+      "reading": "{\"arm\":{\"len\":1,\"hasHit\":true,\"avatar\":null},\"sqlstate\":null,\"msg\":\"\"}"
+    },
+    {
+      "id": "N1",
+      "what": "★负控（正控面）约束承重：绕过服务层直写外链 ⇒ **23514**（`project_avatar_url_format_check` 当场拒）· 直写 12 位合法值 ⇒ 通过 ⇒ 约束不是摆设",
+      "pass": true,
+      "reading": "{\"illegal\":[\"23514\",\"new row for relation \\\"project\\\" violates check constraint \\\"project_avatar_url_format_check\\\"\"],\"legal\":null}"
+    },
+    {
+      "id": "N2",
+      "what": "★负控① 去 CHECK ⇒ 非法 url 可入 + 尾 DO RAISE：DROP `project_avatar_url_format_check` 后外链直写**成功**（越线行 0→1，CHECK 才是承重件）· 同态再跑 0069 尾 DO ⇒ **P0001**（自检 FAILED，缺约束被抓住）⇒ 「删约束 / 删约束守卫」必红",
+      "pass": true,
+      "reading": "{\"before\":0,\"after\":1,\"tailSql\":\"P0001\",\"tailMsg\":\"0069 self-check FAILED: project_avatar_url_format_check 缺正则体，实际=\",\"sqlstate\":null}"
+    },
+    {
+      "id": "N3",
+      "what": "★负控② 关停项目不上首页：项目置 `ended`（活动/任务仍 active）⇒ 该任务从读口消失（`pr.status <> 'ended'` 承重；只删这一支 ⇒ 本臂必红）",
+      "pass": true,
+      "reading": "{\"arm\":{\"len\":0,\"hit\":false},\"sqlstate\":null}"
+    },
+    {
+      "id": "N4",
+      "what": "★负控③ draft 任务不上首页：任务置 `draft`（活动仍 active）⇒ 消失（`t.status <> 'draft'` 承重；删这一支 ⇒ 本臂必红）",
+      "pass": true,
+      "reading": "{\"arm\":{\"len\":0,\"hit\":false},\"sqlstate\":null}"
+    },
+    {
+      "id": "N5",
+      "what": "★负控④ 非 active 活动不上首页：活动回落 `draft`（任务仍 active）⇒ 消失（`c.status = 'active'` 承重；删这一支 ⇒ 本臂必红）",
+      "pass": true,
+      "reading": "{\"arm\":{\"len\":0,\"hit\":false},\"sqlstate\":null}"
+    },
+    {
+      "id": "Z1",
+      "what": "[pre-apply] 零 apply / 零残留：`schema_migration` 0069 行 = 0（未 apply 态，本门不写版本行）· project 10 / campaign 0 / task 0 行数不变",
+      "pass": true,
+      "reading": "{\"mode\":\"pre-apply\",\"version_0069\":0,\"projects\":[10,10],\"campaigns\":[0,0],\"tasks\":[0,0]}"
+    },
+    {
+      "id": "Z2",
+      "what": "[pre-apply] 未 apply 态：本门未加列、未挂约束（committed 面无 avatar_url 列）",
+      "pass": true,
+      "reading": "{\"avatar_nonnull\":[-1,-1],\"constraint\":[-1,-1]}"
+    }
+  ],
+  "summary": {
+    "total": 25,
+    "passed": 25,
+    "failed": 0,
+    "red": []
+  }
+}

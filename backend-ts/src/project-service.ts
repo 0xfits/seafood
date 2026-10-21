@@ -106,6 +106,15 @@ const USD_CID = 1;
 //     'SLUG_INVALID'（格式/保留字/纯数字）| 'SLUG_TAKEN'（唯一冲突，预检 + 23505 按 constraint 名）。
 // ----------------------------------------------------------------------------
 export const PROJECT_SLUG_PATTERN = /^[a-z0-9][a-z0-9-]{0,31}$/;
+
+// ----------------------------------------------------------------------------
+// 项目头像（迁移 0069 · 2026-10-21 后端小步单）
+//   · 值域 = 站内媒体相对路径 `/api/media/<media_id>`（0 不合法，1–12 位数字）；
+//   · DB 侧同名口径：`project_avatar_url_format_check`（NULL ∨ 同正则）——服务层先拒，
+//     DB 兜底并发/直写；外链 / data: / 空串一律 400（reason='AVATAR_URL_INVALID'）；
+//   · null = 清空头像（唯一清空入口；'' 不是清空，是非法值）。
+// ----------------------------------------------------------------------------
+export const PROJECT_AVATAR_URL_PATTERN = /^\/api\/media\/[0-9]{1,12}$/;
 export const PROJECT_SLUG_RESERVED: readonly string[] = [
   'admin', 'api', 'arbitration-review', 'assets', 'audit-console',
   'campaign', 'campaigns', 'currency-review', 'dashboard', 'exchange',
@@ -140,6 +149,8 @@ export interface ProjectView {
   status: string;
   /** 页面地址名（0068 加性；用户填写，路由 R2 三形态之一） */
   slug: string;
+  /** 项目头像（0069 加性；`/api/media/<id>` 或 null = 未设） */
+  avatar_url: string | null;
   time_created: string | null;
   time_updated: string | null;
 }
@@ -219,6 +230,7 @@ export const normalizeProjectRow = (row: Row): ProjectView => ({
   wage_interval_hours: int(row.wage_interval_hours),
   status: str(row.status),
   slug: str(row.slug),
+  avatar_url: strOrNull(row.avatar_url),
   time_created: iso(row.time_created),
   time_updated: iso(row.time_updated),
 });
@@ -291,10 +303,11 @@ const CREATE_KEYS = [
   'wage_batt_per_claim', 'wage_cid', 'wage_currency_amount', 'wage_interval_hours',
   'create_key',
 ];
-/** PATCH 合法键 = 建项九键 + `status`（状态机）；`create_key` 不是可改字段 */
+/** PATCH 合法键 = 建项九键 + `status` + `avatar_url`（0069）；`create_key` 不是可改字段 */
 const PATCH_KEYS = [
   'title', 'slug', 'description', 'headcount', 'recruit_min_account_days',
   'wage_batt_per_claim', 'wage_cid', 'wage_currency_amount', 'wage_interval_hours', 'status',
+  'avatar_url',
 ];
 
 export interface ProjectPayload {
@@ -307,6 +320,8 @@ export interface ProjectPayload {
   wage_cid?: string | null;
   wage_currency_amount?: string | null;
   wage_interval_hours?: number;
+  /** 0069：站内媒体路径或 null（清空）；create 不收此键（未知键 ⇒ 400 NOT_SUPPORTED） */
+  avatar_url?: string | null;
 }
 
 const POSITIVE_INT_TEXT = /^\d+$/;
@@ -467,6 +482,23 @@ export const parseProjectPayload = (
     out.wage_currency_amount = null;
   }
 
+  // 0069 头像：仅 PATCH 可写（create 面不收 —— 未知键 ⇒ 上方 NOT_SUPPORTED 已拦）。
+  // null = 清空；其余必须是 `/api/media/<1-12 位数字>` 字符串（空串 / 外链 / data: 一律 400）。
+  if (mode === 'patch' && has('avatar_url')) {
+    if (input.avatar_url === null) {
+      out.avatar_url = null;
+    } else if (typeof input.avatar_url === 'string' && PROJECT_AVATAR_URL_PATTERN.test(input.avatar_url)) {
+      out.avatar_url = input.avatar_url;
+    } else {
+      return {
+        err: badRequest('AVATAR_URL_INVALID', {
+          field: 'avatar_url',
+          expected: '^/api/media/[0-9]{1,12}$ or null',
+        }),
+      };
+    }
+  }
+
   return { payload: out };
 };
 
@@ -610,6 +642,95 @@ export const getProjectDetailByRef = async (
       && opts.viewerUid! > 0 && String(opts.viewerUid) === project.owner_uid);
   const campaigns = await listCampaignsByProject(project.project_id, { includeDraft }, ex);
   return { ...project, campaigns };
+};
+
+// ============================================================================
+// 首页「热门任务」公开读口（0069 · 2026-10-21 派单）
+// ----------------------------------------------------------------------------
+// `GET /api/home/campaign-tasks` 的服务层真源（路由 = 公开 · setPublicCache 30s）：
+//   · 行集 = **active campaign**（`campaign.status = 'active'`）下 **非 draft** task，
+//     且所属 project **非 ended**（`project.status <> 'ended'`）—— 关停项目的任务不再上首页；
+//   · `joined_count` = 该 task 全部子任务的**去重参与人数**（`subtask_proof` 一人一子任务一行
+//     ⇒ `count(DISTINCT uid)`；无子任务 / 无人参与 ⇒ 0，绝不 null）；
+//   · `description` 裁剪 ≤120（卡片固定行高；裁剪只在此处，前端拿到的即展示值）；
+//   · 排序 = `task.time_created DESC, task_id DESC` LIMIT 20；空 ⇒ []（200，不是 404/500）。
+// 出参全部字符串/数字：bigint 走 `::text`（route #67），金额保持十进制字符串（防精度丢失）。
+// ============================================================================
+export interface HomeCampaignTaskRow {
+  task_id: string;
+  title: string;
+  description: string;
+  status: string;
+  joined_count: number;
+  reward_amount_primary: string;
+  reward_cid_secondary: string | null;
+  reward_amount_secondary: string | null;
+  time_start: string | null;
+  time_end: string | null;
+  campaign_id: string;
+  campaign_title: string;
+  project_id: string;
+  project_title: string;
+  project_slug: string;
+  project_avatar_url: string | null;
+}
+
+const HOME_TASK_DESCRIPTION_MAX = 120;
+
+const HOME_CAMPAIGN_TASKS_SQL = `
+  SELECT t.task_id::text            AS task_id,
+         t.title                    AS title,
+         t.description              AS description,
+         t.status                   AS status,
+         COALESCE((SELECT count(DISTINCT p.uid)::int
+                     FROM public.subtask AS s
+                     JOIN public.subtask_proof AS p ON p.subtask_id = s.subtask_id
+                    WHERE s.task_id = t.task_id), 0) AS joined_count,
+         t.reward_amount_primary::text    AS reward_amount_primary,
+         t.reward_cid_secondary::text     AS reward_cid_secondary,
+         t.reward_amount_secondary::text  AS reward_amount_secondary,
+         t.time_start               AS time_start,
+         t.time_end                 AS time_end,
+         c.campaign_id::text        AS campaign_id,
+         c.title                    AS campaign_title,
+         pr.project_id::text        AS project_id,
+         pr.title                   AS project_title,
+         pr.slug                    AS project_slug,
+         -- 0069 列以 to_jsonb 取值：迁移未 apply 的窗口期（代码先于 DDL 上线）该键缺席 ⇒ NULL，
+         -- 语句本身不报 42703 ⇒ 读口恒 200（退化不 500）；apply 后同语句读到真实列。
+         (to_jsonb(pr) ->> 'avatar_url') AS project_avatar_url
+    FROM public.task AS t
+    JOIN public.campaign AS c  ON c.campaign_id = t.campaign_id
+    JOIN public.project  AS pr ON pr.project_id = c.project_id
+   WHERE c.status = 'active'
+     AND t.status <> 'draft'
+     AND pr.status <> 'ended'
+   ORDER BY t.time_created DESC, t.task_id DESC
+   LIMIT 20`;
+
+const normalizeHomeCampaignTaskRow = (row: Row): HomeCampaignTaskRow => ({
+  task_id: str(row.task_id),
+  title: str(row.title),
+  description: str(row.description).slice(0, HOME_TASK_DESCRIPTION_MAX),
+  status: str(row.status),
+  joined_count: int(row.joined_count),
+  reward_amount_primary: str(row.reward_amount_primary),
+  reward_cid_secondary: strOrNull(row.reward_cid_secondary),
+  reward_amount_secondary: strOrNull(row.reward_amount_secondary),
+  time_start: iso(row.time_start),
+  time_end: iso(row.time_end),
+  campaign_id: str(row.campaign_id),
+  campaign_title: str(row.campaign_title),
+  project_id: str(row.project_id),
+  project_title: str(row.project_title),
+  project_slug: str(row.project_slug),
+  project_avatar_url: strOrNull(row.project_avatar_url),
+});
+
+/** 首页热门任务（公开只读；空行集 = [] —— 路由 200，绝不 404/500） */
+export const listHomeCampaignTasks = async (ex?: TxClient): Promise<HomeCampaignTaskRow[]> => {
+  const rows = await readRows<Row>(HOME_CAMPAIGN_TASKS_SQL, [], ex);
+  return rows.map(normalizeHomeCampaignTaskRow);
 };
 
 /**
@@ -1381,6 +1502,11 @@ export const patchProjectVerb = async (input: {
       }
     }
 
+    // 0069 头像：显式分支（null 可清空；未提供 ⇒ 保留库内现值）—— 不用 COALESCE（NULL 有语义）
+    const avatarNext = Object.prototype.hasOwnProperty.call(body, 'avatar_url')
+      ? (p.avatar_url === undefined ? null : p.avatar_url)
+      : (project.avatar_url === null || project.avatar_url === undefined ? null : str(project.avatar_url));
+
     const rows = await txQuery<Row>(
       tx,
       `UPDATE public.project SET
@@ -1393,7 +1519,8 @@ export const patchProjectVerb = async (input: {
          wage_cid = $8::bigint,
          wage_currency_amount = $9::numeric,
          wage_interval_hours = COALESCE($10::int, wage_interval_hours),
-         status = $11::text
+         status = $11::text,
+         avatar_url = $12::text
        WHERE project_id = $1::bigint
        RETURNING *`,
       [
@@ -1408,6 +1535,7 @@ export const patchProjectVerb = async (input: {
         wageAmount,
         p.wage_interval_hours ?? null,
         nextStatus,
+        avatarNext,
       ],
     );
 
