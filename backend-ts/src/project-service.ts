@@ -97,16 +97,24 @@ const USD_CID = 1;
 // ----------------------------------------------------------------------------
 // 项目 slug（页面地址 · 迁移 0068 · Kevin 2026-10-21 派单）
 //   · 地址名由用户填写；DB 只查格式（project_slug_format_check）+ 唯一（project_slug_uniq）；
-//   · 保留字（20 词）服务层拒 —— 路由面 wage/profile/task/…/orders 已被站内路由占用；
+//   · 保留字（37 词）服务层拒 —— **表 = frontend/src/project-slug.js `RESERVED_PROJECT_SEGMENTS` 逐字同表**，
+//     并集 = App.jsx 现取的一级静态段（task/item/exchange/shard/campaign/profile/login/…/dashboard 及
+//     /dashboard/* 各管理子段）+ 语义保留段（admin/api/project(s)/item(s)/campaign(s)/task(s)/order(s)/…）；
+//     理由：这些一级段已有显式路由（静态段排名优先于 `:slug`）⇒ 同名项目页永不可达，须在写口拒绝；
 //   · 纯数字 slug 服务层也拒：ref 判定表「全数字 ⇒ 数值 id」⇒ 纯数字 slug 永不可达，即拒以免歧义。
 //   · 错误码零新增（33 闭集）：400 借 LEDGER_AMOUNT_INVALID，details.reason =
 //     'SLUG_INVALID'（格式/保留字/纯数字）| 'SLUG_TAKEN'（唯一冲突，预检 + 23505 按 constraint 名）。
 // ----------------------------------------------------------------------------
 export const PROJECT_SLUG_PATTERN = /^[a-z0-9][a-z0-9-]{0,31}$/;
 export const PROJECT_SLUG_RESERVED: readonly string[] = [
-  'wage', 'profile', 'task', 'tasks', 'campaign', 'campaigns', 'item', 'items',
-  'project', 'projects', 'admin', 'api', 'login', 'register', 'settings',
-  'assets', 'market', 'messages', 'order', 'orders',
+  'admin', 'api', 'arbitration-review', 'assets', 'audit-console',
+  'campaign', 'campaigns', 'currency-review', 'dashboard', 'exchange',
+  'fee-rate', 'item', 'items', 'jobs', 'listing-review',
+  'login', 'market', 'messages', 'order', 'orders',
+  'permissions', 'points', 'profile', 'project', 'projects',
+  'register', 'rewards', 'settings', 'shard', 'shards',
+  'site-text', 'task', 'tasks', 'theme-preview', 'users',
+  'wage', 'weight-matrix',
 ];
 const DIGITS_ONLY_SLUG = /^[0-9]+$/;
 
@@ -328,7 +336,7 @@ const asPositiveDecimal = (v: unknown): string | null => {
 /**
  * slug 入参解析（创建与 PATCH 共用 · 纯函数，门可直接调）：
  *   · 格式 `^[a-z0-9][a-z0-9-]{0,31}$`（小写字母数字连字符，1–32，首字符非连字符）⇒ 否则 SLUG_INVALID；
- *   · 保留字 20 词（路由面占用）⇒ SLUG_INVALID（details.reserved=true）；
+ *   · 保留字（`PROJECT_SLUG_RESERVED`，与前端同表）⇒ SLUG_INVALID（details.reserved=true）；
  *   · 纯数字 ⇒ SLUG_INVALID（ref 判定表「全数字 ⇒ id」⇒ 纯数字 slug 永不可达）。
  */
 export const parseProjectSlugInput = (v: unknown): { slug: string } | { err: VerbErr } => {

@@ -15,13 +15,27 @@
 export const PROJECT_SLUG_RE = /^[a-z0-9-]{1,32}$/
 
 /**
- * 保留段清单（= App.jsx 单段静态路由族 + 未注册但语义保留的段）：
- * 命中 ⇒ `/:slug` 项目页**不渲染**，落 catch-all 404 提示页（派单冻结清单，逐字）。
+ * 保留段清单（**与 App.jsx 现取同表**，后端 `PROJECT_SLUG_RESERVED` 逐字一致）：
+ *   A · 路由面静态一级段（`App.jsx` 现取，含 `/dashboard/*` 子路由一级段）——
+ *       arbitration-review / audit-console / campaign / currency-review / dashboard / exchange /
+ *       fee-rate / item / listing-review / login / messages / permissions / points / profile /
+ *       register / rewards / settings / shard / shards / site-text / task / tasks / theme-preview /
+ *       users / wage / weight-matrix（`${lang}` 与 `:slug` 是动态段，不在此列）；
+ *   B · 未注册但语义保留（复数/别名/历史与预留面，防静默不可达）——
+ *       admin / api / assets / campaigns / items / jobs / market / order / orders / project / projects。
+ * 命中 ⇒ `/:slug` 项目页**不渲染**，落 catch-all 404 提示页（不发请求）。
+ * 判据：一级段若已有显式路由（静态段排名优先于 `:slug`），该 slug 的项目页**永远打不开** ⇒ 必须保留。
+ * 对齐门：`ops/project/p68-00-slug-campaign-gate.ts` A10（前后端两表 + App.jsx 现取三方对拍）。
  */
 export const RESERVED_PROJECT_SEGMENTS = [
-  'wage', 'profile', 'task', 'tasks', 'campaign', 'campaigns', 'item', 'items',
-  'project', 'projects', 'admin', 'api', 'login', 'register', 'settings',
-  'assets', 'market', 'messages', 'order', 'orders', 'jobs',
+  'admin', 'api', 'arbitration-review', 'assets', 'audit-console',
+  'campaign', 'campaigns', 'currency-review', 'dashboard', 'exchange',
+  'fee-rate', 'item', 'items', 'jobs', 'listing-review',
+  'login', 'market', 'messages', 'order', 'orders',
+  'permissions', 'points', 'profile', 'project', 'projects',
+  'register', 'rewards', 'settings', 'shard', 'shards',
+  'site-text', 'task', 'tasks', 'theme-preview', 'users',
+  'wage', 'weight-matrix',
 ]
 
 const RESERVED_SET = new Set(RESERVED_PROJECT_SEGMENTS)

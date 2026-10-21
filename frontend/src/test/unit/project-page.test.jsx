@@ -115,11 +115,40 @@ describe('项目页 `/:slug` · 步 1 骨架', () => {
 
   // ---------------------------------------------------------------- ② 保留段
   describe('② 保留段 ⇒ 提示页、零请求', () => {
-    it('冻结清单 = 二十一段（派单逐字）', () => {
-      expect(RESERVED_PROJECT_SEGMENTS).toHaveLength(21)
+    it('清单 = 三十七段（= App.jsx 现取一级静态段 ∪ 语义保留段，逐字冻结）', () => {
+      expect(RESERVED_PROJECT_SEGMENTS).toHaveLength(37)
+      expect(new Set(RESERVED_PROJECT_SEGMENTS).size).toBe(37)
+      // 路由面现取（App.jsx 内层 + /dashboard/* 子段）抽样：这些段有显式路由 ⇒ slug 必保留
+      for (const seg of [
+        'exchange', 'shard', 'messages', 'wage', 'task', 'item', 'campaign',
+        'profile', 'login', 'register', 'theme-preview', 'dashboard', 'tasks',
+        'rewards', 'shards', 'users', 'permissions', 'points', 'settings',
+        'fee-rate', 'weight-matrix', 'currency-review', 'listing-review',
+        'arbitration-review', 'site-text', 'audit-console',
+      ]) {
+        expect(RESERVED_PROJECT_SEGMENTS, `seg=${seg}`).toContain(seg)
+      }
+      // 语义保留段（未注册路由但语义占用，防静默不可达）
+      for (const seg of ['admin', 'api', 'assets', 'market', 'order', 'orders', 'jobs',
+        'project', 'projects', 'campaigns', 'items']) {
+        expect(RESERVED_PROJECT_SEGMENTS, `seg=${seg}`).toContain(seg)
+      }
     })
 
-    it('二十一段逐一落 `<NotFoundPage />`，且零读口请求', async () => {
+    it('★与后端 `PROJECT_SLUG_RESERVED` 逐字同表（三方对齐：App.jsx 现取 → 前后端两表）', async () => {
+      const fs = await import('node:fs')
+      const path = await import('node:path')
+      // cwd = frontend/（vitest 根）；jsdom 会替换全局 URL ⇒ 不用 import.meta.url + fileURLToPath
+      const src = fs.readFileSync(
+        path.resolve(process.cwd(), '../backend-ts/src/project-service.ts'), 'utf8')
+      const head = src.indexOf('export const PROJECT_SLUG_RESERVED')
+      expect(head).toBeGreaterThan(-1)
+      const body = src.slice(head, head + src.slice(head).indexOf('];'))
+      const backend = [...body.matchAll(/'([a-z0-9-]+)'/g)].map((m) => m[1])
+      expect(backend).toEqual([...RESERVED_PROJECT_SEGMENTS])
+    })
+
+    it('三十七段逐一落 `<NotFoundPage />`，且零读口请求', async () => {
       for (const seg of RESERVED_PROJECT_SEGMENTS) {
         const { container, unmount } = renderAt(`/${seg}`)
         expect(notFound(container), `seg=${seg}`).not.toBeNull()
@@ -228,10 +257,20 @@ describe('项目页 `/:slug` · 步 1 骨架', () => {
       expect(slugFieldErrorOf('a'.repeat(33))).toBe('format')
     })
 
-    it('保留字 ⇒ reserved（优先于格式判定；清单二十一段全命中）', () => {
+    it('保留字 ⇒ reserved（优先于格式判定；清单三十七段全命中）', () => {
       for (const seg of RESERVED_PROJECT_SEGMENTS) {
         expect(slugFieldErrorOf(seg), `seg=${seg}`).toBe('reserved')
       }
+    })
+
+    it('★抽样 5 段（exchange / rewards / points / users / audit-console）⇒ reserved', () => {
+      expect(slugFieldErrorOf('exchange')).toBe('reserved')
+      expect(slugFieldErrorOf('rewards')).toBe('reserved')
+      expect(slugFieldErrorOf('points')).toBe('reserved')
+      expect(slugFieldErrorOf('users')).toBe('reserved')
+      expect(slugFieldErrorOf('audit-console')).toBe('reserved')
+      // 大小写/空白不豁免：trim 后命中同一集合（服务端亦然，先 trim 再判）
+      expect(slugFieldErrorOf('  exchange  ')).toBe('reserved')
     })
   })
 })

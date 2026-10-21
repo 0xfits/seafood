@@ -201,10 +201,12 @@ const LangShell = () => {
         />
 
         {/* 项目页（Kevin 2026-10-21）：`:slug` = 项目规范地址（页面规范形 `/<slug>`，如 `/sui`）。
-            **内层末位、catch-all 之前**：静态段（wage / task / campaign / item / profile …）按
-            react-router v6 排名天然优先于 `:slug`；未注册为路由的保留段（tasks / campaigns /
-            items / projects / project / admin / api / settings / assets / market / messages /
-            order / orders / jobs 等）由 ProjectPage 依 `RESERVED_PROJECT_SEGMENTS` 判别 ⇒
+            **内层末位、catch-all 之前**：静态段（wage / task / campaign / item / profile / exchange /
+            shard / messages / theme-preview / login / register …）按 react-router v6 排名天然优先于 `:slug`；
+            其余与显式路由同名的一级段（tasks / campaigns / items / projects / admin / api / settings /
+            assets / market / order / orders / jobs / dashboard / users / points / rewards / permissions /
+            fee-rate / weight-matrix / site-text / audit-console / 三个 review 页 …）由 ProjectPage 依
+            `RESERVED_PROJECT_SEGMENTS`（37 段，后端 `PROJECT_SLUG_RESERVED` 同表）判别 ⇒
             渲染 catch-all 同款提示页（不发请求）。slug 无效 / 项目不存在（读口 404）同落提示页。 */}
         <Route path=":slug" element={<ProjectPage />} />
 

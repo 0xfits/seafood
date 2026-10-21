@@ -15,7 +15,8 @@
  *
  * 判据面：
  *   A · 静态（零 DB）：0068 形状（无 BEGIN/COMMIT、注释零 dollar-dollar、DB 只查格式不含保留字）·
- *       10 种子映射逐字 · 服务层常量（正则 / 20 保留字）· slug 解析纯函数臂 · 零新路由（注册点仍 128）·
+ *       10 种子映射逐字 · 服务层常量（正则 / 保留字表 = App.jsx 现取一级静态段 ∪ 语义保留段，与前端同表）·
+ *       保留字逐段 400（A10）· slug 解析纯函数臂 · 零新路由（注册点仍 128）·
  *       路由面三形态/权限支静态接线（R2 → isProjectReadRef + getProjectDetailByRef；
  *       POST campaign/task、PATCH task → authorizeProjectScopedCreate；PATCH campaign/settle/reward 仍 manage_tasks）。
  *   B · 迁移干跑（真库 · 回滚事务内）：头段 + 尾部 DO 全绿（列 / 约束 / FK 级联 / 索引 / 10 种子逐字 /
@@ -127,11 +128,29 @@ const SEED_PAIRS: Array<[string, string]> = [
   ['Starknet 生态推广', 'starknet'],
   ['zkSync 生态推广', 'zksync'],
 ];
-const RESERVED_EXACT = [
-  'wage', 'profile', 'task', 'tasks', 'campaign', 'campaigns', 'item', 'items',
-  'project', 'projects', 'admin', 'api', 'login', 'register', 'settings',
-  'assets', 'market', 'messages', 'order', 'orders',
+// ---- 保留字表三方对拍真源：App.jsx **现取**（一级静态段，含 `/dashboard/*` 子段）∪ 语义保留段
+// 口径：`path="task/new"` ⇒ 一级段 `task`；`/dashboard/*` ⇒ `dashboard`；`/${lang}/*`（动态语言壳）与
+// `:slug` 是动态段 ⇒ 不参与；`*` catch-all 不参与。App.jsx 新增一级路由而两表未跟进 ⇒ A5 必红。
+const APP_JSX = readSrc('frontend/src/App.jsx');
+const APP_ROUTE_PATHS = [...APP_JSX.matchAll(/path=(?:"([^"]*)"|\{`([^`]*)`\})/g)]
+  .map((m) => (m[1] ?? m[2] ?? '').trim());
+const APP_FIRST_SEGMENTS = [...new Set(APP_ROUTE_PATHS
+  .map((p) => p.replace(/^\//, ''))
+  .filter((p) => p !== '' && p !== '*' && !p.includes('${'))
+  .map((p) => p.split('/')[0])
+  .filter((s) => s !== '' && !s.startsWith(':')))].sort();
+/** 语义保留段（未注册路由但语义占用：复数/别名/历史与预留面；纯新增路由**不必**加这里） */
+const SEMANTIC_RESERVED = [
+  'admin', 'api', 'assets', 'campaigns', 'items', 'jobs', 'market', 'order', 'orders', 'project', 'projects',
 ];
+const EXPECTED_RESERVED = [...new Set([...APP_FIRST_SEGMENTS, ...SEMANTIC_RESERVED])].sort();
+/** 前端同表（`frontend/src/project-slug.js` 的 `RESERVED_PROJECT_SEGMENTS` 字面量） */
+const FRONT_RESERVED: string[] = (() => {
+  const src = readSrc('frontend/src/project-slug.js');
+  const i = src.indexOf('export const RESERVED_PROJECT_SEGMENTS');
+  if (i < 0) return [];
+  return [...src.slice(i, i + src.slice(i).indexOf('\n]')).matchAll(/'([a-z0-9-]+)'/g)].map((m) => m[1]);
+})();
 
 /** SAVEPOINT 三明治：跑完（无论成败）一律回滚到存档点 ⇒ 反事实臂零污染 */
 const undoAfter = async <T>(c: Qx, tag: string, fn: () => Promise<T>): Promise<{ value: T | null; sqlstate: string | null; message: string }> => {
@@ -220,12 +239,12 @@ const routeBlock = (startMarker: string, maxLen = 2200): string => {
     migPairs,
     JSON.stringify({ pairs: SEED_PAIRS.map(([t, s]) => `${t}=${s}`) }));
 
-  ck.t('A5', '服务层常量：slug 正则 = `^[a-z0-9][a-z0-9-]{0,31}$` · 保留字恰 20 词且逐字（wage/profile/task/tasks/campaign/campaigns/item/items/project/projects/admin/api/login/register/settings/assets/market/messages/order/orders）',
+  ck.t('A5', `服务层常量：slug 正则 = \`^[a-z0-9][a-z0-9-]{0,31}$\` · 保留字表 = App.jsx 现取一级静态段（${APP_FIRST_SEGMENTS.length} 段：${APP_FIRST_SEGMENTS.join('/')}）∪ 语义保留 ${SEMANTIC_RESERVED.length} 段 = ${EXPECTED_RESERVED.length} 段，逐字、无重、无漏`,
     PROJECT_SLUG_PATTERN.source === '^[a-z0-9][a-z0-9-]{0,31}$'
-      && PROJECT_SLUG_RESERVED.length === 20
-      && RESERVED_EXACT.every((w) => (PROJECT_SLUG_RESERVED as readonly string[]).includes(w))
-      && new Set(PROJECT_SLUG_RESERVED).size === 20,
-    JSON.stringify({ pattern: PROJECT_SLUG_PATTERN.source, reserved: PROJECT_SLUG_RESERVED }));
+      && PROJECT_SLUG_RESERVED.length === EXPECTED_RESERVED.length
+      && new Set(PROJECT_SLUG_RESERVED).size === PROJECT_SLUG_RESERVED.length
+      && JSON.stringify([...PROJECT_SLUG_RESERVED].sort()) === JSON.stringify(EXPECTED_RESERVED),
+    JSON.stringify({ pattern: PROJECT_SLUG_PATTERN.source, reserved: PROJECT_SLUG_RESERVED, routes: APP_FIRST_SEGMENTS, missing: EXPECTED_RESERVED.filter((w) => !(PROJECT_SLUG_RESERVED as readonly string[]).includes(w)) }));
 
   // ---- slug 解析纯函数臂
   // 正则体 `^[a-z0-9][a-z0-9-]{0,31}$` 字面允许**尾随**连字符（只有首字符禁 `-`）⇒ `sui-` 属合法臂
@@ -243,6 +262,25 @@ const routeBlock = (startMarker: string, maxLen = 2200): string => {
   ck.t('A6', '★slug 解析（借码 + details.reason，零新错误码）：合法 5 臂（含正则字面允许的尾随连字符 `sui-`）通过 · 大写/首字符连字符/下划线/超 32/空串/空格/4 保留字/纯数字 13 臂 ⇒ 400 `LEDGER_AMOUNT_INVALID` + reason=`SLUG_INVALID`',
     okParsed && badAll,
     JSON.stringify({ ok: okSlugs, bad: badSlugs }));
+
+  // ---- ★保留字逐段 400（不只是抽样）+ 前后端两表逐字同表（三方：App.jsx 现取 → 两表）
+  const reservedArms = (PROJECT_SLUG_RESERVED as readonly string[]).map((seg) => {
+    const r = parseProjectSlugInput(seg);
+    const err = 'err' in r ? r.err : null;
+    const det = (err as { details?: { reserved?: boolean; slug?: string } } | null)?.details;
+    return {
+      seg,
+      ok: !!err && err.status === 400 && err.code === 'LEDGER_AMOUNT_INVALID'
+        && reasonOf(err) === 'SLUG_INVALID'
+        && det?.reserved === true && det?.slug === seg,
+    };
+  });
+  const reservedBad = reservedArms.filter((x) => !x.ok).map((x) => x.seg);
+  ck.t('A10', `★保留字逐段 400（${reservedArms.length - reservedBad.length}/${reservedArms.length}）：每段 \`parseProjectSlugInput\` ⇒ 400 \`LEDGER_AMOUNT_INVALID\` · reason=\`SLUG_INVALID\` · details.reserved=true（明细带 slug）· 前端 \`RESERVED_PROJECT_SEGMENTS\` 与 \`PROJECT_SLUG_RESERVED\` 逐字同表（顺序亦同）`,
+    reservedBad.length === 0
+      && FRONT_RESERVED.length === (PROJECT_SLUG_RESERVED as readonly string[]).length
+      && JSON.stringify(FRONT_RESERVED) === JSON.stringify([...PROJECT_SLUG_RESERVED]),
+    JSON.stringify({ n: reservedArms.length, failed: reservedBad, frontend: FRONT_RESERVED.length, backend: PROJECT_SLUG_RESERVED.length }));
 
   // ---- 三形态判定表（纯谓词）
   const snowflake19 = '7412345678901234567';
@@ -374,7 +412,7 @@ const routeBlock = (startMarker: string, maxLen = 2200): string => {
     const hygiene = await q1<{ bad_fmt: number; digit: number; reserved: number; nulls: number; n: number; dist: number }>(
       `SELECT count(*) FILTER (WHERE slug !~ '^[a-z0-9][a-z0-9-]{0,31}$')::int AS bad_fmt,
               count(*) FILTER (WHERE slug ~ '^[0-9]+$')::int AS digit,
-              count(*) FILTER (WHERE slug IN ('wage','profile','task','tasks','campaign','campaigns','item','items','project','projects','admin','api','login','register','settings','assets','market','messages','order','orders'))::int AS reserved,
+              count(*) FILTER (WHERE slug IN (${(PROJECT_SLUG_RESERVED as readonly string[]).map((s) => `'${s}'`).join(',')}))::int AS reserved,
               count(*) FILTER (WHERE slug IS NULL)::int AS nulls,
               count(*)::int AS n, count(DISTINCT slug)::int AS dist
          FROM public.project`);
@@ -680,8 +718,10 @@ const routeBlock = (startMarker: string, maxLen = 2200): string => {
       "SELECT count(*)::int AS n FROM public.schema_migration WHERE version = '0068'"))[0]?.n ?? -1);
     const projectsNow = Number((await qRetry<{ n: number }>(pool, 'SELECT count(*)::int AS n FROM public.project'))[0]?.n ?? -1);
     const campaignsNow = Number((await qRetry<{ n: number }>(pool, 'SELECT count(*)::int AS n FROM public.campaign'))[0]?.n ?? -1);
-    ck.t('Z1', `[${MODE}] 零 apply / 零残留：提交面 \`schema_migration\` **无** 0068 行 · project 行数不变（${committedBefore.projects}）· campaign 行数不变（${committedBefore.campaigns}）`,
-      versionRows === 0 && projectsNow === committedBefore.projects && campaignsNow === committedBefore.campaigns,
+    // 已 apply 态（他单已落库）⇒ 判据是「本门零新增」：版本行仍恰 1；未 apply 态 ⇒ 仍 0。
+    const expectVersion = applied68 ? 1 : 0;
+    ck.t('Z1', `[${MODE}] 零 apply / 零残留：提交面 \`schema_migration\` 0068 行 = ${expectVersion}（${applied68 ? '既已 apply，本门零新增' : '未 apply 态，本门不写版本行'}）· project 行数不变（${committedBefore.projects}）· campaign 行数不变（${committedBefore.campaigns}）`,
+      versionRows === expectVersion && projectsNow === committedBefore.projects && campaignsNow === committedBefore.campaigns,
       JSON.stringify({ mode: MODE, version_0068: versionRows, projects: [committedBefore.projects, projectsNow], campaigns: [committedBefore.campaigns, campaignsNow] }));
   }
   await pool.end().catch(() => undefined);
