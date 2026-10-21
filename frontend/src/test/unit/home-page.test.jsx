@@ -1,4 +1,7 @@
 import React from 'react'
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
@@ -250,5 +253,104 @@ describe('HomePage · 热门任务（campaign 体系 · 真数据）', () => {
     expect(cardsOf(container)).toHaveLength(0)
     expect(consoleWarnSpy).toHaveBeenCalled()
     expect(toast.error).not.toHaveBeenCalled()
+  })
+})
+
+// ============================================================================
+// 首页**去动画容器**（2026-10-21 · Kevin：「首页移除容器 animate-fade-in」）
+//   ① 首页 DOM 零 `[class*="animate-fade-in"]`（hero 与商品卡都不再套 `FadeIn` 的 `<div>`）；
+//   ② 商品卡根 `.sf-reward-card` **直落** `.sf-feed` 网格子项（中间无 wrapper）—— 卡几何
+//      （高 392 / 图 240 / 四行 48|32|24|48）由 `reward-card.css` 保证，静态门在 `reward-card-resize`；
+//      本页只负责「不塞中间层」⇒ 栅格子项仍 = 卡根；
+//   ③ `Motion.jsx` / `animations.css` 的 `.animate-fade-in` **保留**（其它页仍用，全局不动）。
+// ============================================================================
+describe('HomePage · 去 animate-fade-in 容器（无包裹层）', () => {
+  let consoleWarnSpy
+
+  const wireFetch = () => {
+    fetchApiJson.mockImplementation(async (url) => {
+      const u = String(url)
+      if (u === '/api/home/campaign-tasks') return []
+      if (u === '/api/currencies') return [{ cid: 1, symbol: '$' }]
+      if (u === '/api/home?prize_limit=8') return { tasks: [], prizes: [], claimed_prize_ids: [], user_points: 42 }
+      if (u === '/api/prize/all?skip=0&limit=36') {
+        return [{
+          bID: 2, name: '奖励甲', points: 120, stores_count: 3, claims_count: 0,
+          seller: { uid: 7, nickname: '0x12**12', avatar: null, credit: 'excellent' },
+        }]
+      }
+      if (u.startsWith('/api/prize-item')) return []
+      if (u.startsWith('/api/user/asset/')) return { points: 520 }
+      if (u.startsWith('/api/prize/all?')) return []
+      throw new Error(`Unexpected URL: ${u}`)
+    })
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    getAuthHeaders.mockReturnValue({})
+    useAuth.mockReturnValue({ user: null, isAuthenticated: false })
+    wireFetch()
+  })
+
+  afterEach(() => { consoleWarnSpy.mockRestore() })
+
+  it('首页零 `animate-fade-in` 命中（hero 与商品卡均无容器）', async () => {
+    const { container } = renderHomePage()
+    const grid = await waitFor(() => {
+      const el = container.querySelector('[data-sf-m="feed-grid"]')
+      expect(el).not.toBeNull()
+      return el
+    })
+    expect(grid.children.length).toBeGreaterThan(0)
+
+    // ① 全页零命中（SlideUp 的 `animate-slide-up` 不算；只看 fade-in）
+    expect(container.querySelectorAll('[class*="animate-fade-in"]')).toHaveLength(0)
+    expect(document.querySelectorAll('[class*="animate-fade-in"]')).toHaveLength(0)
+
+    // ② hero 直接是列表容器的首个元素子节点（原 `<FadeIn><section>` 的 wrapper 已去）
+    const list = container.querySelector('[data-sf-m="home-item-list"]')
+    const firstEl = list.children[0]
+    expect(firstEl.tagName).toBe('SECTION')
+    expect(firstEl.className).toContain('rounded-2xl')
+    expect(firstEl.querySelector('h1')).not.toBeNull()
+  })
+
+  it('商品卡根直落网格子项（无中间 wrapper）· 卡结构完整', async () => {
+    const { container } = renderHomePage()
+    const grid = await waitFor(() => {
+      const el = container.querySelector('[data-sf-m="feed-grid"]')
+      expect(el).not.toBeNull()
+      return el
+    })
+
+    const cards = [...grid.children]
+    expect(cards.length).toBeGreaterThan(0)
+    for (const node of cards) {
+      // 子项即卡根：`sf-reward-card` + 受测钩子，非 div 包装
+      expect(node.classList.contains('sf-reward-card')).toBe(true)
+      expect(node.getAttribute('data-sf-m')).toBe('reward-card')
+      // 卡内两部分结构仍在（几何由 reward-card.css 固定，见 reward-card-resize 门）
+      expect(node.querySelector('.image-container')).not.toBeNull()
+      expect(node.querySelector('.content')).not.toBeNull()
+      expect(node.querySelector('.sf-reward-inner')).not.toBeNull()
+    }
+    // 网格的父节点即版块 `<section data-sf-m="home-items">`（无 `space-y-4` 中间层）
+    expect(grid.parentElement.getAttribute('data-sf-m')).toBe('home-items')
+  })
+
+  it('源码零 `FadeIn` / `StaggerContainer` / `animate-fade-in` 引用（注释除外）· 全局动画类保留', () => {
+    // jsdom 环境里 `URL` 不是 node 的 URL ⇒ 用 `fileURLToPath`（与 `reward-card-resize` 同法）
+    const SRC = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
+    const read = (rel) => fs.readFileSync(path.join(SRC, rel), 'utf8')
+    const homeSrc = read('pages/HomePage.jsx').replace(/\/\*[\s\S]*?\*\//g, '')
+    expect(homeSrc).not.toContain('FadeIn')
+    expect(homeSrc).not.toContain('StaggerContainer')
+    expect(homeSrc).not.toContain('animate-fade-in')
+
+    // 全局侧**不动**（其它页仍在用）：Motion.jsx 仍渲染该类、animations.css 仍定义该类
+    expect(read('components/ui/Motion.jsx')).toContain('animate-fade-in')
+    expect(read('styles/animations.css')).toContain('.animate-fade-in')
   })
 })

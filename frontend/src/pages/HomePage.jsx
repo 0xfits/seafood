@@ -7,7 +7,7 @@ import { Button, Card, CardContent } from '../components/ui'
 import { RewardCard } from '../components/reward/RewardCard'
 // ★ route §49.16：商品链接段统一取 `item_code`（缺失回落数字 id）。
 import { itemLinkId } from '../item-link'
-import { FadeIn, SlideUp, StaggerContainer } from '../components/ui/Motion'
+import { SlideUp } from '../components/ui/Motion'
 import { ResponsiveContainer } from '../components/ui/Responsive'
 import { fetchApiJson, getAuthHeaders } from '../auth'
 import { useAuth } from '../auth-context'
@@ -368,25 +368,26 @@ const HomePage = () => {
   return (
     <ResponsiveContainer>
       <div className="space-y-8" data-sf-m="home-item-list">
-        <FadeIn>
-          <section className="bg-gradient-to-r from-yellow-50 to-blue-50 rounded-2xl p-8 text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('homePage.welcome')}</h1>
-            <p className="text-xl text-gray-600 mb-6">
-              {t('homePage.heroLead')}<span className="text-sm font-bold text-yellow-600 dark:text-yellow-400">$</span>{t('homePage.heroTail')}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to={isAuthenticated ? '/task' : '/register'}>
-                <Button variant="primary" size="lg">
-                  {isAuthenticated ? t('homePage.continueTask') : t('homePage.registerNow')}
-                </Button>
-              </Link>
-              {/* 发布入口（Kevin 裁定④）：原「查看奖励」→ 首页唯一列表的发布入口 `/item/new` */}
-              <Link to={buildLocalizedPath(lang, '/item/new')} data-sf-m="home-publish-link">
-                <Button variant="secondary" size="lg">{t('item.publish')}</Button>
-              </Link>
-            </div>
-          </section>
-        </FadeIn>
+        {/* ★ 2026-10-21（Kevin）：首页**去除动画容器** —— hero 直接落 `<section>`，
+            不再套 `FadeIn`（`animate-fade-in` 的 `<div>`）。`Motion.jsx` / `animations.css` 的
+            `.animate-fade-in` 保留（其它页仍用），此处只是首页零容器。 */}
+        <section className="bg-gradient-to-r from-yellow-50 to-blue-50 rounded-2xl p-8 text-center">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('homePage.welcome')}</h1>
+          <p className="text-xl text-gray-600 mb-6">
+            {t('homePage.heroLead')}<span className="text-sm font-bold text-yellow-600 dark:text-yellow-400">$</span>{t('homePage.heroTail')}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link to={isAuthenticated ? '/task' : '/register'}>
+              <Button variant="primary" size="lg">
+                {isAuthenticated ? t('homePage.continueTask') : t('homePage.registerNow')}
+              </Button>
+            </Link>
+            {/* 发布入口（Kevin 裁定④）：原「查看奖励」→ 首页唯一列表的发布入口 `/item/new` */}
+            <Link to={buildLocalizedPath(lang, '/item/new')} data-sf-m="home-publish-link">
+              <Button variant="secondary" size="lg">{t('item.publish')}</Button>
+            </Link>
+          </div>
+        </section>
 
         {/* 「我的积分」卡已于 2026-10-21（Kevin 裁定）**整体迁出**首页 ⇒ `/profile/assets`
             （钩子 `assets-my-points`，数据面 = 同页 `GET /api/user/balances` 的 `$`（cid 1）值）。
@@ -455,7 +456,12 @@ const HomePage = () => {
             </div>
 
             {filteredRewards.length > 0 ? (
-              <StaggerContainer>
+              /* ★ 2026-10-21（Kevin）：卡**直落网格子项** —— 去掉了 `StaggerContainer`（本身即
+                 `space-y-4` + 逐子 `FadeIn` = 两层 `animate-fade-in` 容器）与逐卡 `FadeIn`。
+                 卡根 `RewardCard` 的 `.sf-reward-card` 直接成为 `.sf-grid` 的子项，几何由
+                 `reward-card.css`（卡高 392 / 图 240 / 四行 48|32|24|48）与 CSS 断点列数保证。
+                 本页因此零 `animate-fade-in`；`Motion.jsx` / `animations.css` 原样保留（其它页在用）。 */
+              <>
                 {/* 首屏 / 已加载商品容器（受测钩子 `feed-grid`；卡数 = 子节点卡数）
                     ★ T121（design v1.24 §25）：列数**只由 CSS 断点决定**，禁 JS 宽度读数
                       （`ResponsiveGrid` 走 `window.innerWidth` ⇒ 不用于本网格）。
@@ -463,21 +469,19 @@ const HomePage = () => {
                       ≥1280 = 6 列（styles.css 顶层 `@media (min-width:1280px)` 覆盖 `.sf-feed`）；
                       ≤767 = 2 列（`.sf-grid` 唯一 767 断点块，`--sf-st-feed-cols-m`）。 */}
                 <div className="sf-grid sf-feed" data-sf-m="feed-grid">
-                  {filteredRewards.map((reward, index) => (
-                    // 36+ 条时不再逐条累加延迟（原 `index*100` 到第 36 条要等 3.5s 才显形）
-                    <FadeIn key={reward.bID} delay={Math.min(index, 8) * 100}>
-                      <RewardCard
-                        reward={reward}
-                        to={rewardPath(reward)}
-                        onClaim={handleRewardAction}
-                        userPoints={userPoints}
-                        showStatus={true}
-                        actionLabelKey="item.viewDetail"
-                      />
-                    </FadeIn>
+                  {filteredRewards.map((reward) => (
+                    <RewardCard
+                      key={reward.bID}
+                      reward={reward}
+                      to={rewardPath(reward)}
+                      onClaim={handleRewardAction}
+                      userPoints={userPoints}
+                      showStatus={true}
+                      actionLabelKey="item.viewDetail"
+                    />
                   ))}
                 </div>
-              </StaggerContainer>
+              </>
             ) : feedError ? (
               <Card variant="inactive">
                 <CardContent className="text-center py-8">
