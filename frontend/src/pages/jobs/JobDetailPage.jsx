@@ -191,7 +191,9 @@ const JobDetailPage = () => {
             <div className="sf-jobs-actions">
               <Link className="sf-jobs-link" to={buildLocalizedPath(lang, '/task')}>{t('jobs.list')}</Link>
               <Link className="sf-jobs-link" to={buildLocalizedPath(lang, '/task/new')}>{t('jobs.publish')}</Link>
-              <Link className="sf-jobs-link" to={location.pathname.replace(/\/[^/]+$/, '/review')}>{t('jobs.review')}</Link>
+              {/* ★ 2026-10-21：审核入口**不能**再由 pathname 尾段替换（旧写 `/task/9` ⇒ `/task/review`；
+                  改名后 `/bounty/9` 会算成 `/bounty/review`）⇒ 走唯一构造器写死 `/task/review`。 */}
+              <Link className="sf-jobs-link" to={buildLocalizedPath(lang, '/task/review')}>{t('jobs.review')}</Link>
             </div>
           </div>
 

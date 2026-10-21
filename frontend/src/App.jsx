@@ -22,6 +22,9 @@ import WagePage from './pages/wage/WagePage'
 // 未登录可浏览，提交动作在页内提示登录（不跳转、不白页）。
 import CampaignListPage from './pages/campaign/CampaignListPage'
 import CampaignDetailPage from './pages/campaign/CampaignDetailPage'
+// campaign 任务页（Kevin 2026-10-21 需求①）：`/task/:taskId` = **任务自己的页面**（URI = task id）。
+// 读口 `GET /api/campaign/task/:taskId`（公开；draft 对匿名/非 owner ⇒ 404）；悬赏（job）详情已迁 `/bounty/:jobId`。
+import CampaignTaskPage from './pages/campaign/CampaignTaskPage'
 
 // 项目页（Kevin 2026-10-21）：`/:slug` = 项目规范地址（如 `/sui`）。
 // 读口 = `GET /api/project/:ref`（三形态：snowflake / 数字 id / slug，原样透传）；
@@ -107,9 +110,12 @@ const LangShell = () => {
         {/* 招工线（P4-B4c-ii-a · 真源 = docs/route-layer.spec.md v0.9 §4.2 J1–J6）
             task/new    ⇒ POST /api/job（发布招工 + 托管；幂等键**前端提供** cli:）
             task/review ⇒ GET /api/tasklist/pending-verification + POST /api/job/:jobId/review（键服务端派生）
-            task/:jobId ⇒ GET /api/task/:tID + POST /api/task-progress/:identifier/submit（★S3b：identifier = job_id；
-                          J2/J3 的 /api/job/:jobId/{apply,accept} 两写面**已下架**（410），前端零调用）
-            静态段优先于动态段（react-router v6 排名），故 /task/new|/task/review 不会被 :jobId 吃掉 */}
+            ★ 2026-10-21 路由重切（Kevin 需求①）：`/task/<id>` 归 **campaign 任务页**
+              （`GET /api/campaign/task/:taskId`）；悬赏（job）详情迁 **`/bounty/:jobId`**
+              （读口仍是 `GET /api/task/:tID` + `POST /api/task-progress/:identifier/submit`，
+               S3b：identifier = job_id；J2/J3 的 /api/job/:jobId/{apply,accept} 两写面已 410，前端零调用）。
+            静态段优先于动态段（react-router v6 排名），故 /task/new|/task/review 不会被 `:taskId` 吃掉；
+            段数不同 ⇒ `task`（列表，1 段）与 `task/:taskId`（2 段）不互吞。 */}
         <Route path="task/new" element={<PublishJobPage />} />
         <Route path="task/review" element={<JobReviewPage />} />
         {/* 闲置物品线（**2026-10-11 合并单**·路由家族 `listing*` → `item*`；旧 `/reward`、`/listing*` **硬删、不 301**）：
@@ -125,7 +131,18 @@ const LangShell = () => {
         <Route path="item/:itemId/edit" element={<PublishItemPage mode="edit" />} />
         <Route path="item/:itemId" element={<ItemDetailPage />} />
         <Route path="item" element={<ItemDetailPage />} />
-        <Route path="task/:jobId" element={<JobDetailPage />} />
+
+        {/* campaign 任务页（Kevin 2026-10-21 需求①）：URI = task id ⇒ `/task/<taskId>`。
+            读口 `GET /api/campaign/task/:taskId`（公开；30s 缓存；draft 对匿名/非 owner ⇒ 404）；
+            页面自身按 404 落提示页、未登录不拦截阅读（公开页、零写口）。
+            与上两条静态段（task/new · task/review）段值不同 ⇒ 后者排名优先，互不吞。 */}
+        <Route path="task/:taskId" element={<CampaignTaskPage />} />
+
+        {/* 悬赏（job）详情（2026-10-21 自 `/task/:jobId` 迁入）：读口/写口一字未变
+            （`GET /api/task/:tID`、`POST /api/task-progress/:identifier/submit`、`POST /api/job/:jobId/review`）。
+            旧书签 `/task/<jobId>` **不做重定向**：同一 id 空间无法区分 job 与 campaign task
+            （同号会指错体系），静默改指比 404 更危险 ⇒ 按新口径呈现 campaign 任务页/提示页。 */}
+        <Route path="bounty/:jobId" element={<JobDetailPage />} />
 
         {/* 积分交易所（原「碎片市场」）：页面路径 2026-10-03 由 /shard 改名单为 /exchange；
             组件名与文件 ShardPage 不变，/api/shard* 与 t('shard') 文案键均不动 */}

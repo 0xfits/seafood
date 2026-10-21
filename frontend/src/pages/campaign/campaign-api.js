@@ -43,6 +43,15 @@ export const fetchCampaignDetail = (ref, user) =>
   getJson(`/api/campaign/${encodeURIComponent(String(ref))}`, user)
 
 /**
+ * 任务详情（公开读口 `GET /api/campaign/task/:taskId`，30s 缓存）。
+ * 行 = `{task_id,title,description,status,time_start,time_end,reward_*,joined_count,
+ *        campaign{id,title,status},project{id,title,slug,avatar_url,status},subtasks[]}`。
+ * 可见性由服务端判：`draft` 对匿名 / 非 owner 一律 `404`（owner / admin 可见）⇒ 页面据 404 落提示页。
+ */
+export const fetchCampaignTask = (taskId, user) =>
+  getJson(`/api/campaign/task/${encodeURIComponent(String(taskId))}`, user)
+
+/**
  * 提交子任务凭证。
  * · 通用四类：载荷闭集四键，`required` 的「至少一键」由服务端判（前端只做非空提示）；
  * · prediction：`{choice:'a'|'b'}`，一人一票（重复提交 ⇒ 409）。
