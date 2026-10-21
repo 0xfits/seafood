@@ -1,0 +1,196 @@
+{
+  "run": "20261021T040421Zur7l",
+  "name": "p68-slug-campaign-gate",
+  "at": "2026-10-21T04:04:46.029Z",
+  "mode": "pre-apply",
+  "committed_before": {
+    "projects": 10,
+    "campaigns": 0
+  },
+  "readings": {
+    "mode": "pre-apply",
+    "fixture_users": [
+      908801,
+      908802,
+      908803
+    ],
+    "active_campaigns": 1,
+    "committed_touch": "none (single rollback tx)"
+  },
+  "checks": [
+    {
+      "id": "A1",
+      "what": "0068 形状：`ADD COLUMN IF NOT EXISTS slug` + `SET NOT NULL` + `project_slug_uniq`(UNIQUE) + `project_slug_format_check`（正则体）+ `campaign_project_fk`（ON DELETE CASCADE）+ `campaign_project_idx` + 无 BEGIN/COMMIT + 注释零 dollar-dollar",
+      "pass": true,
+      "reading": "{\"commentDollar\":0,\"fmt\":\"CHECK (slug ~ '^[a-z0-9][a-z0-9-]{0,31}$')\"}"
+    },
+    {
+      "id": "A2",
+      "what": "★DB 只查格式（派单建议支）：`project_slug_format_check` 的约束体**不含**保留字（wage/api/admin/… 由服务层拒）· 尾部 DO 自检仍断言数据面保留字 0 行",
+      "pass": true,
+      "reading": "{\"fmt\":\"CHECK (slug ~ '^[a-z0-9][a-z0-9-]{0,31}$')\"}"
+    },
+    {
+      "id": "A3",
+      "what": "0068 尾部自检七面在场：slug 列/NOT NULL · 唯一约束 · 格式约束正则体 · FK 级联 · campaign.project_id NOT NULL · 10 种子 (title,slug) 逐字 · campaign_project_idx",
+      "pass": true,
+      "reading": "tail tokens ok"
+    },
+    {
+      "id": "A4",
+      "what": "★10 个种子映射逐字（Sui ⇒ sui 正是 Kevin 举例）：ethereum/solana/arbitrum/base/optimism/polygon/sui/aptos/starknet/zksync 十对齐中",
+      "pass": true,
+      "reading": "{\"pairs\":[\"Ethereum 生态推广=ethereum\",\"Solana 生态推广=solana\",\"Arbitrum 生态推广=arbitrum\",\"Base 生态推广=base\",\"Optimism 生态推广=optimism\",\"Polygon 生态推广=polygon\",\"Sui 生态推广=sui\",\"Aptos 生态推广=aptos\",\"Starknet 生态推广=starknet\",\"zkSync 生态推广=zksync\"]}"
+    },
+    {
+      "id": "A5",
+      "what": "服务层常量：slug 正则 = `^[a-z0-9][a-z0-9-]{0,31}$` · 保留字恰 20 词且逐字（wage/profile/task/tasks/campaign/campaigns/item/items/project/projects/admin/api/login/register/settings/assets/market/messages/order/orders）",
+      "pass": true,
+      "reading": "{\"pattern\":\"^[a-z0-9][a-z0-9-]{0,31}$\",\"reserved\":[\"wage\",\"profile\",\"task\",\"tasks\",\"campaign\",\"campaigns\",\"item\",\"items\",\"project\",\"projects\",\"admin\",\"api\",\"login\",\"register\",\"settings\",\"assets\",\"market\",\"messages\",\"order\",\"orders\"]}"
+    },
+    {
+      "id": "A6",
+      "what": "★slug 解析（借码 + details.reason，零新错误码）：合法 5 臂（含正则字面允许的尾随连字符 `sui-`）通过 · 大写/首字符连字符/下划线/超 32/空串/空格/4 保留字/纯数字 13 臂 ⇒ 400 `LEDGER_AMOUNT_INVALID` + reason=`SLUG_INVALID`",
+      "pass": true,
+      "reading": "{\"ok\":[\"sui\",\"base-1\",\"a\",\"abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"sui-\"],\"bad\":[\"Sui\",\"-sui\",\"sui_x\",\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"\",\"a b\",\"wage\",\"tasks\",\"orders\",\"admin\",\"42\",\"0\",\"123\"]}"
+    },
+    {
+      "id": "A7",
+      "what": "★判定表（纯谓词）：全数字（id/snowflake）**优先** ⇒ 数值双形态；slug 格式 ⇒ slug 等值；其余 404（isProjectRef 仍纯数字 ⇒ apply/claim/leave/PATCH 口语义不变）",
+      "pass": true,
+      "reading": "{\"read_123\":true,\"read_snowflake\":true,\"read_sui\":true,\"ref_sui\":false,\"read_upper\":false}"
+    },
+    {
+      "id": "A8",
+      "what": "★零新路由：注册点仍 **128**（get 55 / post 66 / patch 4 / delete 3）· R2 `:ref` 吞 slug（isProjectReadRef + getProjectDetailByRef）· POST campaign/task、PATCH task 接 authorizeProjectScopedCreate · PATCH campaign / settle 仍 manage_tasks（非创建口零回归）",
+      "pass": true,
+      "reading": "{\"regs\":128,\"get\":55,\"post\":66,\"patch\":4,\"delete\":3,\"r2\":[true,true]}"
+    },
+    {
+      "id": "A9",
+      "what": "服务层加性面：listProjects 行带 slug（normalizeProjectRow 含 slug）· CampaignView 带 project_id · CAMPAIGN_CREATE_KEYS 含 project_id 且 PATCH 键集不含（不许改挂）",
+      "pass": true,
+      "reading": "additive shapes ok"
+    },
+    {
+      "id": "B1",
+      "what": "[pre-apply] 0068 干跑全绿：slug text NOT NULL · campaign.project_id bigint NOT NULL · 唯一/格式/FK 级联三约束 · campaign_project_idx · 版本行未写",
+      "pass": true,
+      "reading": "{\"version\":[0,0],\"slug\":{\"is_nullable\":\"NO\",\"data_type\":\"text\"},\"proj_id\":{\"is_nullable\":\"NO\",\"data_type\":\"bigint\"},\"uniq\":1,\"fmt\":\"CHECK ((slug ~ '^[a-z0-9][a-z0-9-]{0,31}$'::text))\",\"fk\":1,\"idx\":1}"
+    },
+    {
+      "id": "B2",
+      "what": "★10 个种子 slug 逐字对拍（ethereum/solana/arbitrum/base/optimism/polygon/**sui**/aptos/starknet/zksync）· 恰 10 行",
+      "pass": true,
+      "reading": "{\"Aptos 生态推广\":\"aptos\",\"Arbitrum 生态推广\":\"arbitrum\",\"Base 生态推广\":\"base\",\"Ethereum 生态推广\":\"ethereum\",\"Optimism 生态推广\":\"optimism\",\"Polygon 生态推广\":\"polygon\",\"Solana 生态推广\":\"solana\",\"Starknet 生态推广\":\"starknet\",\"Sui 生态推广\":\"sui\",\"zkSync 生态推广\":\"zksync\"}"
+    },
+    {
+      "id": "B3",
+      "what": "slug 数据面卫生：格式违例 0 · 纯数字 0 · 保留字 0 · NULL 0 · distinct = 全行（唯一）",
+      "pass": true,
+      "reading": "{\"bad_fmt\":0,\"digit\":0,\"reserved\":0,\"nulls\":0,\"n\":10,\"dist\":10}"
+    },
+    {
+      "id": "B4",
+      "what": "0068 幂等：重跑头段 + 尾部 DO ⇒ 无异常、种子仍 10 行逐字、无重复 slug（ADD COLUMN IF NOT EXISTS / 约束守卫 / UPDATE 只补 NULL）",
+      "pass": true,
+      "reading": "{\"rows\":10}"
+    },
+    {
+      "id": "B5",
+      "what": "★迁移自检负控三臂：数据面保留字（slug=wage）⇒ 尾 DO RAISE（P0001）· 违格式（Bad_Slug）⇒ DB 格式 CHECK 当场 23514 · 去唯一约束 ⇒ 尾 DO RAISE（缺 project_slug_uniq）",
+      "pass": true,
+      "reading": "{\"reserved\":[\"P0001\",\"0068 self-check FAILED: 1 project rows use reserved slug (保留字服务层拒；数据面须 0 行)\"],\"format\":[\"23514\",\"new row for relation \\\"project\\\" violates check constraint \\\"project_slug_format_check\\\"\"],\"unique\":[\"P0001\",\"0068 self-check FAILED: project_slug_uniq (UNIQUE) missing\"]}"
+    },
+    {
+      "id": "S1",
+      "what": "建项带用户填写 slug：201/200 ok · `view.slug` 逐字回显 · 项目行 +1",
+      "pass": true,
+      "reading": "{\"status\":200,\"slug\":\"p68a4g4x1g\",\"id\":\"51\",\"rows\":[10,11]}"
+    },
+    {
+      "id": "S2",
+      "what": "列表行**加性** `slug`（listProjects 每行 carry slug；种子行也带）· 无裁剪（原键仍在）",
+      "pass": true,
+      "reading": "{\"rows\":11,\"sample\":\"p68a4g4x1g\",\"first\":\"p68a4g4x1g\"}"
+    },
+    {
+      "id": "S3",
+      "what": "★三形态读同一行：slug / 数字 id / snowflake ⇒ 同一 project_id · 不存在的 slug ⇒ null（路由落 404，不 500）",
+      "pass": true,
+      "reading": "{\"slug\":\"51\",\"id\":\"51\",\"sf\":\"51\",\"miss\":true}"
+    },
+    {
+      "id": "S4",
+      "what": "★slug 入参闸（借码 400 + reason）：缺 slug · 大写 · 保留字 · 纯数字 · 首字符连字符 ⇒ 全部 400 `SLUG_INVALID` · 项目行零新增（早于扣费）",
+      "pass": true,
+      "reading": "{\"arms\":[[400,\"SLUG_INVALID\"],[400,\"SLUG_INVALID\"],[400,\"SLUG_INVALID\"],[400,\"SLUG_INVALID\"],[400,\"SLUG_INVALID\"]],\"rows\":[11,11]}"
+    },
+    {
+      "id": "S5",
+      "what": "★slug 唯一：与种子 `sui` 重名 ⇒ 400 `SLUG_TAKEN`（预检早于扣费）· 项目行不增 · 同键台账 0 条",
+      "pass": true,
+      "reading": "{\"status\":400,\"reason\":\"SLUG_TAKEN\",\"detail\":{\"reason\":\"SLUG_TAKEN\",\"field\":\"slug\",\"slug\":\"sui\",\"project_id\":\"5\"},\"ledger\":0}"
+    },
+    {
+      "id": "S6",
+      "what": "PATCH 可改 slug：改值 200 且新 slug 可读、旧 slug 立即 miss · 改成种子名 `base` ⇒ 400 `SLUG_TAKEN` · 改成保留字 `tasks` ⇒ 400 `SLUG_INVALID`",
+      "pass": true,
+      "reading": "{\"patched\":\"p68a4g4x1g-v2\",\"taken\":\"SLUG_TAKEN\",\"reserved\":\"SLUG_INVALID\"}"
+    },
+    {
+      "id": "S7",
+      "what": "campaign 挂项目（0068）：缺 `project_id` ⇒ 400 `CAMPAIGN_PROJECT_REQUIRED` · 未知项目 ⇒ 404 `project_not_found` · 正常 ⇒ 201 draft 且 `view.project_id` = 项目",
+      "pass": true,
+      "reading": "{\"no_proj\":[400,\"CAMPAIGN_PROJECT_REQUIRED\"],\"unknown\":[404,\"project_not_found\"],\"created\":{\"campaign_id\":\"4\",\"snowflake_id\":\"362447981162496\",\"project_id\":\"51\",\"title\":\"p68 campaign 20261021T040421Zur7l\",\"description\":\"\",\"status\":\"draft\",\"time_start\":null,\"time_end\":null,\"time_created\":\"2026-10-21T04:04:23.548Z\",\"time_updated\":\"2026-10-21T04:04:23.548Z\",\"tasks\":[]}}"
+    },
+    {
+      "id": "S8",
+      "what": "★项目页嵌套（归属链按 campaign.project_id 过滤）：owner 见 draft 活动（含任务/子任务）· 公众不见 draft · 管理员见 draft · 别项目活动不串 · 激活后公众可见 campaign→task→subtask",
+      "pass": true,
+      "reading": "{\"owner_campaigns\":[[\"4\",\"draft\"]],\"public_draft_visible\":false,\"admin_draft_visible\":true,\"public_active\":{\"status\":\"active\",\"tasks\":1,\"subtasks\":1}}"
+    },
+    {
+      "id": "S9",
+      "what": "★权限三臂：owner（自己的项目）放行 · 非 owner ∧ 非管理员 ⇒ 403 `AUTH_FORBIDDEN` reason=`project_owner_required` · 管理员（manage_tasks，adminActor）放行；task/subtask 归属链（campaign → project）同判：campaign owner 放行 / 他人 403 / task 链 owner 放行",
+      "pass": true,
+      "reading": "{\"owner\":null,\"admin\":null,\"outsider\":[403,\"project_owner_required\"],\"owner_other\":\"project_owner_required\",\"camp\":[true,\"project_owner_required\"],\"task\":true,\"camp_ctx\":{\"campaign_id\":\"4\",\"project_id\":\"51\",\"project_owner_uid\":\"908801\",\"project_status\":\"recruiting\"},\"task_ctx\":{\"task_id\":\"2\",\"campaign_id\":\"4\",\"project_id\":\"51\",\"project_owner_uid\":\"908801\",\"project_status\":\"recruiting\"}}"
+    },
+    {
+      "id": "S10",
+      "what": "真路径：owner 建 campaign（service）⇒ 201 且 campaign 行挂本人项目 · campaign_id 出参字符串",
+      "pass": true,
+      "reading": "{\"status\":200,\"view\":{\"campaign_id\":\"6\",\"snowflake_id\":\"362448006983680\",\"project_id\":\"51\",\"title\":\"p68 owner campaign 20261021T040421Zur7l\",\"description\":\"\",\"status\":\"draft\",\"time_start\":null,\"time_end\":null,\"time_created\":\"2026-10-21T04:04:23.548Z\",\"time_updated\":\"2026-10-21T04:04:23.548Z\",\"tasks\":[]}}"
+    },
+    {
+      "id": "N1",
+      "what": "★负控① 去 slug 唯一 ⇒ 重名可入：DROP `project_slug_uniq` 后同名 slug 直插**成功**（行 +1；唯一性由约束承重）· 同态再跑 0068 尾 DO ⇒ RAISE（P0001，缺唯一约束被自检抓住）⇒ 「去唯一」必红",
+      "pass": true,
+      "reading": "{\"dupSlug\":\"solana\",\"before\":12,\"after\":13,\"tailSql\":\"P0001\",\"sqlstate\":null}"
+    },
+    {
+      "id": "N2",
+      "what": "★负控② 去 owner 支 ⇒ owner 被拒必红：owner 身份只在**自己**项目上放行（别人项目 ⇒ 403 `project_owner_required`）；S9 的 owner 臂与 deny 臂互斥 ⇒ 删 owner 支后 owner 输入必落 deny 路径 ⇒ 判据可红",
+      "pass": true,
+      "reading": "{\"owner_on_other_project\":\"project_owner_required\"}"
+    },
+    {
+      "id": "N3",
+      "what": "★负控③ ended 项目：owner 本人也被拒（403 reason=`project_owner_ended`）⇒ 谓词「owner ∧ status ≠ ended」的后半支承重（管理员支不受此限 —— 派单字面）",
+      "pass": true,
+      "reading": "{\"ctx\":{\"project_id\":\"52\",\"project_owner_uid\":\"908802\",\"project_status\":\"ended\"},\"err\":[403,\"project_owner_ended\"]}"
+    },
+    {
+      "id": "Z1",
+      "what": "[pre-apply] 零 apply / 零残留：提交面 `schema_migration` **无** 0068 行 · project 行数不变（10）· campaign 行数不变（0）",
+      "pass": true,
+      "reading": "{\"mode\":\"pre-apply\",\"version_0068\":0,\"projects\":[10,10],\"campaigns\":[0,0]}"
+    }
+  ],
+  "summary": {
+    "total": 28,
+    "passed": 28,
+    "failed": 0,
+    "red": []
+  }
+}

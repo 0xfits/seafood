@@ -78,6 +78,9 @@ const INDEX_TS = readSrc('backend-ts/src/index.ts');
 const SVC = readSrc('backend-ts/src/project-service.ts');
 const MIG63 = readSrc('backend-ts/migrations/0063_project_domain.sql');
 const MIG64 = readSrc('backend-ts/migrations/0064_seed_projects.sql');
+// 0068（p68 单 · slug + campaign.project_id）：本门干跑其**头段**（幂等）以在回滚事务内取得
+// slug 列 —— createProjectVerb 的 INSERT / slug 预检在未 apply 的库上需该列在场（pre/post 两模式同式）。
+const MIG68 = readSrc('backend-ts/migrations/0068_project_slug_campaign_link.sql');
 
 // ---------------------------------------------------------------- SQL 切分（dollar-dollar 感知）
 /** 先剥注释（dollar-dollar 外），否则文件头大段 `--` 注释会与第一条 DDL 同语句 ⇒ 首条 CREATE TABLE 丢失 */
@@ -115,6 +118,7 @@ const M63_HEAD = splitSqlStatements(headOf(MIG63));
 const M63_TAIL = tailOf(MIG63);
 const M64_HEAD = splitSqlStatements(headOf(MIG64));
 const M64_TAIL = tailOf(MIG64);
+const M68_HEAD = splitSqlStatements(headOf(MIG68));
 
 const SQ = (v: unknown) => String(v ?? '').replace(/'/g, "''");
 
@@ -217,13 +221,14 @@ const reasonOf = (r: unknown) => String(((r as { details?: { reason?: unknown } 
 
   // ---- 入参纯函数（零 DB）· `parseProjectPayload` 出参是 `{payload}|{err}` 联合 ⇒ 判据一律取 `.err`
   const errOf = (x: { payload?: unknown; err?: unknown }): unknown => ('err' in x ? x.err : x);
-  const pForbid = parseProjectPayload({ title: 'x', headcount: 1, wage_batt_per_claim: 1, wage_interval_hours: 1, status: 'working' }, 'create');
-  const pPair = parseProjectPayload({ title: 'x', headcount: 1, wage_batt_per_claim: 1, wage_interval_hours: 1, wage_cid: 5 }, 'create');
-  const pInterval = parseProjectPayload({ title: 'x', headcount: 1, wage_batt_per_claim: 1, wage_interval_hours: 101 }, 'create');
-  const pHead = parseProjectPayload({ title: 'x', headcount: 0, wage_batt_per_claim: 1, wage_interval_hours: 1 }, 'create');
-  const pUnknown = parseProjectPayload({ title: 'x', headcount: 1, wage_batt_per_claim: 1, wage_interval_hours: 1, foo: 1 }, 'create');
+  // 0068 起 create 必带 slug（写口闸先于后续语义闸）⇒ 各臂补合法 slug，才能打到本条要测的那个 reason
+  const pForbid = parseProjectPayload({ title: 'x', slug: 'p63a', headcount: 1, wage_batt_per_claim: 1, wage_interval_hours: 1, status: 'working' }, 'create');
+  const pPair = parseProjectPayload({ title: 'x', slug: 'p63b', headcount: 1, wage_batt_per_claim: 1, wage_interval_hours: 1, wage_cid: 5 }, 'create');
+  const pInterval = parseProjectPayload({ title: 'x', slug: 'p63c', headcount: 1, wage_batt_per_claim: 1, wage_interval_hours: 101 }, 'create');
+  const pHead = parseProjectPayload({ title: 'x', slug: 'p63d', headcount: 0, wage_batt_per_claim: 1, wage_interval_hours: 1 }, 'create');
+  const pUnknown = parseProjectPayload({ title: 'x', slug: 'p63e', headcount: 1, wage_batt_per_claim: 1, wage_interval_hours: 1, foo: 1 }, 'create');
   const pOk = parseProjectPayload({
-    title: 'x', description: 'd', headcount: 3, recruit_min_account_days: 2,
+    title: 'x', slug: 'p63f', description: 'd', headcount: 3, recruit_min_account_days: 2,
     wage_batt_per_claim: '12', wage_cid: '5', wage_currency_amount: '25', wage_interval_hours: 24,
   }, 'create');
   ck.t('A13', '入参纯函数：禁带四键 / 两币成对 / interval 1–100 / headcount>0 / 闭集外键 ⇒ 均 400 `LEDGER_AMOUNT_INVALID`',
@@ -243,6 +248,9 @@ const reasonOf = (r: unknown) => String(((r as { details?: { reason?: unknown } 
   //   否则断言「本门全程未 apply、零残留」。两种模式读数**都落盘**（`readings.mode`）。
   const applied63 = Number((await qRetry<{ n: number }>(pool,
     "SELECT count(*)::int AS n FROM public.schema_migration WHERE version = '0063'"))[0]?.n ?? 0) > 0;
+  // 0068 已 apply ⇒ 0063 尾部自检的「project 物理 14 列」已过时（+slug = 15）⇒ B1 按 mode 取期望、跳过旧尾
+  const applied68 = Number((await qRetry<{ n: number }>(pool,
+    "SELECT count(*)::int AS n FROM public.schema_migration WHERE version = '0068'"))[0]?.n ?? 0) > 0;
   const MODE = applied63 ? 'post-apply' : 'pre-apply';
   out.mode = MODE;
   const r = await tx(pool, async (c) => {
@@ -271,10 +279,10 @@ const reasonOf = (r: unknown) => String(((r as { details?: { reason?: unknown } 
     const [OWNER, W1, W2, W3, W4] = uids;
     R.fixture_users = uids;
 
-    // ---- B1 · 迁移 0063 干跑（头段 + 尾部 DO）
+    // ---- B1 · 迁移 0063 干跑（头段 + 尾部 DO；0068 已 apply ⇒ 旧尾的 14 列断言过时，跳过旧尾改按新期望）
     for (const stmt of M63_HEAD) await c.query(stmt);
     const before63 = await raw1<{ n: number }>(c, "SELECT count(*)::int AS n FROM public.schema_migration WHERE version = '0063'");
-    await c.query(M63_TAIL);
+    if (!applied68) await c.query(M63_TAIL);
     const after63 = await raw1<{ n: number }>(c, "SELECT count(*)::int AS n FROM public.schema_migration WHERE version IN ('0063','0064')");
     R.mig63 = { version_rows_before: Number(before63?.n ?? -1), version_rows_after: Number(after63?.n ?? -1) };
 
@@ -291,8 +299,8 @@ const reasonOf = (r: unknown) => String(((r as { details?: { reason?: unknown } 
     const versionOk = applied63
       ? Number(before63?.n ?? -1) === 1 && Number(after63?.n ?? -1) === 2 // 已 apply 稳态：干跑**不得**再写版本行
       : Number(before63?.n ?? -1) === 0 && Number(after63?.n ?? -1) === 0; // 未 apply：全程零版本行
-    ck.t('B1', `[${MODE}] 0063 干跑全绿：四表在场 · 物理列 14/6/10/4 · 部分唯一索引 = UNIQUE(uid) WHERE status=hired · 配置 fee=10000 · ${applied63 ? '版本行 0063/0064 各 1（已 apply 稳态，干跑零新增）' : '版本行未写'}`,
-      Number(tables?.n ?? 0) === 4 && colMap.project === 14 && colMap.project_worker === 6
+    ck.t('B1', `[${MODE}] 0063 干跑全绿：四表在场 · 物理列 14/6/10/4${applied68 ? '（0068 已 apply ⇒ project=15 含 slug，旧尾跳过、期望前推）' : ''} · 部分唯一索引 = UNIQUE(uid) WHERE status=hired · 配置 fee=10000 · ${applied63 ? '版本行 0063/0064 各 1（已 apply 稳态，干跑零新增）' : '版本行未写'}`,
+      Number(tables?.n ?? 0) === 4 && colMap.project === (applied68 ? 15 : 14) && colMap.project_worker === 6
         && colMap.project_wage_claim === 10 && colMap.user_activity_hour === 4
         && /UNIQUE/.test(String(pidx?.def ?? '')) && /\(uid\)/.test(String(pidx?.def ?? ''))
         && /status = 'hired'/.test(String(pidx?.def ?? '')) && String(feeRow?.fee ?? '') === '10000'
@@ -315,6 +323,10 @@ const reasonOf = (r: unknown) => String(((r as { details?: { reason?: unknown } 
         && Number(seedShape?.rec ?? -1) === 0 && Number(seedShape?.min_h ?? 0) >= 5 && Number(seedShape?.max_h ?? 99) <= 20,
       JSON.stringify({ first: seed1?.n, rerun: seed2?.n, ...seedShape }));
 
+    // ---- 0068 头段干跑（幂等 · 回滚事务内）：createProjectVerb 的 INSERT / slug 预检需要 slug 列在场
+    //      （pre-apply ⇒ 本事务内建列；post-apply ⇒ 全 no-op）。跑在 B1 之后：M63_TAIL 的 14 列断言先验旧形状。
+    for (const stmt of M68_HEAD) await c.query(stmt);
+
     // ---- 公开读口（真 service；传 `ex` ⇒ 走本事务连接，否则别的连接看不到未提交的四表）
     const listed = await listProjects(ex);
     const detail = await getProjectByRef(String(listed[0]?.snowflake_id ?? ''), ex);
@@ -329,8 +341,8 @@ const reasonOf = (r: unknown) => String(((r as { details?: { reason?: unknown } 
     // ---- B4 · 匿名面：三键**缺省**（不是 null —— 前端按 hasOwn 判「未登录」）
     const anonKeys = Object.keys(listed[0] ?? {});
     const anonAbsent = ['my_role', 'my_hired_at', 'next_claim_at'].every((k) => !(k in (listed[0] ?? {})));
-    ck.t('B4', '匿名列表行：`my_role`/`my_hired_at`/`next_claim_at` **三键缺省**（非 null）· 行仍 15 键（加性零破）· 全表一致',
-      anonAbsent && anonKeys.length === 15
+    ck.t('B4', '匿名列表行：`my_role`/`my_hired_at`/`next_claim_at` **三键缺省**（非 null）· 行仍 16 键（15+0068 加性 slug；加性零破）· 全表一致',
+      anonAbsent && anonKeys.length === 16
         && listed.every((x) => !('my_role' in x) && !('my_hired_at' in x) && !('next_claim_at' in x)),
       JSON.stringify({ keys: anonKeys.length, absent: anonAbsent }));
 
@@ -353,6 +365,7 @@ const reasonOf = (r: unknown) => String(((r as { details?: { reason?: unknown } 
 
     const mkBody = (over: Record<string, unknown> = {}) => ({
       title: `p63 门项目 ${RUN}-${Math.random().toString(36).slice(2, 7)}`,
+      slug: `p63-${Math.random().toString(36).slice(2, 10)}`,
       description: 'gate fixture', headcount: 2, recruit_min_account_days: 0,
       wage_batt_per_claim: '10', wage_cid: null, wage_currency_amount: null,
       wage_interval_hours: 1, ...over,
@@ -521,8 +534,8 @@ const reasonOf = (r: unknown) => String(((r as { details?: { reason?: unknown } 
     const viewerNone = await listProjects(ex, { viewerUid: W3 });
     const noneOk = viewerNone.length > 0 && viewerNone.every((x) =>
       x.my_role === 'none' && x.my_hired_at === null && x.next_claim_at === null
-      && Object.keys(x).length === 18);
-    ck.t('S15', '登录态列表（未在职者）：三键**在场**且 `my_role="none"` / `my_hired_at=null` / `next_claim_at=null` · 行 18 键',
+      && Object.keys(x).length === 19);
+    ck.t('S15', '登录态列表（未在职者）：三键**在场**且 `my_role="none"` / `my_hired_at=null` / `next_claim_at=null` · 行 19 键（18+0068 加性 slug）',
       noneOk,
       JSON.stringify({ rows: viewerNone.length, sample: viewerNone[0] ? {
         my_role: viewerNone[0].my_role, my_hired_at: viewerNone[0].my_hired_at, keys: Object.keys(viewerNone[0]).length } : null }));
@@ -611,10 +624,10 @@ const reasonOf = (r: unknown) => String(((r as { details?: { reason?: unknown } 
     const nc3 = await undoAfter(c, 'nc3', async () => {
       // 反事实：跳过扣费腿，只插项目行（= 「去建费扣款」后的行为）⇒ 免费建项
       await c.query(
-        `INSERT INTO public.project (snowflake_id, owner_uid, title, description, headcount, recruit_min_account_days,
+        `INSERT INTO public.project (snowflake_id, owner_uid, title, slug, description, headcount, recruit_min_account_days,
                                      wage_batt_per_claim, wage_interval_hours, status)
-         VALUES (9000000000000001, $1::bigint, $2, 'bypass', 2, 0, 10, 1, 'recruiting')`,
-        [String(POOR), `p63 bypass ${RUN}`]);
+         VALUES (9000000000000001, $1::bigint, $2, $3, 'bypass', 2, 0, 10, 1, 'recruiting')`,
+        [String(POOR), `p63 bypass ${RUN}`, `p63-bypass-${Math.random().toString(36).slice(2, 10)}`]);
       return Number((await raw1<{ n: number }>(c, 'SELECT count(*)::int AS n FROM public.project'))?.n ?? -1);
     });
     ck.t('N3', '★负控③ 建费：穷号建项 ⇒ 409 `project_create_fee_insufficient` · 项目行**不增** · 同键台账 **0** 条；反事实「无扣费腿直插」⇒ 行数 +1（免费建项可现）',

@@ -1,0 +1,252 @@
+{
+  "run": "20261021T040919Zbp86",
+  "name": "p67-wage-streak-gate",
+  "at": "2026-10-21T04:09:53.158Z",
+  "mode": "pre-apply",
+  "readings": {
+    "mode": "pre-apply",
+    "fixture_users": [
+      908601,
+      908602,
+      908603
+    ],
+    "revenue_topup": {
+      "platform_before_claims": "172659"
+    },
+    "claims": [
+      {
+        "idx": 1,
+        "streak": 1,
+        "bonus": "1",
+        "delta": "1",
+        "rows": 1,
+        "legs": {
+          "n": 2,
+          "userLeg": "1",
+          "platLeg": "-1",
+          "kinds": [
+            "invite_first_task_reward"
+          ]
+        },
+        "kind_label": "wage_streak"
+      },
+      {
+        "idx": 2,
+        "streak": 2,
+        "bonus": "3",
+        "delta": "3",
+        "rows": 2,
+        "legs": {
+          "n": 2,
+          "userLeg": "3",
+          "platLeg": "-3",
+          "kinds": [
+            "invite_first_task_reward"
+          ]
+        },
+        "kind_label": "wage_streak"
+      },
+      {
+        "idx": 3,
+        "streak": 3,
+        "bonus": "3",
+        "delta": "3",
+        "rows": 3,
+        "legs": {
+          "n": 2,
+          "userLeg": "3",
+          "platLeg": "-3",
+          "kinds": [
+            "invite_first_task_reward"
+          ]
+        },
+        "kind_label": "wage_streak"
+      },
+      {
+        "idx": 4,
+        "streak": 4,
+        "bonus": "7",
+        "delta": "7",
+        "rows": 4,
+        "legs": {
+          "n": 2,
+          "userLeg": "7",
+          "platLeg": "-7",
+          "kinds": [
+            "invite_first_task_reward"
+          ]
+        },
+        "kind_label": "wage_streak"
+      },
+      {
+        "idx": 5,
+        "streak": 5,
+        "bonus": "1",
+        "delta": "1",
+        "rows": 5,
+        "legs": {
+          "n": 2,
+          "userLeg": "1",
+          "platLeg": "-1",
+          "kinds": [
+            "invite_first_task_reward"
+          ]
+        },
+        "kind_label": "wage_streak"
+      },
+      {
+        "idx": 6,
+        "streak": 6,
+        "bonus": "2",
+        "delta": "2",
+        "rows": 6,
+        "legs": {
+          "n": 2,
+          "userLeg": "2",
+          "platLeg": "-2",
+          "kinds": [
+            "invite_first_task_reward"
+          ]
+        },
+        "kind_label": "wage_streak"
+      },
+      {
+        "idx": 7,
+        "streak": 1,
+        "bonus": "0",
+        "delta": "0",
+        "rows": 1,
+        "legs": {
+          "n": 0,
+          "userLeg": "0",
+          "platLeg": "0",
+          "kinds": []
+        },
+        "kind_label": "wage_streak"
+      }
+    ],
+    "committed_touch": "none (single rollback tx)"
+  },
+  "checks": [
+    {
+      "id": "A1",
+      "what": "0067 形状：单条 `INSERT INTO public.app_config` + `ON CONFLICT (key) DO NOTHING` · 键 `wage_streak_bonus` · 值 `{\"min\":\"1\",\"max\":\"5\"}` · 无 BEGIN/COMMIT · 注释零 dollar-dollar · 零行首竖线",
+      "pass": true,
+      "reading": "{\"insert\":1,\"noTx\":true,\"commentDollar\":0,\"noPipe\":true}"
+    },
+    {
+      "id": "A2",
+      "what": "0067 尾部自检五项在场：键恰 1 行 · `jsonb_typeof = object` · min/max 十进制串 · `0 < min <= max` · 0017 容器 CHECK 仍在",
+      "pass": true,
+      "reading": "tail self-check tokens ok"
+    },
+    {
+      "id": "A3",
+      "what": "零新 kind：`LEDGER_KINDS` 仍 24 值 · 奖励腿借 `invite_first_task_reward`（在闭集内）· 响应语义标签 `wage_streak` **不是** ledger kind",
+      "pass": true,
+      "reading": "{\"kinds\":24,\"ledger_kind\":\"invite_first_task_reward\",\"label\":\"wage_streak\"}"
+    },
+    {
+      "id": "A4",
+      "what": "服务层常量：键 = `wage_streak_bonus` · 默认区间 1–5 · 护栏 CEILING = 1e6",
+      "pass": true,
+      "reading": "{\"key\":\"wage_streak_bonus\",\"def\":{\"min\":1,\"max\":5},\"ceiling\":1000000}"
+    },
+    {
+      "id": "A5",
+      "what": "claim 响应**加性**：路由仍 `sendSuccess(res, result.view, …)`（整份 view 原样透出，零字段裁剪）· 注册点仍 128（get 55 / post 66 / patch 4 / delete 3）",
+      "pass": true,
+      "reading": "{\"regs\":128,\"get\":55,\"post\":66,\"patch\":4,\"delete\":3,\"passthrough\":true}"
+    },
+    {
+      "id": "A6",
+      "what": "区间解析 fail-closed：正臂 3（字符串 / number / JSON 文本）· 反转 / min=0 / 小数 / 非数字 / 数组 / null / 超护栏 ⇒ 一律回落 1–5（`source=default`）",
+      "pass": true,
+      "reading": "{\"ok\":{\"min\":3,\"max\":7,\"source\":\"app_config\"},\"num\":{\"min\":2,\"max\":4,\"source\":\"app_config\"},\"json\":{\"min\":2,\"max\":4,\"source\":\"app_config\"},\"rev\":{\"min\":1,\"max\":5,\"source\":\"default\"},\"zero\":{\"min\":1,\"max\":5,\"source\":\"default\"},\"frac\":{\"min\":1,\"max\":5,\"source\":\"default\"},\"text\":{\"min\":1,\"max\":5,\"source\":\"default\"},\"arr\":{\"min\":1,\"max\":5,\"source\":\"default\"},\"nil\":{\"min\":1,\"max\":5,\"source\":\"default\"},\"huge\":{\"min\":1,\"max\":5,\"source\":\"default\"}}"
+    },
+    {
+      "id": "A7",
+      "what": "抽样：`min=max=7` ⇒ 200 次恒 7（含端点）· `1–5` ⇒ 400 次全在区间内且出现 ≥3 个不同值（真随机，非固定值）",
+      "pass": true,
+      "reading": "{\"fixed_unique\":[7],\"in_range\":true,\"distinct\":5}"
+    },
+    {
+      "id": "B1",
+      "what": "0067 干跑全绿：键恰 1 行 · 值 `{\"min\": \"1\", \"max\": \"5\"}` · `currentWageStreakBonusRange(ex)` ⇒ 1–5（source=app_config）· 版本行未写",
+      "pass": true,
+      "reading": "{\"version_rows\":[0,0],\"value\":\"{\\\"max\\\": \\\"5\\\", \\\"min\\\": \\\"1\\\"}\",\"parsed\":{\"min\":1,\"max\":5,\"source\":\"app_config\"}}"
+    },
+    {
+      "id": "B2",
+      "what": "0067 幂等：值改成 9–9 后再跑头段 ⇒ 值**不变**（DO NOTHING 不覆盖运维已调区间）· 仍恰 1 行",
+      "pass": true,
+      "reading": "{\"after_rerun\":\"{\\\"max\\\": \\\"9\\\", \\\"min\\\": \\\"9\\\"}\",\"parsed\":{\"min\":9,\"max\":9,\"source\":\"app_config\"}}"
+    },
+    {
+      "id": "B3",
+      "what": "★迁移自检负控：删键后跑尾部 DO ⇒ RAISE（P0001）· 值改 `min=0` 后跑尾部 DO ⇒ RAISE ⇒ 自检对缺行与非法区间都**可红**",
+      "pass": true,
+      "reading": "{\"missing\":[\"P0001\",\"0067 self-check FAILED: app_config.wage_streak_bonus expect exactly 1 row, got 0\"],\"bad\":[\"P0001\",\"0067 self-check FAILED: wage_streak_bonus needs 0 < min <= max, got min=0 max=0\"]}"
+    },
+    {
+      "id": "S1",
+      "what": "连领三次：`streak` = **1 / 2 / 3** · 每笔 `bonus_amount` ∈ [1,5] 整数 · `bonus_kind` = `wage_streak` · claim 行数 1/2/3",
+      "pass": true,
+      "reading": "{\"streaks\":[1,2,3],\"bonuses\":[\"1\",\"3\",\"3\"],\"rows\":[1,2,3],\"labels\":[\"wage_streak\",\"wage_streak\",\"wage_streak\"]}"
+    },
+    {
+      "id": "S2",
+      "what": "★账实对拍（三连领）：每笔用户 `$` 余额增量 = `bonus_amount` = 该事件用户腿和 · 平台 `-1` 腿 = −bonus · 台账**恰 2 条** / kind = `invite_first_task_reward`",
+      "pass": true,
+      "reading": "[{\"bonus\":\"1\",\"delta\":\"1\",\"legs\":{\"n\":2,\"userLeg\":\"1\",\"platLeg\":\"-1\",\"kinds\":[\"invite_first_task_reward\"]}},{\"bonus\":\"3\",\"delta\":\"3\",\"legs\":{\"n\":2,\"userLeg\":\"3\",\"platLeg\":\"-3\",\"kinds\":[\"invite_first_task_reward\"]}},{\"bonus\":\"3\",\"delta\":\"3\",\"legs\":{\"n\":2,\"userLeg\":\"3\",\"platLeg\":\"-3\",\"kinds\":[\"invite_first_task_reward\"]}}]"
+    },
+    {
+      "id": "S3",
+      "what": "配置敏感 + fail-closed：区间改 7–7 ⇒ 第 4 笔奖励**恰 7**（读的是 app_config，非硬编码）· 改成非法 0–0 ⇒ 第 5 笔回落 [1,5] 且 ≠ 0 · streak = 4 / 5 逐次 +1",
+      "pass": true,
+      "reading": "{\"ranged_7_7\":[4,\"7\",\"7\"],\"invalid_0_0\":[5,\"1\"]}"
+    },
+    {
+      "id": "S5",
+      "what": "离职后重新入职：`streak` = **6**（按 (project,uid) 累计、不清零 —— 派生行数，不落冗余列）· 离职本身 200",
+      "pass": true,
+      "reading": "{\"left\":true,\"streak\":6,\"rows\":6}"
+    },
+    {
+      "id": "S6",
+      "what": "次数与台账一致：claim 行 = 6 · 最后一次 streak = 6 · 奖励**事件**数 = 6 · 事件分录 = 12（2 腿/事件）· 累计余额 = Σbonus",
+      "pass": true,
+      "reading": "{\"claims\":6,\"streak\":6,\"bonus_events\":6,\"balance\":\"17\",\"sum_bonus\":\"17\"}"
+    },
+    {
+      "id": "S7",
+      "what": "平台收入 `-1` 清零后领薪：**领取仍成功**（200）· `bonus_amount` = `0` · streak 照常 +1（=1）· claim 行落盘 · 零奖励台账腿（奖励 fail-open、领取 fail-closed）",
+      "pass": true,
+      "reading": "{\"revenue_zero\":\"0\",\"streak\":1,\"bonus\":\"0\",\"delta\":\"0\",\"legs\":0,\"rows\":1}"
+    },
+    {
+      "id": "N1",
+      "what": "★负控① `streak` 无计数 ⇒ 恒 1：反事实序列 [1,1,1] 过不了 `streak === 序数`（判据可红）· 真路径：删掉最早 claim 行后连领 ⇒ 返回 streak = 行数 = 6（恒 1 实现会返回 1）⇒ 判据必红",
+      "pass": true,
+      "reading": "{\"constant_seq_passes\":false,\"rowsAfterDelete\":5,\"streak\":6,\"rowsAfterClaim\":6,\"sqlstate\":null}"
+    },
+    {
+      "id": "N2",
+      "what": "★负控② `bonus` 无台账腿 ⇒ 余额对拍必红：直改 `account.balance`（无台账）被 `trg_account_guard` 拒（P0001 `!= latest ledger snapshot`）⇒ 余额只能随台账走；且 `无腿增量 0 ≠ bonus` ⇒ `delta === bonus` 判据红",
+      "pass": true,
+      "reading": "{\"sqlstate\":\"P0001\",\"message\":\"account(19/0) != latest ledger snapshot(17/0) for uid=908602 cid=1\",\"no_leg_delta\":\"0\",\"bonus\":\"2\"}"
+    },
+    {
+      "id": "Z1",
+      "what": "[pre-apply] 零 apply / 零残留：提交面 `schema_migration` **无** 0067 行 · `app_config.wage_streak_bonus` **0 行**",
+      "pass": true,
+      "reading": "{\"mode\":\"pre-apply\",\"version_0067\":0,\"cfg_rows\":0}"
+    }
+  ],
+  "summary": {
+    "total": 19,
+    "passed": 19,
+    "failed": 0,
+    "red": []
+  }
+}

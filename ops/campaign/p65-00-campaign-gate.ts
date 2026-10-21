@@ -32,7 +32,9 @@
  *       ② 去 floor 余数规则（改 ceil 分发）⇒ 两户各 51 = 102 ≠ 奖池 101（超额发放、余数变负）⇒
  *          S 臂「distributed + retained == prize 且 retained ≥ 0」必红；
  *       ③ 去「全部子任务完成」闸 ⇒ 零凭证用户可领完成奖（平台→用户分录可现）⇒ S 臂「未完成 409」必红。
- *   Z · 残留：提交面（rollback 之后）**无**五表、**无** seed 行 ⇒ 本门全程未 apply。
+ *   Z · 残留（mode-aware）：**事务前**取提交面基线（五表数 / 0065 版本行数），**事务后**读数须与基线
+ *       逐项相等 ⇒ 本门全程单回滚事务、未向提交面额外写入。pre-apply 时基线 = 0/0（即旧的「无五表、
+ *       无 0065 版本行」）；post-apply（dev 已 apply 0065）时基线 = 5/1（已 apply 稳态）。
  *
  * 纪律：**不 apply、不写版本表**；一切 DDL / DML / 资金夹具都在回滚事务内（`inRollbackTx`），
  *   失败 / 须撤销的臂再包 SAVEPOINT ⇒ 零残留。凭据只读 `backend-ts/.env.local`（dev 库）。
@@ -91,6 +93,8 @@ const readSrc = (p: string) => fs.readFileSync(path.resolve(REPO_ROOT, p), 'utf8
 const INDEX_TS = readSrc('backend-ts/src/index.ts');
 const SVC = readSrc('backend-ts/src/campaign-service.ts');
 const MIG65 = readSrc('backend-ts/migrations/0065_campaign_hierarchy.sql');
+// 0068（p68 单）：createCampaignVerb 的 INSERT / 归属链读口需要 campaign.project_id 在场 ⇒ 干跑其头段（幂等）
+const MIG68 = readSrc('backend-ts/migrations/0068_project_slug_campaign_link.sql');
 
 // ---------------------------------------------------------------- SQL 切分（dollar-dollar 感知）
 const stripSqlComments = (src: string): string => {
@@ -125,6 +129,10 @@ const headOf = (src: string) => src.slice(0, src.indexOf('\nDO $$')).trim();
 const tailOf = (src: string) => src.slice(src.indexOf('\nDO $$') + 1).trim();
 const M65_HEAD = splitSqlStatements(headOf(MIG65));
 const M65_TAIL = tailOf(MIG65);
+// 0068 有 3 个 DO 块（两处幂等守卫 + 尾部自检）：头段须取到**最后一处 DO 之前**的全部 DDL
+// （campaign ADD COLUMN project_id / FK / 索引在第一个 DO 之后）⇒ 用 lastIndexOf，别复用 MIG65 的 indexOf 语义。
+const headBeforeLastDo = (src: string) => src.slice(0, src.lastIndexOf('\nDO $$')).trim();
+const M68_HEAD = splitSqlStatements(headBeforeLastDo(MIG68));
 
 /** SAVEPOINT 三明治：跑完（无论成败）一律回滚到存档点 ⇒ 反事实臂零污染 */
 const undoAfter = async <T>(c: Qx, tag: string, fn: () => Promise<T>): Promise<{ value: T | null; sqlstate: string | null }> => {
@@ -196,9 +204,13 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
     CAMPAIGN_BLOCK.indexOf("app.post('/api/campaign/subtask/:subtaskId/proof'"),
     CAMPAIGN_BLOCK.indexOf("app.post('/api/campaign/subtask/:subtaskId/settle'"),
   );
-  ck.t('A4', '权限键 = `manage_tasks`（6 条管理口 ＋ 项目域 1 条 = 7 处）· 活动块内**零** manage_rewards · 提凭证口 = 登录闸 `requireActor`',
-    gateCount === 7 && !/manage_rewards/.test(CAMPAIGN_BLOCK) && /requireActor\(req, res\)/.test(PROOF_ROUTE),
-    `manage_tasks_gates=${gateCount} block_has_manage_rewards=${/manage_rewards/.test(CAMPAIGN_BLOCK)} proof_uses_actor=${/requireActor\(req, res\)/.test(PROOF_ROUTE)}`);
+  // 0068（p68）权限扩容：三个**创建口**（POST campaign / POST task / PATCH task）改走
+  // `authorizeProjectScopedCreate`（manage_tasks 管理员 ∨ 在管项目 owner），其余管理口仍 `requireAdmin('manage_tasks')`。
+  const scopedCreates = (INDEX_TS.match(/authorizeProjectScopedCreate\(/g) ?? []).length;
+  ck.t('A4', '权限键：`requireAdmin(manage_tasks)` 仍 **4 处**（非创建口）· 创建口 **3 处**走 `authorizeProjectScopedCreate`（管理员 ∨ owner，p68 扩容）· 活动块内**零** manage_rewards · 提凭证口 = 登录闸 `requireActor`',
+    gateCount === 4 && scopedCreates === 3
+      && !/manage_rewards/.test(CAMPAIGN_BLOCK) && /requireActor\(req, res\)/.test(PROOF_ROUTE),
+    `manage_tasks_gates=${gateCount} scoped_creates=${scopedCreates} block_has_manage_rewards=${/manage_rewards/.test(CAMPAIGN_BLOCK)} proof_uses_actor=${/requireActor\(req, res\)/.test(PROOF_ROUTE)}`);
 
   ck.t('A5', '零新 ledger kind：`LEDGER_KINDS` 仍 24 值，平台出账借 `invite_first_task_reward`（−1 唯一合法 debit）',
     LEDGER_KINDS.length === 24 && PLATFORM_PAYOUT_KIND === 'invite_first_task_reward'
@@ -243,15 +255,17 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
   const errOf = (x: unknown): unknown =>
     (x && typeof x === 'object' && 'err' in (x as Record<string, unknown>) ? (x as { err: unknown }).err : x);
   const cForbid = parseCampaignPayload({ title: 'x', status: 'active' }, 'create');
-  const cBadWin = parseCampaignPayload({ title: 'x', time_start: '2026-10-20T10:00:00Z', time_end: '2026-10-20T09:00:00Z' }, 'create');
+  const cBadWin = parseCampaignPayload({ title: 'x', project_id: '1000', time_start: '2026-10-20T10:00:00Z', time_end: '2026-10-20T09:00:00Z' }, 'create');
   const cBadStatus = parseCampaignPayload({ title: 'x', status: 'archived' }, 'patch');
-  const cOk = parseCampaignPayload({ title: 'x', description: 'd', time_start: '2026-10-20T09:00:00Z', time_end: '2026-10-21T09:00:00Z' }, 'create');
-  ck.t('A12', '活动入参：建口禁带 status（400 NOT_SUPPORTED）· 时间窗倒置 400 · 状态越集 400 · 合法体通过',
+  const cOk = parseCampaignPayload({ title: 'x', project_id: '1000', description: 'd', time_start: '2026-10-20T09:00:00Z', time_end: '2026-10-21T09:00:00Z' }, 'create');
+  const cNoProj = parseCampaignPayload({ title: 'x' }, 'create');
+  ck.t('A12', '活动入参：建口禁带 status（400 NOT_SUPPORTED）· 缺 project_id 400（0068）· 时间窗倒置 400 · 状态越集 400 · 合法体通过',
     verbOf(errOf(cForbid)) === 400 && reasonOf(errOf(cForbid)) === 'NOT_SUPPORTED'
+      && verbOf(errOf(cNoProj)) === 400 && reasonOf(errOf(cNoProj)) === 'CAMPAIGN_PROJECT_REQUIRED'
       && verbOf(errOf(cBadWin)) === 400 && reasonOf(errOf(cBadWin)) === 'CAMPAIGN_TIME_WINDOW_INVALID'
       && verbOf(errOf(cBadStatus)) === 400 && reasonOf(errOf(cBadStatus)) === 'CAMPAIGN_STATUS_INVALID'
       && 'payload' in cOk,
-    JSON.stringify({ forbid: reasonOf(errOf(cForbid)), window: reasonOf(errOf(cBadWin)), status: reasonOf(errOf(cBadStatus)) }));
+    JSON.stringify({ forbid: reasonOf(errOf(cForbid)), no_proj: reasonOf(errOf(cNoProj)), window: reasonOf(errOf(cBadWin)), status: reasonOf(errOf(cBadStatus)) }));
 
   const tNoReward = parseTaskPayload({ title: 'x' }, 'create');
   const tOneCid = parseTaskPayload({ title: 'x', reward_amount_primary: '100', reward_cid_secondary: '5' }, 'create');
@@ -303,6 +317,23 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
 
   // ======================================================================== B + S + N · 事务内
   const pool = mkPool(2);
+  // ★ mode-aware（承「dev 已 apply ⇒ 同一门必红」纪律）：0065 已进 dev 库 ⇒ B1 断言「已 apply 稳态」；
+  //   0068 已 apply ⇒ 0065 旧尾的「campaign 物理 9 列」过时（+project_id = 10）⇒ 跳过旧尾、期望前推。
+  const applied65 = Number((await qRetry<{ n: number }>(pool,
+    "SELECT count(*)::int AS n FROM public.schema_migration WHERE version = '0065'"))[0]?.n ?? 0) > 0;
+  const applied68 = Number((await qRetry<{ n: number }>(pool,
+    "SELECT count(*)::int AS n FROM public.schema_migration WHERE version = '0068'"))[0]?.n ?? 0) > 0;
+  const MODE = applied65 ? 'post-apply' : 'pre-apply';
+  out.mode = MODE;
+  // ★ Z1 基线（**事务前**取提交面读数）：0065 已进 dev 库 ⇒ 「无五表 / 无版本行」是过时断言。
+  //   改为「本门未额外写入」：事务后读数必须与事务前基线**逐项相等**（两种 mode 同一判据，判据数不减）。
+  const committedResidue = async (): Promise<{ tables: number; version_rows: number }> => {
+    const t = await qRetry<{ n: number }>(pool,
+      "SELECT count(*)::int AS n FROM information_schema.tables WHERE table_schema='public' AND table_name IN ('campaign','task','subtask','subtask_type','subtask_proof')");
+    const v = await qRetry<{ n: number }>(pool, "SELECT count(*)::int AS n FROM public.schema_migration WHERE version = '0065'");
+    return { tables: Number(t[0]?.n ?? -1), version_rows: Number(v[0]?.n ?? -1) };
+  };
+  const baseline = await committedResidue();
   const r = await tx(pool, async (c) => {
     const R: Record<string, unknown> = {};
     const ex = c as unknown as TxClient;
@@ -328,10 +359,10 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
     const [U1, U2, U3, U4] = uids;
     R.fixture_users = uids;
 
-    // ---- B1 · 迁移 0065 干跑（头段 + 尾部 DO）
+    // ---- B1 · 迁移 0065 干跑（头段 + 尾部 DO；0068 已 apply ⇒ 旧尾 9 列断言过时 ⇒ 跳过旧尾）
     for (const stmt of M65_HEAD) await c.query(stmt);
     const before65 = await raw1<{ n: number }>(c, "SELECT count(*)::int AS n FROM public.schema_migration WHERE version = '0065'");
-    await c.query(M65_TAIL);
+    if (!applied68) await c.query(M65_TAIL);
     const after65 = await raw1<{ n: number }>(c, "SELECT count(*)::int AS n FROM public.schema_migration WHERE version = '0065'");
 
     const tables = await raw1<{ n: number }>(c,
@@ -357,13 +388,13 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
         WHERE n.nspname='public' AND c.relname IN ('campaign','task','subtask')
           AND NOT t.tgisinternal AND t.tgenabled='O'
           AND t.tgname IN ('trg_campaign_touch_updated','trg_task_touch_updated','trg_subtask_touch_updated')`);
-    ck.t('B1', '0065 干跑全绿：五表 · 列数 9/14/11/4/7 · 三 CASCADE · UNIQUE(subtask_id,uid) · proof status 单值 · 两索引 · 三触发器 · 版本行未写',
-      Number(tables?.n ?? 0) === 5 && colMap.campaign === 9 && colMap.task === 14 && colMap.subtask === 11
+    ck.t('B1', `[${applied65 ? 'post-apply' : 'pre-apply'}] 0065 干跑全绿：五表 · 列数 ${applied68 ? '10' : '9'}/14/11/4/7${applied68 ? '（0068 已 apply ⇒ campaign=10 含 project_id，旧尾跳过、期望前推）' : ''} · 三 CASCADE · UNIQUE(subtask_id,uid) · proof status 单值 · 两索引 · 三触发器 · ${applied65 ? '版本行 0065 稳态 1（干跑零新增）' : '版本行未写'}`,
+      Number(tables?.n ?? 0) === 5 && colMap.campaign === (applied68 ? 10 : 9) && colMap.task === 14 && colMap.subtask === 11
         && colMap.subtask_type === 4 && colMap.subtask_proof === 7
         && Number(cascades?.n ?? 0) === 3 && /subtask_id/.test(String(uniqDef?.def ?? '')) && /uid/.test(String(uniqDef?.def ?? ''))
         && /submitted/.test(String(statusDef?.def ?? '')) && !/approved/.test(String(statusDef?.def ?? ''))
         && Number(idx?.n ?? 0) === 2 && Number(trg?.n ?? 0) === 3
-        && Number(before65?.n ?? -1) === 0 && Number(after65?.n ?? -1) === 0,
+        && Number(before65?.n ?? -1) === (applied65 ? 1 : 0) && Number(after65?.n ?? -1) === (applied65 ? 1 : 0),
       JSON.stringify({ tables: tables?.n, cols: colMap, cascades: cascades?.n, uniq: uniqDef?.def, status: statusDef?.def, idx: idx?.n, trg: trg?.n, version: [before65?.n, after65?.n] }));
 
     ck.t('B2', 'seed 恰 5 行且 (type_code,label,sort) 与 §40.14.3 逐字一致 · 全 active · 无 poll',
@@ -377,6 +408,26 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
     const seedAgain = await raw1<{ n: number }>(c, 'SELECT count(*)::int AS n FROM public.subtask_type');
     ck.t('B3', '迁移幂等：头段**二次执行** ⇒ seed 仍恰 5 行（ON CONFLICT DO NOTHING）',
       Number(seedAgain?.n ?? -1) === 5, `seed_rows=${seedAgain?.n}`);
+
+    // ---- 0068 头段干跑（幂等 · 回滚事务内）：createCampaignVerb 的 INSERT / 归属链读口需要 campaign.project_id
+    //      与 project.slug 在场（pre-apply ⇒ 本事务内建列；post-apply ⇒ no-op）。跑在 B1 之后：0065 旧尾先验旧形状。
+    for (const stmt of M68_HEAD) await c.query(stmt);
+
+    // 活动挂载项目夹具：取种子项目（0064 十行）；无种子 ⇒ 直插一行（owner = U4，slug 列已在场）
+    let FIXPROJ = String((await raw1<{ project_id: string }>(c,
+      `SELECT project_id::text AS project_id FROM public.project
+        WHERE title = 'Sui 生态推广' ORDER BY project_id LIMIT 1`))?.project_id ?? '');
+    if (!FIXPROJ) {
+      const insRow = await raw1<{ project_id: string }>(c,
+        `INSERT INTO public.project
+           (snowflake_id, owner_uid, title, slug, description, headcount, recruit_min_account_days,
+            wage_batt_per_claim, wage_interval_hours, status)
+         VALUES (9910000000000099, $1::bigint, 'p65 gate project', $2, 'p65-gate fixture', 5, 0, 10, 1, 'recruiting')
+         RETURNING project_id::text AS project_id`,
+        [String(U4), `p65-gate-${RUN.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 12)}`]);
+      FIXPROJ = String(insRow?.project_id ?? '');
+    }
+    R.fixture_project = FIXPROJ;
 
     // ---- 资金夹具：平台收入账户只能「收平台费」垫高（−1 不得 mint），再由 invite_first_task_reward 付
     await postEvent({
@@ -421,7 +472,7 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
 
     // ---- S1 · 建活动（status 恒 draft；draft 公众 404 / 管理员 200）
     const mkCampaign = (over: Record<string, unknown> = {}) =>
-      createCampaignVerb({ body: { title: `p65 活动 ${RUN}-${Math.random().toString(36).slice(2, 7)}`, description: 'gate', ...over }, ex });
+      createCampaignVerb({ body: { title: `p65 活动 ${RUN}-${Math.random().toString(36).slice(2, 7)}`, project_id: FIXPROJ, description: 'gate', ...over }, ex });
     const c1 = await mkCampaign();
     const C1 = String(viewOf<{ campaign_id?: string }>(c1).campaign_id ?? '');
     const C1_SF = String(viewOf<{ snowflake_id?: string }>(c1).snowflake_id ?? '');
@@ -491,10 +542,10 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
       undoAfter(c, tag, async () => { await c.query(sql, params); return 'inserted'; });
     const dbChecks: Record<string, string | null> = {};
     dbChecks.campaign_status = (await probe('b4a',
-      `INSERT INTO public.campaign (snowflake_id, title, status) VALUES (9910000000000001, 'x', 'archived')`)).sqlstate;
+      `INSERT INTO public.campaign (snowflake_id, project_id, title, status) VALUES (9910000000000001, $1::bigint, 'x', 'archived')`, [FIXPROJ])).sqlstate;
     dbChecks.campaign_window = (await probe('b4b',
-      `INSERT INTO public.campaign (snowflake_id, title, time_start, time_end)
-       VALUES (9910000000000002, 'x', now(), now() - interval '1 hour')`)).sqlstate;
+      `INSERT INTO public.campaign (snowflake_id, project_id, title, time_start, time_end)
+       VALUES (9910000000000002, $1::bigint, 'x', now(), now() - interval '1 hour')`, [FIXPROJ])).sqlstate;
     dbChecks.task_reward_zero = (await probe('b4c',
       `INSERT INTO public.task (snowflake_id, campaign_id, title, reward_amount_primary)
        VALUES (9910000000000003, $1::bigint, 'x', 0)`, [C1_ID])).sqlstate;
@@ -907,12 +958,15 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
 
   // ======================================================================== Z · 残留（rollback 之后）
   if (!r.error) {
-    const t = await qRetry<{ n: number }>(pool,
-      "SELECT count(*)::int AS n FROM information_schema.tables WHERE table_schema='public' AND table_name IN ('campaign','task','subtask','subtask_type','subtask_proof')");
-    const v = await qRetry<{ n: number }>(pool, "SELECT count(*)::int AS n FROM public.schema_migration WHERE version = '0065'");
-    ck.t('Z1', '零 apply / 零残留：提交面**无**五表、**无** 0065 版本行（本门全程单回滚事务）',
-      Number(t[0]?.n ?? -1) === 0 && Number(v[0]?.n ?? -1) === 0,
-      JSON.stringify({ tables: t[0]?.n, version_rows: v[0]?.n }));
+    // mode-aware 判据：**事务前后逐项相等** ⇒ 本门没有向提交面写入任何东西。
+    //   pre-apply（基线 tables=0 / version_rows=0）等价于旧的「无五表、无 0065 版本行」；
+    //   post-apply（dev 已 apply 0065）基线 = 五表 + 版本行 1，仍然是「零残留」的同一口径。
+    const after = await committedResidue();
+    const sameTables = after.tables === baseline.tables;
+    const sameVersion = after.version_rows === baseline.version_rows;
+    ck.t('Z1', `[${MODE}] 零残留（mode-aware）：提交面五表数与 0065 版本行数**事务前 = 事务后**（本门全程单回滚事务，未额外写入；基线 tables=${baseline.tables} / version_rows=${baseline.version_rows}${applied65 ? ' = 已 apply 稳态' : ' = 未 apply ⇒ 即「无五表、无版本行」'}）`,
+      sameTables && sameVersion,
+      JSON.stringify({ mode: MODE, baseline, after, same_tables: sameTables, same_version_rows: sameVersion }));
   }
   await pool.end().catch(() => undefined);
 

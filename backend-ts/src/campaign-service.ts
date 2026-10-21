@@ -198,6 +198,8 @@ export interface TaskView {
 export interface CampaignView {
   campaign_id: string;
   snowflake_id: string;
+  /** 所属项目（0068 加性；JSON 出参字符串 —— 项目页嵌套读口按它过滤） */
+  project_id: string;
   title: string;
   description: string;
   status: string;
@@ -269,6 +271,7 @@ const normalizeTaskRow = (row: Row, subtasks: SubtaskView[] = []): TaskView => (
 const normalizeCampaignRow = (row: Row, tasks: TaskView[] = []): CampaignView => ({
   campaign_id: str(row.campaign_id),
   snowflake_id: str(row.snowflake_id),
+  project_id: str(row.project_id),
   title: str(row.title),
   description: str(row.description),
   status: str(row.status),
@@ -309,6 +312,10 @@ const notFound = (reason = 'campaign_not_found'): VerbErr => fail(404, 'LEDGER_R
 /** 409：状态 / 闸 / 一次性封板类冲突（借 `LEDGER_INSUFFICIENT_BALANCE`） */
 const conflict = (reason: string, extra: Record<string, unknown> = {}): VerbErr =>
   fail(409, 'LEDGER_INSUFFICIENT_BALANCE', reason, extra);
+
+/** 403：权限 / 身份类（借 `AUTH_FORBIDDEN`；创建口 project_owner 支与管理员支共用一出口） */
+const forbidden = (reason: string, extra: Record<string, unknown> = {}): VerbErr =>
+  fail(403, 'AUTH_FORBIDDEN', reason, extra);
 
 /** 事务壳：生产无 `ex` ⇒ `withTransaction`；门 / 探针注入 `ex` ⇒ 复用调用方事务（零第二套写入面） */
 const runInTx = async <T>(ex: TxClient | undefined, fn: (tx: TxClient) => Promise<T>): Promise<T> =>
@@ -393,12 +400,14 @@ const windowOk = (start: string | null, end: string | null): boolean =>
 // ============================================================================
 // 入参校验 —— campaign（R4 / R5）
 // ============================================================================
-const CAMPAIGN_CREATE_KEYS = ['title', 'description', 'time_start', 'time_end'];
+const CAMPAIGN_CREATE_KEYS = ['title', 'project_id', 'description', 'time_start', 'time_end'];
 const CAMPAIGN_PATCH_KEYS = ['title', 'description', 'time_start', 'time_end', 'status'];
 const CAMPAIGN_FORBIDDEN = ['status', 'snowflake_id', 'campaign_id', 'created_at', 'time_created'];
 
 export interface CampaignPayload {
   title?: string;
+  /** 创建必填（迁移 0068：campaign.project_id NOT NULL；PATCH 不可改挂 —— 不给改挂语义，未知键 400） */
+  project_id?: string;
   description?: string;
   time_start?: string | null;
   time_end?: string | null;
@@ -424,6 +433,14 @@ export const parseCampaignPayload = (
   const out: CampaignPayload = {};
   const has = (k: string) => Object.prototype.hasOwnProperty.call(input, k);
 
+  // project_id：创建必填（页面地址归属的载体；存在性在写口事务内判，404 project_not_found）
+  if (mode === 'create') {
+    const pid = asPositiveIntText(input.project_id);
+    if (pid === null) {
+      return { err: badRequest('CAMPAIGN_PROJECT_REQUIRED', { field: 'project_id', expected: 'positive_integer (项目的 project_id 或 snowflake_id 所属行)' }) };
+    }
+    out.project_id = pid;
+  }
   if (mode === 'create' || has('title')) {
     const title = asTitle(input.title);
     if (title === null) return { err: badRequest('CAMPAIGN_TITLE_INVALID', { field: 'title', expected: 'non_empty_string<=200' }) };
@@ -814,6 +831,47 @@ export const listActiveCampaigns = async (ex?: TxClient): Promise<CampaignView[]
 };
 
 /**
+ * R2 嵌套读口的项目过滤版（迁移 0068 · 零新路由）：`GET /api/project/:ref` 的加性 `campaigns[]` 用。
+ * 归属链 = `campaign.project_id = 项目`；公开面 = campaign active ∧ task 非 draft（与 `getCampaignByRef`
+ * 逐字同口径）；`includeDraft`（manage_tasks 管理员 / 项目 owner）= 全量 campaign + 全量 task。
+ */
+export const listCampaignsByProject = async (
+  projectId: string,
+  opts: { includeDraft: boolean },
+  ex?: TxClient,
+): Promise<CampaignView[]> => {
+  const campaigns = await readRows<Row>(
+    opts.includeDraft
+      ? `SELECT * FROM public.campaign WHERE project_id = $1::bigint
+          ORDER BY time_created DESC, campaign_id DESC`
+      : `SELECT * FROM public.campaign WHERE project_id = $1::bigint AND status = 'active'
+          ORDER BY time_created DESC, campaign_id DESC`,
+    [projectId],
+    ex,
+  );
+  if (!campaigns.length) return [];
+  const campaignIds = campaigns.map((c) => str(c.campaign_id));
+  const tasks = await readRows<Row>(
+    opts.includeDraft
+      ? `SELECT * FROM public.task WHERE campaign_id = ANY($1::bigint[]) ORDER BY sort ASC, task_id ASC`
+      : `SELECT * FROM public.task WHERE campaign_id = ANY($1::bigint[]) AND status <> 'draft' ORDER BY sort ASC, task_id ASC`,
+    [campaignIds],
+    ex,
+  );
+  const taskIds = tasks.map((t) => str(t.task_id));
+  const subtasks = taskIds.length
+    ? await readRows<Row>(
+      `${SUBTASK_SELECT} WHERE s.task_id = ANY($1::bigint[]) ORDER BY s.sort ASC, s.subtask_id ASC`,
+      [taskIds],
+      ex,
+    )
+    : [];
+  const subtaskMap = groupSubtasks(subtasks);
+  const taskMap = groupTasks(tasks, subtaskMap);
+  return campaigns.map((c) => normalizeCampaignRow(c, taskMap.get(str(c.campaign_id)) ?? []));
+};
+
+/**
  * 登录态附加块（加性 —— 零新路由 / 零新表 / 零新查询面：两次只读、一次往返一层）：
  * ① 本人在本活动全部子任务上的凭证（`(subtask_id, uid)` 唯一 ⇒ 每子任务至多一行）；
  * ② 已结算 prediction 的赢家人数（与 settle 同口径：`proof.payload.choice = subtask.payload.correct_option`）。
@@ -968,6 +1026,88 @@ const loadCampaignRow = async (
     [campaignRef],
   );
   return rows.length ? rows[0] : null;
+};
+
+// ============================================================================
+// 创建口 project_owner 支（迁移 0068 权限扩容 · manage_tasks 管理员之外的另一支）
+// ----------------------------------------------------------------------------
+//   · campaign 建：owner = body.project_id 所指项目的 owner_uid；
+//   · task 建：owner = campaign.project_id（归属链经 campaign）；
+//   · subtask 建（内联于 task 建改口）：owner = task → campaign → project 链；
+//   · 谓词 = owner_uid = 本人 ∧ 项目 status ≠ 'ended'（派单逐字；管理员支不受 ≠ended 约束）；
+//   · 决策纯函数零 DB（上下文由两个读口取），路由层与门共用同一实现。
+// ============================================================================
+export interface CreateAuthzOwnerContext {
+  project_owner_uid: string;
+  project_status: string;
+}
+
+/** campaign 建 / task 建的归属链读口：campaign（或其 snowflake）→ 所属项目 owner/status */
+export const getCampaignAuthzContext = async (
+  campaignRef: string,
+  ex?: TxClient,
+): Promise<(CreateAuthzOwnerContext & { campaign_id: string; project_id: string }) | null> => {
+  if (!isCampaignRef(campaignRef)) return null;
+  const rows = await readRows<Row>(
+    `SELECT c.campaign_id::text AS campaign_id, c.project_id::text AS project_id,
+            p.owner_uid::text AS project_owner_uid, p.status AS project_status
+       FROM public.campaign AS c
+       JOIN public.project AS p ON p.project_id = c.project_id
+      WHERE c.campaign_id = $1::bigint OR c.snowflake_id = $1::bigint
+      LIMIT 1`,
+    [campaignRef],
+    ex,
+  );
+  return rows.length ? (rows[0] as unknown as CreateAuthzOwnerContext & { campaign_id: string; project_id: string }) : null;
+};
+
+/** subtask 建（task 改口内联新增）的归属链读口：task → campaign → project owner/status */
+export const getTaskAuthzContext = async (
+  taskRef: string,
+  ex?: TxClient,
+): Promise<(CreateAuthzOwnerContext & { task_id: string; campaign_id: string; project_id: string }) | null> => {
+  if (!isCampaignRef(taskRef)) return null;
+  const rows = await readRows<Row>(
+    `SELECT t.task_id::text AS task_id, t.campaign_id::text AS campaign_id,
+            c.project_id::text AS project_id,
+            p.owner_uid::text AS project_owner_uid, p.status AS project_status
+       FROM public.task AS t
+       JOIN public.campaign AS c ON c.campaign_id = t.campaign_id
+       JOIN public.project AS p ON p.project_id = c.project_id
+      WHERE t.task_id = $1::bigint OR t.snowflake_id = $1::bigint
+      LIMIT 1`,
+    [taskRef],
+    ex,
+  );
+  return rows.length ? (rows[0] as unknown as CreateAuthzOwnerContext & { task_id: string; campaign_id: string; project_id: string }) : null;
+};
+
+/**
+ * 创建口权限决策（纯函数 · 路由层与门共用）：
+ *   · `adminActor`（路由层以 requireAdmin 同源谓词判定：can_access_admin ∧ (is_admin ∨ manage_tasks)）⇒ 放行；
+ *   · 否则 owner 支：ownerContext.project_owner_uid = 本人 ∧ project_status ≠ 'ended' ⇒ 放行；
+ *   · 都不满足 ⇒ 403（details.reason = 'project_owner_required' / owner 但项目已 ended ⇒
+ *     'project_owner_ended'），借 AUTH_FORBIDDEN（零新码）。
+ */
+export const authorizeProjectScopedCreate = (input: {
+  actorUid: number;
+  adminActor: boolean;
+  ownerContext: CreateAuthzOwnerContext | null;
+  projectId: string | null;
+}): VerbErr | null => {
+  if (input.adminActor) return null;
+  const ctx = input.ownerContext;
+  if (ctx && str(ctx.project_owner_uid) === String(input.actorUid)) {
+    if (str(ctx.project_status) !== 'ended') return null;
+    return forbidden('project_owner_ended', {
+      project_id: input.projectId,
+      project_status: str(ctx.project_status),
+    });
+  }
+  return forbidden('project_owner_required', {
+    project_id: input.projectId,
+    hint: 'manage_tasks 管理员，或项目 owner（owner_uid = 本人 ∧ status ≠ ended）',
+  });
 };
 
 // ============================================================================
@@ -1175,12 +1315,22 @@ export const createCampaignVerb = async (input: { body: unknown; ex?: TxClient }
   const p = parsed.payload;
 
   return runInTx<VerbResult<CampaignView>>(input.ex, async (tx) => {
+    // 挂载项目必须在场（迁移 0068：campaign.project_id NOT NULL FK；不存在 ⇒ 404，不落 23503 半码）
+    const projRows = await txQuery<Row>(
+      tx,
+      `SELECT project_id::text AS project_id FROM public.project WHERE project_id = $1::bigint LIMIT 1`,
+      [p.project_id],
+    );
+    if (!projRows.length) {
+      return notFound('project_not_found');
+    }
+
     const inserted = await txQuery<Row>(
       tx,
-      `INSERT INTO public.campaign (snowflake_id, title, description, status, time_start, time_end)
-       VALUES ($1::bigint, $2::text, $3::text, 'draft', $4::timestamptz, $5::timestamptz)
+      `INSERT INTO public.campaign (snowflake_id, project_id, title, description, status, time_start, time_end)
+       VALUES ($1::bigint, $2::bigint, $3::text, $4::text, 'draft', $5::timestamptz, $6::timestamptz)
        RETURNING *`,
-      [nextSnowflake().toString(), p.title, p.description ?? '', p.time_start ?? null, p.time_end ?? null],
+      [nextSnowflake().toString(), p.project_id, p.title, p.description ?? '', p.time_start ?? null, p.time_end ?? null],
     );
     return { ok: true, view: normalizeCampaignRow(inserted[0], []), replay: false };
   });

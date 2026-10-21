@@ -35,6 +35,7 @@ import { postEvent } from './ledger';
 import { errorMessageOf, normalizeLedgerError } from './ledger-errors';
 import { nextSnowflake } from './item-id';
 import { ledgerErrorBody, sendVerbError, type JobVerbErr as VerbErr } from './job-service';
+import { listCampaignsByProject, type CampaignView } from './campaign-service';
 
 export { ledgerErrorBody, sendVerbError };
 export type { VerbErr };
@@ -93,6 +94,22 @@ const PLATFORM_UID = -1;
 /** `$`（平台内部积分）cid */
 const USD_CID = 1;
 
+// ----------------------------------------------------------------------------
+// 项目 slug（页面地址 · 迁移 0068 · Kevin 2026-10-21 派单）
+//   · 地址名由用户填写；DB 只查格式（project_slug_format_check）+ 唯一（project_slug_uniq）；
+//   · 保留字（20 词）服务层拒 —— 路由面 wage/profile/task/…/orders 已被站内路由占用；
+//   · 纯数字 slug 服务层也拒：ref 判定表「全数字 ⇒ 数值 id」⇒ 纯数字 slug 永不可达，即拒以免歧义。
+//   · 错误码零新增（33 闭集）：400 借 LEDGER_AMOUNT_INVALID，details.reason =
+//     'SLUG_INVALID'（格式/保留字/纯数字）| 'SLUG_TAKEN'（唯一冲突，预检 + 23505 按 constraint 名）。
+// ----------------------------------------------------------------------------
+export const PROJECT_SLUG_PATTERN = /^[a-z0-9][a-z0-9-]{0,31}$/;
+export const PROJECT_SLUG_RESERVED: readonly string[] = [
+  'wage', 'profile', 'task', 'tasks', 'campaign', 'campaigns', 'item', 'items',
+  'project', 'projects', 'admin', 'api', 'login', 'register', 'settings',
+  'assets', 'market', 'messages', 'order', 'orders',
+];
+const DIGITS_ONLY_SLUG = /^[0-9]+$/;
+
 const KEY_PREFIXES = ['biz:', 'cm:', 'cli:', 'ops:'];
 const CONTROL_CHARS = /[\u0000-\u001f\u007f]/;
 
@@ -113,6 +130,8 @@ export interface ProjectView {
   wage_currency_amount: string | null;
   wage_interval_hours: number;
   status: string;
+  /** 页面地址名（0068 加性；用户填写，路由 R2 三形态之一） */
+  slug: string;
   time_created: string | null;
   time_updated: string | null;
 }
@@ -191,6 +210,7 @@ export const normalizeProjectRow = (row: Row): ProjectView => ({
   wage_currency_amount: strOrNull(row.wage_currency_amount),
   wage_interval_hours: int(row.wage_interval_hours),
   status: str(row.status),
+  slug: str(row.slug),
   time_created: iso(row.time_created),
   time_updated: iso(row.time_updated),
 });
@@ -259,18 +279,19 @@ const FORBIDDEN_CREATE_KEYS = ['status', 'snowflake_id', 'project_id', 'owner_ui
 const FORBIDDEN_PATCH_KEYS = ['snowflake_id', 'project_id', 'owner_uid', 'create_key'];
 
 const CREATE_KEYS = [
-  'title', 'description', 'headcount', 'recruit_min_account_days',
+  'title', 'slug', 'description', 'headcount', 'recruit_min_account_days',
   'wage_batt_per_claim', 'wage_cid', 'wage_currency_amount', 'wage_interval_hours',
   'create_key',
 ];
-/** PATCH 合法键 = 建项八键 + `status`（状态机）；`create_key` 不是可改字段 */
+/** PATCH 合法键 = 建项九键 + `status`（状态机）；`create_key` 不是可改字段 */
 const PATCH_KEYS = [
-  'title', 'description', 'headcount', 'recruit_min_account_days',
+  'title', 'slug', 'description', 'headcount', 'recruit_min_account_days',
   'wage_batt_per_claim', 'wage_cid', 'wage_currency_amount', 'wage_interval_hours', 'status',
 ];
 
 export interface ProjectPayload {
   title?: string;
+  slug?: string;
   description?: string;
   headcount?: number;
   recruit_min_account_days?: number;
@@ -305,6 +326,31 @@ const asPositiveDecimal = (v: unknown): string | null => {
 };
 
 /**
+ * slug 入参解析（创建与 PATCH 共用 · 纯函数，门可直接调）：
+ *   · 格式 `^[a-z0-9][a-z0-9-]{0,31}$`（小写字母数字连字符，1–32，首字符非连字符）⇒ 否则 SLUG_INVALID；
+ *   · 保留字 20 词（路由面占用）⇒ SLUG_INVALID（details.reserved=true）；
+ *   · 纯数字 ⇒ SLUG_INVALID（ref 判定表「全数字 ⇒ id」⇒ 纯数字 slug 永不可达）。
+ */
+export const parseProjectSlugInput = (v: unknown): { slug: string } | { err: VerbErr } => {
+  const text = typeof v === 'string' ? v.trim() : '';
+  if (!PROJECT_SLUG_PATTERN.test(text)) {
+    return {
+      err: badRequest('SLUG_INVALID', {
+        field: 'slug',
+        expected: '^[a-z0-9][a-z0-9-]{0,31}$ (1-32 chars, lowercase letters/digits/hyphen, first char not hyphen)',
+      }),
+    };
+  }
+  if ((PROJECT_SLUG_RESERVED as readonly string[]).includes(text)) {
+    return { err: badRequest('SLUG_INVALID', { field: 'slug', reserved: true, slug: text }) };
+  }
+  if (DIGITS_ONLY_SLUG.test(text)) {
+    return { err: badRequest('SLUG_INVALID', { field: 'slug', slug: text, expected: 'must_contain_a_letter (all-digit ref resolves to id)' }) };
+  }
+  return { slug: text };
+};
+
+/**
  * 解析 body：`strict` = create（八键全量 + 禁带四键），否则 = patch（任意子集）。
  * 返回 `{ payload }` 或 `{ err }`（VerbErr 形态，直接交路由层 `sendVerbError`）。
  */
@@ -335,6 +381,12 @@ export const parseProjectPayload = (
       return { err: badRequest('PROJECT_TITLE_INVALID', { field: 'title', expected: 'non_empty_string<=200' }) };
     }
     out.title = title;
+  }
+  // slug：创建**必填**（页面地址由用户填写）；PATCH 可改（格式/保留字共用一解析；唯一冲突在事务内判）
+  if (mode === 'create' || has('slug')) {
+    const parsedSlug = parseProjectSlugInput(input.slug);
+    if ('err' in parsedSlug) return { err: parsedSlug.err };
+    out.slug = parsedSlug.slug;
   }
   if (mode === 'create' || has('description')) {
     const desc = input.description === undefined || input.description === null ? '' : input.description;
@@ -485,24 +537,94 @@ export const listProjects = async (
   return rows.map(normalizeProjectListRow);
 };
 
-/** 单语句双形态（`project_id` OR `snowflake_id`，一次往返 —— route #67） */
+/**
+ * R2 详情读口的 ref 判定表（迁移 0068 · 三形态；route 前置谓词 = `isProjectReadRef`）：
+ *   · ref 全数字（≤20 位）⇒ 数值双形态（project_id OR snowflake_id）—— 既有语义不变，**优先**；
+ *   · ref 匹配 slug 格式 ⇒ `slug = ref` 等值（一次往返）；
+ *   · 其他 ⇒ null（路由层 404，不进服务层）。
+ *   · item_code 的「7 位含字母」语义属 item/listing 域，不适用于 project。
+ */
 export const getProjectByRef = async (ref: string, ex?: TxClient): Promise<ProjectView | null> => {
-  if (!/^\d+$/.test(ref)) return null;
-  const rows = await readRows<Row>(
-    `SELECT p.*, COALESCE((SELECT count(*)::int FROM public.project_worker AS w
-                            WHERE w.project_id = p.project_id AND w.status = 'hired'), 0) AS hired_count
-       FROM public.project AS p
-      WHERE p.project_id = $1::bigint OR p.snowflake_id = $1::bigint
-      LIMIT 1`,
-    [ref],
-    ex,
-  );
-  return rows.length ? normalizeProjectRow(rows[0]) : null;
+  if (/^\d+$/.test(ref) && ref.length <= 20) {
+    const rows = await readRows<Row>(
+      `SELECT p.*, COALESCE((SELECT count(*)::int FROM public.project_worker AS w
+                              WHERE w.project_id = p.project_id AND w.status = 'hired'), 0) AS hired_count
+         FROM public.project AS p
+        WHERE p.project_id = $1::bigint OR p.snowflake_id = $1::bigint
+        LIMIT 1`,
+      [ref],
+      ex,
+    );
+    return rows.length ? normalizeProjectRow(rows[0]) : null;
+  }
+  if (isProjectSlug(ref)) {
+    const rows = await readRows<Row>(
+      `SELECT p.*, COALESCE((SELECT count(*)::int FROM public.project_worker AS w
+                              WHERE w.project_id = p.project_id AND w.status = 'hired'), 0) AS hired_count
+         FROM public.project AS p
+        WHERE p.slug = $1::text
+        LIMIT 1`,
+      [ref],
+      ex,
+    );
+    return rows.length ? normalizeProjectRow(rows[0]) : null;
+  }
+  return null;
 };
 
 const REF_PATTERN = /^\d+$/;
 export const isProjectRef = (ref: unknown): boolean =>
   typeof ref === 'string' && REF_PATTERN.test(ref) && ref.length <= 20;
+
+/** slug 形态谓词（纯格式；保留字/纯数字的拒**只在写口**，读口查无即 404 不泄存在性） */
+export const isProjectSlug = (ref: unknown): boolean =>
+  typeof ref === 'string' && PROJECT_SLUG_PATTERN.test(ref);
+
+/** R2 三形态路由前置谓词 = 全数字（id）∨ slug 格式（零新路由，`:ref` 吞 slug） */
+export const isProjectReadRef = (ref: unknown): boolean => isProjectRef(ref) || isProjectSlug(ref);
+
+/**
+ * 项目详情嵌套读口（Kevin ③：项目页 = 介绍 + campaign/task/subtask 操作入口）：
+ * `GET /api/project/:ref` 返回 ProjectView + 加性 `campaigns[]`（该项目名下活动 → 任务 → 子任务嵌套，
+ * 归属链经 campaign.project_id 过滤 —— 零新路由）。
+ * 口径与 `GET /api/campaign/:ref` 一致：公众 = campaign active ∧ task 非 draft；
+ * `adminActor`（manage_tasks 管理员）或 `viewerUid` = 项目 owner ⇒ includeDraft（owner 预览未发布活动）。
+ */
+export const getProjectDetailByRef = async (
+  ref: string,
+  opts: { viewerUid?: number | null; adminActor?: boolean },
+  ex?: TxClient,
+): Promise<(ProjectView & { campaigns: CampaignView[] }) | null> => {
+  const project = await getProjectByRef(ref, ex);
+  if (!project) return null;
+  const includeDraft = opts.adminActor === true
+    || (typeof opts.viewerUid === 'number' && Number.isSafeInteger(opts.viewerUid)
+      && opts.viewerUid! > 0 && String(opts.viewerUid) === project.owner_uid);
+  const campaigns = await listCampaignsByProject(project.project_id, { includeDraft }, ex);
+  return { ...project, campaigns };
+};
+
+/**
+ * 创建口 project_owner 支的上下文读口（campaign 建）：项目行在 + owner_uid + status。
+ * `POST /api/campaign` 权限 = manage_tasks 管理员 ∨（body.project_id 所指项目 owner_uid = 本人 ∧ status ≠ 'ended'）。
+ * 字段名与 campaign-service 的 `CreateAuthzOwnerContext` 对齐（ownerContext 直通决策函数）。
+ */
+export interface ProjectOwnerContext {
+  project_id: string;
+  project_owner_uid: string;
+  project_status: string;
+}
+
+export const getProjectOwnerContext = async (projectId: string, ex?: TxClient): Promise<ProjectOwnerContext | null> => {
+  if (!isProjectRef(projectId)) return null;
+  const rows = await readRows<Row>(
+    `SELECT project_id::text AS project_id, owner_uid::text AS project_owner_uid, status AS project_status
+       FROM public.project WHERE project_id = $1::bigint LIMIT 1`,
+    [projectId],
+    ex,
+  );
+  return rows.length ? (rows[0] as unknown as ProjectOwnerContext) : null;
+};
 
 /**
  * **发布悬赏前置闸的读口**（Kevin 2026-10-21 裁定）：本人是否**拥有且正在管理**至少一个项目
@@ -561,7 +683,7 @@ export const createProjectVerb = async (input: {
   }
   const key = keyed.key;
   const fingerprint = fingerprintOf([
-    'project.create', input.actorUid, p.title, p.headcount, p.recruit_min_account_days,
+    'project.create', input.actorUid, p.title, p.slug ?? '', p.headcount, p.recruit_min_account_days,
     p.wage_batt_per_claim, p.wage_cid, p.wage_currency_amount, p.wage_interval_hours,
   ]);
 
@@ -586,6 +708,16 @@ export const createProjectVerb = async (input: {
           return conflict('project_create_replay_lost', { idempotency_key: key });
         }
         return { ok: true, view: normalizeProjectRow(rows[0]), replay: true };
+      }
+
+      // slug 唯一预检（早于任何写入与扣费；DB `project_slug_uniq` 兜底并发窗口，23505 按约束名归因）
+      const slugClash = await txQuery<Row>(
+        tx,
+        `SELECT project_id::text AS project_id FROM public.project WHERE slug = $1::text LIMIT 1`,
+        [p.slug],
+      );
+      if (slugClash.length) {
+        return badRequest('SLUG_TAKEN', { field: 'slug', slug: p.slug, project_id: str(slugClash[0].project_id) });
       }
 
       const fee = await readCreateFee(tx);
@@ -623,20 +755,26 @@ export const createProjectVerb = async (input: {
         inserted = await txQuery<Row>(
           tx,
           `INSERT INTO public.project
-             (snowflake_id, owner_uid, title, description, headcount, recruit_min_account_days,
+             (snowflake_id, owner_uid, title, slug, description, headcount, recruit_min_account_days,
               wage_batt_per_claim, wage_cid, wage_currency_amount, wage_interval_hours, status)
-           VALUES ($1::bigint, $2::bigint, $3::text, $4::text, $5::int, $6::int,
-                   $7::numeric, $8::bigint, $9::numeric, $10::int, 'recruiting')
+           VALUES ($1::bigint, $2::bigint, $3::text, $4::text, $5::text, $6::int, $7::int,
+                   $8::numeric, $9::bigint, $10::numeric, $11::int, 'recruiting')
            RETURNING *`,
           [
-            nextSnowflake().toString(), String(input.actorUid), p.title, p.description ?? '',
+            nextSnowflake().toString(), String(input.actorUid), p.title, p.slug, p.description ?? '',
             p.headcount, p.recruit_min_account_days ?? 0, p.wage_batt_per_claim,
             p.wage_cid ?? null, p.wage_currency_amount ?? null, p.wage_interval_hours,
           ],
         );
       } catch (e) {
         const code = (e as { code?: string }).code;
-        if (code === '23505') return conflict('project_snowflake_collision', {});
+        if (code === '23505') {
+          // 唯一冲突按 constraint 名归因（slug / snowflake 两个 UNIQUE；并发窗口的 slug 竞态 ⇒ SLUG_TAKEN）
+          if ((e as { constraint?: string }).constraint === 'project_slug_uniq') {
+            return badRequest('SLUG_TAKEN', { field: 'slug', slug: p.slug });
+          }
+          return conflict('project_snowflake_collision', {});
+        }
         throw e;
       }
       const row = inserted[0];
@@ -1179,6 +1317,19 @@ export const patchProjectVerb = async (input: {
     // ended = 终态封板：一切 PATCH ⇒ 409（同值写也不放行，避免「封板后仍可改」的错觉）
     if (str(project.status) === 'ended') return conflict('project_ended_frozen', { project_id: projectId });
 
+    // slug 可改（0068）：同值写 = no-op；改值 ⇒ 预检唯一（DB `project_slug_uniq` 兜底并发竞态）
+    if (p.slug !== undefined && p.slug !== str(project.slug)) {
+      const slugClash = await txQuery<Row>(
+        tx,
+        `SELECT project_id::text AS project_id FROM public.project
+          WHERE slug = $1::text AND project_id <> $2::bigint LIMIT 1`,
+        [p.slug, projectId],
+      );
+      if (slugClash.length) {
+        return badRequest('SLUG_TAKEN', { field: 'slug', slug: p.slug, project_id: str(slugClash[0].project_id) });
+      }
+    }
+
     const currentStatus = str(project.status) as ProjectStatus;
     let nextStatus = currentStatus;
     if (Object.prototype.hasOwnProperty.call(p, 'status') || (input.body as Row)?.status !== undefined) {
@@ -1226,19 +1377,21 @@ export const patchProjectVerb = async (input: {
       tx,
       `UPDATE public.project SET
          title = COALESCE($2::text, title),
-         description = COALESCE($3::text, description),
-         headcount = COALESCE($4::int, headcount),
-         recruit_min_account_days = COALESCE($5::int, recruit_min_account_days),
-         wage_batt_per_claim = COALESCE($6::numeric, wage_batt_per_claim),
-         wage_cid = $7::bigint,
-         wage_currency_amount = $8::numeric,
-         wage_interval_hours = COALESCE($9::int, wage_interval_hours),
-         status = $10::text
+         slug = COALESCE($3::text, slug),
+         description = COALESCE($4::text, description),
+         headcount = COALESCE($5::int, headcount),
+         recruit_min_account_days = COALESCE($6::int, recruit_min_account_days),
+         wage_batt_per_claim = COALESCE($7::numeric, wage_batt_per_claim),
+         wage_cid = $8::bigint,
+         wage_currency_amount = $9::numeric,
+         wage_interval_hours = COALESCE($10::int, wage_interval_hours),
+         status = $11::text
        WHERE project_id = $1::bigint
        RETURNING *`,
       [
         projectId,
         p.title ?? null,
+        p.slug ?? null,
         p.description ?? null,
         p.headcount ?? null,
         p.recruit_min_account_days ?? null,

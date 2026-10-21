@@ -227,17 +227,31 @@ const loadNeutralizedPublishJob = (): { publishJob: (p: { actorUid: number; body
       });
     }
 
+    // 0068 头段干跑（幂等 · 回滚事务内）：下方 mkProject 直插需要 project.slug 在场
+    // （pre-apply ⇒ 本事务内建列；post-apply ⇒ no-op。真源 = migrations/0068_project_slug_campaign_link.sql）
+    await c.query(`ALTER TABLE public.project ADD COLUMN IF NOT EXISTS slug text`);
+    await c.query(`UPDATE public.project SET slug = 'p' || project_id::text WHERE slug IS NULL`);
+    await c.query(`ALTER TABLE public.project ALTER COLUMN slug SET NOT NULL`);
+    await c.query(`DO $$ BEGIN
+      IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'project_slug_uniq' AND conrelid = 'public.project'::regclass) THEN
+        ALTER TABLE public.project ADD CONSTRAINT project_slug_uniq UNIQUE (slug);
+      END IF;
+      IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'project_slug_format_check' AND conrelid = 'public.project'::regclass) THEN
+        ALTER TABLE public.project ADD CONSTRAINT project_slug_format_check CHECK (slug ~ '^[a-z0-9][a-z0-9-]{0,31}$');
+      END IF;
+    END $$`);
+
     // 项目夹具：直插（owner / status 是本闸的唯一判据面；snowflake 用固定高位避免碰撞）
     let sf = 8800000000000000000n;
     const mkProject = async (owner: number, status: string, tag: string): Promise<string> => {
       sf += 1n;
       const row = await raw1<{ project_id: string }>(c,
         `INSERT INTO public.project
-           (snowflake_id, owner_uid, title, description, headcount, recruit_min_account_days,
+           (snowflake_id, owner_uid, title, slug, description, headcount, recruit_min_account_days,
             wage_batt_per_claim, wage_cid, wage_currency_amount, wage_interval_hours, status)
-         VALUES ($1::bigint, $2::bigint, $3::text, $4::text, 3, 0, 10, NULL, NULL, 1, $5::text)
+         VALUES ($1::bigint, $2::bigint, $3::text, $4::text, $5::text, 3, 0, 10, NULL, NULL, 1, $6::text)
          RETURNING project_id::text AS project_id`,
-        [sf.toString(), String(owner), `job-proj-gate ${tag} ${RUN}`, `gate fixture ${RUN}`, status]);
+        [sf.toString(), String(owner), `job-proj-gate ${tag} ${RUN}`, `jpg-${tag}-${RUN.toLowerCase().replace(/[^a-z0-9]/g, '').slice(-8)}`, `gate fixture ${RUN}`, status]);
       return String(row?.project_id ?? '');
     };
     const P_REC = await mkProject(U_REC, 'recruiting', 'recruiting');

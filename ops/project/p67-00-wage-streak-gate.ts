@@ -68,6 +68,8 @@ const readSrc = (p: string) => fs.readFileSync(path.resolve(REPO_ROOT, p), 'utf8
 const INDEX_TS = readSrc('backend-ts/src/index.ts');
 const SVC = readSrc('backend-ts/src/project-service.ts');
 const MIG67 = readSrc('backend-ts/migrations/0067_wage_streak_bonus.sql');
+// 0068（p68 单）：本门直插 project 行需要 slug 列在场 ⇒ 干跑其头段（幂等，回滚事务内）
+const MIG68 = readSrc('backend-ts/migrations/0068_project_slug_campaign_link.sql');
 
 // ---------------------------------------------------------------- SQL 切分（dollar-dollar 感知）
 /** 先剥注释（dollar-dollar 外），否则文件头大段 `--` 注释会与第一条 DML 同语句 ⇒ INSERT 丢失 */
@@ -103,6 +105,7 @@ const headOf = (src: string) => src.slice(0, src.indexOf('\nDO $$')).trim();
 const tailOf = (src: string) => src.slice(src.indexOf('\nDO $$') + 1).trim();
 const M67_HEAD = splitSqlStatements(headOf(MIG67));
 const M67_TAIL = tailOf(MIG67);
+const M68_HEAD = splitSqlStatements(headOf(MIG68));
 
 /** SAVEPOINT 三明治：跑完（无论成败）一律回滚到存档点 ⇒ 反事实臂零污染 */
 const undoAfter = async <T>(c: Qx, tag: string, fn: () => Promise<T>): Promise<{ value: T | null; sqlstate: string | null; message: string }> => {
@@ -266,13 +269,16 @@ const reasonOf = (r: unknown) => String(((r as { details?: { reason?: unknown } 
     const [OWNER, W1, W2] = uids;
     R.fixture_users = uids;
 
+    // ---- 0068 头段干跑（幂等 · 回滚事务内）：下方直插 project 行需要 slug 列在场（pre/post apply 同式）
+    for (const stmt of M68_HEAD) await c.query(stmt);
+
     const projRows = await raw<{ project_id: string }>(c,
       `INSERT INTO public.project
-         (snowflake_id, owner_uid, title, description, headcount, recruit_min_account_days,
+         (snowflake_id, owner_uid, title, slug, description, headcount, recruit_min_account_days,
           wage_batt_per_claim, wage_interval_hours, status)
-       VALUES (9000000000000067, $1::bigint, $2, 'p67 gate', 5, 0, 10, 1, 'working')
+       VALUES (9000000000000067, $1::bigint, $2, $3, 'p67 gate', 5, 0, 10, 1, 'working')
        RETURNING project_id::text AS project_id`,
-      [String(OWNER), `p67 gate project ${RUN}`]);
+      [String(OWNER), `p67 gate project ${RUN}`, `p67-gate-${Math.random().toString(36).slice(2, 10)}`]);
     const P1 = String(projRows[0].project_id);
     const hire = async (uid: number) => c.query(
       `INSERT INTO public.project_worker (project_id, uid, status, hired_at)

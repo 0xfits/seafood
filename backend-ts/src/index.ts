@@ -105,27 +105,35 @@ import {
   sendMessage,
   totalUnread,
 } from './messages-service';
-// ★ 项目（打工/工资）域（data-layer.spec §40.15 · route-layer.spec §49.19 · 迁移 0063/0064）
+// ★ 项目（打工/工资）域（data-layer.spec §40.15 · route-layer.spec §49.19 · 迁移 0063/0064/0068）
 //   七口：R1/R2 公开读、R3–R6 用户写（登录闸）、R7 管理员（manage_tasks）。
+//   ★ 0068：R2 `:ref` 三形态（全数字 id / snowflake / slug，零新路由）；详情加性 `campaigns[]` 嵌套。
 //   ★ 活动小时桶埋点 `recordUserActivityHour` 的调用点在 `resolveActor` 成功出口（旁路、不 await）。
 import {
   applyProjectVerb,
   claimProjectWageVerb,
   createProjectVerb,
-  getProjectByRef,
+  getProjectDetailByRef,
+  getProjectOwnerContext,
+  isProjectReadRef,
   isProjectRef,
   leaveProjectVerb,
   listProjects,
   patchProjectVerb,
   recordUserActivityHour,
 } from './project-service';
-// ★ 活动任务体系（data-layer.spec §40.14 · route-layer.spec §49.18 · 迁移 0065）
+// ★ 活动任务体系（data-layer.spec §40.14 · route-layer.spec §49.18 · 迁移 0065/0068）
 //   九口：R1/R2 公开读、R3 用户提凭证、R4–R8 管理员（manage_tasks：建改活动/任务/子任务、settle、task 完成奖）。
+//   ★ 0068 权限扩容：campaign/task/subtask 的**创建口**在 manage_tasks 之外新增 project_owner 支
+//     （owner_uid = 本人 ∧ 项目 status ≠ 'ended'；task/subtask 归属链经 campaign 校验）。
 //   subtask 增改内联于 task 写口（`subtasks[]` 整组 upsert、永不 DELETE）⇒ 无独立 subtask 路由。
 import {
+  authorizeProjectScopedCreate,
   createCampaignVerb,
   createTaskVerb,
+  getCampaignAuthzContext,
   getCampaignByRef,
+  getTaskAuthzContext,
   grantTaskRewardVerb,
   isCampaignRef,
   listActiveCampaigns,
@@ -4049,7 +4057,8 @@ app.get('/api/media/:id', async (req, res) => {
 // R1 GET  /api/project/all              公开 · 列表（仅 recruiting / working；带在职数派生）
 //    ★ 登录态带 token ⇒ 每行**加性** `my_role` / `my_hired_at` / `next_claim_at`（匿名 ⇒ 三键缺省）；
 //      前端 `/wage` 据此把【加入】换成【领工资】并按 `next_claim_at` 倒计时（零新路由）。
-// R2 GET  /api/project/:ref             公开 · 详情（纯数字 ⇒ project_id OR snowflake_id，一次往返）
+// R2 GET  /api/project/:ref             公开 · 详情（三形态 0068：全数字 ⇒ id OR snowflake · slug 格式 ⇒ slug 等值；
+//                                       加性 `campaigns[]` 嵌套 = 该项目名下活动→任务→子任务）
 // R3 POST /api/project                  用户 · 建项目 + 同事务扣建费入平台收入
 // R4 POST /api/project/:id/apply        用户 · 招工（满足即直接录用；招满同事务转 working）
 // R5 POST /api/project/:id/claim        用户 · 领工资（逐小时桶 batt + 币种定额，两腿同事务）
@@ -4096,11 +4105,18 @@ app.get('/api/project/all', async (req, res) => {
 
 app.get('/api/project/:ref', async (req, res) => {
   const ref = String(req.params.ref ?? '');
-  // 非数字 ref ⇒ 404（**不得** 500 —— route #67）
-  if (!isProjectRef(ref)) return sendRefNotFound(res, 'project', ref, 'project_not_found');
+  // 三形态判定表（0068）：全数字（≤20 位）= 数值 id/snowflake · slug 格式 = slug 等值 · 其他 ⇒ 404（**不得** 500 —— route #67）
+  if (!isProjectReadRef(ref)) return sendRefNotFound(res, 'project', ref, 'project_not_found');
   try {
-    const view = await getProjectByRef(ref);
+    // 与 campaign R2 同族的可选身份：管理员（manage_tasks）或项目 owner ⇒ 嵌套含 draft 活动；登录态 ⇒ 个人面
+    const viewer = await resolveOptionalCampaignViewer(req);
+    const view = await getProjectDetailByRef(ref, { viewerUid: viewer.viewerUid, adminActor: viewer.admin });
     if (!view) return sendRefNotFound(res, 'project', ref, 'project_not_found');
+    // 带 draft/owner 面的载荷不得进共享缓存（匿名分支维持原样：不设缓存头 = 既有行为零变化）
+    if (viewer.viewerUid !== null) {
+      setPrivateNoStore(res);
+      res.setHeader('Vary', 'Authorization');
+    }
     return sendSuccess(res, view, 'Project detail (public)');
   } catch (error) {
     return sendInfraMapped(res, 'project.get', error);
@@ -4277,9 +4293,22 @@ app.post('/api/campaign/subtask/:subtaskId/settle', async (req, res) => {
 });
 
 app.post('/api/campaign', async (req, res) => {
-  const actor = await requireAdmin(req, res, 'manage_tasks');
+  const actor = await requireActor(req, res);
   if (!actor) return;
   try {
+    // 0068 权限扩容：manage_tasks 管理员 **∨** project_owner（body.project_id 所指项目 owner = 本人 ∧ ≠ ended）
+    // 谓词与 requireAdmin/详情读口同源；owner 上下文由服务层读口提供，决策纯函数与门共用。
+    const actorUid = Number(actor.user.uID);
+    const adminActor = actor.adminAccess.can_access_admin
+      && (actor.adminAccess.is_admin || hasRequiredPermission(actor, 'manage_tasks'));
+    const bodyObj = (req.body && typeof req.body === 'object' && !Array.isArray(req.body))
+      ? req.body as Record<string, unknown> : {};
+    const pidRaw = bodyObj.project_id;
+    const pidText = typeof pidRaw === 'number' ? String(pidRaw) : typeof pidRaw === 'string' ? pidRaw.trim() : '';
+    const ownerContext = /^\d+$/.test(pidText) ? await getProjectOwnerContext(pidText) : null;
+    const denied = authorizeProjectScopedCreate({ actorUid, adminActor, ownerContext, projectId: pidText || null });
+    if (denied) return sendVerbError(res, denied);
+
     const result = await createCampaignVerb({ body: req.body ?? {} });
     if (!result.ok) return sendVerbError(res, result);
     return sendSuccess(res, result.view, 'Campaign created', 201);
@@ -4303,11 +4332,23 @@ app.patch('/api/campaign/:campaignId', async (req, res) => {
 });
 
 app.post('/api/campaign/:campaignId/task', async (req, res) => {
-  const actor = await requireAdmin(req, res, 'manage_tasks');
+  const actor = await requireActor(req, res);
   if (!actor) return;
   try {
     const ref = String(req.params.campaignId ?? '');
     if (!isCampaignRef(ref)) return sendRefNotFound(res, 'campaign', ref, 'campaign_not_found');
+    // 0068 权限扩容：task 建 = manage_tasks 管理员 ∨ project_owner（归属链 campaign.project_id 校验）
+    const adminActor = actor.adminAccess.can_access_admin
+      && (actor.adminAccess.is_admin || hasRequiredPermission(actor, 'manage_tasks'));
+    const ownerContext = adminActor ? null : await getCampaignAuthzContext(ref);
+    const denied = authorizeProjectScopedCreate({
+      actorUid: Number(actor.user.uID),
+      adminActor,
+      ownerContext,
+      projectId: ownerContext?.project_id ?? null,
+    });
+    if (denied) return sendVerbError(res, denied);
+
     const result = await createTaskVerb({ campaignRef: ref, body: req.body ?? {} });
     if (!result.ok) return sendVerbError(res, result);
     return sendSuccess(res, result.view, 'Campaign task created', 201);
@@ -4317,11 +4358,24 @@ app.post('/api/campaign/:campaignId/task', async (req, res) => {
 });
 
 app.patch('/api/campaign/task/:taskId', async (req, res) => {
-  const actor = await requireAdmin(req, res, 'manage_tasks');
+  const actor = await requireActor(req, res);
   if (!actor) return;
   try {
     const ref = String(req.params.taskId ?? '');
     if (!isCampaignRef(ref)) return sendRefNotFound(res, 'task', ref, 'task_not_found');
+    // 0068 权限扩容：本口含 `subtasks[]` 内联**新增**（subtask 创建口之一）⇒ 与 task 建同权限面：
+    // manage_tasks 管理员 ∨ project_owner（归属链 task → campaign.project_id 校验）
+    const adminActor = actor.adminAccess.can_access_admin
+      && (actor.adminAccess.is_admin || hasRequiredPermission(actor, 'manage_tasks'));
+    const ownerContext = adminActor ? null : await getTaskAuthzContext(ref);
+    const denied = authorizeProjectScopedCreate({
+      actorUid: Number(actor.user.uID),
+      adminActor,
+      ownerContext,
+      projectId: ownerContext?.project_id ?? null,
+    });
+    if (denied) return sendVerbError(res, denied);
+
     const result = await patchTaskVerb({ ref, body: req.body ?? {} });
     if (!result.ok) return sendVerbError(res, result);
     return sendSuccess(res, result.view, 'Campaign task updated');
