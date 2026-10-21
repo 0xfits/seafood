@@ -136,7 +136,7 @@ export const hasOwnedProject = (rows, uid) => {
  *   前端只把错误文案内联展示（`apiErrorMessage` 已解析成字符串）。
  */
 export const createProject = ({
-  title, description, headcount, minDays, battPerClaim, intervalHours, cid, currencyAmount, createKey, user,
+  title, description, headcount, minDays, battPerClaim, intervalHours, cid, currencyAmount, slug, createKey, user,
 }) => {
   const body = {
     title: String(title ?? '').trim(),
@@ -147,6 +147,10 @@ export const createProject = ({
     wage_interval_hours: Number(intervalHours),
     create_key: createKey,
   }
+  // ★ Kevin 2026-10-21：项目地址 slug —— **填了才上送**（留空 = 不填该键，闭集零污染）；
+  //   格式 / 保留字由页面侧 `src/project-slug.js` 前置校验，唯一性冲突由后端 400 SLUG_TAKEN 内联。
+  const slugText = String(slug ?? '').trim()
+  if (slugText) body.slug = slugText
   const cidText = String(cid ?? '').trim()
   const amountText = String(currencyAmount ?? '').trim()
   if (cidText && amountText) {
@@ -159,7 +163,7 @@ export const createProject = ({
 /** 建项目表单指纹（决定「是否同一次操作」）：不含随机量，保证重试同指纹。 */
 export const projectCreateFingerprint = (form) => [
   form.title, form.description, form.headcount, form.minDays, form.battPerClaim,
-  form.intervalHours, form.cid, form.currencyAmount,
+  form.intervalHours, form.cid, form.currencyAmount, form.slug,
 ].map((v) => String(v ?? '').trim()).join('\u0001')
 
 /** 建项目的幂等键 tracker（键形与服务端同形 `cli:<uuid-v4>`，体例同发布招工面）。 */

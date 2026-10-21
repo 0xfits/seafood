@@ -356,6 +356,15 @@ textarea.sf-wage-edit-input {
   overflow-wrap: anywhere;
 }
 
+/* 注册天数条件「存量值不在四档」提示行（Kevin 2026-10-21）：小字、弱色，仅提示不阻断 */
+.sf-wage-edit-minhint {
+  margin: 0;
+  color: var(--sf-meta-fg);
+  font-size: 12px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
 .sf-wage-edit-actions {
   display: flex;
   flex-wrap: wrap;
@@ -377,4 +386,23 @@ textarea.sf-wage-edit-input {
   .sf-wage-edit-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ============================================================================
+   整卡链接化（Kevin 2026-10-21）：行有 slug ⇒ 卡根元素 article→a（React Router Link）
+   · 锚点默认样式复位（下划线 / 颜色继承卡片原样），显示模式仍由 `.sf-card` 决定；
+   · 卡内按钮 / 表单 stopPropagation ⇒ 不触发整卡跳转（JS 侧见 WagePage renderCard）。
+   ============================================================================ */
+a.sf-wage-card {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 项目地址（slug）编辑字段的提示行：小字、弱色，仅提示不阻断 */
+.sf-wage-edit-slughint {
+  margin: 0;
+  color: var(--sf-meta-fg);
+  font-size: 12px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
 }

@@ -11,7 +11,9 @@
  *   ⑤ 项目卡【编辑】（Kevin 2026-10-21）：owner ∨ manage_tasks 管理员可见、ended 不显示、
  *      表单展开/预填、PATCH 载荷只含变化字段（两币成对）、409/400 按 reason 字段内联、
  *      成功后卡片刷新取新值；客态零 /api/user 请求；
- *   ⑥ i18n `wage` 命名空间四语齐备 + 计数前推（top 134 / flat 1271 / 四语节点 5084）。
+ *      注册天数条件 = 四选一 select（1/7/30/365）：恰四档 ⇒ 预选对应项；0/90 ⇒ 预选「一天」
+ *      ＋表单下提示行（保存载荷 = 选中的天数）；
+ *   ⑥ i18n `wage` 命名空间四语齐备 + 计数前推（top 135 / flat 1327 / 四语节点 5308）。
  *
  * 注：真实浏览器几何（390/1536 零溢出）与真实契约联调由 `ops/wage/front/` 的探针覆盖，
  *     jsdom 不套用 media query，故此处不断言列数。
@@ -66,6 +68,8 @@ const rowHired = (patch = {}) => ({
   description: '每天打包 20 单',
   headcount: 3,
   hired_count: 2,
+  // ★ Kevin 2026-10-21：行契约含 `recruit_min_account_days`（恰四档值 ⇒ 编辑表单预选对应项、零额外载荷）
+  recruit_min_account_days: 1,
   wage_batt_per_claim: 30,
   wage_cid: 1,
   wage_currency_amount: 0,
@@ -82,6 +86,7 @@ const ROW_OPEN = {
   description: '校对商品描述',
   headcount: 5,
   hired_count: 1,
+  recruit_min_account_days: 1, // 恰四档值 ⇒ 预选「一天」、保存不产生额外载荷
   wage_batt_per_claim: 20,
   wage_cid: 4,
   wage_currency_amount: 50,
@@ -97,6 +102,7 @@ const ROW_CLOSED = {
   description: '季度盘点',
   headcount: 2,
   hired_count: 2,
+  recruit_min_account_days: 1,
   wage_batt_per_claim: 15,
   wage_cid: 1,
   wage_currency_amount: 0,
@@ -703,6 +709,67 @@ describe('/wage ⑤ 项目卡【编辑】（owner ∨ manage_tasks 管理员）'
     expect(patches).toHaveLength(1)
     expect(patches[0].body).toEqual({ wage_cid: null, wage_currency_amount: null })
   })
+
+  // ★ Kevin 2026-10-21：注册天数条件改四选一 select（1/7/30/365，常量真源 src/recruit-min-days.js）
+  it('注册天数条件 = 四选一 select：预填 7 ⇒ 选中「一周」无提示；改选「一月」保存 ⇒ 载荷恰为 30', async () => {
+    const { calls } = installFetch({
+      rows: [{ ...ROW_OPEN, recruit_min_account_days: 7, owner_uid: '9' }],
+      adminPayload: { uID: 7, admin: ADMIN_OK },
+    })
+    AUTH.user = { uID: 7, token: 't-7' }
+    const { container } = mount()
+    await waitFor(() => expect(cardOf(container, '12').querySelector('[data-sf-m="wage-card-edit"]')).not.toBeNull())
+    fireEvent.click(cardOf(container, '12').querySelector('[data-sf-m="wage-card-edit"]'))
+    const form = () => cardOf(container, '12').querySelector('[data-sf-m="wage-edit"]')
+    const sel = () => form().querySelector('[data-sf-edit="minDays"]')
+    expect(sel().tagName).toBe('SELECT')
+    expect([...sel().options].map((o) => o.value)).toEqual(['1', '7', '30', '365']) // 恰 4 档
+    expect(sel().value).toBe('7') // 恰为四档值 ⇒ 预选「一周」
+    expect(form().querySelector('[data-sf-edit-hint="minDays"]')).toBeNull() // 匹配 ⇒ 无提示行
+
+    fireEvent.change(sel(), { target: { value: '30' } })
+    fireEvent.click(form().querySelector('[data-sf-m="wage-edit-save"]'))
+    await waitFor(() => expect(cardOf(container, '12').querySelector('[data-sf-m="wage-edit"]')).toBeNull())
+    const patches = calls.filter((c) => c.method === 'PATCH')
+    expect(patches).toHaveLength(1)
+    expect(patches[0].body).toEqual({ recruit_min_account_days: 30 }) // 保存载荷 = 选中的天数
+  })
+
+  it('注册天数条件预填 90（非四档）⇒ 预选「一天」+ 表单下提示行；保存载荷 = 1', async () => {
+    const { calls } = installFetch({
+      rows: [{ ...ROW_OPEN, recruit_min_account_days: 90, owner_uid: '9' }],
+      adminPayload: { uID: 7, admin: ADMIN_OK },
+    })
+    AUTH.user = { uID: 7, token: 't-7' }
+    const { container } = mount()
+    await waitFor(() => expect(cardOf(container, '12').querySelector('[data-sf-m="wage-card-edit"]')).not.toBeNull())
+    fireEvent.click(cardOf(container, '12').querySelector('[data-sf-m="wage-card-edit"]'))
+    const form = () => cardOf(container, '12').querySelector('[data-sf-m="wage-edit"]')
+    expect(form().querySelector('[data-sf-edit="minDays"]').value).toBe('1') // 回落「一天」
+    const hint = form().querySelector('[data-sf-edit-hint="minDays"]')
+    expect(hint).not.toBeNull()
+    expect(hint.textContent).toBe(zh.bountyProject.minDaysLegacy.replace('{{n}}', '90'))
+
+    fireEvent.click(form().querySelector('[data-sf-m="wage-edit-save"]'))
+    await waitFor(() => expect(cardOf(container, '12').querySelector('[data-sf-m="wage-edit"]')).toBeNull())
+    const patches = calls.filter((c) => c.method === 'PATCH')
+    expect(patches).toHaveLength(1)
+    expect(patches[0].body).toEqual({ recruit_min_account_days: 1 }) // 提示所言即载荷
+  })
+
+  it('注册天数条件预填 0 ⇒ 预选「一天」+「原为无门槛」提示', async () => {
+    installFetch({
+      rows: [{ ...ROW_OPEN, recruit_min_account_days: 0, owner_uid: '9' }],
+      adminPayload: { uID: 7, admin: ADMIN_OK },
+    })
+    AUTH.user = { uID: 7, token: 't-7' }
+    const { container } = mount()
+    await waitFor(() => expect(cardOf(container, '12').querySelector('[data-sf-m="wage-card-edit"]')).not.toBeNull())
+    fireEvent.click(cardOf(container, '12').querySelector('[data-sf-m="wage-card-edit"]'))
+    const form = () => cardOf(container, '12').querySelector('[data-sf-m="wage-edit"]')
+    expect(form().querySelector('[data-sf-edit="minDays"]').value).toBe('1')
+    expect(form().querySelector('[data-sf-edit-hint="minDays"]').textContent).toBe(zh.bountyProject.minDaysNoGate)
+  })
 })
 
 describe('/wage ⑥ i18n `wage` 命名空间（四语齐备 + 计数前推）', () => {
@@ -730,16 +797,16 @@ describe('/wage ⑥ i18n `wage` 命名空间（四语齐备 + 计数前推）', 
     expect(TABLES.vn.wage.menuLabel).toBe('Nhận lương')
   })
 
-  it('计数前推：顶层 134 / 拍平 1271 / 四语节点 5084 / 顶层×4 = 536', () => {
+  it('计数前推：顶层 135 / 拍平 1327 / 四语节点 5308 / 顶层×4 = 540', () => {
     const flat = (o, p = '') => Object.entries(o).flatMap(([k, v]) => (
       v && typeof v === 'object' && !Array.isArray(v) ? flat(v, `${p}${k}.`) : [[`${p}${k}`, v]]
     ))
     for (const lang of LANGS) {
-      expect(Object.keys(TABLES[lang]).length, `${lang} top`).toBe(134) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
-      expect(flat(TABLES[lang]).length, `${lang} flat`).toBe(1271) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532] // [i18n-bump wage-edit +18 键（项目卡【编辑】表单/错误文案，四语对称）⇒ flat 1253⇒1271 / 四语节点 5012⇒5084（top 134 不变）]
+      expect(Object.keys(TABLES[lang]).length, `${lang} top`).toBe(135) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532] // [i18n-bump project-slug（2026-10-21）：新增顶层 project 50 键 ⇒ top 134⇒135 / flat 1277⇒1327 / 四语节点 5108⇒5308 / top×4 536⇒540；bountyProject 注册天数 6 键（四语对称）已随前次订正计入 1277]
+      expect(flat(TABLES[lang]).length, `${lang} flat`).toBe(1327) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532] // [i18n-bump wage-edit +18 键（项目卡【编辑】表单/错误文案，四语对称）⇒ flat 1253⇒1271 / 四语节点 5012⇒5084（top 134 不变）] // [i18n-bump min-days-select +6 键（bountyProject.days1/7/30/365 + minDaysLegacy/minDaysNoGate，四语对称）⇒ flat 1271⇒1277 / 四语节点 5084⇒5108（top 134 不变）] // [i18n-bump project-slug（2026-10-21）：新增顶层 project 50 键 ⇒ top 134⇒135 / flat 1277⇒1327 / 四语节点 5108⇒5308 / top×4 536⇒540；bountyProject 注册天数 6 键（四语对称）已随前次订正计入 1277]
     }
-    expect(Object.keys(TABLES.zh).length * LANGS.length).toBe(536) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
-    expect(flat(TABLES.zh).length * LANGS.length).toBe(5084) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532] // [i18n-bump wage-edit +18 键（项目卡【编辑】表单/错误文案，四语对称）⇒ flat 1253⇒1271 / 四语节点 5012⇒5084（top 134 不变）]
+    expect(Object.keys(TABLES.zh).length * LANGS.length).toBe(540) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532] // [i18n-bump project-slug（2026-10-21）：新增顶层 project 50 键 ⇒ top 134⇒135 / flat 1277⇒1327 / 四语节点 5108⇒5308 / top×4 536⇒540；bountyProject 注册天数 6 键（四语对称）已随前次订正计入 1277]
+    expect(flat(TABLES.zh).length * LANGS.length).toBe(5308) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532] // [i18n-bump wage-edit +18 键（项目卡【编辑】表单/错误文案，四语对称）⇒ flat 1253⇒1271 / 四语节点 5012⇒5084（top 134 不变）] // [i18n-bump min-days-select +6 键（bountyProject.days1/7/30/365 + minDaysLegacy/minDaysNoGate，四语对称）⇒ flat 1271⇒1277 / 四语节点 5084⇒5108（top 134 不变）] // [i18n-bump project-slug（2026-10-21）：新增顶层 project 50 键 ⇒ top 134⇒135 / flat 1277⇒1327 / 四语节点 5108⇒5308 / top×4 536⇒540；bountyProject 注册天数 6 键（四语对称）已随前次订正计入 1277]
     // 新增命名空间恰 +1 顶层 / +29 拍平键（相对上一版 131 / 1140）；joinedBadge 加入后 30 键；streakReward 加入后 31 键；wage-edit +18 键后 49 键
     expect(REQUIRED).toHaveLength(49)
   })

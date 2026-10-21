@@ -4,7 +4,9 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import BattCheckinPanel from '../../components/BattCheckinPanel'
+import { RECRUIT_MIN_DAYS_OPTIONS, isRecruitMinDaysKnown, recruitMinDaysSelectValue } from '../../recruit-min-days'
 import { applyToWageProject, claimWage, fetchWageCurrencies, fetchWageProjects, patchWageProject } from './wage-api'
+import { projectHrefOf, slugFieldErrorOf } from '../../project-slug'
 import { isWageProjectEditAdmin, loadListingEditAdmin } from '../item/item-edit-access'
 import './wage.css'
 
@@ -152,6 +154,12 @@ const EDIT_REASON_MAP = {
   project_wage_currency_not_found: { field: 'currency', key: 'wage.errCurrencyInvalid' },
   project_wage_currency_not_listed: { field: 'currency', key: 'wage.errCurrencyInvalid' },
   PROJECT_STATUS_INVALID: { field: 'status', key: 'wage.errStatus' },
+  // 项目地址 slug（Kevin 2026-10-21）：400 `SLUG_INVALID / SLUG_TAKEN` 借码 ⇒ 字段级内联
+  //（服务端 reason 大小写两形都登记，承项目域 `project_*` 小写 reason 体例）。
+  SLUG_INVALID: { field: 'slug', key: 'project.errSlugFormat' },
+  SLUG_TAKEN: { field: 'slug', key: 'project.errSlugTaken' },
+  project_slug_invalid: { field: 'slug', key: 'project.errSlugFormat' },
+  project_slug_taken: { field: 'slug', key: 'project.errSlugTaken' },
   NOT_SUPPORTED: { field: null, key: 'wage.editFailed' },
 }
 
@@ -392,12 +400,16 @@ const WagePage = () => {
 
   // ============================ 项目卡【编辑】（owner ∨ manage_tasks 管理员）========================
 
-  /** 行 → 表单初值（数字 / 两币字段一律字符串化；次币缺省 = '' 即「无（仅 batt）」）。 */
+  /** 行 → 表单初值（数字 / 两币字段一律字符串化；次币缺省 = '' 即「无（仅 batt）」）。
+   * 注册天数条件（Kevin 2026-10-21）= 四选一 select（常量真源 `src/recruit-min-days.js`）：
+   * 恰为 1/7/30/365 ⇒ 预选对应项；否则（历史 0 / 90 / 缺键）⇒ 预选「一天」+ 表单下提示行。 */
   const editFormOf = (row) => ({
     title: String(row?.title ?? ''),
     description: String(row?.description ?? ''),
+    // 项目地址 slug（Kevin 2026-10-21）：行无 slug（历史行）⇒ 空串 ⇒ 留空保存 = 零载荷不误发
+    slug: String(row?.slug ?? ''),
     headcount: String(row?.headcount ?? ''),
-    minDays: String(row?.recruit_min_account_days ?? 0),
+    minDays: recruitMinDaysSelectValue(row?.recruit_min_account_days ?? 0),
     batt: String(row?.wage_batt_per_claim ?? ''),
     interval: String(row?.wage_interval_hours ?? ''),
     cid: row?.wage_cid == null || row?.wage_cid === '' ? '' : String(row.wage_cid),
@@ -489,6 +501,10 @@ const WagePage = () => {
     if (String(form?.description ?? '') !== String(row?.description ?? '')) {
       body.description = String(form?.description ?? '')
     }
+    // 项目地址 slug（Kevin 2026-10-21）：**变化才发**（历史行留空 = 零载荷不误发；
+    // 清空已设 slug = 发空串，由服务端定夺 —— 400 SLUG_INVALID 内联回显）。
+    const nextSlug = String(form?.slug ?? '').trim()
+    if (nextSlug !== String(row?.slug ?? '')) body.slug = nextSlug
 
     const intField = (raw, orig) => {
       const text = String(raw ?? '').trim()
@@ -498,7 +514,8 @@ const WagePage = () => {
     }
     const headcount = intField(form?.headcount, num(row?.headcount, -1))
     if (headcount !== undefined) body.headcount = headcount
-    // 注册天数下限：清空 = 归 0（后端对 null 同样按 0 处理；行缺键也按 0 基线，不误报变化）
+    // 注册天数下限（Kevin 2026-10-21 改四选一 select）：value 恒为四档天数之一（select 无空值态）；
+    // 与行原值不同才发（含「原 0 / 90 等非四档值 ⇒ 预选一天 ⇒ 保存即归 1」的收敛载荷）。
     const minDaysText = String(form?.minDays ?? '').trim()
     if (isIntText(minDaysText) || minDaysText === '') {
       const minDaysVal = minDaysText === '' ? 0 : Number(minDaysText)
@@ -533,6 +550,17 @@ const WagePage = () => {
     if (editBusy || !editForm) return
     const key = projectKey(row)
     if (!key) return
+    // slug 实时校验前置（Kevin 2026-10-21）：格式 / 保留字客户端先拦（不空发请求）；
+    // 服务端 400 `SLUG_INVALID / SLUG_TAKEN` 仍走 EDIT_REASON_MAP 字段级内联兜底。
+    const nextSlug = String(editForm.slug ?? '').trim()
+    const origSlug = String(row?.slug ?? '')
+    if (nextSlug !== origSlug) {
+      const kind = slugFieldErrorOf(nextSlug)
+      if (kind || (nextSlug === '' && origSlug !== '')) {
+        setEditErrs({ slug: tRef.current(kind === 'reserved' ? 'project.errSlugReserved' : 'project.errSlugFormat') })
+        return
+      }
+    }
     const errs = validateEdit(editForm)
     if (Object.keys(errs).length > 0) {
       setEditErrs(errs)
@@ -586,16 +614,11 @@ const WagePage = () => {
     const editOpen = Boolean(editForm) && editKey === key
     const joinedElsewhere = Boolean(hiredKey) && hiredKey !== key
     const isFull = headcount > 0 && hiredCount >= headcount
-
-    return (
-      <article
-        className={`sf-wage-card sf-card${joined ? ' is-joined' : ''}`}
-        data-sf-m="wage-card"
-        data-sf-project={key}
-        data-sf-joined={joined ? '1' : '0'}
-        data-sf-role={role || 'anonymous'}
-        key={key || row?.title}
-      >
+    // 整卡链接（Kevin 2026-10-21）：行有合法 slug ⇒ 根元素 article→Link（页面规范形 `/<slug>`）；
+    // 历史行无 slug ⇒ null ⇒ 保持原 `<article>` 不变链接。卡内按钮 stopPropagation 不触发跳转。
+    const slugHref = projectHrefOf(row)
+    const cardBody = (
+      <>
         <div className="sf-wage-card-head">
           <div className="sf-wage-card-head-main">
             <h2 className="sf-wage-card-title" data-sf-m="wage-card-title">{row?.title || ''}</h2>
@@ -616,7 +639,11 @@ const WagePage = () => {
                 data-sf-m="wage-card-edit"
                 data-sf-open={editOpen ? '1' : '0'}
                 aria-expanded={editOpen}
-                onClick={() => (editOpen ? closeEdit() : openEdit(row))}
+                onClick={(event) => {
+                  event.stopPropagation() // 卡内按钮不触发整卡跳转（Kevin 2026-10-21）
+                  if (editOpen) closeEdit()
+                  else openEdit(row)
+                }}
               >
                 {t('common.edit')}
               </button>
@@ -653,7 +680,7 @@ const WagePage = () => {
                 data-sf-claimable={claimable ? '1' : '0'}
                 data-sf-remaining={claimable ? '0' : String(Math.ceil(remainingMs / 1000))}
                 disabled={!claimable || busyAction === 'claim'}
-                onClick={() => onClaim(row)}
+                onClick={(event) => { event.stopPropagation(); onClaim(row) }}
               >
                 {busyAction === 'claim' ? t('wage.claiming') : t('wage.claim')}
               </button>
@@ -672,7 +699,7 @@ const WagePage = () => {
                 data-sf-action="join"
                 data-sf-need-login={isAuthenticated ? '0' : '1'}
                 disabled={joinedElsewhere || isFull || busyAction === 'join'}
-                onClick={() => onJoin(row)}
+                onClick={(event) => { event.stopPropagation(); onJoin(row) }}
               >
                 {busyAction === 'join' ? t('wage.joining') : t('wage.join')}
               </button>
@@ -686,7 +713,15 @@ const WagePage = () => {
         </div>
 
         {editOpen ? (
-          <form className="sf-wage-edit" data-sf-m="wage-edit" noValidate onSubmit={(e) => onEditSubmit(row, e)}>
+          // 整卡链接化后的表单防线（Kevin 2026-10-21）：表单内任意点击不冒泡到卡链接（不跳转），
+          // 也不让它落成锚点默认动作；提交仍走 onSubmit（保存按钮 stopPropagation 后原生 submit 不受影响）。
+          <form
+            className="sf-wage-edit"
+            data-sf-m="wage-edit"
+            noValidate
+            onClick={(event) => { event.preventDefault(); event.stopPropagation() }}
+            onSubmit={(e) => onEditSubmit(row, e)}
+          >
             <p className="sf-wage-edit-title" data-sf-m="wage-edit-title">{t('wage.editTitle')}</p>
             <div className="sf-wage-edit-grid">
               <label className="sf-wage-edit-field is-wide">
@@ -711,6 +746,28 @@ const WagePage = () => {
                 />
                 {editErrs.description ? <span className="sf-wage-edit-err" data-sf-edit-err="description" role="alert">{editErrs.description}</span> : null}
               </label>
+              {/* 项目地址（slug，Kevin 2026-10-21）：用户可填的项目地址名（页面规范形 `/<slug>`）；
+                  实时校验格式与保留字（单一真源 `src/project-slug.js`），冲突由后端 400 `SLUG_TAKEN` 内联提示。 */}
+              <label className="sf-wage-edit-field is-wide">
+                <span className="sf-wage-edit-label">{t('project.slugLabel')}</span>
+                <input
+                  className="sf-wage-edit-input"
+                  data-sf-edit="slug"
+                  autoComplete="off"
+                  spellCheck={false}
+                  maxLength={32}
+                  value={editForm.slug}
+                  onChange={(e) => setEditField('slug', e.target.value)}
+                />
+                {editErrs.slug ? (
+                  <span className="sf-wage-edit-err" data-sf-edit-err="slug" role="alert">{editErrs.slug}</span>
+                ) : slugFieldErrorOf(editForm.slug) ? (
+                  <span className="sf-wage-edit-err" data-sf-edit-err="slug" role="alert">
+                    {t(slugFieldErrorOf(editForm.slug) === 'reserved' ? 'project.errSlugReserved' : 'project.errSlugFormat')}
+                  </span>
+                ) : null}
+                <span className="sf-wage-edit-slughint" data-sf-edit-hint="slug">{t('project.slugHint')}</span>
+              </label>
               <label className="sf-wage-edit-field">
                 <span className="sf-wage-edit-label">{t('bountyProject.headcount')}</span>
                 <input
@@ -724,13 +781,19 @@ const WagePage = () => {
               </label>
               <label className="sf-wage-edit-field">
                 <span className="sf-wage-edit-label">{t('bountyProject.minDays')}</span>
-                <input
+                {/* ★ Kevin 2026-10-21：注册天数条件改四选一 select（value = 天数 1/7/30/365，常量真源
+                    `src/recruit-min-days.js`，与 /task/new 新建项目表单共用）；旧 number 手填已下线。
+                    预选回落「一天」（存量 0 / 90 等非四档值）⇒ 表单下另有提示行。 */}
+                <select
                   className="sf-wage-edit-input"
                   data-sf-edit="minDays"
-                  inputMode="numeric"
                   value={editForm.minDays}
                   onChange={(e) => setEditField('minDays', e.target.value)}
-                />
+                >
+                  {RECRUIT_MIN_DAYS_OPTIONS.map((opt) => (
+                    <option key={opt.days} value={String(opt.days)}>{t(`bountyProject.${opt.key}`)}</option>
+                  ))}
+                </select>
                 {editErrs.minDays ? <span className="sf-wage-edit-err" data-sf-edit-err="minDays" role="alert">{editErrs.minDays}</span> : null}
               </label>
               <label className="sf-wage-edit-field">
@@ -795,8 +858,24 @@ const WagePage = () => {
               </label>
             </div>
             {editErrs.general ? <p className="sf-wage-edit-err" data-sf-edit-err="general" role="alert">{editErrs.general}</p> : null}
+            {/* ★ Kevin 2026-10-21：存量行不在四档（如历史 0 / 90）⇒ 预选「一天」+ 表单下小字提示
+                「保存后将改为注册满 1 天」（仅 N≠1 且不匹配时在场；N=0 提示「原为无门槛」）。 */}
+            {!isRecruitMinDaysKnown(row?.recruit_min_account_days ?? 0) ? (
+              <p className="sf-wage-edit-minhint" data-sf-edit-hint="minDays">
+                {Number(row?.recruit_min_account_days ?? 0) === 0
+                  ? t('bountyProject.minDaysNoGate')
+                  : t('bountyProject.minDaysLegacy', { n: Number(row?.recruit_min_account_days ?? 0) })}
+              </p>
+            ) : null}
             <div className="sf-wage-edit-actions">
-              <button type="submit" className="sf-wage-btn is-primary" data-sf-m="wage-edit-save" disabled={editBusy}>
+              {/* 只停冒泡不 preventDefault：保存按钮的原生 submit 照常触发（表单提交不被卡链接吞） */}
+              <button
+                type="submit"
+                className="sf-wage-btn is-primary"
+                data-sf-m="wage-edit-save"
+                disabled={editBusy}
+                onClick={(event) => event.stopPropagation()}
+              >
                 {editBusy ? t('wage.saving') : t('common.save')}
               </button>
               <button type="button" className="sf-wage-btn" data-sf-m="wage-edit-cancel" onClick={closeEdit}>
@@ -818,12 +897,48 @@ const WagePage = () => {
               <span className="sf-wage-notice-streak" data-sf-m="wage-card-streak">{notice.streak}</span>
             ) : null}
             {notice.kind === 'login' ? (
-              <Link className="sf-wage-notice-link" data-sf-m="wage-card-login-link" to={buildLocalizedPath(lang, '/login')}>
+              <Link
+                className="sf-wage-notice-link"
+                data-sf-m="wage-card-login-link"
+                to={buildLocalizedPath(lang, '/login')}
+                onClick={(event) => event.stopPropagation()}
+              >
                 {t('wage.loginCta')}
               </Link>
             ) : null}
           </p>
         ) : null}
+      </>
+    )
+
+    // 根元素：有 slug ⇒ `<Link>`（整卡可点、href 可探针断言）；无 slug ⇒ 原 `<article>` 不变。
+    // 卡内交互元素（加入 / 领工资 / 编辑 / 表单）stopPropagation ⇒ 不触发整卡跳转。
+    const cardClass = `sf-wage-card sf-card${joined ? ' is-joined' : ''}`
+    const cardData = {
+      'data-sf-project': key,
+      'data-sf-joined': joined ? '1' : '0',
+      'data-sf-role': role || 'anonymous',
+      'data-sf-slug': slugHref ? slugHref.slice(1) : '',
+    }
+
+    return slugHref ? (
+      <Link
+        className={cardClass}
+        data-sf-m="wage-card"
+        {...cardData}
+        to={buildLocalizedPath(lang, slugHref)}
+        key={key || row?.title}
+      >
+        {cardBody}
+      </Link>
+    ) : (
+      <article
+        className={cardClass}
+        data-sf-m="wage-card"
+        {...cardData}
+        key={key || row?.title}
+      >
+        {cardBody}
       </article>
     )
   }

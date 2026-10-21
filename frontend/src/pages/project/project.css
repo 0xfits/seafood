@@ -1,0 +1,137 @@
+// ============================================================================
+// 项目页 `/:slug` 页面级样式（`sf-project-*` 自成一套命名）
+// ----------------------------------------------------------------------------
+// 红线（design §26.20.2 同族口径）：零新主题 token（只消费既有 `--sf-*`，fallback 仅防御）、
+// 禁复用 `sf-item*` 商品卡类名/组件；布局骨架复用既有 `.sf-layout` / `.sf-panel` /
+// `.sf-panel-title` / `.sf-foot-note`（shell.css），本文件只补项目页自身块。
+// ============================================================================
+
+.sf-project-page .sf-project-head,
+.sf-project-page .sf-project-desc,
+.sf-project-page .sf-project-manage {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 头行：标题 + 状态徽标（与 campaign 详情头行同构：标题在左、徽标在右） */
+.sf-project-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* 状态徽标（三态可区分：文案 + `data-sf-state` + 修饰类，不靠颜色单打） */
+.sf-project-badge {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  padding: 1px 6px;
+  border-radius: 2px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+.sf-project-badge.is-recruiting {
+  color: var(--sf-up-fg, #1a7f37);
+}
+.sf-project-badge.is-working {
+  color: var(--sf-meta-fg, #57606a);
+}
+.sf-project-badge.is-ended {
+  color: var(--sf-down-fg, #cf222e);
+}
+
+.sf-project-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 13px;
+  color: var(--sf-meta-fg, #57606a);
+}
+
+.sf-project-pay {
+  font-weight: 600;
+  color: var(--sf-title-fg, #1f2328);
+  overflow-wrap: anywhere;
+}
+
+.sf-project-pay-extra {
+  margin-left: 6px;
+  font-weight: 400;
+  color: var(--sf-meta-fg, #57606a);
+}
+
+/* 详细介绍：pre-wrap 逐字保留用户换行（派单口径） */
+.sf-project-desc-text {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+}
+
+.sf-project-section-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--sf-title-fg, #1f2328);
+}
+
+.sf-project-campaigns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 操作区（仅 owner / 管理员）：三个入口按钮成排，手机档可换行、触控目标 ≥40px */
+.sf-project-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sf-project-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 8px 14px;
+  border-radius: var(--sf-st-radius-btna, 6px);
+  border: var(--sf-st-stroke-w-thin, 1px) solid var(--sf-btna-border, var(--sf-panel-border, #d0d7de));
+  background: var(--sf-panel-bg, #fff);
+  color: var(--sf-title-fg, #1f2328);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.sf-project-btn.is-primary {
+  background: var(--sf-btna-bg, #f5c518);
+  border-color: transparent;
+  color: var(--sf-btna-fg, #1f2328);
+}
+
+.sf-project-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.sf-project-notice {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.sf-project-notice.is-err {
+  color: var(--sf-down-fg, #cf222e);
+}
+
+.sf-project-notice.is-ok {
+  color: var(--sf-up-fg, #1a7f37);
+}

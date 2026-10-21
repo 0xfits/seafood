@@ -3,6 +3,8 @@ import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
+import { RECRUIT_MIN_DAYS_DEFAULT, RECRUIT_MIN_DAYS_OPTIONS } from '../../recruit-min-days'
+import { slugFieldErrorOf } from '../../project-slug'
 import {
   createJobPublishTracker,
   createProject,
@@ -23,6 +25,8 @@ import './jobs.css'
 // 币种：下拉选择（读口 `GET /api/currencies`，公开只读，仅 `status='listed'`）；旧手填 `jobs-input-cid` 已下线。
 //   显示文本 = `${symbol}${name ? ' · ' + name : ''}`（**不显示编号**）；默认 `'1'`（平台 $，与旧默认一致）。
 //   加载失败 / 空列表 ⇒ **回退仅 $（cid 1）一项**，表单照常可提交（不白屏、不禁用提交、零新增文案键）。
+// 注册天数条件（Kevin 2026-10-21）：手填 number 改**四选一 select**（1/7/30/365，常量真源
+//   `src/recruit-min-days.js` 两处表单共用），默认「一天」；后端 `recruit_min_account_days` int ≥0 不变。
 const DEFAULT_CID = '1'
 
 /**
@@ -64,11 +68,21 @@ const PublishJobPage = () => {
   const [showProjectForm, setShowProjectForm] = useState(false)
   const [projectState, setProjectState] = useState({ phase: 'idle', message: '' })
   const [projectForm, setProjectForm] = useState({
-    title: '', description: '', headcount: '1', minDays: '0',
+    title: '', description: '', headcount: '1',
+    // 项目地址 slug（Kevin 2026-10-21）：用户可填的项目地址名（页面规范形 `/<slug>`，如 sui）
+    slug: '',
+    // 注册天数条件 = 四选一 select，默认「一天」（1）——原 number 手填可 0，改枚举后最小即 1 天
+    minDays: String(RECRUIT_MIN_DAYS_DEFAULT),
     battPerClaim: '', intervalHours: '24', cid: '', currencyAmount: '',
   })
   const projectTracker = useMemo(() => createProjectPublishTracker(), [])
   const uidKey = String(user?.uID ?? user?.uid ?? '')
+  // 项目地址实时校验（Kevin 2026-10-21）：格式 / 保留字（单一真源 `src/project-slug.js`）；
+  // 留空 = 不填（不上送 slug 键），后端 400 `SLUG_TAKEN` 仍走错误文案内联。
+  const projectSlugKind = slugFieldErrorOf(projectForm.slug)
+  const projectSlugErr = projectSlugKind
+    ? t(projectSlugKind === 'reserved' ? 'project.errSlugReserved' : 'project.errSlugFormat')
+    : ''
 
   const checkGate = useCallback(async () => {
     if (!isAuthenticated || !uidKey) return
@@ -189,6 +203,15 @@ const PublishJobPage = () => {
       setProjectState({ phase: 'error', message: t('bountyProject.intervalInvalid') })
       return
     }
+    // 项目地址（slug，Kevin 2026-10-21）：格式 / 保留字客户端先拦（留空 = 不填、不上送该键）
+    const slugKind = slugFieldErrorOf(projectForm.slug)
+    if (slugKind) {
+      setProjectState({
+        phase: 'error',
+        message: t(slugKind === 'reserved' ? 'project.errSlugReserved' : 'project.errSlugFormat'),
+      })
+      return
+    }
     const createKey = projectTracker.keyFor(projectCreateFingerprint(projectForm))
     setProjectState({ phase: 'loading', message: t('jobs.submitting') })
     try {
@@ -223,13 +246,42 @@ const PublishJobPage = () => {
           <span className="sf-jobs-label">{t('bountyProject.title')}</span>
           <input className="sf-jobs-input" data-sf-m="jobs-project-input-title" value={projectForm.title} onChange={setProjectField('title')} required />
         </label>
+        {/* 项目地址（slug，Kevin 2026-10-21）：用户可填的项目地址名（页面规范形 `/<slug>`）；
+            实时校验格式与保留字（单一真源 `src/project-slug.js`）；冲突由后端 400 SLUG_TAKEN 内联。 */}
+        <label className="sf-jobs-field">
+          <span className="sf-jobs-label">{t('project.slugLabel')}</span>
+          <input
+            className="sf-jobs-input"
+            data-sf-m="jobs-project-input-slug"
+            value={projectForm.slug}
+            onChange={setProjectField('slug')}
+            autoComplete="off"
+            spellCheck={false}
+            maxLength={32}
+            placeholder="sui"
+          />
+          {projectSlugErr ? (
+            <span className="sf-jobs-status sf-jobs-err" data-sf-m="jobs-project-slug-err" role="alert">{projectSlugErr}</span>
+          ) : null}
+        </label>
         <label className="sf-jobs-field">
           <span className="sf-jobs-label">{t('bountyProject.headcount')}</span>
           <input className="sf-jobs-input" data-sf-m="jobs-project-input-headcount" value={projectForm.headcount} onChange={setProjectField('headcount')} type="number" inputMode="numeric" min="1" step="1" required />
         </label>
         <label className="sf-jobs-field">
           <span className="sf-jobs-label">{t('bountyProject.minDays')}</span>
-          <input className="sf-jobs-input" data-sf-m="jobs-project-input-min-days" value={projectForm.minDays} onChange={setProjectField('minDays')} type="number" inputMode="numeric" min="0" step="1" />
+          {/* ★ Kevin 2026-10-21：注册天数条件改四选一 select（value = 天数 1/7/30/365，常量真源
+              `src/recruit-min-days.js`）；旧 number 手填（min=0）已下线，默认「一天」。 */}
+          <select
+            className="sf-jobs-input"
+            data-sf-m="jobs-project-select-min-days"
+            value={projectForm.minDays}
+            onChange={setProjectField('minDays')}
+          >
+            {RECRUIT_MIN_DAYS_OPTIONS.map((opt) => (
+              <option key={opt.days} value={String(opt.days)}>{t(`bountyProject.${opt.key}`)}</option>
+            ))}
+          </select>
         </label>
         <label className="sf-jobs-field">
           <span className="sf-jobs-label">{t('bountyProject.battPerClaim')}</span>

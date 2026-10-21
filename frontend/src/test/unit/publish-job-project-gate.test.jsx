@@ -155,10 +155,34 @@ describe('发布悬赏页 · 无项目 ⇒ 阻断面板 + 内嵌新建项目', (
     ])
     expect(state.projectPosts[0].title).toBe('新项目')
     expect(state.projectPosts[0].headcount).toBe(3)
-    expect(state.projectPosts[0].recruit_min_account_days).toBe(0)
+    // ★ Kevin 2026-10-21：注册天数条件改四选一 select，默认「一天」= 1（原 number 手填默认 0 已下线）
+    expect(state.projectPosts[0].recruit_min_account_days).toBe(1)
     expect(state.projectPosts[0].wage_batt_per_claim).toBe('5')
     expect(state.projectPosts[0].wage_interval_hours).toBe(24)
     expect(String(state.projectPosts[0].create_key)).toMatch(/^cli:/)
+  })
+
+  it('③c 注册天数条件 = 四选一 select（恰 4 档、默认一天）；选「一周」⇒ 载荷 7', async () => {
+    const { container } = renderPage()
+    await vi.waitFor(() => expect(byM(container, 'jobs-project-gate')).not.toBeNull())
+    fireEvent.click(byM(container, 'jobs-project-open'))
+
+    const sel = byM(container, 'jobs-project-select-min-days')
+    expect(sel).not.toBeNull()
+    expect(sel.tagName).toBe('SELECT')
+    // 恰 4 项：value = 天数本身（1/7/30/365）；文案键挂 bountyProject.days1/7/30/365
+    expect([...sel.options].map((o) => o.value)).toEqual(['1', '7', '30', '365'])
+    expect([...sel.options].map((o) => o.textContent)).toEqual([
+      'bountyProject.days1', 'bountyProject.days7', 'bountyProject.days30', 'bountyProject.days365',
+    ])
+    expect(sel.value).toBe('1') // 默认 = 一天
+    expect(byM(container, 'jobs-project-input-min-days')).toBeNull() // 旧 number 手填不得回归
+
+    fireEvent.change(sel, { target: { value: '7' } })
+    fillProjectForm(container)
+    fireEvent.submit(byM(container, 'jobs-project-form'))
+    await vi.waitFor(() => expect(state.projectPosts.length).toBe(1))
+    expect(state.projectPosts[0].recruit_min_account_days).toBe(7) // 选「一周」⇒ 载荷 = 7 天
   })
 
   it('③b 选了次币 ⇒ `wage_cid` + `wage_currency_amount` 成对下发', async () => {

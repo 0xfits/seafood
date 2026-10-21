@@ -23,6 +23,11 @@ import WagePage from './pages/wage/WagePage'
 import CampaignListPage from './pages/campaign/CampaignListPage'
 import CampaignDetailPage from './pages/campaign/CampaignDetailPage'
 
+// 项目页（Kevin 2026-10-21）：`/:slug` = 项目规范地址（如 `/sui`）。
+// 读口 = `GET /api/project/:ref`（三形态：snowflake / 数字 id / slug，原样透传）；
+// 保留段（wage/task/… 二十一段）在页面自身判别 ⇒ 不渲染项目页、落 catch-all 提示页。
+import ProjectPage from './pages/project/ProjectPage'
+
 // 招工线（P4-B4c-ii-a）：页面挂在既有 `task` 路由族下（任务中心 = 招工列表，见 §1 #9【保留·改接】）。
 // 路由名全部由**已注册 API 路径**派生（/api/job[/<id>]、/api/task-progress/<id>），不自造新域名。
 import PublishJobPage from './pages/jobs/PublishJobPage'
@@ -194,6 +199,14 @@ const LangShell = () => {
             </ProtectedRoute>
           }
         />
+
+        {/* 项目页（Kevin 2026-10-21）：`:slug` = 项目规范地址（页面规范形 `/<slug>`，如 `/sui`）。
+            **内层末位、catch-all 之前**：静态段（wage / task / campaign / item / profile …）按
+            react-router v6 排名天然优先于 `:slug`；未注册为路由的保留段（tasks / campaigns /
+            items / projects / project / admin / api / settings / assets / market / messages /
+            order / orders / jobs 等）由 ProjectPage 依 `RESERVED_PROJECT_SEGMENTS` 判别 ⇒
+            渲染 catch-all 同款提示页（不发请求）。slug 无效 / 项目不存在（读口 404）同落提示页。 */}
+        <Route path=":slug" element={<ProjectPage />} />
 
         {/* ★ catch-all 提示页（v1.12 §16.1 · T91 · Kevin 2026-10-11 裁定③）—— **内层 `<Routes>` 的末位**：
             旧路径（`/reward`、`/listing`、`/listing/new`、`/listing/:listingId` 及其四语前缀档）不匹配任何
