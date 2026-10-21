@@ -53,6 +53,15 @@ export const fetchProjectDetail = (ref, user) =>
 /** 公开币种表（次币符号 / 次币下拉共用；与 wage/campaign 线各自包装同一路径，不跨线 import）。 */
 export const fetchProjectCurrencies = (user) => getJson('/api/currencies', user)
 
+/**
+ * 改项目（route R7 `PATCH /api/project/:projectId`；闸 = `requireAdmin('manage_tasks')` ∨ project owner，
+ * ended 由服务端封板）。body 只带**变化字段**（键闭集 = title / description / slug / headcount /
+ * recruit_min_account_days / wage_batt_per_claim / wage_cid + wage_currency_amount（成对）/
+ * wage_interval_hours / status；owner_uid / project_id / snowflake_id 禁改）。
+ * 409/400 的 `details.reason` 由调用方（`ProjectEditModal`）映射成框内内联提示。
+ */
+export const patchProject = (ref, body, user) => patchJson(`/api/project/${enc(ref)}`, body, user)
+
 /** 建 campaign（R4 口扩 project owner）。`project_id` = 项目主键（归属键）。 */
 export const createProjectCampaign = (body, user) => postJson('/api/campaign', body, user)
 

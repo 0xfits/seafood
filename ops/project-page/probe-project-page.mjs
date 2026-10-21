@@ -11,6 +11,12 @@
  *      多活动臂另验「点第 2 张卡 ⇒ 锁 501≠502」）；
  *   ⑤ 保留段 `/wage` 不被 `:slug` 吞（项目页 hook 零出现、wage 页 hook 在场、零项目读口）；
  *   ⑥ 390 / 1536 两档零溢出（scrollWidth - clientWidth = 0）+ 零 pageerror。
+ *   ⑦ 【编辑项目】模态框（Kevin 2026-10-21②：编辑自 /wage 卡移入本页，入口 = 操作区第 1 枚）：
+ *      显隐（owner 有 / 普通用户与 ended 无）、开合（背板 / ✕ / Esc 三路关闭**零 PATCH 零重拉**）、
+ *      背景滚动锁定、字段预填（含次币成对 + 注册天数四选一预选）、**载荷只带变化字段**、
+ *      成功 ⇒ 关框 + 页内提示 + 重拉拿新标题、400 `SLUG_TAKEN` / 409 `project_headcount_below_hired`
+ *      **框内内联且框不关**、非四档（90）⇒ 预选一天 + 提示行且保存载荷收敛为 1；
+ *      两档几何（390 面板全宽不出界 / 1536 居中且面板宽 ≤640）。
  *
  * 手法（同 ops/wage/front probe 体例）：
  *   · 静态服务 = context.route 把 http://sf.local/** 映射到磁盘 dist（零 dev server）；
@@ -66,6 +72,11 @@ const wageRow = (patch = {}) => ({
 const projectView = () => ({
   ...wageRow(),
   owner_uid: OWNER_UID,
+  // ★ 模态框臂（2026-10-21②）：次币对（cid 4 + 50）验「预填成对」；注册天数取四档值 7
+  //   验「预选一周、无提示行」（非四档 90 的提示臂在 modal 段的 legacy 子臂里临时改）。
+  wage_cid: 4,
+  wage_currency_amount: 50,
+  recruit_min_account_days: 7,
   campaigns: [
     {
       campaign_id: 501,
@@ -146,10 +157,19 @@ const STATE = {
   userPayload: { uID: Number(OWNER_UID) },
   wageRows: [wageRow(), wageRow({ project_id: 12, snowflake_id: '70012', slug: null, title: '冷库分拣' })],
   calls: [],
-  bodies: { campaign: [], campaignPatch: [], task: [], subtaskPatch: [] },
+  bodies: { campaign: [], campaignPatch: [], task: [], subtaskPatch: [], projectPatch: [] },
+  // 项目编辑写口（`PATCH /api/project/:id`）响应模式：ok（合并进视图）/ slug（400 SLUG_TAKEN）/
+  // headcount（409 缩容低于在职）——逐臂切换，验「框内内联且框不关」。
+  patchMode: 'ok',
 }
 
 const ok = (data) => ({ success: true, data })
+// 非 2xx 响应：带 `__status` 标记 ⇒ attachRoutes 按真状态码下发（页面侧 fetchApiJson 才会按
+// 「非 ok / success:false」抛错，`error.details.reason` 得以走上字段级内联链路）。
+const fail = (status, code, details) => ({
+  __status: status,
+  body: { success: false, error: { code, details } },
+})
 
 const apiResponse = (method, pathname, rawBody) => {
   const body = (() => {
@@ -202,6 +222,27 @@ const apiResponse = (method, pathname, rawBody) => {
     return ok({ task_id: Number(taskId), subtasks: [] })
   }
 
+  // 项目编辑写口（Kevin 2026-10-21②）：只认项目主键 `PATCH /api/project/<id>`；
+  // 载荷留痕（验「只带变化字段」），成功则合并进视图 ⇒ 保存后的重拉读到新值。
+  const patchProject = pathname.match(/^\/api\/project\/(\d+)$/)
+  if (patchProject && method === 'PATCH') {
+    STATE.calls.push({ method, path: pathname })
+    STATE.bodies.projectPatch.push({ ref: patchProject[1], body })
+    if (STATE.patchMode === 'slug') return fail(400, 'SLUG_TAKEN', { reason: 'SLUG_TAKEN', field: 'slug' })
+    if (STATE.patchMode === 'headcount') {
+      return fail(409, 'PROJECT_HEADCOUNT_BELOW_HIRED', {
+        reason: 'project_headcount_below_hired', headcount: body?.headcount, hired_count: STATE.view.hired_count,
+      })
+    }
+    STATE.view = { ...STATE.view, ...(body || {}) }
+    return ok({ ...STATE.view })
+  }
+  // 未知项目 slug（如已删页 `/activities` 落到 `:slug`）⇒ 读口按真契约 404
+  // （旧通用 GET 兜底返回 `{rows:[]}` 会让项目页把「不存在的项目」渲染成空项目页）。
+  if (method === 'GET' && /^\/api\/project\/[^/]+$/.test(pathname)) {
+    STATE.calls.push({ method, path: pathname })
+    return fail(404, 'PROJECT_NOT_FOUND', { reason: 'project_not_found' })
+  }
   if (method === 'GET') return ok({ rows: [], next_cursor: null, total: 0 })
   return ok({})
 }
@@ -252,7 +293,8 @@ const SNAP_FN = `(() => {
     },
     manage: {
       present: !!q('[data-sf-m="project-manage"]'),
-      // 顶部操作区入口（现在只应剩【发布活动】一枚；卡片内入口用下面两组独立读数）
+      // 顶部操作区入口（Kevin 2026-10-21②：2 枚 = 【编辑项目】+【发布活动】；
+      // 卡片内入口用下面两组独立读数）
       entries: qa('[data-sf-m="project-manage"] [data-sf-m^="project-entry-"]').length,
       entryTexts: qa('[data-sf-m="project-manage"] [data-sf-m^="project-entry-"]').map((el) => txt(el)),
       // 卡片内入口：活动卡【发布任务】（ref 列表）/ 任务卡【发布子任务】（task 列表）
@@ -312,6 +354,49 @@ const SNAP_FN = `(() => {
       inputMaxRight: Math.max(0, ...qa('.sf-project-input').map((el) => el.getBoundingClientRect().right)),
       submitDisabled: (() => { const b = q('[data-sf-m="project-form-submit"]'); return b ? !!b.disabled : null })(),
     },
+    // 【编辑项目】模态框读数（Kevin 2026-10-21②）：portal 到 body ⇒ 必须从 document 直接取
+    // （不在 [data-sf-m="project-page"] 子树里——portal 到 body）。
+    modal: (() => {
+      const m = q('[data-sf-m="project-edit"]')
+      const panel = q('[data-sf-m="project-edit-panel"]')
+      const val = (sel) => { const el = q(sel); return el ? el.value : null }
+      const pr = panel ? panel.getBoundingClientRect() : null
+      const errs = {}
+      for (const el of qa('[data-sf-edit-err]')) errs[el.getAttribute('data-sf-edit-err')] = txt(el)
+      return {
+        present: !!m,
+        panelPresent: !!panel,
+        role: panel ? panel.getAttribute('role') : null,
+        ariaModal: panel ? panel.getAttribute('aria-modal') : null,
+        title: txt(q('[data-sf-m="project-edit-title"]')),
+        width: pr ? Math.round(pr.width * 10) / 10 : null,
+        left: pr ? Math.round(pr.left * 10) / 10 : null,
+        right: pr ? Math.round(pr.right * 10) / 10 : null,
+        bodyOverflow: document.body.style.overflow,
+        entrancePresent: !!q('[data-sf-m="project-entry-edit"]'),
+        entranceText: txt(q('[data-sf-m="project-entry-edit"]')),
+        saveText: txt(q('[data-sf-m="project-edit-save"]')),
+        closePresent: !!q('[data-sf-m="project-edit-close"]'),
+        backdropPresent: !!q('[data-sf-m="project-edit-backdrop"]'),
+        fields: {
+          title: val('[data-sf-edit="title"]'),
+          description: val('[data-sf-edit="description"]'),
+          slug: val('[data-sf-edit="slug"]'),
+          headcount: val('[data-sf-edit="headcount"]'),
+          minDays: val('[data-sf-edit="minDays"]'),
+          minDaysTag: (() => { const el = q('[data-sf-edit="minDays"]'); return el ? el.tagName : null })(),
+          minDaysValues: qa('[data-sf-edit="minDays"] option').map((o) => o.value),
+          minDaysHint: txt(q('[data-sf-edit-hint="minDays"]')),
+          batt: val('[data-sf-edit="batt"]'),
+          interval: val('[data-sf-edit="interval"]'),
+          cid: val('[data-sf-edit="cid"]'),
+          amount: val('[data-sf-edit="amount"]'),
+          amountDisabled: (() => { const el = q('[data-sf-edit="amount"]'); return el ? !!el.disabled : null })(),
+          status: val('[data-sf-edit="status"]'),
+        },
+        errs,
+      }
+    })(),
     apiCalls: [],
   }
 })()`
@@ -333,7 +418,10 @@ const attachRoutes = async (ctx) => {
     const u = new URL(req.url())
     if (u.hostname !== 'sf.local') return route.abort()
     if (u.pathname.startsWith('/api/')) {
-      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(apiResponse(req.method(), u.pathname, req.postData())) })
+      const payload = apiResponse(req.method(), u.pathname, req.postData())
+      const status = payload && payload.__status ? payload.__status : 200
+      const body = payload && payload.__status ? payload.body : payload
+      return route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(body) })
     }
     let file = path.join(DIST, decodeURIComponent(u.pathname))
     if (!fs.existsSync(file) || fs.statSync(file).isDirectory() || !path.extname(file)) file = path.join(DIST, 'index.html')
@@ -418,9 +506,11 @@ async function main() {
   // ============================ ③ 入口显隐（owner 臂） ============================
   out.assertions.entryOwner = {
     managePresent: projSnap.manage.present === true,
-    // 顶部只剩【发布活动】（旧判据 threeEntries===3 已被 Kevin 追加口径取代：任务/子任务入口下沉卡片）
-    topOnlyCampaignEntry: projSnap.manage.entries === 1,
-    topEntryIsCampaign: JSON.stringify(projSnap.manage.entryTexts) === JSON.stringify([ZH.project.entryCampaign]),
+    // 顶部 2 枚【编辑项目】+【发布活动】（2026-10-21② 注入编辑入口；任务/子任务入口仍下沉卡片）
+    topTwoEntries: projSnap.manage.entries === 2,
+    editEntryFirst: JSON.stringify(projSnap.manage.entryTexts)
+      === JSON.stringify([ZH.wage.editTitle, ZH.project.entryCampaign]),
+    topEntryIsCampaign: projSnap.manage.entryTexts[1] === ZH.project.entryCampaign,
     noTopTaskEntry: !projSnap.manage.entryTexts.includes(ZH.project.entryTask),
     noTopSubtaskEntry: !projSnap.manage.entryTexts.includes(ZH.project.entrySubtask),
     oneTaskEntryPerCampaign: JSON.stringify(projSnap.manage.cardTaskEntries) === JSON.stringify(['501']),
@@ -635,7 +725,9 @@ async function main() {
     cards: multiSnap.manage.cards,
   }
   out.assertions.multiCampaign = {
-    topStillOnlyCampaign: multiSnap.manage.entries === 1 && multiSnap.manage.entryTexts[0] === ZH.project.entryCampaign,
+    topStillTwoEntries: multiSnap.manage.entries === 2
+      && multiSnap.manage.entryTexts[0] === ZH.wage.editTitle
+      && multiSnap.manage.entryTexts[1] === ZH.project.entryCampaign,
     oneTaskEntryPerCard: JSON.stringify(multiSnap.manage.cardTaskEntries) === JSON.stringify(['501', '502']),
     // 3 张任务卡（501:555 / 501:556 / 502:557）各一枚，id 全局唯一 ⇒ 数组无重复
     oneSubtaskEntryPerTask: JSON.stringify(multiSnap.manage.cardSubtaskEntries) === JSON.stringify(['555', '556', '557']),
@@ -658,6 +750,168 @@ async function main() {
     subtaskFormInTaskCard: multiSubSnap.manage.subtaskFormInTask === 1,
   }
 
+  // ============================ ⑦ 【编辑项目】模态框（Kevin 2026-10-21②）============================
+  // 口径（编辑自 /wage 卡移入本页）：入口 = 操作区第 1 枚；点开 = 模态（portal 到 body）；
+  //   背板 / ✕ / Esc 三路关闭**零 PATCH 零重拉**；载荷只带变化字段；400/409 在框内内联且框不关；
+  //   成功 ⇒ 关框 + 页内提示 + 重拉（标题即时更新）；非四档注册天数（90）⇒ 预选一天 + 提示行。
+  STATE.patchMode = 'ok'
+  STATE.view = projectView() // 复位（前面的臂改过 title / subtasks / 二活动）
+  STATE.bodies.projectPatch.length = 0
+  STATE.calls.length = 0
+
+  const mClosed = await open('/sui', '[data-sf-m="project-page"]')
+  await page.click('[data-sf-m="project-entry-edit"]')
+  await settle(page)
+  const mOpen = await page.evaluate(SNAP_FN)
+  const readsBeforeEsc = STATE.calls.filter((c) => c.path === '/api/project/sui').length
+  await page.keyboard.press('Escape')
+  await settle(page)
+  const mAfterEsc = await page.evaluate(SNAP_FN)
+  const escPatches = STATE.bodies.projectPatch.length
+  const readsAfterEsc = STATE.calls.filter((c) => c.path === '/api/project/sui').length
+
+  // 背板：点视口左上角（面板居中/全宽但无 backdrop 覆盖之外的命中 ⇒ 5,5 必落在背板上）
+  await page.click('[data-sf-m="project-entry-edit"]')
+  await settle(page)
+  const mBackdropOpen = await page.evaluate(SNAP_FN)
+  await page.mouse.click(5, 5)
+  await settle(page)
+  const mAfterBackdrop = await page.evaluate(SNAP_FN)
+  const backdropPatches = STATE.bodies.projectPatch.length
+
+  // ✕（标题栏关闭钮）
+  await page.click('[data-sf-m="project-entry-edit"]')
+  await settle(page)
+  const mXOpen = await page.evaluate(SNAP_FN)
+  await page.click('[data-sf-m="project-edit-close"]')
+  await settle(page)
+  const mAfterX = await page.evaluate(SNAP_FN)
+  const xPatches = STATE.bodies.projectPatch.length
+
+  // —— 保存臂：只改标题 ⇒ 载荷**恰** {title}，成功关框 + 提示 + 重拉 ——
+  STATE.bodies.projectPatch.length = 0
+  const readsBeforeSave = STATE.calls.filter((c) => c.path === '/api/project/sui').length
+  await page.click('[data-sf-m="project-entry-edit"]')
+  await settle(page)
+  await page.fill('[data-sf-edit="title"]', '海鲜打包·周末班')
+  await page.click('[data-sf-m="project-edit-save"]')
+  await page.waitForFunction(() => !document.querySelector('[data-sf-m="project-edit"]'), null, { timeout: 8000 }).catch(() => {})
+  await settle(page)
+  const mSaved = await page.evaluate(SNAP_FN)
+  const savePatch = STATE.bodies.projectPatch[0] || null
+  const readsAfterSave = STATE.calls.filter((c) => c.path === '/api/project/sui').length
+
+  // —— 400 SLUG_TAKEN：框内 slug 内联、框不关（零成功重拉） ——
+  STATE.patchMode = 'slug'
+  STATE.bodies.projectPatch.length = 0
+  await page.click('[data-sf-m="project-entry-edit"]')
+  await settle(page)
+  await page.fill('[data-sf-edit="slug"]', 'taken-slug')
+  await page.click('[data-sf-m="project-edit-save"]')
+  await page.waitForFunction(() => !!document.querySelector('[data-sf-edit-err="slug"]'), null, { timeout: 8000 }).catch(() => {})
+  await settle(page)
+  const mSlugErr = await page.evaluate(SNAP_FN)
+  await page.keyboard.press('Escape')
+  await settle(page)
+
+  // —— 409 project_headcount_below_hired：headcount 字段内联（含已招数值）、框不关 ——
+  STATE.patchMode = 'headcount'
+  STATE.view = { ...STATE.view, hired_count: 3 }
+  await open('/sui', '[data-sf-m="project-page"]')
+  await page.click('[data-sf-m="project-entry-edit"]')
+  await settle(page)
+  await page.fill('[data-sf-edit="headcount"]', '1')
+  await page.click('[data-sf-m="project-edit-save"]')
+  await page.waitForFunction(() => !!document.querySelector('[data-sf-edit-err="headcount"]'), null, { timeout: 8000 }).catch(() => {})
+  await settle(page)
+  const mHeadErr = await page.evaluate(SNAP_FN)
+  await page.keyboard.press('Escape')
+  await settle(page)
+
+  // —— 非四档（90）⇒ 预选「一天」+ 历史值提示；原样保存 ⇒ 载荷恰 {recruit_min_account_days: 1} ——
+  STATE.patchMode = 'ok'
+  STATE.view = { ...STATE.view, hired_count: 1, recruit_min_account_days: 90 }
+  STATE.bodies.projectPatch.length = 0
+  await open('/sui', '[data-sf-m="project-page"]')
+  await page.click('[data-sf-m="project-entry-edit"]')
+  await settle(page)
+  const mLegacy = await page.evaluate(SNAP_FN)
+  await page.click('[data-sf-m="project-edit-save"]')
+  await page.waitForFunction(() => !document.querySelector('[data-sf-m="project-edit"]'), null, { timeout: 8000 }).catch(() => {})
+  await settle(page)
+  const mLegacySaved = await page.evaluate(SNAP_FN)
+  const legacyPatch = STATE.bodies.projectPatch[0] || null
+
+  out.states['1536_modal'] = {
+    closed: mClosed.modal,
+    open: mOpen.modal,
+    afterEsc: { modal: mAfterEsc.modal, patches: escPatches, reads: { before: readsBeforeEsc, after: readsAfterEsc } },
+    backdrop: { open: mBackdropOpen.modal.present, after: mAfterBackdrop.modal, patches: backdropPatches },
+    closeX: { open: mXOpen.modal.present, after: mAfterX.modal, patches: xPatches },
+    saved: { modal: mSaved.modal, project: mSaved.project, notice: mSaved.manage.notice, patch: savePatch, reads: { before: readsBeforeSave, after: readsAfterSave } },
+    slugConflict: { errs: mSlugErr.modal.errs, modalPresent: mSlugErr.modal.present, patches: STATE.bodies.projectPatch.length },
+    headcountConflict: { errs: mHeadErr.modal.errs, modalPresent: mHeadErr.modal.present },
+    legacy: { fields: mLegacy.modal.fields, patch: legacyPatch, closedAfterSave: mLegacySaved.modal.present === false },
+  }
+
+  out.assertions.modal = {
+    // 入口：操作区第 1 枚、文案 = wage.editTitle；默认关框
+    entranceInActions: mClosed.manage.entries === 2
+      && mClosed.manage.entryTexts[0] === ZH.wage.editTitle,
+    entranceText: mClosed.modal.entranceText === ZH.wage.editTitle,
+    closedByDefault: mClosed.modal.present === false && mClosed.modal.panelPresent === false,
+    // 开框：dialog 语义 + 标题 + 背景滚动锁定
+    opensOnEntry: mOpen.modal.present === true && mOpen.modal.panelPresent === true,
+    dialogSemantics: mOpen.modal.role === 'dialog' && mOpen.modal.ariaModal === 'true',
+    titleText: mOpen.modal.title === ZH.wage.editTitle,
+    saveAndClosePresent: Boolean(mOpen.modal.saveText) && mOpen.modal.closePresent === true
+      && mOpen.modal.backdropPresent === true,
+    scrollLockedWhileOpen: mOpen.modal.bodyOverflow === 'hidden',
+    // 预填 = 行值（次币成对 / 注册天数四档预选）
+    prefilledCore: mOpen.modal.fields.title === '海鲜打包'
+      && mOpen.modal.fields.description === '每天打包 20 单，按批结算。'
+      && mOpen.modal.fields.headcount === '3'
+      && mOpen.modal.fields.batt === '30'
+      && mOpen.modal.fields.interval === '4'
+      && mOpen.modal.fields.slug === 'sui',
+    prefilledPair: mOpen.modal.fields.cid === '4' && mOpen.modal.fields.amount === '50'
+      && mOpen.modal.fields.amountDisabled === false,
+    prefilledStatus: mOpen.modal.fields.status === 'recruiting',
+    minDaysFourOptions: mOpen.modal.fields.minDaysTag === 'SELECT'
+      && JSON.stringify(mOpen.modal.fields.minDaysValues) === JSON.stringify(['1', '7', '30', '365']),
+    minDaysPreselect7: mOpen.modal.fields.minDays === '7' && mOpen.modal.fields.minDaysHint === null,
+    // 关闭三路：零 PATCH / 零重拉 / 滚动还原
+    // ★ 还原口径 = 回到**开框前**的 inline 值（宿主页已由别处置为 'unset'，禁硬编码 ''）
+    escCloses: mAfterEsc.modal.present === false && mAfterEsc.modal.bodyOverflow === mClosed.modal.bodyOverflow,
+    escZeroWrites: escPatches === 0 && readsAfterEsc === readsBeforeEsc,
+    backdropCloses: mBackdropOpen.modal.present === true && mAfterBackdrop.modal.present === false,
+    backdropZeroWrites: backdropPatches === 0,
+    closeXCloses: mXOpen.modal.present === true && mAfterX.modal.present === false,
+    closeXZeroWrites: xPatches === 0,
+    // 保存：只带变化字段 + 关框 + 提示 + 重拉拿新标题
+    savePatchExactlyTitle: Boolean(savePatch && savePatch.ref === '11'
+      && JSON.stringify(Object.keys(savePatch.body).sort()) === JSON.stringify(['title'])
+      && savePatch.body.title === '海鲜打包·周末班'),
+    saveClosesModal: mSaved.modal.present === false,
+    saveNoticeOk: Boolean(mSaved.manage.notice && mSaved.manage.notice.kind === 'ok'
+      && mSaved.manage.notice.text === ZH.wage.editSaved),
+    saveRelistsPage: readsAfterSave >= readsBeforeSave + 1,
+    saveUpdatesHeadTitle: mSaved.project.title === '海鲜打包·周末班',
+    // 400 / 409：框内内联、框不关
+    slugConflictInline: mSlugErr.modal.errs.slug === ZH.project.errSlugTaken,
+    slugConflictKeepsModal: mSlugErr.modal.present === true,
+    headcountConflictInline: mHeadErr.modal.errs.headcount
+      === ZH.wage.errHeadcountBelowHired.replace('{{hired}}', '3'),
+    headcountConflictKeepsModal: mHeadErr.modal.present === true,
+    // 非四档（90）：预选一天 + 提示行；原样保存 ⇒ 载荷收敛为 1
+    legacyPicksDay1: mLegacy.modal.fields.minDays === '1'
+      && mLegacy.modal.fields.minDaysHint === ZH.bountyProject.minDaysLegacy.replace('{{n}}', '90'),
+    legacySaveConverges: Boolean(legacyPatch && JSON.stringify(legacyPatch.body) === JSON.stringify({ recruit_min_account_days: 1 }))
+      && mLegacySaved.modal.present === false,
+  }
+  STATE.patchMode = 'ok'
+  STATE.view = projectView()
+
   // ============================ ③-b 普通用户臂（非 owner ∧ 无管理员能力） ============================
   // ★ owner 判定取读口行 `owner_uid`（不是 /api/user）⇒ 两处同时改：行主换人 + /api/user 无管理员三键
   STATE.userPayload = { uID: 999999 }
@@ -667,6 +921,8 @@ async function main() {
   out.states['1536_plain_user'] = plainSnap.manage
   out.assertions.entryPlain = {
     manageAbsent: plainSnap.manage.present === false,
+    // 编辑入口同一闸（管理面板整块不在 ⇒ 零编辑入口、零模态框）
+    noEditEntry: plainSnap.modal.entrancePresent === false && plainSnap.modal.present === false,
     zeroEntries: plainSnap.manage.entries === 0,
     zeroForms: plainSnap.manage.forms.campaign === 0 && plainSnap.manage.forms.task === 0 && plainSnap.manage.forms.subtask === 0,
     zeroCardEntries: plainSnap.manage.cardTaskEntries.length === 0 && plainSnap.manage.cardSubtaskEntries.length === 0,
@@ -684,6 +940,13 @@ async function main() {
     await page.click('[data-sf-m="project-campaign-entry-task"]')
     await settle(page)
     const formSnap = await page.evaluate(SNAP_FN)
+    // ★ 模态框几何（2026-10-21②）：点【编辑项目】⇒ 取面板盒子 + 页面溢出（面板 max-width:100%
+    //   与输入 width:100% 必须保证两档都不产生横向溢出）
+    await page.click('[data-sf-m="project-entry-edit"]')
+    await settle(page)
+    const modalSnap = await page.evaluate(SNAP_FN)
+    await page.keyboard.press('Escape')
+    await settle(page)
     geometry[label] = {
       overflowPx: snap.overflowPx,
       projectRight: snap.project.right,
@@ -693,6 +956,12 @@ async function main() {
       inputMaxRight: Math.round(formSnap.manage.inputMaxRight * 10) / 10,
       rows: formSnap.manage.rows,
       entries: formSnap.manage.entries,
+      modalPresent: modalSnap.modal.present,
+      modalWidth: modalSnap.modal.width,
+      modalLeft: modalSnap.modal.left,
+      modalRight: modalSnap.modal.right,
+      modalOverflowPx: modalSnap.overflowPx,
+      modalBodyOverflow: modalSnap.modal.bodyOverflow,
     }
   }
   await page.setViewportSize({ width: 1536, height: 960 })
@@ -703,6 +972,14 @@ async function main() {
     inputsWithinViewport390: geometry['390'].inputMaxRight <= 390,
     inputsWithinViewport1536: geometry['1536'].inputMaxRight <= 1536,
     formRendersOnBoth: geometry['390'].rows >= 1 && geometry['1536'].rows >= 1,
+    // 模态框两档：390 面板不出视口（左右都在 [0,390]）、1536 面板宽 ≤640 且居中不贴边
+    modalFits390: geometry['390'].modalPresent === true
+      && geometry['390'].modalLeft >= 0 && geometry['390'].modalRight <= 390,
+    modalFits1536: geometry['1536'].modalPresent === true
+      && geometry['1536'].modalWidth <= 640 && geometry['1536'].modalLeft > 0
+      && geometry['1536'].modalRight <= 1536,
+    modalZeroOverflow: geometry['390'].modalOverflowPx === 0 && geometry['1536'].modalOverflowPx === 0
+      && geometry['390'].modalBodyOverflow === 'hidden',
     zeroPageErrors: pageErrors.length === 0,
   }
 
@@ -717,7 +994,8 @@ async function main() {
     'projectPage.campaignTitleLinked', 'projectPage.campaignState', 'projectPage.tasks2', 'projectPage.taskTitles',
     'projectPage.taskRewards', 'projectPage.subtasks2', 'projectPage.subtaskTypes5',
     'projectPage.subtaskCodesNotLeaked', 'projectPage.requiredFlags',
-    'entryOwner.managePresent', 'entryOwner.topOnlyCampaignEntry', 'entryOwner.topEntryIsCampaign',
+    'entryOwner.managePresent', 'entryOwner.topTwoEntries', 'entryOwner.editEntryFirst',
+    'entryOwner.topEntryIsCampaign',
     'entryOwner.noTopTaskEntry', 'entryOwner.noTopSubtaskEntry', 'entryOwner.oneTaskEntryPerCampaign',
     'entryOwner.oneSubtaskEntryPerTask', 'entryOwner.taskEntryInCampaignHead', 'entryOwner.subtaskEntryInTaskHead',
     'entryOwner.everyCampaignCardOwnsOneEntry', 'entryOwner.everyTaskCardOwnsOneEntry',
@@ -739,17 +1017,34 @@ async function main() {
     'subtaskForm.groupIsOldPlusOne', 'subtaskForm.oldRowsResentWithId', 'subtaskForm.oldIdsPreserved',
     'subtaskForm.oldPayloadPreserved', 'subtaskForm.newRowLast', 'subtaskForm.freshReadBeforePatch',
     'subtaskForm.listReRendered', 'subtaskForm.noticeOk',
-    'multiCampaign.topStillOnlyCampaign', 'multiCampaign.oneTaskEntryPerCard', 'multiCampaign.oneSubtaskEntryPerTask',
+    'multiCampaign.topStillTwoEntries', 'multiCampaign.oneTaskEntryPerCard', 'multiCampaign.oneSubtaskEntryPerTask',
     'multiCampaign.everyCampaignCardOwnsOneEntry', 'multiCampaign.everyTaskCardOwnsOneEntry',
     'multiCampaign.oneSubtaskFormOpen',
     'multiCampaign.lockedSecondCampaign', 'multiCampaign.lockedSecondCampaignText', 'multiCampaign.formInSecondCard',
     'multiCampaign.noCampaignSelector', 'multiCampaign.postedToClickedCampaign', 'multiCampaign.subtaskLockedBoth',
     'multiCampaign.subtaskNoSelectors', 'multiCampaign.subtaskFormInTaskCard',
-    'entryPlain.manageAbsent', 'entryPlain.zeroEntries', 'entryPlain.zeroForms', 'entryPlain.zeroCardEntries',
+    // ⑦【编辑项目】模态框（2026-10-21②）：入口 / 开合 / 预填 / 三路关闭 / 载荷收敛 / 400·409 内联 / 非四档
+    'modal.entranceInActions', 'modal.entranceText', 'modal.closedByDefault',
+    'modal.opensOnEntry', 'modal.dialogSemantics', 'modal.titleText',
+    'modal.saveAndClosePresent', 'modal.scrollLockedWhileOpen',
+    'modal.prefilledCore', 'modal.prefilledPair', 'modal.prefilledStatus',
+    'modal.minDaysFourOptions', 'modal.minDaysPreselect7',
+    'modal.escCloses', 'modal.escZeroWrites',
+    'modal.backdropCloses', 'modal.backdropZeroWrites',
+    'modal.closeXCloses', 'modal.closeXZeroWrites',
+    'modal.savePatchExactlyTitle', 'modal.saveClosesModal', 'modal.saveNoticeOk',
+    'modal.saveRelistsPage', 'modal.saveUpdatesHeadTitle',
+    'modal.slugConflictInline', 'modal.slugConflictKeepsModal',
+    'modal.headcountConflictInline', 'modal.headcountConflictKeepsModal',
+    'modal.legacyPicksDay1', 'modal.legacySaveConverges',
+    'entryPlain.manageAbsent', 'entryPlain.noEditEntry',
+    'entryPlain.zeroEntries', 'entryPlain.zeroForms', 'entryPlain.zeroCardEntries',
     'entryPlain.nestedStillVisible',
     'entryPlain.zeroWrites',
     'geometry.zeroOverflow390', 'geometry.zeroOverflow1536', 'geometry.inputsWithinViewport390',
-    'geometry.inputsWithinViewport1536', 'geometry.formRendersOnBoth', 'geometry.zeroPageErrors',
+    'geometry.inputsWithinViewport1536', 'geometry.formRendersOnBoth',
+    'geometry.modalFits390', 'geometry.modalFits1536', 'geometry.modalZeroOverflow',
+    'geometry.zeroPageErrors',
   ]
   const verdicts = required.map((key) => {
     const [group, field] = key.split('.')

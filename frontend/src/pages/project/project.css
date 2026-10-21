@@ -549,3 +549,117 @@ textarea.sf-project-input {
   font-weight: 600;
   background: transparent;
 }
+
+/* ============================================================================
+   项目编辑模态框（Kevin 2026-10-21②：编辑从 /wage 卡内行内展开搬到项目页，改模态框）
+   ----------------------------------------------------------------------------
+   红线同上：零新主题 token（只消费既有 `--sf-*`）；字段/输入/按钮复用 `.sf-project-field`
+   / `.sf-project-input` / `.sf-project-row-grid` / `.sf-project-btn`，本段只补**框体**：
+   · 遮罩 fixed inset:0；面板 1536 居中且宽 ≤640、390 全宽（左右各 10px 内边距）；
+   · `z-index: 60` 高于右侧悬浮菜单 `.sf-fm`(6) 与数量弹层(20)；
+   · 页面滚动锁定由组件写在 `body.style.overflow`（关闭即还原），此处只管视觉。
+   ============================================================================ */
+.sf-project-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.sf-project-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.42);
+}
+
+.sf-project-modal-panel {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 640px;
+  min-width: 0;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border: var(--sf-st-stroke-w-thin, 1px) solid var(--sf-panel-border, #d0d7de);
+  border-radius: var(--sf-st-radius-btna, 6px);
+  background: var(--sf-panel-bg, #fff);
+  color: var(--sf-title-fg, #1f2328);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+}
+
+.sf-project-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.sf-project-modal-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--sf-title-fg, #1f2328);
+}
+
+.sf-project-modal-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: var(--sf-st-radius-btna, 6px);
+  border: var(--sf-st-stroke-w-thin, 1px) solid var(--sf-panel-border, #d0d7de);
+  background: var(--sf-panel-bg, #fff);
+  color: var(--sf-meta-fg, #57606a);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* 字段级内联错误 / 提示行（原 `.sf-wage-edit-err` / `.sf-wage-edit-minhint` 同口径） */
+.sf-project-edit-err {
+  margin: 0;
+  color: var(--sf-down-fg, #cf222e);
+  font-size: 12px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.sf-project-edit-hint {
+  margin: 0;
+  color: var(--sf-meta-fg, #57606a);
+  font-size: 12px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+/* 手机档：框体贴边（10px）、关闭按钮触控 ≥44 */
+@media (max-width: 767px) {
+  .sf-project-modal {
+    padding: 10px;
+  }
+
+  .sf-project-modal-panel {
+    max-width: 100%;
+    padding: 12px;
+  }
+
+  .sf-project-modal-close {
+    width: 44px;
+    height: 44px;
+  }
+}

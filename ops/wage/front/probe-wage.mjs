@@ -8,22 +8,20 @@
  *   ④ 390 / 1536 两档：`scrollWidth - clientWidth = 0` + 零 pageerror。
  *   ⑤ 客态臂（独立 context、无登录种子）：未登录**也**渲染项目卡（项目名 / 工资行 / 次币可见）+
  *      页顶轻提示与列表并存；点【加入】/【领工资】⇒ 卡内登录提示、**零写请求**（apply/claim 各 0）。
- *   ⑥ 项目卡【编辑】三臂（Kevin 2026-10-21）：owner 有钮 / manage_tasks 管理员他人卡也有钮 /
- *      普通用户全零钮；展开表单可填（预填核）；只改标题保存 ⇒ PATCH 载荷**恰** {title} 一键
- *      （「只含变化字段」），成功后表单收起 + 卡内提示 + 重拉读新标题。
- *   ⑦ 注册天数条件四选一（Kevin 2026-10-21）：编辑表单预填 7 ⇒ 选中「一周」无提示；
- *      预填 0 / 90（非四档）⇒ 预选「一天」+ 表单下提示行（無門檻 / 原条件 N 天）；保存 ⇒
- *      PATCH 载荷恰 {recruit_min_account_days: 1}（提示所言即载荷）；select 恰 4 档；390 展开态零溢出。
+ *   ⑥ 项目卡**零编辑**（Kevin 2026-10-21②：编辑整体移入项目页 `/:slug` 的【编辑项目】+ 模态框）——
+ *      本页三臂（owner 行 / manage_tasks 管理员载荷 / 普通用户）**全部零【编辑】钮**、
+ *      **零 PATCH**、**零 `/api/user` 三键取数**；卡内零表单根 / 零字段容器 / 零提示行 /
+ *      零注册天数 select（旧 wage-edit 表单件全绝迹）；两档（1536 / 390）同判；
+ *      整卡链接保留（有 slug ⇒ `<a href="…/slug">`，历史行 ⇒ `<article>`）。
+ *      编辑本身的字段 / 校验 / 载荷 / 模态框行为由 `ops/project-page/probe-project-page.mjs` 的 modal 臂覆盖。
  *
  * 手法（同 ops/v119-msg-panel 体例）：
  *   · 静态服务 = context.route 把 http://sf.local/** 映射到磁盘 dist（零 dev server）；
  *   · 登录态 = localStorage 种子（addInitScript）；API 全在 context.route 内自截（零后端、零库写）；
  *   · 禁动画 + 稳态采样；只读不写仓内源码。
- *   · 悬浮菜单遮挡处置（2026-10-21 定性）：1536 档 nav.sf-fm（fixed · top:45% 右缘）与卡【编辑】钮
- *     （最后两张卡）相交 = **已知接受**（Kevin 2026-10-11 撤除 T85 桌面 gutter 的既定口径：相交只登记、
- *     不判负）⇒ E4 臂卡内控件经 clickCardControl：未遮走普通点击、被遮走页内 Element.click（非 force），
- *     逐条登记 states.fm_click_registry；主行动钮（加入/领工资）与 390 档实测恒不相交（读数见
- *     readings/wage-fm-overlap-measure.json）。
+ *   · 悬浮菜单遮挡（2026-10-21② 退场）：旧卡头【编辑】钮曾是唯一与 1536 档 nav.sf-fm 相交的卡内控件
+ *     （相交属 Kevin 2026-10-11 既定「只登记不判负」口径）；编辑移入项目页后本页卡内控件只剩
+ *     主行动钮（加入/领工资），实测恒与浮层不相交 ⇒ 遮挡测量臂与登记表一并退场，本探针零 force 点击。
  *
  * 用法：QA_DIST=<dist> node probe-wage.mjs <out.json>
  */
@@ -59,7 +57,9 @@ const ROWS = [
   // ① 已入职 + 可领（无下次可领时间）⇒【领工资】可点（成功臂；带次币定额 ⇒ 到账提示两币都在）
   { project_id: 101, snowflake_id: '7101', title: '海鲜打包', description: '每天打包 20 单，按批结算。', headcount: 3, hired_count: 2, recruit_min_account_days: 1, wage_batt_per_claim: 30, wage_cid: 4, wage_currency_amount: 20, wage_interval_hours: 4, status: 'recruiting', my_role: 'hired', my_hired_at: '2026-10-18T02:00:00.000Z' },
   { project_id: 102, snowflake_id: '7102', title: '冷库分拣', description: '早班分拣冻品。', headcount: 4, hired_count: 1, recruit_min_account_days: 7, wage_batt_per_claim: 25, wage_cid: 1, wage_currency_amount: 0, wage_interval_hours: 6, status: 'recruiting', my_role: 'none' },
-  { project_id: 103, snowflake_id: '7103', title: '文案校对', description: '校对商品描述与错别字。', headcount: 5, hired_count: 2, recruit_min_account_days: 1, wage_batt_per_claim: 20, wage_cid: 4, wage_currency_amount: 50, wage_interval_hours: 8, status: 'recruiting', my_role: 'none' },
+  // ★ 2026-10-21②：103 带合法 slug ⇒ 整卡是 `<a href="…/wend-an">`（编辑搬走后「入口保留」的可验面）；
+  //   101 保持无 slug（历史行）⇒ 仍是 `<article>`（不得因去编辑被误链到不存在的项目页）。
+  { project_id: 103, snowflake_id: '7103', slug: 'wend-an', title: '文案校对', description: '校对商品描述与错别字。', headcount: 5, hired_count: 2, recruit_min_account_days: 1, wage_batt_per_claim: 20, wage_cid: 4, wage_currency_amount: 50, wage_interval_hours: 8, status: 'recruiting', my_role: 'none' },
   { project_id: 104, snowflake_id: '7104', title: '客服值守', description: '白天在线答疑。', headcount: 2, hired_count: 0, recruit_min_account_days: 90, wage_batt_per_claim: 18, wage_cid: null, wage_currency_amount: null, wage_interval_hours: 12, status: 'recruiting', my_role: 'none' },
   { project_id: 105, snowflake_id: '7105', title: '图片精修', description: '商品图去背与调色。', headcount: 6, hired_count: 3, recruit_min_account_days: 365, wage_batt_per_claim: 22, wage_cid: 1, wage_currency_amount: 0, wage_interval_hours: 6, status: 'recruiting', my_role: 'none' },
   { project_id: 106, snowflake_id: '7106', title: '同城跑腿', description: '当天送达同城订单。', headcount: 8, hired_count: 4, recruit_min_account_days: 1, wage_batt_per_claim: 15, wage_cid: 1, wage_currency_amount: 0, wage_interval_hours: 10, status: 'recruiting', my_role: 'none' },
@@ -75,6 +75,13 @@ for (const r of ROWS) r.owner_uid = '900001'
 
 const CUR = [{ cid: 1, symbol: '$' }, { cid: 4, symbol: 'BTTC' }]
 
+// 非 2xx 响应：带 `__status` 标记 ⇒ attachRoutes 按真状态码下发（同 ops/project-page 探针机制），
+// 页面侧 fetchApiJson 才会按「非 ok / success:false」抛错 ⇒ 项目页走 not-found 分支。
+const fail = (status, code, details) => ({
+  __status: status,
+  body: { success: false, error: { code, details } },
+})
+
 // 可变探针状态：失败臂 / 倒计时臂 / 匿名臂靠它切换（不重启浏览器、不改夹具文件）
 const STATE = {
   claimFail: false,
@@ -86,7 +93,6 @@ const STATE = {
   patches: [], // PATCH /api/project/:id 载荷留痕（断言「只含变化字段」）
   rows: ROWS.map((r) => ({ ...r })),
   calls: [],
-  fmClicks: [], // 卡内控件点击路径登记（2026-10-21）：普通点击 / sf-fm 遮挡下页内点击，只登记不判负
 }
 
 const resetRows = () => { STATE.rows = ROWS.map((r) => ({ ...r })) }
@@ -164,6 +170,13 @@ const apiResponse = (method, pathname, rawBody) => {
     return ok({ applied: true })
   }
   if (pathname === '/api/messages/unread-count') return ok({ unread_total: 0 })
+  // 未知项目 ref（如已删页 `/activities` 落到 `:slug`）⇒ 读口按真契约 404。
+  // 须排在通用 GET 兜底之前，否则 `{rows:[]}` 会让项目页把「不存在的项目」渲染成空项目页
+  // （`/activities` 的 catch-all「页面不存在」也就永远不出现）。
+  if (method === 'GET' && /^\/api\/project\/[^/]+$/.test(pathname)) {
+    STATE.calls.push({ method, path: pathname })
+    return fail(404, 'PROJECT_NOT_FOUND', { reason: 'project_not_found' })
+  }
   if (method === 'GET') return ok({ rows: [], next_cursor: null, total: 0 })
   return ok({})
 }
@@ -228,6 +241,18 @@ const SNAP_FN = `(() => {
         pathname: location.pathname,
       }
     })(),
+    // 编辑面总读数（全页一次性）：任一 > 0 ⇒ 行内编辑残留
+    editSurface: {
+      editButtons: qa('[data-sf-m="wage-card-edit"]').length,
+      formRoots: qa('[data-sf-m="wage-edit"]').length,
+      fields: qa('[data-sf-edit]').length,
+      hints: qa('[data-sf-edit-hint]').length,
+      errs: qa('[data-sf-edit-err]').length,
+      saveButtons: qa('[data-sf-m="wage-edit-save"]').length,
+      minDaysSelect: qa('[data-sf-edit="minDays"]').length,
+      minDaysHint: qa('[data-sf-edit-hint="minDays"]').length,
+      option365: qa('option[value="365"]').length,
+    },
     cards: cards.map((c) => {
       const st = c.querySelector('[data-sf-m="wage-card-status"]')
       const act = c.querySelector('[data-sf-m="wage-card-action"]')
@@ -264,8 +289,12 @@ const SNAP_FN = `(() => {
         joinedBadge: txt(badge),
         joinCount: c.querySelectorAll('[data-sf-action="join"]').length,
         claimCount: c.querySelectorAll('[data-sf-action="claim"]').length,
+        // 零编辑臂（2026-10-21②）：本页不得再出现【编辑】钮（判定已搬到项目页）
         editBtn: !!c.querySelector('[data-sf-m="wage-card-edit"]'),
         editBtnText: txt(c.querySelector('[data-sf-m="wage-card-edit"]')),
+        // 整卡链接读数（编辑搬走后「入口保留」）：有 slug ⇒ A + href；历史行 ⇒ ARTICLE + null
+        cardTag: c.tagName,
+        cardHref: c.getAttribute('href'),
         bgColor: cs.backgroundColor,
         borderLeftWidth: cs.borderLeftWidth,
         borderLeftColor: cs.borderLeftColor,
@@ -273,31 +302,6 @@ const SNAP_FN = `(() => {
         tintOpacity: tint.opacity,
       }
     }),
-  }
-})()`
-
-/** 编辑表单快照（展开后逐字段现值；`present:false` = 未展开）。 */
-const EDIT_FORM_SNAP = (id) => `(() => {
-  const card = document.querySelector('[data-sf-project="${id}"]')
-  const form = card && card.querySelector('[data-sf-m="wage-edit"]')
-  if (!form) return { present: false }
-  const val = (s) => { const el = form.querySelector(s); return el ? el.value : null }
-  return {
-    present: true,
-    title: val('[data-sf-edit="title"]'),
-    description: val('[data-sf-edit="description"]'),
-    headcount: val('[data-sf-edit="headcount"]'),
-    minDays: val('[data-sf-edit="minDays"]'),
-    // ★ Kevin 2026-10-21 E4：注册天数条件 select 的档位与提示行
-    minDaysTag: (() => { const el = form.querySelector('[data-sf-edit="minDays"]'); return el ? el.tagName : null })(),
-    minDaysCount: form.querySelectorAll('[data-sf-edit="minDays"] option').length,
-    minDaysValues: [...form.querySelectorAll('[data-sf-edit="minDays"] option')].map((o) => o.value),
-    minDaysHint: (() => { const el = form.querySelector('[data-sf-edit-hint="minDays"]'); return el ? el.textContent.replace(/\\s+/g, ' ').trim() : null })(),
-    batt: val('[data-sf-edit="batt"]'),
-    interval: val('[data-sf-edit="interval"]'),
-    cid: val('[data-sf-edit="cid"]'),
-    amount: val('[data-sf-edit="amount"]'),
-    status: val('[data-sf-edit="status"]'),
   }
 })()`
 
@@ -319,57 +323,16 @@ const attachRoutes = async (ctx) => {
     const u = new URL(req.url())
     if (u.hostname !== 'sf.local') return route.abort()
     if (u.pathname.startsWith('/api/')) {
-      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(apiResponse(req.method(), u.pathname, req.postData())) })
+      const payload = apiResponse(req.method(), u.pathname, req.postData())
+      const status = payload && payload.__status ? payload.__status : 200
+      const body = payload && payload.__status ? payload.body : payload
+      return route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(body) })
     }
     let file = path.join(DIST, decodeURIComponent(u.pathname))
     if (!fs.existsSync(file) || fs.statSync(file).isDirectory() || !path.extname(file)) file = path.join(DIST, 'index.html')
     if (!fs.existsSync(file)) return route.fulfill({ status: 404, body: '' })
     return route.fulfill({ status: 200, headers: { 'content-type': MIME[path.extname(file)] || 'application/octet-stream' }, body: fs.readFileSync(file) })
   })
-}
-
-/**
- * 卡内控件点击（⑦ E4 臂用）——悬浮菜单遮挡的定性读数与处置（2026-10-21）：
- *  · 实测（ops/wage/front/readings/wage-fm-overlap-measure.json）：1536×960 的 `nav.sf-fm`
- *    = fixed · top:45% · 右缘 16px · 72px 宽 ⇒ 矩形 x[1448,1520] y[192,672]；卡头右侧【编辑】钮
- *    （网格卡右缘 x≈1455–1501）在 105/110 两张卡上**任何滚动位都被盖住**（文档仅 ~74px 可滚、
- *    「scrollIntoViewIfNeeded 后再点」无解）；主行动钮（加入/领工资，x≈1239–1293）恒不相交；
- *    390 档 sf-fm `display:none`（≤767 断点）⇒ 结构上无遮挡。
- *  · 该相交属 **已知接受**（Kevin 2026-10-11 撤除 T85 桌面 gutter 的既定口径：悬浮菜单与正文相交
- *    只登记、不当 FAIL —— 留痕见 frontend/src/styles.css「T85 桌面 gutter 已按 Kevin 口径撤除」块）
- *    ⇒ 探针不改产品、不加判据、不删判据。
- *  · 处置：目标中心被 sf-fm 盖住 ⇒ 改走**页内 Element.click()**（React onClick 照常触发；等价键盘
- *    激活路径；**非 force** —— force 的鼠标坐标会落在浮层上、反而点不中）；未被盖住 ⇒ 仍走 Playwright
- *    普通点击（全量 actionability 检查）。逐条登记进 STATE.fmClicks（只读登记、不参与判负）。
- */
-async function clickCardControl(page, sel, { required = true } = {}) {
-  const probe = await page.evaluate((s) => {
-    const el = document.querySelector(s)
-    if (!el) return { found: false }
-    const b = el.getBoundingClientRect()
-    const nav = document.querySelector('nav.sf-fm')
-    const navShown = !!nav && getComputedStyle(nav).display !== 'none'
-    let occluded = false
-    if (navShown) {
-      const f = nav.getBoundingClientRect()
-      const ox = Math.min(b.right, f.right) - Math.max(b.x, f.x)
-      const oy = Math.min(b.bottom, f.bottom) - Math.max(b.y, f.y)
-      occluded = ox > 0 && oy > 0
-    }
-    return { found: true, occluded, scrollY: Math.round(scrollY) }
-  }, sel)
-  if (!probe.found) {
-    if (required) throw new Error('clickCardControl: target not found: ' + sel)
-    return { found: false, occluded: false }
-  }
-  if (probe.occluded) {
-    STATE.fmClicks.push({ sel, scrollY: probe.scrollY, via: 'element.click（sf-fm 遮挡 · T85 已知接受 · 非 force）' })
-    await page.evaluate((s) => { document.querySelector(s).click() }, sel)
-  } else {
-    STATE.fmClicks.push({ sel, scrollY: probe.scrollY, via: 'playwright.click（普通点击）' })
-    await page.click(sel)
-  }
-  return probe
 }
 
 async function main() {
@@ -725,184 +688,138 @@ async function main() {
     joinedBadge1536: out.states['1536_geometry'].joinedBadge === ZH.wage.joinedBadge,
   }
 
-  // ============================ ⑥ 项目卡【编辑】三臂（owner / manage_tasks / 普通用户）==============
-  // 口径（Kevin 2026-10-21）：可见性 = 已登录 ∧ 非 ended ∧（owner_uid === 我 ∨ manage_tasks 三键）。
-  //   /api/user 三键在**模块内按 uID 缓存**（单页生命周期）⇒ 每臂整页新载（open ⇒ 全新 bundle），
-  //   先切 STATE.userPayload 再 open，跨臂零串味；adminFlags 异步落定 ⇒ 先 waitForSelector【编辑】钮
-  //   再取快照（避免冷启动伪影把「未到」读成「没有」）。E1 只改标题 ⇒ PATCH 载荷**恰** {title} 一键。
-  // —— E1 owner 臂：自己的卡有【编辑】、他人卡没有；展开预填；只改标题 ⇒ 载荷只含变化字段 ——
+  // ============================ ⑥ 项目卡【零编辑】（Kevin 2026-10-21②：编辑已移入项目页）=========
+  // 口径：编辑入口（旧卡头【编辑】+ 卡内行内表单）**整体搬到项目页** `/:slug` 的【编辑项目】+ 模态框
+  //   ⇒ 本页必须：零【编辑】钮、零行内表单件（表单根 / 字段 / 提示行 / 注册天数 select / 保存钮）、
+  //   **零 PATCH**、**零 `/api/user` 三键取数**（管理员判定随入口一起搬走）。
+  //   三臂摆位互相独立（本页不调 loadListingEditAdmin ⇒ 无模块级缓存串味）：
+  //     Z1 owner 行（103 的 owner_uid = 我）+ /api/user 带 manage_tasks ⇒ 最强负向；
+  //     Z2 两档视口（1536 / 390）同判；Z3 manage_tasks 管理员载荷（非 owner）；Z4 普通用户；
+  //     Z5 历史注册天数（0 / 90 行）⇒ 旧四选一控件不得回归。
+  //   ★ 判据数不减：本组 34 条（= 旧【编辑】三臂 + 四选一臂之和）。
+
+  // —— Z1 owner 臂：即使「我的项目 + 管理员载荷」也不许出钮 / 不许取三键 ——
   resetRows()
-  STATE.userPayload = { uID: 970213 }
+  STATE.userPayload = { uID: 970213, admin: { can_access_admin: true, is_admin: false, permissions: ['manage_tasks'] } }
   STATE.rows = STATE.rows.map((r) => (r.project_id === 103 ? { ...r, owner_uid: '970213' } : r))
   STATE.calls.length = 0
   STATE.patches.length = 0
-  await open('/wage')
-  await page.waitForSelector('[data-sf-project="103"] [data-sf-m="wage-card-edit"]', { timeout: 8000 }).catch(() => {})
-  await settle(page)
-  const e1Snap = await page.evaluate(SNAP_FN)
-  const e1Cards = Object.fromEntries(e1Snap.cards.map((c) => [c.project, c]))
-  await page.click('[data-sf-project="103"] [data-sf-m="wage-card-edit"]')
-  await settle(page)
-  const e1Form = await page.evaluate(EDIT_FORM_SNAP('103'))
-  out.states['1536_edit_owner'] = {
-    editCards: e1Snap.cards.filter((c) => c.editBtn).map((c) => c.project),
+  const z1 = await open('/wage')
+  const z1ById = Object.fromEntries(z1.cards.map((c) => [c.project, c]))
+  out.states['1536_zeroedit_owner'] = {
+    cards: z1.cards.length,
+    editCards: z1.cards.filter((c) => c.editBtn).map((c) => c.project),
+    editSurface: z1.editSurface,
     userFetches: STATE.calls.filter((c) => c.path === '/api/user').length,
-    form: e1Form,
+    patches: JSON.parse(JSON.stringify(STATE.patches)),
+    link: {
+      slugCard: z1ById['103'] ? { tag: z1ById['103'].cardTag, href: z1ById['103'].cardHref } : null,
+      legacyCard: z1ById['101'] ? { tag: z1ById['101'].cardTag, href: z1ById['101'].cardHref } : null,
+    },
   }
-  out.assertions.editOwner = {
-    ownerHasEdit: Boolean(e1Cards['103'] && e1Cards['103'].editBtn === true && e1Cards['103'].editBtnText === ZH.common.edit),
-    othersNoEdit: ['101', '102', '104', '108'].every((id) => e1Cards[id] && e1Cards[id].editBtn === false),
-    editCountExactly1: e1Snap.cards.filter((c) => c.editBtn).length === 1,
-    adminKeysPathRan: STATE.calls.some((c) => c.path === '/api/user'),
-    formOpens: e1Form.present === true,
-    prefilledTitle: e1Form.title === '文案校对',
-    prefilledHeadcount: e1Form.headcount === '5',
-    prefilledPair: e1Form.cid === '4' && e1Form.amount === '50',
-    prefilledInterval: e1Form.interval === '8',
-  }
-  await page.fill('[data-sf-project="103"] [data-sf-edit="title"]', '文案校对·周末班')
-  STATE.patches.length = 0
-  await page.click('[data-sf-project="103"] [data-sf-m="wage-edit-save"]')
-  await page.waitForFunction(() => {
-    const n = document.querySelector('[data-sf-project="103"] [data-sf-m="wage-card-notice"]')
-    return !!n && n.getAttribute('data-sf-kind') === 'ok'
-  }, null, { timeout: 8000 }).catch(() => {})
-  await settle(page)
-  const e1After = (await page.evaluate(SNAP_FN)).cards.find((c) => c.project === '103')
-  const e1FormAfter = await page.evaluate(EDIT_FORM_SNAP('103'))
-  // 读数快照化：STATE.patches 是复用数组（后续臂会 length=0 复位）⇒ 入库前深拷贝，防「证据被后面清空」
-  out.states['1536_edit_owner_saved'] = { patches: JSON.parse(JSON.stringify(STATE.patches)), card: e1After, formAfter: e1FormAfter }
-  out.assertions.editOwnerSave = {
-    patchOnce: STATE.patches.length === 1,
-    patchPath: Boolean(STATE.patches[0] && STATE.patches[0].path === '/api/project/103'),
-    patchOnlyChangedFields: Boolean(STATE.patches[0] && JSON.stringify(Object.keys(STATE.patches[0].body).sort()) === '["title"]'),
-    patchTitleValue: Boolean(STATE.patches[0] && STATE.patches[0].body.title === '文案校对·周末班'),
-    formClosed: e1FormAfter.present === false,
-    noticeOk: Boolean(e1After && e1After.noticeKind === 'ok' && e1After.noticeText === ZH.wage.editSaved),
-    cardTitleUpdated: Boolean(e1After && e1After.title === '文案校对·周末班'),
-    listRefetched: STATE.calls.filter((c) => c.path === '/api/project/all').length >= 2,
+  out.assertions.zeroEditOwner = {
+    zeroEditButtonsAnywhere: z1.cards.every((c) => c.editBtn === false),
+    ownerCardNoEdit: Boolean(z1ById['103'] && z1ById['103'].editBtn === false),
+    othersNoEdit: ['101', '102', '104', '108'].every((id) => z1ById[id] && z1ById[id].editBtn === false),
+    zeroEditFormRoots: z1.editSurface.formRoots === 0 && z1.editSurface.saveButtons === 0,
+    zeroEditFieldContainers: z1.editSurface.fields === 0 && z1.editSurface.errs === 0,
+    zeroEditHints: z1.editSurface.hints === 0,
+    zeroUserFetches: STATE.calls.filter((c) => c.path === '/api/user').length === 0,
+    zeroPatches: STATE.patches.length === 0,
+    cardLinkIntact: Boolean(
+      z1ById['103'] && z1ById['103'].cardTag === 'A' && String(z1ById['103'].cardHref || '').endsWith('/wend-an')
+        && z1ById['101'] && z1ById['101'].cardTag === 'ARTICLE' && z1ById['101'].cardHref === null
+    ),
   }
 
-  // —— E2 manage_tasks 管理员臂：非本人卡也全有【编辑】（closed 亦然；仅 ended 封板，本组夹具无 ended）——
+  // —— Z2 两档视口：1536 / 390 都不得出现编辑面（旧 390「展开态零溢出」臂的正向化订正）——
+  STATE.calls.length = 0
+  STATE.patches.length = 0
+  const z2a = await open('/wage')
+  await page.setViewportSize({ width: 390, height: 844 })
+  const z2b = await open('/wage')
+  await page.setViewportSize({ width: 1536, height: 960 })
+  out.states['zeroedit_viewports'] = {
+    wide: { surface: z2a.editSurface, cards: z2a.cards.length, overflowPx: z2a.overflowPx },
+    mobile: { surface: z2b.editSurface, cards: z2b.cards.length, overflowPx: z2b.overflowPx },
+    patches: STATE.patches.length,
+    userFetches: STATE.calls.filter((c) => c.path === '/api/user').length,
+  }
+  out.assertions.zeroEditViewports = {
+    zeroEditButtons1536: z2a.editSurface.editButtons === 0,
+    zeroEditForms1536: z2a.editSurface.formRoots === 0,
+    zeroEditFields1536: z2a.editSurface.fields === 0,
+    zeroPatches1536: STATE.patches.length === 0,
+    zeroEditButtons390: z2b.editSurface.editButtons === 0,
+    zeroEditForms390: z2b.editSurface.formRoots === 0,
+    zeroEditFields390: z2b.editSurface.fields === 0,
+    zeroOverflow390NoEditForm: z2b.overflowPx === 0 && z2b.cards.length === ROWS.length,
+  }
+
+  // —— Z3 manage_tasks 管理员臂（他人卡）：旧口径「管理员全卡有钮」⇒ 新口径「管理员也零钮」——
   resetRows()
   STATE.userPayload = { uID: 970213, admin: { can_access_admin: true, is_admin: false, permissions: ['manage_tasks'] } }
+  STATE.calls.length = 0
   STATE.patches.length = 0
-  await open('/wage')
-  await page.waitForSelector('[data-sf-project="101"] [data-sf-m="wage-card-edit"]', { timeout: 8000 }).catch(() => {})
-  await settle(page)
-  const e2Snap = await page.evaluate(SNAP_FN)
-  const e2ById = Object.fromEntries(e2Snap.cards.map((c) => [c.project, c]))
-  await page.click('[data-sf-project="101"] [data-sf-m="wage-card-edit"]')
-  await settle(page)
-  const e2Form = await page.evaluate(EDIT_FORM_SNAP('101'))
-  out.states['1536_edit_admin'] = { editCards: e2Snap.cards.filter((c) => c.editBtn).map((c) => c.project), form: e2Form }
-  out.assertions.editAdmin = {
-    adminSeesAllCards: e2Snap.cards.filter((c) => c.editBtn).length === ROWS.length,
-    hiredCardToo: Boolean(e2ById['101'] && e2ById['101'].editBtn === true),
-    closedCardToo: Boolean(e2ById['108'] && e2ById['108'].editBtn === true),
-    formOpensOnOthersCard: e2Form.present === true,
-    prefilledTitle: e2Form.title === '海鲜打包',
-    zeroPatchSoFar: STATE.patches.length === 0,
+  const z3 = await open('/wage')
+  const z3ById = Object.fromEntries(z3.cards.map((c) => [c.project, c]))
+  out.states['1536_zeroedit_admin'] = {
+    editCards: z3.cards.filter((c) => c.editBtn).map((c) => c.project),
+    editSurface: z3.editSurface,
+    userFetches: STATE.calls.filter((c) => c.path === '/api/user').length,
+    payloadAdmin: STATE.userPayload.admin,
   }
-  await page.click('[data-sf-project="101"] [data-sf-m="wage-edit-cancel"]').catch(() => {})
+  out.assertions.zeroEditAdmin = {
+    adminPayloadApplied: STATE.userPayload.admin.permissions.includes('manage_tasks'),
+    zeroEditOnAllCards: z3.cards.every((c) => c.editBtn === false),
+    hiredCardNoEdit: Boolean(z3ById['101'] && z3ById['101'].editBtn === false),
+    closedCardNoEdit: Boolean(z3ById['108'] && z3ById['108'].editBtn === false),
+    zeroUserFetches: STATE.calls.filter((c) => c.path === '/api/user').length === 0,
+    zeroPatches: STATE.patches.length === 0,
+  }
 
-  // —— E3 普通用户臂：非本人 ∧ 无 admin 三键 ⇒ 全零【编辑】、零 PATCH ——
+  // —— Z4 普通用户臂（无 admin 三键、非 owner）：同样零钮零请求 ——
   resetRows()
   STATE.userPayload = { uID: 970213 }
   STATE.calls.length = 0
   STATE.patches.length = 0
-  await open('/wage')
-  await settle(page)
-  const e3Snap = await page.evaluate(SNAP_FN)
-  out.states['1536_edit_user'] = {
-    editCount: e3Snap.cards.filter((c) => c.editBtn).length,
+  const z4 = await open('/wage')
+  out.states['1536_zeroedit_user'] = {
+    editCount: z4.cards.filter((c) => c.editBtn).length,
+    editSurface: z4.editSurface,
     userFetches: STATE.calls.filter((c) => c.path === '/api/user').length,
   }
-  out.assertions.editUser = {
-    noEditButtonsAnywhere: e3Snap.cards.every((c) => c.editBtn === false),
-    adminKeysPathRan: STATE.calls.some((c) => c.path === '/api/user'),
+  out.assertions.zeroEditUser = {
+    noEditButtonsAnywhere: z4.cards.every((c) => c.editBtn === false),
+    zeroUserFetches: STATE.calls.filter((c) => c.path === '/api/user').length === 0,
     zeroPatchRequests: STATE.patches.length === 0,
   }
 
-  // —— E4 注册天数条件四选一（Kevin 2026-10-21）：恰四档 ⇒ 预选对应项；0 / 90 ⇒ 预选「一天」+ 表单下提示行 ——
+  // —— Z5 历史注册天数（0 / 90 行）：旧四选一 select / 提示行不得在本页回归 ——
   resetRows()
-  STATE.userPayload = { uID: 970213 }
   STATE.rows = STATE.rows.map((r) => (
-    [102, 104, 110].includes(r.project_id) ? { ...r, owner_uid: '970213' } : r
+    [104, 110].includes(r.project_id) ? { ...r, owner_uid: '970213' } : r
   ))
   STATE.calls.length = 0
   STATE.patches.length = 0
-  await open('/wage')
-  await page.waitForSelector('[data-sf-project="102"] [data-sf-m="wage-card-edit"]', { timeout: 8000 }).catch(() => {})
-  await settle(page)
-
-  // E4a：预填 7（恰四档）⇒ 选中「一周」、无提示行
-  await clickCardControl(page, '[data-sf-project="102"] [data-sf-m="wage-card-edit"]')
-  await settle(page)
-  const e4a = await page.evaluate(EDIT_FORM_SNAP('102'))
-  await clickCardControl(page, '[data-sf-project="102"] [data-sf-m="wage-edit-cancel"]', { required: false })
-  await settle(page)
-
-  // E4b：预填 0（历史无门槛）⇒ 预选「一天」+「原为无门槛」提示（110 = 最后一张卡：编辑钮常年在
-  //      sf-fm 带内 ⇒ 走 clickCardControl 的遮挡处置，见 helper 注释与 STATE.fmClicks 登记）
-  await clickCardControl(page, '[data-sf-project="110"] [data-sf-m="wage-card-edit"]')
-  await settle(page)
-  const e4b = await page.evaluate(EDIT_FORM_SNAP('110'))
-  await clickCardControl(page, '[data-sf-project="110"] [data-sf-m="wage-edit-cancel"]', { required: false })
-  await settle(page)
-
-  // E4c：预填 90（非四档）⇒ 预选「一天」+ 提示行；不动它保存 ⇒ PATCH 载荷恰 {recruit_min_account_days: 1}
-  await clickCardControl(page, '[data-sf-project="104"] [data-sf-m="wage-card-edit"]')
-  await settle(page)
-  const e4c = await page.evaluate(EDIT_FORM_SNAP('104'))
-  await clickCardControl(page, '[data-sf-project="104"] [data-sf-m="wage-edit-save"]')
-  await page.waitForFunction(() => {
-    const n = document.querySelector('[data-sf-project="104"] [data-sf-m="wage-card-notice"]')
-    return !!n && n.getAttribute('data-sf-kind') === 'ok'
-  }, null, { timeout: 8000 }).catch(() => {})
-  await settle(page)
-  const e4cFormAfter = await page.evaluate(EDIT_FORM_SNAP('104'))
-  const e4cAfter = (await page.evaluate(SNAP_FN)).cards.find((c) => c.project === '104')
-  out.states['1536_edit_mindays'] = {
-    a: e4a, b: e4b, c: e4c,
-    saved: { patches: JSON.parse(JSON.stringify(STATE.patches)), formAfter: e4cFormAfter, card: e4cAfter },
+  const z5 = await open('/wage')
+  out.states['1536_zeroedit_mindays'] = {
+    surface: z5.editSurface,
+    cards: z5.cards.length,
+    patches: STATE.patches.length,
+    // 0 / 90 两行确实在列表里（夹具真的覆盖了历史值分支）
+    legacyRowsVisible: ['104', '110'].every((id) => z5.cards.some((c) => c.project === id)),
   }
-  out.assertions.editMinDays = {
-    select4Values: Boolean(e4a.present && e4a.minDaysTag === 'SELECT' && e4a.minDaysCount === 4
-      && JSON.stringify(e4a.minDaysValues) === JSON.stringify(['1', '7', '30', '365'])),
-    known7PicksWeek: Boolean(e4a.present && e4a.minDays === '7' && e4a.minDaysHint === null),
-    zeroPicksDay1WithNoGateHint: Boolean(e4b.present && e4b.minDays === '1'
-      && e4b.minDaysHint === ZH.bountyProject.minDaysNoGate),
-    legacy90PicksDay1WithHint: Boolean(e4c.present && e4c.minDays === '1'
-      && e4c.minDaysHint === ZH.bountyProject.minDaysLegacy.replace('{{n}}', '90')),
-    savePayloadExactlyDays1: Boolean(STATE.patches.length === 1 && STATE.patches[0].path === '/api/project/104'
-      && JSON.stringify(STATE.patches[0].body) === JSON.stringify({ recruit_min_account_days: 1 })),
-    formClosedAfterSave: e4cFormAfter.present === false,
-    noticeOk: Boolean(e4cAfter && e4cAfter.noticeKind === 'ok'),
+  out.assertions.zeroEditFields = {
+    noMinDaysSelect: z5.editSurface.minDaysSelect === 0,
+    noOption365InPage: z5.editSurface.option365 === 0,
+    noMinDaysHint: z5.editSurface.minDaysHint === 0,
+    noEditFieldContainers: z5.editSurface.fields === 0 && z5.editSurface.hints === 0,
+    noSaveControl: z5.editSurface.saveButtons === 0,
+    legacyRowsVisible: ['104', '110'].every((id) => z5.cards.some((c) => c.project === id)),
+    zeroPatches: STATE.patches.length === 0,
+    zeroUserFetches: STATE.calls.filter((c) => c.path === '/api/user').length === 0,
   }
-
-  // E4d：390 档编辑表单展开态（110 无门槛提示在场）零溢出
-  await page.setViewportSize({ width: 390, height: 844 })
-  await open('/wage')
-  await page.waitForSelector('[data-sf-project="110"] [data-sf-m="wage-card-edit"]', { timeout: 8000 }).catch(() => {})
-  await clickCardControl(page, '[data-sf-project="110"] [data-sf-m="wage-card-edit"]') // 390：sf-fm display:none ⇒ 恒普通点击
-  await settle(page)
-  const e4dSnap = await page.evaluate(SNAP_FN)
-  const e4dForm = await page.evaluate(EDIT_FORM_SNAP('110'))
-  out.states['390_edit_mindays'] = {
-    overflowPx: e4dSnap.overflowPx,
-    cards: e4dSnap.cards.length,
-    form: { present: e4dForm.present, minDays: e4dForm.minDays, hint: e4dForm.minDaysHint },
-  }
-  out.assertions.editMinDays.zeroOverflow390FormOpen = Boolean(
-    e4dSnap.overflowPx === 0 && e4dForm.present === true
-      && e4dForm.minDays === '1' && e4dForm.minDaysHint === ZH.bountyProject.minDaysNoGate
-  )
-  await page.setViewportSize({ width: 1536, height: 960 })
-
-  // 悬浮菜单遮挡登记（Kevin 2026-10-11 T85 口径：相交只登记、不当 FAIL）：
-  // 记录 E4 各臂卡内控件的实际点击路径（普通点击 / sf-fm 遮挡下页内 Element.click）。
-  out.states['fm_click_registry'] = STATE.fmClicks
 
   // 收尾复原：载荷/行回位（后续客态臂未登录、不取 /api/user，不受影响）
   STATE.userPayload = { uID: 970213 }
@@ -1056,21 +973,23 @@ async function main() {
     'guest.joinClickLoginPrompt', 'guest.joinClickLoginPrompt101', 'guest.zeroWriteRequests',
     'guest.cardsStableAfterClicks', 'guest.zeroOverflowGuest',
     'guest.zeroOverflow390', 'guest.cards390', 'guest.touchTarget44On390', 'guest.bannerAndList390',
-    // ⑥ 项目卡【编辑】三臂（owner / manage_tasks 管理员 / 普通用户；展开可填 + 载荷只含变化字段）
-    'editOwner.ownerHasEdit', 'editOwner.othersNoEdit', 'editOwner.editCountExactly1',
-    'editOwner.adminKeysPathRan', 'editOwner.formOpens', 'editOwner.prefilledTitle',
-    'editOwner.prefilledHeadcount', 'editOwner.prefilledPair', 'editOwner.prefilledInterval',
-    'editOwnerSave.patchOnce', 'editOwnerSave.patchPath', 'editOwnerSave.patchOnlyChangedFields',
-    'editOwnerSave.patchTitleValue', 'editOwnerSave.formClosed', 'editOwnerSave.noticeOk',
-    'editOwnerSave.cardTitleUpdated', 'editOwnerSave.listRefetched',
-    'editAdmin.adminSeesAllCards', 'editAdmin.hiredCardToo', 'editAdmin.closedCardToo',
-    'editAdmin.formOpensOnOthersCard', 'editAdmin.prefilledTitle', 'editAdmin.zeroPatchSoFar',
-    'editUser.noEditButtonsAnywhere', 'editUser.adminKeysPathRan', 'editUser.zeroPatchRequests',
-    // ⑦ 注册天数条件四选一（Kevin 2026-10-21：恰四档预选对应项 / 0·90 回落一天 + 提示行 / 载荷收敛 / 390 展开态零溢出）
-    'editMinDays.select4Values', 'editMinDays.known7PicksWeek',
-    'editMinDays.zeroPicksDay1WithNoGateHint', 'editMinDays.legacy90PicksDay1WithHint',
-    'editMinDays.savePayloadExactlyDays1', 'editMinDays.formClosedAfterSave', 'editMinDays.noticeOk',
-    'editMinDays.zeroOverflow390FormOpen',
+    // ⑥ 项目卡【零编辑】（Kevin 2026-10-21②：编辑移入项目页 ⇒ 本页零钮 / 零 PATCH / 零 /api/user；
+    //    判据数不减：34 条 = 旧 ⑥ 三臂 + ⑦ 四选一臂之和，逐条正向化）
+    'zeroEditOwner.zeroEditButtonsAnywhere', 'zeroEditOwner.ownerCardNoEdit', 'zeroEditOwner.othersNoEdit',
+    'zeroEditOwner.zeroEditFormRoots', 'zeroEditOwner.zeroEditFieldContainers', 'zeroEditOwner.zeroEditHints',
+    'zeroEditOwner.zeroUserFetches', 'zeroEditOwner.zeroPatches', 'zeroEditOwner.cardLinkIntact',
+    'zeroEditViewports.zeroEditButtons1536', 'zeroEditViewports.zeroEditForms1536',
+    'zeroEditViewports.zeroEditFields1536', 'zeroEditViewports.zeroPatches1536',
+    'zeroEditViewports.zeroEditButtons390', 'zeroEditViewports.zeroEditForms390',
+    'zeroEditViewports.zeroEditFields390', 'zeroEditViewports.zeroOverflow390NoEditForm',
+    'zeroEditAdmin.adminPayloadApplied', 'zeroEditAdmin.zeroEditOnAllCards',
+    'zeroEditAdmin.hiredCardNoEdit', 'zeroEditAdmin.closedCardNoEdit',
+    'zeroEditAdmin.zeroUserFetches', 'zeroEditAdmin.zeroPatches',
+    'zeroEditUser.noEditButtonsAnywhere', 'zeroEditUser.zeroUserFetches', 'zeroEditUser.zeroPatchRequests',
+    // ⑤' 历史注册天数（0 / 90 行）⇒ 旧四选一控件 / 提示行不得在本页回归
+    'zeroEditFields.noMinDaysSelect', 'zeroEditFields.noOption365InPage', 'zeroEditFields.noMinDaysHint',
+    'zeroEditFields.noEditFieldContainers', 'zeroEditFields.noSaveControl',
+    'zeroEditFields.legacyRowsVisible', 'zeroEditFields.zeroPatches', 'zeroEditFields.zeroUserFetches',
   ]
   const verdicts = required.map((key) => {
     const [group, field] = key.split('.')

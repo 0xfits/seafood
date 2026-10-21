@@ -40,16 +40,6 @@ export const applyToWageProject = (projectId, user) =>
 export const claimWage = (projectId, user) =>
   postJson(`/api/project/${encodeURIComponent(String(projectId))}/claim`, {}, user)
 
-/**
- * 管理员改项目（route R7 `PATCH /api/project/:projectId`，闸 = `requireAdmin('manage_tasks')`）。
- * body 只带**变化字段**（后端 PATCH 键闭集 = title / description / headcount /
- * recruit_min_account_days / wage_batt_per_claim / wage_cid + wage_currency_amount（成对）/
- * wage_interval_hours / status；owner_uid / project_id / snowflake_id 禁改）。
- * 409/400 的 `details.reason` 由调用方映射成卡内内联提示。
- */
-export const patchWageProject = (projectId, body, user) =>
-  fetchApiJson(`/api/project/${encodeURIComponent(String(projectId))}`, {
-    method: 'PATCH',
-    headers: { ...getAuthHeaders(user), 'Content-Type': 'application/json' },
-    body: JSON.stringify(body || {}),
-  })
+// ★ Kevin 2026-10-21②：本页不再有写口。项目编辑（`PATCH /api/project/:projectId`，route R7，
+//   闸 = `requireAdmin('manage_tasks')` ∨ project owner）随【编辑】一起搬到项目页 —— 写口真源 =
+//   `pages/project/project-api.js` 的 `patchProject`（本文件原 `patchWageProject` 已删，零引用）。

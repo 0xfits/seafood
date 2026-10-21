@@ -412,10 +412,12 @@ describe('④ 入口布局：顶部只剩【发布活动】＋ 每活动卡一�
     const { container } = renderAt('/sui')
     await waitFor(() => expect(container.querySelector('[data-sf-m="project-manage"]')).not.toBeNull())
 
-    // ① 顶部操作区只剩【发布活动】：任务 / 子任务入口不再在顶部
+    // ① 顶部操作区 = 【编辑项目】+【发布活动】两枚（2026-10-21② 编辑入口自 /wage 卡移入本页，
+    //    排在操作区第 1 枚）；任务 / 子任务入口仍不得出现在顶部
     const topEntries = [...container.querySelectorAll('[data-sf-m="project-manage"] [data-sf-m^="project-entry-"]')]
-    expect(topEntries).toHaveLength(1)
-    expect(topEntries[0].getAttribute('data-sf-m')).toBe('project-entry-campaign')
+    expect(topEntries).toHaveLength(2)
+    expect(topEntries.map((el) => el.getAttribute('data-sf-m')))
+      .toEqual(['project-entry-edit', 'project-entry-campaign'])
     expect(container.querySelector('[data-sf-m="project-entry-task"]')).toBeNull()
     expect(container.querySelector('[data-sf-m="project-entry-subtask"]')).toBeNull()
 

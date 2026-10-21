@@ -10,6 +10,7 @@ import { refOf } from '../campaign/campaign-util'
 import NotFoundPage from '../NotFoundPage'
 import ProjectNestedList from './ProjectNestedList'
 import ProjectForms from './ProjectForms'
+import ProjectEditModal from './ProjectEditModal'
 import './project.css'
 
 // ============================================================================
@@ -17,8 +18,17 @@ import './project.css'
 // ----------------------------------------------------------------------------
 // 形态：项目头（标题 / 状态 / 已招 X/Y / 工资行）→ **详细介绍**（description pre-wrap）→
 //       嵌套活动列表（该项目的 campaigns/tasks/subtasks，与 campaign 详情同族卡片）→
-//       操作区（**仅 owner 或管理员**可见：顶部只留【发布活动】；【发布任务】在每张活动卡内、
+//       操作区（**仅 owner 或管理员**可见：【编辑项目】/【发布活动】；【发布任务】在每张活动卡内、
 //       【发布子任务】在每张任务卡内，点击就地开表单且目标预选锁定）。
+//
+// ★ Kevin 2026-10-21②：**项目编辑搬进本页**（/wage 卡不再有【编辑】，只保留整卡链接与
+//   加入/领工资）——
+//   · 【编辑项目】可见性 = 已登录 ∧ 项目未 ended ∧（本人 `owner_uid` ∨ `manage_tasks` 管理员）；
+//     判定与 /wage 旧口径逐字同式（`item/item-edit-access` 的三键 fail-safe）；
+//   · 点开 = **模态框**（`ProjectEditModal`：背板 + 卡片面板；背板/✕/Esc 关闭零请求；
+//     提交只带变化字段 → `PATCH /api/project/:projectId`；409/400 在框内内联、框不关）；
+//   · 成功 ⇒ 关框 + `load({silent:true})` 重拉（标题/详情/工资行即时更新）+ 页内成功提示；
+//   · 字段构建/校验/载荷/`EDIT_REASON_MAP` 的单一真源 = `project-edit-form.js`（自 WagePage 移出）。
 //
 // 硬口径：
 //   · `:slug` 路由注册在 App.jsx 内层 `<Routes>` **末位、catch-all 之前**；保留段
@@ -58,6 +68,7 @@ const ProjectPage = () => {
   const [openPanel, setOpenPanel] = useState(null)
   const [openCampaignRef, setOpenCampaignRef] = useState('')
   const [openTaskRef, setOpenTaskRef] = useState('')
+  const [editOpen, setEditOpen] = useState(false) // 【编辑项目】模态框（挂载 = 打开）
   const [notice, setNotice] = useState(null) // { kind: 'ok' | 'err', text }
 
   const userRef = useRef(user)
@@ -193,6 +204,21 @@ const ProjectPage = () => {
     load({ silent: true })
   }
 
+  /** 项目编辑成功：关框 + 页内成功提示 + 静默重拉（标题 / 详情 / 工资行即时更新）。 */
+  const handleEditSaved = (result) => {
+    setEditOpen(false)
+    setNotice(result)
+    load({ silent: true })
+  }
+
+  /** 打开编辑框：同一入口再点不切换（框是模态，打开期间不渲染入口自身状态）；无权限 ⇒ 页内提示零请求。 */
+  const openEdit = () => {
+    if (!allowEntry()) return
+    setNotice(null)
+    closePanels()
+    setEditOpen(true)
+  }
+
   return (
     <div className="sf-layout sf-project-page" data-sf-m="project-page" data-sf-slug={slug}>
       <div className="sf-layout-main">
@@ -266,8 +292,14 @@ const ProjectPage = () => {
             {canManage ? (
               <section className="sf-panel sf-project-manage" data-sf-m="project-manage">
                 <h2 className="sf-project-section-title" data-sf-m="project-manage-title">{t('project.manageTitle')}</h2>
-                {/* 顶部操作区只留【发布活动】：任务 / 子任务入口在各卡片头右侧 */}
+                {/* 顶部操作区：【编辑项目】（模态框）+【发布活动】；任务 / 子任务入口在各卡片头右侧 */}
                 <div className="sf-project-actions">
+                  <button
+                    type="button"
+                    className="sf-project-btn"
+                    data-sf-m="project-entry-edit"
+                    onClick={openEdit}
+                  >{t('wage.editTitle')}</button>
                   <button
                     type="button"
                     className="sf-project-btn is-primary"
@@ -296,6 +328,18 @@ const ProjectPage = () => {
                   onDone={handleDone}
                 />
               </section>
+            ) : null}
+
+            {/* 项目编辑模态框（Kevin 2026-10-21②）：portal 到 body，遮罩盖住悬浮菜单；
+                挂载 = 打开、卸载 = 关闭（背板/✕/Esc 三路零请求）。 */}
+            {canManage && editOpen ? (
+              <ProjectEditModal
+                view={view}
+                currencies={currencies}
+                t={t}
+                onClose={() => setEditOpen(false)}
+                onSaved={handleEditSaved}
+              />
             ) : null}
           </>
         )}
