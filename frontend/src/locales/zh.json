@@ -1453,6 +1453,8 @@
     "fStatus": "状态",
     "fStatusDraft": "草稿",
     "fStatusActive": "上线",
+    "taskOnline": "上线",
+    "taskOffline": "下线",
     "fReward": "奖励（$）",
     "fRewardCid": "次币",
     "fRewardAmount": "次币金额",

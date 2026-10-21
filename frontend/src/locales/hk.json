@@ -1453,6 +1453,8 @@
     "fStatus": "狀態",
     "fStatusDraft": "草稿",
     "fStatusActive": "上線",
+    "taskOnline": "上線",
+    "taskOffline": "下線",
     "fReward": "獎勵（$）",
     "fRewardCid": "次幣",
     "fRewardAmount": "次幣金額",

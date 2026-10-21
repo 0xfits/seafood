@@ -17,8 +17,11 @@ import { avatarToneOf } from '../../home-campaign'
 //     缺席 ⇒ `jobs.participants`（只显已参与）；
 //   · 奖励：主奖励恒 `$` + 金额；次币符号借公开币种表映射（symbols 由页面线传入），
 //     表失败 / 无该 cid ⇒ 次币行整行不渲染（同 CampaignDetailPage 体例）；
-//   · 可点性：`campaign_id` 在场 ⇒ 整卡 Link ⇒ `/campaign/:campaignId`（唯一构造器
-//     `buildLocalizedPath`）；mock 卡不带 campaign_id ⇒ 渲染 div，**仅展示不可点**。
+//   · 可点性（Kevin 2026-10-21 需求②）：**桌面首页卡 ⇒ 该任务自己的页面 `/task/<task_id>`**
+//     （唯一构造器 `buildLocalizedPath`；`data-sf-task` 已带任务号，探针据它点卡验落点）。
+//     历史行为（整卡 → `/campaign/:id`）改为兜底：仅当行**没有 task_id** 时才回落到活动页
+//     —— 卡片永远可点，绝不因缺号变成不可点的残卡；
+//     mock 卡不带 campaign_id / task_id ⇒ 渲染 div，**仅展示不可点**。
 // ============================================================================
 
 const HomeCampaignCard = ({ card, lang, t, symbols }) => {
@@ -94,7 +97,10 @@ const HomeCampaignCard = ({ card, lang, t, symbols }) => {
     </>
   )
 
-  if (card.campaignId === null || card.campaignId === undefined || card.campaignId === '') {
+  const hasTaskId = card.taskId !== null && card.taskId !== undefined && card.taskId !== ''
+  const hasCampaignId = card.campaignId !== null && card.campaignId !== undefined && card.campaignId !== ''
+
+  if (!hasTaskId && !hasCampaignId) {
     return (
       <div
         className="sf-home-camp-card"
@@ -107,6 +113,11 @@ const HomeCampaignCard = ({ card, lang, t, symbols }) => {
     )
   }
 
+  // 主目标 = 任务页（Kevin 需求②）；缺 task_id 的历史行回落活动页（兜底，不留不可点卡）。
+  const cardHref = hasTaskId
+    ? `/task/${encodeURIComponent(String(card.taskId))}`
+    : `/campaign/${encodeURIComponent(String(card.campaignId))}`
+
   return (
     <Link
       className="sf-home-camp-card"
@@ -114,7 +125,7 @@ const HomeCampaignCard = ({ card, lang, t, symbols }) => {
       data-sf-camp-mock={card.isMock ? '1' : '0'}
       data-sf-camp-main={card.isMain ? '1' : '0'}
       data-sf-task={String(card.taskId ?? '')}
-      to={buildLocalizedPath(lang, `/campaign/${encodeURIComponent(String(card.campaignId))}`)}
+      to={buildLocalizedPath(lang, cardHref)}
     >
       {body}
     </Link>

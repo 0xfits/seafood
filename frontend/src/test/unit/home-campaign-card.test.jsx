@@ -75,12 +75,22 @@ describe('HomeCampaignCard · 项目头像两形态', () => {
 describe('HomeCampaignCard · 点击路由与 mock 不可点', () => {
   afterEach(cleanup)
 
-  it('campaign_id 在场 ⇒ 整卡 <a> 指向 /campaign/:campaignId（zh 档无前缀）', () => {
+  // 口径前推（Kevin 2026-10-21 需求②）：整卡主目标 = **任务自己的页面** `/task/:taskId`；
+  // 缺 task_id 的历史行才回落活动页 `/campaign/:campaignId`（兜底，不留不可点卡）。
+  it('task_id 在场 ⇒ 整卡 <a> 指向 /task/:taskId（zh 档无前缀）', () => {
     renderCard(baseCard)
+    const link = screen.getByRole('link')
+    expect(link.getAttribute('href')).toBe('/task/301')
+    expect(link.getAttribute('data-sf-camp-mock')).toBe('0')
+    expect(link.getAttribute('data-sf-camp-main')).toBe('1')
+    expect(link.getAttribute('data-sf-task')).toBe('301')
+  })
+
+  it('缺 task_id 但有 campaign_id ⇒ 回落 /campaign/:campaignId（兜底可点）', () => {
+    renderCard({ ...baseCard, taskId: null })
     const link = screen.getByRole('link')
     expect(link.getAttribute('href')).toBe('/campaign/501')
     expect(link.getAttribute('data-sf-camp-mock')).toBe('0')
-    expect(link.getAttribute('data-sf-camp-main')).toBe('1')
   })
 
   it('mock 卡（campaign_id 缺省）⇒ 渲染 div，零链接（仅展示不可点）', () => {
@@ -91,13 +101,13 @@ describe('HomeCampaignCard · 点击路由与 mock 不可点', () => {
     expect(card.getAttribute('data-sf-camp-mock')).toBe('1')
   })
 
-  it('en 档前缀由唯一构造器承担：href = /en/campaign/501', () => {
+  it('en 档前缀由唯一构造器承担：href = /en/task/301', () => {
     render(
       <MemoryRouter>
         <HomeCampaignCard card={baseCard} lang="en" t={t} symbols={{}} />
       </MemoryRouter>,
     )
-    expect(screen.getByRole('link').getAttribute('href')).toBe('/en/campaign/501')
+    expect(screen.getByRole('link').getAttribute('href')).toBe('/en/task/301')
   })
 })
 

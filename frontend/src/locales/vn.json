@@ -1453,6 +1453,8 @@
     "fStatus": "Trạng thái",
     "fStatusDraft": "Bản nháp",
     "fStatusActive": "Đang chạy",
+    "taskOnline": "Công bố",
+    "taskOffline": "Gỡ xuống",
     "fReward": "Thưởng ($)",
     "fRewardCid": "Tiền tệ phụ",
     "fRewardAmount": "Số tiền phụ",

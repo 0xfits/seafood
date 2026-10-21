@@ -1,0 +1,561 @@
+{
+  "probe": "ops/task-page/probe-task-page.mjs",
+  "startedAt": "2026-10-21T11:11:48.914Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "negArm": false,
+  "fixtures": {
+    "taskDetail": "1",
+    "projectSlug": "sui",
+    "draftTaskInProject": 55,
+    "homeActiveRows": [
+      1,
+      2
+    ],
+    "auth": "localStorage seed only（零真登录）",
+    "api": "context.route in-probe JSON（零后端 / 零库写）"
+  },
+  "states": {
+    "1536_task": {
+      "pathname": "/task/1",
+      "overflowPx": 0,
+      "offenders": [],
+      "scrollContained": 0,
+      "hooks": {
+        "taskPage": true,
+        "taskPageTask": "1",
+        "taskTitle": "转发推文",
+        "taskSubtasks": 2,
+        "homeGrid": false,
+        "jobsNav": false,
+        "jobsFormWrap": false,
+        "jobsDetail": false,
+        "notFound": false,
+        "projectPage": false,
+        "projectToggle": null,
+        "projectTaskState": null,
+        "projectTaskErr": null
+      },
+      "cards": []
+    },
+    "1536_home": {
+      "pathname": "/",
+      "overflowPx": 0,
+      "offenders": [],
+      "scrollContained": 0,
+      "hooks": {
+        "taskPage": false,
+        "taskPageTask": null,
+        "taskTitle": null,
+        "taskSubtasks": 0,
+        "homeGrid": true,
+        "jobsNav": false,
+        "jobsFormWrap": false,
+        "jobsDetail": false,
+        "notFound": false,
+        "projectPage": false,
+        "projectToggle": null,
+        "projectTaskState": null,
+        "projectTaskErr": null
+      },
+      "cards": [
+        {
+          "tag": "a",
+          "href": "/task/1",
+          "task": "1",
+          "mock": "0",
+          "title": "转发推文"
+        },
+        {
+          "tag": "a",
+          "href": "/task/2",
+          "task": "2",
+          "mock": "0",
+          "title": "填写问卷"
+        },
+        {
+          "tag": "div",
+          "href": null,
+          "task": null,
+          "mock": "1",
+          "title": "每日签到打卡"
+        },
+        {
+          "tag": "div",
+          "href": null,
+          "task": null,
+          "mock": "1",
+          "title": "邀请 3 位好友注册"
+        },
+        {
+          "tag": "div",
+          "href": null,
+          "task": null,
+          "mock": "1",
+          "title": "完成首笔质押"
+        }
+      ]
+    },
+    "1536_routes": {
+      "/task": {
+        "own": true,
+        "othersPresent": []
+      },
+      "/task/new": {
+        "own": true,
+        "othersPresent": []
+      },
+      "/bounty/9": {
+        "own": true,
+        "othersPresent": []
+      },
+      "/task/1": {
+        "own": true,
+        "othersPresent": []
+      }
+    },
+    "1536_project": {
+      "pathname": "/sui",
+      "overflowPx": 0,
+      "offenders": [],
+      "scrollContained": 0,
+      "hooks": {
+        "taskPage": false,
+        "taskPageTask": null,
+        "taskTitle": null,
+        "taskSubtasks": 0,
+        "homeGrid": false,
+        "jobsNav": false,
+        "jobsFormWrap": false,
+        "jobsDetail": false,
+        "notFound": false,
+        "projectPage": true,
+        "projectToggle": {
+          "next": "active",
+          "text": "上线",
+          "disabled": false
+        },
+        "projectTaskState": "draft",
+        "projectTaskErr": null
+      },
+      "cards": []
+    },
+    "1536_project_after": {
+      "pathname": "/sui",
+      "overflowPx": 0,
+      "offenders": [],
+      "scrollContained": 0,
+      "hooks": {
+        "taskPage": false,
+        "taskPageTask": null,
+        "taskTitle": null,
+        "taskSubtasks": 0,
+        "homeGrid": false,
+        "jobsNav": false,
+        "jobsFormWrap": false,
+        "jobsDetail": false,
+        "notFound": false,
+        "projectPage": true,
+        "projectToggle": {
+          "next": "draft",
+          "text": "下线",
+          "disabled": false
+        },
+        "projectTaskState": "active",
+        "projectTaskErr": null
+      },
+      "cards": []
+    },
+    "1536_home_after": {
+      "pathname": "/",
+      "overflowPx": 0,
+      "offenders": [],
+      "scrollContained": 0,
+      "hooks": {
+        "taskPage": false,
+        "taskPageTask": null,
+        "taskTitle": null,
+        "taskSubtasks": 0,
+        "homeGrid": true,
+        "jobsNav": false,
+        "jobsFormWrap": false,
+        "jobsDetail": false,
+        "notFound": false,
+        "projectPage": false,
+        "projectToggle": null,
+        "projectTaskState": null,
+        "projectTaskErr": null
+      },
+      "cards": [
+        {
+          "tag": "a",
+          "href": "/task/1",
+          "task": "1",
+          "mock": "0",
+          "title": "转发推文"
+        },
+        {
+          "tag": "a",
+          "href": "/task/2",
+          "task": "2",
+          "mock": "0",
+          "title": "填写问卷"
+        },
+        {
+          "tag": "a",
+          "href": "/task/55",
+          "task": "55",
+          "mock": "0",
+          "title": "草稿任务甲"
+        },
+        {
+          "tag": "div",
+          "href": null,
+          "task": null,
+          "mock": "1",
+          "title": "每日签到打卡"
+        },
+        {
+          "tag": "div",
+          "href": null,
+          "task": null,
+          "mock": "1",
+          "title": "邀请 3 位好友注册"
+        }
+      ]
+    },
+    "390_task": {
+      "pathname": "/task/1",
+      "overflowPx": 0,
+      "offenders": [],
+      "scrollContained": 0,
+      "hooks": {
+        "taskPage": true,
+        "taskPageTask": "1",
+        "taskTitle": "转发推文",
+        "taskSubtasks": 2,
+        "homeGrid": false,
+        "jobsNav": false,
+        "jobsFormWrap": false,
+        "jobsDetail": false,
+        "notFound": false,
+        "projectPage": false,
+        "projectToggle": null,
+        "projectTaskState": null,
+        "projectTaskErr": null
+      },
+      "cards": []
+    },
+    "390_home": {
+      "pathname": "/",
+      "overflowPx": 0,
+      "offenders": [],
+      "scrollContained": 1,
+      "hooks": {
+        "taskPage": false,
+        "taskPageTask": null,
+        "taskTitle": null,
+        "taskSubtasks": 0,
+        "homeGrid": true,
+        "jobsNav": false,
+        "jobsFormWrap": false,
+        "jobsDetail": false,
+        "notFound": false,
+        "projectPage": false,
+        "projectToggle": null,
+        "projectTaskState": null,
+        "projectTaskErr": null
+      },
+      "cards": [
+        {
+          "tag": "a",
+          "href": "/task/1",
+          "task": "1",
+          "mock": "0",
+          "title": "转发推文"
+        },
+        {
+          "tag": "a",
+          "href": "/task/2",
+          "task": "2",
+          "mock": "0",
+          "title": "填写问卷"
+        },
+        {
+          "tag": "div",
+          "href": null,
+          "task": null,
+          "mock": "1",
+          "title": "每日签到打卡"
+        },
+        {
+          "tag": "div",
+          "href": null,
+          "task": null,
+          "mock": "1",
+          "title": "邀请 3 位好友注册"
+        },
+        {
+          "tag": "div",
+          "href": null,
+          "task": null,
+          "mock": "1",
+          "title": "完成首笔质押"
+        }
+      ]
+    },
+    "390_routes": {
+      "/task": {
+        "own": true,
+        "othersPresent": []
+      },
+      "/task/new": {
+        "own": true,
+        "othersPresent": []
+      },
+      "/bounty/9": {
+        "own": true,
+        "othersPresent": []
+      },
+      "/task/1": {
+        "own": true,
+        "othersPresent": []
+      }
+    },
+    "390_project": {
+      "pathname": "/sui",
+      "overflowPx": 0,
+      "offenders": [],
+      "scrollContained": 0,
+      "hooks": {
+        "taskPage": false,
+        "taskPageTask": null,
+        "taskTitle": null,
+        "taskSubtasks": 0,
+        "homeGrid": false,
+        "jobsNav": false,
+        "jobsFormWrap": false,
+        "jobsDetail": false,
+        "notFound": false,
+        "projectPage": true,
+        "projectToggle": {
+          "next": "active",
+          "text": "上线",
+          "disabled": false
+        },
+        "projectTaskState": "draft",
+        "projectTaskErr": null
+      },
+      "cards": []
+    },
+    "390_project_after": {
+      "pathname": "/sui",
+      "overflowPx": 0,
+      "offenders": [],
+      "scrollContained": 0,
+      "hooks": {
+        "taskPage": false,
+        "taskPageTask": null,
+        "taskTitle": null,
+        "taskSubtasks": 0,
+        "homeGrid": false,
+        "jobsNav": false,
+        "jobsFormWrap": false,
+        "jobsDetail": false,
+        "notFound": false,
+        "projectPage": true,
+        "projectToggle": {
+          "next": "draft",
+          "text": "下线",
+          "disabled": false
+        },
+        "projectTaskState": "active",
+        "projectTaskErr": null
+      },
+      "cards": []
+    },
+    "390_home_after": {
+      "pathname": "/",
+      "overflowPx": 0,
+      "offenders": [],
+      "scrollContained": 1,
+      "hooks": {
+        "taskPage": false,
+        "taskPageTask": null,
+        "taskTitle": null,
+        "taskSubtasks": 0,
+        "homeGrid": true,
+        "jobsNav": false,
+        "jobsFormWrap": false,
+        "jobsDetail": false,
+        "notFound": false,
+        "projectPage": false,
+        "projectToggle": null,
+        "projectTaskState": null,
+        "projectTaskErr": null
+      },
+      "cards": [
+        {
+          "tag": "a",
+          "href": "/task/1",
+          "task": "1",
+          "mock": "0",
+          "title": "转发推文"
+        },
+        {
+          "tag": "a",
+          "href": "/task/2",
+          "task": "2",
+          "mock": "0",
+          "title": "填写问卷"
+        },
+        {
+          "tag": "a",
+          "href": "/task/55",
+          "task": "55",
+          "mock": "0",
+          "title": "草稿任务甲"
+        },
+        {
+          "tag": "div",
+          "href": null,
+          "task": null,
+          "mock": "1",
+          "title": "每日签到打卡"
+        },
+        {
+          "tag": "div",
+          "href": null,
+          "task": null,
+          "mock": "1",
+          "title": "邀请 3 位好友注册"
+        }
+      ]
+    }
+  },
+  "assertions": {
+    "taskPageRendered_1536": {
+      "hook": true,
+      "taskIdEcho": true,
+      "notNotFound": true,
+      "hasSubtasks": true,
+      "pass": true
+    },
+    "homeCardHref_1536": {
+      "realCards": 2,
+      "allRealHrefTaskPage": true,
+      "hrefs": [
+        "/task/1",
+        "/task/2"
+      ],
+      "mockCardsUnclickable": true,
+      "noCampaignHrefOnReal": true,
+      "pass": true
+    },
+    "routeSeparation_1536": {
+      "arms": {
+        "/task": true,
+        "/task/new": true,
+        "/bounty/9": true,
+        "/task/1": true
+      },
+      "pass": true
+    },
+    "taskOnlineAppearsInHome_1536": {
+      "draftAbsentBefore": true,
+      "toggleRenderedBefore": true,
+      "toggleNextWasActive": true,
+      "patchSent": true,
+      "patchPayloadExact": true,
+      "noInlineError": true,
+      "realCardAppeared": true,
+      "cardHrefTaskPage": true,
+      "notMockFilled": true,
+      "pass": true
+    },
+    "noOverflowNoPageError_1536": {
+      "taskOverflowPx": 0,
+      "homeOverflowPx": 0,
+      "projectOverflowPx": 0,
+      "afterHomeOverflowPx": 0,
+      "zeroOverflow": true,
+      "offenders": [],
+      "scrollContained": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pageErrors": [],
+      "consoleErrorCount": 0,
+      "consoleErrors": [],
+      "zeroPageError": true,
+      "pass": true
+    },
+    "taskPageRendered_390": {
+      "hook": true,
+      "taskIdEcho": true,
+      "notNotFound": true,
+      "hasSubtasks": true,
+      "pass": true
+    },
+    "homeCardHref_390": {
+      "realCards": 2,
+      "allRealHrefTaskPage": true,
+      "hrefs": [
+        "/task/1",
+        "/task/2"
+      ],
+      "mockCardsUnclickable": true,
+      "noCampaignHrefOnReal": true,
+      "pass": true
+    },
+    "routeSeparation_390": {
+      "arms": {
+        "/task": true,
+        "/task/new": true,
+        "/bounty/9": true,
+        "/task/1": true
+      },
+      "pass": true
+    },
+    "taskOnlineAppearsInHome_390": {
+      "draftAbsentBefore": true,
+      "toggleRenderedBefore": true,
+      "toggleNextWasActive": true,
+      "patchSent": true,
+      "patchPayloadExact": true,
+      "noInlineError": true,
+      "realCardAppeared": true,
+      "cardHrefTaskPage": true,
+      "notMockFilled": true,
+      "pass": true
+    },
+    "noOverflowNoPageError_390": {
+      "taskOverflowPx": 0,
+      "homeOverflowPx": 0,
+      "projectOverflowPx": 0,
+      "afterHomeOverflowPx": 0,
+      "zeroOverflow": true,
+      "offenders": [],
+      "scrollContained": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "pageErrors": [],
+      "consoleErrorCount": 0,
+      "consoleErrors": [],
+      "zeroPageError": true,
+      "pass": true
+    }
+  },
+  "summary": {
+    "taskPageRendered": true,
+    "homeCardHref": true,
+    "routeSeparation": true,
+    "taskOnlineAppears": true,
+    "noOverflowNoPageError": true
+  },
+  "summaryAll": true
+}

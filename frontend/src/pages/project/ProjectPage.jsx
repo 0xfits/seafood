@@ -211,6 +211,18 @@ const ProjectPage = () => {
     load({ silent: true })
   }
 
+  /**
+   * 任务上线 / 下线成功（卡片内已发 PATCH）：页内提示 + **静默重读嵌套列表**
+   * （徽标与首页热门任务读口同源，刷新后即反映新状态）；失败不走这里（卡片就地内联）。
+   */
+  const handleTaskStatusChanged = (next, task) => {
+    setNotice({
+      kind: 'ok',
+      text: t(next === 'active' ? 'project.okLaunched' : 'project.okDraft'),
+    })
+    load({ silent: true })
+  }
+
   /** 打开编辑框：同一入口再点不切换（框是模态，打开期间不渲染入口自身状态）；无权限 ⇒ 页内提示零请求。 */
   const openEdit = () => {
     if (!allowEntry()) return
@@ -278,6 +290,7 @@ const ProjectPage = () => {
               lang={lang}
               symbols={symbols}
               canManage={canManage}
+              user={user}
               panel={openPanel}
               openCampaignRef={openCampaignRef}
               openTaskRef={openTaskRef}
@@ -285,6 +298,7 @@ const ProjectPage = () => {
               currencies={currencies}
               onEntryTask={(campaign, ref) => openEntry('task', ref || refOf(campaign))}
               onEntrySubtask={(campaign, task) => openEntry('subtask', refOf(campaign), String(task?.task_id ?? ''))}
+              onTaskStatusChanged={handleTaskStatusChanged}
               onClose={closePanels}
               onDone={handleDone}
             />

@@ -863,27 +863,29 @@ a.sf-task-campaign-name:hover {
   margin-top: var(--sf-st-feed-gap-m, 12px);
 }
 
+/* 与 `.sf-campaign-btn` 同批 token（颜色 = 主题 A 体系槽位，几何 = --sf-st-*）；
+   不得引用已退役的 `--sf-btn-*`（p6-btn-impl2 门：全 src CSS var() 引用必须为 0）。 */
 .sf-task-btn {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: var(--sf-task-ctl-h, 34px);
-  padding: 6px 14px;
-  border: var(--sf-st-stroke-w-thin, 1px) solid var(--sf-btn-border, #d0d7de);
-  border-radius: var(--sf-st-radius-btna, 6px);
-  background: var(--sf-btn-bg, #f6f8fa);
-  color: var(--sf-btn-fg, #24292f);
+  padding: 8px var(--sf-st-padx-btna);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-btna);
+  background: var(--sf-panel-bg);
+  color: var(--sf-title-fg);
   font-size: 14px;
   font-weight: 600;
-  line-height: 1.4;
   text-decoration: none;
   cursor: pointer;
 }
 
 .sf-task-btn.is-primary {
-  border-color: var(--sf-btna-border, #54aeff);
-  background: var(--sf-btna-bg, #ddf4ff);
-  color: var(--sf-btna-fg, #0969da);
+  background: var(--sf-btna-bg);
+  border-color: var(--sf-btna-border);
+  color: var(--sf-btna-fg);
 }
 
 @media (max-width: 767px) {

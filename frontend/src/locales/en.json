@@ -1453,6 +1453,8 @@
     "fStatus": "Status",
     "fStatusDraft": "Draft",
     "fStatusActive": "Live",
+    "taskOnline": "Publish",
+    "taskOffline": "Unpublish",
     "fReward": "Reward ($)",
     "fRewardCid": "Bonus coin",
     "fRewardAmount": "Bonus amount",

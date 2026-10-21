@@ -74,6 +74,16 @@ export const createProjectCampaignTask = (campaignRef, body, user) =>
   postJson(`/api/campaign/${enc(campaignRef)}/task`, body, user)
 
 /**
+ * 任务**上线 / 下线**（R7 `PATCH /api/campaign/task/:taskId`）：闭集里**只送 status 一个字段**
+ * （其余键缺省 ⇒ 库内现值不动；`subtasks[]` 不带 ⇒ 整组 upsert 不触发）。
+ *   · 上线 = `draft ⇒ active`；下线 = `active ⇒ draft`。
+ *   · 服务端闸同 R7（manage_tasks 管理员 ∨ project owner；ended 封板 409 `campaign_ended_frozen`）。
+ *   · 失败（403/404/409）由调用方（任务卡）**就地内联**呈现，不改判页面状态。
+ */
+export const patchProjectTaskStatus = (taskRef, status, user) =>
+  patchJson(`/api/campaign/task/${enc(taskRef)}`, { status }, user)
+
+/**
  * 「发布子任务」= PATCH task 的 group upsert 语义（R7）：`subtasks[]` **整组**送出
  * （现有可重发行 + 新增一行；不带 subtask_id 的那条 = 插入，带 id 的 = 同值更新）。
  * 组账目（旧行 +1 的负控）在 `project-payload.buildSubtaskAppendGroup` 内断言，本层只发不算。

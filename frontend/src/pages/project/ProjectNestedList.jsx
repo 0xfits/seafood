@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { buildLocalizedPath } from '../../utils'
 import { refOf, statusKeyOf, taskRewardOf, timeWindowOf, typeKeyOf } from '../campaign/campaign-util'
+import { patchProjectTaskStatus } from './project-api'
 import ProjectForms from './ProjectForms'
 
 // ============================================================================
@@ -61,17 +62,59 @@ const SubtaskRow = ({ subtask, t }) => {
   )
 }
 
-const TaskBlock = ({ task, t, lang, symbols, canManage, subtaskOpen, subtaskForm, onEntrySubtask }) => {
+const TaskBlock = ({ task, t, lang, symbols, canManage, user, subtaskOpen, subtaskForm, onEntrySubtask, onStatusChanged }) => {
   const window = timeWindowOf(task, lang)
   const reward = taskRewardOf(task)
   const secondarySymbol = reward.secondaryCid ? (symbols[reward.secondaryCid] || '') : ''
   const subtasks = Array.isArray(task?.subtasks) ? task.subtasks : []
   const taskRef = String(task?.task_id ?? '')
+  const status = String(task?.status || '')
+  const statusKey = statusKeyOf(status)
+  // 上线 / 下线开关（Kevin 2026-10-21 · 步 3）：只有 draft / active 两态可切，ended 封板（服务端同口径）。
+  const nextStatus = status === 'draft' ? 'active' : status === 'active' ? 'draft' : ''
+  const [statusBusy, setStatusBusy] = useState(false)
+  const [statusErr, setStatusErr] = useState('')
+
+  const toggleStatus = async () => {
+    if (!nextStatus || statusBusy) return
+    setStatusBusy(true)
+    setStatusErr('')
+    try {
+      await patchProjectTaskStatus(taskRef, nextStatus, user)
+      setStatusBusy(false)
+      // 成功 ⇒ 由页面层静默重读嵌套列表 + 页内提示（卡片自身不吃结果，避免两处真相）
+      onStatusChanged?.(nextStatus, task)
+    } catch (err) {
+      setStatusBusy(false)
+      // 失败（403 / 404 / 409 封板 / 网络）⇒ **就地内联**，不谎报状态已变
+      // 文案复用 `project.publishFailed`（本项目域「写口失败」唯一句，零新键 ⇒ 四语计数不动）
+      setStatusErr(t('project.publishFailed'))
+    }
+  }
+
   return (
-    <li className="sf-project-task" data-sf-m="project-task" data-sf-task={taskRef}>
+    <li className="sf-project-task" data-sf-m="project-task" data-sf-task={taskRef} data-sf-state={status || 'unknown'}>
       <div className="sf-project-task-head">
         <h4 className="sf-project-task-title" data-sf-m="project-task-title">{task?.title || ''}</h4>
         <div className="sf-project-head-right">
+          {statusKey ? (
+            <span
+              className={`sf-project-tag is-${status || 'unknown'}`}
+              data-sf-m="project-task-status"
+              data-sf-state={status}
+            >{t(statusKey)}</span>
+          ) : null}
+          {canManage && taskRef && nextStatus ? (
+            <button
+              type="button"
+              className="sf-project-btn is-card"
+              data-sf-m="project-task-status-toggle"
+              data-sf-task={taskRef}
+              data-sf-next={nextStatus}
+              disabled={statusBusy}
+              onClick={toggleStatus}
+            >{t(status === 'draft' ? 'project.taskOnline' : 'project.taskOffline')}</button>
+          ) : null}
           {reward.primary ? (
             <span className="sf-project-task-reward" data-sf-m="project-task-reward" data-sf-amount={reward.primary}>
               {t('campaign.rewardCompletion', { amount: reward.primary })}
@@ -103,6 +146,15 @@ const TaskBlock = ({ task, t, lang, symbols, canManage, subtaskOpen, subtaskForm
         <p className="sf-project-task-time" data-sf-m="project-task-time">{t(window.key, window.values)}</p>
       ) : null}
 
+      {statusErr ? (
+        <p
+          className="sf-project-notice is-err"
+          data-sf-m="project-task-status-err"
+          data-sf-task={taskRef}
+          role="alert"
+        >{statusErr}</p>
+      ) : null}
+
       {subtaskOpen && subtaskForm ? (
         <div className="sf-project-card-form" data-sf-m="project-card-form">{subtaskForm}</div>
       ) : null}
@@ -126,6 +178,7 @@ const ProjectNestedList = ({
   lang,
   symbols,
   canManage = false,
+  user = null,
   panel = null,
   openCampaignRef = '',
   openTaskRef = '',
@@ -133,6 +186,7 @@ const ProjectNestedList = ({
   currencies = [],
   onEntryTask,
   onEntrySubtask,
+  onTaskStatusChanged,
   onClose,
   onDone,
 }) => {
@@ -237,6 +291,7 @@ const ProjectNestedList = ({
                         lang={lang}
                         symbols={symbols}
                         canManage={canManage}
+                        user={user}
                         subtaskOpen={subtaskOpen}
                         subtaskForm={subtaskOpen ? (
                           <ProjectForms
@@ -250,6 +305,7 @@ const ProjectNestedList = ({
                           />
                         ) : null}
                         onEntrySubtask={(row) => onEntrySubtask?.(campaign, row)}
+                        onStatusChanged={onTaskStatusChanged}
                         key={taskRef}
                       />
                     )

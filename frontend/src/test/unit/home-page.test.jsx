@@ -104,12 +104,12 @@ describe('HomePage · 热门任务（campaign 体系）', () => {
     expect(cards[0].getAttribute('data-sf-camp-main')).toBe('1')
     expect(cards[0].textContent).toContain('第一轮')
     expect(cards[0].textContent).toContain('冬季主活动')
-    expect(cards[0].getAttribute('href')).toBe('/campaign/510')
+    expect(cards[0].getAttribute('href')).toBe('/task/10') // 卡主目标前推：任务页（Kevin 需求②）
     // ② 其余真卡保持相对顺序，随后 mock 依序补位（3 真 + 2 mock = 恰 5）
     expect(cards[1].textContent).toContain('任务甲')
-    expect(cards[1].getAttribute('href')).toBe('/campaign/511')
+    expect(cards[1].getAttribute('href')).toBe('/task/11')
     expect(cards[2].textContent).toContain('任务乙')
-    expect(cards[2].getAttribute('href')).toBe('/campaign/512')
+    expect(cards[2].getAttribute('href')).toBe('/task/12')
     expect(cards[3].textContent).toContain(MOCK_HOME_CAMPAIGN_CARDS[0].title)
     expect(cards[4].textContent).toContain(MOCK_HOME_CAMPAIGN_CARDS[1].title)
     expect(cards.map((card) => card.getAttribute('data-sf-camp-mock'))).toEqual(['0', '0', '0', '1', '1'])
@@ -178,7 +178,7 @@ describe('HomePage · 热门任务（campaign 体系）', () => {
     await waitFor(() => expect(cardsOf(container)).toHaveLength(5))
 
     expect(cardsOf(container)[0].textContent).toContain('第一轮')
-    expect(cardsOf(container)[0].getAttribute('href')).toBe('/campaign/521')
+    expect(cardsOf(container)[0].getAttribute('href')).toBe('/task/21')
     expect(await screen.findByRole('heading', { name: '奖励甲' })).toBeInTheDocument()
 
     expect(fetchApiJson).toHaveBeenCalledWith('/api/prize-item', expect.objectContaining({
