@@ -19,15 +19,15 @@
 // ============================================================================
 import { DatabaseService } from './database';
 import { errorMessageOf } from './ledger-errors';
-import type { JobVerbErr, JobVerbResult } from './job-service';
+import type { VerbErr, VerbResult } from './verb-shape';
 
-// ---- 错误构造（复用 job-service 的 JobVerbErr 形状；由 index.ts 用 sendVerbError 出口）---------
+// ---- 错误构造（复用 verb-shape 的 VerbErr 形状；由 index.ts 用 sendVerbError 出口）---------
 export const adminVerbError = (
   status: number,
   code: string,
   details: Record<string, unknown>,
   message?: string,
-): JobVerbErr => ({
+): VerbErr => ({
   ok: false,
   status,
   code,
@@ -54,7 +54,7 @@ export const resolveAdminOpsKey = (
   actorUid: number,
   action: string,
   businessId: string | number,
-): { ok: true; key: string } | { ok: false; error: JobVerbErr } => {
+): { ok: true; key: string } | { ok: false; error: VerbErr } => {
   const body = (req.body || {}) as Record<string, unknown>;
   const headerKey = req.headers ? (req.headers['idempotency-key'] ?? req.headers['Idempotency-Key']) : undefined;
   const raw = body.create_key ?? body.idempotency_key ?? headerKey;
@@ -127,7 +127,7 @@ export const adminPermissionSaveVerb = async (params: {
   description?: unknown;
   permissions?: unknown;
   user_ids?: unknown;
-}): Promise<JobVerbResult> => {
+}): Promise<VerbResult> => {
   const name = String(params.name ?? '').trim();
   if (!name) {
     return adminVerbError(400, 'LEDGER_AMOUNT_INVALID', { field: 'name', reason: 'REQUIRED' }, 'Permission group name is required');
@@ -175,7 +175,7 @@ export const adminPermissionSaveVerb = async (params: {
 };
 
 // ---- §1 #37 · POST /api/admin/permissions/delete（该角色下无在用用户才可删）------------------
-export const adminPermissionDeleteVerb = async (params: { id?: unknown }): Promise<JobVerbResult> => {
+export const adminPermissionDeleteVerb = async (params: { id?: unknown }): Promise<VerbResult> => {
   const id = String(params.id ?? '').trim();
   if (!id) {
     return adminVerbError(400, 'LEDGER_AMOUNT_INVALID', { field: 'id', reason: 'REQUIRED' }, 'Permission group id is required');
@@ -211,7 +211,7 @@ const normalizeRoleKeys = (raw: unknown): string[] => {
 
 export const adminUserUpdateVerb = async (params: {
   body: Record<string, unknown> | null | undefined;
-}): Promise<JobVerbResult> => {
+}): Promise<VerbResult> => {
   const body = (params.body || {}) as Record<string, unknown>;
 
   // DL104：白名单 = `target_uid` / `is_admin` / `role_key` / `bio`（`uID` 为旧前端别名，见报告 §1.3）

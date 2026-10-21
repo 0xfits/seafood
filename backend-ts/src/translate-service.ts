@@ -910,7 +910,6 @@ export function createDbStore(): TranslateStore {
 /** 源文本解析器的生产实现（**白名单表/列**；参数化 id；只读）。 */
 export function createDbSourceResolver(): SourceResolver {
   const WHITELIST: Record<string, { table: string; idCol: string; fields: Record<string, string> }> = {
-    job: { table: 'job', idCol: 'job_id', fields: { title: 'title', description: 'description' } },
     // ★ 2026-10-20（`listing.title` 退场、正文并入 `description`）：可译字段**只有 description**
     //   （标题 = 描述首个换行之前、随描述一起翻译；再单列 title 会引用已 DROP 的列）。
     listing: { table: 'listing', idCol: 'listing_id', fields: { description: 'description' } },
@@ -1132,9 +1131,8 @@ export interface TranslatableSpec {
   fields: ReadonlyArray<string>;
 }
 
-/** 四类存量内容（↔ `createDbSourceResolver` 白名单同域）。 */
+/** 三类存量内容（↔ `createDbSourceResolver` 白名单同域；原 `job` 类随 job 域下线移除 —— migration 0070）。 */
 export const TRANSLATABLE_SPECS: ReadonlyArray<TranslatableSpec> = [
-  { entity_type: 'job', table: 'job', id_col: 'job_id', fields: ['title', 'description'] },
   { entity_type: 'listing', table: 'listing', id_col: 'listing_id', fields: ['description'] },
   { entity_type: 'user', table: 'users', id_col: 'uid', fields: ['bio'] },
   { entity_type: 'currency', table: 'currency', id_col: 'cid', fields: ['name'] },

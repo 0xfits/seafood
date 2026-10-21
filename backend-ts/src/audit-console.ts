@@ -23,7 +23,7 @@
 //   · `:table` 先查白名单（miss ⇒ `400`）；列名只在白名单命中后按映射**逐字取用**。
 // ============================================================================
 import { adminVerbError } from './admin-service';
-import type { JobVerbErr } from './job-service';
+import type { VerbErr } from './verb-shape';
 
 // ---------------------------------------------------------------------------
 // 五类过滤面 —— 请求参数名（统一口径 · §32.3(b)(c)）
@@ -88,11 +88,7 @@ export const AUDIT_TABLES: Readonly<Record<string, AuditColumnMap>> = {
     actor: ['actor_uid'], target: ['listing_id'], action: null,
     timeColumn: 'time_created', refId: ['listing_id'], pk: 'log_id',
   },
-  // 7. 招工仲裁台账：target=job_id；无显式 action 列
-  job_arbitration_log: {
-    actor: ['actor_uid'], target: ['job_id'], action: null,
-    timeColumn: 'time_created', refId: ['job_id'], pk: 'log_id',
-  },
+  // 7. （原「招工仲裁台账」随 job 域下线整体移除 —— migration 0070 · 2026-10-21）
   // 8. 电量台账：无 actor_uid（uid=电量归属人 · 多为系统触发）；无 target；无 action 列
   batt_entry: {
     actor: null, target: null, action: null,
@@ -143,7 +139,7 @@ export const AUDIT_LIMIT_DEFAULT = 50;
 export const AUDIT_LIMIT_MAX = 100;
 
 /** 失配（400）构造：一律借既有码 `LEDGER_AMOUNT_INVALID`（`#17`）· **零新增码** · `R107` 形状。 */
-const audit400 = (details: Record<string, unknown>, message: string): JobVerbErr =>
+const audit400 = (details: Record<string, unknown>, message: string): VerbErr =>
   adminVerbError(400, 'LEDGER_AMOUNT_INVALID', details, message);
 
 /** 该表支持的过滤维度（参数名清单 · §32.3 · 顺序 = `AUDIT_FILTER_PARAMS`）。 */
@@ -190,7 +186,7 @@ export const encodeCursor = (tIso: string, pk: string): string =>
 export const parseAuditRequest = (
   tableRaw: unknown,
   query: Record<string, unknown> | undefined,
-): { ok: true; plan: AuditPlan } | { ok: false; err: JobVerbErr } => {
+): { ok: true; plan: AuditPlan } | { ok: false; err: VerbErr } => {
   const table = String(tableRaw ?? '').trim();
   const spec = AUDIT_TABLES[table];
   if (!spec) {

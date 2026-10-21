@@ -31,9 +31,9 @@ import {
   ledgerErrorBody,
   sendGone,
   sendVerbError,
-  type JobVerbErr as VerbErr,
-  type JobVerbResult as VerbResult,
-} from './job-service';
+  type VerbErr,
+  type VerbResult,
+} from './verb-shape';
 
 export { ledgerErrorBody, sendGone, sendVerbError };
 export type { VerbErr, VerbResult };

@@ -1,0 +1,650 @@
+{
+  "db": {
+    "db": "neondb",
+    "usr": "neondb_owner"
+  },
+  "top_migrations": [
+    {
+      "version": "0069",
+      "checksum": "4927b801bef3de711357320e092bdb28886c8e4dc76545cf175e19de7fccc69f"
+    },
+    {
+      "version": "0068",
+      "checksum": "6a547b8c9e96d2bd4920842b661ed6100021d60127130275f2be116edab16843"
+    },
+    {
+      "version": "0067",
+      "checksum": "a0bc7adb034f6c7372659775cdeb03e5a24bba9e0d3514e4782ae98de01263c9"
+    }
+  ]
+}
+--- rels matching job ---
+[
+  {
+    "relname": "job",
+    "relkind": "r"
+  },
+  {
+    "relname": "job_application",
+    "relkind": "r"
+  },
+  {
+    "relname": "job_arbitration_log",
+    "relkind": "r"
+  },
+  {
+    "relname": "job_submission",
+    "relkind": "r"
+  }
+]
+--- indexes ---
+[
+  {
+    "tablename": "job",
+    "indexname": "idx_job_employer",
+    "indexdef": "CREATE INDEX idx_job_employer ON public.job USING btree (employer_uid, time_created DESC)"
+  },
+  {
+    "tablename": "job",
+    "indexname": "idx_job_status_time",
+    "indexdef": "CREATE INDEX idx_job_status_time ON public.job USING btree (status, time_created DESC)"
+  },
+  {
+    "tablename": "job",
+    "indexname": "idx_job_worker",
+    "indexdef": "CREATE INDEX idx_job_worker ON public.job USING btree (worker_uid, time_created DESC) WHERE (worker_uid IS NOT NULL)"
+  },
+  {
+    "tablename": "job",
+    "indexname": "job_create_key_uniq",
+    "indexdef": "CREATE UNIQUE INDEX job_create_key_uniq ON public.job USING btree (create_key)"
+  },
+  {
+    "tablename": "job",
+    "indexname": "job_pk",
+    "indexdef": "CREATE UNIQUE INDEX job_pk ON public.job USING btree (job_id)"
+  },
+  {
+    "tablename": "job_application",
+    "indexname": "idx_job_application_worker",
+    "indexdef": "CREATE INDEX idx_job_application_worker ON public.job_application USING btree (worker_uid, time_created DESC)"
+  },
+  {
+    "tablename": "job_application",
+    "indexname": "job_application_create_key_uniq",
+    "indexdef": "CREATE UNIQUE INDEX job_application_create_key_uniq ON public.job_application USING btree (create_key)"
+  },
+  {
+    "tablename": "job_application",
+    "indexname": "job_application_job_worker_uniq",
+    "indexdef": "CREATE UNIQUE INDEX job_application_job_worker_uniq ON public.job_application USING btree (job_id, worker_uid)"
+  },
+  {
+    "tablename": "job_application",
+    "indexname": "job_application_pk",
+    "indexdef": "CREATE UNIQUE INDEX job_application_pk ON public.job_application USING btree (application_id)"
+  },
+  {
+    "tablename": "job_application",
+    "indexname": "uniq_job_application_accepted",
+    "indexdef": "CREATE UNIQUE INDEX uniq_job_application_accepted ON public.job_application USING btree (job_id) WHERE (status = 'accepted'::text)"
+  },
+  {
+    "tablename": "job_arbitration_log",
+    "indexname": "job_arbitration_log_actor_day_idx",
+    "indexdef": "CREATE INDEX job_arbitration_log_actor_day_idx ON public.job_arbitration_log USING btree (actor_uid, time_created)"
+  },
+  {
+    "tablename": "job_arbitration_log",
+    "indexname": "job_arbitration_log_idem_uniq",
+    "indexdef": "CREATE UNIQUE INDEX job_arbitration_log_idem_uniq ON public.job_arbitration_log USING btree (idempotency_key, result)"
+  },
+  {
+    "tablename": "job_arbitration_log",
+    "indexname": "job_arbitration_log_job_idx",
+    "indexdef": "CREATE INDEX job_arbitration_log_job_idx ON public.job_arbitration_log USING btree (job_id, time_created)"
+  },
+  {
+    "tablename": "job_arbitration_log",
+    "indexname": "job_arbitration_log_pk",
+    "indexdef": "CREATE UNIQUE INDEX job_arbitration_log_pk ON public.job_arbitration_log USING btree (log_id)"
+  },
+  {
+    "tablename": "job_submission",
+    "indexname": "idx_job_submission_job",
+    "indexdef": "CREATE INDEX idx_job_submission_job ON public.job_submission USING btree (job_id, time_created DESC)"
+  },
+  {
+    "tablename": "job_submission",
+    "indexname": "idx_job_submission_review",
+    "indexdef": "CREATE INDEX idx_job_submission_review ON public.job_submission USING btree (review_status, time_created DESC)"
+  },
+  {
+    "tablename": "job_submission",
+    "indexname": "idx_job_submission_worker",
+    "indexdef": "CREATE INDEX idx_job_submission_worker ON public.job_submission USING btree (worker_uid, time_created DESC)"
+  },
+  {
+    "tablename": "job_submission",
+    "indexname": "job_submission_create_key_uniq",
+    "indexdef": "CREATE UNIQUE INDEX job_submission_create_key_uniq ON public.job_submission USING btree (create_key)"
+  },
+  {
+    "tablename": "job_submission",
+    "indexname": "job_submission_pk",
+    "indexdef": "CREATE UNIQUE INDEX job_submission_pk ON public.job_submission USING btree (submission_id)"
+  }
+]
+--- triggers ---
+[
+  {
+    "tbl": "job",
+    "tgname": "trg_job_core_immutable_guard",
+    "fn": "job_core_immutable_guard"
+  },
+  {
+    "tbl": "job",
+    "tgname": "trg_job_ledger_ref_guard",
+    "fn": "job_ledger_ref_guard"
+  },
+  {
+    "tbl": "job",
+    "tgname": "trg_job_no_delete",
+    "fn": "job_no_delete"
+  },
+  {
+    "tbl": "job",
+    "tgname": "trg_job_status_guard",
+    "fn": "job_status_guard"
+  },
+  {
+    "tbl": "job",
+    "tgname": "trg_job_touch_time_updated",
+    "fn": "job_touch_time_updated"
+  },
+  {
+    "tbl": "job_application",
+    "tgname": "trg_job_application_create_key_guard",
+    "fn": "job_application_create_key_guard"
+  },
+  {
+    "tbl": "job_application",
+    "tgname": "trg_job_application_no_delete",
+    "fn": "job_application_no_delete"
+  },
+  {
+    "tbl": "job_application",
+    "tgname": "trg_job_application_status_guard",
+    "fn": "job_application_status_guard"
+  },
+  {
+    "tbl": "job_application",
+    "tgname": "trg_job_application_touch_time_updated",
+    "fn": "job_application_touch_time_updated"
+  },
+  {
+    "tbl": "job_arbitration_log",
+    "tgname": "trg_job_arbitration_log_append_only",
+    "fn": "job_arbitration_log_append_only"
+  },
+  {
+    "tbl": "job_arbitration_log",
+    "tgname": "trg_job_arbitration_log_no_truncate",
+    "fn": "job_arbitration_log_no_truncate"
+  },
+  {
+    "tbl": "job_submission",
+    "tgname": "trg_job_submission_immutable_guard",
+    "fn": "job_submission_immutable_guard"
+  },
+  {
+    "tbl": "job_submission",
+    "tgname": "trg_job_submission_no_delete",
+    "fn": "job_submission_no_delete"
+  }
+]
+--- functions ---
+[
+  {
+    "proname": "job_application_create_key_guard",
+    "args": ""
+  },
+  {
+    "proname": "job_application_no_delete",
+    "args": ""
+  },
+  {
+    "proname": "job_application_status_guard",
+    "args": ""
+  },
+  {
+    "proname": "job_application_status_transition_ok",
+    "args": "p_from text, p_to text"
+  },
+  {
+    "proname": "job_application_touch_time_updated",
+    "args": ""
+  },
+  {
+    "proname": "job_arbitration_log_append_only",
+    "args": ""
+  },
+  {
+    "proname": "job_arbitration_log_no_truncate",
+    "args": ""
+  },
+  {
+    "proname": "job_core_immutable_guard",
+    "args": ""
+  },
+  {
+    "proname": "job_ledger_ref_guard",
+    "args": ""
+  },
+  {
+    "proname": "job_no_delete",
+    "args": ""
+  },
+  {
+    "proname": "job_post_event",
+    "args": "payload jsonb"
+  },
+  {
+    "proname": "job_settle_plan",
+    "args": "p_job_id bigint, p_employer bigint, p_worker bigint, p_cid bigint, p_gross bigint"
+  },
+  {
+    "proname": "job_status_guard",
+    "args": ""
+  },
+  {
+    "proname": "job_status_transition_ok",
+    "args": "p_from text, p_to text"
+  },
+  {
+    "proname": "job_submission_immutable_guard",
+    "args": ""
+  },
+  {
+    "proname": "job_submission_no_delete",
+    "args": ""
+  },
+  {
+    "proname": "job_touch_time_updated",
+    "args": ""
+  }
+]
+--- FKs touching job ---
+[
+  {
+    "conname": "job_cid_fk",
+    "src_tbl": "job",
+    "dst_tbl": "currency"
+  },
+  {
+    "conname": "job_employer_fk",
+    "src_tbl": "job",
+    "dst_tbl": "users"
+  },
+  {
+    "conname": "job_worker_fk",
+    "src_tbl": "job",
+    "dst_tbl": "users"
+  },
+  {
+    "conname": "job_application_job_fk",
+    "src_tbl": "job_application",
+    "dst_tbl": "job"
+  },
+  {
+    "conname": "job_application_worker_fk",
+    "src_tbl": "job_application",
+    "dst_tbl": "users"
+  },
+  {
+    "conname": "job_arbitration_log_actor_fk",
+    "src_tbl": "job_arbitration_log",
+    "dst_tbl": "users"
+  },
+  {
+    "conname": "job_arbitration_log_job_fk",
+    "src_tbl": "job_arbitration_log",
+    "dst_tbl": "job"
+  },
+  {
+    "conname": "job_submission_job_fk",
+    "src_tbl": "job_submission",
+    "dst_tbl": "job"
+  },
+  {
+    "conname": "job_submission_reviewed_by_fk",
+    "src_tbl": "job_submission",
+    "dst_tbl": "users"
+  },
+  {
+    "conname": "job_submission_worker_fk",
+    "src_tbl": "job_submission",
+    "dst_tbl": "users"
+  }
+]
+--- non-job named views depending on job ---
+[]
+--- job-named columns on non-job tables ---
+[]
+--- constraints on/with job ---
+[
+  {
+    "conname": "job_cid_fk",
+    "tbl": "job",
+    "contype": "f"
+  },
+  {
+    "conname": "job_cid_not_null",
+    "tbl": "job",
+    "contype": "n"
+  },
+  {
+    "conname": "job_create_key_not_null",
+    "tbl": "job",
+    "contype": "n"
+  },
+  {
+    "conname": "job_create_key_uniq",
+    "tbl": "job",
+    "contype": "u"
+  },
+  {
+    "conname": "job_description_not_null",
+    "tbl": "job",
+    "contype": "n"
+  },
+  {
+    "conname": "job_employer_fk",
+    "tbl": "job",
+    "contype": "f"
+  },
+  {
+    "conname": "job_employer_uid_not_null",
+    "tbl": "job",
+    "contype": "n"
+  },
+  {
+    "conname": "job_headcount_min",
+    "tbl": "job",
+    "contype": "c"
+  },
+  {
+    "conname": "job_headcount_not_null",
+    "tbl": "job",
+    "contype": "n"
+  },
+  {
+    "conname": "job_job_id_not_null",
+    "tbl": "job",
+    "contype": "n"
+  },
+  {
+    "conname": "job_ledger_event_keys_not_null",
+    "tbl": "job",
+    "contype": "n"
+  },
+  {
+    "conname": "job_pk",
+    "tbl": "job",
+    "contype": "p"
+  },
+  {
+    "conname": "job_reward_not_null",
+    "tbl": "job",
+    "contype": "n"
+  },
+  {
+    "conname": "job_reward_positive",
+    "tbl": "job",
+    "contype": "c"
+  },
+  {
+    "conname": "job_status_enum",
+    "tbl": "job",
+    "contype": "c"
+  },
+  {
+    "conname": "job_status_not_null",
+    "tbl": "job",
+    "contype": "n"
+  },
+  {
+    "conname": "job_time_created_not_null",
+    "tbl": "job",
+    "contype": "n"
+  },
+  {
+    "conname": "job_time_updated_not_null",
+    "tbl": "job",
+    "contype": "n"
+  },
+  {
+    "conname": "job_title_not_null",
+    "tbl": "job",
+    "contype": "n"
+  },
+  {
+    "conname": "job_worker_fk",
+    "tbl": "job",
+    "contype": "f"
+  },
+  {
+    "conname": "job_application_application_id_not_null",
+    "tbl": "job_application",
+    "contype": "n"
+  },
+  {
+    "conname": "job_application_create_key_not_null",
+    "tbl": "job_application",
+    "contype": "n"
+  },
+  {
+    "conname": "job_application_create_key_uniq",
+    "tbl": "job_application",
+    "contype": "u"
+  },
+  {
+    "conname": "job_application_job_fk",
+    "tbl": "job_application",
+    "contype": "f"
+  },
+  {
+    "conname": "job_application_job_id_not_null",
+    "tbl": "job_application",
+    "contype": "n"
+  },
+  {
+    "conname": "job_application_job_worker_uniq",
+    "tbl": "job_application",
+    "contype": "u"
+  },
+  {
+    "conname": "job_application_pk",
+    "tbl": "job_application",
+    "contype": "p"
+  },
+  {
+    "conname": "job_application_status_enum",
+    "tbl": "job_application",
+    "contype": "c"
+  },
+  {
+    "conname": "job_application_status_not_null",
+    "tbl": "job_application",
+    "contype": "n"
+  },
+  {
+    "conname": "job_application_time_created_not_null",
+    "tbl": "job_application",
+    "contype": "n"
+  },
+  {
+    "conname": "job_application_time_updated_not_null",
+    "tbl": "job_application",
+    "contype": "n"
+  },
+  {
+    "conname": "job_application_worker_fk",
+    "tbl": "job_application",
+    "contype": "f"
+  },
+  {
+    "conname": "job_application_worker_uid_not_null",
+    "tbl": "job_application",
+    "contype": "n"
+  },
+  {
+    "conname": "job_arbitration_log_actor_fk",
+    "tbl": "job_arbitration_log",
+    "contype": "f"
+  },
+  {
+    "conname": "job_arbitration_log_actor_uid_not_null",
+    "tbl": "job_arbitration_log",
+    "contype": "n"
+  },
+  {
+    "conname": "job_arbitration_log_idem_uniq",
+    "tbl": "job_arbitration_log",
+    "contype": "u"
+  },
+  {
+    "conname": "job_arbitration_log_idempotency_key_not_null",
+    "tbl": "job_arbitration_log",
+    "contype": "n"
+  },
+  {
+    "conname": "job_arbitration_log_job_fk",
+    "tbl": "job_arbitration_log",
+    "contype": "f"
+  },
+  {
+    "conname": "job_arbitration_log_job_id_not_null",
+    "tbl": "job_arbitration_log",
+    "contype": "n"
+  },
+  {
+    "conname": "job_arbitration_log_log_id_not_null",
+    "tbl": "job_arbitration_log",
+    "contype": "n"
+  },
+  {
+    "conname": "job_arbitration_log_pk",
+    "tbl": "job_arbitration_log",
+    "contype": "p"
+  },
+  {
+    "conname": "job_arbitration_log_request_fingerprint_not_null",
+    "tbl": "job_arbitration_log",
+    "contype": "n"
+  },
+  {
+    "conname": "job_arbitration_log_result_ck",
+    "tbl": "job_arbitration_log",
+    "contype": "c"
+  },
+  {
+    "conname": "job_arbitration_log_result_not_null",
+    "tbl": "job_arbitration_log",
+    "contype": "n"
+  },
+  {
+    "conname": "job_arbitration_log_time_created_not_null",
+    "tbl": "job_arbitration_log",
+    "contype": "n"
+  },
+  {
+    "conname": "job_submission_create_key_not_null",
+    "tbl": "job_submission",
+    "contype": "n"
+  },
+  {
+    "conname": "job_submission_create_key_uniq",
+    "tbl": "job_submission",
+    "contype": "u"
+  },
+  {
+    "conname": "job_submission_deliverable_not_null",
+    "tbl": "job_submission",
+    "contype": "n"
+  },
+  {
+    "conname": "job_submission_job_fk",
+    "tbl": "job_submission",
+    "contype": "f"
+  },
+  {
+    "conname": "job_submission_job_id_not_null",
+    "tbl": "job_submission",
+    "contype": "n"
+  },
+  {
+    "conname": "job_submission_pk",
+    "tbl": "job_submission",
+    "contype": "p"
+  },
+  {
+    "conname": "job_submission_review_memo_not_null",
+    "tbl": "job_submission",
+    "contype": "n"
+  },
+  {
+    "conname": "job_submission_review_status_enum",
+    "tbl": "job_submission",
+    "contype": "c"
+  },
+  {
+    "conname": "job_submission_review_status_not_null",
+    "tbl": "job_submission",
+    "contype": "n"
+  },
+  {
+    "conname": "job_submission_reviewed_by_fk",
+    "tbl": "job_submission",
+    "contype": "f"
+  },
+  {
+    "conname": "job_submission_submission_id_not_null",
+    "tbl": "job_submission",
+    "contype": "n"
+  },
+  {
+    "conname": "job_submission_time_created_not_null",
+    "tbl": "job_submission",
+    "contype": "n"
+  },
+  {
+    "conname": "job_submission_worker_fk",
+    "tbl": "job_submission",
+    "contype": "f"
+  },
+  {
+    "conname": "job_submission_worker_uid_not_null",
+    "tbl": "job_submission",
+    "contype": "n"
+  }
+]
+--- row counts ---
+[
+  {
+    "table": "job",
+    "rows": "45"
+  },
+  {
+    "table": "job_application",
+    "rows": "19"
+  },
+  {
+    "table": "job_arbitration_log",
+    "rows": "0"
+  },
+  {
+    "table": "job_submission",
+    "rows": "40"
+  }
+]

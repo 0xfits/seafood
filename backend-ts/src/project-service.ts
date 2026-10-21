@@ -34,7 +34,7 @@ import { getTransactionPool, readQuery, txQuery, withTransaction, type TxClient 
 import { postEvent } from './ledger';
 import { errorMessageOf, normalizeLedgerError } from './ledger-errors';
 import { nextSnowflake } from './item-id';
-import { ledgerErrorBody, sendVerbError, type JobVerbErr as VerbErr } from './job-service';
+import { ledgerErrorBody, sendVerbError, type VerbErr } from './verb-shape';
 import { listCampaignsByProject, type CampaignView } from './campaign-service';
 
 export { ledgerErrorBody, sendVerbError };

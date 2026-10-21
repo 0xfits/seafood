@@ -18,7 +18,6 @@ import {
   AdminAccessRecord,
   DatabaseService,
   SystemSettingsWriteError,
-  TaskProgressRecord,
   UserRecord,
   isAppConfigEnvelope,
   screenAppConfigEnvelope,
@@ -35,12 +34,9 @@ import { buildDriftAlertText, buildInfraAlertText, notifyOps, pingHeartbeat } fr
 import { errorMessageOf, ledgerErrorDiagnostics, normalizeLedgerError, toErrorResponse } from './ledger-errors';
 // P7-A：账本流水读口的 `kind` 过滤取值 = **冻结关闭集**（`ledger.spec` §5.1/R40，20 个；不复制/不自造）
 import { LEDGER_KINDS } from './ledger';
-// ★ S3（`R-9-103`）：J2/J3（报名 `/apply`、选定 `/accept`）路由已**下架**（`410 Gone`）⇒ 不再导入
-//   `applyToJob`/`acceptApplication`（服务层 verb 保留不删，仅不再被本层调用）；J4 `submitWork` 仍由本层接线。
-import { ledgerErrorBody, sendGone, sendVerbError, submitWork } from './job-service';
-// P4-B3c：招工**资金**编排（J1 托管 / J5 发放 / J6 退款 ⇒ `job_post_event`）
-// P4-B4a：J1 `publishJob`（§1.8 #1）/ J5 `settleJob` / J6 `refundJob` 由本片注册（`verifyJobSubmission` 沿用）
-import { publishJob, refundJob, settleJob, verifyJobSubmission } from './job-funds-service';
+// ★ 2026-10-21 job 域下线（migration 0070）：招工服务面（原 `job-service` / `job-funds-service`）整体移除。
+//   共享错误体 / verb 形状收敛到**无领域语义**的 `./verb-shape`（listing / currency / market / project / campaign 同用）。
+import { ledgerErrorBody, sendGone, sendVerbError } from './verb-shape';
 // P4-B4a：商品面（P1 上架/编辑/下架）—— §1.8 #7/#8；**本片首次导入整个模块**（v0.8 §1.8 现取 `grep` = 0）
 import { createListing, transitionListingStatus, updateListing, updateListingDetails, classifyListingPatchBody, getListingEditView } from './listing-service';
 // ★ 迁移 0060（Kevin 2026-10-20 第 3 条「统一商品 Id」）：详情读口的 `ref` 判定助手
@@ -73,16 +69,12 @@ import {
   reviewCurrency404,
   reviewCurrencyVerb,
 } from './currency-review-service';
-// 批 8⑤（`route-layer.spec` v2.10 §25 / `data-layer.spec` v0.17 §28）：合规审核（商品 / 招工仲裁）
+// 批 8⑤（`route-layer.spec` v2.10 §25 / `data-layer.spec` v0.17 §28）：合规审核（商品轴）
 //   · 读口 `GET /api/admin/listing` + 动作口 `POST /api/admin/listing/:listingId/takedown`（§25.2 · 闸 `review_tasks`）
-//   · 读口 `GET /api/admin/arbitration` + 动作口 `POST /api/admin/arbitration/:jobId`（§25.2 · 闸 `review_tasks`）
+// ★ 2026-10-21：招工仲裁面（`/api/admin/arbitration*`）随 job 域下线移除。
 import {
-  JOB_ARBITRATE_OPS_ACTION,
   LISTING_TAKEDOWN_OPS_ACTION,
-  arbitrateJobVerb,
-  job404,
   listing404,
-  parseJobStatusFilter,
   parseListingStatusFilter,
   reviewListingTakedownVerb,
 } from './compliance-review-service';
@@ -545,31 +537,6 @@ const requireAdmin = async (req: Request, res: Response, requiredPermission?: st
 };
 
 /**
- * ★ S16（可用性缺口：普通发布者本应能用 `/task/review` 待审队列）· 待审队列读口准入（count / list **共用**）。
- * 准入 = 「admin（持 `review_tasks`）**∨** 已登录用户」：
- *   · 未登录 ⇒ 走 `requireActor` **既有 401**（本助手返回 null，**不落 403**）；
- *   · admin ⇒ `employerFilterUid = null`（全局视图 · 与改前 `requireAdmin(review_tasks)` **逐字同判** ⇒ 零回归）；
- *   · 普通已登录用户 ⇒ `employerFilterUid = actor.user.uID`（仅其作为发布者 `job.employer_uid` 的 pending 提交）。
- * `count` 口与 `list` 口**共用**本助手产出的同一 `employerFilterUid` ⇒ 过滤谓词两处同源（不各写一套）。
- * ★ 未改 `POST /api/tasklist/:jID/verify` 的准入（仍 `requireAdmin(review_tasks)` · admin-only 零回归）；
- *   发布者的判定动作仍走 `POST /api/job/:jobId/review`（`requireJobOwnerOrAdmin`，已支持雇主）。
- */
-const resolveReviewQueueScope = async (
-  req: Request,
-  res: Response,
-): Promise<{ actor: ActorContext; employerFilterUid: number | null } | null> => {
-  const actor = await requireActor(req, res);
-  if (!actor) return null;
-
-  // admin 判定与 `requireAdmin(req, res, 'review_tasks')` 的放行条件**逐字同源**
-  //（`can_access_admin ∧ (is_admin ∨ permissions∋review_tasks)`）⇒ admin 路径零回归。
-  const isReviewAdmin = actor.adminAccess.can_access_admin
-    && (actor.adminAccess.is_admin || hasRequiredPermission(actor, 'review_tasks'));
-
-  return { actor, employerFilterUid: isReviewAdmin ? null : actor.user.uID };
-};
-
-/**
  * `GET /api/user` 载荷。
  *
  * ★ 0059（管理员可编辑他人商品 · 前端需知「我是否可代编」）：**加性**补一个 `admin` 子对象
@@ -592,10 +559,6 @@ const buildUserPayload = async (user: UserRecord, adminAccess?: AdminAccessRecor
     },
   };
 };
-
-const ensureOwnedTaskProgress = (taskProgress: TaskProgressRecord | null, userID: number) => (
-  taskProgress && taskProgress.uID === userID ? taskProgress : null
-);
 
 app.get('/', (req, res) => {
   sendSuccess(
@@ -747,49 +710,6 @@ app.get('/api/prize/all', async (req, res) => {
     //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
     // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
     return sendInfraMapped(res, 'prize.all', error);
-  }
-});
-
-app.get('/api/task/all', async (req, res) => {
-  try {
-    const { skip, limit } = getPagination(req);
-    const tasks = await DatabaseService.listTasks(skip, limit);
-    setPublicCache(res);
-    sendSuccess(res, tasks);
-  } catch (error) {
-    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
-    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
-    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
-    return sendInfraMapped(res, 'task.all', error);
-  }
-});
-
-app.get('/api/task/:tID', async (req, res) => {
-  try {
-    const tID = parseInteger(req.params.tID);
-    if (!tID) {
-      return sendRefNotFound(res, 'job', String(req.params.tID ?? ''), 'tID_not_found');
-    }
-
-    // P4-B2a（§3.1 裁定 E1 / §1 #10【保留·改语义】）：detail-miss 统一 404（**撤销** B1-b 的 200 空态）
-    const task = await DatabaseService.getTask(tID);
-    if (!task) {
-      return sendVerbError(res, {
-        ok: false,
-        status: 404,
-        code: 'LEDGER_REF_NOT_FOUND',
-        message: 'job not found',
-        details: { ref_type: 'job', ref_id: String(tID) },
-      });
-    }
-
-    setPublicCache(res);
-    sendSuccess(res, task);
-  } catch (error) {
-    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
-    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
-    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
-    return sendInfraMapped(res, 'task.detail', error);
   }
 });
 
@@ -1128,7 +1048,6 @@ const parseLedgerReadInt = (raw: string): { ok: true; value: bigint } | { ok: fa
 };
 
 app.get('/api/home', async (req, res) => {
-  const taskLimit = Math.min(12, Math.max(1, parseInteger(req.query.task_limit, 6)));
   const prizeLimit = Math.min(16, Math.max(1, parseInteger(req.query.prize_limit, 8)));
   res.setHeader('Vary', 'Authorization');
 
@@ -1144,8 +1063,10 @@ app.get('/api/home', async (req, res) => {
     // 安全面：本分支恒 `setPrivateNoStore` + `Vary: Authorization`（见下），匿名分支才 `setPublicCache`
     // ⇒ 续期头只挂在私有响应上，不污染公共缓存；匿名/坏 token 分支**不**续期（无主体、无会话起点）。
     if (actor) maybeIssueRenewedSession(res, actor.session);
-    const [tasks, prizes, claimedPrizeIds, asset] = await Promise.all([
-      DatabaseService.listTasks(0, taskLimit),
+    // ★ 2026-10-21 job 域下线（0070）：`tasks` 腿（原 `DatabaseService.listTasks` ⇒ `public.job`）整体移除。
+    //   载荷键 `tasks` **保留为空数组**（形状零变更，前端首页消费方随前端单收敛）；首页任务位由
+    //   `GET /api/home/campaign-tasks`（campaign 域）承接。
+    const [prizes, claimedPrizeIds, asset] = await Promise.all([
       DatabaseService.listPrizes(0, prizeLimit),
       actor
         ? DatabaseService.listClaimedPrizeIdsByUser(actor.user.uID)
@@ -1162,7 +1083,7 @@ app.get('/api/home', async (req, res) => {
     }
 
     sendSuccess(res, {
-      tasks,
+      tasks: [] as unknown[],
       prizes,
       claimed_prize_ids: claimedPrizeIds,
       user_points: asset?.points || 0,
@@ -1190,131 +1111,6 @@ app.get('/api/prize-item', async (req, res) => {
     // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
     return sendInfraMapped(res, 'prize-item.list', error);
   }
-});
-
-app.get('/api/task-progress', async (req, res) => {
-  const actor = await requireActor(req, res);
-  if (!actor) return;
-
-  try {
-    const { skip, limit } = getPagination(req);
-    const taskProgressItems = await DatabaseService.listTaskProgressByUser(actor.user.uID, skip, limit);
-    sendSuccess(res, taskProgressItems);
-  } catch (error) {
-    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
-    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
-    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
-    return sendInfraMapped(res, 'task-progress.list', error);
-  }
-});
-
-app.get('/api/task-progress/:jID', async (req, res) => {
-  // R-9-86（§5.296 · HIGH 隐私面）：本读口回包含 `info_input` = **交付物正文**
-  // （`database.ts getTaskProgress` 的 `s.deliverable AS info_input`）⇒ **必须**鉴权 + 归属校验。
-  // ★ S2（`R-9-100`）：`:jID` 语义由 `application_id` **改为 `submission_id`**（`getTaskProgress` 现按
-  //   `job_submission.submission_id` 取数、`uID` = 提交者 `worker_uid`）；归属校验**不降级**。语义（R-9-86 逐字）：
-  //   · 未登录 / 凭据无效 ⇒ **401**（`requireActor` 既有：R107 `AUTH_UNAUTHORIZED`）
-  //   · 已登录但**非提交者** ⇒ **404**（与 miss 分支**同形**，不泄漏存在性；★ 不用 403）
-  //   · 提交者本人 ⇒ **200**（成功分支 `data` 形状逐字不变）
-  const actor = await requireActor(req, res);
-  if (!actor) return;
-
-  try {
-    const jID = parseInteger(req.params.jID);
-    if (!jID) {
-      return sendRefNotFound(res, 'job_submission', String(req.params.jID ?? ''), 'jID_not_found');
-    }
-
-    // 归属校验复用既有 `ensureOwnedTaskProgress`（与 submit 路由同源）；miss 与「非本人」合流 ⇒ 同形 404。
-    const taskProgress = ensureOwnedTaskProgress(
-      await DatabaseService.getTaskProgress(jID),
-      actor.user.uID,
-    );
-    if (!taskProgress) {
-      return sendRefNotFound(res, 'job_submission', String(jID), 'jID_not_found');
-    }
-
-    sendSuccess(res, taskProgress);
-  } catch (error) {
-    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
-    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
-    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
-    return sendInfraMapped(res, 'task-progress.detail', error);
-  }
-});
-
-// ---- J4 · 提交交付物（写口；`job-service.ts` `submitWork`；★ S2 任务模型改造 `R-9-99`）----
-// ★ S3（路由层语义同步，与 S2 一致 · 现取确认）：
-//   · URL 参数名仍写作 `:identifier`（**保留路径兼容**，前端 URL 不变），但其**语义 = 目标 `job_id`**
-//     （`R-9-99`：提交即参与 ⇒ 不再解析 / 不再要求 `job_application`）；
-//   · 本路由把该值**原样**当 `job_id` 传给 `submitWork({ identifier })`（`job-service.ts:133`，逐字一致）⇒ 无二次解轴。
-app.post('/api/task-progress/:identifier/submit', async (req, res) => {
-  const actor = await requireActor(req, res);
-  if (!actor) return;
-
-  const identifier = parseInteger(req.params.identifier);
-  const infoInput = String(req.body?.info_input || '').trim();
-  const createKeyRaw = req.body?.create_key ?? req.get('idempotency-key') ?? undefined;
-
-  if (!identifier) {
-    return sendRefNotFound(res, 'job', String(req.params.identifier ?? ''), 'job_not_found');
-  }
-
-  if (!infoInput) {
-    return sendError(res, 400, 'info_input is required');
-  }
-
-  try {
-    // ★ S2（`R-9-99`）：提交**无报名前置**、**任何已登录 actor（含发布者本人）**可提交、
-    //   **同一人可多次提交**；`batt` 闸已由「报名」移到「提交」（409 + reason `BATT_BELOW_ACCEPT_THRESHOLD` 逐字不变）。
-    //   ⇒ 不再用读口预证归属；`identifier` 语义 = 目标 **`job_id`**（不再解析 `job_application`）。
-    //   提交落 `job_submission`（review_status='pending'），**无分录**（DL99/R3）；miss⇒404、非 open⇒409。
-    const result = await submitWork({
-      identifier,
-      workerUid: actor.user.uID,
-      deliverable: infoInput,
-      createKeyRaw,
-    });
-
-    if (!result.ok) {
-      return sendVerbError(res, result);
-    }
-
-    // 成功分支 data 键集**冻结**（§2 母约束 F1）：仍为 TaskProgressRecord 9 键；
-    // 同键重放顶层标记 `idempotent_replay:true`（§3.2「200（良性）」/ R106），不改 data 形状
-    return sendSuccess(res, result.view, 'Task progress submitted', 200, result.replay ? { idempotent_replay: true } : undefined);
-  } catch (error) {
-    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
-    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
-    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
-    return sendInfraMapped(res, 'task-progress.submit', error);
-  }
-});
-
-// P6-B5-CLAIM（批 5 = sunset）：旧模型（管理员后台发 task/reward）已废弃 ⇒ `POST /api/task-progress/claim/:jID` **退役**。
-//   奖励/积分发放的唯一路径 = A1 管理员调分（已接账本 `mint`/`burn`）⇒ 无功能缺口。
-//   硬边界：**在访问任何表之前**直接 `410` —— 旧实现体经 `DatabaseService` 读 `asset`/`task_progress`（迁移面从未建过该两表）
-//   ⇒ 恒 `42P01` ⇒ 被吞成 `500`（本仓今日唯一可达的「撞缺表」面）⇒ handler 路径**零表访问**。
-//   形状 = **照抄既有 410 面**（同一共享产出器 `./job-service` `ledgerErrorBody` ⇒ R107 `{error:{code,message,i18n_key,details}}`，
-//   code=`LEDGER_REF_NOT_FOUND`，`i18n_key=ledger.err.LEDGER_REF_NOT_FOUND`，details={`ref_type`,`ref_id`,`http_status`,`sunset`}）；
-//   **机读 reason** 落 `details.reason`（本仓 S6 惯例，见 `frontend/src/test/unit/auth.test.js:107`）。
-//   撤 `requireActor` 前置（同 B2a/B2b 先例：弃用面不得把「已下线」伪装成「未授权」；本面零副作用 ⇒ 无令牌下亦可观测 410）。
-const CLAIM_RETIRED_REASON = 'CLAIM_RETIRED';
-const CLAIM_RETIRED_REF_ID = '/api/task-progress/claim/:jID';
-const CLAIM_RETIRED_SUNSET = '批 5 sunset（未决 §7-1：过期日待 Kevin 定）';
-
-app.post('/api/task-progress/claim/:jID', (_req, res) => {
-  return res.status(410).json(ledgerErrorBody(
-    'LEDGER_REF_NOT_FOUND',
-    `endpoint deprecated: ${CLAIM_RETIRED_REF_ID}`,
-    {
-      ref_type: 'endpoint',
-      ref_id: CLAIM_RETIRED_REF_ID,
-      http_status: 410,
-      sunset: CLAIM_RETIRED_SUNSET,
-      reason: CLAIM_RETIRED_REASON,
-    },
-  ));
 });
 
 app.get('/api/shard', async (req, res) => {
@@ -1738,13 +1534,13 @@ app.get('/api/rating/summary', async (req, res) => {
 app.get('/api/timeliness', async (req, res) => {
   const actor = await requireActor(req, res);
   if (!actor) return;
-  const jobRaw = req.query.job_id ?? req.query.jobId;
+  // ★ 2026-10-21（0070）：招工轴（`?job_id` / `jobPassRate` / `posterAvgDays` / `workerAvgDays` /
+  //   `workerPassRate`）随 job 域下线置 `null`（原「无数据 ⇒ null」同语义）；载荷键**逐字保留**，
+  //   前端按「暂无数据」渲染，键的移除归前端单。
   const listingRaw = req.query.listing_id ?? req.query.listingId;
-  const jobN = jobRaw === undefined || jobRaw === '' ? 0 : parseInteger(jobRaw, 0);
   const listingN = listingRaw === undefined || listingRaw === '' ? 0 : parseInteger(listingRaw, 0);
   try {
     const t = await DatabaseService.getTimeliness(actor.user.uID, {
-      jobId: jobN > 0 ? jobN : undefined,
       listingId: listingN > 0 ? listingN : undefined,
     });
     return sendSuccess(res, {
@@ -1772,7 +1568,8 @@ app.post('/api/rating', async (req, res) => {
   const targetIdRaw = body.targetId ?? body.target_id;
   const targetId = parseInteger(targetIdRaw, 0);
   const starsNum = Number(body.stars);
-  if (!(targetType === 'job' || targetType === 'listing')) {
+  // ★ 2026-10-21（0070）：评分标的闭集从 `{job, listing}` 收为 `{listing}`（招工面已无对象可评）。
+  if (targetType !== 'listing') {
     return sendVerbError(res, adminVerbError(400, 'LEDGER_AMOUNT_INVALID',
       { field: 'target_type', reason: 'RATING_TARGET_TYPE_INVALID' }, 'Target type is invalid'));
   }
@@ -2198,22 +1995,9 @@ app.post('/api/admin/user/update', async (req, res) => {
 //   一律 410 + R107 形状（code=LEDGER_REF_NOT_FOUND）+ 登记过期日（DL35 过渡条；过期日待 Kevin 定，未决 §7-1）
 //   注：**不再前置 requireAdmin**——弃用面「一律 410」须在无令牌下可观测（与本批 auth/register 的先例一致）；
 //       该路径已无任何副作用，故不存在信息泄露。
-const ADMIN_TASK_SUNSET = '批 4 删路径（未决 §7-1：过期日待 Kevin 定）';
 // P4-B2b：商品面弃用面的过期日（逐字取自 §5.1 每行的「过期日」列；未决 §7-1 ⇒ 上线日待 Kevin 定）
 const ADMIN_PRIZE_SUNSET = '批 4 删路径（未决 §7-1：过期日待 Kevin 定）';
 const LEGACY_REWARD_WRITE_SUNSET = '批 3 末删除路径（§5.1 碎片写口①/宝箱写口；未决 §7-1：过期日待 Kevin 定）';
-
-app.post('/api/admin/task/create', async (_req, res) => {
-  return sendGone(res, '/api/admin/task/create', ADMIN_TASK_SUNSET);
-});
-
-app.post('/api/admin/task/update', async (_req, res) => {
-  return sendGone(res, '/api/admin/task/update', ADMIN_TASK_SUNSET);
-});
-
-app.post('/api/admin/task/delete', async (_req, res) => {
-  return sendGone(res, '/api/admin/task/delete', ADMIN_TASK_SUNSET);
-});
 
 app.post('/api/admin/prize/create', async (_req, res) => {
   // P4-B2b：§1 #42 + §5.1「后台发布商品」+ C3 ①（整体删除）⇒ 一律 410 + R107 形状。
@@ -2267,106 +2051,6 @@ app.get('/api/user/stats', async (req, res) => {
     //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
     // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
     return sendInfraMapped(res, 'user.stats', error);
-  }
-});
-
-app.get('/api/tasklist/pending-verification/count', async (req, res) => {
-  // ★ S16：准入 = 「admin（持 `review_tasks`）∨ 已登录」；普通发布者只看**自己任务**上的 pending 提交
-  //   （过滤 uid 与列表口**同源** = `resolveReviewQueueScope`）；未登录 ⇒ 既有 401（**不是** 403）。
-  const scope = await resolveReviewQueueScope(req, res);
-  if (!scope) return;
-
-  try {
-    const count = await DatabaseService.countPendingVerification(scope.employerFilterUid);
-    sendSuccess(res, { count });
-  } catch (error) {
-    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
-    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
-    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
-    return sendInfraMapped(res, 'tasklist.pending.count', error);
-  }
-});
-
-app.get('/api/tasklist/pending-verification', async (req, res) => {
-  // ★ S16：admin（持 `review_tasks`）⇒ `employerFilterUid = null`（全局视图 · **既有行为零回归**）；
-  //   普通发布者 ⇒ 仅其作为发布者（`job.employer_uid`）的任务上的 pending 提交（与 count 口同源）。
-  const scope = await resolveReviewQueueScope(req, res);
-  if (!scope) return;
-
-  try {
-    const { skip, limit } = getPagination(req);
-    const items = await DatabaseService.listPendingVerification(skip, limit, scope.employerFilterUid);
-    sendSuccess(res, items);
-  } catch (error) {
-    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
-    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
-    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
-    return sendInfraMapped(res, 'tasklist.pending.list', error);
-  }
-});
-
-app.post('/api/tasklist/:jID/verify', async (req, res) => {
-  const actor = await requireAdmin(req, res, 'review_tasks');
-  if (!actor) return;
-
-  const approved = req.body?.approved !== false;
-
-  try {
-    // ========================================================================
-    // P4-B3c（§1 #49【保留·改接】· §4.2 J5/J6 · §4.0 R4「审核通过 → 发放必须原子」）
-    //   · `approve`        ⇒ `job_post_event(op='settle')` = `job_payout`×2 + `job_fee`×2 + `commission`×2N
-    //   · `approved:false` ⇒ `job_post_event(op='refund')` = `job_escrow_refund`×2（`to_status='rejected'`）
-    //   资金写入与 `job_submission.review_status` **结论位**在**同一条 SQL 语句**内
-    //   （`DatabaseService.reviewJobSubmission`）⇒ 不存在「已审核但没发放」/「状态 settled 但没发放」。
-    //   错误面统一 R107（§3.3-8）；成功面**键集冻结**（§2 母约束 F1）。
-    // ========================================================================
-    const result = await verifyJobSubmission({
-      identifierRaw: req.params.jID,
-      approved,
-      actorUid: actor.user.uID,
-    });
-    if (!result.ok) return sendVerbError(res, result);
-
-    // 成功面：仍由 `getTaskProgress`（9 键）产出；approve 分支再补 `task`/`user`（与改接前逐键一致）
-    // ★ S3 修（`R-9-100/101`）：`getTaskProgress` 读口**已换轴 = `submission_id`**（`database.ts:2586`
-    //   `s.submission_id AS "jID"`）⇒ 成功面**不得**再用申请号 `result.applicationId`（旧轴 ⇒ 会读到别的行 / miss）。
-    //   改传**提交号**：与解析/结算**同源**的 URL 参数 `:jID`（`R-9-100` 起读口 identifier = `submission_id`；
-    //   后台待审队列 `listPendingVerification` 与前端契约同步换轴随 S4 / S3b）。
-    const submissionId = Number(req.params.jID);
-    const record = await DatabaseService.getTaskProgress(submissionId);
-    if (!record) {
-      return sendVerbError(res, {
-        ok: false,
-        status: 404,
-        code: 'LEDGER_REF_NOT_FOUND',
-        message: 'Referenced object not found',
-        details: { ref_type: 'job_submission', ref_id: String(submissionId) },
-      });
-    }
-
-    if (!approved) {
-      return sendSuccess(res, record, 'Task progress rejected', 200, result.replay ? { idempotent_replay: true } : undefined);
-    }
-
-    const [task, user] = await Promise.all([
-      DatabaseService.getTask(record.tID),
-      DatabaseService.getUserById(record.uID),
-    ]);
-    return sendSuccess(res, {
-      ...record,
-      task,
-      user: user
-        ? {
-            uID: user.uID,
-            EVM: user.EVM,
-            is_admin: user.is_admin,
-          }
-        : null,
-    }, 'Task progress verified', 200, result.replay ? { idempotent_replay: true } : undefined);
-  } catch (error) {
-    const normalized = normalizeLedgerError(unwrapInfraCause(error));
-    console.error('[tasklist.verify] infra failure:', JSON.stringify(ledgerErrorDiagnostics(error)));
-    return res.status(normalized.httpStatus).json(toErrorResponse(normalized));
   }
 });
 
@@ -2642,44 +2326,6 @@ const sendRefNotFound = (res: Response, refType: string, refId: string, reason: 
     ref_type: refType, ref_id: refId || 'null', reason,
   }));
 
-/**
- * ★ 批 8⑤ 归属闸（`R-8-25①` / `R-8-26` · `route-layer.spec` v2.10 §25.6）：`POST /api/job/:jobId/review`
- * （`:1884`）与 `POST /api/job/:jobId/cancel`（`:1908`）准入 = 「**该 job 的雇主本人** ∨ 持 `review_tasks`
- * 的管理员」（按已冻结 D5「雇主自审 + 平台仲裁兜底」）。
- *   · **★ 既有 admin 通道保留（`R-8-25①` 逐字：不得删除 ⇒ 零回归）** —— 非雇主支**照旧**走既有
- *     `requireAdmin(req, res, 'review_tasks')`（**不是替换**）；
- *   · 拒绝形态 = **既有** `403 AUTH_FORBIDDEN` + `details.reason ∈ {NOT_ADMIN, PERMISSION_NOT_GRANTED}`
- *     （**零新增错误码、零新增 reason 常量**：`AUTH_REASONS` 三值不动）。
- * 判定顺序（§25.6(a) 写死）：① 无 token ⇒ `401`（`requireActor`）；② `:jobId` 非数字 / job 不存在 ⇒ `404`
- * （既有 detail-miss）；③ `actor.uid == job.employer_uid` ⇒ 放行（雇主支 · 无键）；④ 否则走既有 admin 通道；
- * ⑤ 皆不满足 ⇒ 拒绝。
- * 返回放行 actor；已按既有形状落响应 ⇒ `null`。
- */
-const requireJobOwnerOrAdmin = async (
-  req: Request,
-  res: Response,
-  jobIdRaw: string,
-): Promise<ActorContext | null> => {
-  const actor = await requireActor(req, res);
-  if (!actor) return null;
-
-  if (!/^[1-9]\d*$/.test(jobIdRaw)) {
-    sendRefNotFound(res, 'job', jobIdRaw, 'job_not_found');
-    return null;
-  }
-
-  const employerUid = await DatabaseService.getJobEmployerUid(Number(jobIdRaw));
-  if (employerUid === null) {
-    sendRefNotFound(res, 'job', jobIdRaw, 'job_not_found');
-    return null;
-  }
-  if (Number(actor.user.uID) === Number(employerUid)) {
-    return actor; // ③ 雇主自审支（归属支 · 无键）
-  }
-
-  // ④ 既有 admin 通道（★ 保留，不得删除）；⑤ 皆不满足 ⇒ requireAdmin 落既有 403 + reason
-  return requireAdmin(req, res, 'review_tasks');
-};
 
 /** 服务层/DB 抛出的基础设施异常 ⇒ 既有 §14 分类器（R107 形状；原始 message/stack 只进服务端日志，R108） */
 const sendInfraMapped = (res: Response, scope: string, error: unknown) => {
@@ -2697,231 +2343,6 @@ const withCreateKey = (req: Request): Record<string, unknown> => {
 
 const createKeyRawOf = (req: Request): unknown =>
   req.body?.create_key ?? req.body?.idempotency_key ?? req.body?.idempotencyKey ?? req.get('idempotency-key') ?? undefined;
-
-// ---- A1 · J1 招工发布 + 托管（§1.8 #1；`job-funds-service.ts:149` `publishJob`）--------
-app.post('/api/job', async (req, res) => {
-  const actor = await requireActor(req, res);
-  if (!actor) return;
-
-  try {
-    // `create_key` 必传（fail-loud，§4.4-14）；`reward`/`cid` 原样交服务层（§4.8：金额 = A 类客户端值）
-    const result = await publishJob({ actorUid: actor.user.uID, body: withCreateKey(req) });
-    if (!result.ok) return sendVerbError(res, result);
-    // P6-TR-1c-A：招工 title/description 译文登记（前台 pending + 后台 waitUntil；失败不影响本响应）
-    {
-      const view = result.view as Record<string, unknown>;
-      const jobId = view.job_id === undefined || view.job_id === null ? '' : String(view.job_id);
-      const title = typeof req.body?.title === 'string' ? req.body.title : '';
-      const description = typeof req.body?.description === 'string' ? req.body.description : '';
-      const fields: Record<string, string> = {};
-      if (title.trim()) fields.title = title;
-      if (description.trim()) fields.description = description;
-      if (jobId && Object.keys(fields).length) {
-        await enqueueTranslation({ entityType: 'job', entityId: jobId, fields });
-      }
-    }
-    return sendSuccess(res, result.view, result.replay ? 'Job published (idempotent replay)' : 'Job published', 200,
-      result.replay ? { idempotent_replay: true } : undefined);
-  } catch (error) {
-    return sendInfraMapped(res, 'job.publish', error);
-  }
-});
-
-// ---- A2 · J2 报名【★ S3 下架 · `R-9-103`】—— 旧模型（管理员后台发 task/reward）废弃 ---------
-//   `R-9-99` 取消「报名 / 选定」两个环节（提交即参与）⇒ `POST /api/job/:jobId/apply` **退役** ⇒ **`410 Gone`**。
-//   硬边界：**在访问任何表之前**直接 `410` —— handler 路径**零表访问 / 零副作用**（旧实现体经 `applyToJob`
-//   ⇒ `DatabaseService.applyToJob` 写 `job_application`；`job_application` 已**停写**（`R-9-100` 保留历史行））。
-//   形状 = **照抄既有 410 面**（同一共享产出器 `./job-service` `ledgerErrorBody` ⇒ R107 `{error:{code,message,i18n_key,details}}`，
-//   code=`LEDGER_REF_NOT_FOUND`，`i18n_key=ledger.err.LEDGER_REF_NOT_FOUND`，details={`ref_type`,`ref_id`,`http_status`,`sunset`,`reason`}）；
-//   **机读 reason** 落 `details.reason` = 稳定常量 **`APPLY_RETIRED`**（`route-layer.spec` v2.23 §34.7）。
-//   撤 `requireActor` 前置（同 `CLAIM_RETIRED` / B2a/B2b 先例：弃用面不得把「已下线」伪装成「未授权」；零副作用 ⇒ 无令牌下亦可观测 410）。
-const APPLY_RETIRED_REASON = 'APPLY_RETIRED';
-const APPLY_RETIRED_REF_ID = '/api/job/:jobId/apply';
-const APPLY_RETIRED_SUNSET = '任务模型改造（`R-9-103`）sunset（未决 §7-1：过期日待 Kevin 定）';
-
-app.post('/api/job/:jobId/apply', (_req, res) => {
-  return res.status(410).json(ledgerErrorBody(
-    'LEDGER_REF_NOT_FOUND',
-    `endpoint deprecated: ${APPLY_RETIRED_REF_ID}`,
-    {
-      ref_type: 'endpoint',
-      ref_id: APPLY_RETIRED_REF_ID,
-      http_status: 410,
-      sunset: APPLY_RETIRED_SUNSET,
-      reason: APPLY_RETIRED_REASON,
-    },
-  ));
-});
-
-// ---- A3 · J3 雇主选定打工人【★ S3 下架 · `R-9-103`】—— 「选定」环节已取消 -------------------
-//   `R-9-99` 取消「选定」环节 ⇒ `POST /api/job/:jobId/accept` **退役** ⇒ **`410 Gone`**。
-//   形状 / 硬边界 / 撤 `requireActor` 口径与上条 `apply` 面**逐字同源**（同一 `ledgerErrorBody` R107 产出器）；
-//   `details.reason` 稳定常量 = **`ACCEPT_RETIRED`**（`route-layer.spec` v2.23 §34.7）。
-const ACCEPT_RETIRED_REASON = 'ACCEPT_RETIRED';
-const ACCEPT_RETIRED_REF_ID = '/api/job/:jobId/accept';
-const ACCEPT_RETIRED_SUNSET = '任务模型改造（`R-9-103`）sunset（未决 §7-1：过期日待 Kevin 定）';
-
-app.post('/api/job/:jobId/accept', (_req, res) => {
-  return res.status(410).json(ledgerErrorBody(
-    'LEDGER_REF_NOT_FOUND',
-    `endpoint deprecated: ${ACCEPT_RETIRED_REF_ID}`,
-    {
-      ref_type: 'endpoint',
-      ref_id: ACCEPT_RETIRED_REF_ID,
-      http_status: 410,
-      sunset: ACCEPT_RETIRED_SUNSET,
-      reason: ACCEPT_RETIRED_REASON,
-    },
-  ));
-});
-
-// ---- A4 · J4 提交交付物（**可选别名**；§1.8 #4「服务已接线、仅新路径名未注册」）----------
-// 与既有 `POST /api/task-progress/:identifier/submit`（`:583`）**同 service verb ⇒ 成功面键集逐键一致**（§2 母约束 F1）；
-// 交付物字段名以 §4.2 J4 的 `deliverable` 为准，**兼容**既有前端在用的 `info_input`（既有路径逐字）。
-app.post('/api/job/:jobId/submit', async (req, res) => {
-  const actor = await requireActor(req, res);
-  if (!actor) return;
-
-  const identifier = parseInteger(req.params.jobId);
-  const deliverable = String(req.body?.deliverable ?? req.body?.info_input ?? '').trim();
-
-  // ★ S3（同族扫面·申请轴落点收口）：`identifier` = 目标 `job_id`（`R-9-99`）⇒ miss 标签撤 `job_application`，改 `job`。
-  if (!identifier) return sendRefNotFound(res, 'job', String(req.params.jobId ?? ''), 'job_not_found');
-  if (!deliverable) return sendError(res, 400, 'info_input is required'); // 与既有 `:595` 逐字一致（别名面）
-
-  try {
-    const result = await submitWork({
-      identifier,
-      workerUid: actor.user.uID,
-      deliverable,
-      createKeyRaw: createKeyRawOf(req),
-    });
-    if (!result.ok) return sendVerbError(res, result);
-    return sendSuccess(res, result.view, 'Task progress submitted', 200,
-      result.replay ? { idempotent_replay: true } : undefined);
-  } catch (error) {
-    return sendInfraMapped(res, 'job.submit', error);
-  }
-});
-
-// ---- A5 · J5/J6 审核（approve ⇒ settle / reject ⇒ refund `to_status='rejected'`）----------
-// 权限（**批 8⑤ 归属闸** · `R-8-25①` · `route-layer.spec` v2.10 §25.6）：准入 = 「该 job 的**雇主本人**
-//   ∨ 持 `review_tasks` 的管理员」（按已冻结 D5「雇主自审 + 平台仲裁兜底」）；**★ 既有 admin 通道保留**
-//   （`requireJobOwnerOrAdmin` 的 OR 一支 ⇒ **零回归**）。
-// `req.body.approved !== false` ⇒ settle（`settleJob`），`=== false` ⇒ refund（`refundJob`）—— 前端契约同 `:1103`。
-// ★ S6（`R-9-100`/`R-9-101`）· **逐笔判定**：body 可选 `submission_id`（兼容别名 `submissionId`）
-//   ⇒ 原样转发服务层 `settleJob({submissionIdRaw})`（S4a 已收该入参 ⇒ 结算键/指纹含提交号、
-//   `review_status='approved'` 与资金**同一语句**）；**不带提交号 ⇒ 旧调用逐字走遗留单笔分支（零回归）**。
-//   ★ spec 现取（未冻结该 body 形态）：已冻结面 = **路径 `POST /api/job/:jobId/review` + body `{approved}`
-//   + 成功键集 15 键**（`route-layer.spec.md:33/91` · §1.11 Q7），**未冻结「提交号字段名」** ⇒ 本片取
-//   **最小变体** `{approved, submission_id}`（别名 `submissionId`）⇒ **待 Jing 回写 spec**（登记见报告）。
-//   ★ S6b（`R-9-99`/`R-9-101`）· **逐笔 reject 接线**：带提交号 + `approved:false` ⇒ **按提交判不合格**
-//   （零资金 · 只落该提交 `review_status='rejected'` · **job 保持 `open`** ⇒ 同人可再提），
-//   走 S4a 已入库服务层 `DatabaseService.rejectJobSubmission`（**不另写**）。
-//   修前事实（严重错误）：`approved:false` **恒走** `refundJob` 整单退（退**整单** + job→`rejected`）⇒ 带提交号时
-//   会误退整单并取消任务。现按「**带提交号** vs **不带提交号**」分支化：
-//     · 带提交号 + `approved:true`  ⇒ `settleJob({submissionIdRaw})`（S6 已接 · 逐笔发放，R4 原子）；
-//     · 带提交号 + `approved:false` ⇒ `rejectJobSubmission`（逐笔 · 零资金 · 该提交 `rejected` · job 保持 `open`）；
-//     · **不带提交号** ⇒ **保持现行为（零回归）**：`approved:true` 走遗留单笔 `settleJob`；`approved:false` 整单 `refundJob`。
-app.post('/api/job/:jobId/review', async (req, res) => {
-  const jobIdRaw = String(req.params.jobId ?? '').trim();
-  const actor = await requireJobOwnerOrAdmin(req, res, jobIdRaw);
-  if (!actor) return;
-
-  const approved = req.body?.approved !== false;
-  // ★ S6/S6b：逐笔提交号（canonical `submission_id`，兼容别名 `submissionId`；三者全缺 ⇒ 遗留分支）
-  const submissionIdRaw = req.body?.submission_id ?? req.body?.submissionId;
-  const hasSubmission = submissionIdRaw !== undefined && submissionIdRaw !== null
-    && String(submissionIdRaw).trim() !== '';
-
-  try {
-    // ★★ S6b：带提交号 + 判不合格 ⇒ **逐笔驳回**（零资金 · 该提交 `rejected` · job 保持 `open`）。
-    if (hasSubmission && !approved) {
-      const subIdText = String(submissionIdRaw).trim();
-      const subRefMissing = {
-        ok: false as const, status: 404, code: 'LEDGER_REF_NOT_FOUND', message: 'Referenced object not found',
-        details: { ref_type: 'job_submission', ref_id: subIdText || 'null', field: 'submission_id',
-          reason: 'submission_not_found', job_id: jobIdRaw },
-      };
-      if (!/^\d+$/.test(subIdText) || Number(subIdText) <= 0) return sendVerbError(res, subRefMissing);
-      // 归属校核：该提交必须属于本 job（防「以 job A 的归属权驳回 job B 的提交」跨 job 越权）。
-      const target = await DatabaseService.resolveReviewTarget(Number(subIdText));
-      if (!target || String(target.jobId) !== jobIdRaw) return sendVerbError(res, subRefMissing);
-      const rejected = await DatabaseService.rejectJobSubmission({
-        submissionId: Number(subIdText),
-        reviewedBy: actor.user.uID,
-        reviewMemo: `job reject:${jobIdRaw}:${subIdText}`,
-      });
-      if (rejected <= 0) {
-        return sendVerbError(res, {
-          ok: false as const, status: 409, code: 'LEDGER_CURRENCY_INVALID_TRANSITION',
-          message: 'Business state transition rejected',
-          details: { field: 'job_submission.review_status', reason: 'job_review_status_invalid',
-            from: target.submissionStatus, to: 'rejected', submission_id: subIdText },
-        });
-      }
-      const record = await DatabaseService.getTaskProgress(Number(subIdText));
-      return sendSuccess(res, record ?? {
-        submission_id: subIdText, job_id: jobIdRaw, worker_uid: String(target.workerUid), review_status: 'rejected',
-      }, 'Job submission rejected');
-    }
-
-    const result = approved
-      ? await settleJob({ jobIdRaw, submissionIdRaw, reviewerUid: actor.user.uID }) // 审核人 ⇒ 结论位与资金**同一语句**（R4 原子）
-      : await refundJob({ jobIdRaw, toStatusRaw: 'rejected', reviewerUid: actor.user.uID });
-    if (!result.ok) return sendVerbError(res, result);
-    return sendSuccess(res, result.view, approved ? 'Job settled' : 'Job rejected', 200,
-      result.replay ? { idempotent_replay: true } : undefined);
-  } catch (error) {
-    return sendInfraMapped(res, 'job.review', error);
-  }
-});
-
-// ---- A5b · S6 逐条提交读口（`GET /api/job/:jobId/submissions`）--------------------------
-// ★ 路径 = **spec 已冻结**（`docs/data-layer.spec.md:281`：「路由 `GET /api/job/:jobId/submissions`」）；
-//   **返回形状 / 字段名 spec 未冻结** ⇒ 本片取**最小列集**（提交号 / 任务号 / 提交人 / 交付物 /
-//   审核状态 / 审核人 / 审核时点 / 审核备注 / 提交时点）⇒ **待 Jing 回写 spec**（登记见报告）。
-// 准入（Zang 裁 D · 与 `/review` 同族）= 「该 job 的**雇主本人** ∨ 持 `review_tasks` 的管理员」——
-//   **复用既有 `requireJobOwnerOrAdmin`（不另写）**：① 无 token ⇒ 401；② `:jobId` 非数字 / job 不存在
-//   ⇒ 404（既有 detail-miss）；③ 雇主本人 ⇒ 放行；④ 否则既有 admin 通道；⑤ 皆不满足 ⇒ 既有
-//   `403 AUTH_FORBIDDEN` + `reason ∈ {NOT_ADMIN, PERMISSION_NOT_GRANTED}`（**零新增码 / 零新增 reason**）。
-//   ★ 惯例对照（登记）：同族读口 `/api/task-progress/:jID`（`:885`）对「已登录取非本人」取 **404**
-//   （不泄漏存在性）；本口**取 403** —— 因它复用「雇主 ∨ admin」归属闸（既有冻结形态 = 403），
-//   且 job 本身是公开对象（列表可见）⇒ 存在性非秘密。**待 Zang 复核**（见报告§同族扫面）。
-app.get('/api/job/:jobId/submissions', async (req, res) => {
-  const jobIdRaw = String(req.params.jobId ?? '').trim();
-  const actor = await requireJobOwnerOrAdmin(req, res, jobIdRaw);
-  if (!actor) return;
-
-  try {
-    const { skip, limit } = getPagination(req);
-    const submissions = await DatabaseService.listJobSubmissions(Number(jobIdRaw), skip, limit);
-    setPrivateNoStore(res); // 交付物正文属隐私面（R-9-86 同向）⇒ 私有、禁缓存
-    return sendSuccess(res, submissions);
-  } catch (error) {
-    return sendInfraMapped(res, 'job.submissions', error);
-  }
-});
-
-// ---- A6 · J6 取消 → 退托管（§1.8 #6；`job-funds-service.ts:237` `refundJob`，`to_status='cancelled'`）----
-// 权限（**批 8⑤ 归属闸** · `R-8-26` · `route-layer.spec` v2.10 §25.6）：准入 = 「**雇主本人** ∨ 持
-//   `review_tasks`」；**★ 既有 admin 通道保留**（`requireJobOwnerOrAdmin` 的 OR 一支 ⇒ **零回归**）。
-//   （原注释「雇主可取消自己的招工…登记待 Zang 裁定」由 `R-8-26` 收口 ⇒ 本片兑现。）
-//   并**不传 `reviewerUid`**（服务层注释口径：「无审核人 ⇒ 只做资金 + 业务行状态」⇒ 不写结论位）。
-app.post('/api/job/:jobId/cancel', async (req, res) => {
-  const jobIdRaw = String(req.params.jobId ?? '').trim();
-  const actor = await requireJobOwnerOrAdmin(req, res, jobIdRaw);
-  if (!actor) return;
-
-  try {
-    const result = await refundJob({ jobIdRaw, toStatusRaw: 'cancelled' });
-    if (!result.ok) return sendVerbError(res, result);
-    return sendSuccess(res, result.view, result.replay ? 'Job cancelled (idempotent replay)' : 'Job cancelled', 200,
-      result.replay ? { idempotent_replay: true } : undefined);
-  } catch (error) {
-    return sendInfraMapped(res, 'job.cancel', error);
-  }
-});
 
 // ---- A7 · P1-a 商品上架（§1.8 #7；`listing-service.ts:164` `createListing`）--------------
 app.post('/api/listing', async (req, res) => {
@@ -3406,55 +2827,6 @@ app.post('/api/admin/listing/:listingId/takedown', async (req, res) => {
       200, result.replay ? { idempotent_replay: true } : undefined);
   } catch (error) {
     return sendInfraMapped(res, 'admin.listing.takedown', error);
-  }
-});
-
-// ---- 读口 · `GET /api/admin/arbitration`（`data` 键集自本片起冻结：§25.2 / §24.8(b)）-------------
-//   · `?status=<七值之一>` 允许过滤；**非法值 ⇒ 400**（不得静默回落）；只读；无 `ops:` 键。
-app.get('/api/admin/arbitration', async (req, res) => {
-  const actor = await requireAdmin(req, res, 'review_tasks');
-  if (!actor) return;
-
-  try {
-    const filter = parseJobStatusFilter(req.query?.status);
-    if (!filter.ok) return sendVerbError(res, filter.err);
-    const rows = await DatabaseService.listJobsForArbitration(filter.status);
-    return sendSuccess(res, rows, 'Arbitration list (admin)');
-  } catch (error) {
-    return sendInfraMapped(res, 'admin.arbitration.list', error);
-  }
-});
-
-// ---- 动作口 · `POST /api/admin/arbitration/:jobId`（平台仲裁兜底；§25.2 / §25.6(d) / §28.2(d)）----
-//   · 请求体逐字 = `{ action: "approve" | "reject", reason: <string> }`（`action` 闭集恰 2 值；`reason` 必填 / 非空）；
-//     候选人 / 标的物走 body 显式字段（`R-8-27` I-4：路径不再加层级）；
-//   · `ops:` 幂等键 = `ops:<admin_uid>:job_arbitrate:<job_id>`（**★ 既有逐字** = `data-layer.spec.md:509`）；
-//   · 通过 ⇒ 台账行 + 同事务 `submitted→disputed→settled`（支持雇主）；驳回 ⇒ 台账行（**必须落**）+
-//     同事务 `submitted→disputed→cancelled`（退单 / 支持打工人）+ **资金腿** `job_escrow_refund` ×2；
-//   · `:jobId` 非数字 / `<=0` / 不存在 ⇒ 404；非 `submitted`·非 `disputed` ⇒ 409（既有 `LD011`）。
-app.post('/api/admin/arbitration/:jobId', async (req, res) => {
-  const actor = await requireAdmin(req, res, 'review_tasks');
-  if (!actor) return;
-
-  try {
-    const jobIdText = String(req.params.jobId ?? '').trim();
-    if (!/^[1-9]\d*$/.test(jobIdText)) return sendVerbError(res, job404(jobIdText));
-
-    const opsKey = resolveAdminOpsKey(req, actor.session.uID, JOB_ARBITRATE_OPS_ACTION, jobIdText);
-    if (!opsKey.ok) return sendVerbError(res, opsKey.error);
-
-    const result = await arbitrateJobVerb({
-      jobIdRaw: req.params.jobId,
-      actorUid: actor.session.uID,
-      body: (req.body || {}) as Record<string, unknown>,
-      opsKey: opsKey.key,
-    });
-    if (!result.ok) return sendVerbError(res, result);
-    return sendSuccess(res, result.view,
-      result.replay ? 'Job arbitration recorded (idempotent replay)' : 'Job arbitration recorded',
-      200, result.replay ? { idempotent_replay: true } : undefined);
-  } catch (error) {
-    return sendInfraMapped(res, 'admin.arbitration.record', error);
   }
 });
 

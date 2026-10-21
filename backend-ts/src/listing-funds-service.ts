@@ -34,7 +34,7 @@ import { createHash } from 'crypto';
 import { DatabaseService } from './database';
 import { ledgerErrorFromDbError, normalizeLedgerError } from './ledger';
 import { errorMessageOf } from './ledger-errors';
-import { ledgerErrorBody, sendVerbError, type JobVerbErr as VerbErr, type JobVerbResult as VerbResult } from './job-service';
+import { ledgerErrorBody, sendVerbError, type VerbErr, type VerbResult } from './verb-shape';
 
 export { ledgerErrorBody, sendVerbError };
 export type { VerbErr, VerbResult };

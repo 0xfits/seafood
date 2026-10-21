@@ -179,7 +179,21 @@ const base: RefundActorInput = { actorUid: 500, sellerUid: 7, buyerUid: 8, canAc
   //       逐 verb 分解 get 56→57、post 66、patch 4、delete 3 —— 方法只用 GET）。
   //     净 +21 ⇒ 68 + 21 = 89；A5 再 +10 ⇒ 99；sf14 再 +5 ⇒ 104；6714401 再 +1 ⇒ 105；FIX-CRON GET 再 +1 ⇒ 106；ops-recon GET 再 +1 ⇒ 107；item-cid-select GET 再 +1 ⇒ 108；media-upload 两口再 +2 ⇒ 110；admin-edit 编辑预填 GET 再 +1 ⇒ 111；project-domain 七口再 +7 ⇒ 118；campaign-domain 九口再 +9 ⇒ 127；user-balances 读口 GET 再 +1 ⇒ 128；home-campaign-tasks GET 再 +1 ⇒ 129；task-detail GET 再 +1 ⇒ 130。
   //     `da65f13`/`9bd1df0` 无路由增改（S6b/S16）。
-  ck.t('AC10-2', '注册点 = 130（自 S10 冻结面 68 前推 +21 · A5 收口 +10 · sf14 +5 · 6714401 telegram/bind/confirm +1 · FIX-CRON translate/backfill GET +1 · ops-recon GET +1 · item-cid-select GET /api/currencies +1 · media-upload 两口（route v2.39 §48）+2 · admin-edit `GET /api/listing/:listingId/edit`（route §49.15）+1 · project-domain 七口（route §49.19）+7 = 118 · campaign-domain 九口（route §49.18）再 +9 = 127 · user-balances `GET /api/user/balances` +1 = 128 · home-campaign-tasks `GET /api/home/campaign-tasks` +1 = 129 · task-detail `GET /api/campaign/task/:taskId` +1 = 130；逐 verb = get 57 / post 66 / patch 4 / delete 3 / put 0；逐 rev 出处见上方注释）', regs === 130, `registration_points=${regs}`);
+  //
+  // ★ 2026-10-21 job 域下线（migration 0070）· **−21 ⇒ 109**：招工面整体退场，21 条注册点逐条删
+  //   （`git diff` 现取，逐 verb：get 57→49 = **−8**、post 66→53 = **−13**、patch 4 / delete 3 / put 0 不变）：
+  //     ① 任务读口 −4 GET：`GET /api/task/all`、`GET /api/task/:tID`、
+  //        `GET /api/task-progress`、`GET /api/task-progress/:jID`；
+  //     ② 任务写口 −2 POST：`POST /api/task-progress/:identifier/submit`、`POST /api/task-progress/claim/:jID`；
+  //     ③ 管理端任务三写口 −3 POST：`POST /api/admin/task/create|update|delete`；
+  //     ④ 待审队列 −3：`GET /api/tasklist/pending-verification`、`GET /api/tasklist/pending-verification/count`、
+  //        `POST /api/tasklist/:jID/verify`（2 GET + 1 POST）；
+  //     ⑤ job 本体七口 −7：`POST /api/job`、`/api/job/:jobId/apply|accept|submit|review|cancel`（6 POST）
+  //        + `GET /api/job/:jobId/submissions`（1 GET）；
+  //     ⑥ 仲裁二口 −2：`GET /api/admin/arbitration`、`POST /api/admin/arbitration/:jobId`（1 GET + 1 POST）。
+  //   逐组核对：GET 4+0+0+2+1+1 = 8、POST 0+2+3+1+6+1 = 13 ⇒ 合计 21；现取真值 109。
+  //   （服务层同批删 `job-service.ts` / `job-funds-service.ts`，错误体收敛到无领域语义的 `verb-shape.ts`。）
+  ck.t('AC10-2', '注册点 = 109（自 S10 冻结面 68 前推 +21 · A5 收口 +10 · sf14 +5 · 6714401 telegram/bind/confirm +1 · FIX-CRON translate/backfill GET +1 · ops-recon GET +1 · item-cid-select GET /api/currencies +1 · media-upload 两口（route v2.39 §48）+2 · admin-edit `GET /api/listing/:listingId/edit`（route §49.15）+1 · project-domain 七口（route §49.19）+7 = 118 · campaign-domain 九口（route §49.18）再 +9 = 127 · user-balances `GET /api/user/balances` +1 = 128 · home-campaign-tasks `GET /api/home/campaign-tasks` +1 = 129 · task-detail `GET /api/campaign/task/:taskId` +1 = 130 · **job 域下线 −21（migration 0070：① 任务读口 4 GET ② 任务写口 2 POST ③ 管理端任务 3 POST ④ 待审队列 3（2 GET + 1 POST）⑤ job 本体 7（6 POST + 1 GET）⑥ 仲裁 2（1 GET + 1 POST））= 109**；逐 verb = get 49 / post 53 / patch 4 / delete 3 / put 0；逐 rev 出处见上方注释）', regs === 109, `registration_points=${regs}`);
   ck.t('AC10-3', '退款路由仍**复用同路径**（无 `/api/admin/listing-orders`）', !/\/api\/admin\/listing-orders/.test(INDEX_TS) && /app\.post\('\/api\/listing-orders\/:orderId\/refund'/.test(INDEX_TS), 'ok');
   ck.t('AC10-4', '对外出口 = 既有 `sendSuccess` + `sendVerbError`（R107；无新增顶层响应键）',
     INDEX_TS.indexOf("sendSuccess(res, result.view, result.replay ? 'Listing order refunded") !== -1 &&

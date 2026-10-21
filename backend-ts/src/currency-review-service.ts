@@ -14,7 +14,7 @@
 // ============================================================================
 import { createHash } from 'crypto';
 import { DatabaseService } from './database';
-import { ledgerErrorBody, sendVerbError, type JobVerbErr as VerbErr, type JobVerbResult as VerbResult } from './job-service';
+import { ledgerErrorBody, sendVerbError, type VerbErr, type VerbResult } from './verb-shape';
 import { ledgerErrorFromDbError, normalizeLedgerError } from './ledger';
 import { errorMessageOf } from './ledger-errors';
 

@@ -422,8 +422,6 @@ export const resolveInviteRewardPolicy = (raw: unknown): { policy: InviteRewardP
   };
 };
 
-/** P9⑤ 首任务腿幂等键前缀（`biz:invite:firsttask:<worker_uid>`；只由 Worker uid 派生，含不可变字段）。 */
-export const INVITE_FIRST_TASK_KEY_PREFIX = 'biz:invite:firsttask:';
 /** P9⑤ 注册腿 batt 幂等键前缀（`biz:invite:signup:<uid>`）。 */
 export const INVITE_SIGNUP_KEY_PREFIX = 'biz:invite:signup:';
 
@@ -1318,79 +1316,6 @@ export interface ListingFavoriteMutationRow {
   time_created: number;
 }
 
-export interface TaskRecord {
-  tID: number;
-  title: string;
-  note: string;
-  refcode: string;
-  link0: string;
-  linkA: string;
-  linkB: string;
-  points: number;
-  type: number;
-  time_start: number;
-  time_end: number;
-  time_created: number;
-  time_updated: number;
-  is_open: boolean;
-  participants_count: number;
-  /**
-   * ★ S23（台账 B4）：**招募总人数**（`job.headcount`，迁移 `0041_job_headcount.sql` 起
-   *   `NOT NULL DEFAULT 1`）。读侧 **fail-closed**：缺省 / 非法 / `< 1` ⇒ `1`（与 `0041` 的
-   *   `DEFAULT 1` 同语义）。两读口（`listTasks` / `getTask`）皆 `SELECT t.*` ⇒ 行内已带，
-   *   仅需在 `normalizeTask` 显式映射（改前被丢弃）。
-   */
-  headcount: number;
-  title_en: string;
-  title_hk: string;
-  title_vn: string;
-  note_en: string;
-  note_hk: string;
-  note_vn: string;
-  /** P6-TR-1b 读侧翻译覆盖度（同 BrandRecord.i18n_status）。 */
-  i18n_status: I18nStatus;
-}
-
-export interface TaskProgressRecord {
-  jID: number;
-  tID: number;
-  uID: number;
-  info_input: string;
-  time_created: number;
-  time_submitted: number;
-  time_checked: number;
-  time_claimed: number;
-  points_claimed: number;
-}
-
-export interface PendingVerificationRecord extends TaskProgressRecord {
-  task: TaskRecord | null;
-  user: {
-    uID: number;
-    EVM: string;
-    is_admin: boolean;
-  } | null;
-}
-
-/**
- * ★ S6（`R-9-100`/`R-9-101`）· `GET /api/job/:jobId/submissions` 读口的逐条记录
- *   （spec 冻结路径见 `data-layer.spec.md:281`；**返回形状 spec 未冻结 ⇒ 待 Jing 回写**）。
- *   列 = `job_submission` 提交轴（`DL56`）：提交号 / 任务号 / 提交人 / 交付物 / 审核状态 / 审核人 /
- *   审核时点 / 审核备注 / 提交时点。时间列 = **epoch 秒**（与 `TaskProgressRecord` 同口径）；
- *   `reviewed_by` 未审 ⇒ `null`（`reviewed_at` 未审 ⇒ `0`，同 `TaskProgressRecord.time_checked` 惯例）。
- */
-export interface JobSubmissionRecord {
-  submission_id: number;
-  job_id: number;
-  worker_uid: number;
-  deliverable: string;
-  review_status: string;
-  reviewed_by: number | null;
-  reviewed_at: number;
-  review_memo: string;
-  time_created: number;
-}
-
 export interface AdminAccessRecord {
   uID: number;
   EVM: string;
@@ -1933,48 +1858,6 @@ const normalizeListingFavoriteMutationRow = (row: RawRow): ListingFavoriteMutati
   time_created: toTimestamp(getValue(row, 'time_created')),
 });
 
-const normalizeTask = (row: RawRow, participantsCount = 0, i18nIndex?: I18nIndex | null): TaskRecord => {
-  const linkA = toStringValue(getValue(row, 'linkA', 'link0'));
-  const isOpenValue = getValue(row, 'is_open');
-  const record: Record<string, unknown> = {
-    // P4-B1-b: task→job 读侧换表 —— 旧列名在前、新列名在后（旧行为不变；job 无对应列走既有空态默认）
-    tID: toNumberValue(getValue(row, 'tID', 'job_id')),
-    title: toStringValue(getValue(row, 'title')),
-    note: toStringValue(getValue(row, 'note', 'description')),
-    refcode: toStringValue(getValue(row, 'refcode')),
-    link0: toStringValue(getValue(row, 'link0', 'linkA')),
-    linkA,
-    linkB: toStringValue(getValue(row, 'linkB')),
-    points: toNumberValue(getValue(row, 'points', 'reward')),
-    type: toNumberValue(getValue(row, 'type')),
-    time_start: toTimestamp(getValue(row, 'time_start')),
-    time_end: toTimestamp(getValue(row, 'time_end')),
-    time_created: toTimestamp(getValue(row, 'time_created', 'created_at')),
-    time_updated: toTimestamp(getValue(row, 'time_updated', 'updated_at')),
-    is_open: isOpenValue === undefined ? true : toBooleanValue(isOpenValue),
-    participants_count: participantsCount,
-    // ★ S23（B4）：`headcount` 进入读模型。两读口（`listTasks`/`getTask`）皆 `SELECT t.*`
-    //   ⇒ 行内已带 `headcount`（迁移 `0041` `NOT NULL DEFAULT 1`）；缺省 / 非法 / `< 1`
-    //   ⇒ fail-closed 为 `1`（与 `0041` 的 `DEFAULT 1` 同语义）。
-    headcount: toHeadcount(getValue(row, 'headcount')),
-  };
-  // P6-TR-1b：`title_*`/`note_*` 由 applyI18n 生成（有 ready 译文用译文，否则回落源文；含 i18n_status）
-  applyI18n('job', String(record.tID), record, i18nIndex);
-  return record as unknown as TaskRecord;
-};
-
-const normalizeTaskProgress = (row: RawRow): TaskProgressRecord => ({
-  jID: toNumberValue(getValue(row, 'jID')),
-  tID: toNumberValue(getValue(row, 'tID')),
-  uID: toNumberValue(getValue(row, 'uID')),
-  info_input: toStringValue(getValue(row, 'info_input')),
-  time_created: toTimestamp(getValue(row, 'time_created')),
-  time_submitted: toTimestamp(getValue(row, 'time_submitted')),
-  time_checked: toTimestamp(getValue(row, 'time_checked')),
-  time_claimed: toTimestamp(getValue(row, 'time_claimed')),
-  points_claimed: toNumberValue(getValue(row, 'points_claimed')),
-});
-
 /**
  * **读侧**归一（读 DB 行 → 记录；宽容：非 object / 缺字段 ⇒ 回落默认值）。
  * ⚠️ 批 8① 起：本函数**只用于读路径**与**已校验写侧的终态回填**；**写侧输入**一律先过
@@ -2440,11 +2323,6 @@ type I18nIndex = Map<string, Map<string, string>>;
 
 /** 可译字段规格：`out` = API 键前缀，`src` = content_translation.field 候选（兼容字段命名两口径）。 */
 const I18N_SPECS: Record<string, ReadonlyArray<{ out: string; src: readonly string[] }>> = {
-  // job：API `title` ← field 'title'；API `note` ← field 'note' | 'description'（源列名 description）
-  job: [
-    { out: 'title', src: ['title'] },
-    { out: 'note', src: ['note', 'description'] },
-  ],
   // listing：API `name` ← field 'name' | 'title'（源列名 title）；API `description` ← field 'description'
   listing: [
     { out: 'name', src: ['name', 'title'] },
@@ -2580,24 +2458,6 @@ export class DatabaseService {
     // ⇒ 聚合键（stores_count/claims_count/activated_count/current_shard_supply/free_shards_distributed）
     // 保留、值恒 0（不编值）；返回空 Map，调用方按零计数回退。语义已被积分交易所取代。
     return new Map();
-  }
-
-  static async getTaskParticipantCounts(): Promise<Map<number, number>> {
-    const sql = getSql();
-    try {
-      const rows = asItems<{ tid: number; count: number }>(await sql`
-        SELECT
-          COALESCE(j."tID", 0) AS tid,
-          COUNT(1)::int AS count
-        FROM task_progress AS j
-        GROUP BY tid
-      `);
-
-      return new Map(rows.map((row) => [Number(row.tid || 0), Number(row.count || 0)]));
-    } catch (error) {
-      console.warn('Failed to load task participant counts, falling back to zero counts:', error);
-      return new Map();
-    }
   }
 
   static async getAllUsers(skip = 0, limit = 100): Promise<UserRecord[]> {
@@ -3428,252 +3288,7 @@ export class DatabaseService {
     return rows.length;
   }
 
-  static async listTasks(skip = 0, limit = 100): Promise<TaskRecord[]> {
-    const sql = getSql();
-    const rows = extractRows(await sql`
-      WITH selected_tasks AS (
-        SELECT t.*
-        FROM job AS t
-        ORDER BY t.job_id
-        LIMIT ${limit} OFFSET ${skip}
-      ),
-      -- ★ S19（R-9-97~R-9-103）：participants_count 真源 = 逐笔提交（public.job_submission）。
-      --   提交过即算参与（不区分 review_status；判不合格者仍是参与者、可再提）。
-      --   本 CTE 与 getTask 内同族 CTE **必须同源**（S16「过滤谓词两处同源」纪律）。
-      participant_counts AS (
-        SELECT
-          s.job_id AS tid,
-          COUNT(DISTINCT s.worker_uid)::int AS participants_count
-        FROM public.job_submission AS s
-        JOIN selected_tasks AS t ON t.job_id = s.job_id
-        GROUP BY s.job_id
-      )
-      SELECT
-        t.*,
-        COALESCE(pc.participants_count, 0)::int AS participants_count
-      FROM selected_tasks AS t
-      LEFT JOIN participant_counts AS pc ON pc.tid = t.job_id
-      ORDER BY t.job_id
-    `);
-
-    const index = await loadI18nIndex('job', rows.map((row) => String(toNumberValue(getValue(row, 'tID', 'job_id')))));
-    return rows.map((row) => normalizeTask(row, toNumberValue(getValue(row, 'participants_count')), index));
-  }
-
-  static async getTask(tID: number): Promise<TaskRecord | null> {
-    const sql = getSql();
-    const row = firstRow(await sql`
-      WITH selected_task AS (
-        SELECT t.*
-        FROM job AS t
-        WHERE t.job_id = ${tID}
-        LIMIT 1
-      ),
-      -- ★ S19（R-9-97~R-9-103）：participants_count 真源 = 逐笔提交（public.job_submission）。
-      --   提交过即算参与（不区分 review_status；判不合格者仍是参与者、可再提）。
-      --   本 CTE 与 listTasks 内同族 CTE **必须同源**（S16「过滤谓词两处同源」纪律）。
-      participant_counts AS (
-        SELECT
-          s.job_id AS tid,
-          COUNT(DISTINCT s.worker_uid)::int AS participants_count
-        FROM public.job_submission AS s
-        JOIN selected_task AS t ON t.job_id = s.job_id
-        GROUP BY s.job_id
-      )
-      SELECT
-        t.*,
-        COALESCE(pc.participants_count, 0)::int AS participants_count
-      FROM selected_task AS t
-      LEFT JOIN participant_counts AS pc
-        ON pc.tid = t.job_id
-      LIMIT 1
-    `);
-
-    if (!row) return null;
-    return normalizeTask(row, toNumberValue(getValue(row, 'participants_count')), await loadI18nIndex('job', [String(tID)]));
-  }
-
   // P4-B1-b: 空态任务（完整 TaskRecord 键集），GET miss 回退用（类比 B1-a emptyAsset）；纯内存、零写库
-  static emptyTask(tID: number): TaskRecord {
-    return { ...normalizeTask({}, 0), tID };
-  }
-
-  static async countTaskParticipants(tID: number): Promise<number> {
-    const sql = getSql();
-    const rows = asItems<{ count: number }>(await sql`
-      SELECT COUNT(1)::int AS count
-      FROM task_progress AS j
-      WHERE COALESCE(NULLIF(BTRIM(j."tID"), '')::int, 0) = ${tID}
-    `);
-    return Number(rows[0]?.count || 0);
-  }
-
-  /**
-   * ★ S2（`R-9-100`）· 读口 identifier = **`submission_id`**（改前 = `job_application.application_id`）。
-   *   逐笔提交（`job_submission`）是唯一参与载体；`job_application` 停写（历史行保留、不删）。
-   *   返回形状 = **9 键 `TaskProgressRecord` 逐键不变**（`jID` = `submission_id`，`tID` = `job_id`，
-   *   `uID` = `worker_uid`，`info_input` = `deliverable`）⇒ 归属校验位（`uID`）不降级。
-   */
-  static async getTaskProgress(submissionId: number, ex?: SqlRunner): Promise<TaskProgressRecord | null> {
-    const sql = sqlFor(ex);
-    const row = firstRow(await sql`
-      SELECT
-        s.submission_id AS "jID",
-        s.job_id AS "tID",
-        s.worker_uid AS "uID",
-        s.deliverable AS info_input,
-        s.time_created,
-        s.time_created AS time_submitted,
-        s.reviewed_at AS time_checked,
-        NULL::timestamptz AS time_claimed,
-        0::int AS points_claimed
-      FROM public.job_submission AS s
-      WHERE s.submission_id = ${submissionId}
-      LIMIT 1
-    `);
-
-    return row ? normalizeTaskProgress(row) : null;
-  }
-
-  /** ★ S2（`R-9-100`）：`/api/task-progress` 列表 = **本人逐笔提交**（`job_submission`）；`jID` = `submission_id`。 */
-  static async listTaskProgressByUser(uID: number, skip = 0, limit = 100, ex?: SqlRunner): Promise<TaskProgressRecord[]> {
-    const sql = sqlFor(ex);
-    const rows = extractRows(await sql`
-      SELECT
-        s.submission_id AS "jID",
-        s.job_id AS "tID",
-        s.worker_uid AS "uID",
-        s.deliverable AS info_input,
-        s.time_created,
-        s.time_created AS time_submitted,
-        s.reviewed_at AS time_checked,
-        NULL::timestamptz AS time_claimed,
-        0::int AS points_claimed
-      FROM public.job_submission AS s
-      WHERE s.worker_uid = ${uID}
-      ORDER BY s.submission_id DESC
-      LIMIT ${limit} OFFSET ${skip}
-    `);
-
-    return rows.map(normalizeTaskProgress);
-  }
-
-  /**
-   * ★ S6（`R-9-100`/`R-9-101`）· `GET /api/job/:jobId/submissions` **读口**（spec 冻结路径
-   *   `docs/data-layer.spec.md:281`；返回形状未冻结 ⇒ 待 Jing 回写）。
-   *   逐条返回该任务的提交（`job_submission` 提交轴 · `DL56`）：提交号 / 提交人 / 交付物 /
-   *   审核状态 / 审核人 / 审核时点 / 审核备注 / 提交时点。
-   *   **只读**（只 `SELECT`）· `job_id` 不存在 ⇒ 空数组（存在性判定在路由层，经 `getJobEmployerUid`）。
-   *   排序 = `submission_id DESC`（最新在前，与 `listTaskProgressByUser` 同向）。
-   */
-  static async listJobSubmissions(jobId: number, skip = 0, limit = 100, ex?: SqlRunner): Promise<JobSubmissionRecord[]> {
-    const sql = sqlFor(ex);
-    const rows = extractRows(await sql`
-      SELECT
-        s.submission_id,
-        s.job_id,
-        s.worker_uid,
-        s.deliverable,
-        s.review_status,
-        s.reviewed_by,
-        s.reviewed_at,
-        s.review_memo,
-        s.time_created
-      FROM public.job_submission AS s
-      WHERE s.job_id = ${jobId}
-      ORDER BY s.submission_id DESC
-      LIMIT ${limit} OFFSET ${skip}
-    `);
-
-    return rows.map((row): JobSubmissionRecord => ({
-      submission_id: toNumberValue(getValue(row, 'submission_id')),
-      job_id: toNumberValue(getValue(row, 'job_id')),
-      worker_uid: toNumberValue(getValue(row, 'worker_uid')),
-      deliverable: toStringValue(getValue(row, 'deliverable')),
-      review_status: toStringValue(getValue(row, 'review_status')),
-      reviewed_by: toOptionalNumber(getValue(row, 'reviewed_by')),
-      reviewed_at: toTimestamp(getValue(row, 'reviewed_at')),
-      review_memo: toStringValue(getValue(row, 'review_memo')),
-      time_created: toTimestamp(getValue(row, 'time_created')),
-    }));
-  }
-
-  static async findTaskProgressByUserAndTask(uID: number, tID: number): Promise<TaskProgressRecord | null> {
-    const sql = getSql();
-    const row = firstRow(await sql`
-      SELECT j.*
-      FROM task_progress AS j
-      WHERE COALESCE(NULLIF(BTRIM(j."uID"), '')::int, 0) = ${uID}
-        AND COALESCE(NULLIF(BTRIM(j."tID"), '')::int, 0) = ${tID}
-      ORDER BY COALESCE(NULLIF(BTRIM(j."jID"), '')::int, 0) DESC
-      LIMIT 1
-    `);
-
-    return row ? normalizeTaskProgress(row) : null;
-  }
-
-  static async createTaskProgress(uID: number, tID: number): Promise<TaskProgressRecord> {
-    const sql = getSql();
-    const row = firstRow(await sql`
-      INSERT INTO task_progress AS j ("tID", "uID", info_input, time_created, points_claimed)
-      VALUES (${tID}, ${uID}, NULL, NOW(), 0)
-      RETURNING j.*
-    `);
-
-    if (!row) {
-      throw new Error('Failed to create task progress');
-    }
-
-    return normalizeTaskProgress(row);
-  }
-
-  static async ensureTaskProgressForUserTask(uID: number, tID: number): Promise<TaskProgressRecord> {
-    const existingTaskProgress = await this.findTaskProgressByUserAndTask(uID, tID);
-    if (existingTaskProgress) {
-      return existingTaskProgress;
-    }
-
-    return this.createTaskProgress(uID, tID);
-  }
-
-  static async submitTaskProgressInfo(jID: number, infoInput: string): Promise<TaskProgressRecord | null> {
-    const sql = getSql();
-    const row = firstRow(await sql`
-      UPDATE task_progress AS j
-      SET info_input = ${infoInput},
-          time_submitted = NOW()
-      WHERE COALESCE(NULLIF(BTRIM(j."jID"), '')::int, 0) = ${jID}
-      RETURNING j.*
-    `);
-
-    return row ? normalizeTaskProgress(row) : null;
-  }
-
-  static async markTaskProgressChecked(jID: number): Promise<TaskProgressRecord | null> {
-    const sql = getSql();
-    const row = firstRow(await sql`
-      UPDATE task_progress AS j
-      SET time_checked = NOW()
-      WHERE COALESCE(NULLIF(BTRIM(j."jID"), '')::int, 0) = ${jID}
-      RETURNING j.*
-    `);
-
-    return row ? normalizeTaskProgress(row) : null;
-  }
-
-  static async claimTaskProgress(jID: number, rewardPoints: number): Promise<TaskProgressRecord | null> {
-    const sql = getSql();
-    const row = firstRow(await sql`
-      UPDATE task_progress AS j
-      SET points_claimed = ${rewardPoints},
-          time_claimed = NOW()
-      WHERE COALESCE(NULLIF(BTRIM(j."jID"), '')::int, 0) = ${jID}
-      RETURNING j.*
-    `);
-
-    return row ? normalizeTaskProgress(row) : null;
-  }
-
   // ==========================================================================
   // P4-B2a · 招工**非资金**写入（J2 apply / J3 accept / J4 submit）
   // 依据：docs/route-layer.spec.md §1 #19/#20 · §4.2 J2/J3/J4 · §4.0 R3（无分录的写不得借账本幂等）
@@ -3947,24 +3562,6 @@ export class DatabaseService {
   //   data 键集自 §25.2 起冻结（承 `§24.8(b)`）：job_id / employer_uid / worker_uid / cid /
   //   reward / title / status / time_created。只读（只 `SELECT`）。
   // ==========================================================================================
-  static async listJobsForArbitration(statusFilter: string | null): Promise<RawRow[]> {
-    const rows = await runSql(
-      `SELECT j.job_id       AS job_id,
-              j.employer_uid AS employer_uid,
-              j.worker_uid   AS worker_uid,
-              j.cid          AS cid,
-              j.reward       AS reward,
-              j.title        AS title,
-              j.status       AS status,
-              j.time_created AS time_created
-         FROM public.job AS j
-        WHERE ($1::text IS NULL OR j.status = $1::text)
-        ORDER BY j.job_id`,
-      [statusFilter],
-    );
-    return rows;
-  }
-
   /**
    * ★ 8⑥ 审计台统一读口（`GET /api/admin/audit/:table` · `route-layer.spec` v2.21 §32.14
    * `R-9-74`/`R-9-77`/`R-9-78`/`R-9-79`）：**唯一取数口** = 按 `audit-console.ts` 的白名单映射
@@ -3974,128 +3571,6 @@ export class DatabaseService {
    */
   static async readAuditPage(sqlText: string, params: unknown[]): Promise<RawRow[]> {
     return runSql(sqlText, params);
-  }
-
-  /**
-   * ★ 批 8⑤ 归属闸（`R-8-25①` / `R-8-26` · `route-layer.spec` v2.10 §25.6）：只读取该 job 的
-   * **雇主 uid**（真列 = `public.job.employer_uid`，`0013:81`）供路由层判定「雇主本人 ∨ admin」。
-   * **只读**（只 `SELECT`）；job 不存在 ⇒ `null`（路由层据此落既有 `404`）。**无任何写副作用**
-   * （状态 / 资金闸真源仍是 `job_post_event` 的单语句）。
-   */
-  static async getJobEmployerUid(jobId: number): Promise<number | null> {
-    const rows = await runSql(
-      `SELECT j.employer_uid AS employer_uid
-         FROM public.job AS j
-        WHERE j.job_id = $1::bigint`,
-      [jobId],
-    );
-    const row = rows[0] || null;
-    if (!row) return null;
-    return toNumberValue(getValue(row, 'employer_uid'));
-  }
-
-  /**
-   * 招工仲裁（`POST /api/admin/arbitration/:jobId`）· **唯一写路径**（R1/R2 · 同事务多语句）。
-   *
-   * 同事务内三段（`withTransaction` · R55/R56）：
-   *   ① 锁 `public.job` 行（`FOR UPDATE`）→ 迁入 `disputed`（**既有白名单边** `submitted→disputed`
-   *      via `public.job_status_transition_ok`；已 `disputed` ⇒ 不变）—— 兑现 §25.6(d)「平台仲裁 =
-   *      唯一把 job 迁入 / 迁出 `disputed` 的动作面」；
-   *   ② 调**既有** `public.job_post_event($1::jsonb)`（`op='settle'`（支持雇主 ⇒ `…→settled`）/
-   *      `op='refund'` + `to_status='cancelled'`（退单 / 支持打工人 ⇒ `…→cancelled`））—— **资金腿由
-   *      DB 侧派生**（`job_payout`/`job_fee`/`commission` 或 `job_escrow_refund` ×2；DL84 白名单）
-   *      ⇒ 本方法**不派生任何分录、不自造任何幂等键**（DL95）；
-   *   ③ 写 `public.job_arbitration_log`（**通过 / 驳回都必落** ⇒ 驳回不得静默；同键同 `result`
-   *      重投 ⇒ `ON CONFLICT (idempotency_key, result) DO NOTHING`）。
-   *
-   * 回执键：`job_found` / `job_status`（**终态**）/ `prior_status`（**前置态** · `R-9-9①`）/ `prior_count` /
-   * `applied` / `reviewed` / `txid`。★ `prior_status` = 同一事务内 `FOR UPDATE` 读得的**前置态**（`curStatus`，
-   * 未加第二个往返）；服务层**只许**用它做「可仲裁态」判定，`job_status`（终态）**仅**用于回执输出。
-   * 传 `ex`（既有 `TxClient`）⇒ 在**事务内**执行（供「真生效四段」探针 · `R-8-18`）。
-   */
-  static async jobArbitrationPostEvent(input: {
-    jobId: number;
-    actorUid: number;
-    result: 'approved' | 'rejected';
-    targetStatus: 'settled' | 'cancelled';
-    requestFingerprint: string;
-    idempotencyKey: string;
-    memo: string;
-  }, ex?: TxClient): Promise<RawRow> {
-    const run = async (tx: TxClient): Promise<RawRow> => {
-      const curRows = await txQuery<RawRow>(tx,
-        `SELECT job_id, employer_uid, worker_uid, status
-           FROM public.job
-          WHERE job_id = $1::bigint
-          FOR UPDATE`,
-        [input.jobId]);
-      const cur = curRows[0];
-      if (!cur) {
-        return { job_id: String(input.jobId), job_found: 0, job_status: null, prior_status: null, prior_count: 0, applied: 0, reviewed: 0, txid: null };
-      }
-      const curStatus = String(cur.status ?? '');
-
-      // 幂等探测（只读）：同键同 result 已落 ⇒ 重放（不再迁状态 / 不再派生资金腿）
-      const priorRows = await txQuery<{ n: number }>(tx,
-        `SELECT count(*)::int AS n
-           FROM public.job_arbitration_log
-          WHERE idempotency_key = $1::text
-            AND result = $2::text`,
-        [input.idempotencyKey, input.result]);
-      const prior = Number(priorRows[0]?.n ?? 0);
-      if (prior >= 1) {
-        return { job_id: String(input.jobId), job_found: 1, job_status: curStatus, prior_status: curStatus, prior_count: prior, applied: 0, reviewed: 0, txid: null };
-      }
-
-      // 非可仲裁态（非 submitted / 非 disputed）⇒ 不落任何值（服务层 → 409 JOB_STATE_INVALID）
-      if (curStatus !== 'submitted' && curStatus !== 'disputed') {
-        return { job_id: String(input.jobId), job_found: 1, job_status: curStatus, prior_status: curStatus, prior_count: 0, applied: 0, reviewed: 0, txid: null };
-      }
-
-      // ① 迁入 disputed（既有白名单边；已 disputed ⇒ 白名单不满足 ⇒ 不变）
-      if (curStatus === 'submitted') {
-        await txQuery(tx,
-          `UPDATE public.job AS j
-              SET status = 'disputed',
-                  time_updated = now()
-            WHERE j.job_id = $1::bigint
-              AND public.job_status_transition_ok(j.status, 'disputed')`,
-          [input.jobId]);
-      }
-
-      // ② 资金腿 + 终态（既有编排函数；不派生分录、不自造键）
-      const payload = input.targetStatus === 'settled'
-        ? { op: 'settle', job_id: String(input.jobId), request_fingerprint: input.requestFingerprint, memo: input.memo }
-        : { op: 'refund', job_id: String(input.jobId), to_status: 'cancelled', request_fingerprint: input.requestFingerprint, memo: input.memo };
-      const evRows = await txQuery<{ r: Record<string, unknown> }>(tx,
-        `SELECT public.job_post_event($1::jsonb) AS r`,
-        [JSON.stringify(payload)]);
-      const r = (evRows[0]?.r || {}) as Record<string, unknown>;
-      const replay = r.idempotent_replay === true;
-      const finalStatus = r.status === undefined || r.status === null ? null : String(r.status);
-      const txid = r.txid === undefined || r.txid === null ? null : String(r.txid);
-
-      // ③ 台账行（通过 / 驳回都必落；同键同 result 重投不放大）
-      let reviewed = 0;
-      if (!replay) {
-        const insRows = await txQuery<{ log_id: number }>(tx,
-          `INSERT INTO public.job_arbitration_log
-             (job_id, actor_uid, result, request_fingerprint, idempotency_key, txid, memo)
-           VALUES ($1::bigint, $2::bigint, $3::text, $4::text, $5::text, $6::bigint, $7::text)
-           ON CONFLICT (idempotency_key, result) DO NOTHING
-           RETURNING log_id`,
-          [input.jobId, input.actorUid, input.result, input.requestFingerprint, input.idempotencyKey, txid, input.memo]);
-        reviewed = insRows.length;
-      }
-
-      const applied = finalStatus === input.targetStatus ? 1 : 0;
-      // ★ R-9-9①：回执**同时**给「前置态」（`prior_status` = 事务内 `FOR UPDATE` 读得的 `curStatus`）与
-      //   「终态」（`job_status` = `job_post_event` 回执的 `finalStatus`）。零新增往返（同事务同读）。
-      return { job_id: String(input.jobId), job_found: 1, job_status: finalStatus, prior_status: curStatus, prior_count: 0, applied, reviewed, txid };
-    };
-
-    if (ex) return run(ex);
-    return withTransaction((tx) => run(tx as TxClient));
   }
 
   /**
@@ -4279,157 +3754,6 @@ export class DatabaseService {
     const outcome = String(getValue(row, 'outcome'));
     if (outcome === 'updated') return { outcome: 'updated', row };
     return { outcome: outcome as 'not_owner' | 'invalid_transition', row };
-  }
-
-  /**
-   * §3.1/DL111：解析 :identifier（application_id 或 job_id）→ 该 worker 的申请；他人申请返回 ownership='other'。
-   *
-   * @deprecated ★ S2（`R-9-99/100`）：**提交链路已停用本方法**（`submitWork` 不再要求申请归属；读口 identifier
-   *   改 `submission_id`）。`job_application` 停写（历史行保留、不删）⇒ 本方法仅供**历史行**与未改造的旧面
-   *   （其路由 `apply`、`accept` 预计 `410` 退役 · `R-9-103`）使用，**不得**被新链路的 `submitWork` 调用。
-   *   返回形状不变（仍 `{applicationId, workerUid, ownership}`），无新调用方。
-   */
-  static async resolveJobApplication(
-    identifier: number,
-    workerUid: number,
-  ): Promise<{ applicationId: number; workerUid: number; ownership: 'self' | 'other' } | null> {
-    const sql = getSql();
-    // R-9-87（§5.296 撞号假拒）：`WHERE application_id = X OR job_id = X` 的**容错语义不变**；
-    // 但排序**必须**把「本人」置于**最高优先键** —— 修前 `(application_id = identifier)` 居首 ⇒
-    // 当 X 同时命中「他人申请的 application_id」与「本人申请的 job_id」时，他人那条排在前 ⇒
-    // `job-service.ts submitWork` 判 `ownership='other'` ⇒ 假拒 403 ACTOR_NOT_ALLOWED。
-    // 返回形状不变（仍 `{applicationId, workerUid, ownership}`）。
-    const row = firstRow(await sql`
-      SELECT a.application_id, a.worker_uid,
-             CASE WHEN a.worker_uid = ${workerUid} THEN 'self' ELSE 'other' END AS ownership
-        FROM public.job_application AS a
-       WHERE a.application_id = ${identifier} OR a.job_id = ${identifier}
-       ORDER BY (a.worker_uid = ${workerUid}) DESC,
-                (a.application_id = ${identifier}) DESC,
-                a.application_id DESC
-       LIMIT 1
-    `);
-
-    if (!row) return null;
-
-    return {
-      applicationId: toNumberValue(getValue(row, 'application_id')),
-      workerUid: toNumberValue(getValue(row, 'worker_uid')),
-      ownership: toStringValue(getValue(row, 'ownership')) === 'self' ? 'self' : 'other',
-    };
-  }
-
-  // ==========================================================================================
-  // P4-B3c（§4.2 J1/J5/J6 + §4.0 R1/R2/R4/DL20）· 招工**资金**编排的唯一调用口
-  // ==========================================================================================
-  /**
-   * **唯一资金写路径**（§4.0 R1）：一条语句调用迁移既有编排函数 `public.job_post_event($1::jsonb)`。
-   * 函数内完成「锁业务行（`FOR UPDATE`）→ 派生分录 → 调 `ledger_post_event` → 回写
-   * `escrow_txid`/`settle_txid`/`ledger_event_keys`/`status`」⇒ **业务行 + 分录同生同灭**（R2/DL20）。
-   * 本方法**只转发 payload**：不派生分录、不自造幂等键（DL95：键由函数按 §8 确定性派生
-   * `biz:job:escrow:<job_id>` / `biz:job:settle:<job_id>:<submission_id>`（★ S4a 逐笔，含提交标识）
-   * / `biz:job:refund:<job_id>`）、不写 `account`/`ledger_entry`。
-   * 返回值 = 函数回执 `{ok, idempotent_replay, op, job_id, status, escrow_txid, settle_txid,
-   * ledger_event_keys, txid, ledger_idempotency_key, entries, accounts, extra}`。
-   */
-  static async jobPostEvent(payload: Record<string, unknown>, ex?: SqlRunner): Promise<RawRow> {
-    // ★ P9⑤（`R-9-68`）：`ex` 注入（可选）；省略 ⇒ 走 neon 单语句（隐式事务）。
-    const sql = sqlFor(ex);
-    const row = firstRow(await sql`
-      SELECT public.job_post_event(${JSON.stringify(payload)}::jsonb) AS r
-    `);
-    if (!row) throw new Error('jobPostEvent: no row returned');
-    return row;
-  }
-
-  /**
-   * §4.2 J5/J6 路由前置（**只读**）：解析 `POST /api/tasklist/:jID/verify` 的 `:jID` → 目标提交。
-   * ★ S4a（`R-9-100`/`R-9-101`）· **换轴**：identifier 语义 = `job_submission.submission_id`
-   *   （改前 = `job_application.application_id`）。`job_application` 停写（历史行保留、不删）
-   *   ⇒ 本方法**只**按提交轴解析（不再回退申请轴）。资金/状态写入**一律不在此处**
-   *   （仍由 `job_post_event` 的单函数完成）⇒ 本方法无任何写副作用。
-   */
-  static async resolveReviewTarget(identifier: number): Promise<{
-    submissionId: number;
-    jobId: number;
-    workerUid: number;
-    employerUid: number;
-    jobStatus: string;
-    jobHeadcount: number;
-    submissionStatus: string;
-  } | null> {
-    const sql = getSql();
-    const row = firstRow(await sql`
-      SELECT s.submission_id, s.job_id, s.worker_uid, s.review_status AS submission_status,
-             j.employer_uid, j.status AS job_status, j.headcount
-        FROM public.job_submission AS s
-        JOIN public.job AS j ON j.job_id = s.job_id
-       WHERE s.submission_id = ${identifier}
-       LIMIT 1
-    `);
-    if (!row) return null;
-    return {
-      submissionId: toNumberValue(getValue(row, 'submission_id')),
-      jobId: toNumberValue(getValue(row, 'job_id')),
-      workerUid: toNumberValue(getValue(row, 'worker_uid')),
-      employerUid: toNumberValue(getValue(row, 'employer_uid')),
-      jobStatus: toStringValue(getValue(row, 'job_status')),
-      jobHeadcount: toNumberValue(getValue(row, 'headcount')),
-      submissionStatus: toStringValue(getValue(row, 'submission_status')),
-    };
-  }
-
-  /**
-   * §4.0 R4 / 派单硬口径 #3「**审核通过 → 发放必须原子**」的本仓等价实现（★ S4a：DB 单点收口）。
-   * 自 0042 起 `job_post_event(op='settle')` 在**同一函数体（= 同一条 SQL 语句）** 内一气完成
-   * 「结算分录（一份 `reward`，键含提交号 `submission_id`）→ 落该提交 `review_status='approved'`
-   * → 计数 → 发满 `headcount` 即 `job.status='settled'`」⇒ 本方法退化为**单语句转发 + 读回执**，
-   * **不存在**「已审核但没发放」「状态 settled 但没发放」半成品（仍由 DB 编排函数保证原子）。
-   *   · `input.payload` **必须**含 `submission_id`（逐笔；S4a 换轴）与可选 `reviewed_by`/`review_memo`。
-   *   · `reviewedBy`/`reviewMemo` 由本方法**服务端**写入 payload（审核人可给；金额恒由 DB 派生）。
-   * 返回值 = `{ r: <job_post_event 回执>, submissions_reviewed: <int> }`；重放 ⇒ `submissions_reviewed=0`。
-   */
-  static async reviewJobSubmission(input: {
-    payload: Record<string, unknown>;
-    reviewedBy?: number;
-    reviewMemo?: string;
-  }, ex?: SqlRunner): Promise<RawRow> {
-    // ★ P9⑤（`R-9-68`）：`ex` 注入（供「接线后经结算路径」探针在同一事务内触发）；省略 ⇒ 自有连接。
-    const sql = sqlFor(ex);
-    const payload: Record<string, unknown> = { ...input.payload };
-    if (input.reviewedBy !== undefined) payload.reviewed_by = String(input.reviewedBy);
-    if (input.reviewMemo !== undefined) payload.review_memo = input.reviewMemo;
-    const row = firstRow(await sql`
-      SELECT public.job_post_event(${JSON.stringify(payload)}::jsonb) AS r
-    `);
-    if (!row) throw new Error('reviewJobSubmission: no row returned');
-    const r = (row.r || {}) as Record<string, unknown>;
-    return { r, submissions_reviewed: Number(r.submissions_reviewed ?? 0) };
-  }
-
-  /**
-   * ★ S4a（`R-9-99`/`R-9-101`）· **判不合格（按提交）**：只落该提交结论位 `rejected`，**零资金**。
-   *   `pending → rejected`（`job_submission_immutable_guard` 允许「一次写定」）；`job.status` **不变**
-   *   （逐笔参与 ⇒ 判不合格后同人可再提，`R-9-99`；满额收口在 `job_post_event` 的发放腿）。
-   *   返回落定的 `submission_id`（未命中 / 非 pending ⇒ 0）。
-   */
-  static async rejectJobSubmission(input: {
-    submissionId: number;
-    reviewedBy: number;
-    reviewMemo: string;
-  }, ex?: SqlRunner): Promise<number> {
-    const sql = sqlFor(ex);
-    const row = firstRow(await sql`
-      UPDATE public.job_submission AS s
-         SET review_status = 'rejected',
-             reviewed_by   = ${input.reviewedBy}::bigint,
-             reviewed_at   = now(),
-             review_memo   = ${input.reviewMemo}::text
-       WHERE s.submission_id = ${input.submissionId}::bigint
-         AND s.review_status = 'pending'
-      RETURNING s.submission_id
-    `);
-    return row ? toNumberValue(getValue(row, 'submission_id')) : 0;
   }
 
   // ==========================================================================================
@@ -4690,383 +4014,6 @@ export class DatabaseService {
       hasPayTxid: getValue(row, 'has_pay_txid') === true,
       hasRefundTxid: getValue(row, 'has_refund_txid') === true,
     };
-  }
-
-  /**
-   * ★ S2（`R-9-99`）· §4.2 J4 改造 —— **提交即参与**：
-   *   · **无报名前置**：不再读 / 要求 `job_application`（其人无所属申请亦可提交，含**雇主本人**）。
-   *   · **同一人可多次提交**：逐笔落 `job_submission`（`create_key` 唯一 ⇒ 同键重投 = 幂等重放；新键 = 新提交）。
-   *   · ★ **`batt` 闸由报名移到提交**（`R-9-99`）：`batt ≥ acceptThresholdBatt` 判在 **SQL 单写路径
-   *     CTE `ins` 的 `WHERE`** 内（沿 8④ `C2` 教训 · 不可绕过）；不满足 ⇒ outcome `batt_below_threshold`
-   *     （服务层映射 **409 + reason `BATT_BELOW_ACCEPT_THRESHOLD` 逐字不变**）。阈值真源 = **既有**
-   *     `resolveBattPolicy('batt_policy').acceptThresholdBatt`（缺省常量 9；**不自造**）。
-   *   · 前置态 = 仅 `job.status='open'`；本写**不改** `job.status`（逐笔参与 ⇒ 任务保持开放；
-   *     发满 `headcount` / 结束由后续单 `R-9-101/102` 处置）。
-   */
-  static async submitJobWork(
-    jobId: number,
-    workerUid: number,
-    deliverable: string,
-    createKey: string,
-    ex?: SqlRunner,
-  ): Promise<{
-    outcome: 'inserted' | 'replay' | 'not_open' | 'batt_below_threshold' | 'conflict';
-    jobId: number;
-    jobStatus: string;
-    submissionId: number | null;
-    existingDeliverable: string | null;
-  } | null> {
-    // ★ 阈值真源 = 既有 `batt_policy.acceptThresholdBatt`（fail-closed 常量 9）；SQL 侧同源兜底。
-    const { policy: battPolicy } = resolveBattPolicy(await this.getAppConfigValueByKey('batt_policy', ex));
-    const acceptThresholdBatt = battPolicy.acceptThresholdBatt;
-    const sql = sqlFor(ex);
-    const row = firstRow(await sql`
-      WITH j AS (
-        SELECT job.job_id, job.status AS job_status
-          FROM public.job AS job
-         WHERE job.job_id = ${jobId}
-      ), gate AS (
-        SELECT j.job_id, j.job_status,
-               COALESCE((SELECT b.batt FROM public.batt_account AS b WHERE b.uid = ${workerUid}), 0)::int AS worker_batt
-          FROM j
-      ), thr AS (
-        SELECT COALESCE((SELECT CASE WHEN (p.value->>'acceptThresholdBatt') ~ '^[0-9]+$'
-                                      THEN (p.value->>'acceptThresholdBatt')::int ELSE NULL END
-                             FROM public.app_config AS p WHERE p.key = 'batt_policy' LIMIT 1),
-                        ${acceptThresholdBatt}) AS accept
-      ), ins AS (
-        INSERT INTO public.job_submission (job_id, worker_uid, deliverable, review_status, create_key)
-        SELECT g.job_id, ${workerUid}, ${deliverable}, 'pending', ${createKey}
-          FROM gate AS g, thr
-         WHERE g.job_status = 'open'
-           AND g.worker_batt >= thr.accept
-        ON CONFLICT (create_key) DO NOTHING
-        RETURNING submission_id, deliverable
-      ), cur AS (
-        SELECT 'inserted' AS outcome, i.submission_id, i.deliverable
-          FROM ins AS i
-        UNION ALL
-        SELECT 'replay', s.submission_id, s.deliverable
-          FROM public.job_submission AS s, gate AS g
-         WHERE s.create_key = ${createKey}
-           AND s.job_id = g.job_id
-           AND s.worker_uid = ${workerUid}
-           AND NOT EXISTS (SELECT 1 FROM ins)
-      )
-      SELECT g.job_id AS job_id, g.job_status AS job_status,
-             c.submission_id AS submission_id,
-             COALESCE(c.outcome,
-                      CASE WHEN g.job_status <> 'open' THEN 'not_open'
-                           WHEN g.worker_batt < thr.accept THEN 'batt_below_threshold'
-                           ELSE 'conflict' END) AS outcome,
-             c.deliverable AS existing_deliverable
-        FROM gate AS g, thr
-        LEFT JOIN cur AS c ON TRUE
-    `);
-
-    if (!row) return null;
-
-    return {
-      outcome: (toStringValue(getValue(row, 'outcome')) || 'conflict') as
-        'inserted' | 'replay' | 'not_open' | 'batt_below_threshold' | 'conflict',
-      jobId: toNumberValue(getValue(row, 'job_id')),
-      jobStatus: toStringValue(getValue(row, 'job_status')),
-      submissionId: getValue(row, 'submission_id') === null || getValue(row, 'submission_id') === undefined
-        ? null
-        : toNumberValue(getValue(row, 'submission_id')),
-      existingDeliverable: getValue(row, 'existing_deliverable') === null || getValue(row, 'existing_deliverable') === undefined
-        ? null
-        : toStringValue(getValue(row, 'existing_deliverable')),
-    };
-  }
-
-  /** §4.2 J2：报名 —— `job_application` 落行（status='applied'），同语句原子；`job.status` 必须 'open' 且非雇主自投 */
-  static async applyToJob(
-    jobId: number,
-    workerUid: number,
-    createKey: string,
-    ex?: SqlRunner,
-  ): Promise<{
-    outcome: 'applied' | 'replay' | 'already_applied' | 'not_open' | 'self_application' | 'batt_below_threshold' | 'conflict';
-    applicationId: number | null;
-    jobStatus: string;
-  } | null> {
-    // ★ P9② 双闸（`R-9-18`）落点 A · **前置闸（fail-fast）**：阈值取 `batt_policy.acceptThresholdBatt`
-    //   （TS fail-closed 到常量 9）；闸在 **SQL 单写路径 CTE `ins` 的 `WHERE`** 内（沿 8④ `C2` 教训）。
-    const { policy: battPolicy } = resolveBattPolicy(await this.getAppConfigValueByKey('batt_policy', ex));
-    const acceptThresholdBatt = battPolicy.acceptThresholdBatt;
-    const sql = sqlFor(ex);
-    const row = firstRow(await sql`
-      WITH j AS (
-        SELECT job.job_id, job.employer_uid, job.status AS job_status
-          FROM public.job AS job
-         WHERE job.job_id = ${jobId}
-      ), ins AS (
-        INSERT INTO public.job_application (job_id, worker_uid, status, create_key)
-        SELECT j.job_id, ${workerUid}, 'applied', ${createKey}
-          FROM j
-         WHERE j.job_status = 'open'
-           AND j.employer_uid <> ${workerUid}
-           AND COALESCE((SELECT b.batt FROM public.batt_account AS b WHERE b.uid = ${workerUid}), 0)
-               >= COALESCE((SELECT CASE WHEN (p.value->>'acceptThresholdBatt') ~ '^[0-9]+$'
-                                        THEN (p.value->>'acceptThresholdBatt')::int ELSE NULL END
-                               FROM public.app_config AS p WHERE p.key = 'batt_policy' LIMIT 1),
-                           ${acceptThresholdBatt})
-        ON CONFLICT DO NOTHING
-        RETURNING application_id
-      ), cur AS (
-        SELECT 'applied' AS outcome, i.application_id
-          FROM ins AS i
-        UNION ALL
-        SELECT 'replay', a.application_id
-          FROM public.job_application AS a, j
-         WHERE a.create_key = ${createKey}
-           AND a.job_id = j.job_id
-           AND a.worker_uid = ${workerUid}
-           AND NOT EXISTS (SELECT 1 FROM ins)
-        UNION ALL
-        SELECT 'already_applied', a.application_id
-          FROM public.job_application AS a, j
-         WHERE a.job_id = j.job_id
-           AND a.worker_uid = ${workerUid}
-           AND a.create_key <> ${createKey}
-           AND NOT EXISTS (SELECT 1 FROM ins)
-      )
-      SELECT j.job_id AS job_id, j.job_status AS job_status,
-             COALESCE(c.outcome,
-                      CASE WHEN j.job_status <> 'open' THEN 'not_open'
-                           WHEN j.employer_uid = ${workerUid} THEN 'self_application'
-                           WHEN COALESCE((SELECT b.batt FROM public.batt_account AS b WHERE b.uid = ${workerUid}), 0)
-                                < COALESCE((SELECT CASE WHEN (p.value->>'acceptThresholdBatt') ~ '^[0-9]+$'
-                                                       THEN (p.value->>'acceptThresholdBatt')::int ELSE NULL END
-                                              FROM public.app_config AS p WHERE p.key = 'batt_policy' LIMIT 1),
-                                          ${acceptThresholdBatt})
-                                THEN 'batt_below_threshold'
-                           ELSE 'conflict' END) AS outcome,
-             c.application_id AS application_id
-        FROM j
-        LEFT JOIN cur AS c ON TRUE
-    `);
-
-    if (!row) return null;
-
-    return {
-      outcome: (toStringValue(getValue(row, 'outcome')) || 'conflict') as
-        'applied' | 'replay' | 'already_applied' | 'not_open' | 'self_application' | 'batt_below_threshold' | 'conflict',
-      applicationId: getValue(row, 'application_id') === null || getValue(row, 'application_id') === undefined
-        ? null
-        : toNumberValue(getValue(row, 'application_id')),
-      jobStatus: toStringValue(getValue(row, 'job_status')),
-    };
-  }
-
-  /** §4.2 J3：雇主选定打工人 —— `job_application.status→'accepted'` + `job.status→'accepted'` / `job.worker_uid` 一次写定 */
-  static async acceptJobApplication(
-    jobId: number,
-    applicationId: number,
-    actorUid: number,
-    ex?: SqlRunner,
-  ): Promise<{
-    outcome: 'accepted' | 'not_employer' | 'already_accepted' | 'app_state_invalid' | 'job_state_invalid' | 'batt_below_threshold';
-    applicationId: number;
-    jobId: number;
-    workerUid: number;
-    applicationStatus: string;
-    jobStatus: string;
-    workerBattAfter: number | null;
-  } | null> {
-    // ★ P9② 双闸（`R-9-18`）落点 B · **权威扣费点**：`upd` CTE 同事务追加电量闸（标的 = `t.worker_uid`）；
-    //   `deduct` CTE **同事务扣 `taskCostBatt`（fallback 9）** + **二次判 ≥ cost**（不满足 ⇒ 无行 ⇒
-    //   整体回滚 ⇒ 409）；`ins_entry` 为该扣减落 `batt_entry` 逐笔凭证（reason `task_cost`）。
-    //   两处均 **SQL 单写路径 CTE**（不可绕过 · 沿 8④ `C2` 教训）；`batt_account` 无行 ⇒ `COALESCE 0`（fail-closed）。
-    const { policy: battPolicy } = resolveBattPolicy(await this.getAppConfigValueByKey('batt_policy', ex));
-    const acceptThresholdBatt = battPolicy.acceptThresholdBatt;
-    const taskCostBatt = battPolicy.taskCostBatt;
-    const sql = sqlFor(ex);
-    const row = firstRow(await sql`
-      WITH target AS (
-        SELECT a.application_id, a.job_id, a.worker_uid, a.status AS app_status,
-               j.employer_uid, j.status AS job_status
-          FROM public.job_application AS a
-          JOIN public.job AS j ON j.job_id = a.job_id
-         WHERE a.application_id = ${applicationId}
-           AND a.job_id = ${jobId}
-      ), thr AS (
-        SELECT COALESCE((SELECT CASE WHEN (p.value->>'acceptThresholdBatt') ~ '^[0-9]+$'
-                                      THEN (p.value->>'acceptThresholdBatt')::int ELSE NULL END
-                             FROM public.app_config AS p WHERE p.key = 'batt_policy' LIMIT 1), ${acceptThresholdBatt}) AS accept,
-               COALESCE((SELECT CASE WHEN (p.value->>'taskCostBatt') ~ '^[0-9]+$'
-                                      THEN (p.value->>'taskCostBatt')::int ELSE NULL END
-                             FROM public.app_config AS p WHERE p.key = 'batt_policy' LIMIT 1), ${taskCostBatt}) AS cost
-      ), gate AS (
-        SELECT t.*, COALESCE((SELECT b.batt FROM public.batt_account AS b WHERE b.uid = t.worker_uid), 0)::int AS worker_batt
-          FROM target AS t
-      ), upd AS (
-        UPDATE public.job_application AS a
-           SET status = 'accepted'
-          FROM gate AS g, thr
-         WHERE a.application_id = g.application_id
-           AND g.app_status = 'applied'
-           AND g.employer_uid = ${actorUid}
-           AND g.job_status = 'open'
-           AND g.worker_batt >= thr.accept
-        RETURNING a.application_id
-      ), upd_job AS (
-        UPDATE public.job AS j
-           SET status = 'accepted', worker_uid = t.worker_uid
-          FROM target AS t
-         WHERE j.job_id = t.job_id
-           AND t.job_status = 'open'
-           AND EXISTS (SELECT 1 FROM upd)
-        RETURNING j.job_id
-      ), deduct AS (
-        UPDATE public.batt_account AS b
-           SET batt = b.batt - (SELECT cost FROM thr)
-          FROM gate AS g, thr
-         WHERE b.uid = g.worker_uid
-           AND EXISTS (SELECT 1 FROM upd)
-           AND b.batt >= (SELECT cost FROM thr)
-        RETURNING b.batt, b.uid
-      ), ins_entry AS (
-        INSERT INTO public.batt_entry (uid, delta, batt_after, reason, idempotency_key, ref_type, ref_id, memo)
-        SELECT d.uid, -1 * (SELECT cost FROM thr), d.batt, 'task_cost',
-               'biz:job:accept:cost:' || d.uid::text || ':' || ${applicationId}::text,
-               'job_application', ${applicationId}::bigint, ''
-          FROM deduct AS d
-         WHERE (SELECT cost FROM thr) <> 0
-        ON CONFLICT (idempotency_key) DO NOTHING
-        RETURNING txid
-      )
-      SELECT t.application_id AS application_id, t.job_id AS job_id, t.worker_uid AS worker_uid,
-             t.app_status AS application_status, t.job_status AS job_status,
-             COALESCE(CASE WHEN EXISTS (SELECT 1 FROM upd) THEN 'accepted' END,
-                      CASE WHEN t.employer_uid <> ${actorUid} THEN 'not_employer'
-                           WHEN t.app_status = 'accepted' THEN 'already_accepted'
-                           WHEN t.app_status <> 'applied' THEN 'app_state_invalid'
-                           WHEN t.job_status <> 'open' THEN 'job_state_invalid'
-                           WHEN g.worker_batt < thr.accept THEN 'batt_below_threshold'
-                           ELSE 'job_state_invalid' END) AS outcome,
-             (SELECT d.batt FROM deduct AS d LIMIT 1) AS worker_batt_after
-        FROM target AS t, gate AS g, thr
-    `);
-
-    if (!row) return null;
-
-    return {
-      outcome: (toStringValue(getValue(row, 'outcome')) || 'app_state_invalid') as
-        'accepted' | 'not_employer' | 'already_accepted' | 'app_state_invalid' | 'job_state_invalid' | 'batt_below_threshold',
-      applicationId: toNumberValue(getValue(row, 'application_id')),
-      jobId: toNumberValue(getValue(row, 'job_id')),
-      workerUid: toNumberValue(getValue(row, 'worker_uid')),
-      applicationStatus: toStringValue(getValue(row, 'application_status')),
-      jobStatus: toStringValue(getValue(row, 'job_status')),
-      workerBattAfter: getValue(row, 'worker_batt_after') === null || getValue(row, 'worker_batt_after') === undefined
-        ? null
-        : toNumberValue(getValue(row, 'worker_batt_after')),
-    };
-  }
-
-  // ==========================================================================================
-  // ★ S16（可用性缺口：普通发布者本应能用 `/task/review` 待审队列）· **发布者过滤谓词唯一真源**
-  //   · 可选参数 `employerUid`（`list` / `count` **同一个**）：
-  //       `null`   ⇒ 谓词恒真（admin 全局视图 · 既有行为**零回归**）；
-  //       `number` ⇒ 仅 `job.employer_uid = <uid>`（普通发布者只看**自己作为发布者**的任务上的提交）。
-  //   · 谓词占位符**固定为 `$1`**，且两查询均**以它起参数编号**（list 依次 `$2`=limit、`$3`=skip）
-  //     ⇒ **一处定义、两处消费**，杜绝「两处各写一套」的漂移（S16 硬口径「过滤器同源」）。
-  //   · `LEFT JOIN job`（**非** inner join）：`$1 IS NULL`（admin）路径不因 join 丢行 ⇒ 与改前逐行同结果；
-  //     普通发布者路径下孤儿提交（无对应 job ⇒ 无发布者）自然排除。
-  // ==========================================================================================
-  private static readonly PENDING_VERIFICATION_FROM_SQL = `
-      FROM public.job_submission AS s
-      JOIN "users" AS u
-        ON u.uid = s.worker_uid
-      LEFT JOIN public.job AS j
-        ON j.job_id = s.job_id
-      WHERE COALESCE(NULLIF(BTRIM(COALESCE(s.deliverable, '')), ''), '') <> ''
-        AND s.review_status = 'pending'
-        AND COALESCE(u.is_admin, false) = false
-  `;
-
-  private static readonly PENDING_VERIFICATION_SCOPE_SQL =
-    'AND ($1::bigint IS NULL OR j.employer_uid = $1::bigint)';
-
-  /**
-   * 后台待审队列（雇主视角 `review_status='pending'`）。
-   * ★ S4a（`R-9-100`）· **换轴**：改前按 `job_application`（申请轴 = 每 (job,worker) 取最新一条提交）；
-   *   现**直接按 `job_submission` 提交轴**（新模型无申请行 ⇒ 旧写法会让新提交在待审面不可见）。
-   *   `jID` = `submission_id`（与读口换轴一致）；`info_input` = `deliverable`。
-   * ★ S16 · 新增可选 `employerUid`（默认 `null` = 全局 · admin 零回归）；普通发布者传自身 uid ⇒
-   *   仅返回其 `job.employer_uid` 命中的 pending 提交（谓词与 `countPendingVerification` **同源**）。
-   */
-  static async listPendingVerification(skip = 0, limit = 50, employerUid: number | null = null): Promise<PendingVerificationRecord[]> {
-    // neon 普通调用形（`sql(text, params)`）：本查询**手工**编号 `$1..$3`，谓词同源于共享常量。
-    const sql = getSql() as unknown as (text: string, params: unknown[]) => Promise<RawRow[]>;
-    const rows = extractRows(await sql(`
-      SELECT
-        s.submission_id AS "jID",
-        s.job_id AS "tID",
-        s.worker_uid AS "uID",
-        s.deliverable AS info_input,
-        s.time_created,
-        s.time_created AS time_submitted,
-        s.reviewed_at AS time_checked,
-        NULL::timestamptz AS time_claimed,
-        0::int AS points_claimed
-      ${DatabaseService.PENDING_VERIFICATION_FROM_SQL}
-        ${DatabaseService.PENDING_VERIFICATION_SCOPE_SQL}
-      ORDER BY s.time_created DESC NULLS LAST,
-               s.submission_id DESC
-      LIMIT $2 OFFSET $3
-    `, [employerUid, limit, skip]));
-
-    const items = await Promise.all(rows.map(async (row) => {
-      const taskProgress = normalizeTaskProgress(row);
-      const [task, user] = await Promise.all([
-        this.getTask(taskProgress.tID),
-        this.getUserById(taskProgress.uID),
-      ]);
-
-      return {
-        ...taskProgress,
-        task,
-        user: user
-          ? {
-              uID: user.uID,
-              EVM: user.EVM,
-              is_admin: user.is_admin,
-            }
-          : null,
-      };
-    }));
-
-    return items;
-  }
-
-  /**
-   * ★ S4a（`R-9-100`）· 待审计数（换轴：`job_submission` 提交轴，与 `listPendingVerification` 同源）。
-   * ★ S16 · 新增可选 `employerUid`（与列表口**同一可选参数 / 同一谓词常量**）；默认 `null` = 全局（零回归）。
-   */
-  static async countPendingVerification(employerUid: number | null = null): Promise<number> {
-    const sql = getSql() as unknown as (text: string, params: unknown[]) => Promise<RawRow[]>;
-    const rows = asItems<{ count: number }>(await sql(`
-      SELECT COUNT(1)::int AS count
-      ${DatabaseService.PENDING_VERIFICATION_FROM_SQL}
-        ${DatabaseService.PENDING_VERIFICATION_SCOPE_SQL}
-    `, [employerUid]));
-    return Number(rows[0]?.count || 0);
-  }
-
-  static async rejectPendingTaskProgress(jID: number): Promise<TaskProgressRecord | null> {
-    const sql = getSql();
-    const row = firstRow(await sql`
-      UPDATE task_progress AS j
-      SET info_input = NULL,
-          time_submitted = NULL
-      WHERE COALESCE(NULLIF(BTRIM(j."jID"), '')::int, 0) = ${jID}
-      RETURNING j.*
-    `);
-
-    return row ? normalizeTaskProgress(row) : null;
   }
 
   static async getUserStats(): Promise<{
@@ -5994,80 +4941,6 @@ export class DatabaseService {
     };
   }
 
-  /**
-   * **首任务腿写入**（`R-9-57` + `R-9-65` · 需求 §6.2②）：完成首个平台任务 ⇒ 本人 + 其**直接上级**
-   * （`referral.parent_uid`）各 `+firstTaskUsd`（默认 10）`$`；**无上级 ⇒ 只发本人、平台不吞**。
-   * 资金来源 = `uid = −1`（平台收入账户）出账（`R-9-65`）⇒ 分录 = `−1` 出一条 `−(perLeg × N)` 减方
-   * + 每位受益人一条 `+perLeg` 增方（`kind = invite_first_task_reward` · 净额 0 ⇒ `assertBalanced` 通过）。
-   * 幂等键 `biz:invite:firsttask:<worker_uid>`（只由不可变 `worker_uid` 派生）⇒ **「首个」= 首个提交
-   * 本键的结算动作**；同键重放 = `idempotent_replay`（`R106`：按成功处理、**不双发**）。
-   * ★ 唯一写入面 = `postEvent`（→ `ledger_post_event`）；**不新造第二套写入面**（`commission.spec §19.0`）。
-   */
-  static async settleInviteFirstTaskReward(input: { jobIdRaw: unknown }, ex?: SqlRunner): Promise<{
-    outcome: 'posted' | 'replayed' | 'skipped_no_worker' | 'skipped_no_recipient';
-    jobId: string; workerUid: string | null; parentUid: string | null;
-    perLegUsd: number; recipientUids: string[]; totalUsdFromPlatform: string;
-    idempotencyKey: string; source: PolicySource;
-  }> {
-    const jobId = String(input.jobIdRaw ?? '').trim();
-    const empty = (outcome: 'skipped_no_worker' | 'skipped_no_recipient', source: PolicySource) => ({
-      outcome, jobId, workerUid: null as string | null, parentUid: null as string | null,
-      perLegUsd: 0, recipientUids: [] as string[], totalUsdFromPlatform: '0', idempotencyKey: '', source,
-    });
-    if (!/^\d+$/.test(jobId)) return empty('skipped_no_worker', 'constant');
-
-    // ★ P9⑤（`R-9-68`）：`ex` 注入（沿 `grantSignupInviteBatt` 形态）——省略 ⇒ 走自有连接（CR29）。
-    const sql = sqlFor(ex);
-    const rows = asItems<Record<string, unknown>>(await sql`
-      SELECT (SELECT j.worker_uid FROM public.job AS j WHERE j.job_id = ${jobId}::bigint) AS worker_uid,
-             (SELECT r.parent_uid FROM public.referral AS r
-               WHERE r.child_uid = (SELECT j.worker_uid FROM public.job AS j WHERE j.job_id = ${jobId}::bigint)
-               LIMIT 1) AS parent_uid
-    `);
-    const row = rows[0] || {};
-    const workerRaw = row.worker_uid;
-    if (workerRaw === null || workerRaw === undefined) return empty('skipped_no_worker', 'constant');
-    const workerUid = String(workerRaw);
-    const parentRaw = row.parent_uid;
-    const parentUid = (parentRaw === null || parentRaw === undefined || String(parentRaw) === workerUid)
-      ? null : String(parentRaw);
-
-    const { policy, source } = resolveInviteRewardPolicy(await this.getAppConfigValueByKey('invite_reward_policy', ex));
-    const perLeg = policy.firstTaskUsd;
-    if (!Number.isSafeInteger(perLeg) || perLeg <= 0) {
-      return { ...empty('skipped_no_recipient', source), workerUid, parentUid };
-    }
-    const recipients = parentUid ? [workerUid, parentUid] : [workerUid];
-    const total = perLeg * recipients.length;
-    const key = `${INVITE_FIRST_TASK_KEY_PREFIX}${workerUid}`;
-    const memoBase = `邀请首任务奖励（平台发放）job=${jobId}`;
-    const entries: LedgerEventEntryInput[] = [
-      { uid: PLATFORM_UID.FEE, cid: SYSTEM_CURRENCY_CID, kind: 'invite_first_task_reward',
-        delta: (-total).toString(), frozenDelta: '0', refType: 'job', refId: jobId, memo: `${memoBase}（平台出账）` },
-      ...recipients.map((u, i) => ({
-        uid: u, cid: SYSTEM_CURRENCY_CID, kind: 'invite_first_task_reward' as const,
-        delta: perLeg.toString(), frozenDelta: '0', refType: 'job' as const, refId: jobId,
-        memo: i === 0 ? `${memoBase}（打工人本人）` : `${memoBase}（直接上级）`,
-      })),
-    ];
-    const result = await postEvent({
-      op: 'entries',
-      idempotencyKey: key,
-      requestFingerprint: fingerprintOf(['invite.first_task', jobId, workerUid, parentUid ?? '-', perLeg]),
-      memo: memoBase,
-      refType: 'job',
-      refId: jobId,
-      entries,
-      ex,
-    });
-    return {
-      outcome: result.idempotent_replay ? 'replayed' : 'posted',
-      jobId, workerUid, parentUid,
-      perLegUsd: perLeg, recipientUids: recipients, totalUsdFromPlatform: String(total),
-      idempotencyKey: key, source,
-    };
-  }
-
   // ==========================================================================
   // 批 9 第 4 片（P9④ · `data-layer.spec` v0.25 §33 · `route-layer.spec` v2.18 §30）：
   //   BTTC 代币（`battcoin`）铸造 / 分解 —— 载体 = `currency` 表一行（`R-9-2` / `R-9-40`）
@@ -6524,13 +5397,9 @@ export class DatabaseService {
     const sql = sqlFor(ex);
     const rows = asItems<Record<string, unknown>>(await sql`
       WITH cand AS (
+        -- ★ 2026-10-21（0070）：评分标的闭集从 {job, listing} 收为 {listing}；
+        --   招工轴（poster_to_worker / worker_to_poster）随头表下线一并移除。
         SELECT CASE
-          WHEN ${targetType}::text = 'job' THEN (
-            SELECT CASE
-              WHEN ${direction}::text = 'poster_to_worker' AND j.employer_uid = ${raterUid} THEN j.worker_uid
-              WHEN ${direction}::text = 'worker_to_poster' AND j.worker_uid = ${raterUid} THEN j.employer_uid
-              ELSE NULL END
-              FROM public.job AS j WHERE j.job_id = ${targetId}::bigint)
           WHEN ${targetType}::text = 'listing' THEN (
             SELECT CASE
               WHEN ${direction}::text = 'vendor_to_customer' AND o.seller_uid = ${raterUid} THEN o.buyer_uid
@@ -6594,19 +5463,16 @@ export class DatabaseService {
   }
 
   /**
-   * R2 · `GET /api/timeliness` 取数（四时长 + 比率四类）。
+   * R2 · `GET /api/timeliness` 取数（商品轴四读数 + 比率两类）。
+   * ★ 2026-10-21（migration 0070）：**招工轴整体下线** —— T1/T2（任务平均通过天数）、M1（工人通过率）、
+   *   M3（单任务通过率）与 `?jobId` 入参一并移除；对应载荷键（`posterAvgDays` / `workerAvgDays` /
+   *   `workerPassRate` / `jobPassRate`）由路由层保留键名并恒回 `null`（= 原「无数据」语义）。
    * 时长时点一律取**事件行 `time_created`**（`R-9-28`）；**无数据 ⇒ `null`**（路由映射「暂无数据」，**不填 0**）。
    *   T3 店家平均发货天数 = avg(发货事件 − 下单事件)（`seller_uid = uid` 的已发货订单）；
-   *   T4 顾客平均收货天数 = avg(收货事件 − 付款事件)（`buyer_uid = uid` 的已收货订单）；
-   *   T1 / T2（任务平均通过天数）载体 = **现取 `job_submission` 既有时间列**（`R-9-35` · `R-9-28` 载体优先级 ①）：
-   *     起点 = `job_submission.time_created`（工人提交）· 终点 = `job_submission.reviewed_at`（悬赏家审核时点，
-   *     `reviewJobSubmission` 落 `now()`）· 过滤 `review_status='approved' AND j.status='settled'`（✓ 零迁移）。
-   *     T1 挂 `job.employer_uid`（悬赏家）/ T2 挂 `job_submission.worker_uid`（工人）⇒ 同一批任务两读数一致。
-   *     无匹配行 ⇒ 分母 0 ⇒ **`null`**（前端「暂无数据」· **不填 0**）。
-   * 比率（默认 100%）：M1 工人通过率 = `settled / accepted`（`R-9-34` 分母 = 承接成功）；M2 顾客成交率
-   *   = `received / 全部订单`；可选 `jobId` / `listingId` ⇒ M3 / M4（单标的；未给 ⇒ `null`）。
+   *   T4 顾客平均收货天数 = avg(收货事件 − 付款事件)（`buyer_uid = uid` 的已收货订单）。
+   * 比率（默认 100%）：M2 顾客成交率 = `received / 全部订单`；可选 `listingId` ⇒ M4（单标的；未给 ⇒ `null`）。
    */
-  static async getTimeliness(uid: number, opts: { jobId?: number; listingId?: number } = {}, ex?: SqlRunner): Promise<{
+  static async getTimeliness(uid: number, opts: { listingId?: number } = {}, ex?: SqlRunner): Promise<{
     posterAvgDays: number | null; workerAvgDays: number | null;
     vendorAvgShipDays: number | null; customerAvgReceiveDays: number | null;
     workerPassRate: number | null; customerDealRate: number | null;
@@ -6628,32 +5494,14 @@ export class DatabaseService {
           JOIN public.listing_order_event AS e_recv ON e_recv.order_id = o.order_id AND e_recv.to_status = 'received'
          WHERE o.buyer_uid = ${uid}
       ),
-      m1 AS (SELECT count(*) FILTER (WHERE j.status = 'settled')::int AS num, count(*)::int AS den
-               FROM public.job AS j WHERE j.worker_uid = ${uid}),
       m2 AS (SELECT count(*) FILTER (WHERE o.status = 'received')::int AS num, count(*)::int AS den
                FROM public.listing_order AS o WHERE o.buyer_uid = ${uid}),
-      m3 AS (SELECT count(*) FILTER (WHERE j.status = 'settled')::int AS num, count(*)::int AS den
-               FROM public.job AS j WHERE j.job_id = ${opts.jobId ?? null}::bigint),
       m4 AS (SELECT count(*) FILTER (WHERE o.status = 'received')::int AS num, count(*)::int AS den
-               FROM public.listing_order AS o WHERE o.listing_id = ${opts.listingId ?? null}::bigint),
-      t1 AS (SELECT avg(EXTRACT(EPOCH FROM (s.reviewed_at - s.time_created)) / 86400.0) AS d
-               FROM public.job_submission AS s
-               JOIN public.job AS j ON j.job_id = s.job_id
-              WHERE j.employer_uid = ${uid} AND j.status = 'settled'
-                AND s.review_status = 'approved' AND s.reviewed_at IS NOT NULL),
-      t2 AS (SELECT avg(EXTRACT(EPOCH FROM (s.reviewed_at - s.time_created)) / 86400.0) AS d
-               FROM public.job_submission AS s
-               JOIN public.job AS j ON j.job_id = s.job_id
-              WHERE s.worker_uid = ${uid} AND j.status = 'settled'
-                AND s.review_status = 'approved' AND s.reviewed_at IS NOT NULL)
+               FROM public.listing_order AS o WHERE o.listing_id = ${opts.listingId ?? null}::bigint)
       SELECT
-        (SELECT d FROM t1)::text AS poster_avg_days,
-        (SELECT d FROM t2)::text AS worker_avg_days,
         (SELECT d FROM ship)::text AS vendor_avg_ship_days,
         (SELECT d FROM recv)::text AS customer_avg_receive_days,
-        (SELECT num FROM m1)::int AS m1_num, (SELECT den FROM m1)::int AS m1_den,
         (SELECT num FROM m2)::int AS m2_num, (SELECT den FROM m2)::int AS m2_den,
-        (SELECT num FROM m3)::int AS m3_num, (SELECT den FROM m3)::int AS m3_den,
         (SELECT num FROM m4)::int AS m4_num, (SELECT den FROM m4)::int AS m4_den
     `);
     const row = rows[0] || {};
@@ -6666,13 +5514,14 @@ export class DatabaseService {
       return d > 0 ? round4(n / d) : 1;
     };
     return {
-      posterAvgDays: numOf(row.poster_avg_days),
-      workerAvgDays: numOf(row.worker_avg_days),
+      // ★ 2026-10-21（0070）：招工轴四读数随 job 域下线恒 `null`（原「无数据 ⇒ null」同语义；载荷键保留）。
+      posterAvgDays: null,
+      workerAvgDays: null,
       vendorAvgShipDays: numOf(row.vendor_avg_ship_days),
       customerAvgReceiveDays: numOf(row.customer_avg_receive_days),
-      workerPassRate: rate(row.m1_num, row.m1_den),
+      workerPassRate: null,
       customerDealRate: rate(row.m2_num, row.m2_den),
-      jobPassRate: opts.jobId === undefined ? null : rate(row.m3_num, row.m3_den),
+      jobPassRate: null,
       listingDealRate: opts.listingId === undefined ? null : rate(row.m4_num, row.m4_den),
     };
   }
@@ -7068,106 +5917,6 @@ export class DatabaseService {
     await sql`
       DELETE FROM prize
       WHERE "bID" = ${bID}
-    `;
-    return true;
-  }
-
-  static async createTask(input: {
-    title?: string | null;
-    note?: string | null;
-    refcode?: string | null;
-    points?: number | null;
-    is_open?: boolean | null;
-    link0?: string | null;
-    linkB?: string | null;
-  }): Promise<TaskRecord> {
-    const title = String(input.title || '').trim();
-    if (!title) {
-      throw new Error('Task title is required');
-    }
-
-    const sql = getSql();
-    const row = firstRow(await sql`
-      INSERT INTO task AS t (
-        title,
-        note,
-        refcode,
-        points,
-        is_open,
-        link0,
-        "linkA",
-        "linkB",
-        time_created,
-        time_updated
-      )
-      VALUES (
-        ${title},
-        ${String(input.note || '').trim() || null},
-        ${String(input.refcode || '').trim() || null},
-        ${Math.max(0, Math.trunc(Number(input.points) || 0))},
-        ${input.is_open !== false},
-        ${String(input.link0 || '').trim() || null},
-        ${String(input.link0 || '').trim() || null},
-        ${String(input.linkB || '').trim() || null},
-        NOW(),
-        NOW()
-      )
-      RETURNING to_jsonb(t) AS row
-    `);
-
-    if (!row) {
-      throw new Error('Failed to create task');
-    }
-
-    return normalizeTask(row, 0);
-  }
-
-  static async updateTask(
-    tID: number,
-    input: {
-      title?: string | null;
-      note?: string | null;
-      refcode?: string | null;
-      points?: number | null;
-      is_open?: boolean | null;
-      link0?: string | null;
-      linkB?: string | null;
-    },
-  ): Promise<TaskRecord | null> {
-    const sql = getSql();
-    const row = firstRow(await sql`
-      UPDATE task AS t
-      SET title = COALESCE(${String(input.title || '').trim() || null}, title),
-          note = COALESCE(${String(input.note || '').trim() || null}, note),
-          refcode = COALESCE(${String(input.refcode || '').trim() || null}, refcode),
-          points = COALESCE(${toOptionalNumber(input.points)}, points),
-          is_open = COALESCE(${input.is_open ?? null}, is_open),
-          link0 = COALESCE(${String(input.link0 || '').trim() || null}, link0),
-          "linkA" = COALESCE(${String(input.link0 || '').trim() || null}, "linkA"),
-          "linkB" = COALESCE(${String(input.linkB || '').trim() || null}, "linkB"),
-          time_updated = NOW()
-      WHERE COALESCE((to_jsonb(t)->>'tID')::int, 0) = ${tID}
-      RETURNING to_jsonb(t) AS row
-    `);
-
-    if (!row) {
-      return null;
-    }
-
-    const participantsCount = await this.countTaskParticipants(tID);
-    return normalizeTask(row, participantsCount);
-  }
-
-  static async deleteTask(tID: number): Promise<boolean> {
-    const participantsCount = await this.countTaskParticipants(tID);
-    if (participantsCount > 0) {
-      throw new Error('Task already has participation records');
-    }
-
-    const sql = getSql();
-    await sql`
-      DELETE FROM task
-      WHERE "tID" = ${tID}
     `;
     return true;
   }
