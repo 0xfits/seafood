@@ -4,15 +4,16 @@ import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 
 import { Button, Card, CardContent } from '../components/ui'
-import { TaskCard } from '../components/task/TaskCard'
 import { RewardCard } from '../components/reward/RewardCard'
 // ★ route §49.16：商品链接段统一取 `item_code`（缺失回落数字 id）。
 import { itemLinkId } from '../item-link'
 import { FadeIn, SlideUp, StaggerContainer } from '../components/ui/Motion'
-import { ResponsiveGrid, ResponsiveContainer } from '../components/ui/Responsive'
-import ActiveTaskModal from '../components/ActiveTaskModal'
+import { ResponsiveContainer } from '../components/ui/Responsive'
 import { fetchApiJson, getAuthHeaders } from '../auth'
 import { useAuth } from '../auth-context'
+import { fetchHomeCampaignTasks, fetchHomeCurrencies } from '../home-api'
+import { buildHomeCampaignCards } from '../home-campaign'
+import HomeCampaignCard from '../components/campaign/HomeCampaignCard'
 import { pickLocalized } from '../i18n-content'
 import { PLACEHOLDER_IMAGE } from '../assets/placeholder'
 import { buildLocalizedPath, getLanguageFromUrl } from '../utils'
@@ -55,10 +56,19 @@ const mergeRewardPage = (prev, incoming) => {
   return merged
 }
 
+/**
+ * HOME-CAMP-v1（2026-10-21 · Kevin 派单）
+ *   首页「热门任务」版块 = **campaign 体系**：改拉公开读口
+ *   `GET /api/home/campaign-tasks`（行含 task_id / title / status / joined_count /
+ *   reward_* / campaign_title / project_title / project_slug / project_avatar_url
+ *   ＋ campaign_id）。
+ *   「第一轮」task = 主卡（不在首位 ⇒ 排到第一）；真数据优先、静态 mock 恰补足 5 张等宽卡；
+ *   空数据 ⇒ 5 张全 mock（版块不塌）。**旧 jobs 悬赏拉取（`/api/home` 的 tasks 消费 +
+ *   `/api/task/all` 回落）已整块删除，不再是本页数据面**。
+ */
 const HomePage = () => {
-  const HOME_TASK_LIMIT = 6
   // 聚合口 `/api/home` 的 `prize_limit` 参数**保留**（响应形状与其它消费不动）；
-  // ★ 但首页商品**不再消费**该字段 —— 见下方 FEED_PAGING 口径。
+  // ★ 但首页商品**不再消费**该字段 —— 见下方 FEED_PAGING 口径；`tasks` 字段同样不再消费。
   const HOME_REWARD_LIMIT = 8
   const navigate = useNavigate()
   const location = useLocation()
@@ -66,7 +76,10 @@ const HomePage = () => {
   const lang = getLanguageFromUrl(location.pathname)
   const { user, isAuthenticated } = useAuth()
   const { t } = useTranslation()
-  const [tasks, setTasks] = useState([])
+  // 首页「热门任务」原始行集（campaign 体系；装配 = `buildHomeCampaignCards`，mock 补足 5）
+  const [campaignRows, setCampaignRows] = useState([])
+  // 公开币种表 { cid → symbol }（只用于次币符号；失败 ⇒ 空表 ⇒ 次币行不渲染）
+  const [symbols, setSymbols] = useState({})
   const [rewards, setRewards] = useState([])
   const [loading, setLoading] = useState(true)
   // ★ FEED-PAGING-v1 分页态：`feedLoadingMore` = 下一页在飞；`feedHasMore` = 还有下一页；
@@ -75,8 +88,6 @@ const HomePage = () => {
   const [feedHasMore, setFeedHasMore] = useState(true)
   const [feedError, setFeedError] = useState(false)
   const [userPoints, setUserPoints] = useState(0)
-  const [selectedTask, setSelectedTask] = useState(null)
-  const [openActiveModal, setOpenActiveModal] = useState(false)
   // 分类筛选（并入自 `RewardPage`）：all / limited / highValue / claimed
   const [itemFilter, setItemFilter] = useState('all')
 
@@ -98,21 +109,6 @@ const HomePage = () => {
 
   // ★ P6-I18N-LIT-B5 必做②（D7 最后一项）：首页的**旧三目链**（语言后缀 + 空值合并运算符）收口为共用
   //   `pickLocalized`（`src/i18n-content.js`），与其余 8 处已接页一致。
-  const mapTasksForHome = (taskRows, lang) => (
-    (taskRows || []).map((task) => ({
-      ...task,
-      title: pickLocalized(task, 'title', lang),
-      note: pickLocalized(task, 'note', lang),
-      description: task.note,
-      status: task.is_open ? 'active' : 'inactive',
-      statusText: task.is_open ? t('common.ongoing') : t('common.ended'),
-      participants: task.participants_count || 0,
-      headcount: task.headcount || 1,
-      type: task.refcode ? 'trade' : 'join',
-      actionText: t('common.joinNow'),
-    }))
-  )
-
   const mapRewardsForHome = (prizeRows, lang, claimedPrizeIds = new Set()) => (
     (prizeRows || []).map((prize) => {
       const isClaimed = claimedPrizeIds.has(prize.bID)
@@ -171,13 +167,11 @@ const HomePage = () => {
       return Array.isArray(rows) ? rows : []
     }
 
-    // 聚合口不可用时的逐口回落（**只回落 tasks / claimed ids / points**；商品仍走分页口）
+    // 聚合口不可用时的逐口回落（**只回落 claimed ids / points**；商品仍走分页口、
+    // 任务走 campaign 读口 —— 旧 `/api/task/all` 悬赏回落已随 HOME-CAMP-v1 整块删除）
     const loadLegacyHomeMeta = async () => {
-      const taskRows = await fetchApiJson(`/api/task/all?limit=${HOME_TASK_LIMIT}`, { signal })
-
       if (!isAuthenticated || !user?.uID) {
         return {
-          tasks: taskRows,
           claimed_prize_ids: [],
           user_points: 0,
         }
@@ -189,7 +183,6 @@ const HomePage = () => {
       ])
 
       return {
-        tasks: taskRows,
         claimed_prize_ids: (claimedPrizeItems || []).map((prizeItem) => prizeItem.bID),
         user_points: asset?.points || 0,
       }
@@ -201,27 +194,46 @@ const HomePage = () => {
         ctx.lang = currentLang
         const headers = isAuthenticated ? getAuthHeaders(user) : undefined
 
-        // 聚合口（tasks / points / claimed ids）与**首屏 36 条**并行；任一失败各自独立处置：
-        //   聚合口失败 ⇒ 既有逐口回落（再失败才 toast）；首屏商品页失败 ⇒ 列表区出「重试」。
+        // 聚合口（points / claimed ids）与**首屏 36 条**、campaign 任务、币种表并行；
+        //   任一失败各自独立处置：聚合口失败 ⇒ 既有逐口回落（再失败才 toast）；
+        //   首屏商品页失败 ⇒ 列表区出「重试」；campaign 读口失败 ⇒ 空行集 ⇒ 版块 5 张全 mock（不塌）；
+        //   币种表失败 ⇒ 空表 ⇒ 次币行不渲染。
         const metaTask = fetchApiJson(
-          `/api/home?task_limit=${HOME_TASK_LIMIT}&prize_limit=${HOME_REWARD_LIMIT}`,
+          `/api/home?prize_limit=${HOME_REWARD_LIMIT}`,
           { headers, signal },
         ).catch(async (homeError) => {
           console.warn('Home aggregate endpoint failed, falling back to legacy requests:', homeError)
           return loadLegacyHomeMeta()
         })
+        // ★ HOME-CAMP-v1：热门任务改拉 campaign 读口（**独立失败处置**，失败不阻断页首其余数据）
+        const campaignTask = fetchHomeCampaignTasks(user)
+          .then((rows) => (Array.isArray(rows) ? rows : []))
+          .catch((campaignError) => {
+            console.warn('Home campaign tasks endpoint failed, rendering mock fallback:', campaignError)
+            return []
+          })
+        const currenciesTask = fetchHomeCurrencies(user)
+          .then((currencies) => {
+            const map = {}
+            for (const currency of (Array.isArray(currencies) ? currencies : [])) {
+              if (currency?.cid != null && currency?.symbol) map[String(currency.cid)] = String(currency.symbol)
+            }
+            return map
+          })
+          .catch(() => ({}))
         const firstPageTask = fetchFeedPage(0).then(
           (rows) => ({ ok: true, rows }),
           (error) => ({ ok: false, error }),
         )
 
         const homePayload = await metaTask
-        const firstPage = await firstPageTask
+        const [campaignRowsData, symbolsData, firstPage] = await Promise.all([campaignTask, currenciesTask, firstPageTask])
         if (cancelled) return
 
         const claimedPrizeIds = new Set(homePayload?.claimed_prize_ids || [])
         ctx.claimedIds = claimedPrizeIds
-        setTasks(mapTasksForHome(homePayload?.tasks || [], currentLang))
+        setCampaignRows(campaignRowsData)
+        setSymbols(symbolsData)
         setUserPoints(homePayload?.user_points || 0)
 
         if (firstPage.ok) {
@@ -300,11 +312,6 @@ const HomePage = () => {
     observer.observe(node)
     return () => observer.disconnect()
   }, [loading, feedError, feedHasMore, rewards.length])
-
-  const handleTaskAction = (task) => {
-    setSelectedTask(task)
-    setOpenActiveModal(true)
-  }
 
   // ★ 合并单：卡片动作 = 「查看该闲置物品详情」（原 `/reward` 已硬删）。
   //   `RewardCard` 的 `actionLabelKey='item.viewDetail'` 同时**解禁**按钮（查看不受积分门槛约束）。
@@ -393,34 +400,31 @@ const HomePage = () => {
         )}
 
         <SlideUp delay={200}>
-          <section>
+          {/* HOME-CAMP-v1：「热门任务」= campaign 体系五等卡（第一轮主卡置首 + mock 补位）。
+              版块恒 5 卡 ⇒ 不再有「无任务空态」分支（空数据 = 5 张全 mock，版块不塌）。
+              「查看全部」改指活动列表 `/campaign`（旧 jobs 悬赏拉取已删 ⇒ 不再指 `/task`）。 */}
+          <section data-sf-m="home-camp">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">{t('homePage.hotTasks')}</h2>
                 <p className="text-gray-600">{t('homePage.hotTasksLead')}<span className="text-sm font-bold text-yellow-600 dark:text-yellow-400">$</span></p>
               </div>
-              <Link to={buildLocalizedPath(lang, '/task')}>
+              <Link to={buildLocalizedPath(lang, '/campaign')}>
                 <Button variant="proceed">{t('common.viewAll')}</Button>
               </Link>
             </div>
 
-            {tasks.length > 0 ? (
-              <StaggerContainer>
-                <ResponsiveGrid sm={1} md={2} lg={3} gap={6}>
-                  {tasks.slice(0, 6).map((task, index) => (
-                    <FadeIn key={task.tID} delay={index * 100}>
-                      <TaskCard task={task} onAction={handleTaskAction} showStatus={true} />
-                    </FadeIn>
-                  ))}
-                </ResponsiveGrid>
-              </StaggerContainer>
-            ) : (
-              <Card variant="inactive">
-                <CardContent className="text-center py-8">
-                  <p className="text-gray-500">{t('homePage.noTasks')}</p>
-                </CardContent>
-              </Card>
-            )}
+            <div className="sf-home-camp-grid" data-sf-m="home-camp-grid">
+              {buildHomeCampaignCards(campaignRows).map((card, index) => (
+                <HomeCampaignCard
+                  key={card.taskId != null ? `task-${card.taskId}` : `mock-${index}`}
+                  card={card}
+                  lang={lang}
+                  t={t}
+                  symbols={symbols}
+                />
+              ))}
+            </div>
           </section>
         </SlideUp>
 
@@ -521,13 +525,7 @@ const HomePage = () => {
             （`./item/MyOrdersPanel` 保留复用；退款/发货/收货三写动作在 profile 侧仍可达，首页零死钩子）。 */}
       </div>
 
-      {selectedTask && (
-        <ActiveTaskModal
-          open={openActiveModal}
-          onClose={() => setOpenActiveModal(false)}
-          task={selectedTask}
-        />
-      )}
+      {/* HOME-CAMP-v1：`ActiveTaskModal` 随旧 jobs 卡片动作整块移出首页（组件本体保留，/task 页仍消费）。 */}
     </ResponsiveContainer>
   )
 }

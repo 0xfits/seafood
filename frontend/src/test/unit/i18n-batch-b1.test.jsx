@@ -47,7 +47,7 @@ describe('P6-I18N-LIT-B1 · en 档渲染英文文案', () => {
     await i18n.changeLanguage('zh')
   })
 
-  it('HomePage 首屏骨架（标题/小标题/按钮/空态）在 en 档渲染英文', async () => {
+  it('HomePage 首屏骨架（标题/小标题/按钮/热门任务五卡）在 en 档渲染英文', async () => {
     render(
       <MemoryRouter initialEntries={['/en']} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <HomePage />
@@ -59,7 +59,10 @@ describe('P6-I18N-LIT-B1 · en 档渲染英文文案', () => {
     expect(await screen.findByRole('heading', { name: 'Featured rewards' })).toBeInTheDocument()
     expect(screen.getAllByText('View all')).toHaveLength(1)
     expect(screen.getByText('Publish item')).toBeInTheDocument()
-    expect(screen.getByText('No tasks available')).toBeInTheDocument()
+    // ★ HOME-CAMP-v1：任务版块恒 5 卡（空数据 ⇒ 5 张 mock），版块不再有「No tasks available」空态
+    expect(document.querySelectorAll('[data-sf-m="home-camp-card"]')).toHaveLength(5)
+    expect(screen.queryByText('No tasks available')).toBeNull()
+    expect(screen.getAllByText('Ongoing').length).toBeGreaterThan(0)
     expect(screen.getByText('No items yet')).toBeInTheDocument()
   })
 

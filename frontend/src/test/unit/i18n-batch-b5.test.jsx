@@ -200,8 +200,9 @@ describe('P6-I18N-LIT-B5 · 必做② `HomePage` 收口 + LEGACY 清零 + AC③�
 
     expect(src.match(/_(en|hk|vn)\s*\?\?/g)).toBeNull()
     expect(src).toContain("from '../i18n-content'")
-    expect(src).toContain("pickLocalized(task, 'title', lang)")
-    expect(src).toContain("pickLocalized(task, 'note', lang)")
+    // ★ HOME-CAMP-v1：`mapTasksForHome`（旧 jobs 悬赏映射）整块删除 ⇒ 其两条 `pickLocalized`
+    //   断言随之退役；HomePage 仍经 `pickLocalized` 收口商品行（本页剩余唯一消费者）。
+    expect(src).not.toContain('pickLocalized(task,')
     expect(src).toContain("pickLocalized(prize, 'name', lang)")
     expect(src).toContain("pickLocalized(prize, 'description', lang)")
   })

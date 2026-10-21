@@ -26,6 +26,15 @@ import '../../i18n'
 import HomePage from '../../pages/HomePage'
 import { fetchApiJson, getAuthHeaders } from '../../auth'
 import { useAuth } from '../../auth-context'
+import { MOCK_HOME_CAMPAIGN_CARDS } from '../../home-campaign'
+
+// ============================================================================
+// HOME-CAMP-v1（2026-10-21）：首页「热门任务」= campaign 五等卡
+//   ① 主卡 = 第一轮（不在首位 ⇒ 排到第一）；
+//   ② mock **恰**补至 5（真数据优先；空数据 ⇒ 5 全 mock）；
+//   ③ 旧 jobs 悬赏拉取（`/api/task/all` / `/api/home` 的 tasks 消费 / `task_limit` 参数）0 命中；
+//   ④ 聚合口不可用时仍只回落 points / claimed ids（不再回落到任务口）。
+// ============================================================================
 
 const renderHomePage = () => render(
   <MemoryRouter initialEntries={['/']} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
@@ -33,152 +42,150 @@ const renderHomePage = () => render(
   </MemoryRouter>
 )
 
-describe('HomePage', () => {
+const cardsOf = (container) => [...container.querySelectorAll('[data-sf-m="home-camp-card"]')]
+const calledUrls = () => fetchApiJson.mock.calls.map(([url]) => String(url))
+
+describe('HomePage · 热门任务（campaign 体系）', () => {
   let consoleWarnSpy
+
+  const wireFetch = ({ campaignRows, homeFails = false, prizeRows = [{ bID: 2, name: '奖励甲', points: 120, stores_count: 3, claims_count: 0 }] } = {}) => {
+    fetchApiJson.mockImplementation(async (url) => {
+      const u = String(url)
+      // ★ 旧 jobs 悬赏口：若仍被请求即命中本支（用 throw 暴露，断言侧另有零命中判据）
+      if (u.startsWith('/api/task/all')) throw new Error('LEGACY_JOBS_FETCHED')
+
+      if (u === '/api/home/campaign-tasks') return campaignRows
+      if (u === '/api/currencies') return [{ cid: 1, symbol: '$' }, { cid: 2, symbol: 'batt' }]
+
+      if (u === '/api/home?prize_limit=8') {
+        if (homeFails) throw new Error('aggregate unavailable')
+        return {
+          // ★ 聚合口仍会下发 tasks（响应形状不动）—— 本页**不再消费**它
+          tasks: [{ tID: 999, title: '旧悬赏幽灵', note: '旧描述', points: 1, is_open: true }],
+          prizes: [],
+          claimed_prize_ids: [],
+          user_points: 42,
+        }
+      }
+      if (u === '/api/prize/all?skip=0&limit=36') return prizeRows
+      if (u.startsWith('/api/prize-item')) return []
+      if (u.startsWith('/api/user/asset/')) return { points: 520 }
+      if (u.startsWith('/api/prize/all?')) return []
+
+      throw new Error(`Unexpected URL: ${u}`)
+    })
+  }
 
   beforeEach(() => {
     vi.clearAllMocks()
     consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-
     getAuthHeaders.mockReturnValue({})
-    useAuth.mockReturnValue({
-      user: null,
-      isAuthenticated: false,
-    })
+    useAuth.mockReturnValue({ user: null, isAuthenticated: false })
   })
 
   afterEach(() => {
     consoleWarnSpy.mockRestore()
   })
 
-  it('falls back to legacy task and prize requests when the home endpoint is unavailable', async () => {
-    fetchApiJson.mockImplementation(async (url) => {
-      if (url === '/api/home?task_limit=6&prize_limit=8') {
-        throw new Error('Not found')
-      }
-
-      if (url === '/api/task/all?limit=6') {
-        return [
-          {
-            tID: 1,
-            title: '任务回退 A',
-            note: '任务描述',
-            points: 88,
-            is_open: true,
-            participants_count: 5,
-          },
-        ]
-      }
-
-      if (url === '/api/prize/all?skip=0&limit=36') {
-        return [
-          {
-            bID: 2,
-            name: '奖励回退 A',
-            description: '奖励描述',
-            points: 120,
-            stores_count: 3,
-            claims_count: 0,
-          },
-        ]
-      }
-
-      throw new Error(`Unexpected URL: ${url}`)
+  it('主卡 = 第一轮置首 · mock 恰补至 5 · 旧 jobs 零命中', async () => {
+    wireFetch({
+      campaignRows: [
+        { task_id: 11, campaign_id: 511, title: '任务甲', status: 'active', joined_count: 5, joined_target: 50, reward_amount_primary: '8', campaign_title: '春季活动', project_title: '项目甲', project_avatar_url: '/api/media/a.png' },
+        { task_id: 10, campaign_id: 510, title: '第一轮', status: 'active', joined_count: 66, joined_target: 300, reward_amount_primary: '15', reward_amount_secondary: '40', reward_cid_secondary: 2, campaign_title: '冬季主活动', project_title: '项目主', project_avatar_url: '' },
+        { task_id: 12, campaign_id: 512, title: '任务乙', status: 'ended', joined_count: 9, reward_amount_primary: '3', campaign_title: '秋季活动', project_title: '项目乙', project_avatar_url: '' },
+      ],
     })
 
-    renderHomePage()
+    const { container } = renderHomePage()
+    await waitFor(() => expect(cardsOf(container)).toHaveLength(5))
 
-    expect(await screen.findByRole('heading', { name: '任务回退 A' })).toBeInTheDocument()
-    expect(await screen.findByRole('heading', { name: '奖励回退 A' })).toBeInTheDocument()
+    const cards = cardsOf(container)
+    // ① 主卡置首（真数据第二行「第一轮」被旋到第一）
+    expect(cards[0].getAttribute('data-sf-camp-main')).toBe('1')
+    expect(cards[0].textContent).toContain('第一轮')
+    expect(cards[0].textContent).toContain('冬季主活动')
+    expect(cards[0].getAttribute('href')).toBe('/campaign/510')
+    // ② 其余真卡保持相对顺序，随后 mock 依序补位（3 真 + 2 mock = 恰 5）
+    expect(cards[1].textContent).toContain('任务甲')
+    expect(cards[1].getAttribute('href')).toBe('/campaign/511')
+    expect(cards[2].textContent).toContain('任务乙')
+    expect(cards[2].getAttribute('href')).toBe('/campaign/512')
+    expect(cards[3].textContent).toContain(MOCK_HOME_CAMPAIGN_CARDS[0].title)
+    expect(cards[4].textContent).toContain(MOCK_HOME_CAMPAIGN_CARDS[1].title)
+    expect(cards.map((card) => card.getAttribute('data-sf-camp-mock'))).toEqual(['0', '0', '0', '1', '1'])
+    // mock 卡不可点（渲染为 div，无 href）
+    expect(cards[3].getAttribute('href')).toBeNull()
 
-    expect(fetchApiJson).toHaveBeenCalledWith(
-      '/api/task/all?limit=6',
-      expect.objectContaining({ signal: expect.any(AbortSignal) }),
-    )
-    expect(fetchApiJson).toHaveBeenCalledWith(
-      '/api/prize/all?skip=0&limit=36',
-      expect.objectContaining({ signal: expect.any(AbortSignal) }),
-    )
+    // ③ 聚合口下发的 tasks 不再被消费（旧悬赏行不得出现在页面上）
+    expect(screen.queryByText('旧悬赏幽灵')).toBeNull()
+
+    // ④ 旧 jobs 拉取零命中
+    const urls = calledUrls()
+    expect(urls.some((url) => url.includes('/api/task/all'))).toBe(false)
+    expect(urls.some((url) => url.includes('task_limit'))).toBe(false)
+    expect(urls).not.toContain('/api/home?task_limit=6&prize_limit=8')
+
+    // 商品区与聚合口读数不受影响
+    expect(await screen.findByRole('heading', { name: '奖励甲' })).toBeInTheDocument()
+    expect(fetchApiJson).toHaveBeenCalledWith('/api/home?prize_limit=8', expect.objectContaining({ signal: expect.any(AbortSignal) }))
     expect(toast.error).not.toHaveBeenCalled()
   })
 
-  it('restores claimed reward state through legacy authenticated requests', async () => {
+  it('空数据 ⇒ 恰 5 张全 mock（版块不塌，零链接）', async () => {
+    wireFetch({ campaignRows: [] })
+
+    const { container } = renderHomePage()
+    await waitFor(() => expect(cardsOf(container)).toHaveLength(5))
+
+    const cards = cardsOf(container)
+    expect(cards.every((card) => card.getAttribute('data-sf-camp-mock') === '1')).toBe(true)
+    expect(cards.every((card) => card.getAttribute('href') === null)).toBe(true)
+    expect(container.querySelector('[data-sf-m="home-camp-grid"]').querySelectorAll('a')).toHaveLength(0)
+    expect(calledUrls().some((url) => url.includes('/api/task/all'))).toBe(false)
+  })
+
+  it('聚合口不可用 ⇒ 只回落 claimed ids / points（不再回落到任务口），五卡仍满', async () => {
     useAuth.mockReturnValue({
-      user: {
-        uID: 9,
-        token: 'home-token',
-        access_token: 'home-token',
-      },
+      user: { uID: 9, token: 'home-token', access_token: 'home-token' },
       isAuthenticated: true,
     })
     getAuthHeaders.mockReturnValue({ Authorization: 'Bearer home-token' })
-
-    fetchApiJson.mockImplementation(async (url, options = {}) => {
-      if (url === '/api/home?task_limit=6&prize_limit=8') {
-        throw new Error('route not deployed')
-      }
-
-      if (url === '/api/task/all?limit=6') {
-        return [
-          {
-            tID: 3,
-            title: '任务回退 B',
-            note: '任务描述',
-            points: 66,
-            is_open: true,
-            participants_count: 2,
-          },
-        ]
-      }
-
-      if (url === '/api/prize/all?skip=0&limit=36') {
-        return [
-          {
-            bID: 7,
-            name: '奖励回退 B',
-            description: '奖励描述',
-            points: 180,
-            stores_count: 1,
-            claims_count: 1,
-          },
-        ]
-      }
-
-      if (url === '/api/prize-item') {
-        expect(options).toEqual(expect.objectContaining({
-          headers: { Authorization: 'Bearer home-token' },
-          signal: expect.any(AbortSignal),
-        }))
-        return [{ bID: 7 }]
-      }
-
-      if (url === '/api/user/asset/9') {
-        return { points: 520 }
-      }
-
-      throw new Error(`Unexpected URL: ${url}`)
+    wireFetch({
+      homeFails: true,
+      campaignRows: [{ task_id: 21, campaign_id: 521, title: '第一轮', status: 'active', joined_count: 1, reward_amount_primary: '5', campaign_title: '回退活动', project_title: '回退项目' }],
     })
 
-    renderHomePage()
+    const { container } = renderHomePage()
+    await waitFor(() => expect(cardsOf(container)).toHaveLength(5))
 
-    expect(await screen.findByRole('heading', { name: '任务回退 B' })).toBeInTheDocument()
-    expect(await screen.findByRole('heading', { name: '奖励回退 B' })).toBeInTheDocument()
+    expect(cardsOf(container)[0].textContent).toContain('第一轮')
+    expect(cardsOf(container)[0].getAttribute('href')).toBe('/campaign/521')
+    expect(await screen.findByRole('heading', { name: '奖励甲' })).toBeInTheDocument()
 
-    await waitFor(() => {
-      // ★ 2026-10-19 改锚（合法移除）：「已兑换」状态徽章（claimed ⇒ statusText）随卡片改版整块移除，
-      //   该正向断言反向化 —— claimed 状态识别（legacy 请求恢复）仍由上游映射承重，卡面不再渲染状态文案。
-      expect(screen.queryByText('已兑换')).not.toBeInTheDocument()
+    expect(fetchApiJson).toHaveBeenCalledWith('/api/prize-item', expect.objectContaining({
+      headers: { Authorization: 'Bearer home-token' },
+      signal: expect.any(AbortSignal),
+    }))
+    expect(fetchApiJson).toHaveBeenCalledWith('/api/user/asset/9', expect.objectContaining({ signal: expect.any(AbortSignal) }))
+    const urls = calledUrls()
+    expect(urls.some((url) => url.includes('/api/task/all'))).toBe(false)
+    expect(toast.error).not.toHaveBeenCalled()
+  })
+
+  it('campaign 读口失败 ⇒ 落回全 mock（不阻断页首其余数据）', async () => {
+    fetchApiJson.mockImplementation(async (url) => {
+      const u = String(url)
+      if (u === '/api/home/campaign-tasks') throw new Error('campaign endpoint not deployed')
+      if (u === '/api/currencies') return []
+      if (u === '/api/home?prize_limit=8') return { tasks: [], prizes: [], claimed_prize_ids: [], user_points: 0 }
+      if (u === '/api/prize/all?skip=0&limit=36') return []
+      throw new Error(`Unexpected URL: ${u}`)
     })
 
-    expect(getAuthHeaders).toHaveBeenCalledWith({
-      uID: 9,
-      token: 'home-token',
-      access_token: 'home-token',
-    })
-    expect(fetchApiJson).toHaveBeenCalledWith(
-      '/api/user/asset/9',
-      expect.objectContaining({ signal: expect.any(AbortSignal) }),
-    )
+    const { container } = renderHomePage()
+    await waitFor(() => expect(cardsOf(container)).toHaveLength(5))
+    expect(cardsOf(container).every((card) => card.getAttribute('data-sf-camp-mock') === '1')).toBe(true)
+    expect(consoleWarnSpy).toHaveBeenCalled()
     expect(toast.error).not.toHaveBeenCalled()
   })
 })

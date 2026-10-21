@@ -104,6 +104,7 @@ const wireFetch = ({ pages, homePrizes = [{ bID: 9001, name: '聚合口商品', 
     const u = String(url)
     if (u.startsWith('/api/home?')) {
       return {
+        // ★ HOME-CAMP-v1 起聚合口的 `tasks` 不再被首页消费（版块改走 campaign 读口）
         tasks: [{ tID: 1, title: '任务 A', note: '描述', points: 10, is_open: true }],
         // ★ 故意塞一条「聚合口商品」：本单口径下首页不得渲染它
         prizes: homePrizes,
@@ -111,6 +112,8 @@ const wireFetch = ({ pages, homePrizes = [{ bID: 9001, name: '聚合口商品', 
         user_points: 0,
       }
     }
+    if (u.startsWith('/api/home/campaign-tasks')) return []
+    if (u.startsWith('/api/currencies')) return []
     const match = u.match(/^\/api\/prize\/all\?skip=(\d+)&limit=(\d+)$/)
     if (match) {
       const skip = Number(match[1])
@@ -152,8 +155,9 @@ describe('HomePage · 商品分页（FEED-PAGING-v1）', () => {
     expect(feedCalls()).toEqual([`/api/prize/all?skip=0&limit=36`])
     // 聚合口的 `prizes` 字段不再被消费
     expect(screen.queryByText('聚合口商品')).toBeNull()
-    // tasks 仍来自聚合口（形状不动）
-    expect(screen.getByText('任务 A')).toBeInTheDocument()
+    // ★ HOME-CAMP-v1：聚合口的 `tasks` 字段同样不再被消费（任务版块改走 campaign 读口）
+    expect(screen.queryByText('任务 A')).toBeNull()
+    expect(document.querySelector('[data-sf-m="home-camp-grid"]')).not.toBeNull()
     // 返回 36 条（满页）⇒ 仍可能有下一页 ⇒ sentinel 在场且已挂观察器
     expect(document.querySelector('[data-sf-m="feed-sentinel"]')).not.toBeNull()
     expect(document.querySelector('[data-sf-m="feed-end"]')).toBeNull()

@@ -1,0 +1,187 @@
+{
+  "at": "2026-10-21T10:03:02.179Z",
+  "fixture": {
+    "rows": 4,
+    "viewports": [
+      "vp1536",
+      "vp390"
+    ]
+  },
+  "arms": [
+    {
+      "viewport": "1536x960",
+      "cards": {
+        "card_count": 5,
+        "widths": [
+          276.8,
+          276.8,
+          276.8,
+          276.8,
+          276.8
+        ],
+        "heights": [
+          178,
+          178,
+          178,
+          178,
+          178
+        ],
+        "first_is_main": true,
+        "main_index": 0,
+        "main_text": "深深海流动性冬季主活动第一轮进行中已参与 66 / 共 300 人$15+40 batt",
+        "main_href": "/campaign/510",
+        "main_has_avatar": true,
+        "main_avatar_img": false,
+        "main_avatar_initial": "深",
+        "main_avatar_tone": "3",
+        "img_card_href": "/campaign/511",
+        "img_card_img_src": "/api/media/probe-project-a.png",
+        "mock_cards": 1,
+        "mock_clickable": 0,
+        "grid_display": "grid",
+        "grid_tracks": "276.797px 276.797px 276.797px 276.797px 276.797px",
+        "grid_client_width": 1432,
+        "grid_scroll_width": 1432,
+        "grid_scrolls": false,
+        "doc_scroll_width": 1536,
+        "doc_client_width": 1536,
+        "inner_width": 1536
+      },
+      "judgement": {
+        "exactly_five_cards": true,
+        "equal_width_cards": true,
+        "five_columns_or_scroll": true,
+        "no_page_overflow": true,
+        "main_card_first": true,
+        "main_card_labeled": true,
+        "main_card_avatar": true,
+        "avatar_two_forms": true,
+        "main_card_links_campaign": true,
+        "mock_not_clickable": true,
+        "old_jobs_api_hits_zero": true,
+        "pageerror_zero": true,
+        "console_error_zero": true,
+        "window_error_zero": true
+      },
+      "old_jobs_api_hits": [],
+      "api_requests": [
+        "/api/role-names",
+        "/api/home?prize_limit=8",
+        "/api/home/campaign-tasks",
+        "/api/currencies",
+        "/api/prize/all?skip=0&limit=36",
+        "/api/media/probe-project-a.png"
+      ],
+      "pageerror": [],
+      "console_errors": [],
+      "window_errors": []
+    },
+    {
+      "viewport": "390x844",
+      "cards": {
+        "card_count": 5,
+        "widths": [
+          240,
+          240,
+          240,
+          240,
+          240
+        ],
+        "heights": [
+          178,
+          178,
+          178,
+          178,
+          178
+        ],
+        "first_is_main": true,
+        "main_index": 0,
+        "main_text": "深深海流动性冬季主活动第一轮进行中已参与 66 / 共 300 人$15+40 batt",
+        "main_href": "/campaign/510",
+        "main_has_avatar": true,
+        "main_avatar_img": false,
+        "main_avatar_initial": "深",
+        "main_avatar_tone": "3",
+        "img_card_href": "/campaign/511",
+        "img_card_img_src": "/api/media/probe-project-a.png",
+        "mock_cards": 1,
+        "mock_clickable": 0,
+        "grid_display": "flex",
+        "grid_tracks": "none",
+        "grid_client_width": 338,
+        "grid_scroll_width": 1248,
+        "grid_scrolls": true,
+        "doc_scroll_width": 390,
+        "doc_client_width": 390,
+        "inner_width": 390
+      },
+      "judgement": {
+        "exactly_five_cards": true,
+        "equal_width_cards": true,
+        "five_columns_or_scroll": true,
+        "no_page_overflow": true,
+        "main_card_first": true,
+        "main_card_labeled": true,
+        "main_card_avatar": true,
+        "avatar_two_forms": true,
+        "main_card_links_campaign": true,
+        "mock_not_clickable": true,
+        "old_jobs_api_hits_zero": true,
+        "pageerror_zero": true,
+        "console_error_zero": true,
+        "window_error_zero": true
+      },
+      "old_jobs_api_hits": [],
+      "api_requests": [
+        "/api/role-names",
+        "/api/home?prize_limit=8",
+        "/api/home/campaign-tasks",
+        "/api/currencies",
+        "/api/prize/all?skip=0&limit=36",
+        "/api/media/probe-project-a.png"
+      ],
+      "pageerror": [],
+      "console_errors": [],
+      "window_errors": []
+    }
+  ],
+  "verdict": {
+    "1536x960": true,
+    "390x844": true
+  },
+  "judgement_detail": {
+    "1536x960": {
+      "exactly_five_cards": true,
+      "equal_width_cards": true,
+      "five_columns_or_scroll": true,
+      "no_page_overflow": true,
+      "main_card_first": true,
+      "main_card_labeled": true,
+      "main_card_avatar": true,
+      "avatar_two_forms": true,
+      "main_card_links_campaign": true,
+      "mock_not_clickable": true,
+      "old_jobs_api_hits_zero": true,
+      "pageerror_zero": true,
+      "console_error_zero": true,
+      "window_error_zero": true
+    },
+    "390x844": {
+      "exactly_five_cards": true,
+      "equal_width_cards": true,
+      "five_columns_or_scroll": true,
+      "no_page_overflow": true,
+      "main_card_first": true,
+      "main_card_labeled": true,
+      "main_card_avatar": true,
+      "avatar_two_forms": true,
+      "main_card_links_campaign": true,
+      "mock_not_clickable": true,
+      "old_jobs_api_hits_zero": true,
+      "pageerror_zero": true,
+      "console_error_zero": true,
+      "window_error_zero": true
+    }
+  },
+  "all_pass": true
+}

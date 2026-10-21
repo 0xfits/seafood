@@ -1144,3 +1144,202 @@ section[id^="section_"] .grid { gap: 1.25rem; }
 :root:not([data-theme="dark"]) #header .sf-topbar-hover-brand-fg:hover {
   color: var(--sf-brand-fg);
 }
+
+/* ===== HOME-CAMP-v1（2026-10-21）· 首页「热门任务」campaign 五等卡 =====
+   Kevin 派单（前端半）：版块 = 并排 5 个同等大小卡片（排满一行），「第一轮」task 为主卡。
+   · 桌面（≥1025px）= grid `repeat(5, minmax(0,1fr))`（minmax(0,1fr) 防内容撑破轨道，
+     轨道恒等宽 ⇒ 与 `repeat(5,1fr)` 同轨）；≤1024px = **横向滚动**（选型：单行横滚，
+     保「排满一行」语义，390 档探针判据同此）。
+   · 落点 = 本文件**顶层**（不入 @layer / 不入 shell.css —— 其「唯一 767 断点块」硬断言不动；
+     styles.css 多 @media 属既有先例：23 行 6 列 feed / 410 / 524 / 558 行）。
+   · 零新色值：底/字/边全部吃既有 token（panel / meta / btna / tag / page-fg /
+     price-num-fg）；头像兜底十档渐变 = 既有 `--sf-thumb-1 … --sf-thumb-10`
+     （theme/tokens.js 既有键，零 TOKEN_KEYS 变更、零 PROV 触碰）。
+   · 卡高一致：卡体 flex column + 拉伸对齐，标题两行占位（min-height 2×20px）。
+   ★ 类名自成一套 `sf-home-camp-*`（不混用 `sf-campaign-*` / `sf-item*`）。 */
+.sf-home-camp-grid {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  align-items: stretch;
+}
+
+.sf-home-camp-card {
+  flex: 0 0 auto;
+  width: 240px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  background: var(--sf-panel-bg);
+  border: 1px solid var(--sf-panel-border);
+  border-radius: var(--sf-panel-radius);
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 项目行：圆形 avatar + 项目名 / 活动名（小字） */
+.sf-home-camp-project {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.sf-home-camp-avatar {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 兜底十档渐变 = 既有主题 token（hash 选档，data-sf-tone 1..10） */
+.sf-home-camp-avatar[data-sf-tone="1"] { background: var(--sf-thumb-1); }
+.sf-home-camp-avatar[data-sf-tone="2"] { background: var(--sf-thumb-2); }
+.sf-home-camp-avatar[data-sf-tone="3"] { background: var(--sf-thumb-3); }
+.sf-home-camp-avatar[data-sf-tone="4"] { background: var(--sf-thumb-4); }
+.sf-home-camp-avatar[data-sf-tone="5"] { background: var(--sf-thumb-5); }
+.sf-home-camp-avatar[data-sf-tone="6"] { background: var(--sf-thumb-6); }
+.sf-home-camp-avatar[data-sf-tone="7"] { background: var(--sf-thumb-7); }
+.sf-home-camp-avatar[data-sf-tone="8"] { background: var(--sf-thumb-8); }
+.sf-home-camp-avatar[data-sf-tone="9"] { background: var(--sf-thumb-9); }
+.sf-home-camp-avatar[data-sf-tone="10"] { background: var(--sf-thumb-10); }
+
+.sf-home-camp-avatar-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sf-home-camp-avatar-initial {
+  color: var(--sf-page-fg);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.sf-home-camp-project-names {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sf-home-camp-project-name {
+  color: var(--sf-page-fg);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 18px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sf-home-camp-campaign-name {
+  color: var(--sf-meta-fg);
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 任务标题：两行截断 + 两行占位（卡高一致） */
+.sf-home-camp-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0;
+  min-height: 40px;
+  color: var(--sf-page-fg);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+/* 状态徽标（进行中 / 已截止）+ 参与进度 */
+.sf-home-camp-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 24px;
+}
+
+.sf-home-camp-tag {
+  flex: none;
+  padding: 1px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--sf-tag-radius);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.sf-home-camp-tag.is-active {
+  background: var(--sf-btna-bg);
+  border-color: var(--sf-btna-border);
+  color: var(--sf-btna-fg);
+}
+
+.sf-home-camp-tag.is-ended {
+  background: var(--sf-tag-bg);
+  border-color: var(--sf-tag-border);
+  color: var(--sf-tag-fg);
+}
+
+.sf-home-camp-joined {
+  color: var(--sf-meta-fg);
+  font-size: 12px;
+  line-height: 18px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 奖励：$ 金额（17px/700）+ 次币「+N 符号」（12px，同比例口径承 reward-card 价格行） */
+.sf-home-camp-reward {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.sf-home-camp-reward-primary {
+  color: var(--sf-price-num-fg);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 22px;
+}
+
+.sf-home-camp-reward-cur {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.sf-home-camp-reward-secondary {
+  color: var(--sf-meta-fg);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+/* 桌面五等列（≥1025px）：排满一行，卡宽 = 容器/5 */
+@media (min-width: 1025px) {
+  .sf-home-camp-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    overflow-x: visible;
+  }
+
+  .sf-home-camp-card {
+    width: auto;
+    min-width: 0;
+  }
+}
