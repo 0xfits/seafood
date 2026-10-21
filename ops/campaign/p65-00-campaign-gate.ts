@@ -7,7 +7,7 @@
  * 读数：`ops/campaign/readings/p65-campaign-gate-<RUN>.json`
  *
  * ★ 覆盖面（data §40.14 · route §49.18）：
- *   A · 静态面（零 DB）：注册点 127（get 55 / post 66 / patch 4 / delete 3 / put 0）· 九口在场 ·
+ *   A · 静态面（零 DB）：注册点 130（get 57 / post 66 / patch 4 / delete 3 / put 0）· 九口在场 ·
  *       `/api/campaign/all` 注册在 `:ref` 之前 · 六条管理口闸 = `manage_tasks`（非 manage_rewards）·
  *       零新 kind（LEDGER_KINDS 仍 24，平台出账借 `invite_first_task_reward`）· 零新错误码（33 码不动）·
  *       迁移无 BEGIN/COMMIT、注释零 dollar-dollar、恰一个 DO 块 · seed 恰 5 类且无 poll ·
@@ -173,8 +173,8 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
   // ======================================================================== A · 静态面（零 DB）
   const regs = (INDEX_TS.match(/^app\.(get|post|put|delete|patch)\(/gm) ?? []).length;
   const countVerb = (v: string) => (INDEX_TS.match(new RegExp(`^app\\.${v}\\(`, 'gm')) ?? []).length;
-  ck.t('A1', '注册点 = 128（118 + 活动域九口 ＋ user-balances `GET /api/user/balances` +1；get 55 / post 66 / patch 4 / delete 3 / put 0）',
-    regs === 128 && countVerb('get') === 55 && countVerb('post') === 66
+  ck.t('A1', '注册点 = 130（128 + home-campaign-tasks `GET /api/home/campaign-tasks` +1 + task-detail `GET /api/campaign/task/:taskId` +1；get 57 / post 66 / patch 4 / delete 3 / put 0 —— 两笔均**读口**，本门九口与写口零改动）',
+    regs === 130 && countVerb('get') === 57 && countVerb('post') === 66
       && countVerb('patch') === 4 && countVerb('delete') === 3 && countVerb('put') === 0,
     `regs=${regs} get=${countVerb('get')} post=${countVerb('post')} patch=${countVerb('patch')} delete=${countVerb('delete')}`);
 

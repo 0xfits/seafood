@@ -60,6 +60,17 @@ export const CAMPAIGN_STATUS_TRANSITIONS: Record<CampaignStatus, CampaignStatus[
   active: ['ended'],
   ended: [],
 };
+/**
+ * 任务（task）自己的迁移闭集（Kevin 2026-10-21 · 任务页步 3）：任务可**收回**（`active ⇒ draft`
+ * = 下线），活动**不可**（`active ⇒ draft` 仍 409 `campaign_invalid_transition`）。
+ * 只给 `patchTaskVerb` 用；`patchCampaignVerb` 恒用 `CAMPAIGN_STATUS_TRANSITIONS`（两表不共用，
+ * 免得「任务下线」把活动状态机一起放宽）。三值闭集不动、零新错误码（仍借 409 语义）。
+ */
+export const TASK_STATUS_TRANSITIONS: Record<CampaignStatus, CampaignStatus[]> = {
+  draft: ['active'],
+  active: ['draft', 'ended'],
+  ended: [],
+};
 /** Subtask Type 五类 seed 逐字（§40.14.3 CP-7；`poll` 不入） */
 export const SUBTASK_TYPES = [
   { type_code: 'x_verify', label: 'X 验证', sort: 1 },
@@ -1673,7 +1684,8 @@ export const patchTaskVerb = async (input: { ref: string; body: unknown; ex?: Tx
 
     const current = str(row.status) as CampaignStatus;
     const nextStatus = (p.status ?? current) as CampaignStatus;
-    if (nextStatus !== current && !CAMPAIGN_STATUS_TRANSITIONS[current].includes(nextStatus)) {
+    // 任务自己的迁移表（active ⇒ draft = 下线；活动仍用 CAMPAIGN_STATUS_TRANSITIONS，不受影响）
+    if (nextStatus !== current && !TASK_STATUS_TRANSITIONS[current].includes(nextStatus)) {
       return conflict('task_invalid_transition', { from: current, to: nextStatus });
     }
     const start = p.time_start !== undefined ? p.time_start : iso(row.time_start);

@@ -1,0 +1,222 @@
+{
+  "run": "20261021T110308Ziu5r",
+  "name": "p70-task-detail-gate",
+  "at": "2026-10-21T11:03:25.489Z",
+  "committed_before": {
+    "projects": 10,
+    "campaigns": 0,
+    "tasks": 0,
+    "subtasks": 0,
+    "proofs": 0,
+    "migrations": 67
+  },
+  "readings": {
+    "fixture_users": [
+      909801,
+      909802,
+      909803
+    ],
+    "fixture": {
+      "project_id": "94",
+      "campaign_id": "35",
+      "task_id": "28",
+      "snowflake_id": "362550859100160",
+      "proofs": 3,
+      "subtasks": 2
+    },
+    "committed_touch": "none (single rollback tx)"
+  },
+  "http": {
+    "port": 50751,
+    "h1": {
+      "status": 404,
+      "error": {
+        "code": "LEDGER_REF_NOT_FOUND",
+        "message": "Referenced object not found",
+        "i18n_key": "ledger.err.LEDGER_REF_NOT_FOUND",
+        "details": {
+          "ref_type": "task",
+          "ref_id": "9999999999",
+          "reason": "task_not_public"
+        }
+      }
+    },
+    "h2": {
+      "status": 404,
+      "error": {
+        "code": "LEDGER_REF_NOT_FOUND",
+        "message": "Referenced object not found",
+        "i18n_key": "ledger.err.LEDGER_REF_NOT_FOUND",
+        "details": {
+          "ref_type": "task",
+          "ref_id": "not-a-number",
+          "reason": "task_not_found"
+        }
+      }
+    }
+  },
+  "checks": [
+    {
+      "id": "A1",
+      "what": "★路由面：注册点 **130**（get 57 / post 66 / patch 4 / delete 3 / put 0）· 新口 `GET /api/campaign/task/:taskId` 在场且**公开**（块内零 `requireActor`）· 身份只经 `resolveOptionalCampaignViewer`（与 R2 同源）· 非数字 ref ⇒ 404 `task_not_found` · view=null ⇒ 404 `task_not_public` · 公开面 `setPublicCache(res)` / 非公开面 `setPrivateNoStore(res)` **分流**（draft 绝不进 CDN）· `sendSuccess(res, view, …)` · 异常走 `sendInfraMapped(res, 'campaign.task.detail')`",
+      "pass": true,
+      "reading": "{\"regs\":130,\"get\":57,\"post\":66,\"patch\":4,\"delete\":3,\"block_bytes\":845}"
+    },
+    {
+      "id": "A2",
+      "what": "★零新错误码：错误码闭集仍 **33** 值（`LEDGER_ERROR_CODES`）· 活动域源码里出现的码字面量 **⊆ 既有借码四值**（`LEDGER_AMOUNT_INVALID` / `LEDGER_REF_NOT_FOUND` / `LEDGER_INSUFFICIENT_BALANCE` / `AUTH_FORBIDDEN`）· 本口只借 404 `LEDGER_REF_NOT_FOUND`，逐场景理由落 `details.reason`（`task_not_found` / `task_not_public`，reason 不进闭集）",
+      "pass": true,
+      "reading": "{\"codes\":33,\"svc_codes\":[\"LEDGER_AMOUNT_INVALID\",\"LEDGER_REF_NOT_FOUND\",\"LEDGER_INSUFFICIENT_BALANCE\",\"AUTH_FORBIDDEN\"]}"
+    },
+    {
+      "id": "A3",
+      "what": "★读口 SQL 面：**单语句**归属链（`FROM public.task t JOIN public.campaign c … JOIN public.project pr …`，零 N+1）· 双形态 ref（`t.task_id = $1::bigint OR t.snowflake_id = $1::bigint`）· `count(DISTINCT p.uid)` 去重人数（相关子查询走 `subtask_proof ⋈ subtask`）· bigint/numeric 出参 `::text`（task_id / campaign_id / project_id / 三个 reward）· 子任务 `ORDER BY s.sort ASC, s.subtask_id ASC` 全序",
+      "pass": true,
+      "reading": "{\"one_stmt\":true,\"distinct\":true,\"dual_ref\":true}"
+    },
+    {
+      "id": "A4",
+      "what": "★可见性：纯函数 `isTaskPubliclyVisible` 三支逐字（`campaign_status === 'active'` ∧ `task_status !== 'draft'` ∧ `project_status !== 'ended'`，与首页读口同口径）· 服务层用**同一函数**决策（非公开 ⇒ 仅 `includeDraft` 管理员 ∨ `project_owner_uid` = 本人，其余返回 null）",
+      "pass": true,
+      "reading": "{\"visibility_block\":\"export const isTaskPubliclyVisible = (input: { task_status: string | null | undefined; campaign_status: string | null | undefined; project_status: string | null | undefined; }): boolean => str(input.campaign_status) === \"}"
+    },
+    {
+      "id": "A5",
+      "what": "★出参形状：顶层 **15 键**（task 十一键 ＋ `joined_count` ＋ `headcount` ＋ `campaign` ＋ `project` ＋ `subtasks`）· `campaign` 恰 3 键（id/title/status）· `project` 恰 5 键（id/title/slug/avatar_url/status）· `subtasks[]` 恰 7 键（无 `status` 键 —— 0065 CP-3 逐字：subtask 无 status 列）· `headcount` 为**条件键**（库内无值 ⇒ 键缺省）· `joined_count` 恒 `int()`（零凭证 ⇒ 0，不造 null）",
+      "pass": true,
+      "reading": "shape ok"
+    },
+    {
+      "id": "A6",
+      "what": "★状态机两表分离（任务页步 3）：`TASK_STATUS_TRANSITIONS` 恰 `{draft:[active], active:[draft,ended], ended:[]}`（任务可**收回**）· `CAMPAIGN_STATUS_TRANSITIONS` 一字未动（`{draft:[active], active:[ended], ended:[]}`，活动**不可**回退）· `patchTaskVerb` 只读任务表且不碰活动表 · `patchCampaignVerb` 只读活动表且不碰任务表 · 三值闭集仍 3 值 · 零新错误码（仍借 409 `LEDGER_INSUFFICIENT_BALANCE` + `details.reason`）",
+      "pass": true,
+      "reading": "{\"task_table\":{\"draft\":[\"active\"],\"active\":[\"draft\",\"ended\"],\"ended\":[]},\"campaign_table\":{\"draft\":[\"active\"],\"active\":[\"ended\"],\"ended\":[]},\"task_fn_bytes\":4727,\"campaign_fn_bytes\":4019,\"task_own\":true,\"campaign_own\":true}"
+    },
+    {
+      "id": "S1",
+      "what": "★公开可见臂（= 路由 200 的唯一决策点）：匿名读 active 任务 ⇒ **有 view** · 顶层 15 键齐无缺无多 · `title`/`description`/`status='active'`/`sort=3`/`reward_amount_primary='10'` 逐字 · `joined_count`=**2**（3 行凭证 / 2 个去重人 ⇒ DISTINCT 承重）· `headcount`=2（项目额定人数）· `campaign`{id,status,title} · `project`{avatar_url,id,slug,status,title} · `subtasks` 2 条、每条 7 键、`sort` 升序、`payload` 原样透出、`required` 布尔",
+      "pass": true,
+      "reading": "{\"view\":{\"task_id\":\"28\",\"title\":\"p70 task 20261021T110308Ziu5r\",\"description\":\"任务详情页夹具描述\",\"status\":\"active\",\"time_start\":null,\"time_end\":null,\"sort\":3,\"reward_amount_primary\":\"10\",\"reward_cid_secondary\":null,\"reward_amount_secondary\":null,\"joined_count\":2,\"headcount\":2,\"campaign\":{\"id\":\"35\",\"title\":\"p70 campaign 20261021T110308Ziu5r\",\"status\":\"active\"},\"project\":{\"id\":\"94\",\"title\":\"p70 gate project 20261021T110308Ziu5r\",\"slug\":\"p70axdjyze\",\"avatar_url\":null,\"status\":\"recruiting\"},\"subtasks\":[{\"subtask_id\":\"45\",\"type_code\":\"quiz\",\"title\":\"答题一\",\"content\":\"内容一\",\"payload\":{\"answers\":{\"q1\":\"yes\"}},\"sort\":1,\"required\":true},{\"subtask_id\":\"46\",\"type_code\":\"survey\",\"title\":\"问卷二\",\"content\":null,\"payload\":{\"answers\":{\"q2\":\"no\"}},\"sort\":2,\"required\":false}]},\"keys\":[\"campaign\",\"description\",\"headcount\",\"joined_count\",\"project\",\"reward_amount_primary\",\"reward_amount_secondary\",\"reward_cid_secondary\",\"sort\",\"status\",\"subtasks\",\"task_id\",\"time_end\",\"time_start\",\"title\"],\"proofs\":3,\"dist_ok\":true}"
+    },
+    {
+      "id": "S2",
+      "what": "★负面（draft 匿名）：任务置 `draft` ⇒ 匿名读 **null**（路由落 404 `LEDGER_REF_NOT_FOUND` + `reason='task_not_public'`，与「不存在」同形 ⇒ 不泄露存在性）",
+      "pass": true,
+      "reading": "{\"anon\":\"null\",\"sqlstate\":null}"
+    },
+    {
+      "id": "S3",
+      "what": "★放宽面（draft owner）：`actorUid = project.owner_uid` ⇒ **200 同形状**（同一读口、15 键齐、`status='draft'`、`joined_count` 仍 2）⇒ owner 不是第二套字段面",
+      "pass": true,
+      "reading": "{\"owner_keys\":[\"campaign\",\"description\",\"headcount\",\"joined_count\",\"project\",\"reward_amount_primary\",\"reward_amount_secondary\",\"reward_cid_secondary\",\"sort\",\"status\",\"subtasks\",\"task_id\",\"time_end\",\"time_start\",\"title\"],\"status\":\"draft\"}"
+    },
+    {
+      "id": "S4",
+      "what": "★放宽面（draft 管理员）：`includeDraft=true`（谓词 = `can_access_admin ∧ (is_admin ∨ manage_tasks)`，路由层同源）⇒ 200 同形状（即便非 owner）",
+      "pass": true,
+      "reading": "{\"admin_keys\":[\"campaign\",\"description\",\"headcount\",\"joined_count\",\"project\",\"reward_amount_primary\",\"reward_amount_secondary\",\"reward_cid_secondary\",\"sort\",\"status\",\"subtasks\",\"task_id\",\"time_end\",\"time_start\",\"title\"]}"
+    },
+    {
+      "id": "S5",
+      "what": "★闸承重（draft 第三方）：登录但**既非 owner 亦非管理员**（FAN1）⇒ null ⇒ 「登录」本身不是可见性（draft 不被普通会话读到）",
+      "pass": true,
+      "reading": "{\"third\":\"null\"}"
+    },
+    {
+      "id": "S6",
+      "what": "不存在臂：任务 id 不存在（管理员身份也一样）⇒ `null` · 非数字 ref ⇒ `null`（路由层 `isCampaignRef` 先拦 ⇒ 404 `task_not_found`，绝不 500 —— route #60）",
+      "pass": true,
+      "reading": "{\"missing\":null,\"bad_ref\":null}"
+    },
+    {
+      "id": "S7",
+      "what": "双形态 ref：`snowflake_id` 与 `task_id` 读到**同一任务**（task_id 逐字相同、`joined_count` 相同）⇒ 对外标识与内务主键等价",
+      "pass": true,
+      "reading": "{\"by_snow\":\"28\",\"expect\":\"28\"}"
+    },
+    {
+      "id": "S8",
+      "what": "★负面（ended 项目）：项目置 `ended`（活动/任务仍 active）⇒ 匿名 **null** ⇒ 404（`project_status !== 'ended'` 承重；删这一支 ⇒ 本臂必红）· owner 仍 200（放宽面覆盖 ended）且 `project.status` 逐字 `ended`",
+      "pass": true,
+      "reading": "{\"anon\":\"null\",\"owner_status\":\"ended\",\"sqlstate\":null}"
+    },
+    {
+      "id": "S9",
+      "what": "★负面（campaign 非 active / ended）：活动收口 ⇒ 匿名 **null**（`campaign_status === 'active'` 承重；与首页读口同口径）· 管理员仍 200",
+      "pass": true,
+      "reading": "{\"anon\":\"null\",\"admin_ok\":true}"
+    },
+    {
+      "id": "T1",
+      "what": "★任务**下线**放开：`PATCH /api/campaign/task/:id` 送 `{status:'draft'}`（任务当前 active）⇒ **200**（此前被活动共用表拦成 409 `task_invalid_transition`）· 出参 `status='draft'` · **DB 逐字翻回 `draft`**（不是只在内存里回话）· owner 读口同口径读到 `status='draft'`",
+      "pass": true,
+      "reading": "{\"before\":\"active\",\"status\":200,\"after\":\"draft\",\"detail\":\"draft\",\"sqlstate\":null}"
+    },
+    {
+      "id": "T2",
+      "what": "★活动**不跟着放宽**（行为零变）：`PATCH /api/campaign/:id` 送 `{status:'draft'}`（活动当前 active）⇒ **409 `campaign_invalid_transition`**（借码 `LEDGER_INSUFFICIENT_BALANCE`，零新错误码）· 库内仍 `active`（拒绝即零写）",
+      "pass": true,
+      "reading": "{\"before\":\"active\",\"status\":409,\"reason\":\"campaign_invalid_transition\",\"code\":\"LEDGER_INSUFFICIENT_BALANCE\",\"after\":\"active\"}"
+    },
+    {
+      "id": "T3",
+      "what": "★封板不动（`ended: []` 逐字）：任务置 `ended` ⇒ 送 `draft` 与 `active` **两向都 409**（`campaign_ended_frozen`，借码不变）· 库内仍 `ended`（零写）⇒ 新表只多开「active ⇒ draft」一条，`ended` 顶点未动",
+      "pass": true,
+      "reading": "{\"to_draft\":[409,\"campaign_ended_frozen\"],\"to_active\":[409,\"campaign_ended_frozen\"],\"after\":\"ended\"}"
+    },
+    {
+      "id": "N1",
+      "what": "★负控①（draft 闸）：真实谓词对 draft 任务 = false；**去掉 draft 闸的 mutant** = true ⇒ 「删掉 draft 闸 ⇒ 匿名可读 draft」这一变异必被本门抓住（本臂即红）",
+      "pass": true,
+      "reading": "{\"real\":false,\"mutant\":true}"
+    },
+    {
+      "id": "N2",
+      "what": "★负控②（ended 闸）：真实谓词对 ended 项目任务 = false；去掉 ended 闸的 mutant = true ⇒ 删这一支必红",
+      "pass": true,
+      "reading": "{\"real\":false,\"mutant\":true}"
+    },
+    {
+      "id": "N3",
+      "what": "★负控③（DISTINCT 承重）：同任务 **3 行凭证 / 2 个去重人** ⇒ `count(*)`=3 ≠ `joined_count`=2；把 SQL 的 `count(DISTINCT p.uid)` 改成 `count(p.uid)` ⇒ 读口出 3，本门读数对不上必红",
+      "pass": true,
+      "reading": "{\"rows\":3,\"people\":2}"
+    },
+    {
+      "id": "N4",
+      "what": "★负控④（静态判据可证伪）：源码文本里删掉 `task_status !== 'draft'` ⇒ A4 谓词转 false；把 `count(DISTINCT p.uid)` 改成 `count(p.uid)` ⇒ A3 谓词转 false ⇒ 本门的静态臂不是同义反复",
+      "pass": true,
+      "reading": "{\"vis_real\":true,\"vis_mutated\":false,\"distinct_real\":true,\"distinct_mutated\":false}"
+    },
+    {
+      "id": "H1",
+      "what": "★真 HTTP（不存在臂）：`GET /api/campaign/task/9999999999` ⇒ **404** · `error.code = LEDGER_REF_NOT_FOUND` · `details.ref_type='task'`、`details.reason='task_not_public'` ⇒ 证明**路由已注册**（不是末尾 catch-all 的 `route_not_found`）且参数解析到位",
+      "pass": true,
+      "reading": "{\"status\":404,\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"Referenced object not found\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"task\",\"ref_id\":\"9999999999\",\"reason\":\"task_not_public\"}}}"
+    },
+    {
+      "id": "H2",
+      "what": "★真 HTTP（非数字 ref）：`GET /api/campaign/task/not-a-number` ⇒ **404** `reason='task_not_found'`（`isCampaignRef` 前置拦截，不进服务层、不 500）· 错误响应**不带**公共缓存头（不得缓存错误体）",
+      "pass": true,
+      "reading": "{\"status\":404,\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"Referenced object not found\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"task\",\"ref_id\":\"not-a-number\",\"reason\":\"task_not_found\"}},\"cache\":[\"\",\"\"]}"
+    },
+    {
+      "id": "Z1",
+      "what": "零残留：project 10 / campaign 0 / task 0 / subtask 0 / subtask_proof 0 / schema_migration 67 行数**不变**（夹具全在单回滚事务内）",
+      "pass": true,
+      "reading": "{\"before\":{\"projects\":10,\"campaigns\":0,\"tasks\":0,\"subtasks\":0,\"proofs\":0,\"migrations\":67},\"after\":{\"projects\":10,\"campaigns\":0,\"tasks\":0,\"subtasks\":0,\"proofs\":0,\"migrations\":67}}"
+    },
+    {
+      "id": "Z2",
+      "what": "零残留（用户面）：本门夹具 uid（909801/909802/909803）**不存在**于 committed 面 ⇒ 回滚彻底",
+      "pass": true,
+      "reading": "{\"fixture_users_left\":0}"
+    }
+  ],
+  "summary": {
+    "total": 26,
+    "passed": 26,
+    "failed": 0,
+    "red": []
+  }
+}

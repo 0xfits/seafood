@@ -45,12 +45,15 @@ import { checker, inRollbackTx, mkPool, raw, raw1, qRetry } from '../../backend-
 import type { Qx } from '../../backend-ts/scripts/p7b-lib';
 import type { TxClient } from '../../backend-ts/src/db';
 import {
+  CAMPAIGN_STATUSES,
+  CAMPAIGN_STATUS_TRANSITIONS,
   createCampaignVerb,
   createTaskVerb,
   getTaskDetailByRef,
   isTaskPubliclyVisible,
   patchCampaignVerb,
   patchTaskVerb,
+  TASK_STATUS_TRANSITIONS,
 } from '../../backend-ts/src/campaign-service';
 import type { TaskDetailView } from '../../backend-ts/src/campaign-service';
 import { createProjectVerb, currentCreateFee } from '../../backend-ts/src/project-service';
@@ -87,6 +90,23 @@ const svcSlice = (start: string, end: string): string => {
   const j = CAMP_SVC.indexOf(end, i);
   return CAMP_SVC.slice(i, j < 0 ? i + 3000 : j + end.length);
 };
+/** 服务层**单函数**切片（迁移表归属断言用；截到下一个 `export const`，不越界到邻居） */
+const svcFn = (name: string): string => {
+  const i = CAMP_SVC.indexOf(`export const ${name} `);
+  if (i < 0) return '';
+  const j = CAMP_SVC.indexOf('\nexport const ', i + 10);
+  return CAMP_SVC.slice(i, j < 0 ? CAMP_SVC.length : j);
+};
+const PATCH_TASK_FN = svcFn('patchTaskVerb');
+const PATCH_CAMPAIGN_FN = svcFn('patchCampaignVerb');
+
+/** 迁移表归属（**可证伪**：把任务侧表名换成活动表 ⇒ 同一谓词自己转 false） */
+const taskUsesOwnTransitions = (src: string): boolean =>
+  /!TASK_STATUS_TRANSITIONS\[current\]\.includes\(nextStatus\)/.test(src)
+  && !/CAMPAIGN_STATUS_TRANSITIONS\[current\]/.test(src);
+const campaignUsesOwnTransitions = (src: string): boolean =>
+  /!CAMPAIGN_STATUS_TRANSITIONS\[current\]\.includes\(nextStatus\)/.test(src)
+  && !/TASK_STATUS_TRANSITIONS\[current\]/.test(src);
 
 const TASK_DETAIL_SQL_BLOCK = svcSlice('const TASK_DETAIL_SQL', '`;');
 /** 可见性纯函数整块（★ 不能按第一个分号切 —— 函数签名里的类型注解就有分号） */
@@ -141,6 +161,12 @@ const tx = async <T>(p: ReturnType<typeof mkPool>, fn: (c: Qx) => Promise<T>) =>
 };
 
 const viewOf = <T,>(r: unknown): T => ((r as { view?: T })?.view ?? {}) as T;
+const verbOf = (r: unknown): number => {
+  const x = r as { ok?: boolean; status?: number };
+  return x?.ok ? 200 : Number(x?.status ?? 0);
+};
+const reasonOf = (r: unknown) => String(((r as { details?: { reason?: unknown } })?.details?.reason) ?? '');
+const codeOf = (r: unknown) => String(((r as { code?: unknown })?.code) ?? '');
 
 /** 负控用 mutant：与真实谓词**只差一条闸**（去掉 ⇒ 必红） */
 const mutantNoDraftGate = (x: { task_status: string; campaign_status: string; project_status: string }) =>
@@ -221,6 +247,20 @@ const sameKeys = (a: string[], b: string[]) => JSON.stringify(a) === JSON.string
       && /project: \{\s*id: str\(row\.project_id\),\s*title: str\(row\.project_title\),\s*slug: str\(row\.project_slug\),\s*avatar_url: strOrNull\(row\.project_avatar_url\),\s*status: str\(row\.project_status\),/.test(CAMP_SVC.replace(/\n\s*/g, ' '))
       && !/status: str\(s\.status\)/.test(CAMP_SVC),
     'shape ok');
+
+  ck.t('A6',
+    '★状态机两表分离（任务页步 3）：`TASK_STATUS_TRANSITIONS` 恰 `{draft:[active], active:[draft,ended], ended:[]}`（任务可**收回**）· `CAMPAIGN_STATUS_TRANSITIONS` 一字未动（`{draft:[active], active:[ended], ended:[]}`，活动**不可**回退）· `patchTaskVerb` 只读任务表且不碰活动表 · `patchCampaignVerb` 只读活动表且不碰任务表 · 三值闭集仍 3 值 · 零新错误码（仍借 409 `LEDGER_INSUFFICIENT_BALANCE` + `details.reason`）',
+    JSON.stringify(TASK_STATUS_TRANSITIONS) === JSON.stringify({ draft: ['active'], active: ['draft', 'ended'], ended: [] })
+      && JSON.stringify(CAMPAIGN_STATUS_TRANSITIONS) === JSON.stringify({ draft: ['active'], active: ['ended'], ended: [] })
+      && PATCH_TASK_FN.length > 0 && PATCH_CAMPAIGN_FN.length > 0
+      && taskUsesOwnTransitions(PATCH_TASK_FN)
+      && campaignUsesOwnTransitions(PATCH_CAMPAIGN_FN)
+      && CAMPAIGN_STATUSES.length === 3,
+    JSON.stringify({
+      task_table: TASK_STATUS_TRANSITIONS, campaign_table: CAMPAIGN_STATUS_TRANSITIONS,
+      task_fn_bytes: PATCH_TASK_FN.length, campaign_fn_bytes: PATCH_CAMPAIGN_FN.length,
+      task_own: taskUsesOwnTransitions(PATCH_TASK_FN), campaign_own: campaignUsesOwnTransitions(PATCH_CAMPAIGN_FN),
+    }));
 
   // ======================================================================== B + S · 事务内
   const pool = mkPool(2);
@@ -413,6 +453,74 @@ const sameKeys = (a: string[], b: string[]) => JSON.stringify(a) === JSON.string
       '★负面（campaign 非 active / ended）：活动收口 ⇒ 匿名 **null**（`campaign_status === \'active\'` 承重；与首页读口同口径）· 管理员仍 200',
       endedCamp.sqlstate === null && ec !== null && ec.anon === null && ec.admin !== null,
       JSON.stringify({ anon: ec?.anon ?? 'null', admin_ok: ec?.admin !== null }));
+
+    // ==================================================================== T · 任务状态机（下线放开 · 任务页步 3）
+    // 三臂＋负控：任务是**自己的**迁移表（active ⇒ draft 合法），活动表一字不动（active ⇒ draft 仍 409）。
+    const taskStatusInDb = async () => String((await q1<{ s: string }>(
+      'SELECT status::text AS s FROM public.task WHERE task_id = $1::bigint', [T_A]))?.s ?? '');
+    const campaignStatusInDb = async () => String((await q1<{ s: string }>(
+      'SELECT status::text AS s FROM public.campaign WHERE campaign_id = $1::bigint', [C_A]))?.s ?? '');
+
+    // T1 · task active ⇒ draft（下线）· 200 且 **DB 状态真翻回 draft**
+    const offlineArm = await undoAfter(c, 'task_offline', async () => {
+      const before = await taskStatusInDb();
+      const res = await patchTaskVerb({ ref: T_A, body: { status: 'draft' }, ex });
+      const after = await taskStatusInDb();
+      const detail = await getTaskDetailByRef(T_A, { includeDraft: true, actorUid: OWNER }, ex);
+      return { before, res, after, detailStatus: detail?.status ?? null };
+    });
+    const off = offlineArm.value as {
+      before: string; res: unknown; after: string; detailStatus: string | null;
+    } | null;
+    ck.t('T1',
+      '★任务**下线**放开：`PATCH /api/campaign/task/:id` 送 `{status:\'draft\'}`（任务当前 active）⇒ **200**（此前被活动共用表拦成 409 `task_invalid_transition`）· 出参 `status=\'draft\'` · **DB 逐字翻回 `draft`**（不是只在内存里回话）· owner 读口同口径读到 `status=\'draft\'`',
+      offlineArm.sqlstate === null && off !== null
+        && off.before === 'active'
+        && verbOf(off.res) === 200
+        && String((viewOf<{ status?: string }>(off.res)).status) === 'draft'
+        && off.after === 'draft'
+        && off.detailStatus === 'draft',
+      JSON.stringify({ before: off?.before, status: verbOf(off?.res), after: off?.after, detail: off?.detailStatus, sqlstate: offlineArm.sqlstate }));
+
+    // T2 · campaign active ⇒ draft（回退）· 仍 409（活动状态机零变化）
+    const campBackArm = await undoAfter(c, 'camp_back', async () => {
+      const before = await campaignStatusInDb();
+      const res = await patchCampaignVerb({ ref: C_A, body: { status: 'draft' }, ex });
+      const after = await campaignStatusInDb();
+      return { before, res, after };
+    });
+    const cb = campBackArm.value as { before: string; res: unknown; after: string } | null;
+    ck.t('T2',
+      '★活动**不跟着放宽**（行为零变）：`PATCH /api/campaign/:id` 送 `{status:\'draft\'}`（活动当前 active）⇒ **409 `campaign_invalid_transition`**（借码 `LEDGER_INSUFFICIENT_BALANCE`，零新错误码）· 库内仍 `active`（拒绝即零写）',
+      campBackArm.sqlstate === null && cb !== null
+        && cb.before === 'active'
+        && verbOf(cb.res) === 409
+        && reasonOf(cb.res) === 'campaign_invalid_transition'
+        && codeOf(cb.res) === 'LEDGER_INSUFFICIENT_BALANCE'
+        && cb.after === 'active',
+      JSON.stringify({ before: cb?.before, status: verbOf(cb?.res), reason: reasonOf(cb?.res), code: codeOf(cb?.res), after: cb?.after }));
+
+    // T3 · ended ⇒ * 一律 409（封板不被新表打开）
+    const endedArm = await undoAfter(c, 'task_ended_fan', async () => {
+      await c.query(`UPDATE public.task SET status = 'ended' WHERE task_id = $1::bigint`, [T_A]);
+      const toDraft = await patchTaskVerb({ ref: T_A, body: { status: 'draft' }, ex });
+      const toActive = await patchTaskVerb({ ref: T_A, body: { status: 'active' }, ex });
+      const after = await taskStatusInDb();
+      return { toDraft, toActive, after };
+    });
+    const en = endedArm.value as { toDraft: unknown; toActive: unknown; after: string } | null;
+    ck.t('T3',
+      '★封板不动（`ended: []` 逐字）：任务置 `ended` ⇒ 送 `draft` 与 `active` **两向都 409**（`campaign_ended_frozen`，借码不变）· 库内仍 `ended`（零写）⇒ 新表只多开「active ⇒ draft」一条，`ended` 顶点未动',
+      endedArm.sqlstate === null && en !== null
+        && verbOf(en.toDraft) === 409 && verbOf(en.toActive) === 409
+        && reasonOf(en.toDraft) === 'campaign_ended_frozen' && reasonOf(en.toActive) === 'campaign_ended_frozen'
+        && codeOf(en.toDraft) === 'LEDGER_INSUFFICIENT_BALANCE' && codeOf(en.toActive) === 'LEDGER_INSUFFICIENT_BALANCE'
+        && en.after === 'ended',
+      JSON.stringify({
+        to_draft: [verbOf(en?.toDraft), reasonOf(en?.toDraft)],
+        to_active: [verbOf(en?.toActive), reasonOf(en?.toActive)],
+        after: en?.after,
+      }));
 
     // ==================================================================== N · 负控（纯函数 mutant）
     const draftTuple = { task_status: 'draft', campaign_status: 'active', project_status: 'recruiting' };
