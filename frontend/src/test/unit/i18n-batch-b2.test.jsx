@@ -97,13 +97,14 @@ describe('P6-I18N-LIT-B2 · en 档渲染英文文案（Task / Home / Profile）'
     expect(screen.queryByText('任务原文')).toBeNull()
   })
 
-  it('HomePage（/en，= 唯一「闲置物品」列表）：发布入口 / 我的积分 / 分类筛选 / 卡片走英文', async () => {
+  it('HomePage（/en，= 唯一「闲置物品」列表）：发布入口 / 分类筛选 / 卡片走英文（「我的积分」已迁出 ⇒ 零命中）', async () => {
     render(<MemoryRouter initialEntries={['/en']}><HomePage /></MemoryRouter>)
 
     // 发布入口（原「查看奖励」→ `/item/new`；文案 = 闲置物品语义）
     expect(await screen.findByText('Publish item')).toBeInTheDocument()
-    // 「我的积分」（并入自 RewardPage）
-    expect(screen.getByText('My points')).toBeInTheDocument()
+    // ★ 2026-10-21 改锚（合法移除 ×1）：「我的积分」卡内容整体迁至 `/profile/assets`
+    //   （钩子 `assets-my-points`，见 sf14-profile-views 的资产页断言）⇒ 首页必须**零命中**。
+    expect(screen.queryByText('My points')).toBeNull()
     // 分类筛选（并入自 RewardPage；计数随数据面派生）
     expect(screen.getByText('All (1)')).toBeInTheDocument()
     expect(screen.getByText('Limited edition (0)')).toBeInTheDocument()

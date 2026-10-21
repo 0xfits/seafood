@@ -27,7 +27,7 @@ import { render, cleanup, act, fireEvent, waitFor } from '@testing-library/react
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // D7 收尾：需求④ 两个用例直接驱动 `fetchApiJson` 替身（vi.mock 工厂里的同一个 vi.fn）⇒ 必须具名导入。
-import { fetchApiJson } from '../../auth'
+import { fetchApiJson, getAuthHeaders } from '../../auth'
 // 2026-10-20 需求①②：BTTC 资产块迁入 /profile/assets ⇒ 本文件需直接驱动 `fetchBatt` 替身。
 import { fetchBatt } from '../../batt-checkin'
 
@@ -217,6 +217,45 @@ describe('sf14 ② · ProfilePage 侧栏与视图派生', () => {
     expect(labels).toContain(zh.bttcPanel.mintButton)
     expect(labels).toContain(zh.bttcPanel.burnButton)
     // ③ 签到场不再自留资产块（半套 = 0）：/wage 侧断言见 ③ 组
+  })
+
+  it('/profile/assets ⇒ 「我的积分」卡在货币卡区**上方**，值 = 同一读口 `/api/user/balances` 的 `$`（cid 1）', async () => {
+    getAuthHeaders.mockReturnValue({ Authorization: 'Bearer t' })
+    fetchApiJson.mockImplementation(async (url) => {
+      const u = String(url)
+      if (u === '/api/user/balances') {
+        return [
+          { cid: 1, symbol: '$', name: '平台积分', balance: '4361' },
+          { cid: 4, symbol: '₿', name: 'BTTC', balance: '1' },
+        ]
+      }
+      return []
+    })
+
+    const { container } = renderAt(<ProfilePage />, '/profile/assets')
+    const points = await waitFor(() => {
+      const el = container.querySelector('[data-sf-m="assets-my-points"]')
+      expect(el).not.toBeNull()
+      return el
+    })
+
+    // ① 内容与首页旧卡一致：label（zh 词典真值）/ 千分位金额逐字相等 / 🪙
+    expect(points.textContent).toContain(zh.item.myPoints)
+    expect(points.querySelector('[data-sf-m="assets-my-points-amount"]').textContent).toBe('4,361')
+    expect(points.textContent).toContain('🪙')
+
+    // ② 位置：DOM 顺序在货币卡区**之上**（且货币卡区未吞并 / 未消失）
+    const cards = container.querySelector('[data-sf-m="asset-cards"]')
+    expect(cards).not.toBeNull()
+    expect(points.compareDocumentPosition(cards) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+
+    // ③ 零新请求：余额读口只打一次（同一源，不另开口子）
+    const balanceCalls = fetchApiJson.mock.calls.filter(([url]) => String(url) === '/api/user/balances')
+    expect(balanceCalls).toHaveLength(1)
+
+    // 还原替身（本文件其余用例依赖「返回 []」的默认口径）
+    fetchApiJson.mockImplementation(async () => [])
+    getAuthHeaders.mockReturnValue({})
   })
 
   it('/profile 裸渲染（落地口径）⇒ 我的交易-我买到的：MyOrdersPanel 原样挂载（D7 渲染点迁移）+ 冻结钩子', async () => {

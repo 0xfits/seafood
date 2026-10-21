@@ -1,0 +1,420 @@
+{
+  "probe": "ops/profile-assets/probe-my-points-move.mjs",
+  "startedAt": "2026-10-21T10:55:03.124Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "negArm": false,
+  "fixtures": {
+    "balances": [
+      {
+        "cid": 1,
+        "symbol": "$",
+        "name": "平台积分",
+        "balance": "4361"
+      },
+      {
+        "cid": 4,
+        "symbol": "₿",
+        "name": "BTTC",
+        "balance": "1"
+      }
+    ],
+    "zhLabel": "我的积分",
+    "auth": "localStorage seed only（零真登录）",
+    "api": "context.route in-probe JSON（零后端 / 零库写）"
+  },
+  "states": {
+    "390": {
+      "home": {
+        "pointsCardPresent": false,
+        "myPointsTextPresent": false,
+        "coinGlyphPresent": false,
+        "campaignCards": 5
+      },
+      "homeOverflowPx": 0,
+      "homeOffenders": [
+        {
+          "sel": "div.sf-home-camp-card",
+          "right": 518,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "div.sf-home-camp-project",
+          "right": 503,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-project-names",
+          "right": 397,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-project-name",
+          "right": 397,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-campaign-name",
+          "right": 397,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "h3.sf-home-camp-title",
+          "right": 503,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "div.sf-home-camp-meta",
+          "right": 503,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-joined",
+          "right": 476,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "div.sf-home-camp-reward",
+          "right": 503,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "div.sf-home-camp-card",
+          "right": 770,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "div.sf-home-camp-project",
+          "right": 755,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-avatar",
+          "right": 581,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-avatar-initial",
+          "right": 571,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-project-names",
+          "right": 654,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-project-name",
+          "right": 654,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-campaign-name",
+          "right": 654,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "h3.sf-home-camp-title",
+          "right": 755,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "div.sf-home-camp-meta",
+          "right": 755,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-tag.is-active",
+          "right": 599,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-joined",
+          "right": 743,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "div.sf-home-camp-reward",
+          "right": 755,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-reward-primary",
+          "right": 573,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-reward-cur",
+          "right": 552,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "div.sf-home-camp-card",
+          "right": 1022,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "div.sf-home-camp-project",
+          "right": 1007,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-avatar",
+          "right": 833,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-avatar-initial",
+          "right": 823,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-project-names",
+          "right": 893,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-project-name",
+          "right": 893,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-campaign-name",
+          "right": 893,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "h3.sf-home-camp-title",
+          "right": 1007,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "div.sf-home-camp-meta",
+          "right": 1007,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-tag.is-ended",
+          "right": 851,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-joined",
+          "right": 987,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "div.sf-home-camp-reward",
+          "right": 1007,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-reward-primary",
+          "right": 814,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-reward-cur",
+          "right": 804,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "div.sf-home-camp-card",
+          "right": 1274,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "div.sf-home-camp-project",
+          "right": 1259,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-avatar",
+          "right": 1085,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-avatar-initial",
+          "right": 1075,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-project-names",
+          "right": 1153,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-project-name",
+          "right": 1153,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-campaign-name",
+          "right": 1153,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "h3.sf-home-camp-title",
+          "right": 1259,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "div.sf-home-camp-meta",
+          "right": 1259,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-tag.is-active",
+          "right": 1103,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-joined",
+          "right": 1232,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "div.sf-home-camp-reward",
+          "right": 1259,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-reward-primary",
+          "right": 1066,
+          "insideAssetsPane": false
+        },
+        {
+          "sel": "span.sf-home-camp-reward-cur",
+          "right": 1056,
+          "insideAssetsPane": false
+        }
+      ],
+      "assets": {
+        "panePresent": true,
+        "cardPresent": true,
+        "cardText": "我的积分4,361🪙",
+        "labelText": "我的积分",
+        "amountText": "4,361",
+        "coinGlyph": true,
+        "width": 338,
+        "left": 26,
+        "right": 364,
+        "cardsRegionPresent": true,
+        "cardBeforeCards": true,
+        "currencyCardCount": 2
+      },
+      "expectedFromApi": {
+        "raw": "4361",
+        "formatted": "4,361"
+      },
+      "assetsOverflowPx": 0,
+      "assetsOffenders": [],
+      "resourceErrors": 0
+    },
+    "1536_home": {
+      "home": {
+        "pointsCardPresent": false,
+        "myPointsTextPresent": false,
+        "coinGlyphPresent": false,
+        "campaignCards": 5
+      },
+      "overflowPx": 0,
+      "offenders": [],
+      "apiCalls": [
+        "GET /api/role-names",
+        "GET /api/admin/me",
+        "GET /api/home",
+        "GET /api/home/campaign-tasks",
+        "GET /api/currencies",
+        "GET /api/prize/all",
+        "GET /api/messages/unread-count",
+        "GET /api/user/balances"
+      ],
+      "appBalanceCalls": 1
+    },
+    "1536_assets": {
+      "assets": {
+        "panePresent": true,
+        "cardPresent": true,
+        "cardText": "我的积分4,361🪙",
+        "labelText": "我的积分",
+        "amountText": "4,361",
+        "coinGlyph": true,
+        "width": 1182,
+        "left": 302,
+        "right": 1484,
+        "cardsRegionPresent": true,
+        "cardBeforeCards": true,
+        "currencyCardCount": 2
+      },
+      "expectedFromApi": {
+        "raw": "4361",
+        "formatted": "4,361"
+      },
+      "overflowPx": 0,
+      "offenders": [],
+      "apiCalls": [
+        "GET /api/role-names",
+        "GET /api/admin/me",
+        "GET /api/messages/unread-count",
+        "GET /api/user",
+        "GET /api/user/balances",
+        "GET /api/user/asset/970213",
+        "GET /api/task-progress",
+        "GET /api/prize-item",
+        "GET /api/user/ledger",
+        "GET /api/admin/me",
+        "GET /api/messages/unread-count",
+        "GET /api/batt",
+        "GET /api/user/balances",
+        "GET /api/user/balances"
+      ],
+      "appBalanceCalls": 3,
+      "homeBalanceCalls": 1
+    }
+  },
+  "assertions": {
+    "homeRemoved": {
+      "pageRendered": true,
+      "zeroHomePointsHook": true,
+      "zeroMyPointsText": true,
+      "zeroCoinGlyph": true,
+      "zeroOverflow": true
+    },
+    "assetsCard": {
+      "panePresent": true,
+      "cardPresent": true,
+      "labelIsZhKey": true,
+      "coinGlyph": true,
+      "amountEqualsApiDollar": true,
+      "amountIsThousandsSeparated": true,
+      "aboveCurrencyCards": true,
+      "currencyCardsStillThere": true,
+      "reusesExistingBalancesEndpoint": true,
+      "amountIgnoresAssetEndpointDecoy": true,
+      "cardFitsContentArea": true,
+      "zeroOverflow": true
+    },
+    "mobile390": {
+      "homeZeroHook": true,
+      "homeZeroText": true,
+      "homeZeroOverflow": true,
+      "cardPresent": true,
+      "amountEqualsApiDollar": true,
+      "cardFitsViewport": true,
+      "cardInsideViewport": true,
+      "assetsZeroOverflow": true,
+      "zeroPageError": true
+    }
+  },
+  "summary": {
+    "checks": 26,
+    "passed": 26,
+    "failed": [],
+    "pageErrors": 0,
+    "consoleErrors": 0,
+    "resourceErrors": 0,
+    "mobilePageErrors": 0,
+    "verdict": "PASS"
+  },
+  "finishedAt": "2026-10-21T10:55:04.231Z"
+}

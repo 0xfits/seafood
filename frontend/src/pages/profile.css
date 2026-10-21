@@ -213,6 +213,22 @@
   gap: 10px;
 }
 
+/* 我的资产 · 「我的积分」卡（2026-10-21 · Kevin：首页旧卡整体迁入）
+ * ─ 视觉 = `Card variant="primary"`（黄底 / 黄边 / 圆角 / hover 副影上移，类在组件内，本文件不覆写色值）；
+ *   本处只补**宽度口径**：随内容区整行（旧首页是 `max-w-md mx-auto` 居中窄条 ⇒ 本页不要）。
+ * ─ 金额不换行挤压：`min-width: 0` + `overflow-wrap: anywhere`（窄档大额也不出横向溢出）。
+ */
+.sf-prof-points-card {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.sf-prof-points-card [data-sf-m="assets-my-points-amount"] {
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+
 .sf-prof-asset-card {
   display: flex;
   flex-direction: column;

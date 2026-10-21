@@ -382,22 +382,9 @@ const HomePage = () => {
           </section>
         </FadeIn>
 
-        {/* 「我的积分」（并入自 `RewardPage`；登录后渲染） */}
-        {isAuthenticated && (
-          <FadeIn>
-            <Card variant="primary" className="max-w-md mx-auto" data-sf-m="home-my-points">
-              <CardContent className="py-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm text-gray-600">{t('item.myPoints')}</div>
-                    <div className="text-2xl font-bold text-yellow-600">{userPoints}</div>
-                  </div>
-                  <div className="text-4xl">🪙</div>
-                </div>
-              </CardContent>
-            </Card>
-          </FadeIn>
-        )}
+        {/* 「我的积分」卡已于 2026-10-21（Kevin 裁定）**整体迁出**首页 ⇒ `/profile/assets`
+            （钩子 `assets-my-points`，数据面 = 同页 `GET /api/user/balances` 的 `$`（cid 1）值）。
+            首页不留空壳 / 占位：本位置**零渲染**。 */}
 
         <SlideUp delay={200}>
           {/* HOME-CAMP-v1：「热门任务」= campaign 体系五等卡（第一轮主卡置首 + mock 补位）。

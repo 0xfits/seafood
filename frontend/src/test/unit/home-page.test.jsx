@@ -131,6 +131,25 @@ describe('HomePage · 热门任务（campaign 体系）', () => {
     expect(toast.error).not.toHaveBeenCalled()
   })
 
+  it('「我的积分」卡已整体迁出首页（2026-10-21）⇒ 登录态零命中：无 home-my-points / 无该文案 / 无 🪙', async () => {
+    useAuth.mockReturnValue({
+      user: { uID: 9, token: 'home-token', access_token: 'home-token' },
+      isAuthenticated: true,
+    })
+    getAuthHeaders.mockReturnValue({ Authorization: 'Bearer home-token' })
+    wireFetch({ campaignRows: [] })
+
+    const { container } = renderHomePage()
+    // 等首屏稳定（campaign 五卡 = 页面已过 loading 并渲染完毕）
+    await waitFor(() => expect(cardsOf(container)).toHaveLength(5))
+
+    // 旧钩子零命中（不留空壳 / 占位）
+    expect(container.querySelector('[data-sf-m="home-my-points"]')).toBeNull()
+    // 内容整体迁走：卡片文案（zh）与 🪙 在首页任何位置都不再出现
+    expect(screen.queryByText('我的积分')).toBeNull()
+    expect(container.textContent).not.toContain('🪙')
+  })
+
   it('空数据 ⇒ 恰 5 张全 mock（版块不塌，零链接）', async () => {
     wireFetch({ campaignRows: [] })
 

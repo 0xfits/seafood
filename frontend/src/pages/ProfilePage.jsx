@@ -20,7 +20,7 @@ import RatingTimelinessPanel from '../components/RatingTimelinessPanel'
 import BttcAssetPanel from '../components/BttcAssetPanel'
 // Kevin 2026-10-21 需求②：`/profile/assets` 顶部按币种的余额卡片（读口 = 既有 `GET /api/user/balances`；
 //   归一 / 千分位格式化一律复用 balances-api，本页零自算）。
-import { fetchUserBalances, toBalanceCards } from '../balances-api'
+import { fetchUserBalances, formatBalanceAmount, toBalanceCards } from '../balances-api'
 // 招工线 / 我的 共用的 token + 栅格层（P4-B4c-ii-a）：与 TaskPage 招工线族同一份样式表
 import './jobs/jobs.css'
 // Kevin 2026-10-14 需求②：桌面侧栏布局样式（页面局部 --sf-l-*，零新主题 token）
@@ -703,27 +703,43 @@ const TelegramBindCard = () => {
 //     由既有 `ProtectedRoute` 出登录引导。文案键全部复用（`messagesPage.loadFailed` / `uiError.retry`）。
 //   · `BttcAssetPanel` **原样保留**在本页（铸造 / 分解仍可达）：读口沿用 `GET /api/batt` 的 `data.bttc`
 //     子对象（零新 GET，组件自取数）；本 pane 不做任何本地换算。
-//   · 钩子（§质检探针）：`profile-assets-view` / `asset-cards` / `asset-cards-grid` / `asset-card`
+//   · 钩子（§质检探针）：`profile-assets-view` / `assets-my-points`（+ `assets-my-points-amount`，
+//     2026-10-21 自首页迁入的「我的积分」卡）/ `asset-points-section` / `asset-cards` / `asset-cards-grid` / `asset-card`
 //     （+ `data-symbol` / `data-name`）/ `asset-card-symbol` / `asset-card-amount` / `asset-card-name`
 //     / `asset-cards-error` / `asset-cards-retry`。
+// ============================================================================
+// 「我的积分」卡（2026-10-21 · Kevin 裁定：内容整体自首页迁入本 pane）
+//   数据面 = **本 pane 已在取的同一读口** `GET /api/user/balances` 里 `$`（cid 1）那一行的余额
+//  （零新请求、零新状态源）；金额格式化复用 `balances-api.formatBalanceAmount`（本页零自算）。
+//   缺行 / 坏值 ⇒ `'0'`（与首页旧卡的初值口径一致，不显空 / 不显 NaN）。
+//   视觉沿用首页旧卡（`Card variant="primary"` = 黄底黄边 / 圆角 / hover 副影上移），
+//   宽度改为**随内容区整行**（不再 `max-w-md mx-auto` 居中窄条）。
+// ============================================================================
+const POINTS_CID = 1
+const pointsAmountOf = (rows) => {
+  const row = (Array.isArray(rows) ? rows : [])
+    .find((item) => item && typeof item === 'object' && Number(item.cid) === POINTS_CID)
+  return row ? formatBalanceAmount(row.balance) : '0'
+}
+
 const AssetsPane = () => {
   const { t } = useTranslation()
-  const [balances, setBalances] = useState({ status: 'loading', cards: [] })
+  const [balances, setBalances] = useState({ status: 'loading', cards: [], points: null })
   const [reloadSeq, setReloadSeq] = useState(0)
 
   useEffect(() => {
     let cancelled = false
-    setBalances((prev) => ({ status: 'loading', cards: prev.cards }))
+    setBalances((prev) => ({ status: 'loading', cards: prev.cards, points: prev.points }))
     const load = async () => {
       try {
         const rows = await fetchUserBalances()
         if (cancelled) return
         // `null` = 未登录 / 旧后端 ⇒ 空卡区（不报错、不白屏）
-        setBalances({ status: 'ok', cards: toBalanceCards(rows) })
+        setBalances({ status: 'ok', cards: toBalanceCards(rows), points: pointsAmountOf(rows) })
       } catch (error) {
         if (cancelled) return
         console.warn('Failed to load asset balances:', error)
-        setBalances({ status: 'error', cards: [] })
+        setBalances({ status: 'error', cards: [], points: null })
       }
     }
     load()
@@ -748,6 +764,23 @@ const AssetsPane = () => {
             {t('uiError.retry')}
           </button>
         </div>
+      )}
+
+      {/* 「我的积分」（首页旧卡整体迁入；货币卡区**上方**，值 = 同一读口的 `$`（cid 1）） */}
+      {balances.points !== null && (
+        <section className="sf-prof-asset-section" data-sf-m="asset-points-section">
+          <Card variant="primary" className="sf-prof-points-card" data-sf-m="assets-my-points">
+            <CardContent className="py-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm text-gray-600">{t('item.myPoints')}</div>
+                  <div className="text-2xl font-bold text-yellow-600" data-sf-m="assets-my-points-amount">{balances.points}</div>
+                </div>
+                <div className="text-4xl">🪙</div>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
       )}
 
       {cards.length > 0 && (
