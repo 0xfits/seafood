@@ -26,10 +26,21 @@ vi.mock('react-i18next', () => ({
 const AUTH = vi.hoisted(() => ({ isAuthenticated: true, user: { uID: 7 } }))
 vi.mock('../../auth-context', () => ({ useAuth: () => AUTH }))
 
-const API = vi.hoisted(() => ({ fetchProjectDetail: vi.fn(), fetchProjectCurrencies: vi.fn() }))
+const API = vi.hoisted(() => ({
+  fetchProjectDetail: vi.fn(),
+  fetchProjectCurrencies: vi.fn(),
+  createProjectCampaign: vi.fn(),
+  patchProjectCampaign: vi.fn(),
+  createProjectCampaignTask: vi.fn(),
+  appendProjectSubtasks: vi.fn(),
+}))
 vi.mock('../../pages/project/project-api', () => ({
   fetchProjectDetail: API.fetchProjectDetail,
   fetchProjectCurrencies: API.fetchProjectCurrencies,
+  createProjectCampaign: API.createProjectCampaign,
+  patchProjectCampaign: API.patchProjectCampaign,
+  createProjectCampaignTask: API.createProjectCampaignTask,
+  appendProjectSubtasks: API.appendProjectSubtasks,
 }))
 
 // 管理员三键加载器替身（保留真实 `isWageProjectEditAdmin` 判定，只换取数面 ⇒ 三臂可独立摆位）。

@@ -1,0 +1,735 @@
+{
+  "probe": "ops/project-page/probe-project-page.mjs",
+  "startedAt": "2026-10-21T04:13:08.702Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "fixtures": {
+    "campaigns": 1,
+    "tasks": 2,
+    "subtasks": 2,
+    "auth": "localStorage seed only",
+    "api": "context.route in-probe JSON（零后端 / 零库写）"
+  },
+  "states": {
+    "1536_wage": {
+      "pagePresent": true,
+      "cards": 2,
+      "firstTag": "A",
+      "firstHref": "/sui",
+      "secondTag": "ARTICLE",
+      "secondHref": null
+    },
+    "1536_project": {
+      "present": true,
+      "slug": "sui",
+      "title": "海鲜打包",
+      "status": "招募中",
+      "desc": "每天打包 20 单，按批结算。",
+      "campaigns": 1,
+      "campaignTitles": [
+        "秋季招募"
+      ],
+      "campaignHrefs": [
+        "/campaign/501"
+      ],
+      "campaignStates": [
+        "active"
+      ],
+      "campaignTaskCounts": [
+        "2 个任务"
+      ],
+      "tasks": 2,
+      "taskTitles": [
+        "转发推文",
+        "打包冲量"
+      ],
+      "taskRewards": [
+        "5",
+        "8"
+      ],
+      "subtasks": 2,
+      "subtaskTitles": [
+        "转发主帖",
+        "填写问卷"
+      ],
+      "subtaskTypes": [
+        "X 验证",
+        "问卷"
+      ],
+      "subtaskRequired": [
+        "1",
+        "0"
+      ],
+      "subtasksEmpty": 1,
+      "notFound": 0,
+      "loading": 0,
+      "error": 0,
+      "right": 1516
+    },
+    "1536_form_campaign_draft": {
+      "form": {
+        "campaign": 1,
+        "task": 0,
+        "subtask": 0
+      },
+      "body": {
+        "title": "冬季招募",
+        "project_id": "11",
+        "description": "冬季打包高峰。",
+        "time_start": "2026-12-01T02:00:00.000Z",
+        "time_end": "2026-12-31T02:00:00.000Z"
+      },
+      "keys": [
+        "description",
+        "project_id",
+        "time_end",
+        "time_start",
+        "title"
+      ],
+      "patches": [],
+      "notice": {
+        "kind": "ok",
+        "text": "已存为草稿。"
+      }
+    },
+    "1536_form_campaign_launch": {
+      "post": {
+        "title": "冬季招募·上线",
+        "project_id": "11",
+        "description": "",
+        "time_start": null,
+        "time_end": null
+      },
+      "patch": [
+        {
+          "ref": "601",
+          "body": {
+            "status": "active"
+          }
+        }
+      ],
+      "notice": {
+        "kind": "ok",
+        "text": "已发布并上线。"
+      }
+    },
+    "1536_form_task": {
+      "formOpened": {
+        "campaign": 0,
+        "task": 1,
+        "subtask": 0
+      },
+      "ref": "501",
+      "body": {
+        "title": "打包冲量",
+        "description": "日打包 30 单。",
+        "time_start": null,
+        "time_end": null,
+        "sort": 2,
+        "reward_amount_primary": "8",
+        "reward_cid_secondary": "4",
+        "reward_amount_secondary": "10",
+        "subtasks": [
+          {
+            "type_code": "x_verify",
+            "title": "提交截图",
+            "content": "三张截图",
+            "payload": {},
+            "sort": 1,
+            "required": true
+          }
+        ]
+      },
+      "keys": [
+        "description",
+        "reward_amount_primary",
+        "reward_amount_secondary",
+        "reward_cid_secondary",
+        "sort",
+        "subtasks",
+        "time_end",
+        "time_start",
+        "title"
+      ],
+      "subtask": {
+        "type_code": "x_verify",
+        "title": "提交截图",
+        "content": "三张截图",
+        "payload": {},
+        "sort": 1,
+        "required": true
+      },
+      "subtaskKeys": [
+        "content",
+        "payload",
+        "required",
+        "sort",
+        "title",
+        "type_code"
+      ]
+    },
+    "1536_form_subtask": {
+      "formOpened": {
+        "campaign": 0,
+        "task": 0,
+        "subtask": 1
+      },
+      "ref": "555",
+      "group": [
+        {
+          "subtask_id": "901",
+          "type_code": "x_verify",
+          "title": "转发主帖",
+          "content": "附截图",
+          "payload": {
+            "links": [
+              "https://x.com/a"
+            ]
+          },
+          "sort": 1,
+          "required": true
+        },
+        {
+          "subtask_id": "902",
+          "type_code": "survey",
+          "title": "填写问卷",
+          "content": null,
+          "payload": {
+            "answers": {
+              "q1": "a"
+            }
+          },
+          "sort": 2,
+          "required": false
+        },
+        {
+          "type_code": "quiz",
+          "title": "答题复核",
+          "content": "三道题",
+          "payload": {},
+          "sort": 3,
+          "required": true
+        }
+      ],
+      "groupIds": [
+        "901",
+        "902",
+        null
+      ],
+      "reads": {
+        "before": 4,
+        "after": 6
+      },
+      "subtasksRenderedAfter": 3,
+      "notice": {
+        "kind": "ok",
+        "text": "发布成功。"
+      }
+    },
+    "1536_plain_user": {
+      "present": false,
+      "entries": 0,
+      "entryTexts": [],
+      "forms": {
+        "campaign": 0,
+        "task": 0,
+        "subtask": 0
+      },
+      "notice": null,
+      "needCampaign": 0,
+      "rows": 0,
+      "inputs": 0,
+      "inputMaxRight": 0,
+      "submitDisabled": null
+    },
+    "geometry": {
+      "390": {
+        "overflowPx": 0,
+        "projectRight": 380,
+        "tasks": 2,
+        "subtasks": 3,
+        "formOverflowPx": 0,
+        "inputMaxRight": 352.9,
+        "rows": 1,
+        "entries": 3
+      },
+      "1536": {
+        "overflowPx": 0,
+        "projectRight": 1516,
+        "tasks": 2,
+        "subtasks": 3,
+        "formOverflowPx": 0,
+        "inputMaxRight": 1501,
+        "rows": 1,
+        "entries": 3
+      }
+    }
+  },
+  "assertions": {
+    "wageCard": {
+      "cardsRendered": true,
+      "slugCardIsLink": true,
+      "slugHrefIsProjectPage": true,
+      "legacyRowStaysArticle": true
+    },
+    "reserved": {
+      "wagePageRendered": true,
+      "noProjectPageHook": true,
+      "noProjectReadForWage": true,
+      "noNotFound": true
+    },
+    "projectPage": {
+      "headRendered": true,
+      "descRendered": true,
+      "readPath": true,
+      "campaigns1": true,
+      "campaignTitleLinked": true,
+      "campaignState": true,
+      "tasks2": true,
+      "taskTitles": true,
+      "taskRewards": true,
+      "subtasks2": true,
+      "subtaskTypes5": true,
+      "subtaskCodesNotLeaked": true,
+      "requiredFlags": true
+    },
+    "entryOwner": {
+      "managePresent": true,
+      "threeEntries": true,
+      "formsClosedByDefault": true
+    },
+    "campaignDraft": {
+      "formOpened": true,
+      "postOnce": true,
+      "keysExactlyClosedSet": true,
+      "projectIdFromPage": true,
+      "titleAndDesc": true,
+      "timesIso": true,
+      "noStatusKey": true,
+      "noRewardKeys": true,
+      "noLaunchPatch": true,
+      "noticeOk": true,
+      "relisted": true
+    },
+    "campaignLaunch": {
+      "postOnce": true,
+      "patchOnce": true,
+      "patchRefIsCreated": true,
+      "patchBodyOnlyStatus": true,
+      "noticeOk": true
+    },
+    "taskForm": {
+      "formOpened": true,
+      "postOnce": true,
+      "campaignRef": true,
+      "keysExactlyClosedSet": true,
+      "rewardPrimaryUsd": true,
+      "secondaryPair": true,
+      "oneSubtask": true,
+      "subtaskKeysExactly": true,
+      "subtaskFields": true,
+      "noStatusKey": true
+    },
+    "subtaskForm": {
+      "formOpened": true,
+      "patchedOnce": true,
+      "patchTaskRef": true,
+      "onlySubtasksKey": true,
+      "groupIsOldPlusOne": true,
+      "oldRowsResentWithId": true,
+      "oldIdsPreserved": true,
+      "oldPayloadPreserved": true,
+      "newRowLast": true,
+      "freshReadBeforePatch": true,
+      "listReRendered": true,
+      "noticeOk": true
+    },
+    "entryPlain": {
+      "manageAbsent": true,
+      "zeroEntries": true,
+      "zeroForms": true,
+      "nestedStillVisible": true,
+      "zeroWrites": true
+    },
+    "geometry": {
+      "zeroOverflow390": true,
+      "zeroOverflow1536": true,
+      "inputsWithinViewport390": true,
+      "inputsWithinViewport1536": true,
+      "formRendersOnBoth": true,
+      "zeroPageErrors": true
+    }
+  },
+  "pageErrors": [],
+  "finishedAt": "2026-10-21T04:13:11.266Z",
+  "verdict": {
+    "required": [
+      {
+        "key": "wageCard.cardsRendered",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "wageCard.slugCardIsLink",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "wageCard.slugHrefIsProjectPage",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "wageCard.legacyRowStaysArticle",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "reserved.wagePageRendered",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "reserved.noProjectPageHook",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "reserved.noProjectReadForWage",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "reserved.noNotFound",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "projectPage.headRendered",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "projectPage.descRendered",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "projectPage.readPath",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "projectPage.campaigns1",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "projectPage.campaignTitleLinked",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "projectPage.campaignState",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "projectPage.tasks2",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "projectPage.taskTitles",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "projectPage.taskRewards",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "projectPage.subtasks2",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "projectPage.subtaskTypes5",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "projectPage.subtaskCodesNotLeaked",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "projectPage.requiredFlags",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "entryOwner.managePresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "entryOwner.threeEntries",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "entryOwner.formsClosedByDefault",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "campaignDraft.formOpened",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "campaignDraft.postOnce",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "campaignDraft.keysExactlyClosedSet",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "campaignDraft.projectIdFromPage",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "campaignDraft.titleAndDesc",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "campaignDraft.timesIso",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "campaignDraft.noStatusKey",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "campaignDraft.noRewardKeys",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "campaignDraft.noLaunchPatch",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "campaignDraft.noticeOk",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "campaignDraft.relisted",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "campaignLaunch.postOnce",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "campaignLaunch.patchOnce",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "campaignLaunch.patchRefIsCreated",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "campaignLaunch.patchBodyOnlyStatus",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "campaignLaunch.noticeOk",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "taskForm.formOpened",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "taskForm.postOnce",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "taskForm.campaignRef",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "taskForm.keysExactlyClosedSet",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "taskForm.rewardPrimaryUsd",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "taskForm.secondaryPair",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "taskForm.oneSubtask",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "taskForm.subtaskKeysExactly",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "taskForm.subtaskFields",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "taskForm.noStatusKey",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "subtaskForm.formOpened",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "subtaskForm.patchedOnce",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "subtaskForm.patchTaskRef",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "subtaskForm.onlySubtasksKey",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "subtaskForm.groupIsOldPlusOne",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "subtaskForm.oldRowsResentWithId",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "subtaskForm.oldIdsPreserved",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "subtaskForm.oldPayloadPreserved",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "subtaskForm.newRowLast",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "subtaskForm.freshReadBeforePatch",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "subtaskForm.listReRendered",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "subtaskForm.noticeOk",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "entryPlain.manageAbsent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "entryPlain.zeroEntries",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "entryPlain.zeroForms",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "entryPlain.nestedStillVisible",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "entryPlain.zeroWrites",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.zeroOverflow390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.zeroOverflow1536",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.inputsWithinViewport390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.inputsWithinViewport1536",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.formRendersOnBoth",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.zeroPageErrors",
+        "value": true,
+        "pass": true
+      }
+    ],
+    "failed": [],
+    "pass": true
+  }
+}

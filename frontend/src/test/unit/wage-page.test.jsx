@@ -13,7 +13,7 @@
  *      成功后卡片刷新取新值；客态零 /api/user 请求；
  *      注册天数条件 = 四选一 select（1/7/30/365）：恰四档 ⇒ 预选对应项；0/90 ⇒ 预选「一天」
  *      ＋表单下提示行（保存载荷 = 选中的天数）；
- *   ⑥ i18n `wage` 命名空间四语齐备 + 计数前推（top 135 / flat 1327 / 四语节点 5308）。
+ *   ⑥ i18n `wage` 命名空间四语齐备 + 计数前推（top 135 / flat 1355 / 四语节点 5420）。
  *
  * 注：真实浏览器几何（390/1536 零溢出）与真实契约联调由 `ops/wage/front/` 的探针覆盖，
  *     jsdom 不套用 media query，故此处不断言列数。
@@ -797,16 +797,16 @@ describe('/wage ⑥ i18n `wage` 命名空间（四语齐备 + 计数前推）', 
     expect(TABLES.vn.wage.menuLabel).toBe('Nhận lương')
   })
 
-  it('计数前推：顶层 135 / 拍平 1327 / 四语节点 5308 / 顶层×4 = 540', () => {
+  it('计数前推：顶层 135 / 拍平 1355 / 四语节点 5420 / 顶层×4 = 540', () => {
     const flat = (o, p = '') => Object.entries(o).flatMap(([k, v]) => (
       v && typeof v === 'object' && !Array.isArray(v) ? flat(v, `${p}${k}.`) : [[`${p}${k}`, v]]
     ))
     for (const lang of LANGS) {
       expect(Object.keys(TABLES[lang]).length, `${lang} top`).toBe(135) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532] // [i18n-bump project-slug（2026-10-21）：新增顶层 project 50 键 ⇒ top 134⇒135 / flat 1277⇒1327 / 四语节点 5108⇒5308 / top×4 536⇒540；bountyProject 注册天数 6 键（四语对称）已随前次订正计入 1277]
-      expect(flat(TABLES[lang]).length, `${lang} flat`).toBe(1327) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532] // [i18n-bump wage-edit +18 键（项目卡【编辑】表单/错误文案，四语对称）⇒ flat 1253⇒1271 / 四语节点 5012⇒5084（top 134 不变）] // [i18n-bump min-days-select +6 键（bountyProject.days1/7/30/365 + minDaysLegacy/minDaysNoGate，四语对称）⇒ flat 1271⇒1277 / 四语节点 5084⇒5108（top 134 不变）] // [i18n-bump project-slug（2026-10-21）：新增顶层 project 50 键 ⇒ top 134⇒135 / flat 1277⇒1327 / 四语节点 5108⇒5308 / top×4 536⇒540；bountyProject 注册天数 6 键（四语对称）已随前次订正计入 1277]
+      expect(flat(TABLES[lang]).length, `${lang} flat`).toBe(1355) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532] // [i18n-bump wage-edit +18 键（项目卡【编辑】表单/错误文案，四语对称）⇒ flat 1253⇒1271 / 四语节点 5012⇒5084（top 134 不变）] // [i18n-bump min-days-select +6 键（bountyProject.days1/7/30/365 + minDaysLegacy/minDaysNoGate，四语对称）⇒ flat 1271⇒1277 / 四语节点 5084⇒5108（top 134 不变）] // [i18n-bump project-slug（2026-10-21）：新增顶层 project 50 键 ⇒ top 134⇒135 / flat 1277⇒1327 / 四语节点 5108⇒5308 / top×4 536⇒540；bountyProject 注册天数 6 键（四语对称）已随前次订正计入 1277]
     }
     expect(Object.keys(TABLES.zh).length * LANGS.length).toBe(540) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532] // [i18n-bump project-slug（2026-10-21）：新增顶层 project 50 键 ⇒ top 134⇒135 / flat 1277⇒1327 / 四语节点 5108⇒5308 / top×4 536⇒540；bountyProject 注册天数 6 键（四语对称）已随前次订正计入 1277]
-    expect(flat(TABLES.zh).length * LANGS.length).toBe(5308) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532] // [i18n-bump wage-edit +18 键（项目卡【编辑】表单/错误文案，四语对称）⇒ flat 1253⇒1271 / 四语节点 5012⇒5084（top 134 不变）] // [i18n-bump min-days-select +6 键（bountyProject.days1/7/30/365 + minDaysLegacy/minDaysNoGate，四语对称）⇒ flat 1271⇒1277 / 四语节点 5084⇒5108（top 134 不变）] // [i18n-bump project-slug（2026-10-21）：新增顶层 project 50 键 ⇒ top 134⇒135 / flat 1277⇒1327 / 四语节点 5108⇒5308 / top×4 536⇒540；bountyProject 注册天数 6 键（四语对称）已随前次订正计入 1277]
+    expect(flat(TABLES.zh).length * LANGS.length).toBe(5420) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532] // [i18n-bump wage-edit +18 键（项目卡【编辑】表单/错误文案，四语对称）⇒ flat 1253⇒1271 / 四语节点 5012⇒5084（top 134 不变）] // [i18n-bump min-days-select +6 键（bountyProject.days1/7/30/365 + minDaysLegacy/minDaysNoGate，四语对称）⇒ flat 1271⇒1277 / 四语节点 5084⇒5108（top 134 不变）] // [i18n-bump project-slug（2026-10-21）：新增顶层 project 50 键 ⇒ top 134⇒135 / flat 1277⇒1327 / 四语节点 5108⇒5308 / top×4 536⇒540；bountyProject 注册天数 6 键（四语对称）已随前次订正计入 1277]
     // 新增命名空间恰 +1 顶层 / +29 拍平键（相对上一版 131 / 1140）；joinedBadge 加入后 30 键；streakReward 加入后 31 键；wage-edit +18 键后 49 键
     expect(REQUIRED).toHaveLength(49)
   })

@@ -7,6 +7,8 @@ import { isReservedProjectSlug } from '../../project-slug'
 import { fetchProjectCurrencies, fetchProjectDetail } from './project-api'
 import { isWageProjectEditAdmin, loadListingEditAdmin } from '../item/item-edit-access'
 import NotFoundPage from '../NotFoundPage'
+import ProjectNestedList from './ProjectNestedList'
+import ProjectForms from './ProjectForms'
 import './project.css'
 
 // ============================================================================
@@ -47,9 +49,10 @@ const ProjectPage = () => {
 
   const [state, setState] = useState({ phase: 'loading', view: null })
   const [symbols, setSymbols] = useState({})
+  const [currencies, setCurrencies] = useState([])
   const [adminFlags, setAdminFlags] = useState(null)
-  const [openPanel, setOpenPanel] = useState(null) // 'campaign' | 'task' | 'subtask' | null（表单见步 2）
-  const [notice, setNotice] = useState(null) // { kind: 'err', text }
+  const [openPanel, setOpenPanel] = useState(null) // 'campaign' | 'task' | 'subtask' | null
+  const [notice, setNotice] = useState(null) // { kind: 'ok' | 'err', text }
 
   const userRef = useRef(user)
   userRef.current = user
@@ -86,13 +89,19 @@ const ProjectPage = () => {
       .then((payload) => {
         if (cancelled) return
         const rows = Array.isArray(payload) ? payload : (payload?.rows || [])
+        const list = Array.isArray(rows) ? rows : []
         const map = {}
-        for (const row of rows) {
+        for (const row of list) {
           if (row?.cid != null && row?.symbol) map[String(row.cid)] = String(row.symbol)
         }
         setSymbols(map)
+        setCurrencies(list) // 次币下拉（发布任务表单）与符号映射同源，一次请求两用
       })
-      .catch(() => { if (!cancelled) setSymbols({}) })
+      .catch(() => {
+        if (cancelled) return
+        setSymbols({})
+        setCurrencies([])
+      })
     return () => { cancelled = true }
   }, [reserved])
 
@@ -200,11 +209,13 @@ const ProjectPage = () => {
               )}
             </section>
 
-            {/* 嵌套活动列表（campaigns → tasks → subtasks，与 campaign 详情同族卡片）—— 步 2 接线 */}
-            <section className="sf-project-campaigns" data-sf-m="project-campaigns">
-              <h2 className="sf-project-section-title" data-sf-m="project-campaigns-title">{t('project.campaignsTitle')}</h2>
-              <p className="sf-foot-note" data-sf-m="project-campaigns-empty">{t('project.campaignsEmpty')}</p>
-            </section>
+            {/* 嵌套活动列表（campaigns → tasks → subtasks，与 campaign 详情同族卡片、只读） */}
+            <ProjectNestedList
+              campaigns={view?.campaigns}
+              t={t}
+              lang={lang}
+              symbols={symbols}
+            />
 
             {canManage ? (
               <section className="sf-panel sf-project-manage" data-sf-m="project-manage">
@@ -232,12 +243,31 @@ const ProjectPage = () => {
                     onClick={() => openEntry('subtask')}
                   >{t('project.entrySubtask')}</button>
                 </div>
-                {notice?.text ? (
-                  <p className={`sf-project-notice is-${notice.kind}`} data-sf-m="project-form-notice" role="alert">
+                {notice?.text && !openPanel ? (
+                  <p
+                    className={`sf-project-notice is-${notice.kind}`}
+                    data-sf-m="project-form-notice"
+                    data-sf-kind={notice.kind}
+                    role="alert"
+                  >
                     {notice.text}
                   </p>
                 ) : null}
-                {/* 三个入口的表单面板 —— 步 2 接线 */}
+                <ProjectForms
+                  panel={openPanel}
+                  view={view}
+                  slug={slug}
+                  currencies={currencies}
+                  t={t}
+                  onClose={() => setOpenPanel(null)}
+                  onSwitchPanel={(panel) => { setNotice(null); setOpenPanel(panel) }}
+                  onDone={(result) => {
+                    // 写口成功（或建成功但未上线）⇒ 先给结论、再静默重读（列表 / 嵌套立即反映新行）
+                    setNotice(result)
+                    setOpenPanel(null)
+                    load({ silent: true })
+                  }}
+                />
               </section>
             ) : null}
           </>
