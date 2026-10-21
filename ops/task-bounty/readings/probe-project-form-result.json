@@ -1,0 +1,320 @@
+{
+  "probe": "ops/task-bounty/probe-project-form.mjs",
+  "startedAt": "2026-10-21T03:43:29.227Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "fixtures": {
+    "projects": "[]（恒阻断面板）",
+    "auth": "localStorage seed only（零真登录）",
+    "api": "context.route in-probe JSON（零后端 / 零库写）"
+  },
+  "states": {
+    "1536_gate": {
+      "viewport": {
+        "w": 1536,
+        "h": 960
+      },
+      "overflowPx": 0,
+      "pathname": "/task/new",
+      "gate": {
+        "present": true,
+        "text": "发布悬赏需要先拥有一个项目"
+      },
+      "form": {
+        "present": false,
+        "hasOldNumberInput": false,
+        "minDays": null
+      }
+    },
+    "1536_form": {
+      "viewport": {
+        "w": 1536,
+        "h": 960
+      },
+      "overflowPx": 0,
+      "pathname": "/task/new",
+      "gate": {
+        "present": true,
+        "text": "发布悬赏需要先拥有一个项目"
+      },
+      "form": {
+        "present": true,
+        "hasOldNumberInput": false,
+        "minDays": {
+          "tag": "SELECT",
+          "value": "1",
+          "count": 4,
+          "values": [
+            "1",
+            "7",
+            "30",
+            "365"
+          ],
+          "labels": [
+            "注册满一天",
+            "注册满一周",
+            "注册满一月",
+            "注册满一年"
+          ]
+        }
+      }
+    },
+    "1536_submit_week": {
+      "posts": [
+        {
+          "title": "探针项目",
+          "description": "",
+          "headcount": 3,
+          "recruit_min_account_days": 7,
+          "wage_batt_per_claim": "5",
+          "wage_interval_hours": 24,
+          "create_key": "cli:1a15c8e917c-2190bb6e"
+        }
+      ]
+    },
+    "1536_submit_default": {
+      "select": {
+        "tag": "SELECT",
+        "value": "1",
+        "count": 4,
+        "values": [
+          "1",
+          "7",
+          "30",
+          "365"
+        ],
+        "labels": [
+          "注册满一天",
+          "注册满一周",
+          "注册满一月",
+          "注册满一年"
+        ]
+      },
+      "posts": [
+        {
+          "title": "探针项目",
+          "description": "",
+          "headcount": 3,
+          "recruit_min_account_days": 1,
+          "wage_batt_per_claim": "5",
+          "wage_interval_hours": 24,
+          "create_key": "cli:1a15c8e92fa-d24a796a"
+        }
+      ]
+    },
+    "1536_form_geometry": {
+      "overflowPx": 0,
+      "gate": true,
+      "form": true
+    },
+    "390_form_geometry": {
+      "overflowPx": 0,
+      "gate": true,
+      "form": true
+    }
+  },
+  "assertions": {
+    "gate": {
+      "pathname": true,
+      "gatePresent": true,
+      "publishFormHidden": true
+    },
+    "minDaysSelect": {
+      "present": true,
+      "isSelect": true,
+      "exactly4": true,
+      "values": [
+        "1",
+        "7",
+        "30",
+        "365"
+      ],
+      "valuesAreDays": true,
+      "labelsAreI18n": true,
+      "defaultIsDay1": true,
+      "oldNumberInputGone": true,
+      "labels": [
+        "注册满一天",
+        "注册满一周",
+        "注册满一月",
+        "注册满一年"
+      ]
+    },
+    "submitWeek": {
+      "postOnce": true,
+      "payloadDays7": true,
+      "payloadKeysStillCreateSubset": true
+    },
+    "submitDefault": {
+      "selectStillDay1": true,
+      "postOnce": true,
+      "payloadDays1": true
+    },
+    "geometry": {
+      "zeroOverflow1536": true,
+      "zeroOverflow390": true,
+      "formStillOpenBoth": true,
+      "zeroPageErrors": true
+    },
+    "console": {
+      "onlyAbortedExternalCdnErrors": true
+    }
+  },
+  "pageErrors": [],
+  "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+  ],
+  "finishedAt": "2026-10-21T03:43:30.909Z",
+  "consoleErrorsAttribution": {
+    "total": 28,
+    "byDesign": "ERR_FAILED = 外链字体/样式 CDN 被探针离线口径按设计 abort ⇒ 显式忽略、不判负",
+    "abortedExternalSample": [
+      "cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css",
+      "fonts.googleapis.com/css2",
+      "fonts.googleapis.com/css2",
+      "cdn.jsdelivr.net/npm/font-smiley-sans@1.0.0/style.min.css",
+      "cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css",
+      "cdn.jsdelivr.net/gh/atelier-anchor/smiley-sans@main/webfont/SmileySans-Oblique.woff2",
+      "raw.githubusercontent.com/atelier-anchor/smiley-sans/main/webfont/SmileySans-Oblique.woff2",
+      "cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    ],
+    "unexpected": []
+  },
+  "verdict": {
+    "required": [
+      {
+        "key": "gate.pathname",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "gate.gatePresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "gate.publishFormHidden",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "minDaysSelect.present",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "minDaysSelect.isSelect",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "minDaysSelect.exactly4",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "minDaysSelect.valuesAreDays",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "minDaysSelect.labelsAreI18n",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "minDaysSelect.defaultIsDay1",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "minDaysSelect.oldNumberInputGone",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "submitWeek.postOnce",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "submitWeek.payloadDays7",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "submitWeek.payloadKeysStillCreateSubset",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "submitDefault.selectStillDay1",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "submitDefault.postOnce",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "submitDefault.payloadDays1",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.zeroOverflow1536",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.zeroOverflow390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.formStillOpenBoth",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.zeroPageErrors",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "console.onlyAbortedExternalCdnErrors",
+        "value": true,
+        "pass": true
+      }
+    ],
+    "failed": [],
+    "pass": true
+  }
+}
