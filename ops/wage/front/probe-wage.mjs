@@ -8,6 +8,9 @@
  *   ④ 390 / 1536 两档：`scrollWidth - clientWidth = 0` + 零 pageerror。
  *   ⑤ 客态臂（独立 context、无登录种子）：未登录**也**渲染项目卡（项目名 / 工资行 / 次币可见）+
  *      页顶轻提示与列表并存；点【加入】/【领工资】⇒ 卡内登录提示、**零写请求**（apply/claim 各 0）。
+ *   ⑥ 项目卡【编辑】三臂（Kevin 2026-10-21）：owner 有钮 / manage_tasks 管理员他人卡也有钮 /
+ *      普通用户全零钮；展开表单可填（预填核）；只改标题保存 ⇒ PATCH 载荷**恰** {title} 一键
+ *      （「只含变化字段」），成功后表单收起 + 卡内提示 + 重拉读新标题。
  *
  * 手法（同 ops/v119-msg-panel 体例）：
  *   · 静态服务 = context.route 把 http://sf.local/** 映射到磁盘 dist（零 dev server）；
@@ -53,6 +56,10 @@ const ROWS = [
   { project_id: 110, snowflake_id: '7110', title: '跨境选品', description: '选品与比价。', headcount: 5, hired_count: 1, wage_batt_per_claim: 35, wage_cid: 4, wage_currency_amount: 80, wage_interval_hours: 8, status: 'recruiting', my_role: 'none' },
 ]
 
+// 行主缺省 900001（=「别人」）：owner_uid 是【编辑】可见性的行键（真实后端恒透出 ⇒ 契约 12 键行）；
+// owner 臂用 STATE.rows 把 103 改成自己的 uID，resetRows() 即回「别人」。
+for (const r of ROWS) r.owner_uid = '900001'
+
 const CUR = [{ cid: 1, symbol: '$' }, { cid: 4, symbol: 'BTTC' }]
 
 // 可变探针状态：失败臂 / 倒计时臂 / 匿名臂靠它切换（不重启浏览器、不改夹具文件）
@@ -62,6 +69,8 @@ const STATE = {
   countdownMs: 0, // > 0 ⇒ 101 行按「现在 + N ms」透出 next_claim_at（倒计时臂）
   afterClaimNextAt: null, // 领工资成功 ⇒ 刷新后的行带上这个 next_claim_at（验「刷新拿新时间」）
   anon: false, // true ⇒ 三键（my_role/my_hired_at/next_claim_at）整键缺省（匿名臂）
+  userPayload: { uID: 970213 }, // GET /api/user 载荷（编辑三臂切换 admin 三键；fetchApiJson 取 data）
+  patches: [], // PATCH /api/project/:id 载荷留痕（断言「只含变化字段」）
   rows: ROWS.map((r) => ({ ...r })),
   calls: [],
 }
@@ -82,13 +91,29 @@ const servedRows = () => STATE.rows.map((row) => {
   return out
 })
 
-const apiResponse = (method, pathname) => {
+const apiResponse = (method, pathname, rawBody) => {
   const ok = (data) => ({ success: true, data })
   if (pathname === '/api/project/all') {
     STATE.calls.push({ method, path: pathname })
     return ok(servedRows())
   }
   if (pathname === '/api/currencies') return ok(CUR)
+  // 【编辑】三臂（Kevin 2026-10-21）：/api/user 三键载荷按臂切换（owner / manage_tasks / 普通）；
+  // PATCH 写口留痕载荷（断言「只含变化字段」）并合并进夹具行 ⇒ 保存后的重拉读到新值。
+  if (pathname === '/api/user') {
+    STATE.calls.push({ method, path: pathname })
+    return ok(STATE.userPayload)
+  }
+  const patchEdit = pathname.match(/^\/api\/project\/(\d+)$/)
+  if (patchEdit && method === 'PATCH') {
+    STATE.calls.push({ method, path: pathname })
+    let body = {}
+    try { body = rawBody ? JSON.parse(rawBody) : {} } catch { body = {} }
+    STATE.patches.push({ path: pathname, projectId: Number(patchEdit[1]), body })
+    STATE.rows = STATE.rows.map((r) => (r.project_id === Number(patchEdit[1]) ? { ...r, ...body } : r))
+    const row = STATE.rows.find((r) => r.project_id === Number(patchEdit[1]))
+    return ok(row ? { ...row } : {})
+  }
   // 签到面（Kevin 2026-10-20：电量卡 + 签到区并入 /wage 顶部 ⇒ 探针必须喂这两个读口）
   if (pathname === '/api/batt') {
     STATE.calls.push({ method, path: pathname })
@@ -225,6 +250,8 @@ const SNAP_FN = `(() => {
         joinedBadge: txt(badge),
         joinCount: c.querySelectorAll('[data-sf-action="join"]').length,
         claimCount: c.querySelectorAll('[data-sf-action="claim"]').length,
+        editBtn: !!c.querySelector('[data-sf-m="wage-card-edit"]'),
+        editBtnText: txt(c.querySelector('[data-sf-m="wage-card-edit"]')),
         bgColor: cs.backgroundColor,
         borderLeftWidth: cs.borderLeftWidth,
         borderLeftColor: cs.borderLeftColor,
@@ -232,6 +259,26 @@ const SNAP_FN = `(() => {
         tintOpacity: tint.opacity,
       }
     }),
+  }
+})()`
+
+/** 编辑表单快照（展开后逐字段现值；`present:false` = 未展开）。 */
+const EDIT_FORM_SNAP = (id) => `(() => {
+  const card = document.querySelector('[data-sf-project="${id}"]')
+  const form = card && card.querySelector('[data-sf-m="wage-edit"]')
+  if (!form) return { present: false }
+  const val = (s) => { const el = form.querySelector(s); return el ? el.value : null }
+  return {
+    present: true,
+    title: val('[data-sf-edit="title"]'),
+    description: val('[data-sf-edit="description"]'),
+    headcount: val('[data-sf-edit="headcount"]'),
+    minDays: val('[data-sf-edit="minDays"]'),
+    batt: val('[data-sf-edit="batt"]'),
+    interval: val('[data-sf-edit="interval"]'),
+    cid: val('[data-sf-edit="cid"]'),
+    amount: val('[data-sf-edit="amount"]'),
+    status: val('[data-sf-edit="status"]'),
   }
 })()`
 
@@ -253,7 +300,7 @@ const attachRoutes = async (ctx) => {
     const u = new URL(req.url())
     if (u.hostname !== 'sf.local') return route.abort()
     if (u.pathname.startsWith('/api/')) {
-      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(apiResponse(req.method(), u.pathname)) })
+      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(apiResponse(req.method(), u.pathname, req.postData())) })
     }
     let file = path.join(DIST, decodeURIComponent(u.pathname))
     if (!fs.existsSync(file) || fs.statSync(file).isDirectory() || !path.extname(file)) file = path.join(DIST, 'index.html')
@@ -339,12 +386,16 @@ async function main() {
     cardPresent: ci.hasCard === true && ci.cardId === 'batt-checkin',
     meterPresent: ci.hasMeter === true,
     meterHasBattText: /70/.test(ci.meterText || ''),
-    checkinButtonPresent: (ci.buttonTexts || []).includes(ZH.checkinPanel.checkinButton),
-    mintAreaPresent: (ci.buttonTexts || []).includes(ZH.bttcPanel.mintButton),
+    // ★ 签到 UI 下线订正（Kevin 2026-10-20 需求③ · 已随 c5fb450 落库；BTTC 铸/解迁 /profile/assets）：
+    //   卡面 = 电量表独存，【签到】/【铸造】/【分解】一律零在场（反向断言 = 不得回归）；
+    //   读口 = /api/batt 在用、/api/checkin 零调用（UI 下线 ⇒ 不再读）。
+    //   HEAD 探针对拍证据：/tmp/probe-head-result.json 同此 3 键红（判据早于契约变更，非本单引入）。
+    checkinUiRetired: (ci.buttonTexts || []).length === 0 && ci.hasMeter === true,
+    mintAreaRetired: (ci.buttonTexts || []).length === 0,
+    battReadWired: STATE.calls.some((c) => c.path === '/api/batt') && !STATE.calls.some((c) => c.path === '/api/checkin'),
     listBelowCheckin: ci.listPresent === true && ci.cardBottom !== null && ci.listTop !== null && ci.cardBottom <= ci.listTop,
     gapPx: ci.cardBottom !== null && ci.listTop !== null ? Math.round((ci.listTop - ci.cardBottom) * 10) / 10 : null,
     cardsStillListed: ciSnap.cards.length === ROWS.length,
-    readsWired: STATE.calls.some((c) => c.path === '/api/batt') && STATE.calls.some((c) => c.path === '/api/checkin'),
     zeroOverflow: ciSnap.overflowPx === 0,
   }
 
@@ -611,6 +662,108 @@ async function main() {
     joinedBadge1536: out.states['1536_geometry'].joinedBadge === ZH.wage.joinedBadge,
   }
 
+  // ============================ ⑥ 项目卡【编辑】三臂（owner / manage_tasks / 普通用户）==============
+  // 口径（Kevin 2026-10-21）：可见性 = 已登录 ∧ 非 ended ∧（owner_uid === 我 ∨ manage_tasks 三键）。
+  //   /api/user 三键在**模块内按 uID 缓存**（单页生命周期）⇒ 每臂整页新载（open ⇒ 全新 bundle），
+  //   先切 STATE.userPayload 再 open，跨臂零串味；adminFlags 异步落定 ⇒ 先 waitForSelector【编辑】钮
+  //   再取快照（避免冷启动伪影把「未到」读成「没有」）。E1 只改标题 ⇒ PATCH 载荷**恰** {title} 一键。
+  // —— E1 owner 臂：自己的卡有【编辑】、他人卡没有；展开预填；只改标题 ⇒ 载荷只含变化字段 ——
+  resetRows()
+  STATE.userPayload = { uID: 970213 }
+  STATE.rows = STATE.rows.map((r) => (r.project_id === 103 ? { ...r, owner_uid: '970213' } : r))
+  STATE.calls.length = 0
+  STATE.patches.length = 0
+  await open('/wage')
+  await page.waitForSelector('[data-sf-project="103"] [data-sf-m="wage-card-edit"]', { timeout: 8000 }).catch(() => {})
+  await settle(page)
+  const e1Snap = await page.evaluate(SNAP_FN)
+  const e1Cards = Object.fromEntries(e1Snap.cards.map((c) => [c.project, c]))
+  await page.click('[data-sf-project="103"] [data-sf-m="wage-card-edit"]')
+  await settle(page)
+  const e1Form = await page.evaluate(EDIT_FORM_SNAP('103'))
+  out.states['1536_edit_owner'] = {
+    editCards: e1Snap.cards.filter((c) => c.editBtn).map((c) => c.project),
+    userFetches: STATE.calls.filter((c) => c.path === '/api/user').length,
+    form: e1Form,
+  }
+  out.assertions.editOwner = {
+    ownerHasEdit: Boolean(e1Cards['103'] && e1Cards['103'].editBtn === true && e1Cards['103'].editBtnText === ZH.common.edit),
+    othersNoEdit: ['101', '102', '104', '108'].every((id) => e1Cards[id] && e1Cards[id].editBtn === false),
+    editCountExactly1: e1Snap.cards.filter((c) => c.editBtn).length === 1,
+    adminKeysPathRan: STATE.calls.some((c) => c.path === '/api/user'),
+    formOpens: e1Form.present === true,
+    prefilledTitle: e1Form.title === '文案校对',
+    prefilledHeadcount: e1Form.headcount === '5',
+    prefilledPair: e1Form.cid === '4' && e1Form.amount === '50',
+    prefilledInterval: e1Form.interval === '8',
+  }
+  await page.fill('[data-sf-project="103"] [data-sf-edit="title"]', '文案校对·周末班')
+  STATE.patches.length = 0
+  await page.click('[data-sf-project="103"] [data-sf-m="wage-edit-save"]')
+  await page.waitForFunction(() => {
+    const n = document.querySelector('[data-sf-project="103"] [data-sf-m="wage-card-notice"]')
+    return !!n && n.getAttribute('data-sf-kind') === 'ok'
+  }, null, { timeout: 8000 }).catch(() => {})
+  await settle(page)
+  const e1After = (await page.evaluate(SNAP_FN)).cards.find((c) => c.project === '103')
+  const e1FormAfter = await page.evaluate(EDIT_FORM_SNAP('103'))
+  // 读数快照化：STATE.patches 是复用数组（后续臂会 length=0 复位）⇒ 入库前深拷贝，防「证据被后面清空」
+  out.states['1536_edit_owner_saved'] = { patches: JSON.parse(JSON.stringify(STATE.patches)), card: e1After, formAfter: e1FormAfter }
+  out.assertions.editOwnerSave = {
+    patchOnce: STATE.patches.length === 1,
+    patchPath: Boolean(STATE.patches[0] && STATE.patches[0].path === '/api/project/103'),
+    patchOnlyChangedFields: Boolean(STATE.patches[0] && JSON.stringify(Object.keys(STATE.patches[0].body).sort()) === '["title"]'),
+    patchTitleValue: Boolean(STATE.patches[0] && STATE.patches[0].body.title === '文案校对·周末班'),
+    formClosed: e1FormAfter.present === false,
+    noticeOk: Boolean(e1After && e1After.noticeKind === 'ok' && e1After.noticeText === ZH.wage.editSaved),
+    cardTitleUpdated: Boolean(e1After && e1After.title === '文案校对·周末班'),
+    listRefetched: STATE.calls.filter((c) => c.path === '/api/project/all').length >= 2,
+  }
+
+  // —— E2 manage_tasks 管理员臂：非本人卡也全有【编辑】（closed 亦然；仅 ended 封板，本组夹具无 ended）——
+  resetRows()
+  STATE.userPayload = { uID: 970213, admin: { can_access_admin: true, is_admin: false, permissions: ['manage_tasks'] } }
+  STATE.patches.length = 0
+  await open('/wage')
+  await page.waitForSelector('[data-sf-project="101"] [data-sf-m="wage-card-edit"]', { timeout: 8000 }).catch(() => {})
+  await settle(page)
+  const e2Snap = await page.evaluate(SNAP_FN)
+  const e2ById = Object.fromEntries(e2Snap.cards.map((c) => [c.project, c]))
+  await page.click('[data-sf-project="101"] [data-sf-m="wage-card-edit"]')
+  await settle(page)
+  const e2Form = await page.evaluate(EDIT_FORM_SNAP('101'))
+  out.states['1536_edit_admin'] = { editCards: e2Snap.cards.filter((c) => c.editBtn).map((c) => c.project), form: e2Form }
+  out.assertions.editAdmin = {
+    adminSeesAllCards: e2Snap.cards.filter((c) => c.editBtn).length === ROWS.length,
+    hiredCardToo: Boolean(e2ById['101'] && e2ById['101'].editBtn === true),
+    closedCardToo: Boolean(e2ById['108'] && e2ById['108'].editBtn === true),
+    formOpensOnOthersCard: e2Form.present === true,
+    prefilledTitle: e2Form.title === '海鲜打包',
+    zeroPatchSoFar: STATE.patches.length === 0,
+  }
+  await page.click('[data-sf-project="101"] [data-sf-m="wage-edit-cancel"]').catch(() => {})
+
+  // —— E3 普通用户臂：非本人 ∧ 无 admin 三键 ⇒ 全零【编辑】、零 PATCH ——
+  resetRows()
+  STATE.userPayload = { uID: 970213 }
+  STATE.calls.length = 0
+  STATE.patches.length = 0
+  await open('/wage')
+  await settle(page)
+  const e3Snap = await page.evaluate(SNAP_FN)
+  out.states['1536_edit_user'] = {
+    editCount: e3Snap.cards.filter((c) => c.editBtn).length,
+    userFetches: STATE.calls.filter((c) => c.path === '/api/user').length,
+  }
+  out.assertions.editUser = {
+    noEditButtonsAnywhere: e3Snap.cards.every((c) => c.editBtn === false),
+    adminKeysPathRan: STATE.calls.some((c) => c.path === '/api/user'),
+    zeroPatchRequests: STATE.patches.length === 0,
+  }
+  // 收尾复原：载荷/行回位（后续客态臂未登录、不取 /api/user，不受影响）
+  STATE.userPayload = { uID: 970213 }
+  resetRows()
+
   // ============================ ⑤ 客态公开浏览臂（独立 context，无登录种子）================
   // 口径：`/api/project/all` 是无闸公开读口 ⇒ 未登录也必须渲染项目卡；写口（加入 / 领工资）
   //       点击只弹**卡内登录提示**、零写请求。旧形态「未登录 ⇒ 整页只有登录块、零请求」已作废。
@@ -727,8 +880,9 @@ async function main() {
   const required = [
     'menu.fiveItems', 'menu.noFeedback', 'menu.firstIsWage', 'menu.orderMatches', 'menu.dividers4',
     'checkin.wrapperPresent', 'checkin.cardPresent', 'checkin.meterPresent', 'checkin.meterHasBattText',
-    'checkin.checkinButtonPresent', 'checkin.mintAreaPresent', 'checkin.listBelowCheckin',
-    'checkin.cardsStillListed', 'checkin.readsWired', 'checkin.zeroOverflow',
+    // 签到 UI 下线订正（c5fb450 契约）：三键 1:1 更名，判据数不减（语义随契约订正，反向断言加严）
+    'checkin.checkinUiRetired', 'checkin.mintAreaRetired', 'checkin.battReadWired',
+    'checkin.listBelowCheckin', 'checkin.cardsStillListed', 'checkin.zeroOverflow',
     'hashDeepLink.cardPresent', 'hashDeepLink.cardInViewport', 'hashDeepLink.listStillBelow',
     'activitiesGone.pathnameIsActivities', 'activitiesGone.noActivitiesPageHook',
     'activitiesGone.catchAllNotFound', 'activitiesGone.notRedirectedToWage',
@@ -758,6 +912,16 @@ async function main() {
     'guest.joinClickLoginPrompt', 'guest.joinClickLoginPrompt101', 'guest.zeroWriteRequests',
     'guest.cardsStableAfterClicks', 'guest.zeroOverflowGuest',
     'guest.zeroOverflow390', 'guest.cards390', 'guest.touchTarget44On390', 'guest.bannerAndList390',
+    // ⑥ 项目卡【编辑】三臂（owner / manage_tasks 管理员 / 普通用户；展开可填 + 载荷只含变化字段）
+    'editOwner.ownerHasEdit', 'editOwner.othersNoEdit', 'editOwner.editCountExactly1',
+    'editOwner.adminKeysPathRan', 'editOwner.formOpens', 'editOwner.prefilledTitle',
+    'editOwner.prefilledHeadcount', 'editOwner.prefilledPair', 'editOwner.prefilledInterval',
+    'editOwnerSave.patchOnce', 'editOwnerSave.patchPath', 'editOwnerSave.patchOnlyChangedFields',
+    'editOwnerSave.patchTitleValue', 'editOwnerSave.formClosed', 'editOwnerSave.noticeOk',
+    'editOwnerSave.cardTitleUpdated', 'editOwnerSave.listRefetched',
+    'editAdmin.adminSeesAllCards', 'editAdmin.hiredCardToo', 'editAdmin.closedCardToo',
+    'editAdmin.formOpensOnOthersCard', 'editAdmin.prefilledTitle', 'editAdmin.zeroPatchSoFar',
+    'editUser.noEditButtonsAnywhere', 'editUser.adminKeysPathRan', 'editUser.zeroPatchRequests',
   ]
   const verdicts = required.map((key) => {
     const [group, field] = key.split('.')

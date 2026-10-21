@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import BattCheckinPanel from '../../components/BattCheckinPanel'
-import { applyToWageProject, claimWage, fetchWageCurrencies, fetchWageProjects } from './wage-api'
+import { applyToWageProject, claimWage, fetchWageCurrencies, fetchWageProjects, patchWageProject } from './wage-api'
+import { isWageProjectEditAdmin, loadListingEditAdmin } from '../item/item-edit-access'
 import './wage.css'
 
 // ============================================================================
@@ -48,6 +49,21 @@ import './wage.css'
 //   · 后端加性字段 `streak`（第几次连续领取）/ `bonus_amount`（本次额外随机 $ 奖励）；
 //   · 两键都在且为正 ⇒ 追加一行「已连续 N 次领工资，额外奖励 $X」（`wage.streakReward`）；
 //   · 键缺席 / 非正（旧后端）⇒ 静默降级为原提示，**不猜、不补 0**。
+//
+// ★ Kevin 2026-10-21 指令：**最高管理员可以修改任何项目的信息** ⇒ 项目卡新增【编辑】：
+//   · 可见性 = 已登录 ∧ `status !== 'ended'` ∧（`owner_uid` === 本人 ∨ 管理员三键
+//     `can_access_admin ∧ (is_admin ∨ permissions ∋ 'manage_tasks')`——route R7
+//     `PATCH /api/project/:projectId` 的 `requireAdmin('manage_tasks')` 同式）。
+//     判定复用 `item/item-edit-access.js` 的 `loadListingEditAdmin`（同一份 `/api/user`
+//     三键载荷 + 模块内缓存 + 取数失败 fail-safe：取不到 ⇒ 只按 owner 判，绝不误判管理员）。
+//   · 【编辑】= 小号次按钮，挂**卡片头行右侧**（状态徽标旁），不挤占【加入】/【领工资】主行；
+//     表单卡内展开（文档流内推下，不遮挡签到区/列表），触控目标手机档 ≥44。
+//   · 可改字段 = 标题 / 说明 / headcount（缩容低于在职 ⇒ 409 内联）/ recruit_min_account_days /
+//     wage_batt_per_claim / wage_interval_hours（1–100）/ wage_cid + wage_currency_amount
+//     （成对、下拉取 `GET /api/currencies`、可清空）/ status（recruiting⇄working；ended 不可达）。
+//   · 载荷**只带变化字段**（两币任一侧变化 ⇒ 两键成对上送/清空）；无变化 ⇒ 零请求收起。
+//   · 成功 ⇒ 收起表单 + 卡内成功提示 + 重拉列表拿新值；409/400 按 `details.reason` 字段级内联。
+//   · 既有加入 / 领工资 / 倒计时行为零变化。
 // ============================================================================
 
 const num = (value, fallback = 0) => {
@@ -115,6 +131,45 @@ const REASON_TEXT_KEYS = {
   PROJECT_CLOSED: 'statusClosed',
 }
 
+/**
+ * 编辑表单的 `details.reason` ⇒ { field, key }（409/400 按**字段**内联；`field: null` = 表单级）。
+ * `key` = 完整 i18n 键（间隔校验复用 `bountyProject.intervalInvalid`，同字段同文案）。
+ * 未登记的 reason ⇒ 表单级兜底句（`wage.editFailed`），机读码不外泄。
+ */
+const EDIT_REASON_MAP = {
+  project_headcount_below_hired: { field: 'headcount', key: 'wage.errHeadcountBelowHired' },
+  project_invalid_transition: { field: 'status', key: 'wage.errTransition' },
+  project_ended_frozen: { field: null, key: 'wage.errFrozen' },
+  PROJECT_TITLE_INVALID: { field: 'title', key: 'wage.errTitle' },
+  PROJECT_DESCRIPTION_INVALID: { field: 'description', key: 'wage.errDescription' },
+  PROJECT_HEADCOUNT_INVALID: { field: 'headcount', key: 'wage.errHeadcount' },
+  PROJECT_MIN_DAYS_INVALID: { field: 'minDays', key: 'wage.errMinDays' },
+  PROJECT_WAGE_BATT_INVALID: { field: 'batt', key: 'wage.errBatt' },
+  PROJECT_INTERVAL_INVALID: { field: 'interval', key: 'bountyProject.intervalInvalid' },
+  PROJECT_WAGE_CURRENCY_PAIR_REQUIRED: { field: 'currency', key: 'wage.errCurrencyPair' },
+  PROJECT_WAGE_CID_INVALID: { field: 'currency', key: 'wage.errCurrencyInvalid' },
+  PROJECT_WAGE_AMOUNT_INVALID: { field: 'currency', key: 'wage.errCurrencyAmount' },
+  project_wage_currency_not_found: { field: 'currency', key: 'wage.errCurrencyInvalid' },
+  project_wage_currency_not_listed: { field: 'currency', key: 'wage.errCurrencyInvalid' },
+  PROJECT_STATUS_INVALID: { field: 'status', key: 'wage.errStatus' },
+  NOT_SUPPORTED: { field: null, key: 'wage.editFailed' },
+}
+
+/** 非负整数文本（含 '0'；空串不算）。 */
+const isIntText = (raw) => /^[0-9]+$/.test(String(raw ?? '').trim())
+
+/**
+ * 次币下拉选项：来源 = `GET /api/currencies`（公开只读）；
+ * 排除平台 $（cid 1 —— 后端 `PROJECT_WAGE_CID_INVALID` 拒收，batt 本就以 $ 计价）；
+ * 无符号且无名 ⇒ 不进下拉。编号只作 value 不上屏（显示 `symbol · name`）。
+ */
+const wageCurrencyOptions = (rows) => (Array.isArray(rows) ? rows : [])
+  .filter((row) => row?.cid != null && String(row.cid) !== '1' && (row?.symbol || row?.name))
+  .map((row) => ({
+    cid: String(row.cid),
+    label: `${row.symbol || ''}${row.name ? `${row.symbol ? ' · ' : ''}${row.name}` : ''}`,
+  }))
+
 const WagePage = () => {
   const { t } = useTranslation()
   const location = useLocation()
@@ -127,6 +182,12 @@ const WagePage = () => {
   const [notices, setNotices] = useState({}) // projectKey ⇒ { kind:'ok'|'err', text }
   const [claimAt, setClaimAt] = useState({}) // projectKey ⇒ 下次可领时间戳
   const [symbols, setSymbols] = useState({}) // cid ⇒ 币种符号
+  const [currencyRows, setCurrencyRows] = useState([]) // 币种原始行（编辑表单次币下拉用）
+  const [adminFlags, setAdminFlags] = useState(null) // `/api/user` 三键；null = 未取到 ⇒ 不做管理员特判（fail-safe）
+  const [editKey, setEditKey] = useState(null) // 当前展开编辑表单的项目 key（单开；null = 全部收起）
+  const [editForm, setEditForm] = useState(null) // 编辑表单值（由行派生；字段见 editFormOf）
+  const [editErrs, setEditErrs] = useState({}) // 编辑表单内联错误 { field: text }（'general' = 表单级）
+  const [editBusy, setEditBusy] = useState(false)
   const [clock, setClock] = useState(() => Date.now())
 
   // user / t 走 ref：取数 effect 的依赖收敛到原始值（同 ItemDetailPage 体例，避免语言切换重拉）。
@@ -175,15 +236,31 @@ const WagePage = () => {
       .then((payload) => {
         if (cancelled) return
         const rows = Array.isArray(payload) ? payload : (payload?.rows || [])
+        const safeRows = Array.isArray(rows) ? rows : []
+        setCurrencyRows(safeRows)
         const map = {}
-        for (const row of Array.isArray(rows) ? rows : []) {
+        for (const row of safeRows) {
           if (row?.cid != null && row?.symbol) map[String(row.cid)] = String(row.symbol)
         }
         setSymbols(map)
       })
-      .catch(() => { if (!cancelled) setSymbols({}) })
+      .catch(() => { if (!cancelled) { setCurrencyRows([]); setSymbols({}) } })
     return () => { cancelled = true }
   }, [])
+
+  // 管理员三键（`/api/user`）：逐字复用 item-edit-access 的加载器（模块内按 uID 缓存 +
+  // 并发去重 + 失败返回 null），取不到 ⇒ 只按 owner_uid 判【编辑】，绝不误判管理员。
+  useEffect(() => {
+    let alive = true
+    if (!isAuthenticated) {
+      setAdminFlags(null)
+      return undefined
+    }
+    loadListingEditAdmin(userRef.current)
+      .then((flags) => { if (alive) setAdminFlags(flags) })
+      .catch(() => { if (alive) setAdminFlags(null) })
+    return () => { alive = false }
+  }, [isAuthenticated, uidKey]) // eslint-disable-line react-hooks/exhaustive-deps -- user 走 ref
 
   // 倒计时驱动：只有存在「未来」的领取时间点时才起定时器（无倒计时 ⇒ 零定时器）；
   // 到点那一次 tick 之后 `pendingClaim` 转 false ⇒ 定时器自动停，按钮同帧起可用。
@@ -313,6 +390,182 @@ const WagePage = () => {
     }
   }
 
+  // ============================ 项目卡【编辑】（owner ∨ manage_tasks 管理员）========================
+
+  /** 行 → 表单初值（数字 / 两币字段一律字符串化；次币缺省 = '' 即「无（仅 batt）」）。 */
+  const editFormOf = (row) => ({
+    title: String(row?.title ?? ''),
+    description: String(row?.description ?? ''),
+    headcount: String(row?.headcount ?? ''),
+    minDays: String(row?.recruit_min_account_days ?? 0),
+    batt: String(row?.wage_batt_per_claim ?? ''),
+    interval: String(row?.wage_interval_hours ?? ''),
+    cid: row?.wage_cid == null || row?.wage_cid === '' ? '' : String(row.wage_cid),
+    amount: row?.wage_currency_amount == null || row?.wage_currency_amount === '' ? '' : String(row.wage_currency_amount),
+    status: String(row?.status || '') === 'working' ? 'working' : 'recruiting',
+  })
+
+  /** 【编辑】可见性：已登录 ∧ 非 ended ∧（本人 `owner_uid` ∨ `manage_tasks` 管理员三键）。 */
+  const canEditCard = (row) => {
+    if (!isAuthenticated) return false
+    if (String(row?.status || '') === 'ended') return false
+    const uid = user?.uID ?? user?.uid
+    if (uid != null && uid !== '' && String(row?.owner_uid ?? '') === String(uid)) return true
+    return isWageProjectEditAdmin(adminFlags)
+  }
+
+  const openEdit = (row) => {
+    const key = projectKey(row)
+    if (!key) return
+    setEditKey(key)
+    setEditForm(editFormOf(row))
+    setEditErrs({})
+    setEditBusy(false)
+  }
+
+  const closeEdit = () => {
+    setEditKey(null)
+    setEditForm(null)
+    setEditErrs({})
+    setEditBusy(false)
+  }
+
+  const setEditField = (field, value) => {
+    setEditForm((prev) => {
+      if (!prev) return prev
+      const next = { ...prev, [field]: value }
+      // 次币两键联动：选「无」⇒ 定额一并清空（后端两键同空同非空）
+      if (field === 'cid' && String(value) === '') next.amount = ''
+      return next
+    })
+    const errField = field === 'cid' || field === 'amount' ? 'currency' : field
+    setEditErrs((prev) => {
+      if (!prev[errField]) return prev
+      const next = { ...prev }
+      delete next[errField]
+      return next
+    })
+  }
+
+  /** 表单校验（提交前；与后端 400 逐字段同口径，避免无用往返）。 */
+  const validateEdit = (form) => {
+    const errs = {}
+    const title = String(form?.title ?? '').trim()
+    if (!title || title.length > 200) errs.title = tRef.current('wage.errTitle')
+    if (String(form?.description ?? '').length > 20000) errs.description = tRef.current('wage.errDescription')
+    if (!isIntText(form?.headcount) || Number(String(form.headcount).trim()) < 1) {
+      errs.headcount = tRef.current('wage.errHeadcount')
+    }
+    const minDays = String(form?.minDays ?? '').trim()
+    if (minDays !== '' && !isIntText(minDays)) errs.minDays = tRef.current('wage.errMinDays')
+    const battText = String(form?.batt ?? '').trim()
+    const batt = Number(battText)
+    if (battText === '' || !Number.isFinite(batt) || batt <= 0) errs.batt = tRef.current('wage.errBatt')
+    const interval = Number(String(form?.interval ?? '').trim())
+    if (!Number.isInteger(interval) || interval < 1 || interval > 100) {
+      // 与发布项目表单同字段同文案（复用既有键，零新增）
+      errs.interval = tRef.current('bountyProject.intervalInvalid')
+    }
+    const cid = String(form?.cid ?? '')
+    const amount = String(form?.amount ?? '').trim()
+    if (cid === '') {
+      if (amount !== '') errs.currency = tRef.current('wage.errCurrencyPair')
+    } else if (!isIntText(cid) || Number(cid) === 1) {
+      errs.currency = tRef.current('wage.errCurrencyInvalid')
+    } else if (amount === '' || !Number.isFinite(Number(amount)) || Number(amount) <= 0) {
+      errs.currency = tRef.current('wage.errCurrencyAmount')
+    }
+    return errs
+  }
+
+  /**
+   * 载荷 = **只带变化字段**（与行原值逐字段比对；两币任一侧变化 ⇒ 两键成对上送，
+   * 清空 ⇒ 两键都 null —— 后端对「同现同缺」整包校验）。无变化 ⇒ 空对象（调用方零请求收起）。
+   */
+  const buildEditPayload = (row, form) => {
+    const body = {}
+    const nextTitle = String(form?.title ?? '').trim()
+    if (nextTitle !== String(row?.title ?? '')) body.title = nextTitle
+    if (String(form?.description ?? '') !== String(row?.description ?? '')) {
+      body.description = String(form?.description ?? '')
+    }
+
+    const intField = (raw, orig) => {
+      const text = String(raw ?? '').trim()
+      if (!isIntText(text)) return undefined
+      const n = Number(text)
+      return n !== orig ? n : undefined
+    }
+    const headcount = intField(form?.headcount, num(row?.headcount, -1))
+    if (headcount !== undefined) body.headcount = headcount
+    // 注册天数下限：清空 = 归 0（后端对 null 同样按 0 处理；行缺键也按 0 基线，不误报变化）
+    const minDaysText = String(form?.minDays ?? '').trim()
+    if (isIntText(minDaysText) || minDaysText === '') {
+      const minDaysVal = minDaysText === '' ? 0 : Number(minDaysText)
+      if (minDaysVal !== num(row?.recruit_min_account_days, 0)) body.recruit_min_account_days = minDaysVal
+    }
+    const interval = intField(form?.interval, num(row?.wage_interval_hours, -1))
+    if (interval !== undefined) body.wage_interval_hours = interval
+
+    const battText = String(form?.batt ?? '').trim()
+    const batt = Number(battText)
+    if (battText !== '' && Number.isFinite(batt) && batt > 0 && batt !== num(row?.wage_batt_per_claim, -1)) {
+      body.wage_batt_per_claim = battText
+    }
+
+    const origCid = row?.wage_cid == null || row?.wage_cid === '' ? '' : String(row.wage_cid)
+    const origAmount = row?.wage_currency_amount == null || row?.wage_currency_amount === ''
+      ? '' : String(row.wage_currency_amount)
+    const nextCid = String(form?.cid ?? '')
+    const nextAmount = String(form?.amount ?? '').trim()
+    if (nextCid !== origCid || nextAmount !== origAmount) {
+      body.wage_cid = nextCid === '' ? null : Number(nextCid)
+      body.wage_currency_amount = nextCid === '' ? null : nextAmount
+    }
+
+    const nextStatus = form?.status === 'working' ? 'working' : 'recruiting'
+    if (nextStatus !== String(row?.status || '')) body.status = nextStatus
+    return body
+  }
+
+  const onEditSubmit = async (row, event) => {
+    event.preventDefault()
+    if (editBusy || !editForm) return
+    const key = projectKey(row)
+    if (!key) return
+    const errs = validateEdit(editForm)
+    if (Object.keys(errs).length > 0) {
+      setEditErrs(errs)
+      return
+    }
+    const body = buildEditPayload(row, editForm)
+    if (Object.keys(body).length === 0) {
+      // 无变化 ⇒ 零请求直接收起（「只带变化字段」口径下没有可发的键）
+      closeEdit()
+      return
+    }
+    setEditBusy(true)
+    setEditErrs({})
+    try {
+      await patchWageProject(key, body, userRef.current)
+      closeEdit()
+      setNotice(key, { kind: 'ok', text: tRef.current('wage.editSaved') })
+      await load({ silent: true })
+    } catch (error) {
+      const details = error?.details && typeof error.details === 'object' ? error.details : null
+      const reason = typeof details?.reason === 'string' ? details.reason : ''
+      const mapped = EDIT_REASON_MAP[reason]
+      if (mapped) {
+        const text = tRef.current(mapped.key, { hired: num(details?.hired_count, 0) })
+        setEditErrs(mapped.field ? { [mapped.field]: text } : { general: text })
+      } else {
+        setEditErrs({ general: tRef.current('wage.editFailed') })
+      }
+    } finally {
+      setEditBusy(false)
+    }
+  }
+
   const renderCard = (row) => {
     const key = projectKey(row)
     const recruiting = String(row?.status || '') === 'recruiting'
@@ -329,6 +582,8 @@ const WagePage = () => {
     const claimable = !nextAt || remainingMs <= 0
     const busyAction = busy[key]
     const notice = notices[key]
+    const canEdit = canEditCard(row)
+    const editOpen = Boolean(editForm) && editKey === key
     const joinedElsewhere = Boolean(hiredKey) && hiredKey !== key
     const isFull = headcount > 0 && hiredCount >= headcount
 
@@ -348,11 +603,25 @@ const WagePage = () => {
               <span className="sf-wage-joined-badge" data-sf-m="wage-card-joined">{t('wage.joinedBadge')}</span>
             ) : null}
           </div>
-          <span
-            className={`sf-wage-status ${recruiting ? 'is-open' : 'is-closed'}`}
-            data-sf-m="wage-card-status"
-            data-sf-state={recruiting ? 'recruiting' : 'closed'}
-          >{t(recruiting ? 'wage.statusRecruiting' : 'wage.statusClosed')}</span>
+          <div className="sf-wage-card-head-side">
+            <span
+              className={`sf-wage-status ${recruiting ? 'is-open' : 'is-closed'}`}
+              data-sf-m="wage-card-status"
+              data-sf-state={recruiting ? 'recruiting' : 'closed'}
+            >{t(recruiting ? 'wage.statusRecruiting' : 'wage.statusClosed')}</span>
+            {canEdit ? (
+              <button
+                type="button"
+                className="sf-wage-edit-toggle"
+                data-sf-m="wage-card-edit"
+                data-sf-open={editOpen ? '1' : '0'}
+                aria-expanded={editOpen}
+                onClick={() => (editOpen ? closeEdit() : openEdit(row))}
+              >
+                {t('common.edit')}
+              </button>
+            ) : null}
+          </div>
         </div>
 
         {row?.description ? (
@@ -415,6 +684,127 @@ const WagePage = () => {
             </>
           ) : null}
         </div>
+
+        {editOpen ? (
+          <form className="sf-wage-edit" data-sf-m="wage-edit" noValidate onSubmit={(e) => onEditSubmit(row, e)}>
+            <p className="sf-wage-edit-title" data-sf-m="wage-edit-title">{t('wage.editTitle')}</p>
+            <div className="sf-wage-edit-grid">
+              <label className="sf-wage-edit-field is-wide">
+                <span className="sf-wage-edit-label">{t('bountyProject.title')}</span>
+                <input
+                  className="sf-wage-edit-input"
+                  data-sf-edit="title"
+                  value={editForm.title}
+                  maxLength={200}
+                  onChange={(e) => setEditField('title', e.target.value)}
+                />
+                {editErrs.title ? <span className="sf-wage-edit-err" data-sf-edit-err="title" role="alert">{editErrs.title}</span> : null}
+              </label>
+              <label className="sf-wage-edit-field is-wide">
+                <span className="sf-wage-edit-label">{t('bountyProject.description')}</span>
+                <textarea
+                  className="sf-wage-edit-input"
+                  data-sf-edit="description"
+                  rows={3}
+                  value={editForm.description}
+                  onChange={(e) => setEditField('description', e.target.value)}
+                />
+                {editErrs.description ? <span className="sf-wage-edit-err" data-sf-edit-err="description" role="alert">{editErrs.description}</span> : null}
+              </label>
+              <label className="sf-wage-edit-field">
+                <span className="sf-wage-edit-label">{t('bountyProject.headcount')}</span>
+                <input
+                  className="sf-wage-edit-input"
+                  data-sf-edit="headcount"
+                  inputMode="numeric"
+                  value={editForm.headcount}
+                  onChange={(e) => setEditField('headcount', e.target.value)}
+                />
+                {editErrs.headcount ? <span className="sf-wage-edit-err" data-sf-edit-err="headcount" role="alert">{editErrs.headcount}</span> : null}
+              </label>
+              <label className="sf-wage-edit-field">
+                <span className="sf-wage-edit-label">{t('bountyProject.minDays')}</span>
+                <input
+                  className="sf-wage-edit-input"
+                  data-sf-edit="minDays"
+                  inputMode="numeric"
+                  value={editForm.minDays}
+                  onChange={(e) => setEditField('minDays', e.target.value)}
+                />
+                {editErrs.minDays ? <span className="sf-wage-edit-err" data-sf-edit-err="minDays" role="alert">{editErrs.minDays}</span> : null}
+              </label>
+              <label className="sf-wage-edit-field">
+                <span className="sf-wage-edit-label">{t('bountyProject.battPerClaim')}</span>
+                <input
+                  className="sf-wage-edit-input"
+                  data-sf-edit="batt"
+                  inputMode="decimal"
+                  value={editForm.batt}
+                  onChange={(e) => setEditField('batt', e.target.value)}
+                />
+                {editErrs.batt ? <span className="sf-wage-edit-err" data-sf-edit-err="batt" role="alert">{editErrs.batt}</span> : null}
+              </label>
+              <label className="sf-wage-edit-field">
+                <span className="sf-wage-edit-label">{t('bountyProject.intervalHours')}</span>
+                <input
+                  className="sf-wage-edit-input"
+                  data-sf-edit="interval"
+                  inputMode="numeric"
+                  value={editForm.interval}
+                  onChange={(e) => setEditField('interval', e.target.value)}
+                />
+                {editErrs.interval ? <span className="sf-wage-edit-err" data-sf-edit-err="interval" role="alert">{editErrs.interval}</span> : null}
+              </label>
+              <label className="sf-wage-edit-field">
+                <span className="sf-wage-edit-label">{t('bountyProject.currency')}</span>
+                <select
+                  className="sf-wage-edit-input"
+                  data-sf-edit="cid"
+                  value={editForm.cid}
+                  onChange={(e) => setEditField('cid', e.target.value)}
+                >
+                  <option value="">{t('bountyProject.noCurrency')}</option>
+                  {wageCurrencyOptions(currencyRows).map((opt) => (
+                    <option key={opt.cid} value={opt.cid}>{opt.label}</option>
+                  ))}
+                </select>
+                <span className="sf-wage-edit-label">{t('bountyProject.currencyAmount')}</span>
+                <input
+                  className="sf-wage-edit-input"
+                  data-sf-edit="amount"
+                  inputMode="decimal"
+                  value={editForm.amount}
+                  disabled={editForm.cid === ''}
+                  onChange={(e) => setEditField('amount', e.target.value)}
+                />
+                {editErrs.currency ? <span className="sf-wage-edit-err" data-sf-edit-err="currency" role="alert">{editErrs.currency}</span> : null}
+              </label>
+              <label className="sf-wage-edit-field">
+                <span className="sf-wage-edit-label">{t('wage.fieldStatus')}</span>
+                <select
+                  className="sf-wage-edit-input"
+                  data-sf-edit="status"
+                  value={editForm.status}
+                  onChange={(e) => setEditField('status', e.target.value)}
+                >
+                  {(editForm.status === 'working' ? ['working', 'recruiting'] : ['recruiting', 'working']).map((s) => (
+                    <option key={s} value={s}>{t(s === 'working' ? 'common.ongoing' : 'wage.statusRecruiting')}</option>
+                  ))}
+                </select>
+                {editErrs.status ? <span className="sf-wage-edit-err" data-sf-edit-err="status" role="alert">{editErrs.status}</span> : null}
+              </label>
+            </div>
+            {editErrs.general ? <p className="sf-wage-edit-err" data-sf-edit-err="general" role="alert">{editErrs.general}</p> : null}
+            <div className="sf-wage-edit-actions">
+              <button type="submit" className="sf-wage-btn is-primary" data-sf-m="wage-edit-save" disabled={editBusy}>
+                {editBusy ? t('wage.saving') : t('common.save')}
+              </button>
+              <button type="button" className="sf-wage-btn" data-sf-m="wage-edit-cancel" onClick={closeEdit}>
+                {t('wage.cancel')}
+              </button>
+            </div>
+          </form>
+        ) : null}
 
         {notice?.text ? (
           <p

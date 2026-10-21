@@ -23,13 +23,23 @@
 import { fetchCurrentUser } from '../../auth'
 
 /** 三键 ⇒ 布尔（形状不合法一律按 false；`permissions` 非数组 ⇒ 视为空）。 */
-export const isListingEditAdmin = (admin) => {
+export const isAdminWithPermission = (admin, permission) => {
   if (!admin || typeof admin !== 'object') return false
   if (admin.can_access_admin !== true) return false
   if (admin.is_admin === true) return true
   const permissions = Array.isArray(admin.permissions) ? admin.permissions : []
-  return permissions.includes('manage_rewards')
+  return permissions.includes(permission)
 }
+
+export const isListingEditAdmin = (admin) => isAdminWithPermission(admin, 'manage_rewards')
+
+/**
+ * wage 项目卡【编辑】判据（route R7 `PATCH /api/project/:projectId` 的
+ * `requireAdmin('manage_tasks')` 同式 · §49.19.1）：
+ *   can_access_admin ∧ (is_admin ∨ permissions ∋ 'manage_tasks')
+ * 载荷与缓存**逐字复用** `loadListingEditAdmin`（同一份 `/api/user` 三键，不另立取数路径）。
+ */
+export const isWageProjectEditAdmin = (admin) => isAdminWithPermission(admin, 'manage_tasks')
 
 /** 模块内缓存（按 uID；`value === null` 表示「已确认无管理员能力」，不是「未取过」）。 */
 let cache = { uid: null, value: null }

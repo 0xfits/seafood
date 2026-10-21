@@ -178,3 +178,63 @@
 - `docs/**` 未改（本单口径 = 不碰后端/docs）⇒ `docs/route-layer.spec.md` 的 `/api/project/all` 行键集仍是旧口径
   （未记 `my_role` / `my_hired_at` / `next_claim_at` 三键与 `wage.joinedBadge`），需另立规范勘误单。
 - 未加入的卡：`data-sf-joined="0"` 且**无任何新增 class / 样式命中**（`.is-joined` 只在 joined 时挂）。
+
+## 项目卡【编辑】收口：单测 5 红定性修复 + 探针编辑三臂（2026-10-21）
+
+### 5 红定性（修前 5 红 → 修后 0 红，逐例归因）
+
+- **`wage-page` ④ 例 —— 测试 bug（缓存跨例污染 + 异步竞态），产品无罪**：
+  根因 = `item/item-edit-access.js` 的 `/api/user` 三键缓存是**模块级、按 uID**（产品语义：单页面生命周期内
+  零重复请求、换号即重取），而测试全组共用 uID 7 且从不调 `resetListingEditAdminCache()`（该导出即为此设）。
+  ①② 组用例（无 token ⇒ `fetchCurrentUser` 前置抛错）缓存保持空 ⇒ ⑤ 组首例（admin 臂）真发 `/api/user`
+  并把 ADMIN_OK 写进缓存，但 `setAdminFlags` 异步落定**晚于同步断言** ⇒ 0 钮（首红）；其后各例**继承毒缓存**
+  ⇒ 非管理员臂反而出钮（manage_rewards 臂 / 无三键臂 / owner-他人卡臂全中招；ended 臂因 ended 闸在前而幸免）。
+  产品侧复核：`canEditCard` = 已登录 ∧ 非 ended ∧（`String(owner_uid)` === `String(uID)` ∨ 三键判 manage_tasks），
+  与 route R7 `requireAdmin('manage_tasks')` 同式，**零改动**。
+  修法（全为加等待/加证据，断言语义零放宽）：`beforeEach` 复位缓存；admin 臂 `waitFor`【编辑】钮落定（恰 2）；
+  负向臂先等 `/api/user` 请求真实发起（载荷无 manage_tasks ⇒ 任何时刻出不了钮）再断「无钮」；四处 admin 依赖
+  用例点击前等钮。
+- **`i18n-violation-closeout` ② —— 期望常数过期（预期订正，非放宽）**：wage-edit +18 键/语 ⇒ 拍平
+  1253→1271；脚本口径「作用域命中节点数 = 拍平键数 × 4」现取 = `node frontend/scripts/p4z-i18nviol-global.mjs`
+  输出 **`作用域命中节点数 = 5084（键 1271 × 语 4）`**；旧值 5012 = 1253 × 4。算式：1271 × 4 = **5084**。
+  按体例订正该断言并在注释链补 `[i18n-bump wage-edit +18 键 ⇒ flat 1253⇒1271 / 四语节点 5012⇒5084（top 134 不变）]`
+  留痕（同文件 ⑤ 的 1271 已前推，仅 ② 漏更一处）。
+
+### 门套读数（改前基线当场自取 = 70 文件 / 749 例）
+
+- `npm run build`：**exit 0**（`readings/build-wage-edit.log`）。
+- `npm run test:unit`：**70 文件 / 749 例全绿**（例数不减；修后 `readings/unit-wage-edit.log`；
+  修前 5 红留痕 `readings/unit-wage-edit-before.log`）。lint 无配置（恒 exit 2，存量口径，不拦交付）。
+
+### 探针（`ops/wage/front/probe-wage.mjs`）：必过判据 90 → **116**，`verdict.pass = true`、pageErrors = 0
+
+（`readings/probe-result-wage-edit.json`；判据只增不减，其中 3 键订正见下。）
+
+- **E1 owner 臂**：恰 103 卡有【编辑】（文案 = `common.edit`），他人卡（101/102/104/108）零钮；
+  表单展开预填（title「文案校对」/ headcount `5` / cid+amount `4`+`50` / interval `8` 全对）；
+  只改标题保存 ⇒ **PATCH 载荷恰 `{title:"文案校对·周末班"}` 一键**（只含变化字段）、表单收起、
+  卡内 `editSaved` 提示、重拉后卡标题更新。
+- **E2 manage_tasks 管理员臂**：10/10 卡全有【编辑】（含 hired 101 与 closed 108；仅 ended 封板）；
+  可展开**他人卡**表单（预填对）、零 PATCH。
+- **E3 普通用户臂**：全零【编辑】、`/api/user` 恰 1 发（三键路径真实跑过、载荷无 admin ⇒ fail-safe 归 owner 判）、
+  零 PATCH。
+- 探针工程加固：`/api/user` 与 `PATCH /api/project/:id` 进 `context.route` 自截（载荷留痕 + 合并进夹具行，
+  保存后重拉读新值）；rows 补 `owner_uid` 契约键（缺省 900001 = 他人）；`STATE.patches` 入库前深拷贝
+  （防后续臂 `length=0` 复位清掉已存证据）；adminFlags 异步落定 ⇒ 各臂先 `waitForSelector`【编辑】钮再取快照
+  （防冷启动伪影把「未到」读成「没有」）。
+
+### ★ 既有 3 判据订正（非本单引入 · 父版对照定案）
+
+`checkin.checkinButtonPresent` / `checkin.mintAreaPresent` / `checkin.readsWired` 在 **HEAD 探针对拍同红**
+（`readings/probe-result-head-checkin-attribution.json`，HEAD 版跑同 dist 同样 3 键红）——契约源 =
+`c5fb450`「签到 UI 下线 + BTTC 铸/解迁 /profile/assets」（Kevin 2026-10-20 需求③），当时 /wage 探针漏更。
+按新契约 **1:1 更名订正**（90 键计数不减）：`checkinUiRetired`（卡面按钮全零 + 电量表在场）、
+`mintAreaRetired`（按钮全零）、`battReadWired`（`/api/batt` 在用 ∧ `/api/checkin` 零调用）——
+三条都是「下线不得回归」的反向断言，比旧正向断言更严。
+
+### 边界（如实披露）
+
+- 产品实现面（`WagePage.canEditCard` / `item-edit-access.isWageProjectEditAdmin` / `wage-api.patchWageProject` /
+  `wage.css` 编辑表单 / 四语 +18 键）为本批已实现代码，本单做定性修复 + 判据订正 + 探针三臂 + 读数入库；
+  23 文件一批提交（含计数前推的 14 个测试文件，逐文件核对均属本单键数链）。
+- `docs/**` 未改（本单口径 = 不碰后端/docs）⇒ `route-layer.spec` 未记 `owner_uid` 行键与编辑写口口径，需另立规范勘误单。

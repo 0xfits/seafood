@@ -8,7 +8,10 @@
  *   ③ 加入 / 领工资成功 ⇒ 卡内提示 + 重拉列表；失败 ⇒ 卡内内联提示、列表不白屏；
  *   ④ 未登录 ⇒ **也拉列表并渲染项目卡**（公开浏览面），页顶只留轻提示；【加入】/【领工资】可点、
  *      点击只弹卡内登录提示且零写请求；
- *   ⑤ i18n `wage` 命名空间四语齐备 + 计数前推（top 132 / flat 1169 / 四语节点 4676）。
+ *   ⑤ 项目卡【编辑】（Kevin 2026-10-21）：owner ∨ manage_tasks 管理员可见、ended 不显示、
+ *      表单展开/预填、PATCH 载荷只含变化字段（两币成对）、409/400 按 reason 字段内联、
+ *      成功后卡片刷新取新值；客态零 /api/user 请求；
+ *   ⑥ i18n `wage` 命名空间四语齐备 + 计数前推（top 134 / flat 1271 / 四语节点 5084）。
  *
  * 注：真实浏览器几何（390/1536 零溢出）与真实契约联调由 `ops/wage/front/` 的探针覆盖，
  *     jsdom 不套用 media query，故此处不断言列数。
@@ -47,6 +50,10 @@ const AUTH = vi.hoisted(() => ({ isAuthenticated: true, user: { uID: 7, EVM: '0x
 vi.mock('../../auth-context', () => ({ useAuth: () => AUTH }))
 
 import WagePage from '../../pages/wage/WagePage'
+// ⑤ 组【编辑】判定复用 item/item-edit-access 的模块级三键缓存（按 uID 跨用例存活）。
+// 全组共用 uID 7 ⇒ 上一臂取回的管理员载荷会污染下一臂（实测：admin 臂 0 钮、
+// 非管理员臂反而出钮）⇒ 每例先复位，恢复「新页面生命周期」语义（该导出即为此设）。
+import { resetListingEditAdminCache } from '../../pages/item/item-edit-access'
 
 const HOUR = 3600 * 1000
 
@@ -101,21 +108,29 @@ const ROW_CLOSED = {
 const okBody = (data) => ({ ok: true, status: 200, json: async () => ({ success: true, data }) })
 const errBody = (status, error) => ({ ok: false, status, json: async () => ({ success: false, error }) })
 
-/** 路由拦截式 fetch 替身：`/api/project/all` 与 `/api/currencies` 走夹具，写口逐案定制。 */
-const installFetch = ({ rows = [], onClaim, onApply } = {}) => {
+/**
+ * 路由拦截式 fetch 替身：`/api/project/all` 与 `/api/currencies` 走夹具，写口逐案定制。
+ * `adminPayload` = `GET /api/user` 的替身载荷（管理员三键判定用）；`onPatch` = PATCH 写口逐案定制。
+ */
+const installFetch = ({ rows = [], onClaim, onApply, onPatch, adminPayload = null } = {}) => {
   const calls = []
   const fn = vi.fn(async (url, options = {}) => {
     const target = String(url)
-    calls.push({ url: target, method: (options.method || 'GET').toUpperCase() })
+    const method = (options.method || 'GET').toUpperCase()
+    calls.push({ url: target, method, body: options.body ? JSON.parse(options.body) : null })
     if (target.startsWith('/api/project/all')) return okBody(rows)
     if (target.startsWith('/api/currencies')) {
       return okBody([{ cid: 1, symbol: '$' }, { cid: 4, symbol: 'BTTC' }])
     }
+    if (target.startsWith('/api/user')) return okBody(adminPayload ?? { uID: 7 })
     if (/\/api\/project\/[^/]+\/apply$/.test(target)) {
       return onApply ? onApply(target) : okBody({})
     }
     if (/\/api\/project\/[^/]+\/claim$/.test(target)) {
       return onClaim ? onClaim(target) : okBody({})
+    }
+    if (/^\/api\/project\/[^/]+$/.test(target) && method === 'PATCH') {
+      return onPatch ? onPatch(target, options.body ? JSON.parse(options.body) : {}) : okBody({})
     }
     return okBody([])
   })
@@ -137,6 +152,7 @@ beforeEach(() => {
   I18N.lang = 'zh'
   AUTH.isAuthenticated = true
   AUTH.user = { uID: 7 }
+  resetListingEditAdminCache()
 })
 
 afterEach(() => {
@@ -471,13 +487,235 @@ describe('/wage ③ 未登录（公开浏览） / 空态', () => {
   })
 })
 
-describe('/wage ④ i18n `wage` 命名空间（四语齐备 + 计数前推）', () => {
+describe('/wage ⑤ 项目卡【编辑】（owner ∨ manage_tasks 管理员）', () => {
+  const ADMIN_OK = { can_access_admin: true, is_admin: false, permissions: ['manage_tasks'] }
+
+  it('manage_tasks 管理员 ⇒ 每张卡有【编辑】；展开预填；载荷只含变化字段；成功后卡片标题更新', async () => {
+    const liveRows = [
+      { ...ROW_OPEN, owner_uid: '9' },
+      { ...ROW_CLOSED, owner_uid: '9' },
+    ]
+    const { calls } = installFetch({
+      rows: liveRows,
+      adminPayload: { uID: 7, admin: ADMIN_OK },
+      onPatch: (target, body) => {
+        // 模拟服务端写库：把载荷合并进夹具行 ⇒ 重拉列表能读到新值
+        const id = Number(target.split('/').pop())
+        const row = liveRows.find((r) => r.project_id === id)
+        if (row) Object.assign(row, body)
+        return okBody({ ...row })
+      },
+    })
+    AUTH.user = { uID: 7, token: 't-7' }
+    const { container } = mount()
+    await waitFor(() => expect(cards(container)).toHaveLength(2))
+
+    // 管理员：每张卡都有【编辑】（头行小按钮，不属于主行动行）。
+    // 三键走 /api/user 异步解析 ⇒ 与卡渲染不是同帧，等【编辑】钮落定再断言（恰 2 张卡各 1）。
+    await waitFor(() => expect(container.querySelectorAll('[data-sf-m="wage-card-edit"]')).toHaveLength(2))
+    expect(cardOf(container, '12').querySelector('[data-sf-m="wage-card-edit"]').textContent).toBe(zh.common.edit)
+    expect(cardOf(container, '12').querySelectorAll('[data-sf-m="wage-card-action"]')).toHaveLength(1)
+
+    // 展开：表单预填当前值
+    fireEvent.click(cardOf(container, '12').querySelector('[data-sf-m="wage-card-edit"]'))
+    expect(cardOf(container, '12').querySelector('[data-sf-m="wage-edit"]')).not.toBeNull()
+    const form = () => cardOf(container, '12').querySelector('[data-sf-m="wage-edit"]')
+    expect(form().querySelector('[data-sf-edit="title"]').value).toBe(ROW_OPEN.title)
+    expect(form().querySelector('[data-sf-edit="headcount"]').value).toBe('5')
+
+    // 只改标题与状态 ⇒ PATCH 载荷**恰**为两键（未动的字段一律不上送）
+    fireEvent.change(form().querySelector('[data-sf-edit="title"]'), { target: { value: '新标题' } })
+    fireEvent.change(form().querySelector('[data-sf-edit="status"]'), { target: { value: 'working' } })
+    fireEvent.click(form().querySelector('[data-sf-m="wage-edit-save"]'))
+
+    await waitFor(() => expect(cardOf(container, '12').querySelector('[data-sf-m="wage-edit"]')).toBeNull())
+    const patches = calls.filter((c) => c.method === 'PATCH')
+    expect(patches).toHaveLength(1)
+    expect(patches[0].url).toBe('/api/project/12')
+    expect(patches[0].body).toEqual({ title: '新标题', status: 'working' })
+
+    // 成功 ⇒ 卡内成功提示 + 重拉列表 ⇒ 卡片标题更新
+    const notice = cardOf(container, '12').querySelector('[data-sf-m="wage-card-notice"]')
+    expect(notice.getAttribute('data-sf-kind')).toBe('ok')
+    expect(notice.textContent).toBe(zh.wage.editSaved)
+    await waitFor(() => (
+      expect(cardOf(container, '12').querySelector('[data-sf-m="wage-card-title"]').textContent).toBe('新标题')
+    ))
+    expect(calls.filter((c) => c.url.startsWith('/api/project/all')).length).toBeGreaterThanOrEqual(2)
+  })
+
+  it('非管理员非本人 ⇒ 无【编辑】；permissions 管理员 ≠ manage_tasks（如 manage_rewards）⇒ 也不显示', async () => {
+    const { calls } = installFetch({
+      rows: [{ ...ROW_OPEN, owner_uid: '9' }],
+      adminPayload: { uID: 7, admin: { can_access_admin: true, is_admin: false, permissions: ['manage_rewards'] } },
+    })
+    AUTH.user = { uID: 7, token: 't-7' }
+    const { container } = mount()
+    await waitFor(() => expect(cards(container)).toHaveLength(1))
+    // 负向臂先等 /api/user 三键路径真实发起（载荷无 manage_tasks ⇒ 任何时刻都出不了钮），再断「无钮」
+    await waitFor(() => expect(calls.filter((c) => c.url.startsWith('/api/user')).length).toBeGreaterThanOrEqual(1))
+    expect(container.querySelector('[data-sf-m="wage-card-edit"]')).toBeNull()
+  })
+
+  it('/api/user 无 admin 三键 ⇒ fail-safe：只按 owner 判，不显示【编辑】', async () => {
+    const { calls } = installFetch({ rows: [{ ...ROW_OPEN, owner_uid: '9' }], adminPayload: { uID: 7 } })
+    AUTH.user = { uID: 7, token: 't-7' }
+    const { container } = mount()
+    await waitFor(() => expect(cards(container)).toHaveLength(1))
+    // 同上：fail-safe 臂也要等 /api/user 路径真实发起（载荷无 admin 三键 ⇒ 全 false ⇒ 出不了钮）
+    await waitFor(() => expect(calls.filter((c) => c.url.startsWith('/api/user')).length).toBeGreaterThanOrEqual(1))
+    expect(container.querySelector('[data-sf-m="wage-card-edit"]')).toBeNull()
+  })
+
+  it('owner ⇒ 自己的卡有【编辑】，他人的卡没有', async () => {
+    const { calls } = installFetch({
+      rows: [{ ...ROW_OPEN, owner_uid: '7' }, { ...ROW_CLOSED, owner_uid: '9' }],
+      adminPayload: { uID: 7 },
+    })
+    AUTH.user = { uID: 7, token: 't-7' }
+    const { container } = mount()
+    await waitFor(() => expect(cards(container)).toHaveLength(2))
+    // 等三键路径跑完（载荷无 admin 三键 ⇒ 他人卡任何时刻都出不了钮）再断两卡的可定性
+    await waitFor(() => expect(calls.filter((c) => c.url.startsWith('/api/user')).length).toBeGreaterThanOrEqual(1))
+    expect(cardOf(container, '12').querySelector('[data-sf-m="wage-card-edit"]')).not.toBeNull()
+    expect(cardOf(container, '13').querySelector('[data-sf-m="wage-card-edit"]')).toBeNull()
+  })
+
+  it('ended 卡 ⇒ 即使 owner / 管理员也不显示【编辑】（后端终态封板）', async () => {
+    installFetch({
+      rows: [
+        { ...ROW_OPEN, owner_uid: '7' },
+        { ...ROW_CLOSED, owner_uid: '7', status: 'ended' },
+      ],
+      adminPayload: { uID: 7, admin: ADMIN_OK },
+    })
+    AUTH.user = { uID: 7, token: 't-7' }
+    const { container } = mount()
+    await waitFor(() => expect(cards(container)).toHaveLength(2))
+    expect(cardOf(container, '12').querySelector('[data-sf-m="wage-card-edit"]')).not.toBeNull()
+    expect(cardOf(container, '13').querySelector('[data-sf-m="wage-card-edit"]')).toBeNull()
+  })
+
+  it('未登录 ⇒ 无【编辑】且零 /api/user 请求', async () => {
+    AUTH.isAuthenticated = false
+    const { calls } = installFetch({ rows: [{ ...ROW_OPEN, owner_uid: '7' }] })
+    const { container } = mount()
+    await waitFor(() => expect(cards(container)).toHaveLength(1))
+    expect(container.querySelector('[data-sf-m="wage-card-edit"]')).toBeNull()
+    expect(calls.filter((c) => c.url.startsWith('/api/user'))).toHaveLength(0)
+  })
+
+  it('409 project_headcount_below_hired ⇒ headcount 字段内联提示、表单不收起', async () => {
+    installFetch({
+      rows: [{ ...ROW_OPEN, owner_uid: '9', hired_count: 3 }],
+      adminPayload: { uID: 7, admin: ADMIN_OK },
+      onPatch: () => errBody(409, {
+        code: 'LEDGER_INSUFFICIENT_BALANCE',
+        details: { reason: 'project_headcount_below_hired', headcount: 1, hired_count: 3 },
+      }),
+    })
+    AUTH.user = { uID: 7, token: 't-7' }
+    const { container } = mount()
+    await waitFor(() => expect(cards(container)).toHaveLength(1))
+    // adminFlags 三键异步落定 ⇒ 等【编辑】钮出现再展开
+    await waitFor(() => expect(cardOf(container, '12').querySelector('[data-sf-m="wage-card-edit"]')).not.toBeNull())
+    fireEvent.click(cardOf(container, '12').querySelector('[data-sf-m="wage-card-edit"]'))
+    const form = () => cardOf(container, '12').querySelector('[data-sf-m="wage-edit"]')
+    fireEvent.change(form().querySelector('[data-sf-edit="headcount"]'), { target: { value: '1' } })
+    fireEvent.click(form().querySelector('[data-sf-m="wage-edit-save"]'))
+
+    await waitFor(() => {
+      const err = form().querySelector('[data-sf-edit-err="headcount"]')
+      expect(err).not.toBeNull()
+      expect(err.textContent).toBe(zh.wage.errHeadcountBelowHired.replace('{{hired}}', '3'))
+    })
+    // 表单不收起（保持可改），409 提示留在字段旁
+    expect(form()).not.toBeNull()
+    expect(cardOf(container, '12').querySelector('[data-sf-m="wage-edit"]')).not.toBeNull()
+  })
+
+  it('客户端校验：间隔 200（须 1–100）⇒ 零 PATCH + 复用 bountyProject.intervalInvalid 内联', async () => {
+    const { calls } = installFetch({
+      rows: [{ ...ROW_OPEN, owner_uid: '9' }],
+      adminPayload: { uID: 7, admin: ADMIN_OK },
+    })
+    AUTH.user = { uID: 7, token: 't-7' }
+    const { container } = mount()
+    await waitFor(() => expect(cards(container)).toHaveLength(1))
+    // adminFlags 三键异步落定 ⇒ 等【编辑】钮出现再展开
+    await waitFor(() => expect(cardOf(container, '12').querySelector('[data-sf-m="wage-card-edit"]')).not.toBeNull())
+    fireEvent.click(cardOf(container, '12').querySelector('[data-sf-m="wage-card-edit"]'))
+    const form = () => cardOf(container, '12').querySelector('[data-sf-m="wage-edit"]')
+    fireEvent.change(form().querySelector('[data-sf-edit="interval"]'), { target: { value: '200' } })
+    fireEvent.click(form().querySelector('[data-sf-m="wage-edit-save"]'))
+
+    await waitFor(() => expect(form().querySelector('[data-sf-edit-err="interval"]')).not.toBeNull())
+    expect(form().querySelector('[data-sf-edit-err="interval"]').textContent).toBe(zh.bountyProject.intervalInvalid)
+    expect(calls.filter((c) => c.method === 'PATCH')).toHaveLength(0)
+  })
+
+  it('无变化保存 ⇒ 零 PATCH 请求、表单直接收起', async () => {
+    const { calls } = installFetch({
+      rows: [{ ...ROW_OPEN, owner_uid: '9' }],
+      adminPayload: { uID: 7, admin: ADMIN_OK },
+    })
+    AUTH.user = { uID: 7, token: 't-7' }
+    const { container } = mount()
+    await waitFor(() => expect(cards(container)).toHaveLength(1))
+    // adminFlags 三键异步落定 ⇒ 等【编辑】钮出现再展开
+    await waitFor(() => expect(cardOf(container, '12').querySelector('[data-sf-m="wage-card-edit"]')).not.toBeNull())
+    fireEvent.click(cardOf(container, '12').querySelector('[data-sf-m="wage-card-edit"]'))
+    fireEvent.click(cardOf(container, '12').querySelector('[data-sf-m="wage-edit-save"]'))
+    await waitFor(() => expect(cardOf(container, '12').querySelector('[data-sf-m="wage-edit"]')).toBeNull())
+    expect(calls.filter((c) => c.method === 'PATCH')).toHaveLength(0)
+  })
+
+  it('清空次币 ⇒ 载荷恰为 wage_cid / wage_currency_amount 两键 null（成对上送）', async () => {
+    const liveRows = [{ ...ROW_OPEN, owner_uid: '9' }] // wage_cid 4 + wage_currency_amount 50
+    const { calls } = installFetch({
+      rows: liveRows,
+      adminPayload: { uID: 7, admin: ADMIN_OK },
+      onPatch: (target, body) => {
+        const id = Number(target.split('/').pop())
+        const row = liveRows.find((r) => r.project_id === id)
+        if (row) Object.assign(row, body)
+        return okBody({ ...row })
+      },
+    })
+    AUTH.user = { uID: 7, token: 't-7' }
+    const { container } = mount()
+    await waitFor(() => expect(cards(container)).toHaveLength(1))
+    // adminFlags 三键异步落定 ⇒ 等【编辑】钮出现再展开
+    await waitFor(() => expect(cardOf(container, '12').querySelector('[data-sf-m="wage-card-edit"]')).not.toBeNull())
+    fireEvent.click(cardOf(container, '12').querySelector('[data-sf-m="wage-card-edit"]'))
+    const form = () => cardOf(container, '12').querySelector('[data-sf-m="wage-edit"]')
+    expect(form().querySelector('[data-sf-edit="cid"]').value).toBe('4')
+    expect(form().querySelector('[data-sf-edit="amount"]').value).toBe('50')
+
+    fireEvent.change(form().querySelector('[data-sf-edit="cid"]'), { target: { value: '' } })
+    // 选「无」⇒ 定额输入联动清空并禁用（两键同空）
+    expect(form().querySelector('[data-sf-edit="amount"]').value).toBe('')
+    expect(form().querySelector('[data-sf-edit="amount"]').disabled).toBe(true)
+    fireEvent.click(form().querySelector('[data-sf-m="wage-edit-save"]'))
+
+    await waitFor(() => expect(cardOf(container, '12').querySelector('[data-sf-m="wage-edit"]')).toBeNull())
+    const patches = calls.filter((c) => c.method === 'PATCH')
+    expect(patches).toHaveLength(1)
+    expect(patches[0].body).toEqual({ wage_cid: null, wage_currency_amount: null })
+  })
+})
+
+describe('/wage ⑥ i18n `wage` 命名空间（四语齐备 + 计数前推）', () => {
   const REQUIRED = [
     'menuLabel', 'title', 'loading', 'statusRecruiting', 'statusClosed', 'headcount', 'wageLine',
     'wageExtra', 'join', 'joining', 'joined', 'joinedToast', 'claim', 'claiming', 'claimReadyIn',
     'inService', 'full', 'oneAtATime', 'claimed', 'claimedWithCurrency', 'claimTooSoon', 'notHired',
     'claimFailed', 'applyFailed', 'loginRequired', 'loginCta', 'loadFailed', 'retry', 'empty',
     'joinedBadge', 'streakReward',
+    // 项目卡【编辑】（2026-10-21）：表单标题/状态标签/保存动作/错误文案（间隔校验复用 bountyProject）
+    'editTitle', 'fieldStatus', 'cancel', 'saving', 'editSaved', 'editFailed',
+    'errTitle', 'errDescription', 'errHeadcount', 'errHeadcountBelowHired', 'errMinDays', 'errBatt',
+    'errCurrencyPair', 'errCurrencyInvalid', 'errCurrencyAmount', 'errStatus', 'errTransition', 'errFrozen',
   ]
 
   it('四语键集相同且逐键非空；menuLabel 逐字 = 领工资 系', () => {
@@ -492,17 +730,17 @@ describe('/wage ④ i18n `wage` 命名空间（四语齐备 + 计数前推）', 
     expect(TABLES.vn.wage.menuLabel).toBe('Nhận lương')
   })
 
-  it('计数前推：顶层 132 / 拍平 1169 / 四语节点 4676 / 顶层×4 = 528', () => {
+  it('计数前推：顶层 134 / 拍平 1271 / 四语节点 5084 / 顶层×4 = 536', () => {
     const flat = (o, p = '') => Object.entries(o).flatMap(([k, v]) => (
       v && typeof v === 'object' && !Array.isArray(v) ? flat(v, `${p}${k}.`) : [[`${p}${k}`, v]]
     ))
     for (const lang of LANGS) {
       expect(Object.keys(TABLES[lang]).length, `${lang} top`).toBe(134) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
-      expect(flat(TABLES[lang]).length, `${lang} flat`).toBe(1253) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
+      expect(flat(TABLES[lang]).length, `${lang} flat`).toBe(1271) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532] // [i18n-bump wage-edit +18 键（项目卡【编辑】表单/错误文案，四语对称）⇒ flat 1253⇒1271 / 四语节点 5012⇒5084（top 134 不变）]
     }
     expect(Object.keys(TABLES.zh).length * LANGS.length).toBe(536) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
-    expect(flat(TABLES.zh).length * LANGS.length).toBe(5012) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532]
-    // 新增命名空间恰 +1 顶层 / +29 拍平键（相对上一版 131 / 1140）；joinedBadge 加入后 30 键；streakReward 加入后 31 键
-    expect(REQUIRED).toHaveLength(31)
+    expect(flat(TABLES.zh).length * LANGS.length).toBe(5084) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532] // [i18n-bump wage-edit +18 键（项目卡【编辑】表单/错误文案，四语对称）⇒ flat 1253⇒1271 / 四语节点 5012⇒5084（top 134 不变）]
+    // 新增命名空间恰 +1 顶层 / +29 拍平键（相对上一版 131 / 1140）；joinedBadge 加入后 30 键；streakReward 加入后 31 键；wage-edit +18 键后 49 键
+    expect(REQUIRED).toHaveLength(49)
   })
 })

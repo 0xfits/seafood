@@ -1,0 +1,189 @@
+
+ RUN  v0.34.6 /Users/kevin/bistro/seafood/frontend
+
+ ❯ src/test/unit/i18n-violation-closeout.test.jsx  (6 tests | 1 failed) 157ms
+   ❯ src/test/unit/i18n-violation-closeout.test.jsx > I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文案） > ② 全量源文件面 + 硬编码文案面：类级断言脚本退出码 = 0（含注释行/代码位单列登记）
+     → expected '[I18N-VIOL] ① 全量 locale 面（作用域 = 四文件 ×…' to include '作用域命中节点数 = 5012'
+stdout | src/test/unit/i18n-violation-closeout.test.jsx > I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文案） > ① 全量 locale 面：四文件**全部值**逐条扫 → 工程口径命中 = 0（打印作用域节点数）
+[I18N-VIOL] 全量 locale 作用域命中节点数 = 5084（键 1271 × 语 4）；命中 = 0
+
+stdout | src/test/unit/i18n-violation-closeout.test.jsx > I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文案） > ② 全量源文件面 + 硬编码文案面：类级断言脚本退出码 = 0（含注释行/代码位单列登记）
+  作用域命中节点数 = 5084（键 1271 × 语 4）
+  裸命中 = 0
+  裸命中 = 0
+  子面③ 硬编码中文文案字面量（非注释行内的引号字面量）= 61 个；其中命中工程口径 = 2 个 ["pages/item/PublishItemPage.jsx:789 [章节号] \"（design §26.12.4 承 \"","pages/jobs/JobDetailPage.jsx:338 [SQL/事务] \"）SELECT 列集**不含** \""] —— 理由：硬编码文案面，命中即违例
+[I18N-VIOL] 总判：PASS（locale 裸命中 0 + 源面裸命中 0 必须 = 0；作用域节点数 locale=5084 / source=47）
+
+stdout | src/test/unit/i18n-violation-closeout.test.jsx > I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文案） > ③ 改写集四语齐备且不再含工程口径（逐键逐语；en/hk/vn 不得残留中文）
+[I18N-VIOL] 改写集 = 33 键 × 4 语 = 132 个节点；问题 = 0
+
+stdout | src/test/unit/i18n-violation-closeout.test.jsx > I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文案） > ⑤ 键名与键集不变：四文件拍平键数单值，且改写集键全部仍在
+[I18N-VIOL] 四语拍平键数 = {1271}；顶层键 = 134
+
+stdout | src/test/unit/i18n-violation-closeout.test.jsx > I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文案） > ⑥ 退役键不得回归：S25-B7 退役 10 键 × 4 语一律不存在（存在即红）
+[I18N-VIOL] 退役键不得回归：10 键 × 4 语 = 40 节点；回归命中 = 0
+
+stderr | src/test/unit/wage-page.test.jsx > /wage ① 列表卡：状态 / 已招 X/Y / 工资行 / 按钮态 > 三卡渲染：招募中与已截止态、已招 X/Y、batt 与次币固定额、领工资置灰 + 倒计时
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+stderr | src/test/unit/wage-page.test.jsx > /wage ② 加入 / 领工资行为 > 加入：POST 到该项目 apply ⇒ 卡内成功提示 + 重拉列表
+Warning: An update to WagePage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at WagePage (/Users/kevin/bistro/seafood/frontend/src/pages/wage/WagePage.jsx:92:42)
+    at Router (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: An update to WagePage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at WagePage (/Users/kevin/bistro/seafood/frontend/src/pages/wage/WagePage.jsx:92:42)
+    at Router (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: An update to WagePage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at WagePage (/Users/kevin/bistro/seafood/frontend/src/pages/wage/WagePage.jsx:92:42)
+    at Router (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+stderr | src/test/unit/wage-page.test.jsx > /wage ⑤ 项目卡【编辑】（owner ∨ manage_tasks 管理员） > 清空次币 ⇒ 载荷恰为 wage_cid / wage_currency_amount 两键 null（成对上送）
+Warning: An update to WagePage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at WagePage (/Users/kevin/bistro/seafood/frontend/src/pages/wage/WagePage.jsx:92:42)
+    at Router (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: An update to WagePage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at WagePage (/Users/kevin/bistro/seafood/frontend/src/pages/wage/WagePage.jsx:92:42)
+    at Router (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: An update to WagePage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at WagePage (/Users/kevin/bistro/seafood/frontend/src/pages/wage/WagePage.jsx:92:42)
+    at Router (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+ ❯ src/test/unit/wage-page.test.jsx  (25 tests | 4 failed) 2267ms
+   ❯ src/test/unit/wage-page.test.jsx > /wage ⑤ 项目卡【编辑】（owner ∨ manage_tasks 管理员） > manage_tasks 管理员 ⇒ 每张卡有【编辑】；展开预填；载荷只含变化字段；成功后卡片标题更新
+     → expected  to have a length of 2 but got +0
+   ❯ src/test/unit/wage-page.test.jsx > /wage ⑤ 项目卡【编辑】（owner ∨ manage_tasks 管理员） > 非管理员非本人 ⇒ 无【编辑】；permissions 管理员 ≠ manage_tasks（如 manage_rewards）⇒ 也不显示
+     → expected <button type="button" …(4)></button> to be null
+   ❯ src/test/unit/wage-page.test.jsx > /wage ⑤ 项目卡【编辑】（owner ∨ manage_tasks 管理员） > /api/user 无 admin 三键 ⇒ fail-safe：只按 owner 判，不显示【编辑】
+     → expected <button type="button" …(4)></button> to be null
+   ❯ src/test/unit/wage-page.test.jsx > /wage ⑤ 项目卡【编辑】（owner ∨ manage_tasks 管理员） > owner ⇒ 自己的卡有【编辑】，他人的卡没有
+     → expected <button type="button" …(4)></button> to be null
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/test/unit/i18n-violation-closeout.test.jsx > I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文案） > ② 全量源文件面 + 硬编码文案面：类级断言脚本退出码 = 0（含注释行/代码位单列登记）
+AssertionError: expected '[I18N-VIOL] ① 全量 locale 面（作用域 = 四文件 ×…' to include '作用域命中节点数 = 5012'
+ ❯ src/test/unit/i18n-violation-closeout.test.jsx:88:17
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  src/test/unit/wage-page.test.jsx > /wage ⑤ 项目卡【编辑】（owner ∨ manage_tasks 管理员） > manage_tasks 管理员 ⇒ 每张卡有【编辑】；展开预填；载荷只含变化字段；成功后卡片标题更新
+AssertionError: expected  to have a length of 2 but got +0
+
+- Expected
++ Received
+
+- 2
++ 0
+
+ ❯ src/test/unit/wage-page.test.jsx:509:72
+    507| 
+    508|     // 管理员：每张卡都有【编辑】（头行小按钮，不属于主行动行）
+    509|     expect(container.querySelectorAll('[data-sf-m="wage-card-edit"]'))…
+       |                                                                        ^
+    510|     expect(cardOf(container, '12').querySelector('[data-sf-m="wage-car…
+    511|     expect(cardOf(container, '12').querySelectorAll('[data-sf-m="wage-…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  src/test/unit/wage-page.test.jsx > /wage ⑤ 项目卡【编辑】（owner ∨ manage_tasks 管理员） > 非管理员非本人 ⇒ 无【编辑】；permissions 管理员 ≠ manage_tasks（如 manage_rewards）⇒ 也不显示
+AssertionError: expected <button type="button" …(4)></button> to be null
+ ❯ src/test/unit/wage-page.test.jsx:549:69
+    547|     const { container } = mount()
+    548|     await waitFor(() => expect(cards(container)).toHaveLength(1))
+    549|     expect(container.querySelector('[data-sf-m="wage-card-edit"]')).to…
+       |                                                                     ^
+    550|   })
+    551| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  src/test/unit/wage-page.test.jsx > /wage ⑤ 项目卡【编辑】（owner ∨ manage_tasks 管理员） > /api/user 无 admin 三键 ⇒ fail-safe：只按 owner 判，不显示【编辑】
+AssertionError: expected <button type="button" …(4)></button> to be null
+ ❯ src/test/unit/wage-page.test.jsx:557:69
+    555|     const { container } = mount()
+    556|     await waitFor(() => expect(cards(container)).toHaveLength(1))
+    557|     expect(container.querySelector('[data-sf-m="wage-card-edit"]')).to…
+       |                                                                     ^
+    558|   })
+    559| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  src/test/unit/wage-page.test.jsx > /wage ⑤ 项目卡【编辑】（owner ∨ manage_tasks 管理员） > owner ⇒ 自己的卡有【编辑】，他人的卡没有
+AssertionError: expected <button type="button" …(4)></button> to be null
+ ❯ src/test/unit/wage-page.test.jsx:569:83
+    567|     await waitFor(() => expect(cards(container)).toHaveLength(2))
+    568|     expect(cardOf(container, '12').querySelector('[data-sf-m="wage-car…
+    569|     expect(cardOf(container, '13').querySelector('[data-sf-m="wage-car…
+       |                                                                                   ^
+    570|   })
+    571| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+ Test Files  2 failed (2)
+      Tests  5 failed | 26 passed (31)
+   Start at  10:08:57
+   Duration  3.41s (transform 400ms, setup 326ms, collect 531ms, tests 2.42s, environment 736ms, prepare 131ms)
+
