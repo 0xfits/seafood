@@ -3,14 +3,10 @@
  * ============================================================================
  * 覆盖两件事：
  *   (a) 四语 `jobs.participants` **值**已改「已参与」族；**键名/键数不动**（顶层 119 / 拍平 1059；S23 后 +1 jobs.participantsHeadcount ⇒ 1060；**S25 后 B7 退役 10 键 ⇒ 1050**）。
- *   (b) `JobDetailPage` 的 `#{tID} · <jobs.participants>` 展示**随 `participants_count` 变**。
+ *   ★ 2026-10-21（Kevin 裁定 · job 体系弃用）：原 (b) 展示面（`JobDetailPage` 渲染）**随页删除** ⇒
+ *     本文件只留「值面」（(a)）与「链接收口」（(c)）；`jobs.participants` 键与值**不动**（campaign 卡仍在用）。
  *
- * ★ 内建负对照（本文件必含）：把 `participants_count` 钉为**旧源代表值**（`job_application` 计数）
- *   ⇒ 「新源断言」谓词**判假**（红）；钉为新源代表值 ⇒ 判真（绿）。给红/绿两次读数。
- *   （数据源侧的红/绿 = `backend-ts/scripts/s19-participants-truth-source.ts` 开工前/改后两跑。）
- *
- * 口径：真 `job-api.js` + 真 `fetchApiJson` + stubbed `fetch`（同 s7-submissions-panel 先例）；
- *   i18n 用**真 zh 词典**（`{{count}}` 插值），逐字断言。
+ * 口径：真四语词典文件逐字断言（`{{count}}` 插值面保留在值里）。
  */
 import React from 'react'
 import fs from 'node:fs'
@@ -41,27 +37,7 @@ const AUTH = vi.hoisted(() => ({
 }))
 vi.mock('../../auth-context', () => ({ useAuth: () => AUTH }))
 
-import JobDetailPage from '../../pages/jobs/JobDetailPage'
 import { buildLocalizedPath } from '../../utils'
-
-const jsonResponse = (status, body) => ({ ok: status >= 200 && status < 300, status, json: async () => body })
-
-/** stubbed `fetch`：任务详情返回指定 `participants_count`，其余读口给空。 */
-const routed = ({ count }) => vi.fn(async (url) => {
-  const u = String(url)
-  if (u.includes('/api/task-progress')) return jsonResponse(200, { success: true, data: [] })
-  if (u.includes('/submissions')) return jsonResponse(403, { success: false, error: { code: 'AUTH_FORBIDDEN', message: 'f', details: { reason: 'NOT_ADMIN' } } })
-  if (u.includes('/api/task/')) return jsonResponse(200, { success: true, data: { tID: 9, title: 'x', points: 5, participants_count: count } })
-  return jsonResponse(404, { success: false, error: { code: 'NOT_FOUND', message: 'nf' } })
-})
-
-const renderPage = () => render(
-  <MemoryRouter initialEntries={['/job/9']}>
-    <Routes><Route path="/job/:jobId" element={<JobDetailPage />} /></Routes>
-  </MemoryRouter>,
-)
-
-const metaEl = () => document.querySelector('[data-sf-m="jobs-meta"]')
 
 beforeEach(() => { H.table = zh })
 afterEach(() => { cleanup(); vi.unstubAllGlobals() })
@@ -109,59 +85,6 @@ describe('(a) 四语 jobs.participants 值（改值不改键）', () => {
     }
     // S25：1050 × 4 = 4200（原 1060 × 4 = 4240）。
     expect(flat(readTable('zh')).length * LANGS.length).toBe(5428) // **sf19-msgpanel**：`+1` 键（`messagesPage.close`）⇒ flat `1103⇒1104` / 四语节点 `4412⇒4416`；**sf-bttc-shortfall**：+2 键（`bttcPanel.mintNeedBatt`/`mintNeedUsd`）⇒ flat 1104⇒1109 / 四语节点 4416⇒4436 // 卡片改版（2026-10-19）：+1 顶层 `sellerCredit` ×4 键/语 ⇒ top 128⇒129 / flat 1110⇒1114 / 节点 4440⇒4456 // 卡片行结构重定义（2026-10-19）：+1 键（rewardCard.wants，四语对称）⇒ flat 1114⇒1115 / 四语节点 4456⇒4460（top 129 不变） // item-type（2026-10-20）：+5 键（`itemType` 4 + `item.freeShipping` 1，四语对称）⇒ top 129⇒130 / flat 1115⇒1120 / 四语节点 4460⇒4480 // 0054 数字商品拆分（2026-10-20）：+2 键（`itemType.autoDeliver`/`itemType.manualDeliver`，四语对称）⇒ flat 1120⇒1122 / 四语节点 4480⇒4488（top 130 不变） // [i18n-bump title-merge +1 键 item.descFirstLineHint ⇒ flat 1122⇒1123 / nodes 4488⇒4492 / item 54⇒55] // [i18n-bump edit-page +3 键 item.editTitle/editOk/draftStockLocked ⇒ flat 1123⇒1126 / nodes 4492⇒4504 / item 55⇒58] // [i18n-bump list-actions +3 键 item.lowerPrice/newPrice/lowerPriceInvalid ⇒ flat 1126⇒1129 / nodes 4504⇒4516 / item 58⇒61] // [i18n-bump item-detail +7 键 item.message/platformSettled/views + itemCondition×4 ⇒ top 130⇒131 / flat 1129⇒1136 / nodes 4516⇒4544 / item 61⇒64] // [i18n-bump multi-buy +3 键 item.multiBuyLabel/buyQtyTitle/buyQtyHint ⇒ flat 1137⇒1140 / nodes 4548⇒4560 / item 65⇒68] // [i18n-bump wage：新增顶层 `wage`(29 键，四语对称) ⇒ top 131⇒132 / flat 1140⇒1169 / 四语节点 4560⇒4676 / top×4 524⇒528] // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532] // [i18n-bump wage-edit +18 键（项目卡【编辑】，四语对称）⇒ flat 1253⇒1271 / 四语节点 5012⇒5084（top 134 不变）] // [i18n-bump project-slug（2026-10-21）：新增顶层 project 50 键 ⇒ top 134⇒135 / flat 1277⇒1327 / 四语节点 5108⇒5308 / top×4 536⇒540；bountyProject 注册天数 6 键（四语对称）已随前次订正计入 1277] // [i18n-bump task-status（2026-10-21 · 步 3 任务上线/下线开关）：+2 键 `project.taskOnline`/`project.taskOffline`（四语对称）⇒ top 135 不变 / flat 1355⇒1357 / 四语节点 5420⇒5428 / top×4 540 不变]
-  })
-})
-
-// ============================================================================
-// (b) 展示面：渲染值随 participants_count 变 + 负对照
-// ============================================================================
-describe('(b) JobDetailPage 展示随 participants_count 变', () => {
-  it('participants_count=5 ⇒ 元信息行含「已参与 5 / 共 1 人」', async () => {
-    vi.stubGlobal('fetch', routed({ count: 5 }))
-    renderPage()
-    await waitFor(() => expect(metaEl()).not.toBeNull())
-    // S23：展示改为「已参与 X / 共 N 人」（本测试 stub 无 headcount ⇒ fail-closed 为 1）
-    expect(metaEl().textContent).toContain('已参与 5 / 共 1 人')
-    expect(metaEl().textContent).toContain('#9')
-  })
-
-  it('participants_count=0 ⇒ 「已参与 0 / 共 1 人」（展示随值变，非常量）', async () => {
-    vi.stubGlobal('fetch', routed({ count: 0 }))
-    renderPage()
-    await waitFor(() => expect(metaEl()).not.toBeNull())
-    expect(metaEl().textContent).toContain('已参与 0 / 共 1 人')
-    expect(metaEl().textContent).not.toContain('已参与 5 / 共 1 人')
-  })
-})
-
-// ============================================================================
-// ★ 负对照：把数据源钉回旧表值 ⇒ 新源断言必红（自证断言对真值敏感）
-// ============================================================================
-describe('★ 负对照（旧源值 ⇒ 新源断言必红）', () => {
-  // 代表值：新源 = `job_submission` distinct worker（如 5）；旧源 = `job_application` 计数（如 3）。
-  const NEW_SOURCE_VALUE = 5
-  const OLD_SOURCE_VALUE = 3
-  // 「新源断言」谓词：渲染文本须含新源值对应文案
-  const newSourcePredicate = (text) => String(text).includes(`已参与 ${NEW_SOURCE_VALUE} / 共 1 人`)
-
-  it('旧源值（participants_count=3）下：新源断言**判假**（红）', async () => {
-    vi.stubGlobal('fetch', routed({ count: OLD_SOURCE_VALUE }))
-    renderPage()
-    await waitFor(() => expect(metaEl()).not.toBeNull())
-    const text = metaEl().textContent
-    // 展示随值变：确实显示旧源值 3
-    expect(text).toContain('已参与 3 / 共 1 人')
-    // 若在此渲染下断言「已参与 5 / 共 1 人」（toContain）⇒ **必红**；故谓词必须判假
-    expect(newSourcePredicate(text)).toBe(false)
-  })
-
-  it('新源值（participants_count=5）下：新源断言**判真**（绿）', async () => {
-    vi.stubGlobal('fetch', routed({ count: NEW_SOURCE_VALUE }))
-    renderPage()
-    await waitFor(() => expect(metaEl()).not.toBeNull())
-    const text = metaEl().textContent
-    expect(newSourcePredicate(text)).toBe(true)
-    expect(text).not.toContain('已参与 3 / 共 1 人')
   })
 })
 

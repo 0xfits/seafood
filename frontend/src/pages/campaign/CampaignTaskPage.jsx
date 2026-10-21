@@ -12,9 +12,10 @@ import './campaign.css'
 // `/task/:taskId` · **campaign 任务页**（Kevin 2026-10-21 需求①）
 // ----------------------------------------------------------------------------
 // 口径（与后端并行单逐条对齐）：
-//   · 路由归属：`/task/<id>` = **campaign task**（活动任务）。悬赏（job）详情已迁
-//     `/bounty/<jobId>`；`/task`（列表）与 `/task/new`、`/task/review` 不动
-//     （react-router v6 静态段排名优先于动态段 ⇒ 四条互不吞）。
+//   · 路由归属：`/task/<id>` = **campaign task**（活动任务）。`/task`（列表 = campaign 任务列表）
+//     与 `/task/review` 不动（react-router v6 静态段排名优先于动态段 ⇒ 三者互不吞）；
+//     ★ 2026-10-21 Kevin 裁定 job 体系弃用 ⇒ `/bounty/<jobId>`（悬赏详情）与 `/task/new`（发布）已移除，
+//     本页对**非数字号**直接判 404（`/task/new` 落 `:taskId` 时不再向后端要一个不存在的任务）。
 //   · 读口 = `GET /api/campaign/task/:taskId`（公开；30s 缓存）。行形状：
 //       { task_id, title, description, status, time_start, time_end,
 //         reward_amount_primary, reward_cid_secondary, reward_amount_secondary,
@@ -54,7 +55,10 @@ const CampaignTaskPage = () => {
   const reqSeq = useRef(0)
 
   const load = useCallback(async () => {
-    if (!taskId) {
+    // ★ 数字号闸（Kevin 2026-10-21 · job 弃用）：task_id 在库内恒为 bigint ⇒ 文本形态必为纯数字。
+    //   非数字号（典型：已下线的 `/task/new`、手编 `/task/abc`）在本页**直接** 404，不发请求 ——
+    //   否则 `/task/new` 会被 `task/:taskId` 动态段吃掉并向后端要一个不存在的任务。
+    if (!taskId || !/^\d+$/.test(taskId)) {
       setState({ phase: 'notfound', view: null })
       return
     }

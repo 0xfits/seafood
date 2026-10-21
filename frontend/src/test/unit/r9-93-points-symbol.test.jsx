@@ -6,7 +6,7 @@
  *      （`>$<` 计数对齐），且 4 文件不再出现 `DashJ`。
  *      另 2 处 DashJ 引用 = 组件自身 `DashJ.jsx` + `ui/index.js` barrel 导出 ⇒ 按要求**保留**（合计 8 处引用）。
  *   ② 产品面零引用：`components/**` + `pages/**` + `shell/**` 内除 `DashJ.jsx` 与 `ui/index.js` 外无 `DashJ`。
- *   ③ 渲染面：TaskCard / RewardCard / HomePage / Header 渲染含 `$`，且**不再含**旧 DashJ 符号
+ *   ③ 渲染面：HomeCampaignCard / RewardCard / HomePage / Header 渲染含 `$`，且**不再含**旧 DashJ 符号
  *      （旧符号 title = `uiCommon.dashJPoints`）。
  *   ④ 文案键 `common.communityPoints` 四语值齐改；键计数（件一值-only 不变 / 件二 +2 jobs 键 ⇒ flat 1041；S5① +3 jobs 键 ⇒ 1044）。
  *
@@ -31,10 +31,12 @@ const CJK = /[\u3400-\u9fff]/
 
 /** 产品使用点（父单逐字）：4 文件 / 6 处 `<DashJ … />` → `$`
  *  ★ 2026-10-20 · Kevin：Header 下拉余额区改「每种币种一行」（符号来自 `/api/user/balances`）
- *    ⇒ `Header.jsx` 不再有字面 `$` 符号（计数 1 ⇒ 0），其余三文件不变。 */
+ *    ⇒ `Header.jsx` 不再有字面 `$` 符号（计数 1 ⇒ 0），其余三文件不变。
+ *  ★ 2026-10-21 · job 体系弃用：`components/task/TaskCard.jsx` 随页删除 ⇒ 清单 4 文件 ⇒ **3 文件**
+ *    （产品 `$` 使用点 1+1+3=5 ⇒ 4+1：新卡 `HomeCampaignCard` 的奖励行同口径取 `$`，接住原 TaskCard 那一处）。 */
 const USAGE_FILES = {
   'components/Header.jsx': 0,
-  'components/task/TaskCard.jsx': 1,
+  'components/campaign/HomeCampaignCard.jsx': 1,
   'components/reward/RewardCard.jsx': 1,
   'pages/HomePage.jsx': 3,
 }
@@ -71,7 +73,7 @@ vi.mock('react-hot-toast', () => ({ default: { error: vi.fn(), success: vi.fn() 
 import Header from '../../components/Header'
 import { fetchApiJson } from '../../auth'
 import { formatBalanceAmount, isPositiveAmount, toBalanceRows } from '../../balances-api'
-import { TaskCard } from '../../components/task/TaskCard'
+import HomeCampaignCard from '../../components/campaign/HomeCampaignCard'
 import { RewardCard } from '../../components/reward/RewardCard'
 import HomePage from '../../pages/HomePage'
 
@@ -162,13 +164,21 @@ describe('③ 渲染面：含 `$` 且不再含旧 DashJ 符号', () => {
     vi.useRealTimers()
   })
 
-  it('TaskCard：积分块含 `$`，无旧符号', () => {
+  // ★ 2026-10-21（job 体系弃用）：原载体 `TaskCard` 随页删除 ⇒ 断言对象前推为任务列表新卡
+  //   `HomeCampaignCard`（奖励行 = `$` + 主金额，与旧卡同口径、同一 token）。
+  it('HomeCampaignCard：奖励块含 `$`，无旧符号', () => {
     const { container } = render(
       <MemoryRouter>
-        <TaskCard task={{ tID: 1, title: 'T', points: 88, status: 'active', statusText: 'ongoing' }} />
+        <HomeCampaignCard
+          card={{ taskId: 301, campaignId: 501, title: 'T', status: 'active', joinedCount: 0, joinedTarget: 10, rewardPrimary: '88', campaignTitle: 'CAMP', projectTitle: 'PROJ' }}
+          lang="zh"
+          t={H.t}
+          symbols={{}}
+        />
       </MemoryRouter>,
     )
     expect(container.textContent).toContain('$')
+    expect(container.querySelector('.sf-home-camp-reward-cur').textContent).toBe('$')
     oldSymbolAbsent(container)
   })
 

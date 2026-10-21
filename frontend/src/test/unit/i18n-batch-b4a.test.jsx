@@ -21,8 +21,14 @@ import i18n from '../../i18n'
 vi.mock('../../admin-utils', () => ({
   fetchAdminAccess: vi.fn(async () => ({ is_admin: true, permissions: [], can_access_admin: true })),
   fetchApiJson: vi.fn(async (url) => {
-    if (String(url).includes('/api/task/all')) {
-      return [{ tID: 1, title: 'Task A', note: '', refcode: 'task', points: 10, is_open: true, time_updated: 1700000000 }]
+    // ★ job 下线后「任务管理」面板走 campaign 读口（旧 `/api/task/all` 已删）
+    if (String(url).includes('/api/campaign/all')) {
+      return [{
+        campaign_id: 501,
+        title: 'Autumn drive',
+        status: 'active',
+        tasks: [{ task_id: 55, title: 'Task A', description: '', status: 'active', reward_amount_primary: '10' }],
+      }]
     }
     // `/api/prize/all`：name/description 留空 ⇒ 走「#ID / 无描述」兜底键
     return [{ bID: 7, name: '', description: '', points: 10, total_quantity: 3, stores_count: 5, claims_count: 2, lifecycle_status: 'expired' }]

@@ -6,8 +6,9 @@
  *      标题 / 活动链 / 子任务齐备；非 404 提示页）；
  *   ② 首页「热门任务」真卡 **href = `/task/:taskId`**（`data-sf-task` 与 href 末段逐卡相等；
  *      mock 卡不可点、零 `href`）；
- *   ③ **路由互不吞**：`/task`（招工列表）/ `/task/new`（发布）/ `/bounty/:id`（悬赏详情）/
- *      `/task/:id`（本页）四者各落各的钩子，互不出现对方的页面级钩子；
+ *   ③ **路由互不吞**：`/task`（campaign 列表）/ `/task/:id`（本页）各落各的钩子；
+ *      `/task/new`（发布）与 `/bounty/:id`（悬赏详情）两条路由已随 job 下线删除 ⇒ **均落 404 页**
+ *      （`/task/new` 由任务页的数字号闸拦下，零 `/api/campaign/task/new` 请求）；
  *   ④ **上线后首页真卡出现**：项目页任务卡【上线】（draft⇒active）⇒ `PATCH /api/campaign/task/:id`
  *      载荷恰 `{status:'active'}` ⇒ 回首页，原来不出现的那条真卡出现且 href = `/task/:id`
  *      （不是 mock 卡：`data-sf-camp-mock="0"`）；
@@ -358,12 +359,12 @@ const run = async () => {
         && hrefArm.mockCardsUnclickable && hrefArm.noCampaignHrefOnReal,
     }
 
-    // ③ 路由互不吞
+    // ③ 路由互不吞（★ job 下线后：`/task/new` 发布口与 `/bounty/:id` 详情口已删 ⇒ 两者均落 404 页）
     const routes = {}
     for (const [url, own, others] of [
       ['/task', 'jobsNav', ['taskPage', 'jobsFormWrap', 'jobsDetail']],
-      ['/task/new', 'jobsFormWrap', ['taskPage', 'jobsNav', 'jobsDetail']],
-      ['/bounty/9', 'jobsDetail', ['taskPage', 'jobsFormWrap', 'jobsNav']],
+      ['/task/new', 'notFound', ['taskPage', 'jobsNav', 'jobsFormWrap', 'jobsDetail']],
+      ['/bounty/9', 'notFound', ['taskPage', 'jobsFormWrap', 'jobsNav']],
       ['/task/1', 'taskPage', ['jobsNav', 'jobsFormWrap', 'jobsDetail']],
     ]) {
       const snap = await open(page, url, null)

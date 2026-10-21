@@ -92,7 +92,6 @@ const JobReviewPage = () => {
             <h1 className="sf-jobs-title">{t('jobs.review')}</h1>
             <div className="sf-jobs-actions">
               <Link className="sf-jobs-link" to={buildLocalizedPath(lang, '/task')}>{t('jobs.list')}</Link>
-              <Link className="sf-jobs-link" to={buildLocalizedPath(lang, '/task/new')}>{t('jobs.publish')}</Link>
               <button className="sf-btn sf-jobs-btn" type="button" data-sf-m="jobs-refresh" onClick={load}>{t('jobs.refresh')}</button>
             </div>
           </div>

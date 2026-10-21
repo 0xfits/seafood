@@ -112,7 +112,6 @@ describe('DashboardPage', () => {
 
     fetchApiJson.mockImplementation(async (url) => {
       if (url === '/api/user/stats') return { user_count: 10, admin_count: 1, total_points: 500 }
-      if (url === '/api/task/all') return [{ tID: 1 }, { tID: 2 }]
       if (url === '/api/prize/all') return [{ bID: 1 }]
       if (url === '/api/tasklist/pending-verification/count') return { count: pendingItems.length }
       if (url === '/api/tasklist/pending-verification?limit=50') return pendingItems
@@ -153,7 +152,6 @@ describe('DashboardPage', () => {
   it('falls back to the pending list length when the count endpoint fails', async () => {
     fetchApiJson.mockImplementation(async (url) => {
       if (url === '/api/user/stats') return { user_count: 10, admin_count: 1, total_points: 500 }
-      if (url === '/api/task/all') return [{ tID: 1 }, { tID: 2 }]
       if (url === '/api/prize/all') return [{ bID: 1 }]
       if (url === '/api/tasklist/pending-verification/count') {
         throw new Error('count failed')
@@ -192,7 +190,6 @@ describe('DashboardPage', () => {
     hasAdminPermission.mockReturnValue(false)
     fetchApiJson.mockImplementation(async (url) => {
       if (url === '/api/user/stats') return { user_count: 10, admin_count: 1, total_points: 500 }
-      if (url === '/api/task/all') return []
       if (url === '/api/prize/all') return []
       if (url === '/api/tasklist/pending-verification/count') return { count: 1 }
       if (url === '/api/tasklist/pending-verification?limit=50') {
@@ -212,5 +209,28 @@ describe('DashboardPage', () => {
     // 原「无审核权限」空态分支已随门面放开删除（本仓禁死代码）⇒ 队列内容直达
     expect(screen.queryByText('当前账号没有审核权限')).toBeNull()
     expect(await screen.findByText('任务 C')).toBeInTheDocument()
+  })
+
+  it('job 下线收尾：零 `/api/task/all` 请求，「任务总数」卡已撤（campaign 读口给不出真总数）', async () => {
+    // ★ 负对照内建：读口分支里**没有** `/api/task/all` ⇒ 一旦页面回退去拉旧悬赏全表，
+    //   本 mock 会抛 `Unexpected URL`（toast 报「部分数据加载失败」）⇒ 本例两条断言同时转红。
+    fetchApiJson.mockImplementation(async (url) => {
+      if (url === '/api/user/stats') return { user_count: 10, admin_count: 1, total_points: 500 }
+      if (url === '/api/prize/all') return [{ bID: 1 }, { bID: 2 }]
+      if (url === '/api/tasklist/pending-verification/count') return { count: 0 }
+      if (url === '/api/tasklist/pending-verification?limit=50') return []
+      throw new Error(`Unexpected URL: ${url}`)
+    })
+
+    await renderDashboard()
+
+    expect(await screen.findByText('管理总览')).toBeInTheDocument()
+    const urls = fetchApiJson.mock.calls.map(([url]) => String(url))
+    expect(urls.some((url) => url.includes('/api/task/all'))).toBe(false)
+    expect(toast.error).not.toHaveBeenCalled()
+    // 5 张统计卡（用户 / 管理员 / 积分 / 奖品 / 待审核）——「任务类型」卡已删
+    expect(screen.queryByText('任务类型')).toBeNull()
+    expect(screen.getByText('总用户数')).toBeInTheDocument()
+    expect(screen.getByText('奖品数量')).toBeInTheDocument()
   })
 })

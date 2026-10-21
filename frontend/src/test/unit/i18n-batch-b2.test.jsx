@@ -20,15 +20,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import i18n from '../../i18n'
 import { pickLocalized } from '../../i18n-content'
-import { TaskCard } from '../../components/task/TaskCard'
 import { RewardCard } from '../../components/reward/RewardCard'
 
-const state = vi.hoisted(() => ({ prizes: [], profile: null, taskRows: [] }))
+const state = vi.hoisted(() => ({ prizes: [], profile: null, campaignTasks: [] }))
 
 vi.mock('../../auth', () => ({
   fetchApiJson: vi.fn(async (url) => {
     const u = String(url)
     // 首页先打聚合口 `/api/home`；本替身令其抛错 ⇒ 首页回落逐口读（与旧 ListingsPage 同一份 feed）
+    if (u.includes('/api/home/campaign-tasks')) return state.campaignTasks
     if (u.includes('/api/home')) throw new Error('HOME_UNREGISTERED')
     if (u.includes('/api/prize/all')) return state.prizes
     if (u.includes('/api/user/asset/')) return { points: 300 }
@@ -58,9 +58,21 @@ const badgeEl = () => document.querySelector(BADGE_SEL)
 
 describe('P6-I18N-LIT-B2 · en 档渲染英文文案（Task / Home / Profile）', () => {
   beforeEach(async () => {
-    state.taskRows = [{
-      tID: 1, title: '任务原文', title_en: 'English task title',
-      note: '中文备注', note_en: 'English note', is_open: true, i18n_status: 'pending',
+    state.campaignTasks = [{
+      task_id: 11,
+      title: 'English campaign task',
+      description: 'English task description',
+      status: 'active',
+      joined_count: 3,
+      joined_target: 10,
+      reward_amount_primary: '5',
+      reward_cid_secondary: null,
+      reward_amount_secondary: null,
+      campaign_id: 501,
+      campaign_title: 'English campaign',
+      project_title: 'English project',
+      project_slug: 'en-project',
+      project_avatar_url: null,
     }]
     state.prizes = [{
       bID: 1, name: '奖励原文', name_en: 'English reward',
@@ -72,29 +84,38 @@ describe('P6-I18N-LIT-B2 · en 档渲染英文文案（Task / Home / Profile）'
       is_admin: false, time_reg: null, i18n_status: 'pending',
     }
     global.fetch = vi.fn(async () => ({
-      ok: true, status: 200, json: async () => ({ success: true, data: state.taskRows }),
+      ok: true, status: 200, json: async () => ({ success: true, data: state.campaignTasks }),
     }))
     localStorage.clear()
     await i18n.changeLanguage('en')
   })
   afterEach(() => { cleanup() })
 
-  it('TaskPage（/en/task）：标题 / 副标题（悬赏口径） / 统计 / 分页 Tab / 卡片走英文，中文原文不出现', async () => {
+  // ★ 2026-10-21 改锚（Kevin 裁定 · job 体系弃用）：`/task` 从「悬赏列表（副标题 + 三档 Tab + TaskCard）」
+  //   改为 **campaign 任务列表**（读 `GET /api/home/campaign-tasks`，卡 = `HomeCampaignCard`）。
+  //   故本例原「副标题 / Available / To claim / Pending Verification / Join now / 翻译中」六处锚点随旧页面
+  //   一并删除；新页零新增 i18n 键（标题沿用 `taskPage.title`、空态沿用 `taskPage.emptyAvailable*`、
+  //   页头审核入口沿用 `jobs.review`）⇒ 英文档仍逐字可判。
+  it('TaskPage（/en/task）：标题 / 页头审核入口 / campaign 卡走英文，中文原文与旧 job 面不出现', async () => {
     render(<MemoryRouter initialEntries={['/en/task']}><TaskPage /></MemoryRouter>)
 
     expect(await screen.findByText('Bounty Center')).toBeInTheDocument()
-    expect(screen.getByText('Join bounties, earn points, unlock rewards')).toBeInTheDocument()
-    expect(screen.getByText('Available (1)')).toBeInTheDocument()
-    expect(screen.getByText('To claim (0)')).toBeInTheDocument()
-    expect(screen.getByText('Pending Verification (0)')).toBeInTheDocument()
-    // 卡片：`title_en` / `note_en` 经 `pickLocalized` 取值（旧三目链已删）
-    expect(screen.getByText('English task title')).toBeInTheDocument()
-    expect(screen.getByText('English note')).toBeInTheDocument()
-    expect(screen.getByText('Join now')).toBeInTheDocument()
-    // 「翻译中」小标：en 档 + `i18n_status:"pending"` ⇒ 渲染
-    expect(badgeEl()).not.toBeNull()
+    // 页头唯一入口 = 审核队列（发布口 `/task/new` 已随 job 体系下线）
+    const reviewLink = document.querySelector('[data-sf-m="jobs-nav-review"]')
+    expect(reviewLink).not.toBeNull()
+    expect(reviewLink.getAttribute('href')).toBe('/en/task/review')
+    expect(reviewLink.textContent).toBe('Review queue')
+    // 卡：campaign 读口行（标题 / 状态 / 参与 / 项目名）走英文键
+    expect(screen.getByText('English campaign task')).toBeInTheDocument()
+    expect(screen.getByText('Ongoing')).toBeInTheDocument()
+    expect(screen.getByText('3 / 10 participants')).toBeInTheDocument()
+    expect(screen.getByText('English project')).toBeInTheDocument()
+    // 旧 job 面零命中（中文原文 / 发布入口 / 旧 Tab）
     expect(screen.queryByText('悬赏中心')).toBeNull()
-    expect(screen.queryByText('任务原文')).toBeNull()
+    expect(screen.queryByText('Join bounties, earn points, unlock rewards')).toBeNull()
+    expect(screen.queryByText(/^Available \(/)).toBeNull()
+    expect(screen.queryByText('Join now')).toBeNull()
+    expect(document.querySelector('[data-sf-m="jobs-form-wrap"]')).toBeNull()
   })
 
   it('HomePage（/en，= 唯一「闲置物品」列表）：发布入口 / 分类筛选 / 卡片走英文（「我的积分」已迁出 ⇒ 零命中）', async () => {
@@ -140,20 +161,13 @@ describe('P6-I18N-LIT-B2 · en 档渲染英文文案（Task / Home / Profile）'
   })
 })
 
-describe('P6-I18N-LIT-B2 · 「翻译中」小标接线（TaskCard / RewardCard）', () => {
+// ★ 2026-10-21（job 体系弃用）：原本组第二条载体 `TaskCard` 随页删除 ⇒ 「翻译中」小标只剩
+//   `RewardCard` 载体（TaskPage 新卡 = `HomeCampaignCard`，读口行不带 `i18n_status` ⇒ 无小标面）。
+describe('P6-I18N-LIT-B2 · 「翻译中」小标接线（RewardCard）', () => {
   afterEach(() => { cleanup() })
 
-  it('en 档：`pending` / `partial` ⇒ 渲染；`ready` / 缺省 ⇒ 不渲染', async () => {
+  it('en 档：`partial` ⇒ 渲染；缺省 ⇒ 不渲染', async () => {
     await i18n.changeLanguage('en')
-    const task = { title: 'T', status: 'active', statusText: 'S', i18n_status: 'pending' }
-
-    render(<TaskCard task={task} onAction={() => {}} />)
-    expect(badgeEl()).not.toBeNull()
-    cleanup()
-
-    render(<TaskCard task={{ ...task, i18n_status: 'ready' }} onAction={() => {}} />)
-    expect(badgeEl()).toBeNull()
-    cleanup()
 
     render(<RewardCard reward={{ title: 'R', status: 'available', statusText: 'S', points_required: 1, i18n_status: 'partial' }} />)
     expect(badgeEl()).not.toBeNull()
@@ -165,11 +179,6 @@ describe('P6-I18N-LIT-B2 · 「翻译中」小标接线（TaskCard / RewardCard�
 
   it('zh 档（源语言）⇒ 不渲染小标（即便 `i18n_status:"pending"`）', async () => {
     await i18n.changeLanguage('zh')
-    const task = { title: 'T', status: 'active', statusText: 'S', i18n_status: 'pending' }
-
-    render(<TaskCard task={task} onAction={() => {}} />)
-    expect(badgeEl()).toBeNull()
-    cleanup()
 
     render(<RewardCard reward={{ title: 'R', status: 'available', statusText: 'S', points_required: 1, i18n_status: 'pending' }} />)
     expect(badgeEl()).toBeNull()

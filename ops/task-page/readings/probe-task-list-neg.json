@@ -1,0 +1,239 @@
+{
+  "probe": "ops/task-page/probe-task-list.mjs",
+  "startedAt": "2026-10-21T11:27:19.451Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "negArm": true,
+  "fixtures": {
+    "listRows": [
+      101,
+      102,
+      103
+    ],
+    "firstCard": 101,
+    "auth": "localStorage seed only（零真登录）",
+    "api": "context.route in-probe JSON（零后端 / 零库写）"
+  },
+  "states": {
+    "1536_task_list": {
+      "pathname": "/task",
+      "overflowPx": 0,
+      "offenders": [],
+      "scrollContained": 0,
+      "hooks": {
+        "listGrid": false,
+        "listTitle": "悬赏中心",
+        "listEmpty": true,
+        "taskPage": false,
+        "taskPageTask": null,
+        "taskTitle": null,
+        "notFound": false,
+        "jobsFormWrap": false,
+        "jobsDetail": false
+      },
+      "cards": []
+    },
+    "1536_task_new": {
+      "pathname": "/task/new",
+      "overflowPx": 0,
+      "offenders": [],
+      "scrollContained": 0,
+      "hooks": {
+        "listGrid": false,
+        "listTitle": null,
+        "listEmpty": false,
+        "taskPage": false,
+        "taskPageTask": null,
+        "taskTitle": null,
+        "notFound": true,
+        "jobsFormWrap": false,
+        "jobsDetail": false
+      },
+      "cards": []
+    },
+    "1536_bounty": {
+      "pathname": "/bounty/1",
+      "overflowPx": 0,
+      "offenders": [],
+      "scrollContained": 0,
+      "hooks": {
+        "listGrid": false,
+        "listTitle": null,
+        "listEmpty": false,
+        "taskPage": false,
+        "taskPageTask": null,
+        "taskTitle": null,
+        "notFound": true,
+        "jobsFormWrap": false,
+        "jobsDetail": false
+      },
+      "cards": []
+    },
+    "390_task_list": {
+      "pathname": "/task",
+      "overflowPx": 0,
+      "offenders": [],
+      "scrollContained": 0,
+      "hooks": {
+        "listGrid": false,
+        "listTitle": "悬赏中心",
+        "listEmpty": true,
+        "taskPage": false,
+        "taskPageTask": null,
+        "taskTitle": null,
+        "notFound": false,
+        "jobsFormWrap": false,
+        "jobsDetail": false
+      },
+      "cards": []
+    },
+    "390_task_new": {
+      "pathname": "/task/new",
+      "overflowPx": 0,
+      "offenders": [],
+      "scrollContained": 0,
+      "hooks": {
+        "listGrid": false,
+        "listTitle": null,
+        "listEmpty": false,
+        "taskPage": false,
+        "taskPageTask": null,
+        "taskTitle": null,
+        "notFound": true,
+        "jobsFormWrap": false,
+        "jobsDetail": false
+      },
+      "cards": []
+    },
+    "390_bounty": {
+      "pathname": "/bounty/1",
+      "overflowPx": 0,
+      "offenders": [],
+      "scrollContained": 0,
+      "hooks": {
+        "listGrid": false,
+        "listTitle": null,
+        "listEmpty": false,
+        "taskPage": false,
+        "taskPageTask": null,
+        "taskTitle": null,
+        "notFound": true,
+        "jobsFormWrap": false,
+        "jobsDetail": false
+      },
+      "cards": []
+    }
+  },
+  "assertions": {
+    "taskListRendersCampaignCards_1536": {
+      "grid": false,
+      "cardCount": 0,
+      "everyCardIsTask": true,
+      "titles": [],
+      "hrefs": [],
+      "allRealCards": true,
+      "readOnce": true,
+      "noNotFound": true,
+      "noLegacyJobPage": true,
+      "pass": false
+    },
+    "cardClickOpensTaskPage_1536": {
+      "clicked": false,
+      "pass": false
+    },
+    "legacyJobRoutesNotFound_1536": {
+      "taskNewNotFound": true,
+      "taskNewNoPublishForm": true,
+      "taskNewNoDetailFetch": true,
+      "bountyNotFound": true,
+      "bountyNoJobPage": true,
+      "taskNewCalls": [
+        "/api/role-names",
+        "/api/admin/me",
+        "/api/currencies",
+        "/api/messages/unread-count",
+        "/api/user/balances"
+      ],
+      "pass": true
+    },
+    "noOverflowNoPageError_1536": {
+      "overflowPx": [
+        0,
+        0,
+        0
+      ],
+      "offenders": [],
+      "scrollContained": [
+        0,
+        0,
+        0
+      ],
+      "zeroOverflow": true,
+      "pageErrors": [],
+      "consoleErrorCount": 0,
+      "consoleErrors": [],
+      "zeroPageError": true,
+      "legacyTaskAllHits": 0,
+      "zeroLegacyTaskAll": true,
+      "pass": true
+    },
+    "taskListRendersCampaignCards_390": {
+      "grid": false,
+      "cardCount": 0,
+      "everyCardIsTask": true,
+      "titles": [],
+      "hrefs": [],
+      "allRealCards": true,
+      "readOnce": true,
+      "noNotFound": true,
+      "noLegacyJobPage": true,
+      "pass": false
+    },
+    "cardClickOpensTaskPage_390": {
+      "clicked": false,
+      "pass": false
+    },
+    "legacyJobRoutesNotFound_390": {
+      "taskNewNotFound": true,
+      "taskNewNoPublishForm": true,
+      "taskNewNoDetailFetch": true,
+      "bountyNotFound": true,
+      "bountyNoJobPage": true,
+      "taskNewCalls": [
+        "/api/role-names",
+        "/api/admin/me",
+        "/api/currencies",
+        "/api/messages/unread-count",
+        "/api/user/balances"
+      ],
+      "pass": true
+    },
+    "noOverflowNoPageError_390": {
+      "overflowPx": [
+        0,
+        0,
+        0
+      ],
+      "offenders": [],
+      "scrollContained": [
+        0,
+        0,
+        0
+      ],
+      "zeroOverflow": true,
+      "pageErrors": [],
+      "consoleErrorCount": 0,
+      "consoleErrors": [],
+      "zeroPageError": true,
+      "legacyTaskAllHits": 0,
+      "zeroLegacyTaskAll": true,
+      "pass": true
+    }
+  },
+  "summary": {
+    "taskListRendersCampaignCards": false,
+    "cardClickOpensTaskPage": false,
+    "legacyJobRoutesNotFound": true,
+    "noOverflowNoPageError": true
+  },
+  "summaryAll": false
+}

@@ -133,10 +133,10 @@ const computeMissing = (rawSrc) => {
 describe('S8① 被引用静态键 ⊆ 四语 locale 键集（可判负）', () => {
   const files = walk(SRC)
 
-  it('源面非空（探针：确认扫到工程文件，含已知面 pages/jobs/JobDetailPage.jsx）', () => {
+  it('源面非空（探针：确认扫到工程文件，含已知面 pages/TaskPage.jsx）', () => {
     expect(files.length).toBeGreaterThan(80)
     const rel = files.map((f) => path.relative(SRC, f))
-    expect(rel).toContain('pages/jobs/JobDetailPage.jsx')
+    expect(rel).toContain('pages/TaskPage.jsx')
     expect(rel.some((r) => r.startsWith('test'))).toBe(false)
   })
 

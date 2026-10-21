@@ -1,114 +1,68 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, Card, CardContent, Badge, Modal, ModalHeader, ModalTitle } from '../../components/ui'
-import { Trophy, Plus, Edit, Trash2, Eye, RefreshCw } from 'lucide-react'
+import { Button, Card, CardContent, Badge } from '../../components/ui'
+import { RefreshCw } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { fetchAdminAccess, fetchApiJson, getAuthHeaders, getStoredUser, hasAdminPermission } from '../../admin-utils'
+import { fetchApiJson } from '../../admin-utils'
 
-const EMPTY_TASK = {
-  title: '',
-  note: '',
-  refcode: '',
-  points: 0,
-  is_open: true,
-  link0: '',
-  linkB: '',
-}
+// ============================================================================
+// 后台「任务管理」（`/dashboard/tasks`）· **campaign 口径只读列表**
+// ----------------------------------------------------------------------------
+// 选型（job 体系下线收尾 · 2026-10-21）：**不删面板，改走 campaign 读口** ——
+//   · 旧数据面 `GET /api/task/all`（悬赏全表）已随 job 后端删除 ⇒ 再调只会 404（错请求）；
+//   · 现「任务」唯一实体 = campaign task，公开读口 `GET /api/campaign/all`
+//     （`CampaignView[]`：仅 `active` 活动，行内嵌套 `tasks[]`）—— 与 `/campaign` 列表页同一读口；
+//   · 已知边界（**不粉饰**）：该读口只给 active 活动下的任务、无分页、无「全状态」视图，
+//     且**没有** admin 专属全量任务读口 ⇒ 本面板**不给任务总数**，只逐活动列清单；
+//   · 写口（`POST /api/admin/task/{create,update,delete}`）早已 410 ⇒ 面板自始只读（无新增/编辑/删除）。
+// 行键（后端 `normalizeTaskRow` 逐字）：`task_id / title / description / status / reward_amount_primary / ...`。
+// ============================================================================
 
-const formatDateTime = (value, t) => {
-  if (!value) return t('adminCommon.notSet')
-  const date = new Date(typeof value === 'number' ? value * 1000 : value)
-  return Number.isNaN(date.getTime()) ? t('adminCommon.notSet') : date.toLocaleString()
-}
+const CAMPAIGN_LIST_URL = '/api/campaign/all'
+
+/** `CampaignView[]` ⇒ 渲染分组（只留有任务的 active 活动） */
+const toCampaignGroups = (campaigns) => (Array.isArray(campaigns) ? campaigns : [])
+  .map((campaign) => ({
+    campaignId: campaign?.campaign_id ?? campaign?.campaignId ?? null,
+    campaignTitle: campaign?.title || '',
+    tasks: (Array.isArray(campaign?.tasks) ? campaign.tasks : []).map((task) => ({
+      taskId: task?.task_id ?? task?.taskId ?? null,
+      title: task?.title || '',
+      description: task?.description || '',
+      points: task?.reward_amount_primary ?? 0,
+      isOpen: task?.status === 'active',
+    })),
+  }))
+  .filter((group) => group.tasks.length > 0)
 
 const TasksManagement = () => {
   const { t } = useTranslation()
-  const [tasks, setTasks] = useState([])
+  const [groups, setGroups] = useState([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
-  const [saving, setSaving] = useState(false)
-  const [deletingId, setDeletingId] = useState(null)
-  const [access, setAccess] = useState({ is_admin: false, permissions: [], can_access_admin: false })
-  const [modalMode, setModalMode] = useState('create')
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedTask, setSelectedTask] = useState(null)
-  const [formState, setFormState] = useState(EMPTY_TASK)
-
-  const canManageTasks = hasAdminPermission(access, 'manage_tasks')
-  const canPublishTasks = hasAdminPermission(access, ['manage_tasks', 'publish_tasks'])
-
-  useEffect(() => {
-    loadTasks()
-  }, [])
 
   const loadTasks = async ({ silent = false } = {}) => {
     try {
       if (silent) setRefreshing(true)
       else setLoading(true)
 
-      const currentUser = getStoredUser()
-      if (currentUser) {
-        setAccess(await fetchAdminAccess(currentUser))
-      }
-
-      const data = await fetchApiJson('/api/task/all')
-      setTasks(data || [])
+      setGroups(toCampaignGroups(await fetchApiJson(CAMPAIGN_LIST_URL)))
     } catch (error) {
-      console.error('Error loading tasks:', error)
+      console.error('Error loading campaign tasks:', error)
       toast.error(t('adminTasks.loadFailed', { message: error.message }))
+      setGroups([])
     } finally {
       setLoading(false)
       setRefreshing(false)
     }
   }
 
-  const openCreateModal = () => {
-    setModalMode('create')
-    setSelectedTask(null)
-    setFormState(EMPTY_TASK)
-    setIsModalOpen(true)
-  }
-
-  const openViewModal = (task) => {
-    setModalMode('view')
-    setSelectedTask(task)
-    setFormState({
-      title: task.title || '',
-      note: task.note || '',
-      refcode: task.refcode || '',
-      points: task.points || 0,
-      is_open: Boolean(task.is_open),
-      link0: task.link0 || task.linkA || '',
-      linkB: task.linkB || '',
-    })
-    setIsModalOpen(true)
-  }
-
-  const openEditModal = (task) => {
-    setModalMode('edit')
-    setSelectedTask(task)
-    setFormState({
-      title: task.title || '',
-      note: task.note || '',
-      refcode: task.refcode || '',
-      points: task.points || 0,
-      is_open: Boolean(task.is_open),
-      link0: task.link0 || task.linkA || '',
-      linkB: task.linkB || '',
-    })
-    setIsModalOpen(true)
-  }
-
-  // ── 弃用面下线（P4-B4b-i · §2.4 **S5** / §5.1「后台发布招工」行）───────────────────
-  // `POST /api/admin/task/{create,update,delete}`（原 `:130` / `:140` / `:177`）三**写口**已由后端落为
-  // **`410` + `R107` + `details.sunset`**（**已撤 `requireAdmin`** ⇒ 无 token 亦 `410`）⇒ 前端**零调用**
-  // （判据 = §9.B **B5**）。处置 = **页面只读化**：列表仍走 `GET /api/task/all`，写按钮与写分支删除。
-  // 口径依据：§5.1 逐字「用户需求③：管理员不再发布 task/reward」+ §5.2「删三条写调用（页面只读化）」。
-
-  const isReadonlyModal = true
+  useEffect(() => {
+    loadTasks()
+  }, [])
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-sf-m="admin-tasks">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold">{t('adminNav.tasks')}</h2>
@@ -119,131 +73,46 @@ const TasksManagement = () => {
             <RefreshCw className="w-4 h-4 mr-2" />
             {refreshing ? t('adminCommon.refreshing') : t('adminCommon.refresh')}
           </Button>
-          {/* §2.4 S5：`POST /api/admin/task/create` 已 410 ⇒ 新增入口删除（页面只读化） */}
         </div>
       </div>
 
       {loading ? (
         <div className="text-center py-8">{t('adminCommon.loading')}</div>
+      ) : groups.length === 0 ? (
+        <Card variant="inactive">
+          <CardContent className="text-center py-8 text-gray-600" data-sf-m="admin-tasks-empty">
+            {t('campaign.tasksEmpty')}
+          </CardContent>
+        </Card>
       ) : (
-        <div className="grid gap-4">
-          {tasks.map((task) => (
-            <Card key={task.tID}>
-              <CardContent className="p-4">
-                <div className="flex justify-between items-start gap-4">
-                  <div className="flex-1">
-                    <h3 className="font-semibold">{task.title}</h3>
-                    <p className="text-sm text-gray-600 mt-1">{task.note || t('adminCommon.noDescription')}</p>
-                    <div className="flex gap-2 mt-2 flex-wrap">
-                      <Badge variant="primary">{t('adminCommon.pointsValue', { value: task.points })}</Badge>
-                      <Badge variant="secondary">{task.refcode || 'task'}</Badge>
-                      <Badge variant={task.is_open ? 'success' : 'warning'}>{task.is_open ? t('adminTasks.stateOpen') : t('adminTasks.stateClosed')}</Badge>
-                    </div>
-                    <div className="text-xs text-gray-500 mt-3">
-                      {t('adminTasks.updatedAt', { time: formatDateTime(task.time_updated || task.updated_at, t) })}
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="ghost" size="sm" onClick={() => openViewModal(task)} title={t('adminCommon.viewDetail')}>
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                    {/* §2.4 S5：编辑(`admin/task/update`)/删除(`admin/task/delete`) 均 410 ⇒ 只留「查看」 */}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+        <div className="space-y-6">
+          {groups.map((group) => (
+            <section key={`campaign-${group.campaignId}`} className="space-y-3">
+              <h3 className="text-sm font-medium text-gray-500">
+                {t('campaign.listTitle')} · {group.campaignTitle}
+              </h3>
+              <div className="grid gap-4">
+                {group.tasks.map((task) => (
+                  <Card key={`task-${task.taskId}`} data-sf-task={task.taskId}>
+                    <CardContent className="p-4">
+                      <h4 className="font-semibold">{task.title}</h4>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {task.description || t('adminCommon.noDescription')}
+                      </p>
+                      <div className="flex gap-2 mt-2 flex-wrap">
+                        <Badge variant="primary">{t('adminCommon.pointsValue', { value: task.points })}</Badge>
+                        <Badge variant={task.isOpen ? 'success' : 'warning'}>
+                          {task.isOpen ? t('adminTasks.stateOpen') : t('adminTasks.stateClosed')}
+                        </Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </section>
           ))}
         </div>
       )}
-
-      <Modal isOpen={isModalOpen} onClose={() => !saving && setIsModalOpen(false)} size="lg">
-        <ModalHeader>
-          <ModalTitle>
-            {modalMode === 'create' ? t('adminTasks.modalCreate') : modalMode === 'edit' ? t('adminTasks.modalEdit') : t('adminTasks.modalView')}
-          </ModalTitle>
-        </ModalHeader>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">{t('adminTasks.labelTitle')}</label>
-            <input
-              type="text"
-              value={formState.title}
-              onChange={(e) => setFormState((prev) => ({ ...prev, title: e.target.value }))}
-              disabled={isReadonlyModal}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">{t('adminTasks.labelDesc')}</label>
-            <textarea
-              value={formState.note}
-              onChange={(e) => setFormState((prev) => ({ ...prev, note: e.target.value }))}
-              rows={4}
-              disabled={isReadonlyModal}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
-            />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Refcode</label>
-              <input
-                type="text"
-                value={formState.refcode}
-                onChange={(e) => setFormState((prev) => ({ ...prev, refcode: e.target.value }))}
-                disabled={isReadonlyModal}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">{t('adminTasks.labelPoints')}</label>
-              <input
-                type="number"
-                min="0"
-                value={formState.points}
-                onChange={(e) => setFormState((prev) => ({ ...prev, points: e.target.value }))}
-                disabled={isReadonlyModal}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">{t('adminTasks.labelMainLink')}</label>
-            <input
-              type="text"
-              value={formState.link0}
-              onChange={(e) => setFormState((prev) => ({ ...prev, link0: e.target.value }))}
-              disabled={isReadonlyModal}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">{t('adminTasks.labelBackupLink')}</label>
-            <input
-              type="text"
-              value={formState.linkB}
-              onChange={(e) => setFormState((prev) => ({ ...prev, linkB: e.target.value }))}
-              disabled={isReadonlyModal}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
-            />
-          </div>
-          <label className="flex items-center gap-2 text-sm text-gray-700">
-            <input
-              type="checkbox"
-              checked={Boolean(formState.is_open)}
-              onChange={(e) => setFormState((prev) => ({ ...prev, is_open: e.target.checked }))}
-              disabled={isReadonlyModal}
-              className="w-4 h-4"
-            />
-            {t('adminTasks.enabled')}
-          </label>
-          <div className="flex justify-end gap-3">
-            <Button variant="secondary" onClick={() => setIsModalOpen(false)} disabled={saving}>
-              {t('adminCommon.close')}
-            </Button>
-            {/* §2.4 S5：保存（`admin/task/create|update`）已 410 ⇒ 保存按钮删除（模态框为只读详情） */}
-          </div>
-        </div>
-      </Modal>
     </div>
   )
 }

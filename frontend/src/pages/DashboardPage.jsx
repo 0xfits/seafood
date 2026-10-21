@@ -35,7 +35,6 @@ const EMPTY_DASHBOARD_STATS = {
   totalUsers: 0,
   adminUsers: 0,
   totalPoints: 0,
-  totalTasks: 0,
   totalRewards: 0,
   pendingVerifications: 0,
 }
@@ -120,19 +119,22 @@ const DashboardPage = () => {
     // ★ S18：队列读口门改「**已登录即可见**」（与 `/task/review` 同口径）；内容过滤唯一真源 = 后端。
     const canReviewTasks = isAuthenticated
 
+    // ★ job 下线（2026-10-21）：旧 `GET /api/task/all`（悬赏全表）已随后端删除 ⇒ **本页不再取**。
+    //   「任务总数」卡随之删除：现任务 = campaign task，唯一公开读口 `/api/home/campaign-tasks`
+    //   只给 `LIMIT 20` 的 active 热门行 ⇒ **拿不到真·总数**（照旧渲染只会把 20 说成「总数」，
+    //   是假读数）。管理侧要看真实任务请走 `/dashboard/tasks`（campaign 口径列表）。
+    //   （词典键 `dashPage.statTasks` / `dashPage.errTaskStats` 保留：四语键集计数锚点，删键会改 flat 读数）
     const results = await Promise.allSettled([
       fetchApiJson('/api/user/stats', { headers: authHeaders }),
-      fetchApiJson('/api/task/all'),
       fetchApiJson('/api/prize/all'),
       ...(canReviewTasks ? [fetchApiJson('/api/tasklist/pending-verification/count', { headers: authHeaders })] : []),
       ...(canReviewTasks ? [fetchApiJson('/api/tasklist/pending-verification?limit=50', { headers: authHeaders })] : []),
     ])
 
-    const [userStats, tasks, rewards, pendingCount, pendingList] = results
+    const [userStats, rewards, pendingCount, pendingList] = results
 
     const errors = []
     if (userStats.status === 'rejected') errors.push(t('dashPage.errUserStats'))
-    if (tasks.status === 'rejected') errors.push(t('dashPage.errTaskStats'))
     if (rewards.status === 'rejected') errors.push(t('dashPage.errRewardStats'))
     if (canReviewTasks && pendingCount?.status === 'rejected') errors.push(t('dashPage.errPendingCount'))
     if (canReviewTasks && pendingList?.status === 'rejected') errors.push(t('dashPage.errPendingList'))
@@ -145,7 +147,6 @@ const DashboardPage = () => {
       totalUsers: userStats.status === 'fulfilled' ? userStats.value.user_count || 0 : 0,
       adminUsers: userStats.status === 'fulfilled' ? userStats.value.admin_count || 0 : 0,
       totalPoints: userStats.status === 'fulfilled' ? userStats.value.total_points || 0 : 0,
-      totalTasks: tasks.status === 'fulfilled' ? (tasks.value || []).length : 0,
       totalRewards: rewards.status === 'fulfilled' ? (rewards.value || []).length : 0,
       pendingVerifications: resolvePendingVerificationCount(canReviewTasks, pendingCount, pendingList),
     })
@@ -355,16 +356,6 @@ const DashboardPage = () => {
                   {dashboardStats.totalPoints.toLocaleString()}
                 </div>
                 <div className="text-sm text-gray-600">{t('dashPage.statPoints')}</div>
-              </CardContent>
-            </Card>
-
-            <Card variant="primary" className="text-center">
-              <CardContent className="py-6">
-                <Trophy className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
-                <div className="text-3xl font-bold text-gray-900 mb-1">
-                  {dashboardStats.totalTasks}
-                </div>
-                <div className="text-sm text-gray-600">{t('dashPage.statTasks')}</div>
               </CardContent>
             </Card>
 

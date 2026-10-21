@@ -132,7 +132,6 @@ describe('① 首页闲置列表面：状态徽章已移除（Kevin 2026-10-19 �
 
 describe('② 链接构造器回归：源码残留必须逐条已登记', () => {
   const REGISTERED = new Set([
-    'components/ActiveTaskModal.jsx|navigate|/login',
     'pages/DashboardPage.jsx|navigate|/login',
     'pages/DashboardPage.jsx|to=|/',
     'pages/admin/PointsManagement.jsx|navigate|/login',

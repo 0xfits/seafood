@@ -1,7 +1,9 @@
 /**
- * 「注册天数条件」四选一常量（Kevin 2026-10-21）—— 两处表单共用，别在页面里各写一份：
- *   ① `/task/new` 阻断面板的内嵌新建项目表单（`pages/jobs/PublishJobPage.jsx`）；
- *   ② `/wage` 项目卡【编辑】表单（`pages/wage/WagePage.jsx`）。
+ * 「注册天数条件」四选一常量（Kevin 2026-10-21）—— 单一真源，别在页面里各写一份：
+ *   ① `/wage` 项目卡【编辑】表单（`pages/wage/WagePage.jsx` 经 `project-edit-form.js` 取档）；
+ *   ② 项目资料编辑弹窗（`pages/project/ProjectEditModal.jsx`）。
+ *   ★ 原使用点 `/task/new` 内嵌新建项目表单（`pages/jobs/PublishJobPage.jsx`）已随 job 体系删除（2026-10-21）：
+ *     常量、四语 `bountyProject.days*` 文案与后端 `recruit_min_account_days` 字段**均不动**。
  * 后端 `recruit_min_account_days` 仍为 int（≥0），字段与校验零改动；前端把手填 number
  * 收敛为**恰 4 档** select，value = 天数本身（1 / 7 / 30 / 365），文案键挂既有
  * `bountyProject.days1/days7/days30/days365`（四语同补）。

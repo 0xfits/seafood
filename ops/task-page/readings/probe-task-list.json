@@ -1,0 +1,363 @@
+{
+  "probe": "ops/task-page/probe-task-list.mjs",
+  "startedAt": "2026-10-21T11:27:04.926Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "negArm": false,
+  "fixtures": {
+    "listRows": [
+      101,
+      102,
+      103
+    ],
+    "firstCard": 101,
+    "auth": "localStorage seed only（零真登录）",
+    "api": "context.route in-probe JSON（零后端 / 零库写）"
+  },
+  "states": {
+    "1536_task_list": {
+      "pathname": "/task",
+      "overflowPx": 0,
+      "offenders": [],
+      "scrollContained": 0,
+      "hooks": {
+        "listGrid": true,
+        "listTitle": "悬赏中心",
+        "listEmpty": false,
+        "taskPage": false,
+        "taskPageTask": null,
+        "taskTitle": null,
+        "notFound": false,
+        "jobsFormWrap": false,
+        "jobsDetail": false
+      },
+      "cards": [
+        {
+          "tag": "a",
+          "href": "/task/101",
+          "task": "101",
+          "mock": "0",
+          "title": "转发推文",
+          "project": "海鲜打包",
+          "campaign": "秋季招募"
+        },
+        {
+          "tag": "a",
+          "href": "/task/102",
+          "task": "102",
+          "mock": "0",
+          "title": "填写问卷",
+          "project": "海鲜分拣",
+          "campaign": "秋季招募"
+        },
+        {
+          "tag": "a",
+          "href": "/task/103",
+          "task": "103",
+          "mock": "0",
+          "title": "拍摄到货视频",
+          "project": "海鲜打包",
+          "campaign": "春季活动"
+        }
+      ]
+    },
+    "1536_task_after_click": {
+      "pathname": "/task/101",
+      "overflowPx": 0,
+      "offenders": [],
+      "scrollContained": 0,
+      "hooks": {
+        "listGrid": false,
+        "listTitle": null,
+        "listEmpty": false,
+        "taskPage": true,
+        "taskPageTask": "101",
+        "taskTitle": "转发推文",
+        "notFound": false,
+        "jobsFormWrap": false,
+        "jobsDetail": false
+      },
+      "cards": []
+    },
+    "1536_task_new": {
+      "pathname": "/task/new",
+      "overflowPx": 0,
+      "offenders": [],
+      "scrollContained": 0,
+      "hooks": {
+        "listGrid": false,
+        "listTitle": null,
+        "listEmpty": false,
+        "taskPage": false,
+        "taskPageTask": null,
+        "taskTitle": null,
+        "notFound": true,
+        "jobsFormWrap": false,
+        "jobsDetail": false
+      },
+      "cards": []
+    },
+    "1536_bounty": {
+      "pathname": "/bounty/1",
+      "overflowPx": 0,
+      "offenders": [],
+      "scrollContained": 0,
+      "hooks": {
+        "listGrid": false,
+        "listTitle": null,
+        "listEmpty": false,
+        "taskPage": false,
+        "taskPageTask": null,
+        "taskTitle": null,
+        "notFound": true,
+        "jobsFormWrap": false,
+        "jobsDetail": false
+      },
+      "cards": []
+    },
+    "390_task_list": {
+      "pathname": "/task",
+      "overflowPx": 0,
+      "offenders": [],
+      "scrollContained": 1,
+      "hooks": {
+        "listGrid": true,
+        "listTitle": "悬赏中心",
+        "listEmpty": false,
+        "taskPage": false,
+        "taskPageTask": null,
+        "taskTitle": null,
+        "notFound": false,
+        "jobsFormWrap": false,
+        "jobsDetail": false
+      },
+      "cards": [
+        {
+          "tag": "a",
+          "href": "/task/101",
+          "task": "101",
+          "mock": "0",
+          "title": "转发推文",
+          "project": "海鲜打包",
+          "campaign": "秋季招募"
+        },
+        {
+          "tag": "a",
+          "href": "/task/102",
+          "task": "102",
+          "mock": "0",
+          "title": "填写问卷",
+          "project": "海鲜分拣",
+          "campaign": "秋季招募"
+        },
+        {
+          "tag": "a",
+          "href": "/task/103",
+          "task": "103",
+          "mock": "0",
+          "title": "拍摄到货视频",
+          "project": "海鲜打包",
+          "campaign": "春季活动"
+        }
+      ]
+    },
+    "390_task_after_click": {
+      "pathname": "/task/101",
+      "overflowPx": 0,
+      "offenders": [],
+      "scrollContained": 0,
+      "hooks": {
+        "listGrid": false,
+        "listTitle": null,
+        "listEmpty": false,
+        "taskPage": true,
+        "taskPageTask": "101",
+        "taskTitle": "转发推文",
+        "notFound": false,
+        "jobsFormWrap": false,
+        "jobsDetail": false
+      },
+      "cards": []
+    },
+    "390_task_new": {
+      "pathname": "/task/new",
+      "overflowPx": 0,
+      "offenders": [],
+      "scrollContained": 0,
+      "hooks": {
+        "listGrid": false,
+        "listTitle": null,
+        "listEmpty": false,
+        "taskPage": false,
+        "taskPageTask": null,
+        "taskTitle": null,
+        "notFound": true,
+        "jobsFormWrap": false,
+        "jobsDetail": false
+      },
+      "cards": []
+    },
+    "390_bounty": {
+      "pathname": "/bounty/1",
+      "overflowPx": 0,
+      "offenders": [],
+      "scrollContained": 0,
+      "hooks": {
+        "listGrid": false,
+        "listTitle": null,
+        "listEmpty": false,
+        "taskPage": false,
+        "taskPageTask": null,
+        "taskTitle": null,
+        "notFound": true,
+        "jobsFormWrap": false,
+        "jobsDetail": false
+      },
+      "cards": []
+    }
+  },
+  "assertions": {
+    "taskListRendersCampaignCards_1536": {
+      "grid": true,
+      "cardCount": 3,
+      "everyCardIsTask": true,
+      "titles": [
+        "转发推文",
+        "填写问卷",
+        "拍摄到货视频"
+      ],
+      "hrefs": [
+        "/task/101",
+        "/task/102",
+        "/task/103"
+      ],
+      "allRealCards": true,
+      "readOnce": true,
+      "noNotFound": true,
+      "noLegacyJobPage": true,
+      "pass": true
+    },
+    "cardClickOpensTaskPage_1536": {
+      "clicked": true,
+      "pathname": "/task/101",
+      "taskHook": true,
+      "taskIdEcho": true,
+      "titleEcho": true,
+      "notNotFound": true,
+      "notCampaignPath": true,
+      "pass": true
+    },
+    "legacyJobRoutesNotFound_1536": {
+      "taskNewNotFound": true,
+      "taskNewNoPublishForm": true,
+      "taskNewNoDetailFetch": true,
+      "bountyNotFound": true,
+      "bountyNoJobPage": true,
+      "taskNewCalls": [
+        "/api/role-names",
+        "/api/admin/me",
+        "/api/currencies",
+        "/api/messages/unread-count",
+        "/api/user/balances"
+      ],
+      "pass": true
+    },
+    "noOverflowNoPageError_1536": {
+      "overflowPx": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "offenders": [],
+      "scrollContained": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "zeroOverflow": true,
+      "pageErrors": [],
+      "consoleErrorCount": 0,
+      "consoleErrors": [],
+      "zeroPageError": true,
+      "legacyTaskAllHits": 0,
+      "zeroLegacyTaskAll": true,
+      "pass": true
+    },
+    "taskListRendersCampaignCards_390": {
+      "grid": true,
+      "cardCount": 3,
+      "everyCardIsTask": true,
+      "titles": [
+        "转发推文",
+        "填写问卷",
+        "拍摄到货视频"
+      ],
+      "hrefs": [
+        "/task/101",
+        "/task/102",
+        "/task/103"
+      ],
+      "allRealCards": true,
+      "readOnce": true,
+      "noNotFound": true,
+      "noLegacyJobPage": true,
+      "pass": true
+    },
+    "cardClickOpensTaskPage_390": {
+      "clicked": true,
+      "pathname": "/task/101",
+      "taskHook": true,
+      "taskIdEcho": true,
+      "titleEcho": true,
+      "notNotFound": true,
+      "notCampaignPath": true,
+      "pass": true
+    },
+    "legacyJobRoutesNotFound_390": {
+      "taskNewNotFound": true,
+      "taskNewNoPublishForm": true,
+      "taskNewNoDetailFetch": true,
+      "bountyNotFound": true,
+      "bountyNoJobPage": true,
+      "taskNewCalls": [
+        "/api/role-names",
+        "/api/admin/me",
+        "/api/currencies",
+        "/api/messages/unread-count",
+        "/api/user/balances"
+      ],
+      "pass": true
+    },
+    "noOverflowNoPageError_390": {
+      "overflowPx": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "offenders": [],
+      "scrollContained": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "zeroOverflow": true,
+      "pageErrors": [],
+      "consoleErrorCount": 0,
+      "consoleErrors": [],
+      "zeroPageError": true,
+      "legacyTaskAllHits": 0,
+      "zeroLegacyTaskAll": true,
+      "pass": true
+    }
+  },
+  "summary": {
+    "taskListRendersCampaignCards": true,
+    "cardClickOpensTaskPage": true,
+    "legacyJobRoutesNotFound": true,
+    "noOverflowNoPageError": true
+  },
+  "summaryAll": true
+}

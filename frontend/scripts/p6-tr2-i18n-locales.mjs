@@ -62,7 +62,6 @@ console.log(`[TR-2] 四语齐备=${badgeOk ? 'PASS' : 'FAIL'}；四语互异取�
 
 const WIRED = [
   'pages/item/ItemDetailPage.jsx',
-  'pages/jobs/JobDetailPage.jsx',
   'pages/jobs/JobReviewPage.jsx',
   'pages/market/MarketPage.jsx',
   'pages/ProfilePage.jsx',

@@ -512,7 +512,8 @@ const HomePage = () => {
             （`./item/MyOrdersPanel` 保留复用；退款/发货/收货三写动作在 profile 侧仍可达，首页零死钩子）。 */}
       </div>
 
-      {/* HOME-CAMP-v1：`ActiveTaskModal` 随旧 jobs 卡片动作整块移出首页（组件本体保留，/task 页仍消费）。 */}
+      {/* HOME-CAMP-v1：旧 jobs 卡片动作已整块移出首页；`ActiveTaskModal` / `ClaimRewardModal`
+          随 job 体系弃用（Kevin 2026-10-21）**连文件一并删除**，首页与 /task 列表页均不再消费。 */}
     </ResponsiveContainer>
   )
 }

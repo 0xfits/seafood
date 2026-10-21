@@ -2,9 +2,11 @@
  * D1 补丁单 · `fetchApiJson` 抛错携带**机读面**（R-9-83 体验闭环接通）
  * ============================================================================
  * 缺陷（本单现取坐实）：`auth.js` 的 `fetchApiJson` 抛 `new Error(message)` 时**丢掉**了
- * `payload.error` 的机读面（`details` / `code` / `i18n_key`）；而 `JobDetailPage` 的闭环判据是
- * `error?.details?.reason === 'BATT_BELOW_ACCEPT_THRESHOLD'`（`pages/jobs/JobDetailPage.jsx:92`）
- * ⇒ 恒 `undefined` ⇒ 「被拒 ⇒ 一键去签到」提示**永不渲染**。
+ * `payload.error` 的机读面（`details` / `code` / `i18n_key`）；而页面闭环判据取
+ * `error?.details?.reason`（如 `BATT_BELOW_ACCEPT_THRESHOLD`）⇒ 恒 `undefined` ⇒ 提示**永不渲染**。
+ *
+ * ★ 2026-10-21（Kevin 裁定 · job 体系弃用）：原 ③④ 的联测载体 `JobDetailPage` **随页删除** ⇒
+ *   本文件只留 ①②（`fetchApiJson` 机读面本身）；机读面口径与 `auth.js` 实现一字未改。
  *
  * 本文件四组判据（逐条可判负）：
  *   ① 单测：`409` + `R107` 体 ⇒ `err.details.reason` / `err.code` / `err.i18nKey` **逐字**；
@@ -12,15 +14,10 @@
  *      / 裸 i18n 键**绝不出现在 message**（护栏）。
  *   ② 负对照：响应**无 `details`** ⇒ `err.details === undefined`（不制造空面）；旧面（无 `error` 对象）
  *      ⇒ 三面皆 `undefined`，`message` 仍取服务端原文。
- *   ③ 联测（关键）：**真** `fetchApiJson`（经**真** `job-api`）+ 真 `JobDetailPage` render ⇒ `409/BATT`
- *      体下**确实渲染出可点击提示** `<a href="/wage#batt-checkin">`，文案 = 真 zh 词典。
- *   ④ 联测负对照：被拒但 `reason ≠ 电量门槛` ⇒ **不渲染**该提示（证明其非恒真）。
+ *   （原 ③④ 联测＝真 `fetchApiJson` + 真 `JobDetailPage` render 的闭环面；载体页已随 job 体系删除。）
  *
  * 硬口径：本单只改 `auth.js` + 新增本测试文件；`message` 取值与既有链路逐字不变。
  */
-import React from 'react'
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import '../../i18n' // 真 i18n 实例（jsdom 路径 `/` ⇒ lng = zh）
@@ -32,15 +29,12 @@ import {
   fetchApiJson,
 } from '../../auth'
 
-// 真 `JobDetailPage` 依赖 `useAuth`；本单**只**替换「已登录」上下文 ——
-// `job-api` / `auth.js` / `fetchApiJson` / `fetch` 路由全部**保持真身**（联测关键）。
+// 本文件只测 `fetchApiJson` 机读面：`auth.js` / `fetchApiJson` / `fetch` 全部**保持真身**。
 const AUTH = vi.hoisted(() => ({
   isAuthenticated: true,
   user: { uID: 7, EVM: '0xABCDEF1234567890abcdef1234567890ABCDEF12', token: 't' },
 }))
 vi.mock('../../auth-context', () => ({ useAuth: () => AUTH }))
-
-import JobDetailPage from '../../pages/jobs/JobDetailPage'
 
 // ★ 真体：后端 `job-service.ts` 两处 `stateConflict('batt','BATT_BELOW_ACCEPT_THRESHOLD',…)`
 //   经 `sendVerbError` 的 `R107` 出口（逐字同形）。
@@ -116,72 +110,5 @@ describe('D1 补丁 · `fetchApiJson` 把 `payload.error` 机读面附到 Error�
     expect(err3.details).toBeUndefined()
     expect(err3.code).toBeUndefined()
     expect(err3.i18nKey).toBeUndefined()
-  })
-})
-
-describe('D1 补丁 · 联测：真 `fetchApiJson` 抛错形态 ⇒ JobDetailPage 真渲染可点击提示', () => {
-  afterEach(() => {
-    vi.unstubAllGlobals()
-  })
-
-  // ★S3b：提交口 = `POST /api/task-progress/:identifier/submit`（:identifier = job_id），
-  //   故**先判 `/submit`** 再落到列表读口 `/api/task-progress`（否则提交亦被回成列表 200 ⇒ 闭环不触发）。
-  //   J2 报名面（`/api/job/:id/apply`）已下架、产品零调用 —— 旧 `applyBody` 分支随之删除。
-  const routedFetch = (submitBody) => vi.fn(async (url) => {
-    const u = String(url)
-    if (u.includes('/submit')) return jsonResponse(409, submitBody)
-    if (u.includes('/api/task-progress')) return jsonResponse(200, { success: true, data: [] })
-    if (u.includes('/api/task/')) return jsonResponse(200, { success: true, data: { tID: 9, title: 'x', points: 5, participants_count: 0 } })
-    return jsonResponse(404, { success: false, error: { code: 'NOT_FOUND', message: 'not found' } })
-  })
-
-  const renderPage = () => render(
-    <MemoryRouter initialEntries={['/job/9']}>
-      <Routes><Route path="/job/:jobId" element={<JobDetailPage />} /></Routes>
-    </MemoryRouter>,
-  )
-
-  it('③ 被拒 reason = 电量门槛 ⇒ 渲染 `<a href="/wage#batt-checkin">`（文案 = 真 zh 词典）', async () => {
-    vi.stubGlobal('fetch', routedFetch(R107_BATT))
-    renderPage()
-
-    await waitFor(() => expect(document.querySelector('[data-sf-m="jobs-submit-form"]')).not.toBeNull())
-    await act(async () => {
-      fireEvent.submit(document.querySelector('[data-sf-m="jobs-submit-form"]'))
-    })
-
-    await waitFor(() => expect(document.querySelector('[data-sf-m="jobs-batt-hint"]')).not.toBeNull())
-    const hint = document.querySelector('[data-sf-m="jobs-batt-hint"]')
-    expect(hint.tagName).toBe('A')
-    expect(hint.getAttribute('href')).toBe('/wage#batt-checkin')
-    expect(hint.textContent).toContain(zh.battCard.insufficient)
-    expect(hint.textContent).toContain(zh.checkinPanel.checkinButton)
-
-    // 同一次被拒：状态文案 = 真电量文案（非机读码）
-    const status = document.querySelector('[data-sf-m="jobs-submit-status"]')
-    expect(status.textContent).toContain(zh.battCard.insufficient)
-    expect(status.textContent).not.toContain('LEDGER_CURRENCY_INVALID_TRANSITION')
-    expect(status.textContent).not.toContain('BATT_BELOW_ACCEPT_THRESHOLD')
-  })
-
-  it('④ 负对照：被拒但 reason ≠ 电量门槛 ⇒ 不渲染该提示', async () => {
-    const other = {
-      success: false,
-      error: { ...R107_BATT.error, details: { field: 'listing', reason: 'LISTING_STATE_INVALID' } },
-    }
-    vi.stubGlobal('fetch', routedFetch(other))
-    renderPage()
-
-    await waitFor(() => expect(document.querySelector('[data-sf-m="jobs-submit-form"]')).not.toBeNull())
-    await act(async () => {
-      fireEvent.submit(document.querySelector('[data-sf-m="jobs-submit-form"]'))
-    })
-
-    await waitFor(() => expect(document.querySelector('[data-sf-m="jobs-submit-status"]').textContent)
-      .toContain(zh.ledger.err.LEDGER_CURRENCY_INVALID_TRANSITION))
-    // 非电量门槛：通用 i18n_key 文案（非机读码），且**不**渲染闭环提示
-    expect(document.querySelector('[data-sf-m="jobs-submit-status"]').textContent)
-      .not.toContain('LEDGER_CURRENCY_INVALID_TRANSITION')
-    expect(document.querySelector('[data-sf-m="jobs-batt-hint"]')).toBeNull()
   })
 })

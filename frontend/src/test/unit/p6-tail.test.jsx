@@ -61,8 +61,8 @@ describe('① 乙族残留 = 0 · 站内链接唯一构造器', () => {
     const n = prodFiles().reduce((a, f) => a + ((fs.readFileSync(f, 'utf8').match(/buildLocalizedPath\(/g) || []).length), 0)
     expect(n).toBeGreaterThanOrEqual(10)
   })
-  it('原 10 处登记点所在 6 文件均已引构造器', () => {
-    for (const rel of ['components/ActiveTaskModal.jsx', 'pages/DashboardPage.jsx', 'pages/admin/PermissionsManagement.jsx', 'pages/admin/PointsManagement.jsx', 'pages/admin/SystemSettings.jsx', 'pages/admin/UsersManagement.jsx']) {
+  it('原 10 处登记点所在 5 文件均已引构造器（`ActiveTaskModal` 随 job 体系删除 ⇒ 6 ⇒ 5）', () => {
+    for (const rel of ['pages/DashboardPage.jsx', 'pages/admin/PermissionsManagement.jsx', 'pages/admin/PointsManagement.jsx', 'pages/admin/SystemSettings.jsx', 'pages/admin/UsersManagement.jsx']) {
       expect(fs.readFileSync(path.join(SRC, rel), 'utf8')).toContain('buildLocalizedPath(')
     }
   })

@@ -243,7 +243,7 @@ const ProjectEditModal = ({ view, currencies, t, onClose, onSaved }) => {
             <label className="sf-project-field">
               <span className="sf-project-field-label">{t('bountyProject.minDays')}</span>
               {/* 注册天数条件 = 四选一 select（value = 天数 1/7/30/365，常量真源 `src/recruit-min-days.js`，
-                  与 /task/new 新建项目表单共用）；预选回落「一天」（存量 0 / 90 等非四档值）⇒ 另有提示行。 */}
+                  与 `/wage` 项目卡编辑表单同源）；预选回落「一天」（存量 0 / 90 等非四档值）⇒ 另有提示行。 */}
               <select
                 className="sf-project-input"
                 data-sf-edit="minDays"

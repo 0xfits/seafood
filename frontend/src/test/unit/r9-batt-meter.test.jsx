@@ -4,9 +4,9 @@
  *      —— 满点数 / 半点下标 / 空点数逐个实测；数字与 `aria-label` 逐字。
  *   ② 「低电量」呼吸光：`canAccept === false` ⇒ 全部已点亮点带 `sf-batt-dot--glow`；
  *      `canAccept === true` ⇒ 无该类名。
- *   ③ 签到可发现性：`BattCheckinPanel` 锚点 `#batt-checkin` 存在；`Header` 头像菜单新增直达项；
- *      `JobDetailPage` 仅在 `error.details.reason === 'BATT_BELOW_ACCEPT_THRESHOLD'` 时给可点击提示
- *      （★S3b：`batt` 闸落点已由「报名」移到「提交」⇒ 该闭环改挂**提交面**）。
+ *   ③ 签到可发现性：`BattCheckinPanel` 锚点 `#batt-checkin` 存在；`Header` 头像菜单新增直达项。
+ *      （旧③ 记录的「任务详情页在 `BATT_BELOW_ACCEPT_THRESHOLD` 时给可点击提示」那条与
+ *      `JobDetailPage` 一同随 job 体系下线 —— 该页面已删、本文件不再覆盖页面级闸提示。）
  */
 import React from 'react'
 import { render, cleanup, fireEvent, waitFor, act } from '@testing-library/react'
@@ -49,20 +49,13 @@ vi.mock('../../batt-checkin', () => ({
 }))
 vi.mock('../../bttc-api', () => ({ postBttcMint: vi.fn(), postBttcBurn: vi.fn() }))
 vi.mock('../../admin-utils', () => ({ fetchAdminAccess: vi.fn(async () => ({ can_access_admin: false, preferred_admin_path: '/dashboard' })) }))
-vi.mock('../../pages/jobs/job-api', () => ({
-  fetchJobDetail: vi.fn(),
-  fetchMyApplications: vi.fn(async () => []),
-  submitDeliverable: vi.fn(),
-}))
 
 import { fetchBatt } from '../../batt-checkin'
-import { fetchJobDetail, submitDeliverable } from '../../pages/jobs/job-api'
 import BattMeter from '../../components/BattMeter'
 // 2026-10-20 前推：BTTC 资产块整块迁出 `BattCheckinPanel` ⇒ 渲染点 = `BttcAssetPanel`（/profile/assets）。
 import BttcAssetPanel from '../../components/BttcAssetPanel'
 import BattCheckinPanel from '../../components/BattCheckinPanel'
 import Header from '../../components/Header'
-import JobDetailPage from '../../pages/jobs/JobDetailPage'
 
 const dots = (kind) => [...document.querySelectorAll(`[data-sf-m="batt-dot"][data-dot="${kind}"]`)]
 const allDots = () => [...document.querySelectorAll('[data-sf-m="batt-dot"]')]
@@ -200,36 +193,6 @@ describe('③ R-9-83 签到入口可发现性', () => {
     vi.useRealTimers()
   })
 
-  it('JobDetailPage：★S3b 提交被拒 reason = 电量门槛 ⇒ 给可点击提示直达 `#batt-checkin`', async () => {
-    fetchJobDetail.mockResolvedValue({ tID: 9, title: 'x', points: 5, participants_count: 0 })
-    const err = Object.assign(new Error(zh.battCard.insufficient), { details: { reason: 'BATT_BELOW_ACCEPT_THRESHOLD' } })
-    submitDeliverable.mockRejectedValue(err)
-    render(
-      <MemoryRouter initialEntries={['/job/9']}>
-        <Routes><Route path="/job/:jobId" element={<JobDetailPage />} /></Routes>
-      </MemoryRouter>,
-    )
-    await waitFor(() => expect(document.querySelector('[data-sf-m="jobs-submit-form"]')).not.toBeNull())
-    act(() => { fireEvent.submit(document.querySelector('[data-sf-m="jobs-submit-form"]')) })
-    await waitFor(() => expect(document.querySelector('[data-sf-m="jobs-batt-hint"]')).not.toBeNull())
-    const hint = document.querySelector('[data-sf-m="jobs-batt-hint"]')
-    expect(hint.getAttribute('href')).toBe('/wage#batt-checkin')
-    expect(hint.tagName).toBe('A')
-  })
-
-  it('JobDetailPage：提交被拒但拿不到 reason ⇒ 不显示该提示（不臆测）', async () => {
-    fetchJobDetail.mockResolvedValue({ tID: 9, title: 'x', points: 5, participants_count: 0 })
-    submitDeliverable.mockRejectedValue(new Error('generic failure'))
-    render(
-      <MemoryRouter initialEntries={['/job/9']}>
-        <Routes><Route path="/job/:jobId" element={<JobDetailPage />} /></Routes>
-      </MemoryRouter>,
-    )
-    await waitFor(() => expect(document.querySelector('[data-sf-m="jobs-submit-form"]')).not.toBeNull())
-    act(() => { fireEvent.submit(document.querySelector('[data-sf-m="jobs-submit-form"]')) })
-    await waitFor(() => expect(document.querySelector('[data-sf-m="jobs-submit-status"]').textContent).toContain('generic failure'))
-    expect(document.querySelector('[data-sf-m="jobs-batt-hint"]')).toBeNull()
-  })
 })
 
 // ============================================================================

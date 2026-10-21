@@ -250,12 +250,14 @@ describe('TR-2 · 静态不变量：新接页面不得用 `??` 取多语列（�
   const LEGACY = []
   const WIRED = [
     'pages/item/ItemDetailPage.jsx',
-    'pages/jobs/JobDetailPage.jsx',
     'pages/jobs/JobReviewPage.jsx',
     'pages/market/MarketPage.jsx',
     'pages/ProfilePage.jsx',
-    'pages/TaskPage.jsx',
     'pages/HomePage.jsx',
+    // ★ job 下线收尾（2026-10-21）：`pages/TaskPage.jsx` **退出本清单** —— 该页数据面已换
+    //   `/api/home/campaign-tasks`（campaign 行**没有** `_en/_hk/_vn` 多语列，翻译在小作文面做），
+    //   不再有「多语列取值」口径可守；要求它含 `i18n-content` 会逼出**未使用 import**（死代码）。
+    //   旧 job 行多语列消费已随后端 `GET /api/task/all` 一并删除。
   ]
 
   it('新接文件里没有 `_en/_hk/_vn` + `??` 组合（取值一律 `||`，经 i18n-content）', () => {

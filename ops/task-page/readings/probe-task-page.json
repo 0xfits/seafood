@@ -1,6 +1,6 @@
 {
   "probe": "ops/task-page/probe-task-page.mjs",
-  "startedAt": "2026-10-21T11:11:48.914Z",
+  "startedAt": "2026-10-21T11:28:01.719Z",
   "dist": "/Users/kevin/bistro/seafood/frontend/dist",
   "negArm": false,
   "fixtures": {

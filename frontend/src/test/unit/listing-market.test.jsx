@@ -78,7 +78,6 @@ import HomePage from '../../pages/HomePage'
 import ListingDetailPage from '../../pages/item/ItemDetailPage'
 import MarketPage from '../../pages/market/MarketPage'
 import JobReviewPage from '../../pages/jobs/JobReviewPage'
-import PublishJobPage from '../../pages/jobs/PublishJobPage'
 
 const bodyOf = (callIndex = 0) => {
   const call = fetchApiJson.mock.calls[callIndex]
@@ -340,7 +339,7 @@ describe('四语 locale（P4-B4c-ii-c ① / ② 新增键）', () => {
   })
 })
 
-describe('审核面准入（S17a 队列页「已登录即可」；S18 发布页入口链接同口径）', () => {
+describe('审核面准入（S17a 队列页「已登录即可」；发布页 S18 用例随 job 体系下线删除）', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     fetchApiJson.mockImplementation(async (url) => (String(url).includes('/api/project/all')
@@ -362,27 +361,10 @@ describe('审核面准入（S17a 队列页「已登录即可」；S18 发布页�
     expect(String(callsTo('/api/tasklist/pending-verification')[0][0])).toBe('/api/tasklist/pending-verification')
   })
 
-  it('S18 已登录普通发布者（**无** review_tasks）：发布页**渲染**审核入口链接（不再按权限隐藏）', async () => {
-    // ★ 负对照内建：`hasAdminPermission` 恒 false（= 普通用户无 review_tasks）。若入口条件回退为 admin-only
-    //   ⇒ 链接不渲染 ⇒ 本例如红（非假门）。
-    hasAdminPermission.mockReturnValue(false)
-    fetchAdminAccess.mockResolvedValue({ is_admin: false, can_access_admin: false, permissions: [] })
-    const { container } = renderPage(<PublishJobPage />, '/task/new')
-    await waitFor(() => expect(container.textContent).toContain('jobs.publish'))
-    const link = container.querySelector('[data-sf-m="jobs-review-link"]')
-    expect(link).not.toBeNull()
-    expect(link.getAttribute('href')).toContain('/task/review')
-    // ★ S18：门 = 登录态（非 admin 能力集）⇒ 发布页迁移后不再请求 `/api/admin/me`。
-    expect(callsTo('/api/admin/me').length).toBe(0)
-  })
-
-  it('S18 未登录：发布页渲染登录提示、**不**渲染审核入口链接', async () => {
-    useAuth.mockReturnValue({ isAuthenticated: false, user: null })
-    const { container } = renderPage(<PublishJobPage />, '/task/new')
-    await waitFor(() => expect(container.textContent).toContain('pleaseLogin'))
-    expect(container.querySelector('[data-sf-m="jobs-review-link"]')).toBeNull()
-    expect(container.textContent).not.toContain('jobs.review')
-  })
+  // ★ 2026-10-21（Kevin 裁定 · job 体系弃用）：原 S18 两条「发布页（`/task/new`）渲染审核入口链接」用例
+  //   随 `PublishJobPage` 页面与路由一并删除（新页 = campaign 任务列表，审核入口在页头条）。
+  //   审核入口的可达性改由 `task-route-split`（`/task/review` 保留）+ `task-list-page`（页头 `jobs-nav-review`
+  //   链接 → `/task/review`）覆盖 ⇒ 本文件只剩队列页两条。
 
   it('S17a 已登录 admin（review_tasks）：审核页取队列（零回归）', async () => {
     hasAdminPermission.mockReturnValue(true)
