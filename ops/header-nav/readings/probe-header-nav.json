@@ -1,0 +1,273 @@
+{
+  "probe": "ops/header-nav/probe-header-nav.mjs",
+  "startedAt": "2026-10-21T04:36:38.541Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "fixtures": {
+    "auth": "localStorage seed（EVM = 管理员合约地址）+ /api/admin/me 自截（零后端 / 零库写）",
+    "negativeControl": false
+  },
+  "expected": {
+    "labelsZh": [
+      "悬赏",
+      "市场",
+      "管理面板"
+    ],
+    "pageTitleZh": "悬赏中心",
+    "oldLongCopy": "悬赏中心"
+  },
+  "states": {
+    "1536_home": {
+      "navLabels": [
+        "悬赏",
+        "市场",
+        "管理面板"
+      ],
+      "header": {
+        "h": 65,
+        "y": 0
+      },
+      "overflowPx": 0,
+      "items": [
+        {
+          "href": "/task",
+          "label": "悬赏",
+          "spanLabel": "悬赏",
+          "hasSvg": true,
+          "svg": {
+            "w": 16,
+            "h": 16,
+            "ariaHidden": "true"
+          },
+          "box": {
+            "w": 74,
+            "h": 37,
+            "y": 14
+          },
+          "style": {
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "color": "rgb(75, 85, 99)",
+            "paddingTop": "8px",
+            "paddingRight": "12px",
+            "paddingBottom": "8px",
+            "paddingLeft": "12px",
+            "borderRadius": "6px",
+            "fontSize": "14px",
+            "fontWeight": "500"
+          }
+        },
+        {
+          "href": "/exchange",
+          "label": "市场",
+          "spanLabel": "市场",
+          "hasSvg": true,
+          "svg": {
+            "w": 16,
+            "h": 16,
+            "ariaHidden": "true"
+          },
+          "box": {
+            "w": 74,
+            "h": 37,
+            "y": 14
+          },
+          "style": {
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "color": "rgb(75, 85, 99)",
+            "paddingTop": "8px",
+            "paddingRight": "12px",
+            "paddingBottom": "8px",
+            "paddingLeft": "12px",
+            "borderRadius": "6px",
+            "fontSize": "14px",
+            "fontWeight": "500"
+          }
+        },
+        {
+          "href": "/dashboard",
+          "label": "管理面板",
+          "spanLabel": "管理面板",
+          "hasSvg": true,
+          "svg": {
+            "w": 16,
+            "h": 16,
+            "ariaHidden": "true"
+          },
+          "box": {
+            "w": 102,
+            "h": 37,
+            "y": 14
+          },
+          "style": {
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "color": "rgb(75, 85, 99)",
+            "paddingTop": "8px",
+            "paddingRight": "12px",
+            "paddingBottom": "8px",
+            "paddingLeft": "12px",
+            "borderRadius": "6px",
+            "fontSize": "14px",
+            "fontWeight": "500"
+          }
+        }
+      ]
+    },
+    "1536_en": {
+      "navLabels": [
+        "Bounties",
+        "Market",
+        "Admin Panel"
+      ],
+      "overflowPx": 0
+    },
+    "1536_dashboard": {
+      "navLabels": [],
+      "overflowPx": 0,
+      "items": []
+    },
+    "390_home": {
+      "header": {
+        "h": 65,
+        "y": 0
+      },
+      "overflowPx": 0,
+      "offenders": []
+    }
+  },
+  "assertions": {
+    "icons": {
+      "navCount": 3,
+      "everyHasSvg": true,
+      "everySvg16": true,
+      "everySvgAriaHidden": true,
+      "everyHasLabel": true
+    },
+    "copy": {
+      "labelsExact": true,
+      "bountyIsShort": true,
+      "navHasNoOldLongCopy": true,
+      "pageTitleStillCenter": true
+    },
+    "adminNeutralStyle": {
+      "adminPresent": true,
+      "hrefIsDashboard": true,
+      "sameBackground": true,
+      "sameForeground": true,
+      "sameHeight": true,
+      "samePadding": true,
+      "styleDiff": {
+        "backgroundColor": {
+          "values": [
+            "rgba(0, 0, 0, 0)",
+            "rgba(0, 0, 0, 0)",
+            "rgba(0, 0, 0, 0)"
+          ],
+          "allEqual": true
+        },
+        "color": {
+          "values": [
+            "rgb(75, 85, 99)",
+            "rgb(75, 85, 99)",
+            "rgb(75, 85, 99)"
+          ],
+          "allEqual": true
+        },
+        "paddingTop": {
+          "values": [
+            "8px",
+            "8px",
+            "8px"
+          ],
+          "allEqual": true
+        },
+        "paddingRight": {
+          "values": [
+            "12px",
+            "12px",
+            "12px"
+          ],
+          "allEqual": true
+        },
+        "paddingBottom": {
+          "values": [
+            "8px",
+            "8px",
+            "8px"
+          ],
+          "allEqual": true
+        },
+        "paddingLeft": {
+          "values": [
+            "12px",
+            "12px",
+            "12px"
+          ],
+          "allEqual": true
+        },
+        "borderRadius": {
+          "values": [
+            "6px",
+            "6px",
+            "6px"
+          ],
+          "allEqual": true
+        },
+        "fontSize": {
+          "values": [
+            "14px",
+            "14px",
+            "14px"
+          ],
+          "allEqual": true
+        },
+        "fontWeight": {
+          "values": [
+            "500",
+            "500",
+            "500"
+          ],
+          "allEqual": true
+        }
+      }
+    },
+    "layout": {
+      "headerHeightBaseline65": true,
+      "linkHeightNotStretched": true,
+      "zeroOverflow1536": true,
+      "zeroPageError1536": true
+    },
+    "i18n": {
+      "enLabelsExact": true,
+      "enHasSvg": true,
+      "zeroOverflow1536en": true
+    },
+    "dashboardPage": {
+      "headerNavNotRendered": true,
+      "siteHeaderAbsent": true,
+      "zeroOverflowDashboard": true,
+      "zeroPageErrorDashboard": true
+    },
+    "layout390": {
+      "zeroOverflow390": true,
+      "zeroPageError390": true,
+      "offendersNone": true
+    }
+  },
+  "errors": {
+    "1536_home": {
+      "pageErrors": [],
+      "consoleErrors": [],
+      "resourceErrors": []
+    },
+    "390_home": {
+      "pageErrors": [],
+      "consoleErrors": [],
+      "resourceErrors": []
+    }
+  },
+  "summary": {
+    "checks": 31,
+    "failed": 0,
+    "failedNames": [],
+    "verdict": "PASS"
+  }
+}

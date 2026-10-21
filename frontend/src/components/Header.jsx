@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Menu, X, User, LogOut, LogIn, UserPlus, ChevronDown, Moon, Sun } from 'lucide-react'
+import { Menu, X, User, LogOut, LogIn, UserPlus, ChevronDown, Moon, Sun, Gift, Store, ShieldCheck } from 'lucide-react'
 import cnFlag from '../images/cn.svg'
 import usFlag from '../images/us.svg'
 import hkFlag from '../images/hk.svg'
@@ -140,10 +140,15 @@ const Header = () => {
   // 左侧 nav 仅存 任务/市场（+ 管理后台 仅管理员）。
   // ★ 2026-10-11 合并单：**删「社区奖励」项**（`reward` ⇒ 原 `/reward` 页已随 `RewardPage` 删除硬删）
   //   ⇒ 桌面左 nav = [社区任务, 市场]；移动面板 = 同一 `menuItems` − `exchange` = [社区任务]。
+  // 菜单项（Kevin 2026-10-21 需求②：三项均带图标 = 底栏同款尺寸 16px）
+  //   · 悬赏 = `Gift`（底栏无此格；与「市场 Store」同族线性图标）
+  //   · 市场 = `Store`（与底栏 shard 同款，保持一致）
+  //   · 管理面板 = `ShieldCheck`；★ 本单删「管理面板紫底特殊样式」⇒ 与其它项同渲染、
+  //     零条件类名（原 `startsWith('/dashboard') ? bg-purple-600 …` 已移除）。
   const menuItems = [
-    { path: 'task', label: t('task') },
-    { path: 'exchange', label: t('shard') },
-    ...(isAuthenticated && isAdmin ? [{ path: adminPath, label: t('admin_panel'), absolute: true }] : [])
+    { path: 'task', label: t('task'), icon: Gift },
+    { path: 'exchange', label: t('shard'), icon: Store },
+    ...(isAuthenticated && isAdmin ? [{ path: adminPath, label: t('admin_panel'), icon: ShieldCheck, absolute: true }] : [])
   ]
 
   // 构建带语言前缀的路径（前缀逻辑统一走 utils，避免自造前缀/尾斜杠）
@@ -193,17 +198,19 @@ const Header = () => {
           <div className="hidden md:flex items-center space-x-4">
             {/* 桌面导航 */}
             <nav className="flex space-x-1 mr-4">
-              {menuItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={buildPath(item.path)}
-                  className={`nav-link ${location.pathname.includes(item.path) ? 'active' : ''} ${
-                    item.path.startsWith('/dashboard') ? 'bg-purple-600 text-white hover:bg-purple-700 px-3 py-2 rounded-md font-medium' : ''
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
+              {menuItems.map((item) => {
+                const Icon = item.icon
+                return (
+                  <Link
+                    key={item.path}
+                    to={buildPath(item.path)}
+                    className={`nav-link inline-flex items-center gap-1.5 ${location.pathname.includes(item.path) ? 'active' : ''}`}
+                  >
+                    <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    <span>{item.label}</span>
+                  </Link>
+                )
+              })}
             </nav>
             
             {/* Kevin 2026-10-14 需求①：右上角「订单」按钮（图标 + 文案），指向 /profile（落地即我的交易）。
@@ -385,22 +392,24 @@ const Header = () => {
       {mobileMenuOpen && (
         <div className="md:hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
           <div className="px-2 pt-2 pb-3 space-y-1">
-            {menuItems.filter((item) => !MOBILE_PANEL_EXCLUDED_PATHS.includes(item.path)).map((item) => (
-              <Link
-                key={item.path}
-                to={buildPath(item.path)}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`block px-3 py-2 rounded-md text-base font-medium ${
-                  item.path === 'dashboard' 
-                    ? 'bg-purple-600 text-white hover:bg-purple-700' 
-                    : location.pathname.includes(item.path) 
-                      ? 'bg-gray-100 dark:bg-gray-700' 
+            {menuItems.filter((item) => !MOBILE_PANEL_EXCLUDED_PATHS.includes(item.path)).map((item) => {
+              const Icon = item.icon
+              return (
+                <Link
+                  key={item.path}
+                  to={buildPath(item.path)}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium ${
+                    location.pathname.includes(item.path)
+                      ? 'bg-gray-100 dark:bg-gray-700'
                       : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
+                  }`}
+                >
+                  <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  <span>{item.label}</span>
+                </Link>
+              )
+            })}
             {/* Kevin 2026-10-14 需求①：移动面板「订单」入口（登录态内外都可见；未登录进 profile 由 ProtectedRoute 出登录引导） */}
             <Link
               to={buildPath('profile')}

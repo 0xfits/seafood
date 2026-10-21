@@ -113,7 +113,9 @@ describe('task 文案：任务 → 悬赏（只改值）', () => {
     expect(zh.jobs.title).toBe('悬赏标题')
     expect(zh.jobs.description).toBe('悬赏说明')
     expect(zh.taskPage.title).toBe('悬赏中心')
-    expect(zh.task).toBe('悬赏中心')
+    // 2026-10-21 顶栏改单：`task`/`tasks` = 顶栏按钮文案 ⇒ 短化为「悬赏」；页面标题仍「悬赏中心」
+    expect(zh.task).toBe('悬赏')
+    expect(zh.tasks).toBe('悬赏')
     expect(zh.ledger.kind.job_escrow).toBe('悬赏托管')
     // 其余三语至少要在标题/按钮面落词（逐字锁死会锁住译文措辞，只锁关键词）
     expect(en.jobs.publish).toBe('Post a bounty')
