@@ -5826,6 +5826,114 @@ CONSTRAINT listing_item_code_shape_ck CHECK (
   4. **CP-N10 预算扣发（同日再裁 ③ · 以本段为准）**：把 subtask 奖励从 task 预算扣减的实现 ⇒ 判负（两账独立）。
 - **未做（`NOT_MEASURED` · 本册不预填）**：三字段未落库（CP-2 列数契约未动）/ subtask 即时发放与 task 延后完成奖两腿未实现 / 判负 CP-N7…N10 一条未跑；本段零代码 / 零迁移文件 / 零库写 / 零 HTTP 写。
 
+#### 40.14.10 prediction 选项恒 Yes/No（双路径）＋ quiz 四选项/正确项 ＋ `subtask.reward_amount` 奖励列（`CP-Q1`…`CP-Q7` ＋ 判负 `CP-QN1`…`CP-QN5` · 追加于本节末、不新开节 · 依据 = Kevin 2026-10-22 两条裁定，逐字转引自本单派单，**原始会话未入仓 ⇒ 出入以 Kevin 一句话为准** · 迁移 `0072_subtask_reward_and_quiz.sql`）
+
+> **本节性质**：**只追加**（§40.14.1–§40.14.9 与 §40.15 全文逐字保留；**头注版本块不改写**，承 §40.8.1–§40.15「加性续登、不改头注」体例，以本行 **`v0.46`** 为现行版读数）。`CP-1…CP-10` / `CP-P1…P7` / `CP-R1…R6` / `PR-*` / `DL*` / `EL-*` / `ID-*` 编号域**零改动**，本节以 **`CP-Q*`** 承载。**依据两条**：① **prediction 选项恒 Yes / No** —— 选项文案由前端 i18n 固定（`campaign.predictionYes` / `campaign.predictionNo`），**payload 不再存选项文案**；② **quiz 发布时填 4 个选项、其中 1–4 个标为正确，用户答对即发奖励** —— 奖励需独立载体，落地为子任务列。**姊妹册** = `route-layer.spec` **§49.18.7**（proof 响应两加性键 ＋ 建/改/结算值域）＋ `design-system.spec` **§26.19.7**（发布表单只读芯片 ＋ 参与面判分展示）＋ `master-plan` **§5.448 / 版本行 v0.365** ＋ `ops/campaign/SPEC-NOTE.md`（实现单口径摘录，本笔未改该文件）。
+
+**契约漂移总表（旧字面逐字保留、以本段为准）**
+
+| # | 契约项 | 旧字面（可检索） | 现取（本段） | 漂移性质 |
+|---|---|---|---|---|
+| 1 | prediction 子任务 payload | `CP-P1`「恰四键 `{option_a, option_b, prize_amount, deadline}`」 | **新行恰两键 `{prize_amount, deadline}`**；四键降为 **`ab_legacy` 存量兼容**，写口不再产出 | 形状收窄 ＋ **双路径共存** |
+| 2 | prediction 票形 | `CP-P3`「单键 `{choice:'a'\|'b'}`」 | **新行 `{choice:'yes'\|'no'}`**；存量四键行仍 `a\|b` | 值域**按行口径**分派 |
+| 3 | 结算回填 | `CP-P2` / `CP-P5`「`correct_option ∈ {'a','b'}`」 | **新行 `∈ {'yes','no'}`**；存量四键行仍 `a\|b` | 同上 |
+| 4 | quiz 子任务 payload | `40.14.4` 通用族「`quiz ⇒ answers`」（类型↔键族约定） | **恰两键 `{options:{a,b,c,d}, correct:['a'…]}`**；奖励**不在 payload** | 类型级例外（同 prediction 体例） |
+| 5 | quiz 奖励载体 | 无载体（`CP-R3` 只说「subtask 层只有 $ 一种计量」） | **新列 `subtask.reward_amount numeric NULL`**（列数 **11 → 12**） | 加性一列 ＋ 一条具名 CHECK |
+| 6 | quiz 公开读面 | 无脱敏规则 | **`correct` 永不出任何出参 payload**（服务端密钥） | 新增脱敏口径 |
+| 7 | quiz 一人一答 | `CP-N2`「重提覆盖 200」为通用字面 | **重提 409**（与 prediction 一人一票同族） | 类型级例外，方向相反 |
+
+- **CP-Q1 `subtask.reward_amount` 列契约（迁移 `0072` · 加性一列）**：`ALTER TABLE public.subtask ADD COLUMN IF NOT EXISTS reward_amount numeric NULL` ＋ 具名 CHECK **`subtask_reward_amount_nonneg`**（`reward_amount IS NULL OR reward_amount >= 0`）。**列数 11 → 12**（§40.14.1 `CP-2` 的「11 列」旧字面逐字保留，以本段为现行读数）。
+
+  | 项 | 契约 |
+  |---|---|
+  | 类型 | `numeric`（与 `task.reward_amount_primary` / `reward_amount_secondary` 同型，避免跨列比较强转与出参 `::text` 口径分叉） |
+  | 可空性 | **`NULL` 允许** —— 是**兼容 0065 起存量行**的必需（存量子任务无奖励概念，不回填、不改写）；**禁**后续迁移擅自收紧成 `NOT NULL` |
+  | 写口语义闸（服务层，非库面） | `quiz` ⇒ **必填且 > 0**（缺/空/`0`/负 ⇒ 400 `QUIZ_REWARD_REQUIRED` / `QUIZ_REWARD_INVALID`）；**其余四类**（`x_verify` / `onchain_snapshot` / `survey` / `prediction`）⇒ **恒 `NULL`**（带非空值 ⇒ 400 `SUBTASK_REWARD_NOT_APPLICABLE`） |
+  | 单位 | **恒 `$`**（`currency.cid = 1`、`decimals = 0`）——与 prediction 奖池 / task 奖励同币种口径（`CP-R3` 同律），**不设币种列**、**不设 `reward_cid`** |
+  | 库面边界（诚实登记） | 库面**只兜非负**；「quiz 才可非空」是**跨行类型相关约束**，CHECK 无法表达（同表其他列不可引用） ⇒ 只能由服务层守。⇒ 任何直写库的旁路都可能落「非 quiz 行带奖励」，判负见 `CP-QN2` |
+  | 出参 | 任何读口按**加性键 `reward_amount: string \| null`** 透出（bigint/numeric 一律字符串，承 `CP-N5`） |
+
+- **CP-Q2 quiz 子任务 payload 形状（`{options, correct}` 恰两键）**：
+
+  | 键 | 契约 | 违例 |
+  |---|---|---|
+  | `options` | plain object，键集**恰等于** `a`/`b`/`c`/`d`（四格全填）；逐值 trim 后非空字符串、长度 ≤ 200 | 缺格 / 多键 / 非对象 / 空串 / 超长 ⇒ 400 `QUIZ_OPTIONS_INVALID` |
+  | `correct` | 数组 **1–4 个**、**去重**、逐值 ∈ `a`–`d`；服务端按字典序归一后落库 | 非数组 / 0 个 / >4 / 重复 / 越集 ⇒ 400 `QUIZ_CORRECT_INVALID` |
+  | 其它键 | **未知键 ⇒ 400 `QUIZ_PAYLOAD_SHAPE`** | 尤以 `reward_amount` 写进 payload 为典型（奖励是**列**不是键）⇒ 400，`details.hint` 指明载体 |
+
+- **CP-Q3 quiz 凭证 ＋ 判分 ＋ 发奖（同一事务）**：
+  - **票形** = 恰单键 `{answers:{picks:['a'…]}}`（内层恰单键 `picks`；1–4 个、去重、∈ `a`–`d`；越值/多键/缺键 ⇒ 400 `QUIZ_ANSWER_SHAPE`）。
+  - **判据 = 集合相等**（`samePickSet`：长度相等 ＋ 双方 `Set` 互为子集）——与**顺序无关**、与重复无关；**不是**「包含」、不是「交集非空」、不是「子集」。
+  - **答对 ∧ `reward_amount > 0`** ⇒ **同一事务**发奖：平台收入账户（`uid = −1`）`−N` / 用户 `+N`，经 `postEvent` 单语句（D10 / DL18），**借既有 kind `PLATFORM_PAYOUT_KIND = 'invite_first_task_reward'`**（24 值 kind 闭集不动；−1 debit 白名单唯一项），幂等键 = **`biz:campaign:quiz:<subtask_id>:<uid>`**。
+  - **答错也落 proof**（提交即通过体例，`status = 'submitted'`）但**零发奖**；`reward_paid = '0'`。
+  - **一人一答**：首答走 `ON CONFLICT (subtask_id, uid) DO NOTHING`，0 行 ⇒ **409（reason `quiz_already_answered`）**，不覆盖、不二次发奖（与 `CP-P4` 同族，与 `40.14.4` 通用「重提覆盖」**方向相反**）。
+  - **台账不足** ⇒ 409（reason `quiz_reward_pool_insufficient`），**整事务回滚**（proof 不落、奖不发 —— 不出现「落凭证未发奖」的半态）。
+  - 提交响应**加性两键**：`quiz_correct: boolean` / `reward_paid: string`（金额串，未发 = `'0'`）；非 quiz 类型 ⇒ 两键**缺省**（不是 `null`）。
+
+- **CP-Q4 脱敏口径（公开读面零答案键）**：`publicSubtaskPayload(type_code, payload)` 为唯一脱敏点 —— `type_code === 'quiz'` 时**剥除 `correct`**（返回新对象、不改库值、不改调用方引用），其余键原样；对非 quiz 类型**零形状变更**。
+
+  | 面 | 是否可见 `correct` | 说明 |
+  |---|---|---|
+  | `GET /api/campaign/all` / `/api/campaign/:ref` / `/api/campaign/task/:taskId` 的 `subtasks[].payload` | **否** | 脱敏在此三处共用同一 `normalizeSubtaskRow` |
+  | R3 提交响应（proof 行回显） | **否** | 只回 `{answers:{picks}}` ＋ 判分两键 |
+  | `subtask_proof.payload` 库内值 | 不适用 | proof 只存 `picks`，不存答案 |
+  | prediction 的 `correct_option`（结算键） | **是**（照旧） | 它是**公开结算键**（结算后必须公开正确项），**不是**密钥 —— 两键口径不同，禁一刀切 |
+
+  - **判据**：任一公开出参 JSON 中除 `payload.correct_option` 外的 `correct` 字样**零命中**（`correct_option` 是独立键名，不是 `correct`）。
+
+- **CP-Q5 prediction 双路径（选项口径由库内 payload 形状定）**：
+
+  | 项 | `yes_no`（新 · 默认） | `ab_legacy`（存量 · 只读兼容） |
+  |---|---|---|
+  | 判别 | payload **无** `option_a` / `option_b` | payload **带** `option_a` 或 `option_b` 任一 |
+  | payload 闭集 | `{prize_amount, deadline}` | `{option_a, option_b, prize_amount, deadline}`（两枚非空、原样直存文案） |
+  | 票 `choice` 值域 | `'yes'` \| `'no'` | `'a'` \| `'b'` |
+  | 结算 `correct_option` 值域 | `'yes'` \| `'no'` | `'a'` \| `'b'` |
+  | 建口（新增内联 subtask） | **收** | **拒收** ⇒ 400 `PREDICTION_PAYLOAD_SHAPE`（`details.got_option_style = 'ab_legacy'`） |
+  | 改口（`subtasks[]` 带 id 更新） | 必须继续 `yes_no` | 必须继续 `ab_legacy`；**换口径 ⇒ 400 `PREDICTION_OPTION_STYLE_IMMUTABLE`** |
+  | 读面选项文案 | i18n `campaign.predictionYes/No`（payload 无文案） | i18n 主标签 ＋ `option_a/option_b` 原文作**副行只读提示** |
+
+  - **单一判别函数**：`predictionOptionStyle(payload)` 只看**已落库的 payload 形状**，**不看请求体** ⇒ 「同一行两条路同时成立」在结构上不可能（禁双开，`CP-QN3`）。
+  - **禁双开的理由（写死）**：已有 proof 的 `choice` 语义由该行口径解释；中途换口径会把存量 `a/b` 票解释成 `yes/no` 的非法值（或反之）⇒ 历史票丢失语义。故先落行的口径**不可逆**，改口径的唯一正路 = 新建子任务。
+  - **存量读面归一**：`a → yes`、`b → no` 是**前端只读归一**（展示层），**不回写库、不改票值**；新写口恒 `yes/no`。
+  - **`correct_option` 写入纪律**（承 `CP-P2`，零新列）：仍是 payload 内键、**建/改口一律禁带**（带 ⇒ 400 `PREDICTION_PRIZE_NOT_USD` 支的 `correct_option` 命中，`details.hint` 指明 settle 独占）、**settle 口独占写**。
+
+- **CP-Q6 迁移 `0072_subtask_reward_and_quiz.sql` 形状与自检**（实现单落盘，**apply 由 Zang**）：
+
+  | 项 | 契约 |
+  |---|---|
+  | 变更面 | **只 ALTER 一张表**（`public.subtask`）＋ 一个 CHECK 的 `DO` 守卫 ＋ 尾部一个自检 `DO` 块；**零 INSERT / UPDATE / DELETE**（不碰任何业务行、不回填） |
+  | 文件形状 | 文件内**不写 `BEGIN` / `COMMIT`**（`scripts/migrate.ts` 逐文件包事务）；注释内**不出现成对美元定界符字面**（切分器按它切换 in-dollar 态） |
+  | 幂等 | 列用 `ADD COLUMN IF NOT EXISTS`；约束用 `pg_constraint` 存在性守卫 ＋ 固定名 `subtask_reward_amount_nonneg` ⇒ 反复 apply 落同一终态 |
+  | 自检 A | `reward_amount` 在场、`is_nullable = 'YES'`、`data_type = 'numeric'`（恰 1 列） |
+  | 自检 B | CHECK 在场（`contype = 'c'`）且定义含 `reward_amount` |
+  | 自检 C | prediction 存量 payload **零违规**：新两键或旧四键二选一；可选 `correct_option` **必须落在本行口径值域**（新 `yes/no`、旧 `a/b`） |
+  | 自检 D | quiz 存量：**带 `correct` 的行**必须 `{options, correct}` 恰两键 ＋ `options` 恰 `a`–`d` ＋ `correct` 数组长度 1–4；不带 `correct` 的行（`0072` 之前的问卷式存量）**不回填、不改写** |
+  | 自检 E | **禁双开零行**：prediction 行不得带 `correct`；quiz 行不得带 `option_a` / `option_b` |
+
+- **CP-Q7 判定顺序（写口优先级，禁乱序）**：`type_code` 分派 → payload 形状（含未知键 / 币种键 / 结算键）→ 值域（quiz `correct`、prediction `prize` / `deadline`）→ 奖励列（quiz 必填 / 非 quiz 禁带）→ 行级口径（改口才有的 `PREDICTION_OPTION_STYLE_IMMUTABLE`）。**顺序错 ⇒ 错误码归属错**（例：先查奖励列再查 payload ⇒ 同请求返回 `SUBTASK_REWARD_NOT_APPLICABLE` 而非 `QUIZ_PAYLOAD_SHAPE`）。
+
+- **判负（`CP-QN1`…`CP-QN5` · 与 `CP-N1…N10` / `CP-PN1…PN4` 并存、只增不改）**：
+  1. **`CP-QN1` 正确项出读面**：任一公开读口（feed / 详情 / 任务详情 / 写口回显）出 `payload.correct`；或脱敏靠「前端不渲染」代替「出参剥除」⇒ 判负（负控臂 = 同一响应里 `correct` 零命中、`correct_option` 照旧可见）。
+  2. **`CP-QN2` 奖励载体错位**：quiz 奖励写进 payload（而非列）／非 quiz 行落非空 `reward_amount`／quiz 行 `reward_amount` 缺省或 `0` 仍建成功 ⇒ 判负。
+  3. **`CP-QN3` 口径双开**：建口收旧四键；改口换口径返回 200；settle 跨口径回填；或同一行 payload 同时带 `option_a` 与 `correct` 键 ⇒ 判负。
+  4. **`CP-QN4` quiz 重提放行**：同一 `(subtask_id, uid)` 二次提交返回 200、`picks` 被覆盖、或产生**第二笔**发放台账 ⇒ 判负（一次性 = 发放台账恰一拨）。
+  5. **`CP-QN5` 判分非集合相等**：服务端用「包含 / 交集非空 / 子集 / 顺序相等」之一判分（应与顺序无关、与重复无关、须**双方元素完全相同**）⇒ 判负；判分落前端同样判负。
+
+- **现取读数（2026-10-22 · HEAD `5a1f327` · 工作区非干净 1 `M` ＋ 2 `??`，属本单同批后端面）**：
+
+  | 项 | 现取 | 证据 |
+  |---|---|---|
+  | 迁移 `0072` | **已落盘（untracked、未提交）** | `backend-ts/migrations/0072_subtask_reward_and_quiz.sql`（`ALTER` 1 次 / `DO` 块 2 个） |
+  | 两库 apply | **`NOT_MEASURED`**（未 apply，`schema_version` 仍 `0071`） | 本笔零库写、零 HTTP 写 |
+  | 服务层 | **已实现（工作区 `M`、未提交）** | `campaign-service.ts`：`parseQuizPayload` / `parseQuizProof` / `samePickSet` / `publicSubtaskPayload` / `predictionOptionStyle` / `parsePredictionChoice` / `settlePredictionVerb` |
+  | 前端 | **已入库**（HEAD `5a1f327`） | `SubtaskForm.jsx` / `campaign-util.js` / `ProjectForms.jsx` / `project-payload.js` |
+  | 路由 | **零改动**（复用 R3 / R8） | `index.ts:3696`（proof）/ `:3710`（settle） |
+  | 判负 `CP-QN1…QN5` | **一条未跑** | 本笔只写 `docs/**` |
+
+- **未做 / 诚实边界（`NOT_MEASURED` · 本册不预填）**：`0072` 未 apply ⇒ 列与 CHECK **库面未验**；自检 A–E 未跑；`correct` 脱敏无出参实测；quiz 发奖无台账实测（`$` 余额不足路径未验）；prediction 存量四键行的读取 / 改口 / 结算三路径**未跑存量样本**；判负一条未跑。
+- **挂账（本笔不裁、一句话可改）**：① quiz 判分结果**读口无回填**（`my_outcome` 目前只服务 prediction）⇒ 刷新后对错只剩本机回执，是否给 `subtask.my_outcome` 加 quiz 支路另单；② migrate 的 `quiz_reward_pool_insufficient` 走 409 借码，若 Kevin 要求专用码 ⇒ 需扩 33 码闭集（另单）；③ 旧四键 prediction 行的选项文案无维护入口（只能靠读面副行提示）。
+
 ## §40.15 ★★ v0.45 · 项目（打工/工资体系）六面契约：四张新表 `project` ＋ `project_worker` ＋ `project_wage_claim` ＋ `user_activity_hour` ＋ `app_config` 新键 `project_create_fee` ＋ 台账/batt 衔接面 · 迁移 `0063_project_jobs.sql`（**预计** · 0062 已被 §40.14 占用）（**本节只追加 · §1–§40.14 一字未动** · 依据 = Kevin 2026-10-20 四点 clarify「① 活跃/离线判定 = 近 1 小时内有任意登录态请求 = 活跃（2/时），否则离线（1/时）；② 电量**只在被招工期间累积**（未招工不累积，被招后从入职时刻起算）；③ 原 H5【招工】入口文案改为【任务】；④ 建项目费：从创建者 $ 余额扣、走既有积分台账入平台收入，费额存 `app_config` 键 `project_create_fee`（默认 10000，管理员可改）」 · 迁移由实现单落盘 / apply 由 Zang · 零代码 / 零迁移文件改动 / 零库写 / 零 HTTP 写）
 
 > **本节性质**：**只追加**（§40.14 全文逐字保留；**头注版本块不改写**，承 §40.8.1–§40.14「加性续登、不改头注」体例，以本行 **`v0.45`** 为现行版读数）。`DL` 编号域**零改动**（仍 `DL1..DL157`），`EL-*` / `ID-*` / `MB-*` / `CP-*` **零改动**；本节以 **`PR-*`** 承载。**姊妹册** = `route-layer.spec` **§49.19**（七口路由矩阵 · v2.46 新路由升版）＋ `design-system.spec` **§26.20**（招工→任务文案 ＋ 项目页面骨架）＋ `master-plan` **§5.447 / 版本行 v0.364** ＋ `ops/project/SPEC-NOTE.md`。**计数披露**：派单称「六表」，实为新表 **4** 张 ＋ 既有面 **2** 处（`app_config` 键面、ledger/batt 台账衔接面），本节按实数落册、不虚增。

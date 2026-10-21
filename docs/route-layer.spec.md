@@ -10121,6 +10121,97 @@ ORDER BY score DESC, l.time_created DESC, l.listing_id DESC
   4. **#64 重复投票 / 重复分发**：prediction 同键重提返回 200、choice 被改写、或 R8 重放产生**第二笔**分发台账 ⇒ 判负（一次性 = 分发台账恰一拨）。
 - **未做（`NOT_MEASURED` · 本册不预填）**：R8 未注册 / **119 为预计值未回填** / payload 类型级校验未实现 / 判负 #61–#64 一条未跑；零代码 / 零 HTTP 实测 / 零库写。
 
+#### 49.18.7 prediction 选项值域改判（Yes/No 双路径）＋ quiz 复用 R3（四选项多选判分即发奖）· **零新口 · 零新码 · 注册点零变化** · 追加于本节末、不新开节 · 依据 = Kevin 2026-10-22 两条裁定，逐字转引自本单派单，**原始会话未入仓 ⇒ 出入以 Kevin 一句话为准**
+
+> **本节性质**：**只追加**（§49.18.1–§49.18.6 与 §49.19 全文逐字保留；**头注不改写**，承 §49.15–§49.19 体例）。**零新路由**：prediction 投票与 quiz 答题**共用 R3**，结算仍是 R8 ⇒ **注册点不变**、判负 #54 的计数判据按「现值」读（见下表漂移登记）。**数据面正典** = `data-layer.spec` **§40.14.10**（`CP-Q1…Q7` ＋ 判负 `CP-QN1…QN5`）；**设计面** = `design-system.spec` **§26.19.7**；**迁移** = `0072_subtask_reward_and_quiz.sql`（实现单落盘 / apply 由 Zang）。
+
+| # | verb | path | 面 | 本次改判 |
+|---|---|---|---|---|
+| R3 | POST | `/api/campaign/subtask/:subtaskId/proof` | 用户 | prediction 票 `{choice}` 值域**按行口径**（新 `yes/no`、存量 `a/b`）；quiz 票 `{answers:{picks}}` 判分 ⇒ 同事务发奖；响应**加性两键** `quiz_correct` / `reward_paid` |
+| R4/R6/R7 | POST/POST/PATCH | `/api/campaign` · `/:campaignId/task` · `/task/:taskId` | 管理员／项目 owner | 内联 `subtasks[]`：prediction **建口只收两键**（旧四键 ⇒ 400）；quiz payload `{options,correct}` ＋ 顶层 `reward_amount`；改口换口径 ⇒ 400 |
+| R8 | POST | `/api/campaign/subtask/:subtaskId/settle` | 管理员 | body `{correct_option}` 值域**按行口径**（新 `yes/no`、存量 `a/b`）；跨口径 ⇒ 400 |
+
+**A. prediction 值域矩阵（建 / 改 / 结算三处，单一判别函数 `predictionOptionStyle`）**
+
+| 动作 | 输入 | `yes_no` 行（新） | `ab_legacy` 行（存量） | 违例返回 |
+|---|---|---|---|---|
+| 建（R4/R6/R7 新增内联） | `payload` | **只收** `{prize_amount, deadline}` | **拒收**（不可新建旧形状） | 旧四键 ⇒ 400 `PREDICTION_PAYLOAD_SHAPE`（`details.got_option_style='ab_legacy'`）；缺/多键 ⇒ 同码 |
+| 改（R7 `subtasks[]` 带 id） | `payload` | 必须仍两键 | 必须仍四键（两枚非空） | 换口径 ⇒ **400 `PREDICTION_OPTION_STYLE_IMMUTABLE`**（`details` 带 `existing_option_style` / `payload_option_style`） |
+| 投票（R3） | `{choice}` | `'yes'` \| `'no'` | `'a'` \| `'b'` | 越值/多键/缺键 ⇒ 400 `PREDICTION_CHOICE_SHAPE` |
+| 结算（R8） | `{correct_option}` | `'yes'` \| `'no'` | `'a'` \| `'b'` | 跨口径/越值 ⇒ 400 `PREDICTION_CORRECT_OPTION_INVALID`（`details.option_style` ＋ `expected`）；body 多余键 ⇒ 400 `PREDICTION_SETTLE_BODY_INVALID` |
+
+- **口径判定只读库、不读请求体**（`CP-Q5`）：请求体声称的口径一律不作数 ⇒ 客户端无法用「换个形状」把存量行改口径。
+- **`correct_option` 仍禁走建/改口**：payload 带该键 ⇒ 400（`PREDICTION_PRIZE_NOT_USD` 支命中，`details.hint` 指明 settle 独占写）。
+
+**B. quiz：proof 提交的判定顺序（写死；顺序错 ⇒ 错误码归属错）**
+
+| 序 | 闸 | 失败返回 | 副作用 |
+|---|---|---|---|
+| 1 | `:subtaskId` 纯数字谓词（`subtask_id OR snowflake_id` 单语句） | 404 ＋ reason `subtask_not_found` | 零 |
+| 2 | 登录闸（既有 auth 中间件） | 401 | 零 |
+| 3 | 链闸：`campaign.status='active'` ∧ `task.status='active'` | 409 ＋ reason `campaign_not_active` | 零（**先于**任何写） |
+| 4 | 票形 `{answers:{picks}}`（单键嵌套、1–4 个、去重、∈ `a`–`d`） | 400 `QUIZ_ANSWER_SHAPE` | 零 |
+| 5 | 一人一答：`ON CONFLICT (subtask_id, uid) DO NOTHING`，0 行 | 409 ＋ reason `quiz_already_answered` | 零（**不覆盖、不二次发奖**） |
+| 6 | 判分：`samePickSet(picks, correct)`（集合相等；库内 `correct` 形状异常 ⇒ 按「无正确答案」判错，**不 500**） | —— | proof 已落 |
+| 7 | 发奖：答对 ∧ `reward_amount > 0` ⇒ `postEvent` 单事件（平台 −N / 用户 +N，借 `invite_first_task_reward`，键 `biz:campaign:quiz:<subtask>:<uid>`） | 台账不足 ⇒ 409 ＋ reason `quiz_reward_pool_insufficient` | **整事务回滚**（proof 一并回滚 ⇒ 无「落凭证未发奖」半态） |
+| 8 | 成功 | 200 ＋ proof 行 ＋ `quiz_correct` / `reward_paid` | 一次性 |
+
+**C. R3 响应形状（加性两键，仅 quiz）**
+
+| 键 | 类型 | 语义 | 缺省规则 |
+|---|---|---|---|
+| `quiz_correct` | `boolean` | 本次提交是否答对（服务端判分，唯一真源） | 非 quiz ⇒ **键缺省**（不是 `null` / `false`） |
+| `reward_paid` | `string` | 本次实发金额（`$` 整数串）；未发 ⇒ `'0'` | 非 quiz ⇒ 键缺省 |
+
+- **既有键一字未变**：`proof_id` / `subtask_id` / `payload` / `status` / 时间戳照旧（加性，不改序、不改型）。
+- **prediction 的 R3 响应不变**（`choice` 票行本体）；**quiz 的 proof 行 payload 只存 `picks`**，不存答案。
+
+**D. 错误码（零新码 · 33 码闭集不动 · reason 不进闭集）**
+
+| 场景 | 状态 | 码 | `error.message`（借码 reason 串；`i18n_key` 由码派生，reason 不进 33 码闭集） |
+|---|---|---|---|
+| prediction payload 形状 / 建口带旧四键 | 400 | `LEDGER_AMOUNT_INVALID` | `PREDICTION_PAYLOAD_SHAPE` |
+| prediction 票形越值 | 400 | 同上 | `PREDICTION_CHOICE_SHAPE` |
+| prediction 改口换口径 | 400 | 同上 | `PREDICTION_OPTION_STYLE_IMMUTABLE` |
+| prediction 结算 body 形状 / 值域 | 400 | 同上 | `PREDICTION_SETTLE_BODY_INVALID` / `PREDICTION_CORRECT_OPTION_INVALID` |
+| quiz payload 形状（含 `reward_amount` 写进 payload） | 400 | 同上 | `QUIZ_PAYLOAD_SHAPE` |
+| quiz 四选项缺格 / 多键 / 空串 | 400 | 同上 | `QUIZ_OPTIONS_INVALID` |
+| quiz `correct` 0 个 / >4 / 重复 / 越集 | 400 | 同上 | `QUIZ_CORRECT_INVALID` |
+| quiz 票形 / picks 值域 | 400 | 同上 | `QUIZ_ANSWER_SHAPE` |
+| quiz 奖励缺省或 `0` | 400 | 同上 | `QUIZ_REWARD_REQUIRED` / `QUIZ_REWARD_INVALID` |
+| 非 quiz 子任务带 `reward_amount` | 400 | 同上 | `SUBTASK_REWARD_NOT_APPLICABLE` |
+| subtask miss / 非数字 `:subtaskId` | 404 | `LEDGER_REF_NOT_FOUND` | `subtask_not_found` |
+| 链非 active | 409 | `LEDGER_INSUFFICIENT_BALANCE` | `campaign_not_active` |
+| quiz 重复提交 | 409 | 同上 | `quiz_already_answered` |
+| quiz 台账不足 | 409 | 同上 | `quiz_reward_pool_insufficient` |
+| prediction 重复投票 / 已结算 / 未到截止 | 409 | 同上 | `prediction_vote_locked` / `prediction_already_settled` / `prediction_deadline_passed` / `prediction_deadline_not_reached` |
+| 管理口缺权 | 403 | `AUTH_FORBIDDEN` | `ACTOR_NOT_ALLOWED` |
+
+**E. 判负（#68–#72 · 承 #54–#67 家族只增不改）**
+
+1. **#68 quiz 重提放行 / 二次发奖**：同一 `(subtask_id, uid)` 二次提交返回 200、`picks` 被覆盖、或产生第二笔发放台账 ⇒ 判负（一次性判据 = 发放台账恰一拨；负控臂 = 首次 200、二次 409 `quiz_already_answered`）。
+2. **#69 `correct` 出读口**：任一公开出参（`/all` / `/:ref` / `/task/:taskId` / R3 回显）出现 `payload.correct` ⇒ 判负（`correct_option` 不算 —— 它是 prediction 的公开结算键）。
+3. **#70 奖励载体错位**：quiz 奖励走 payload、或非 quiz 行落非空 `reward_amount`、或 quiz 缺奖励仍建成功 ⇒ 判负。
+4. **#71 prediction 口径双开**：建口收旧四键返回 200；改口换口径返回 200；settle 跨口径回填返回 200（任一）⇒ 判负。
+5. **#72 发奖与凭证不同事务**：proof 落库而奖未发、奖已发而 proof 未落、或台账不足仍返回 200 ⇒ 判负（同一事务 = 全成或全不成）。
+
+**F. 注册点与契约漂移（计数如实）**
+
+| 项 | 旧字面（逐字保留） | 现取（2026-10-22 · HEAD `5a1f327`） |
+|---|---|---|
+| 注册点 | §49.18.2「111 → **118**（预计）」／§49.18.6「118 → **119**」／§49.19「111 → **125**」 | **110**（get **50** / post **53** / put 0 / delete 3 / patch **4**）—— `43ea14a`「job 领域下线」删 21 条活路由，旧预计值全部失效；本单**零新口** ⇒ 110 不变 |
+| prediction 票形 | §49.18.6「`{ choice: 'a'\|'b' }`」 | 新行 `yes/no`、存量行 `a/b`（双路径） |
+| prediction 结算 | §49.18.6「`{ correct_option: 'a'\|'b' }`」 | 新行 `yes/no`、存量行 `a/b`；跨口径 400 |
+| quiz 重提 | §49.18.4 #57「重提覆盖 200（非 409）」为通用字面 | **quiz 重提 409**（与 prediction 一人一票同族）；#57 字面对 quiz **不适用**（同 §49.18.6 对 prediction 的例外声明体例） |
+| 判负编号 | §49.18.6 #61–#64 ／ §49.19 #61–#67（**两段已重叠**） | 本段取 **#68–#72**，**不修复既有重叠、也不再新增重叠**（编号漂移登记在此，一处可查） |
+
+- **`AC10-2` 常量**：`p7b-03-offline-gates.ts` 的注册点断言现值 **110**（旧 118/119/125/130 均为预计；`ops/campaign/p65-00-campaign-gate.ts:176` 仍断言 130 = job 域下线前读数，属**已知陈旧断言**，另单回填、本笔不动代码）。
+
+**G. 现取与未测（明账）**
+
+- **现取**：R3 已注册（`index.ts:3696`）、R8 已注册（`:3710`）—— **本单零路由改动**；服务层 quiz/prediction 双路径**已实现但未提交**（`campaign-service.ts` 工作区 `M`）；迁移 `0072` **untracked、未提交、两库未 apply**（`schema_version` 仍 `0071`）。
+- **未做（`NOT_MEASURED` · 本册不预填）**：判负 #68–#72 一条未跑；`correct` 脱敏与发奖**零 HTTP 实测**；台账不足回滚路径未验；存量四键行的 R3/R8 未跑样本；本笔零代码 / 零库写 / 零 HTTP 写，只写 `docs/**`。
+
 ### 49.19 项目（打工/工资体系）七面路由（公开 2 ＋ 用户 4 ＋ 管理员 1 · **注册点 111 → 125（两级预计：§49.18 的 +7 亦未注册，回填前不冒充实测）** · 配置写零新路由 · 零新错误码）· 2026-10-20 · **v2.46**（新路由 ⇒ 升版；**头注不改写**，承 §49.15 / §49.18 体例）· 纯追加
 
 > **依据**：Kevin 2026-10-20 四点 clarify（逐字转引自本单派单，**原始会话未入仓** ⇒ 出入以 Kevin 一句话为准）—— ① 活跃/离线 = 近 1 小时内任意登录态请求（2/时 vs 1/时，逐小时桶落地承 data §40.15.3）；② 电量只在被招工期间累积（从 `hired_at` 起算）；③ 原 H5【招工】入口文案改【任务】（design §26.20.1 承接）；④ 建项目费 = 创建者 $ 扣款入平台收入、`app_config` 键 `project_create_fee` 默认 10000 可改。**姊妹面** = `data-layer.spec` **§40.15**（四表 ＋ 两既有面 `PR-1…PR-9`）＋ `design-system.spec` **§26.20** ＋ `master-plan` **§5.447 / v0.364** ＋ `ops/project/SPEC-NOTE.md`。**本单零代码**（契约冻结，实现归并行后端单）。

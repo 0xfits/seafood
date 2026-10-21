@@ -4337,6 +4337,68 @@ showEdit     = isAuthenticated && (isOwner || canEditAny) && statusEditable
   3. **#86 预算扣发呈现 / 实现（同日再裁 ③）**：表单或页面把 subtask 奖励实现 / 渲染为从 task 预算扣减 ⇒ 判负（以本段为准：两账独立）。
 - **未做**：零实现（创建/编辑面归实现单，写口路由面 = route §49.18 R4/R6/R7）；判负 #84–#86 一条未跑；零截图 / 零 i18n 键 / 零代码。本笔只写 `docs/**` ＋ `ops/campaign/**`，**不 push**；`git diff --numstat` **删除列 = 0**。
 
+#### 26.19.7 prediction 发布 = 只读 Yes/No 芯片 ＋ quiz 发布 = 四选项/正确项多选/奖励 ＋ 参与面只认服务端判分（**已实现** · 追加于本节末、不新开节 · 依据 = Kevin 2026-10-22 两条裁定，逐字转引自本单派单，**原始会话未入仓 ⇒ 出入以 Kevin 一句话为准**）
+
+> **状态**：本节**不是建议形** —— 与 §26.19.5 / §26.19.6 不同，契约所述形态**已在 HEAD `5a1f327` 落码**（`frontend/src/pages/project/ProjectForms.jsx` / `pages/campaign/SubtaskForm.jsx` / `pages/campaign/campaign-util.js` / `project-payload.js` / `campaign.css` ＋43 行 / `project.css` ＋32 行）。**改判关系**：§26.19.5 的「两枚选项大按钮 = `payload.option_a` / `option_b`」与 §26.19.6 的「subtask 行五类通用奖励输入」旧字面**逐字保留** ⇒ 以本节为准（prediction 选项文案不再来自 payload；quiz 的奖励输入是**唯一**必填的 subtask 奖励）。**shell 红线不动**：零新 `data-sf-region`、`shell.css` 一字节未动、**零新 token**（新样式落页面级文件）。**数据面正典** = `data-layer.spec` **§40.14.10**；**接口面** = `route-layer.spec` **§49.18.7**。
+
+**A. 发布 / 编辑表单（`SubtaskRowEditor`，task 表单可多行、subtask 表单单行）**
+
+| 类型 | 字段 | 形态 | 契约 |
+|---|---|---|---|
+| `prediction` | 选项 | **两枚只读芯片**：容器 `aria-readonly="true"`，逐枚 `<span>`（**不是 `<input>`**、不可点、不可改、无 placeholder），文本恒取自 i18n `campaign.predictionYes` / `campaign.predictionNo` | 芯片**不参与载荷**（载荷恰两键 `{prize_amount, deadline}`）；**禁**再出现 `optionA`/`optionB` 输入框（判负 #87） |
+| `prediction` | 奖池 | `input`（`data-sf-field="prize"`，`inputMode="numeric"`），单位 `$` 前缀固定 | 正整数；缺/0/非数 ⇒ **零请求**报错（文案 `project.predictionInvalid`） |
+| `prediction` | 截止时间 | `input`（`data-sf-field="deadline"`） | 可解析时间；缺失 ⇒ 同上报错 |
+| `quiz` | 四选项 | 四枚 `input`（`data-sf-field="quiz-a…quiz-d"`），占位 `project.fQuizOption`（`{{key}}` = A–D） | **四格全填**（trim 后非空）；缺任一格 ⇒ **零请求**报错 `project.quizInvalid` |
+| `quiz` | 正确项 | 四枚 `checkbox`（`data-sf-field="quiz-correct-a…d"`，`label.sf-project-check`） | **1–4 个**、至少 1；0 个 ⇒ 零请求报错 `project.quizInvalid`；**不新造 switch 控件**（承 §26.18 体例：仓内既有体例即 checkbox） |
+| `quiz` | 答对奖励 | `input`（`data-sf-field="quiz-reward"`，`inputMode="numeric"`） | **必填、> 0、只 `$`**（**无币种选择位**，承 §26.19.6 ③）；空/0/非数 ⇒ 零请求报错（文案 `project.fQuizReward` 已写明「必填」）；落 `SubtaskInput.reward_amount`（**列**，不进 payload） |
+
+- **零请求校验四类**（提交前一律本地拦，**不发请求**）：① `type_code` 未选；② prediction 奖池/截止缺失或非法；③ quiz 四选项未填满或正确项 0 个；④ quiz 奖励缺失/≤0。错误文案键 `project.predictionInvalid` / `project.quizInvalid` / `project.rewardInvalid` 等（`errorTextOf` 逐 code 映射；`project.fQuizReward` 是字段占位文案，非错误文案）。
+- **奖励载体不可混淆**：quiz 奖励**必须**落 `reward_amount` 列；写进 `payload` ⇒ 后端 400 `QUIZ_PAYLOAD_SHAPE`（前端已按列发送，判负 #90）。
+- **编辑既有行**：prediction 已结算（payload 带 `correct_option`）⇒ **不可重发**（整组追加时该行跳过，库内原值保留）；quiz 读回缺 `correct`（公开读口已脱敏）或缺 `reward_amount` ⇒ 同样**不发该行**（重发会抹掉答案/奖励）。**这是「宁可少发一行，不静默改写」的形态落点**。
+
+**B. 参与面（任务详情页子任务卡内的面板）**
+
+| 类型 | 形态 | 提交 | 结果展示 |
+|---|---|---|---|
+| `prediction` | 两枚等权大按钮，主标签 i18n `campaign.predictionYes/No`（触控 ≥44、≤767 档承 §13）；存量四键行另起**副行只读提示**显示 `payload.option_a/option_b` 原文（不参与选项集） | `{choice:'yes'\|'no'}`；提交后**锁定为已选态**（不可再点不可改） | 结算后：**正确项标记**（`campaign.prediction.correct`）＋ **个人输赢**（`campaign.prediction.win` / `lose`）＋ 奖金行（`campaign.prediction.payout`，金额**服务端 `payout` 直出**）；`deadline_reached` 未结算 ⇒ `campaign.prediction.awaitSettle` |
+| `quiz` | 四选项**多选**按钮（`aria-pressed`、`data-sf-picked`），键位 A–D 由 `QUIZ_OPTION_KEYS` 固定；选项文本取 `payload.options`（缺格不渲染该格） | `{answers:{picks:[…]}}`；**未选任何项 ⇒ 零请求**＋提示 `campaign.quiz.pickAtLeastOne` | **只认服务端**：`quiz_correct` ⇒ 「答对了 / 答错了」（`campaign.quiz.right` / `wrong`）；`reward_paid > 0` ⇒ 奖金行（`campaign.prediction.payout`）。奖励预告行 = `campaign.quiz.reward`（`答对奖励 ${{amount}}`，amount 取 `subtask.reward_amount` 字符串直出） |
+
+- **不得本地推算答案（硬口径）**：公开读口**不吐 `correct`**（`data §40.14.10 CP-Q4`）⇒ 前端**无答案可算**；任何「按选项文本 / 顺序 / 提交回执」推断对错的实现 ⇒ 判负 #88。判分唯一真源 = 服务端 `quiz_correct` / `reward_paid`（提交响应），与 prediction 的 `payout` 同律（承 §26.19.5「客户端只读、永不本地算」）。
+- **无服务端判定 ⇒ 不渲染结果块**：本机回执（`proof-store`）只存 `picks`，**不含** `quiz_correct` ⇒ 刷新后若读口未带判定，结果块**整块不出现**（禁拿「我曾答过」冒充「答对了」）。已答态另由 `campaign.submitted` ＋ 已选区呈现。
+- **禁止泄漏答案的承载面**：`correct` 不得出现在 DOM 文本 / `data-*` 属性 / `title` / 隐藏节点 / 前端常量 / 预取请求里（判负 #89）。
+- **金额一律直出**：`reward_paid` / `payout` / `reward_amount` 都是**字符串直出**，不做乘法、不做分摊、不做四舍五入（判负 #91）。
+
+**C. i18n（本笔 +12 键 · 四语对称）**
+
+| 键 | zh | 用途 |
+|---|---|---|
+| `campaign.predictionYes` / `campaign.predictionNo` | 是 / 否 | prediction 选项标签（**发布芯片与参与按钮共用**） |
+| `campaign.quiz.picks` | 选出正确答案（可多选） | 参与面多选区标签 |
+| `campaign.quiz.pickAtLeastOne` | 请至少选一个答案 | 空选零请求提示 |
+| `campaign.quiz.right` / `campaign.quiz.wrong` | 答对了 / 答错了 | 服务端判分结果 |
+| `campaign.quiz.reward` | 答对奖励 ${{amount}} | 奖励预告行 |
+| `project.fQuizOptions` / `project.fQuizOption` | 选项 a–d（全填） / 选项 {{key}} | 发布表单四格 |
+| `project.fQuizCorrect` | 正确项（1–4 个，可多选） | 正确项多选标签 |
+| `project.fQuizReward` | 答对奖励（$，必填） | 奖励输入 |
+| `project.quizInvalid` | 答题需填满四个选项并至少选 1 个正确项 | 零请求校验文案 |
+
+- **计数现取**：flat **1369** / nodes **5476** / top **135**（四语逐字相等；`vn` 译文**待复核**，回填以 Kevin 确认为准）。旧基线（§26.19.2 / §26.20.2 记的 top 131 / flat 1140 / nodes 4560）为多件购买时期读数，**已失效**，本行为现行值。
+- **键复用**：`campaign.predictionYes/No` 同时服务发布芯片与参与按钮（一处文案、两处消费）⇒ 禁新增 `project.fOptionA/B` 一类键（旧键已转死，禁止复活）。
+
+**D. 判负（#87–#91 · 承 #51–#86 家族只增不改）**
+
+1. **#87 选项回潮**：prediction 发布表单再出现可编辑选项输入框（`optionA`/`optionB` 一类），或参与面渲染第三枚选项；或旧四键行被强制改写成新两键（改口径）⇒ 判负。
+2. **#88 本地判分 / 本地推算答案**：前端自行比对 `correct`、按选项文本或顺序推断对错、或把本机回执当服务端判定 ⇒ 判负（负控臂：公开 payload 内 `correct` 零命中、结果块只在 `quiz_correct` 在场时出现）。
+3. **#89 正确答案泄漏**：`correct` 出现在 DOM（文本 / `data-*` / `title` / 隐藏节点）、前端常量、或 map 文件里 ⇒ 判负。
+4. **#90 奖励/选项形态失格**：quiz 奖励缺失或「可空 / 非 `$` / 带币种选择位 / 写进 payload」；正确项允许 0 个或 5 个；四选项未填满仍可提交（本地未拦）⇒ 判负。
+5. **#91 金额本地推算**：`reward_paid` / `payout` / `reward_amount` 由前端按公式计算或换算（含「奖池 ÷ 人数」类自算）⇒ 判负。
+
+**E. 落点与未测（明账）**
+
+- **落点**：`campaign.css` ＋43 行 / `project.css` ＋32 行（页面级文件）；`data-sf-m` 探针钩子：`campaign-quiz-panel` / `campaign-quiz-option` / `campaign-quiz-reward` / `campaign-quiz-result` / `campaign-quiz-submit` / `project-prediction-choices` / `project-quiz-fields` / `project-quiz-correct`。
+- **门套现取（作者自报，转引）**：`build` 0 · `test:unit` **76 文件 / 808 例** · 24 处 i18n 计数断言前推；**判负 #87–#91 一条未跑**（无独立探针）。
+- **未测**：两档（H5 ≤767 / Web ≥768）真机几何未量；`vn` 译文待复核；quiz 结果块在「读口未带判定」时的空态无截图；`aria-pressed` 的无障碍实测未做。本笔只写 `docs/**`，零代码改动。
+
 ## §26.20 【招工】→【任务】文案变更登记 ＋ 项目（打工/工资体系）页面骨架预留：`/project` ＋ `/project/create` ＋ `/project/:ref` ＋ `/project/mine`（H5/Web 两形态 · **零实现、零 token、零 i18n 键落地**）（2026-10-20 · **加性续登、不升版**（承 §26.12–§26.19 体例）· 纯追加）
 
 > **依据**：Kevin 2026-10-20 四点 clarify 之③「原 H5【招工】入口文案改为【任务】」＋ 打工/工资体系四点定案（①②④ 落 data §40.15 / route §49.19）。**本节 = 文案变更登记 ＋ 骨架预留 ＋ 判负**（页面路由建议形、区块语义、判负），**一行前端代码未写**（实现归并行前端单）。**连带** = `data-layer.spec` §40.15（四表）· `route-layer.spec` §49.19（七口 · 页面路由不计注册点）· `master-plan` §5.447 ＋ 版本行 v0.364 · `ops/project/SPEC-NOTE.md`。
