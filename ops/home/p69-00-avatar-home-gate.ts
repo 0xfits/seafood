@@ -17,7 +17,7 @@
  * 判据面：
  *   A · 静态（零 DB）：0069 形状（无 BEGIN/COMMIT、注释零 dollar-dollar、具名 CHECK 守卫、尾 DO 四臂）·
  *       服务层常量与键集（PATCH 含 / CREATE 不含 avatar_url）· PATCH UPDATE 显式分支（不用 COALESCE）·
- *       路由面（注册点 129 / get 56 / post 66 / patch 4 / delete 3；读口公开 + 公共缓存 + 基建映射；
+ *       路由面（注册点 130 / get 57 / post 66 / patch 4 / delete 3；读口公开 + 公共缓存 + 基建映射；
  *       PATCH project 仍 manage_tasks）· 读口 SQL 五面（to_jsonb 兼容 / 无裸列引用 / DISTINCT 人数 /
  *       三处过滤 / 120 裁剪 + 20 行）· 解析纯函数臂（合法 6 / 非法 7 / 边界 12↔13 位 / create 面拒收）。
  *   B · 迁移干跑（真库 · 回滚事务内）：头段 + 尾部 DO 全绿（列 text NULL / 约束体带正则 / 列注释 /
@@ -228,8 +228,8 @@ const LONG_DESCRIPTION = 'P69 门夹具长描述：' + '甲乙丙丁戊己庚辛
   const homeBlock = routeBlock("app.get('/api/home/campaign-tasks'", 300);
   const patchProjBlock = routeBlock("app.patch('/api/project/:projectId'", 900);
   ck.t('A5',
-    '★路由面：注册点 **129**（get 56 / post 66 / patch 4 / delete 3）· 读口 `GET /api/home/campaign-tasks` 公开（块内零 `requireActor`）· `listHomeCampaignTasks()` → `setPublicCache(res)` → `sendSuccess` · 异常走 `sendInfraMapped(res, \'home.campaign_tasks\')`（绝不硬编码 500）',
-    regs === 129 && countVerb('get') === 56 && countVerb('post') === 66 && countVerb('patch') === 4 && countVerb('delete') === 3
+    '★路由面：注册点 **130**（get 57 / post 66 / patch 4 / delete 3 —— 129 为 0069 收口值，+1 = 本仓 task-detail 读口）· 读口 `GET /api/home/campaign-tasks` 公开（块内零 `requireActor`）· `listHomeCampaignTasks()` → `setPublicCache(res)` → `sendSuccess` · 异常走 `sendInfraMapped(res, \'home.campaign_tasks\')`（绝不硬编码 500）',
+    regs === 130 && countVerb('get') === 57 && countVerb('post') === 66 && countVerb('patch') === 4 && countVerb('delete') === 3
       && homeBlock.length > 0
       && !/requireActor/.test(homeBlock)
       && /listHomeCampaignTasks\(\)/.test(homeBlock)

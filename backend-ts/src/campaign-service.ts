@@ -967,6 +967,175 @@ export const getCampaignByRef = async (
 };
 
 // ============================================================================
+// R2b · 任务详情读口 —— 每个 campaign task 自己的页面（`/task/:taskId` 的数据面）
+// ----------------------------------------------------------------------------
+// Kevin 口径（派单逐字落地）：
+//   · 形状**扁平**（任务自己的页面，不嵌套整份 campaign）：task 十一键 ＋ `joined_count`（＋ `headcount`
+//     可选）＋ `campaign{id,title,status}` ＋ `project{id,title,slug,avatar_url,status}` ＋ `subtasks[]`；
+//   · 公开面与首页热门任务读口 `listHomeCampaignTasks` **逐字同口径**：
+//     `c.status = 'active' ∧ t.status <> 'draft' ∧ pr.status <> 'ended'`（draft / ended 任一 ⇒ 非公开）；
+//   · 非公开 ⇒ `null` ⇒ 路由落 **404 `LEDGER_REF_NOT_FOUND`**（`details.reason = 'task_not_public'`，
+//     借码零新码；「存在但未公开」与「不存在」对匿名不可区分）；
+//   · 例外 = **owner（`project.owner_uid` = 本人）∨ 管理员（`includeDraft`，谓词与 R2 同源）**
+//     ⇒ 同一形状 200（照旧是同一读口，零第二套字段面）；
+//   · `joined_count = count(DISTINCT p.uid)` —— 同一人在多个子任务各一行凭证**只算一人**；
+//   · 任务行不存在 / ref 非数字 ⇒ `null`（路由按 `reason='task_not_found'` 落 404）；
+//   · 零新错误码、零新表、零写口改动。subtask 表**无 status 列**（0065 CP-3 逐字：只有「存在 / required」
+//     两态）⇒ `subtasks[]` 不含 `status` 键（interface 留可选键，未来加列时按同一 normalize 透出）。
+// ============================================================================
+export interface TaskDetailSubtaskView {
+  subtask_id: string;
+  type_code: string;
+  title: string;
+  content: string | null;
+  payload: Row;
+  sort: number;
+  required: boolean;
+  /** 加性可选：当前 DB 无 `subtask.status` 列 ⇒ **键缺省**（不是 null） */
+  status?: string;
+}
+
+export interface TaskDetailView {
+  task_id: string;
+  title: string;
+  description: string;
+  status: string;
+  time_start: string | null;
+  time_end: string | null;
+  sort: number;
+  reward_amount_primary: string;
+  reward_cid_secondary: string | null;
+  reward_amount_secondary: string | null;
+  /** 参与者去重人数（`count(DISTINCT subtask_proof.uid)`；零凭证 ⇒ 0，绝不是 null） */
+  joined_count: number;
+  /** 加性可选：项目额定人数（`project.headcount` 在场才出键） */
+  headcount?: number;
+  campaign: { id: string; title: string; status: string };
+  project: { id: string; title: string; slug: string; avatar_url: string | null; status: string };
+  subtasks: TaskDetailSubtaskView[];
+}
+
+/**
+ * 公开面判据（**纯函数**：服务层决策与路由层缓存头共用同一实现，避免两处口径漂移）。
+ * 逐字 = 首页热门任务读口的 `c.status='active' ∧ t.status<>'draft' ∧ pr.status<>'ended'`。
+ */
+export const isTaskPubliclyVisible = (input: {
+  task_status: string | null | undefined;
+  campaign_status: string | null | undefined;
+  project_status: string | null | undefined;
+}): boolean => str(input.campaign_status) === 'active'
+  && str(input.task_status) !== 'draft'
+  && str(input.project_status) !== 'ended';
+
+/**
+ * 单语句归属链（task → campaign → project）＋ 去重参与人数（相关子查询，零 N+1）。
+ * 出参 bigint / numeric 一律 `::text`（承 route #60 出参体例；前端拿到即可直接渲染）。
+ * 列引用均为**已落库列**（0063/0065/0068/0069），无 pre-apply 窗口问题。
+ */
+const TASK_DETAIL_SQL = `
+  SELECT t.task_id::text                  AS task_id,
+         t.title                          AS title,
+         t.description                    AS description,
+         t.status                         AS status,
+         t.time_start                     AS time_start,
+         t.time_end                       AS time_end,
+         t.sort                           AS sort,
+         t.reward_amount_primary::text    AS reward_amount_primary,
+         t.reward_cid_secondary::text     AS reward_cid_secondary,
+         t.reward_amount_secondary::text  AS reward_amount_secondary,
+         c.campaign_id::text              AS campaign_id,
+         c.title                          AS campaign_title,
+         c.status                         AS campaign_status,
+         pr.project_id::text              AS project_id,
+         pr.title                         AS project_title,
+         pr.slug                          AS project_slug,
+         pr.avatar_url                    AS project_avatar_url,
+         pr.status                        AS project_status,
+         pr.owner_uid::text               AS project_owner_uid,
+         pr.headcount::int                AS project_headcount,
+         (SELECT count(DISTINCT p.uid)::int
+            FROM public.subtask_proof AS p
+            JOIN public.subtask AS s2 ON s2.subtask_id = p.subtask_id
+           WHERE s2.task_id = t.task_id) AS joined_count
+    FROM public.task AS t
+    JOIN public.campaign AS c  ON c.campaign_id = t.campaign_id
+    JOIN public.project  AS pr ON pr.project_id = c.project_id
+   WHERE t.task_id = $1::bigint OR t.snowflake_id = $1::bigint
+   LIMIT 1`;
+
+/**
+ * R2b 任务详情：`includeDraft`（管理员）∨ owner 放宽非公开面；其余匿名 / 第三方看图 = null（404）。
+ * 未登录 ⇒ 本口零登录态附加键（与 R2 的 `my_proof` / `my_outcome` 无关：任务页只看任务本体）。
+ */
+export const getTaskDetailByRef = async (
+  ref: string,
+  opts: { includeDraft: boolean; actorUid?: number | null },
+  ex?: TxClient,
+): Promise<TaskDetailView | null> => {
+  if (!isCampaignRef(ref)) return null;
+  const rows = await readRows<Row>(TASK_DETAIL_SQL, [ref], ex);
+  if (!rows.length) return null;
+  const row = rows[0];
+
+  const publicVisible = isTaskPubliclyVisible({
+    task_status: strOrNull(row.status),
+    campaign_status: strOrNull(row.campaign_status),
+    project_status: strOrNull(row.project_status),
+  });
+  if (!publicVisible) {
+    const uid = opts.actorUid;
+    const owner = typeof uid === 'number' && Number.isSafeInteger(uid) && uid > 0
+      && String(uid) === str(row.project_owner_uid);
+    if (!(opts.includeDraft || owner)) return null;   // ★ draft 闸 / ended 闸：删掉 ⇒ 匿名可读未公开任务
+  }
+
+  const subtaskRows = await readRows<Row>(
+    `${SUBTASK_SELECT} WHERE s.task_id = $1::bigint ORDER BY s.sort ASC, s.subtask_id ASC`,
+    [str(row.task_id)],
+    ex,
+  );
+  const headcount = row.project_headcount === null || row.project_headcount === undefined
+    ? null
+    : int(row.project_headcount);
+
+  return {
+    task_id: str(row.task_id),
+    title: str(row.title),
+    description: str(row.description),
+    status: str(row.status),
+    time_start: iso(row.time_start),
+    time_end: iso(row.time_end),
+    sort: int(row.sort),
+    reward_amount_primary: str(row.reward_amount_primary),
+    reward_cid_secondary: strOrNull(row.reward_cid_secondary),
+    reward_amount_secondary: strOrNull(row.reward_amount_secondary),
+    joined_count: int(row.joined_count),
+    ...(headcount === null ? {} : { headcount }),
+    campaign: {
+      id: str(row.campaign_id),
+      title: str(row.campaign_title),
+      status: str(row.campaign_status),
+    },
+    project: {
+      id: str(row.project_id),
+      title: str(row.project_title),
+      slug: str(row.project_slug),
+      avatar_url: strOrNull(row.project_avatar_url),
+      status: str(row.project_status),
+    },
+    subtasks: subtaskRows.map((s) => ({
+      subtask_id: str(s.subtask_id),
+      type_code: str(s.type_code),
+      title: str(s.title),
+      content: strOrNull(s.content),
+      payload: asObject(s.payload),
+      sort: int(s.sort),
+      required: s.required === true,
+    })),
+  };
+};
+
+// ============================================================================
 // 链加载（写口前置只读闸 · 承 §49.18.3「闸链 = 服务层前置只读」体例）
 // ============================================================================
 interface SubtaskChainRow extends Row {

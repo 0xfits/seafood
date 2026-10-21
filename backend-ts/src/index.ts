@@ -128,6 +128,8 @@ import {
 //   ★ 0068 权限扩容：campaign/task/subtask 的**创建口**在 manage_tasks 之外新增 project_owner 支
 //     （owner_uid = 本人 ∧ 项目 status ≠ 'ended'；task/subtask 归属链经 campaign 校验）。
 //   subtask 增改内联于 task 写口（`subtasks[]` 整组 upsert、永不 DELETE）⇒ 无独立 subtask 路由。
+//   ★ 本单加性第十口：`GET /api/campaign/task/:taskId`（任务自己的页面 `/task/:taskId` 的公开读面；
+//     draft / ended 对公众 404，owner/admin 同形状 200）。注册点 129 → **130**（get 56 → 57）。
 import {
   authorizeProjectScopedCreate,
   createCampaignVerb,
@@ -135,8 +137,10 @@ import {
   getCampaignAuthzContext,
   getCampaignByRef,
   getTaskAuthzContext,
+  getTaskDetailByRef,
   grantTaskRewardVerb,
   isCampaignRef,
+  isTaskPubliclyVisible,
   listActiveCampaigns,
   patchCampaignVerb,
   patchTaskVerb,
@@ -4234,11 +4238,15 @@ app.patch('/api/project/:projectId', async (req, res) => {
 // R7 PATCH /api/campaign/task/:taskId               管理员 · 改任务（subtasks[] 整组 upsert、永不 DELETE）
 // R8 POST  /api/campaign/subtask/:subtaskId/settle  管理员 · prediction 结算（回填 ＋ 分发同一事务）
 // R9 POST  /api/campaign/task/:taskId/reward        管理员 · task 完成奖手动发放（全部子任务完成后）
+// R10 GET  /api/campaign/task/:taskId               公开 · 任务详情页读口（draft / ended 对公众 404；
+//                                                   owner / 管理员同形状 200 —— 本单加性第十口）
 //
 // 注册顺序判据（route #55）：R1 必须先于 R2 —— 否则字面 `all` 被 `:ref` 吞成 404。
 // 错误码：零新码 —— 400 `LEDGER_AMOUNT_INVALID` / 404 `LEDGER_REF_NOT_FOUND` /
 //   409 `LEDGER_INSUFFICIENT_BALANCE` / 403 `AUTH_FORBIDDEN`，逐场景理由在 `details.reason`。
 // 注册点 118 → 127（get +2 / post +5 / patch +2；put 0 / delete 0 不动）。
+// ★ 现取 129（home-campaign-tasks +1）→ **130**（本单 R10 `GET /api/campaign/task/:taskId` +1；
+//   get 56 → 57 / post 66 / patch 4 / delete 3 / put 0）。
 // ============================================================================
 /**
  * 详情读口的**可选身份**（零新路由）：R2 的 draft 放宽与登录态附加共用这一次 `resolveActor`。
@@ -4282,6 +4290,34 @@ app.get('/api/campaign/:ref', async (req, res) => {
     return sendSuccess(res, view, 'Campaign detail (public)');
   } catch (error) {
     return sendInfraMapped(res, 'campaign.get', error);
+  }
+});
+
+// R2b GET /api/campaign/task/:taskId —— 任务自己的页面（`/task/:taskId`）的读面。
+//   · 公开面（`c.active ∧ t≠draft ∧ pr≠ended`，与首页热门任务读口逐字同口径）⇒ 200 + `setPublicCache` 30s；
+//   · 非公开（draft / ended）⇒ 匿名与第三方 **404**（`LEDGER_REF_NOT_FOUND` + `reason='task_not_public'`，
+//     借码零新码、不泄露存在性）；owner（`project.owner_uid` = 本人）∨ `manage_tasks` 管理员 ⇒ 同形状 200；
+//   · ★ 缓存头按身份面分流：非公开面（owner/admin 放宽）恒 `private, no-store` —— 绝不能把 draft 内容
+//     写进 CDN（同 `/api/home` 的既有分流体例）。
+app.get('/api/campaign/task/:taskId', async (req, res) => {
+  const ref = String(req.params.taskId ?? '');
+  if (!isCampaignRef(ref)) return sendRefNotFound(res, 'task', ref, 'task_not_found');
+  try {
+    const viewer = await resolveOptionalCampaignViewer(req);
+    const view = await getTaskDetailByRef(ref, { includeDraft: viewer.admin, actorUid: viewer.viewerUid });
+    if (!view) return sendRefNotFound(res, 'task', ref, 'task_not_public');
+    if (isTaskPubliclyVisible({
+      task_status: view.status,
+      campaign_status: view.campaign.status,
+      project_status: view.project.status,
+    })) {
+      setPublicCache(res);
+    } else {
+      setPrivateNoStore(res);
+    }
+    return sendSuccess(res, view, 'Campaign task detail (public)');
+  } catch (error) {
+    return sendInfraMapped(res, 'campaign.task.detail', error);
   }
 });
 
