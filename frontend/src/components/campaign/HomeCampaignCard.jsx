@@ -21,7 +21,8 @@ import { avatarToneOf } from '../../home-campaign'
 //     （唯一构造器 `buildLocalizedPath`；`data-sf-task` 已带任务号，探针据它点卡验落点）。
 //     历史行为（整卡 → `/campaign/:id`）改为兜底：仅当行**没有 task_id** 时才回落到活动页
 //     —— 卡片永远可点，绝不因缺号变成不可点的残卡；
-//     mock 卡不带 campaign_id / task_id ⇒ 渲染 div，**仅展示不可点**。
+//     ★ 零 mock：本组件只渲染读口真行（脏行缺 task_id 与 campaign_id ⇒ 渲染 div 兜底，
+//     仅展示不可点，不造假数据）。
 // ============================================================================
 
 const HomeCampaignCard = ({ card, lang, t, symbols }) => {
@@ -105,7 +106,6 @@ const HomeCampaignCard = ({ card, lang, t, symbols }) => {
       <div
         className="sf-home-camp-card"
         data-sf-m="home-camp-card"
-        data-sf-camp-mock={card.isMock ? '1' : '0'}
         data-sf-camp-main={card.isMain ? '1' : '0'}
       >
         {body}
@@ -122,7 +122,6 @@ const HomeCampaignCard = ({ card, lang, t, symbols }) => {
     <Link
       className="sf-home-camp-card"
       data-sf-m="home-camp-card"
-      data-sf-camp-mock={card.isMock ? '1' : '0'}
       data-sf-camp-main={card.isMain ? '1' : '0'}
       data-sf-task={String(card.taskId ?? '')}
       to={buildLocalizedPath(lang, cardHref)}

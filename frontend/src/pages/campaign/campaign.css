@@ -111,6 +111,90 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* ------------------------------------------------- 卡内任务列（标题/奖励/状态）
+   零新色值：一律吃既有主题 token（title/meta/tag 三档）。行内 = 唯一链接 + 右侧元信息，
+   不嵌套交互元素（卡根 = <article>）。 */
+.sf-campaign-card-link {
+  color: inherit;
+  text-decoration: none;
+  min-width: 0;
+}
+
+.sf-campaign-card-tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 8px 0 0;
+  list-style: none;
+  border-top: var(--sf-st-stroke-w-thin) solid var(--sf-tag-border);
+}
+
+.sf-campaign-card-task-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.sf-campaign-card-task {
+  color: var(--sf-title-fg);
+  font-size: 13px;
+  line-height: 1.45;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+a.sf-campaign-card-task:hover .sf-campaign-card-task-title {
+  text-decoration: underline;
+}
+
+.sf-campaign-card-task-meta {
+  display: flex;
+  flex: none;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.sf-campaign-card-task-reward {
+  color: var(--sf-title-fg);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.sf-campaign-card-task-cur {
+  margin-right: 1px;
+  font-weight: 700;
+}
+
+.sf-campaign-card-task-status {
+  padding: 1px 6px;
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-btna-border);
+  border-radius: var(--sf-st-radius-btna);
+  background: var(--sf-btna-bg);
+  color: var(--sf-btna-fg);
+  font-weight: 600;
+}
+
+.sf-campaign-card-task-status.is-ended {
+  border-color: var(--sf-tag-border);
+  background: var(--sf-tag-bg);
+  color: var(--sf-tag-fg);
+}
+
+.sf-campaign-card-tasks-empty {
+  margin: 0;
+  padding-top: 8px;
+  border-top: var(--sf-st-stroke-w-thin) solid var(--sf-tag-border);
+  color: var(--sf-meta-fg);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
 /* ---------------------------------------------------------------- 详情头 */
 .sf-campaign-detail-head {
   display: flex;

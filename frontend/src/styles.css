@@ -1165,6 +1165,15 @@ section[id^="section_"] .grid { gap: 1.25rem; }
   align-items: stretch;
 }
 
+/* 空态（无可见任务 ⇒ 版块不造卡，只给一行提示；键复用 taskPage.emptyAvailable/Hint） */
+.sf-home-camp-empty {
+  padding: 20px 16px;
+  border: 1px solid var(--sf-panel-border);
+  border-radius: var(--sf-panel-radius);
+  background: var(--sf-panel-bg);
+  text-align: center;
+}
+
 .sf-home-camp-card {
   flex: 0 0 auto;
   width: 240px;

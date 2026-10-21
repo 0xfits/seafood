@@ -7,7 +7,8 @@ import '../../i18n'
 import HomeCampaignCard from '../../components/campaign/HomeCampaignCard'
 
 // ============================================================================
-// HOME-CAMP-v1 卡片两形态：项目头像（有 / 无 url）· 点击路由 · mock 不可点
+// HOME-CAMP-v1 卡片两形态：项目头像（有 / 无 url）· 点击路由 · 脏行兜底
+// （零 mock：卡只渲染读口真行）
 // ============================================================================
 
 const t = (key, values) => {
@@ -41,7 +42,6 @@ const baseCard = {
   projectTitle: '星链楼市',
   projectSlug: 'xinglian',
   projectAvatarUrl: '',
-  isMock: false,
   isMain: true,
 }
 
@@ -72,33 +72,34 @@ describe('HomeCampaignCard · 项目头像两形态', () => {
   })
 })
 
-describe('HomeCampaignCard · 点击路由与 mock 不可点', () => {
+describe('HomeCampaignCard · 点击路由与脏行兜底', () => {
   afterEach(cleanup)
 
   // 口径前推（Kevin 2026-10-21 需求②）：整卡主目标 = **任务自己的页面** `/task/:taskId`；
   // 缺 task_id 的历史行才回落活动页 `/campaign/:campaignId`（兜底，不留不可点卡）。
-  it('task_id 在场 ⇒ 整卡 <a> 指向 /task/:taskId（zh 档无前缀）', () => {
+  it('task_id 在场 ⇒ 整卡 <a> 指向 /task/:taskId（zh 档无前缀），主卡旗标透传', () => {
     renderCard(baseCard)
     const link = screen.getByRole('link')
     expect(link.getAttribute('href')).toBe('/task/301')
-    expect(link.getAttribute('data-sf-camp-mock')).toBe('0')
     expect(link.getAttribute('data-sf-camp-main')).toBe('1')
     expect(link.getAttribute('data-sf-task')).toBe('301')
+    // 零 mock：卡上不再有 mock 旗标（删集合后不打假标）
+    expect(link.getAttribute('data-sf-camp-mock')).toBeNull()
   })
 
   it('缺 task_id 但有 campaign_id ⇒ 回落 /campaign/:campaignId（兜底可点）', () => {
     renderCard({ ...baseCard, taskId: null })
     const link = screen.getByRole('link')
     expect(link.getAttribute('href')).toBe('/campaign/501')
-    expect(link.getAttribute('data-sf-camp-mock')).toBe('0')
   })
 
-  it('mock 卡（campaign_id 缺省）⇒ 渲染 div，零链接（仅展示不可点）', () => {
-    const { container } = renderCard({ ...baseCard, campaignId: null, taskId: null, isMock: true, isMain: false })
+  it('脏行缺 task_id 与 campaign_id ⇒ 渲染 div 兜底（仅展示不可点），不伪造 mock 标记', () => {
+    const { container } = renderCard({ ...baseCard, campaignId: null, taskId: null, isMain: false })
     expect(screen.queryByRole('link')).toBeNull()
     const card = container.querySelector('[data-sf-m="home-camp-card"]')
     expect(card.tagName).toBe('DIV')
-    expect(card.getAttribute('data-sf-camp-mock')).toBe('1')
+    expect(card.getAttribute('data-sf-camp-mock')).toBeNull()
+    expect(card.getAttribute('data-sf-camp-main')).toBe('0')
   })
 
   it('en 档前缀由唯一构造器承担：href = /en/task/301', () => {

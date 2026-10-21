@@ -35,7 +35,6 @@ import { buildLocalizedPath, getLanguageFromUrl } from '../utils'
 const cardOfRow = (row) => ({
   ...normalizeHomeCampaignRow(row),
   joinedTarget: row?.joined_target ?? null,
-  isMock: false,
   isMain: false,
 })
 

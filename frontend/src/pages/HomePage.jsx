@@ -57,14 +57,16 @@ const mergeRewardPage = (prev, incoming) => {
 }
 
 /**
- * HOME-CAMP-v1（2026-10-21 · Kevin 派单）
+ * HOME-CAMP-v1（2026-10-21 · Kevin 派单 · 前端半）
  *   首页「热门任务」版块 = **campaign 体系**：改拉公开读口
  *   `GET /api/home/campaign-tasks`（行含 task_id / title / status / joined_count /
  *   reward_* / campaign_title / project_title / project_slug / project_avatar_url
  *   ＋ campaign_id）。
- *   「第一轮」task = 主卡（不在首位 ⇒ 排到第一）；真数据优先、静态 mock 恰补足 5 张等宽卡；
- *   空数据 ⇒ 5 张全 mock（版块不塌）。**旧 jobs 悬赏拉取（`/api/home` 的 tasks 消费 +
- *   `/api/task/all` 回落）已整块删除，不再是本页数据面**。
+ *   「第一轮」task = 主卡（不在首位 ⇒ 排到第一）；卡 = **读口行的一一映射**（最多 5 张）。
+ *   ★ **零 mock / 零补位**：行少就卡少，无（可见）行 ⇒ 版块空态、不造卡 —— 保证首页与
+ *   `/campaign` 看到的是**同一批任务**（同一谓词，见 `home-campaign.js`）。
+ *   **旧 jobs 悬赏拉取（`/api/home` 的 tasks 消费 + `/api/task/all` 回落）已整块删除，
+ *   不再是本页数据面**。
  */
 const HomePage = () => {
   // 聚合口 `/api/home` 的 `prize_limit` 参数**保留**（响应形状与其它消费不动）；
@@ -76,7 +78,7 @@ const HomePage = () => {
   const lang = getLanguageFromUrl(location.pathname)
   const { user, isAuthenticated } = useAuth()
   const { t } = useTranslation()
-  // 首页「热门任务」原始行集（campaign 体系；装配 = `buildHomeCampaignCards`，mock 补足 5）
+  // 首页「热门任务」原始行集（campaign 体系；装配 = `buildHomeCampaignCards` 纯映射，零补位）
   const [campaignRows, setCampaignRows] = useState([])
   // 公开币种表 { cid → symbol }（只用于次币符号；失败 ⇒ 空表 ⇒ 次币行不渲染）
   const [symbols, setSymbols] = useState({})
@@ -196,7 +198,7 @@ const HomePage = () => {
 
         // 聚合口（points / claimed ids）与**首屏 36 条**、campaign 任务、币种表并行；
         //   任一失败各自独立处置：聚合口失败 ⇒ 既有逐口回落（再失败才 toast）；
-        //   首屏商品页失败 ⇒ 列表区出「重试」；campaign 读口失败 ⇒ 空行集 ⇒ 版块 5 张全 mock（不塌）；
+        //   首屏商品页失败 ⇒ 列表区出「重试」；campaign 读口失败 ⇒ 空行集 ⇒ 版块空态（零假卡，不塌）；
         //   币种表失败 ⇒ 空表 ⇒ 次币行不渲染。
         const metaTask = fetchApiJson(
           `/api/home?prize_limit=${HOME_REWARD_LIMIT}`,
@@ -209,7 +211,7 @@ const HomePage = () => {
         const campaignTask = fetchHomeCampaignTasks(user)
           .then((rows) => (Array.isArray(rows) ? rows : []))
           .catch((campaignError) => {
-            console.warn('Home campaign tasks endpoint failed, rendering mock fallback:', campaignError)
+            console.warn('Home campaign tasks endpoint failed, rendering empty state:', campaignError)
             return []
           })
         const currenciesTask = fetchHomeCurrencies(user)
@@ -349,6 +351,10 @@ const HomePage = () => {
     return true
   })
 
+  // ★ HOME-CAMP-v1：版块卡 = 读口行的**纯映射**（第一轮置首 / 最多 5 张 / 零补位）。
+  //   空数组 ⇒ 渲染层走空态（不造假卡）。装配是纯函数 ⇒ 每次渲染重算的代价与原先一致。
+  const homeCampaignCards = buildHomeCampaignCards(campaignRows)
+
   if (loading) {
     return (
       <ResponsiveContainer>
@@ -387,9 +393,11 @@ const HomePage = () => {
             首页不留空壳 / 占位：本位置**零渲染**。 */}
 
         <SlideUp delay={200}>
-          {/* HOME-CAMP-v1：「热门任务」= campaign 体系五等卡（第一轮主卡置首 + mock 补位）。
-              版块恒 5 卡 ⇒ 不再有「无任务空态」分支（空数据 = 5 张全 mock，版块不塌）。
-              「查看全部」改指活动列表 `/campaign`（旧 jobs 悬赏拉取已删 ⇒ 不再指 `/task`）。 */}
+          {/* HOME-CAMP-v1：「热门任务」= campaign 体系卡（第一轮主卡置首）。
+              ★ 卡 = 读口行的一一映射（最多 5 张），**零 mock / 零补位**：无可见行 ⇒ 空态
+              （复用既有键 `taskPage.emptyAvailable/Hint`，零新增 i18n），版块不造假卡 ——
+              与 `/campaign` 同一谓词、同一批任务。
+              「查看全部」指向活动列表 `/campaign`（旧 jobs 悬赏拉取已删 ⇒ 不再指 `/task`）。 */}
           <section data-sf-m="home-camp">
             <div className="flex items-center justify-between mb-6">
               <div>
@@ -401,17 +409,24 @@ const HomePage = () => {
               </Link>
             </div>
 
-            <div className="sf-home-camp-grid" data-sf-m="home-camp-grid">
-              {buildHomeCampaignCards(campaignRows).map((card, index) => (
-                <HomeCampaignCard
-                  key={card.taskId != null ? `task-${card.taskId}` : `mock-${index}`}
-                  card={card}
-                  lang={lang}
-                  t={t}
-                  symbols={symbols}
-                />
-              ))}
-            </div>
+            {homeCampaignCards.length === 0 ? (
+              <div className="sf-home-camp-empty" data-sf-m="home-camp-empty">
+                <p className="text-lg text-gray-600">{t('taskPage.emptyAvailable')}</p>
+                <p className="text-sm mt-2 text-gray-500">{t('taskPage.emptyAvailableHint')}</p>
+              </div>
+            ) : (
+              <div className="sf-home-camp-grid" data-sf-m="home-camp-grid">
+                {homeCampaignCards.map((card) => (
+                  <HomeCampaignCard
+                    key={`task-${String(card.taskId)}`}
+                    card={card}
+                    lang={lang}
+                    t={t}
+                    symbols={symbols}
+                  />
+                ))}
+              </div>
+            )}
           </section>
         </SlideUp>
 

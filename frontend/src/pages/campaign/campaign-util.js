@@ -75,6 +75,25 @@ export const statusKeyOf = (status) => {
 /** 活动 / 任务的对外标识：数字主键优先（写面与路由统一），缺失才回落雪花号。 */
 export const refOf = (row) => String(row?.campaign_id ?? row?.snowflake_id ?? '')
 
+// ============================================================================
+// 任务可见性 —— 列表面唯一谓词（`/campaign` 卡片内任务列 与 首页「热门任务」共用）
+// ----------------------------------------------------------------------------
+// 口径 = `GET /api/campaign/all` 的嵌套 task 面（R1：仅 active 活动 → 仅 status='active'
+// 任务）。首页读口 `/api/home/campaign-tasks` 的 SQL 是 `t.status <> 'draft'`（含 ended），
+// 比列表面宽 ⇒ **前端在唯一谓词处收窄**，否则首页会出现 `/campaign` 里看不到的行
+// （Kevin 2026-10-21：两处必须是同一批任务）。
+// ============================================================================
+export const CAMPAIGN_LISTED_TASK_STATUS = 'active'
+
+/** 任务是否出现在**列表面**（首页卡 / `/campaign` 卡内任务列）。 */
+export const isCampaignListedTask = (status) => String(status ?? '').trim() === CAMPAIGN_LISTED_TASK_STATUS
+
+/** 活动行 ⇒ 列表面任务数组（`tasks` 非数组 ⇒ `[]`；顺序沿用读口给的 `sort, task_id`）。 */
+export const listedTasksOf = (campaign) => {
+  const tasks = Array.isArray(campaign?.tasks) ? campaign.tasks : []
+  return tasks.filter((task) => isCampaignListedTask(task?.status))
+}
+
 /** 子任务类型徽标键（五类；未知类型 ⇒ `null`，调用方回落到 seed 的 `type_label`）。 */
 export const TYPE_CODES = ['x_verify', 'onchain_snapshot', 'survey', 'prediction', 'quiz']
 

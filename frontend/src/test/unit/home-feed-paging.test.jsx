@@ -157,7 +157,10 @@ describe('HomePage · 商品分页（FEED-PAGING-v1）', () => {
     expect(screen.queryByText('聚合口商品')).toBeNull()
     // ★ HOME-CAMP-v1：聚合口的 `tasks` 字段同样不再被消费（任务版块改走 campaign 读口）
     expect(screen.queryByText('任务 A')).toBeNull()
-    expect(document.querySelector('[data-sf-m="home-camp-grid"]')).not.toBeNull()
+    // ★ 去 mock：读口空（`/api/home/campaign-tasks` ⇒ []）⇒ 版块空态、**零假卡**（不再补位）
+    expect(document.querySelector('[data-sf-m="home-camp-grid"]')).toBeNull()
+    expect(document.querySelectorAll('[data-sf-m="home-camp-card"]')).toHaveLength(0)
+    expect(document.querySelector('[data-sf-m="home-camp-empty"]')).not.toBeNull()
     // 返回 36 条（满页）⇒ 仍可能有下一页 ⇒ sentinel 在场且已挂观察器
     expect(document.querySelector('[data-sf-m="feed-sentinel"]')).not.toBeNull()
     expect(document.querySelector('[data-sf-m="feed-end"]')).toBeNull()

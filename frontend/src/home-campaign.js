@@ -1,18 +1,22 @@
 // ============================================================================
 // 首页「热门任务」视图模型（纯函数层：零 React / 零网络，单测直打）
 // ----------------------------------------------------------------------------
-// 口径（Kevin 2026-10-21 派单 · 前端半）：
-//   · 版块恒 **5 张等宽卡**：真数据优先、mock 补足 —— 「第一轮」task 为**主卡**，
-//     不在首位 ⇒ 排到第一；真数据 >1 条时优先真卡、mock 补足 5；空数据 ⇒ 5 张全 mock（版块不塌）。
+// 口径（Kevin 2026-10-21 派单 · 前端半 · **纯真数据**）：
+//   · 版块卡 = **读口行的一一映射**，最多 5 张；「第一轮」task 为**主卡**，
+//     不在首位 ⇒ 排到第一。**零 mock / 零补位**：<5 行就 <5 张卡，0 行 ⇒ `[]`
+//     （渲染层走空态，版块不再造卡）。
+//   · 可见性 = 与 `/campaign` 列表（`GET /api/campaign/all` 的嵌套 task 面）
+//     **同一谓词**：`task.status === 'active'` ∧ 所属活动 active（活动面由读口保证）。
+//     守卫收在 `isCampaignListedTask`（唯一真源，campaign-util 导出），首页与活动卡
+//     共用它 ⇒ 两处看到的是同一批任务，不会出现「首页有、/campaign 没有」的行。
 //   · 主卡识别 = `title` 去首尾空白后逐字等于 `MAIN_TASK_TITLE`（'第一轮'）。
-//   · mock 卡 = **静态常量**（假项目名 / 假活动名 / 头像 = 项目名首字彩色兜底），
-//     不带 `campaign_id` ⇒ 渲染层据此**不渲染链接**（仅展示不可点）。
 //   · 项目头像两形态：`project_avatar_url` 在场 ⇒ 圆形图；缺席 ⇒ 项目名首字 +
 //     `--sf-thumb-N` 渐变兜底（N = 项目名 hash，1..10；**零新色值**：十档全部为既有主题 token，
 //     日/夜两档各自成立）。
 // ============================================================================
+import { isCampaignListedTask } from './pages/campaign/campaign-util'
 
-/** 版块卡位（排满一行）。 */
+/** 版块卡位上限（一行最多 5 张；**不是**补位目标 —— 数据不足不补）。 */
 export const HOME_CAMPAIGN_CARD_SLOTS = 5
 /** 主卡标题（逐字匹配，trim 后比较）。 */
 export const MAIN_TASK_TITLE = '第一轮'
@@ -57,62 +61,22 @@ export const normalizeHomeCampaignRow = (row) => ({
 })
 
 /**
- * mock 补位卡（**静态常量**，仅展示不可点 ⇒ 一律不带 `campaign_id`）。
- * 状态/进度/奖励字段与真卡同形 ⇒ 两类卡共用同一渲染路径，版块在空数据态也不塌。
- * ★ 池内 5 张：常规形态下真数据 ≥1 ⇒ 最多只需补 4 张（派单「4 个假 task」）；
- *   空数据 ⇒ 5 张全用（派单「空 ⇒ 5 张全 mock」）—— 同一常量池同时满足两臂。
- */
-export const MOCK_HOME_CAMPAIGN_CARDS = [
-  {
-    taskId: null, campaignId: null, title: '每日签到打卡', status: 'active',
-    joinedCount: 128, joinedTarget: 500,
-    rewardPrimary: '12', rewardSecondaryAmount: '50', rewardSecondaryCid: '2',
-    campaignTitle: '新赛季社区任务', projectTitle: '星链楼市', projectSlug: '', projectAvatarUrl: '',
-  },
-  {
-    taskId: null, campaignId: null, title: '邀请 3 位好友注册', status: 'active',
-    joinedCount: 89, joinedTarget: 200,
-    rewardPrimary: '30', rewardSecondaryAmount: null, rewardSecondaryCid: null,
-    campaignTitle: '邀新有好礼', projectTitle: '喵喵矿场', projectSlug: '', projectAvatarUrl: '',
-  },
-  {
-    taskId: null, campaignId: null, title: '完成首笔质押', status: 'active',
-    joinedCount: 241, joinedTarget: 1000,
-    rewardPrimary: '88', rewardSecondaryAmount: '200', rewardSecondaryCid: '3',
-    campaignTitle: '质押挑战赛', projectTitle: '深海流动性', projectSlug: '', projectAvatarUrl: '',
-  },
-  {
-    taskId: null, campaignId: null, title: '晒单分享赢奖励', status: 'ended',
-    joinedCount: 512, joinedTarget: 512,
-    rewardPrimary: '6', rewardSecondaryAmount: null, rewardSecondaryCid: null,
-    campaignTitle: '上周回顾', projectTitle: '云上集市', projectSlug: '', projectAvatarUrl: '',
-  },
-  {
-    taskId: null, campaignId: null, title: '回答新手问卷', status: 'active',
-    joinedCount: 73, joinedTarget: 150,
-    rewardPrimary: '4', rewardSecondaryAmount: '20', rewardSecondaryCid: '2',
-    campaignTitle: '新人引导季', projectTitle: '贝壳学院', projectSlug: '', projectAvatarUrl: '',
-  },
-]
-
-/**
- * 读口行集 ⇒ 版块 5 张卡（**唯一装配点**）：
- *   ① 真行归一；② `第一轮` 不在首位 ⇒ 旋转到第一（其余真行相对顺序不变）；
- *   ③ 真行最多取 5；④ 剩余卡位由静态 mock 依序补齐（真数据 >5 ⇒ 零 mock）。
- * 返回行恒带 `isMock` / `isMain` 两个渲染旗标。
+ * 读口行集 ⇒ 首页卡片（**纯映射，唯一装配点**）：
+ *   ① 逐行归一，丢可见性外的行（`isCampaignListedTask`，与 `/campaign` 同一谓词）；
+ *   ② `第一轮` 不在首位 ⇒ 前置到第一（其余行的相对顺序不变）；
+ *   ③ 最多取 `HOME_CAMPAIGN_CARD_SLOTS` 张。
+ * 无数据 ⇒ `[]`（**绝不造卡**；渲染层显示空态）。返回行恒带 `isMain` 渲染旗标。
  */
 export const buildHomeCampaignCards = (rows) => {
-  const real = (Array.isArray(rows) ? rows : []).map(normalizeHomeCampaignRow)
-  const mainIndex = real.findIndex((row) => row.title === MAIN_TASK_TITLE)
-  // 「不在首位 ⇒ 排到第一」= 抽出主卡前置，**其余真卡的相对顺序不变**（不做整体旋转）
+  const listed = (Array.isArray(rows) ? rows : [])
+    .map(normalizeHomeCampaignRow)
+    .filter((row) => isCampaignListedTask(row.status))
+  const mainIndex = listed.findIndex((row) => row.title === MAIN_TASK_TITLE)
+  // 「不在首位 ⇒ 排到第一」= 抽出主卡前置，**其余卡的相对顺序不变**（不做整体旋转）
   const ordered = mainIndex > 0
-    ? [real[mainIndex], ...real.filter((_, index) => index !== mainIndex)]
-    : real
-  const picked = ordered
+    ? [listed[mainIndex], ...listed.filter((_, index) => index !== mainIndex)]
+    : listed
+  return ordered
     .slice(0, HOME_CAMPAIGN_CARD_SLOTS)
-    .map((row) => ({ ...row, isMock: false, isMain: row.title === MAIN_TASK_TITLE }))
-  const fill = MOCK_HOME_CAMPAIGN_CARDS
-    .slice(0, Math.max(0, HOME_CAMPAIGN_CARD_SLOTS - picked.length))
-    .map((row) => ({ ...row, isMock: true, isMain: false }))
-  return [...picked, ...fill]
+    .map((row) => ({ ...row, isMain: row.title === MAIN_TASK_TITLE }))
 }
