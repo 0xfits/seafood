@@ -1,0 +1,69 @@
+{
+  "arms": [
+    {
+      "arm": "① 全量列出 + 触控高度（390）",
+      "optionCount": 3,
+      "texts": [
+        "₿ · BTTC · #4",
+        "Ω · Omega Coin · #10",
+        "T · Test Coin · #21"
+      ],
+      "cids": [
+        "4",
+        "10",
+        "21"
+      ],
+      "cid1Absent": true,
+      "optionMinHeight": 44,
+      "touch44": true,
+      "overflowXBefore": 0,
+      "overflowXPanelOpen": 0,
+      "pageErrors": []
+    },
+    {
+      "arm": "② bttc 过滤 + Enter 写回（390）",
+      "filteredCount": 1,
+      "filteredCids": [
+        "4"
+      ],
+      "filteredTexts": [
+        "₿ · BTTC · #4"
+      ],
+      "urlAfterEnter": "http://sf.local/exchange?base=4",
+      "urlHasBase4": true,
+      "inputValueAfterEnter": "₿",
+      "echoIsSymbol": true,
+      "panelClosedAfterEnter": true,
+      "orderbookCallsAfter": [
+        4
+      ],
+      "orderbookNewCalls": 1,
+      "orderbookHit4": true,
+      "pageErrors": []
+    },
+    {
+      "arm": "③ 1536 档零溢出 + 键盘选择",
+      "optionCount": 3,
+      "overflowXBefore": 0,
+      "overflowXPanelOpen": 0,
+      "urlAfterEnter": "http://sf.local/exchange?base=4",
+      "urlHasBase4": true,
+      "inputValueAfterEnter": "₿",
+      "pageErrors": []
+    }
+  ],
+  "generatedAt": "2026-10-21T07:11:24.336Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "verdict": {
+    "arm1_listAll_noCid1": true,
+    "arm1_touch44_390": true,
+    "arm2_filterBttc_one": true,
+    "arm2_enter_writeUrl_base4": true,
+    "arm2_enter_orderbook_sent": true,
+    "arm2_echo_symbol": true,
+    "arm3_390_no_overflow": true,
+    "arm3_1536_no_overflow": true,
+    "zero_pageerror": true
+  },
+  "allGreen": true
+}
