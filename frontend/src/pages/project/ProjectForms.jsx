@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import { useAuth } from '../../auth-context'
 import {
   appendProjectSubtasks,
@@ -18,16 +18,17 @@ import {
 import { refOf } from '../campaign/campaign-util'
 
 // ============================================================================
-// 项目页三入口表单（【发布 campaign】/【发布任务】/【发布子任务】）
+// 项目页三表单（【发布活动】/【发布任务】/【发布子任务】）
 // ----------------------------------------------------------------------------
-// 硬口径（步 2）：
+// 硬口径（步 2；Kevin 2026-10-21 追加：任务/子任务入口下沉到卡片）：
 //   · 入口显隐 = owner ∨ `manage_tasks` 管理员（父组件判；本组件只被 canManage 时挂载）；
+//   · 【发布活动】挂在页面顶部操作区（唯一顶部入口）；【发布任务】挂在**每张活动卡**头右侧，
+//     打开时 `campaignLock` = 该卡活动 ⇒ **不渲染活动选择器**（预选/锁定，载荷 ref 即该卡）；
+//   · 【发布子任务】挂在**每张任务卡**头右侧，`campaignLock` + `taskLock` 双锁 ⇒ 两个选择器
+//     都不渲染；提交仍「先重读现有 subtasks、再整组追加」（负控不放松）；
 //   · 载荷**一律**由 `project-payload.js` 构造器产出（键集 = 后端闭集，单测逐键对拍）；
-//   · 【发布 campaign】POST 只送五键；「立即上线」勾选 ⇒ 再发一条 PATCH `{status:'active'}`，
+//   · 【发布活动】POST 只送五键；「立即上线」勾选 ⇒ 再发一条 PATCH `{status:'active'}`，
 //     该口服务端**仅管理员** ⇒ 失败时已建草稿保留、页内明示「草稿已建、上线需管理员」；
-//   · 【发布任务】campaign 下拉取读口嵌套行；无 campaign ⇒ 引导先建（切到 campaign 面板）；
-//   · 【发布子任务】提交前**重读**项目详情拿最新 `task.subtasks`，再整组追加：
-//     `buildSubtaskAppendGroup` 断言「旧行 + 1」，断言不过 ⇒ 拒发（零 PATCH）；
 //   · 时间输入用 `datetime-local`，发送前统一 ISO（禁把本地裸串直接发给后端）。
 // ============================================================================
 
@@ -201,6 +202,22 @@ const Notice = ({ notice }) => (
   ) : null
 )
 
+/**
+ * 锁定上下文条（替代选择器）：入口从卡片进入 ⇒ 目标已定，不再让用户改。
+ * 只读、无输入控件、无文案键新增（链上文字取读口行标题）；
+ * `data-sf-ref` / `data-sf-campaign` 供单测与探针对拍「锁的是哪一条」。
+ */
+const LockedContext = ({ items, ...rest }) => (
+  <div className="sf-project-locked" {...rest}>
+    {items.map((item, index) => (
+      <React.Fragment key={`${item.ref}-${index}`}>
+        {index > 0 ? <span className="sf-project-locked-sep" aria-hidden="true">›</span> : null}
+        <span className="sf-project-locked-value">{item.label}</span>
+      </React.Fragment>
+    ))}
+  </div>
+)
+
 const CampaignForm = ({ view, t, onDone, onClose }) => {
   const { user } = useAuth()
   const [form, setForm] = useState({ title: '', description: '', timeStart: '', timeEnd: '', launch: false })
@@ -304,15 +321,11 @@ const CampaignForm = ({ view, t, onDone, onClose }) => {
   )
 }
 
-const TaskForm = ({ view, t, onDone, onClose, onNeedCampaign, currencies }) => {
+const TaskForm = ({ t, onDone, onClose, currencies, campaignLock }) => {
   const { user } = useAuth()
-  const campaigns = Array.isArray(view?.campaigns) ? view.campaigns : []
-  const options = useMemo(
-    () => campaigns.map((campaign) => ({ ref: refOf(campaign), title: campaign?.title || '' })).filter((row) => row.ref),
-    [campaigns],
-  )
+  // 入口在活动卡内 ⇒ 目标活动**预选锁定**（只读芯片代替下拉，载荷 ref 恒为该卡）
+  const lockedRef = refOf(campaignLock)
   const [form, setForm] = useState({
-    campaignRef: options[0]?.ref || '',
     title: '',
     description: '',
     timeStart: '',
@@ -327,14 +340,12 @@ const TaskForm = ({ view, t, onDone, onClose, onNeedCampaign, currencies }) => {
   const [err, setErr] = useState(null)
   const set = (patch) => setForm((prev) => ({ ...prev, ...patch }))
 
-  if (!options.length) {
+  // 防御：活动无主键（读口异形行）不可能有入口；万一被唤起也不得发写请求（零请求、明示原因）。
+  if (!lockedRef) {
     return (
       <div className="sf-project-form" data-sf-m="project-form-task">
         <p className="sf-foot-note" data-sf-m="project-form-need-campaign">{t('project.fNoCampaign')}</p>
         <div className="sf-project-actions">
-          <button type="button" className="sf-project-btn is-primary" data-sf-m="project-form-goto-campaign" onClick={onNeedCampaign}>
-            {t('project.entryCampaign')}
-          </button>
           <button type="button" className="sf-project-btn" data-sf-m="project-form-cancel" onClick={onClose}>
             {t('project.cancel')}
           </button>
@@ -347,10 +358,6 @@ const TaskForm = ({ view, t, onDone, onClose, onNeedCampaign, currencies }) => {
     event.preventDefault()
     if (busy) return
     setErr(null)
-    if (!form.campaignRef) {
-      setErr({ kind: 'err', text: t('project.errNeedCampaign') })
-      return
-    }
     const built = buildTaskPayload({ ...form, subtasks: rows })
     if (!built.ok) {
       setErr({ kind: 'err', text: errorTextOf(built.error, t) })
@@ -358,7 +365,7 @@ const TaskForm = ({ view, t, onDone, onClose, onNeedCampaign, currencies }) => {
     }
     setBusy(true)
     try {
-      await createProjectCampaignTask(form.campaignRef, built.payload, user)
+      await createProjectCampaignTask(lockedRef, built.payload, user)
       onDone({ kind: 'ok', text: t('project.published') })
       onClose?.()
     } catch (error) {
@@ -373,18 +380,11 @@ const TaskForm = ({ view, t, onDone, onClose, onNeedCampaign, currencies }) => {
 
   return (
     <form className="sf-project-form" data-sf-m="project-form-task" onSubmit={submit}>
-      <Field label={t('project.fCampaignSelect')}>
-        <select
-          className="sf-project-input"
-          data-sf-field="campaign"
-          value={form.campaignRef}
-          onChange={(event) => set({ campaignRef: event.target.value })}
-        >
-          {options.map((row) => (
-            <option value={row.ref} key={row.ref}>{row.title || row.ref}</option>
-          ))}
-        </select>
-      </Field>
+      <LockedContext
+        data-sf-m="project-form-campaign-locked"
+        data-sf-ref={lockedRef}
+        items={[{ ref: lockedRef, label: campaignLock?.title || lockedRef }]}
+      />
       <Field label={t('project.fTitle')}>
         <input
           className="sf-project-input"
@@ -503,34 +503,21 @@ const TaskForm = ({ view, t, onDone, onClose, onNeedCampaign, currencies }) => {
   )
 }
 
-const SubtaskForm = ({ view, slug, t, onDone, onClose, onNeedCampaign }) => {
+const SubtaskForm = ({ slug, t, onDone, onClose, campaignLock, taskLock }) => {
   const { user } = useAuth()
-  const campaigns = Array.isArray(view?.campaigns) ? view.campaigns : []
-  const campaignOptions = campaigns
-    .map((campaign) => ({ ref: refOf(campaign), title: campaign?.title || '' }))
-    .filter((row) => row.ref)
-
-  const [campaignRef, setCampaignRef] = useState(campaignOptions[0]?.ref || '')
-  const tasksOf = (ref) => {
-    const campaign = campaigns.find((row) => refOf(row) === ref)
-    return (Array.isArray(campaign?.tasks) ? campaign.tasks : [])
-      .map((task) => ({ ref: String(task?.task_id ?? ''), title: task?.title || '' }))
-      .filter((row) => row.ref)
-  }
-  const firstTasks = campaignRef ? tasksOf(campaignRef) : []
-  const [taskRef, setTaskRef] = useState(firstTasks[0]?.ref || '')
+  // 入口在任务卡内 ⇒ 活动 + 任务**双预选锁定**（两个选择器都不渲染；载荷 ref 恒为该卡）
+  const lockedCampaignRef = refOf(campaignLock)
+  const lockedTaskRef = taskLock?.task_id != null ? String(taskLock.task_id) : ''
   const [row, setRow] = useState(() => blankRow())
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState(null)
 
-  if (!campaignOptions.length) {
+  // 防御：无主键的卡片不渲染入口；万一被唤起也零请求、明示原因（不静默提交到错目标）。
+  if (!lockedCampaignRef || !lockedTaskRef) {
     return (
       <div className="sf-project-form" data-sf-m="project-form-subtask">
-        <p className="sf-foot-note" data-sf-m="project-form-need-campaign">{t('project.fNoCampaign')}</p>
+        <p className="sf-foot-note" data-sf-m="project-form-need-campaign">{t('project.fNoTask')}</p>
         <div className="sf-project-actions">
-          <button type="button" className="sf-project-btn is-primary" data-sf-m="project-form-goto-campaign" onClick={onNeedCampaign}>
-            {t('project.entryCampaign')}
-          </button>
           <button type="button" className="sf-project-btn" data-sf-m="project-form-cancel" onClick={onClose}>
             {t('project.cancel')}
           </button>
@@ -539,31 +526,10 @@ const SubtaskForm = ({ view, slug, t, onDone, onClose, onNeedCampaign }) => {
     )
   }
 
-  const taskOptions = campaignRef ? tasksOf(campaignRef) : []
-
-  const switchCampaign = (ref) => {
-    setCampaignRef(ref)
-    const next = tasksOf(ref)
-    setTaskRef(next[0]?.ref || '')
-    setErr(null)
-  }
-
   const submit = async (event) => {
     event.preventDefault()
     if (busy) return
     setErr(null)
-    if (!campaignRef) {
-      setErr({ kind: 'err', text: t('project.errNeedCampaign') })
-      return
-    }
-    if (!taskOptions.length) {
-      setErr({ kind: 'err', text: t('project.fNoTask') })
-      return
-    }
-    if (!taskRef) {
-      setErr({ kind: 'err', text: t('project.errNeedTask') })
-      return
-    }
     const built = buildSubtaskInput(row)
     if (!built.ok) {
       setErr({ kind: 'err', text: errorTextOf(built.error, t) })
@@ -578,9 +544,9 @@ const SubtaskForm = ({ view, slug, t, onDone, onClose, onNeedCampaign }) => {
       // 先取现有 subtasks（**新鲜读**，不用页面缓存）⇒ 再整组追加；旧行一条都不能丢。
       const fresh = await fetchProjectDetail(slug, user)
       const campaign = (Array.isArray(fresh?.campaigns) ? fresh.campaigns : [])
-        .find((item) => refOf(item) === campaignRef)
+        .find((item) => refOf(item) === lockedCampaignRef)
       const task = (Array.isArray(campaign?.tasks) ? campaign.tasks : [])
-        .find((item) => String(item?.task_id ?? '') === taskRef)
+        .find((item) => String(item?.task_id ?? '') === lockedTaskRef)
       if (!task) {
         setErr({ kind: 'err', text: t('project.errNeedTask') })
         return
@@ -590,7 +556,7 @@ const SubtaskForm = ({ view, slug, t, onDone, onClose, onNeedCampaign }) => {
         setErr({ kind: 'err', text: errorTextOf(grouped.error, t) })
         return
       }
-      await appendProjectSubtasks(taskRef, grouped.group, user)
+      await appendProjectSubtasks(lockedTaskRef, grouped.group, user)
       onDone({ kind: 'ok', text: t('project.published') })
       onClose?.()
     } catch (error) {
@@ -602,35 +568,15 @@ const SubtaskForm = ({ view, slug, t, onDone, onClose, onNeedCampaign }) => {
 
   return (
     <form className="sf-project-form" data-sf-m="project-form-subtask" onSubmit={submit}>
-      <div className="sf-project-row-grid">
-        <Field label={t('project.fCampaignSelect')}>
-          <select
-            className="sf-project-input"
-            data-sf-field="campaign"
-            value={campaignRef}
-            onChange={(event) => switchCampaign(event.target.value)}
-          >
-            {campaignOptions.map((option) => (
-              <option value={option.ref} key={option.ref}>{option.title || option.ref}</option>
-            ))}
-          </select>
-        </Field>
-        <Field label={t('project.fTaskSelect')}>
-          <select
-            className="sf-project-input"
-            data-sf-field="task"
-            value={taskRef}
-            onChange={(event) => setTaskRef(event.target.value)}
-            disabled={!taskOptions.length}
-          >
-            {taskOptions.length ? taskOptions.map((option) => (
-              <option value={option.ref} key={option.ref}>{option.title || option.ref}</option>
-            )) : (
-              <option value="">{t('project.fNoTask')}</option>
-            )}
-          </select>
-        </Field>
-      </div>
+      <LockedContext
+        data-sf-m="project-form-task-locked"
+        data-sf-campaign={lockedCampaignRef}
+        data-sf-ref={lockedTaskRef}
+        items={[
+          { ref: lockedCampaignRef, label: campaignLock?.title || lockedCampaignRef },
+          { ref: lockedTaskRef, label: taskLock?.title || lockedTaskRef },
+        ]}
+      />
 
       <div className="sf-project-rows" data-sf-m="project-subtask-rows">
         <SubtaskRowEditor
@@ -649,7 +595,7 @@ const SubtaskForm = ({ view, slug, t, onDone, onClose, onNeedCampaign }) => {
           type="submit"
           className="sf-project-btn is-primary"
           data-sf-m="project-form-submit"
-          disabled={busy || !taskOptions.length}
+          disabled={busy}
         >
           {busy ? t('project.submitting') : t('project.submitSubtask')}
         </button>
@@ -661,7 +607,7 @@ const SubtaskForm = ({ view, slug, t, onDone, onClose, onNeedCampaign }) => {
   )
 }
 
-const ProjectForms = ({ panel, view, slug, currencies, t, onClose, onDone, onSwitchPanel }) => {
+const ProjectForms = ({ panel, view, slug, currencies, t, onClose, onDone, campaignLock, taskLock }) => {
   if (!panel) return null
   if (panel === 'campaign') {
     return <CampaignForm view={view} t={t} onDone={onDone} onClose={onClose} />
@@ -669,24 +615,23 @@ const ProjectForms = ({ panel, view, slug, currencies, t, onClose, onDone, onSwi
   if (panel === 'task') {
     return (
       <TaskForm
-        view={view}
         t={t}
         currencies={currencies}
+        campaignLock={campaignLock}
         onDone={onDone}
         onClose={onClose}
-        onNeedCampaign={() => onSwitchPanel?.('campaign')}
       />
     )
   }
   if (panel === 'subtask') {
     return (
       <SubtaskForm
-        view={view}
         slug={slug}
         t={t}
+        campaignLock={campaignLock}
+        taskLock={taskLock}
         onDone={onDone}
         onClose={onClose}
-        onNeedCampaign={() => onSwitchPanel?.('campaign')}
       />
     )
   }

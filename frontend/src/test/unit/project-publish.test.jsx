@@ -6,9 +6,11 @@
  *      prediction 恰四键），并反向断言「不得出现的键」（campaign 不得带 status、奖励）；
  *   ② 子任务**整组追加**账目：旧行（可重发）+ 新行，旧行一条不少、顺序不变；
  *      不可重发行（无主键 / 已结算 prediction / payload 越界）显式跳过而非静默丢弃；
- *   ③ 页面三入口：owner 可见、普通用户零入口零表单；
- *   ④ 三个表单提交载荷对拍（含 subtasks 追加 3 = 旧 2 + 新 1，旧行 subtask_id 原样回送）；
- *   ⑤ 嵌套列表三级结构 + 空态文案。
+ *   ③ 嵌套列表三级结构 + 空态文案（只读臂零写入口）；
+ *   ④ 入口布局（Kevin 追加）：顶部操作区**只剩【发布活动】**；【发布任务】在**每张活动卡**头、
+ *      【发布子任务】在**每张任务卡**头（owner 可见 / 普通用户零入口）；无活动或无任务 ⇒ 对应入口缺席；
+ *   ⑤ 两个下沉表单**预选锁定**（不渲染选择器、锁的是被点的那张卡）＋ 提交载荷 ref / 键集对拍
+ *      （含 subtasks 追加 3 = 旧 2 + 新 1，旧行 subtask_id 原样回送）。
  */
 import React from 'react'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
@@ -116,6 +118,37 @@ const viewOf = (patch = {}) => ({
   ],
   ...patch,
 })
+
+// 两活动夹具：证明「每卡一枚入口 + 点哪张锁哪张」（载荷 ref 必须跟着卡走，不能恒取第一张）
+const campaignsTwo = () => {
+  const first = viewOf().campaigns[0]
+  return [
+    first,
+    {
+      campaign_id: 502,
+      title: '冬季招募',
+      description: '冬季说明',
+      status: 'draft',
+      time_start: null,
+      time_end: null,
+      tasks: [
+        {
+          task_id: 556,
+          title: '打包冲量',
+          description: '',
+          status: 'draft',
+          sort: 2,
+          time_start: null,
+          time_end: null,
+          reward_amount_primary: '8',
+          reward_cid_secondary: null,
+          reward_amount_secondary: null,
+          subtasks: [],
+        },
+      ],
+    },
+  ]
+}
 
 const fill = (root, selector, value) => {
   const el = root.querySelector(selector)
@@ -335,6 +368,9 @@ describe('③ 嵌套列表：campaign → task → subtask 三级，空态文案
     expect(badges).toEqual(['campaign.type.x_verify', 'campaign.type.survey'])
     const reqs = [...container.querySelectorAll('[data-sf-m="project-subtask-required"]')].map((el) => el.getAttribute('data-sf-required'))
     expect(reqs).toEqual(['1', '0'])
+    // 只读臂（未传 canManage）⇒ 卡片内零写入口（入口显隐由父组件闸控，组件自身不擅自开）
+    expect(container.querySelectorAll('[data-sf-m="project-campaign-entry-task"]')).toHaveLength(0)
+    expect(container.querySelectorAll('[data-sf-m="project-task-entry-subtask"]')).toHaveLength(0)
   })
 
   it('空态：无活动 ⇒ campaignsEmpty；活动无任务 ⇒ tasksEmpty；任务无子任务 ⇒ subtasksEmpty', () => {
@@ -367,26 +403,114 @@ describe('③ 嵌套列表：campaign → task → subtask 三级，空态文案
 })
 
 // ---------------------------------------------------------------------------
-// ④ 三入口表单（页面级 · 载荷对拍）
+// ④ 入口布局（Kevin 2026-10-21 追加）：顶部只剩【发布活动】，任务入口进活动卡、
+//    子任务入口进任务卡；无活动 / 无任务 ⇒ 对应入口自然缺席
 // ---------------------------------------------------------------------------
-describe('④ 三入口：显隐 + 提交载荷对拍', () => {
-  it('owner 可见三入口，普通用户零入口零表单', async () => {
-    const owner = renderAt('/sui')
-    await waitFor(() => expect(owner.container.querySelector('[data-sf-m="project-manage"]')).not.toBeNull())
-    expect(owner.container.querySelectorAll('[data-sf-m^="project-entry-"]')).toHaveLength(3)
-    owner.unmount()
+describe('④ 入口布局：顶部只剩【发布活动】＋ 每活动卡一枚任务、每任务卡一枚子任务', () => {
+  it('owner：顶部恰 1 个入口（活动）；2 张活动卡各 1 枚任务入口、2 张任务卡各 1 枚子任务入口（各在所属卡头内）', async () => {
+    API.fetchProjectDetail.mockResolvedValue(viewOf({ campaigns: campaignsTwo() }))
+    const { container } = renderAt('/sui')
+    await waitFor(() => expect(container.querySelector('[data-sf-m="project-manage"]')).not.toBeNull())
 
-    AUTH.user = { uID: 99 }
-    API.fetchProjectDetail.mockResolvedValue(viewOf({ owner_uid: 7 }))
-    const plain = renderAt('/sui')
-    await waitFor(() => expect(plain.container.querySelector('[data-sf-m="project-head"]')).not.toBeNull())
-    expect(plain.container.querySelector('[data-sf-m="project-manage"]')).toBeNull()
-    expect(plain.container.querySelector('[data-sf-m="project-form-campaign"]')).toBeNull()
-    expect(plain.container.querySelector('[data-sf-m="project-form-task"]')).toBeNull()
-    expect(plain.container.querySelector('[data-sf-m="project-form-subtask"]')).toBeNull()
+    // ① 顶部操作区只剩【发布活动】：任务 / 子任务入口不再在顶部
+    const topEntries = [...container.querySelectorAll('[data-sf-m="project-manage"] [data-sf-m^="project-entry-"]')]
+    expect(topEntries).toHaveLength(1)
+    expect(topEntries[0].getAttribute('data-sf-m')).toBe('project-entry-campaign')
+    expect(container.querySelector('[data-sf-m="project-entry-task"]')).toBeNull()
+    expect(container.querySelector('[data-sf-m="project-entry-subtask"]')).toBeNull()
+
+    // ② 每张活动卡一枚【发布任务】，ref 跟着卡走（不是恒取第一张）
+    const taskEntries = [...container.querySelectorAll('[data-sf-m="project-campaign-entry-task"]')]
+    expect(taskEntries).toHaveLength(2)
+    expect(taskEntries.map((el) => el.getAttribute('data-sf-ref'))).toEqual(['501', '502'])
+
+    // ③ 每张任务卡一枚【发布子任务】，task id 跟着卡走
+    const subEntries = [...container.querySelectorAll('[data-sf-m="project-task-entry-subtask"]')]
+    expect(subEntries).toHaveLength(2)
+    expect(subEntries.map((el) => el.getAttribute('data-sf-task'))).toEqual(['555', '556'])
+
+    // 入口位置：都在自己卡片头里（不是顶部、不是列表外）
+    const heads = [...container.querySelectorAll('[data-sf-m="project-campaign"] > .sf-project-campaign-head')]
+    expect(heads).toHaveLength(2)
+    for (const head of heads) {
+      expect(head.querySelector('[data-sf-m="project-campaign-entry-task"]')).not.toBeNull()
+    }
+    const taskHeads = [...container.querySelectorAll('[data-sf-m="project-task"] > .sf-project-task-head')]
+    expect(taskHeads).toHaveLength(2)
+    for (const head of taskHeads) {
+      expect(head.querySelector('[data-sf-m="project-task-entry-subtask"]')).not.toBeNull()
+    }
+
+    // 默认零表单（入口不预开）
+    expect(container.querySelector('[data-sf-m="project-form-task"]')).toBeNull()
+    expect(container.querySelector('[data-sf-m="project-form-subtask"]')).toBeNull()
   })
 
-  it('【发布 campaign】默认存草稿：POST 载荷恰五键、零 PATCH；勾「立即上线」再发一条 PATCH{status:active}', async () => {
+  it('普通用户（非 owner ∧ 无 manage_tasks）：三处入口全不渲染、零表单', async () => {
+    AUTH.user = { uID: 99 }
+    API.fetchProjectDetail.mockResolvedValue(viewOf({ owner_uid: 7 }))
+    const { container } = renderAt('/sui')
+    await waitFor(() => expect(container.querySelector('[data-sf-m="project-head"]')).not.toBeNull())
+    expect(container.querySelector('[data-sf-m="project-manage"]')).toBeNull()
+    expect(container.querySelector('[data-sf-m="project-entry-campaign"]')).toBeNull()
+    expect(container.querySelectorAll('[data-sf-m="project-campaign-entry-task"]')).toHaveLength(0)
+    expect(container.querySelectorAll('[data-sf-m="project-task-entry-subtask"]')).toHaveLength(0)
+    expect(container.querySelector('[data-sf-m="project-form-campaign"]')).toBeNull()
+    expect(container.querySelector('[data-sf-m="project-form-task"]')).toBeNull()
+    expect(container.querySelector('[data-sf-m="project-form-subtask"]')).toBeNull()
+  })
+
+  it('无活动 ⇒ 任务入口不出现；活动无任务 ⇒ 子任务入口不出现（零写请求）', async () => {
+    API.fetchProjectDetail.mockResolvedValue(viewOf({ campaigns: [] }))
+    const empty = renderAt('/sui')
+    await waitFor(() => expect(empty.container.querySelector('[data-sf-m="project-campaigns-empty"]')).not.toBeNull())
+    expect(empty.container.querySelectorAll('[data-sf-m="project-campaign"]')).toHaveLength(0)
+    expect(empty.container.querySelectorAll('[data-sf-m="project-campaign-entry-task"]')).toHaveLength(0)
+    expect(empty.container.querySelectorAll('[data-sf-m="project-task-entry-subtask"]')).toHaveLength(0)
+    // 顶部【发布活动】仍在（owner 可先建活动）
+    expect(empty.container.querySelector('[data-sf-m="project-entry-campaign"]')).not.toBeNull()
+    expect(API.createProjectCampaignTask).not.toHaveBeenCalled()
+    empty.unmount()
+
+    const noTasks = viewOf()
+    noTasks.campaigns[0].tasks = []
+    API.fetchProjectDetail.mockResolvedValue(noTasks)
+    const { container } = renderAt('/sui')
+    await waitFor(() => expect(container.querySelector('[data-sf-m="project-tasks-empty"]')).not.toBeNull())
+    // 活动卡在 ⇒ 任务入口在；无任务卡 ⇒ 子任务入口缺席
+    expect(container.querySelectorAll('[data-sf-m="project-campaign-entry-task"]')).toHaveLength(1)
+    expect(container.querySelectorAll('[data-sf-m="project-task-entry-subtask"]')).toHaveLength(0)
+    expect(container.querySelector('[data-sf-m="project-form-subtask"]')).toBeNull()
+    expect(API.appendProjectSubtasks).not.toHaveBeenCalled()
+  })
+
+  it('同一 task_id 出现在两张活动卡下 ⇒ 点第 2 张卡只在该卡开 1 个表单（开合键带活动 ref，不双开）', async () => {
+    const campaigns = campaignsTwo()
+    // 人为造「556 同时在 501 与 502 下」（正常库里 task_id 全局唯一；此处只为钉住开合键口径）
+    campaigns[0].tasks.push({ ...campaigns[1].tasks[0], campaign_id: '501', sort: 2 })
+    API.fetchProjectDetail.mockResolvedValue(viewOf({ campaigns }))
+    const { container } = renderAt('/sui')
+    await waitFor(() => expect(container.querySelectorAll('[data-sf-m="project-task-entry-subtask"]')).toHaveLength(3))
+
+    const cards = [...container.querySelectorAll('[data-sf-m="project-campaign"]')]
+    const secondTask = cards[1].querySelector('[data-sf-m="project-task"][data-sf-task="556"]')
+    fireEvent.click(secondTask.querySelector('[data-sf-m="project-task-entry-subtask"]'))
+    await waitFor(() => expect(secondTask.querySelector('[data-sf-m="project-form-subtask"]')).not.toBeNull())
+
+    // 全局恰 1 个表单，且落在被点的第 2 张活动卡内；第 1 张卡里的同 id 任务**不开**
+    expect(container.querySelectorAll('[data-sf-m="project-form-subtask"]')).toHaveLength(1)
+    expect(cards[0].querySelector('[data-sf-m="project-form-subtask"]')).toBeNull()
+    const locked = cards[1].querySelector('[data-sf-m="project-form-task-locked"]')
+    expect(locked.getAttribute('data-sf-campaign')).toBe('502')
+    expect(locked.getAttribute('data-sf-ref')).toBe('556')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// ⑤ 三个表单：活动（顶部）/ 任务（卡内锁定）/ 子任务（卡内双锁）—— 载荷与 ref 对拍
+// ---------------------------------------------------------------------------
+describe('⑤ 表单：预选锁定（无选择器）＋ 提交载荷 / ref 对拍', () => {
+  it('【发布活动】默认存草稿：POST 载荷恰五键、零 PATCH；勾「立即上线」再发一条 PATCH{status:active}', async () => {
     const first = renderAt('/sui')
     await waitFor(() => expect(first.container.querySelector('[data-sf-m="project-entry-campaign"]')).not.toBeNull())
     fireEvent.click(first.container.querySelector('[data-sf-m="project-entry-campaign"]'))
@@ -421,11 +545,28 @@ describe('④ 三入口：显隐 + 提交载荷对拍', () => {
     await waitFor(() => expect(second.container.querySelector('[data-sf-m="project-form-notice"]').textContent).toBe('project.okLaunched'))
   })
 
-  it('【发布任务】POST 到所选 campaign，载荷七键 + 次币成对 + 一行子任务', async () => {
+  it('【发布任务】点第 2 张活动卡 ⇒ 表单就地落在该卡、锁 502、无活动选择器；提交 POST 到 502', async () => {
+    API.fetchProjectDetail.mockResolvedValue(viewOf({ campaigns: campaignsTwo() }))
     const { container } = renderAt('/sui')
-    await waitFor(() => expect(container.querySelector('[data-sf-m="project-entry-task"]')).not.toBeNull())
-    fireEvent.click(container.querySelector('[data-sf-m="project-entry-task"]'))
-    await waitFor(() => expect(container.querySelector('[data-sf-m="project-form-task"]')).not.toBeNull())
+    await waitFor(() => expect(container.querySelectorAll('[data-sf-m="project-campaign-entry-task"]')).toHaveLength(2))
+    const cards = () => [...container.querySelectorAll('[data-sf-m="project-campaign"]')]
+
+    fireEvent.click(cards()[1].querySelector('[data-sf-m="project-campaign-entry-task"]'))
+    await waitFor(() => expect(cards()[1].querySelector('[data-sf-m="project-form-task"]')).not.toBeNull())
+    // 就地渲染在第二张卡内（不在第一张、也不在顶部操作区）
+    expect(cards()[0].querySelector('[data-sf-m="project-form-task"]')).toBeNull()
+    expect(container.querySelector('[data-sf-m="project-manage"] [data-sf-m="project-form-task"]')).toBeNull()
+    // 预选锁定：锁的是被点的这张卡，选择器不渲染
+    const lockedSecond = cards()[1].querySelector('[data-sf-m="project-form-campaign-locked"]')
+    expect(lockedSecond.getAttribute('data-sf-ref')).toBe('502')
+    expect(lockedSecond.textContent).toContain('冬季招募')
+    expect(container.querySelector('[data-sf-m="project-form-task"] [data-sf-field="campaign"]')).toBeNull()
+
+    // 换点第 1 张卡 ⇒ 只留一个任务表单，锁切到 501
+    fireEvent.click(cards()[0].querySelector('[data-sf-m="project-campaign-entry-task"]'))
+    await waitFor(() => expect(cards()[0].querySelector('[data-sf-m="project-form-task"]')).not.toBeNull())
+    expect(container.querySelectorAll('[data-sf-m="project-form-task"]')).toHaveLength(1)
+    expect(container.querySelector('[data-sf-m="project-form-campaign-locked"]').getAttribute('data-sf-ref')).toBe('501')
 
     const form = '[data-sf-m="project-form-task"]'
     fill(container, `${form} [data-sf-field="title"]`, '转发推文')
@@ -441,6 +582,7 @@ describe('④ 三入口：显隐 + 提交载荷对拍', () => {
 
     await waitFor(() => expect(API.createProjectCampaignTask).toHaveBeenCalledTimes(1))
     const [campaignRef, payload] = API.createProjectCampaignTask.mock.calls[0]
+    // campaignId 对拍：等于被点那张卡的 ref（不是第一张、不是页面缓存里的默认值）
     expect(campaignRef).toBe('501')
     expect(payload).toEqual({
       title: '转发推文',
@@ -461,26 +603,28 @@ describe('④ 三入口：显隐 + 提交载荷对拍', () => {
       }],
     })
     expect(payload).not.toHaveProperty('status')
+    // 提交后收面板、给结论、静默重读
+    await waitFor(() => expect(container.querySelector('[data-sf-m="project-form-task"]')).toBeNull())
+    await waitFor(() => expect(container.querySelector('[data-sf-m="project-form-notice"]').textContent).toBe('project.published'))
   })
 
-  it('【发布任务】无 campaign ⇒ 引导先建（不发请求）', async () => {
-    API.fetchProjectDetail.mockResolvedValue(viewOf({ campaigns: [] }))
+  it('【发布子任务】点任务卡入口 ⇒ 活动 + 任务双锁（两个选择器都不渲染），提交前重读 → 整组追加', async () => {
     const { container } = renderAt('/sui')
-    await waitFor(() => expect(container.querySelector('[data-sf-m="project-entry-task"]')).not.toBeNull())
-    fireEvent.click(container.querySelector('[data-sf-m="project-entry-task"]'))
-    await waitFor(() => expect(container.querySelector('[data-sf-m="project-form-task"]')).not.toBeNull())
-    expect(container.querySelector('[data-sf-m="project-form-need-campaign"]').textContent).toBe('project.fNoCampaign')
-    fireEvent.click(container.querySelector('[data-sf-m="project-form-goto-campaign"]'))
-    await waitFor(() => expect(container.querySelector('[data-sf-m="project-form-campaign"]')).not.toBeNull())
-    expect(API.createProjectCampaignTask).not.toHaveBeenCalled()
-  })
-
-  it('【发布子任务】提交前重读 → 整组追加（旧 2 行带 id 原样回送 + 新 1 行）', async () => {
-    const { container } = renderAt('/sui')
-    await waitFor(() => expect(container.querySelector('[data-sf-m="project-entry-subtask"]')).not.toBeNull())
+    await waitFor(() => expect(container.querySelector('[data-sf-m="project-task-entry-subtask"]')).not.toBeNull())
     const readBefore = API.fetchProjectDetail.mock.calls.length
-    fireEvent.click(container.querySelector('[data-sf-m="project-entry-subtask"]'))
+    fireEvent.click(container.querySelector('[data-sf-m="project-task-entry-subtask"]'))
     await waitFor(() => expect(container.querySelector('[data-sf-m="project-form-subtask"]')).not.toBeNull())
+
+    // 就地渲染在任务卡内；活动 + 任务均锁定，两个选择器都不在
+    const taskCard = container.querySelector('[data-sf-m="project-task"]')
+    expect(taskCard.querySelector('[data-sf-m="project-form-subtask"]')).not.toBeNull()
+    const locked = taskCard.querySelector('[data-sf-m="project-form-task-locked"]')
+    expect(locked.getAttribute('data-sf-campaign')).toBe('501')
+    expect(locked.getAttribute('data-sf-ref')).toBe('555')
+    expect(locked.textContent).toContain('秋季招募')
+    expect(locked.textContent).toContain('转发推文')
+    expect(container.querySelector('[data-sf-m="project-form-subtask"] [data-sf-field="campaign"]')).toBeNull()
+    expect(container.querySelector('[data-sf-m="project-form-subtask"] [data-sf-field="task"]')).toBeNull()
 
     const form = '[data-sf-m="project-form-subtask"]'
     fill(container, `${form} [data-sf-field="type"]`, 'survey')
@@ -495,6 +639,7 @@ describe('④ 三入口：显隐 + 提交载荷对拍', () => {
     const freshOrder = API.fetchProjectDetail.mock.invocationCallOrder[readBefore]
     expect(freshOrder).toBeLessThan(API.appendProjectSubtasks.mock.invocationCallOrder[0])
     const [taskRef, group] = API.appendProjectSubtasks.mock.calls[0]
+    // taskId 对拍：等于被点那张任务卡的 task_id
     expect(taskRef).toBe('555')
     expect(group).toHaveLength(3)
     expect(group[0].subtask_id).toBe('901')
@@ -510,5 +655,29 @@ describe('④ 三入口：显隐 + 提交载荷对拍', () => {
     })
     // 旧行主键全部保留（不丢旧行）
     expect(group.filter((row) => row.subtask_id).map((row) => row.subtask_id)).toEqual(['901', '902'])
+  })
+
+  it('【发布子任务】点第 2 张任务卡 ⇒ taskId 对拍到 556（不写第一张卡）', async () => {
+    API.fetchProjectDetail.mockResolvedValue(viewOf({ campaigns: campaignsTwo() }))
+    const { container } = renderAt('/sui')
+    await waitFor(() => expect(container.querySelectorAll('[data-sf-m="project-task-entry-subtask"]')).toHaveLength(2))
+    const tasks = () => [...container.querySelectorAll('[data-sf-m="project-task"]')]
+    fireEvent.click(tasks()[1].querySelector('[data-sf-m="project-task-entry-subtask"]'))
+    await waitFor(() => expect(tasks()[1].querySelector('[data-sf-m="project-form-subtask"]')).not.toBeNull())
+    expect(tasks()[0].querySelector('[data-sf-m="project-form-subtask"]')).toBeNull()
+    expect(container.querySelectorAll('[data-sf-m="project-form-subtask"]')).toHaveLength(1)
+    expect(container.querySelector('[data-sf-m="project-form-task-locked"]').getAttribute('data-sf-campaign')).toBe('502')
+    expect(container.querySelector('[data-sf-m="project-form-task-locked"]').getAttribute('data-sf-ref')).toBe('556')
+
+    const form = '[data-sf-m="project-form-subtask"]'
+    fill(container, `${form} [data-sf-field="title"]`, '冷库复核')
+    fill(container, `${form} [data-sf-field="sort"]`, '1')
+    submit(container, form)
+    await waitFor(() => expect(API.appendProjectSubtasks).toHaveBeenCalledTimes(1))
+    const [taskRef, group] = API.appendProjectSubtasks.mock.calls[0]
+    expect(taskRef).toBe('556')
+    // 556 下本来没有子任务 ⇒ 组 = 0 旧 + 1 新
+    expect(group).toHaveLength(1)
+    expect(group[0].title).toBe('冷库复核')
   })
 })

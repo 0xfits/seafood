@@ -1,6 +1,6 @@
 {
   "probe": "ops/project-page/probe-project-page.mjs",
-  "startedAt": "2026-10-21T04:13:08.702Z",
+  "startedAt": "2026-10-21T04:37:22.899Z",
   "dist": "/Users/kevin/bistro/seafood/frontend/dist",
   "fixtures": {
     "campaigns": 1,
@@ -225,10 +225,78 @@
         "text": "发布成功。"
       }
     },
+    "1536_multi_campaign": {
+      "entries": [
+        "发布活动"
+      ],
+      "cardTaskEntries": [
+        "501",
+        "502"
+      ],
+      "cardSubtaskEntries": [
+        "555",
+        "556",
+        "557"
+      ],
+      "lockedTask": {
+        "campaign": "502",
+        "task": null,
+        "campaignText": "冬季招募",
+        "taskText": null
+      },
+      "lockedSubtask": {
+        "campaign": null,
+        "task": {
+          "campaign": "502",
+          "task": "557"
+        },
+        "campaignText": null,
+        "taskText": "冬季招募›冷库复核"
+      },
+      "postedRef": "502",
+      "selects": {
+        "campaign": 0,
+        "task": 0
+      },
+      "formsAfterSubtaskEntry": {
+        "campaign": 0,
+        "task": 0,
+        "subtask": 1
+      },
+      "cards": {
+        "campaignOwnHead": 2,
+        "subtaskOwnHead": 3,
+        "campaignCardsExactlyOne": 2,
+        "taskCardsExactlyOne": 3
+      }
+    },
     "1536_plain_user": {
       "present": false,
       "entries": 0,
       "entryTexts": [],
+      "cardTaskEntries": [],
+      "cardSubtaskEntries": [],
+      "taskEntryInCampaignHead": 0,
+      "subtaskEntryInTaskHead": 0,
+      "cards": {
+        "campaignOwnHead": 0,
+        "subtaskOwnHead": 0,
+        "campaignCardsExactlyOne": 0,
+        "taskCardsExactlyOne": 0
+      },
+      "locked": {
+        "campaign": null,
+        "task": null,
+        "campaignText": null,
+        "taskText": null
+      },
+      "selects": {
+        "campaign": 0,
+        "task": 0
+      },
+      "formsInManage": 0,
+      "taskFormInCard": 0,
+      "subtaskFormInTask": 0,
       "forms": {
         "campaign": 0,
         "task": 0,
@@ -248,9 +316,9 @@
         "tasks": 2,
         "subtasks": 3,
         "formOverflowPx": 0,
-        "inputMaxRight": 352.9,
+        "inputMaxRight": 308.4,
         "rows": 1,
-        "entries": 3
+        "entries": 1
       },
       "1536": {
         "overflowPx": 0,
@@ -258,9 +326,9 @@
         "tasks": 2,
         "subtasks": 3,
         "formOverflowPx": 0,
-        "inputMaxRight": 1501,
+        "inputMaxRight": 1407,
         "rows": 1,
-        "entries": 3
+        "entries": 1
       }
     }
   },
@@ -294,7 +362,16 @@
     },
     "entryOwner": {
       "managePresent": true,
-      "threeEntries": true,
+      "topOnlyCampaignEntry": true,
+      "topEntryIsCampaign": true,
+      "noTopTaskEntry": true,
+      "noTopSubtaskEntry": true,
+      "oneTaskEntryPerCampaign": true,
+      "oneSubtaskEntryPerTask": true,
+      "taskEntryInCampaignHead": true,
+      "subtaskEntryInTaskHead": true,
+      "everyCampaignCardOwnsOneEntry": true,
+      "everyTaskCardOwnsOneEntry": true,
       "formsClosedByDefault": true
     },
     "campaignDraft": {
@@ -319,6 +396,11 @@
     },
     "taskForm": {
       "formOpened": true,
+      "formInsideCampaignCard": true,
+      "noFormInManage": true,
+      "lockedCampaignRef": true,
+      "lockedCampaignText": true,
+      "noCampaignSelector": true,
       "postOnce": true,
       "campaignRef": true,
       "keysExactlyClosedSet": true,
@@ -331,6 +413,12 @@
     },
     "subtaskForm": {
       "formOpened": true,
+      "formInsideTaskCard": true,
+      "lockedCampaignRef": true,
+      "lockedTaskRef": true,
+      "lockedTextHasBoth": true,
+      "noCampaignSelector": true,
+      "noTaskSelector": true,
       "patchedOnce": true,
       "patchTaskRef": true,
       "onlySubtasksKey": true,
@@ -343,10 +431,27 @@
       "listReRendered": true,
       "noticeOk": true
     },
+    "multiCampaign": {
+      "topStillOnlyCampaign": true,
+      "oneTaskEntryPerCard": true,
+      "oneSubtaskEntryPerTask": true,
+      "everyCampaignCardOwnsOneEntry": true,
+      "everyTaskCardOwnsOneEntry": true,
+      "lockedSecondCampaign": true,
+      "lockedSecondCampaignText": true,
+      "formInSecondCard": true,
+      "noCampaignSelector": true,
+      "postedToClickedCampaign": true,
+      "subtaskLockedBoth": true,
+      "oneSubtaskFormOpen": true,
+      "subtaskNoSelectors": true,
+      "subtaskFormInTaskCard": true
+    },
     "entryPlain": {
       "manageAbsent": true,
       "zeroEntries": true,
       "zeroForms": true,
+      "zeroCardEntries": true,
       "nestedStillVisible": true,
       "zeroWrites": true
     },
@@ -360,7 +465,7 @@
     }
   },
   "pageErrors": [],
-  "finishedAt": "2026-10-21T04:13:11.266Z",
+  "finishedAt": "2026-10-21T04:37:25.984Z",
   "verdict": {
     "required": [
       {
@@ -474,7 +579,52 @@
         "pass": true
       },
       {
-        "key": "entryOwner.threeEntries",
+        "key": "entryOwner.topOnlyCampaignEntry",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "entryOwner.topEntryIsCampaign",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "entryOwner.noTopTaskEntry",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "entryOwner.noTopSubtaskEntry",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "entryOwner.oneTaskEntryPerCampaign",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "entryOwner.oneSubtaskEntryPerTask",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "entryOwner.taskEntryInCampaignHead",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "entryOwner.subtaskEntryInTaskHead",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "entryOwner.everyCampaignCardOwnsOneEntry",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "entryOwner.everyTaskCardOwnsOneEntry",
         "value": true,
         "pass": true
       },
@@ -569,6 +719,31 @@
         "pass": true
       },
       {
+        "key": "taskForm.formInsideCampaignCard",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "taskForm.noFormInManage",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "taskForm.lockedCampaignRef",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "taskForm.lockedCampaignText",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "taskForm.noCampaignSelector",
+        "value": true,
+        "pass": true
+      },
+      {
         "key": "taskForm.postOnce",
         "value": true,
         "pass": true
@@ -615,6 +790,36 @@
       },
       {
         "key": "subtaskForm.formOpened",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "subtaskForm.formInsideTaskCard",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "subtaskForm.lockedCampaignRef",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "subtaskForm.lockedTaskRef",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "subtaskForm.lockedTextHasBoth",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "subtaskForm.noCampaignSelector",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "subtaskForm.noTaskSelector",
         "value": true,
         "pass": true
       },
@@ -674,6 +879,76 @@
         "pass": true
       },
       {
+        "key": "multiCampaign.topStillOnlyCampaign",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "multiCampaign.oneTaskEntryPerCard",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "multiCampaign.oneSubtaskEntryPerTask",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "multiCampaign.everyCampaignCardOwnsOneEntry",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "multiCampaign.everyTaskCardOwnsOneEntry",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "multiCampaign.oneSubtaskFormOpen",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "multiCampaign.lockedSecondCampaign",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "multiCampaign.lockedSecondCampaignText",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "multiCampaign.formInSecondCard",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "multiCampaign.noCampaignSelector",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "multiCampaign.postedToClickedCampaign",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "multiCampaign.subtaskLockedBoth",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "multiCampaign.subtaskNoSelectors",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "multiCampaign.subtaskFormInTaskCard",
+        "value": true,
+        "pass": true
+      },
+      {
         "key": "entryPlain.manageAbsent",
         "value": true,
         "pass": true
@@ -685,6 +960,11 @@
       },
       {
         "key": "entryPlain.zeroForms",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "entryPlain.zeroCardEntries",
         "value": true,
         "pass": true
       },

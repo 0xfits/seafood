@@ -14,6 +14,15 @@
   gap: 10px;
 }
 
+/* 桌面档（>767）：给右侧**悬浮菜单**（`.sf-fm`，fixed right:16 / 宽 72 / top:45%）留出 96px 走廊。
+ * 若不预留，卡片头右侧的【发布任务】/【发布子任务】会落在悬浮菜单覆盖带上——用户点不到
+ * （实测 1536 档：卡片按钮 right≈1503，悬浮菜单 x∈[1448,1520]）。只在项目页预留，不动 shell。 */
+@media (min-width: 768px) {
+  .sf-project-page > .sf-layout-main {
+    padding-right: 96px;
+  }
+}
+
 /* 头行：标题 + 状态徽标（与 campaign 详情头行同构：标题在左、徽标在右） */
 .sf-project-head-row {
   display: flex;
@@ -119,6 +128,54 @@
 .sf-project-btn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+}
+
+/* 卡片头右侧入口（【发布任务】/【发布子任务】）：比顶部操作按钮小一档，仍保留触控高度 */
+.sf-project-btn.is-card {
+  flex: none;
+  min-height: 30px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* 卡片头右侧簇（状态徽标 / 完成奖 / 入口按钮同排，标题恒占左） */
+.sf-project-head-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-left: auto;
+  min-width: 0;
+}
+
+/* 就地展开的表单外壳（活动卡内任务表单 / 任务卡内子任务表单） */
+.sf-project-card-form {
+  padding-top: 8px;
+  border-top: var(--sf-st-stroke-w-thin, 1px) dashed var(--sf-panel-border, #d0d7de);
+  min-width: 0;
+}
+
+/* 锁定上下文条（预选目标，只读；替代选择器） */
+.sf-project-locked {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  padding: 6px 8px;
+  border-radius: var(--sf-st-radius-btna, 6px);
+  background: var(--sf-bg-soft, #f6f8fa);
+  border: var(--sf-st-stroke-w-thin, 1px) solid var(--sf-panel-border, #d0d7de);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--sf-title-fg, #1f2328);
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.sf-project-locked-sep {
+  font-weight: 400;
+  color: var(--sf-meta-fg, #57606a);
 }
 
 .sf-project-notice {
@@ -255,7 +312,7 @@
 
 .sf-project-task-head {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 8px;
   flex-wrap: wrap;

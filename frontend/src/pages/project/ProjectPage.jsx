@@ -6,6 +6,7 @@ import { getLanguageFromUrl } from '../../utils'
 import { isReservedProjectSlug } from '../../project-slug'
 import { fetchProjectCurrencies, fetchProjectDetail } from './project-api'
 import { isWageProjectEditAdmin, loadListingEditAdmin } from '../item/item-edit-access'
+import { refOf } from '../campaign/campaign-util'
 import NotFoundPage from '../NotFoundPage'
 import ProjectNestedList from './ProjectNestedList'
 import ProjectForms from './ProjectForms'
@@ -16,7 +17,8 @@ import './project.css'
 // ----------------------------------------------------------------------------
 // 形态：项目头（标题 / 状态 / 已招 X/Y / 工资行）→ **详细介绍**（description pre-wrap）→
 //       嵌套活动列表（该项目的 campaigns/tasks/subtasks，与 campaign 详情同族卡片）→
-//       操作区（**仅 owner 或管理员**可见：【发布 campaign】【发布任务】【发布子任务】）。
+//       操作区（**仅 owner 或管理员**可见：顶部只留【发布活动】；【发布任务】在每张活动卡内、
+//       【发布子任务】在每张任务卡内，点击就地开表单且目标预选锁定）。
 //
 // 硬口径：
 //   · `:slug` 路由注册在 App.jsx 内层 `<Routes>` **末位、catch-all 之前**；保留段
@@ -51,7 +53,11 @@ const ProjectPage = () => {
   const [symbols, setSymbols] = useState({})
   const [currencies, setCurrencies] = useState([])
   const [adminFlags, setAdminFlags] = useState(null)
-  const [openPanel, setOpenPanel] = useState(null) // 'campaign' | 'task' | 'subtask' | null
+  // 打开中的面板 + 其锁定目标：'campaign'（顶部）| 'task'（活动卡）| 'subtask'（任务卡）
+  // 活动卡入口 ⇒ `openCampaignRef` = 该卡 ref；任务卡入口 ⇒ 再带 `openTaskRef` = 该卡 task_id。
+  const [openPanel, setOpenPanel] = useState(null)
+  const [openCampaignRef, setOpenCampaignRef] = useState('')
+  const [openTaskRef, setOpenTaskRef] = useState('')
   const [notice, setNotice] = useState(null) // { kind: 'ok' | 'err', text }
 
   const userRef = useRef(user)
@@ -146,18 +152,45 @@ const ProjectPage = () => {
   const amount = num(view?.wage_currency_amount)
   const symbol = symbols[String(view?.wage_cid ?? '')] || ''
 
-  const openEntry = (panel) => {
-    // 双保险：入口按钮本就只对 owner / 管理员渲染；未授权点入口（时序 / 状态漂移）⇒ 页内提示、零请求。
+  // 入口统一闸：未登录 / 无权限 ⇒ 页内提示、零请求（按钮本就只对 owner ∨ 管理员渲染，
+  // 这里是时序 / 状态漂移的双保险）。三个入口（顶部活动、卡内任务、卡内子任务）共用。
+  const allowEntry = () => {
     if (!isAuthenticated) {
       setNotice({ kind: 'err', text: t('project.needLogin') })
-      return
+      return false
     }
     if (!canManage) {
       setNotice({ kind: 'err', text: t('project.noPermission') })
+      return false
+    }
+    return true
+  }
+
+  const closePanels = () => {
+    setOpenPanel(null)
+    setOpenCampaignRef('')
+    setOpenTaskRef('')
+  }
+
+  // 同一入口再点 = 收起；换卡 / 换面板 = 只留一个面板（表单就地渲染在所属卡片内）。
+  const openEntry = (panel, campaignRef = '', taskRef = '') => {
+    if (!allowEntry()) return
+    const same = openPanel === panel && openCampaignRef === campaignRef && openTaskRef === taskRef
+    setNotice(null)
+    if (same) {
+      closePanels()
       return
     }
-    setNotice(null)
-    setOpenPanel((prev) => (prev === panel ? null : panel))
+    setOpenPanel(panel)
+    setOpenCampaignRef(campaignRef)
+    setOpenTaskRef(taskRef)
+  }
+
+  const handleDone = (result) => {
+    // 写口成功（或建成功但未上线）⇒ 先给结论、再静默重读（列表 / 嵌套立即反映新行）
+    setNotice(result)
+    closePanels()
+    load({ silent: true })
   }
 
   return (
@@ -209,17 +242,31 @@ const ProjectPage = () => {
               )}
             </section>
 
-            {/* 嵌套活动列表（campaigns → tasks → subtasks，与 campaign 详情同族卡片、只读） */}
+            {/* 嵌套活动列表（campaigns → tasks → subtasks，与 campaign 详情同族卡片）
+                · 任务 / 子任务入口**下沉到卡片头**：每张活动卡一枚【发布任务】、每张任务卡一枚
+                  【发布子任务】；点开就地渲染表单，目标预选锁定（无选择器）。
+                · 无活动 ⇒ 无活动卡 ⇒ 任务入口自然缺席；活动无任务 ⇒ 无任务卡 ⇒ 子任务入口缺席。 */}
             <ProjectNestedList
               campaigns={view?.campaigns}
               t={t}
               lang={lang}
               symbols={symbols}
+              canManage={canManage}
+              panel={openPanel}
+              openCampaignRef={openCampaignRef}
+              openTaskRef={openTaskRef}
+              slug={slug}
+              currencies={currencies}
+              onEntryTask={(campaign, ref) => openEntry('task', ref || refOf(campaign))}
+              onEntrySubtask={(campaign, task) => openEntry('subtask', refOf(campaign), String(task?.task_id ?? ''))}
+              onClose={closePanels}
+              onDone={handleDone}
             />
 
             {canManage ? (
               <section className="sf-panel sf-project-manage" data-sf-m="project-manage">
                 <h2 className="sf-project-section-title" data-sf-m="project-manage-title">{t('project.manageTitle')}</h2>
+                {/* 顶部操作区只留【发布活动】：任务 / 子任务入口在各卡片头右侧 */}
                 <div className="sf-project-actions">
                   <button
                     type="button"
@@ -228,20 +275,6 @@ const ProjectPage = () => {
                     aria-expanded={openPanel === 'campaign'}
                     onClick={() => openEntry('campaign')}
                   >{t('project.entryCampaign')}</button>
-                  <button
-                    type="button"
-                    className="sf-project-btn is-primary"
-                    data-sf-m="project-entry-task"
-                    aria-expanded={openPanel === 'task'}
-                    onClick={() => openEntry('task')}
-                  >{t('project.entryTask')}</button>
-                  <button
-                    type="button"
-                    className="sf-project-btn is-primary"
-                    data-sf-m="project-entry-subtask"
-                    aria-expanded={openPanel === 'subtask'}
-                    onClick={() => openEntry('subtask')}
-                  >{t('project.entrySubtask')}</button>
                 </div>
                 {notice?.text && !openPanel ? (
                   <p
@@ -254,19 +287,13 @@ const ProjectPage = () => {
                   </p>
                 ) : null}
                 <ProjectForms
-                  panel={openPanel}
+                  panel={openPanel === 'campaign' ? 'campaign' : null}
                   view={view}
                   slug={slug}
                   currencies={currencies}
                   t={t}
-                  onClose={() => setOpenPanel(null)}
-                  onSwitchPanel={(panel) => { setNotice(null); setOpenPanel(panel) }}
-                  onDone={(result) => {
-                    // 写口成功（或建成功但未上线）⇒ 先给结论、再静默重读（列表 / 嵌套立即反映新行）
-                    setNotice(result)
-                    setOpenPanel(null)
-                    load({ silent: true })
-                  }}
+                  onClose={closePanels}
+                  onDone={handleDone}
                 />
               </section>
             ) : null}

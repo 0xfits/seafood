@@ -4,8 +4,11 @@
  * 判据（逐条对齐派单验证项）：
  *   ① `/wage` 卡 href：行有合法 slug ⇒ 整卡是 `<a>` 且 href 含 `/sui`（历史行无 slug ⇒ 仍 `<article>`）；
  *   ② `/sui` 渲染项目头 + 详细介绍 + **三级嵌套**（campaign → task → subtask，数量 / 状态 / 类型徽标）；
- *   ③ 入口显隐：owner 三入口可见；普通用户（非 owner ∧ 无 manage_tasks）零入口零表单；
+ *   ③ 入口布局（Kevin 2026-10-21 追加）：顶部操作区**只剩【发布活动】**；【发布任务】在每张活动卡头、
+ *      【发布子任务】在每张任务卡头（owner 可见；普通用户三处零入口零表单；无活动/无任务 ⇒ 入口缺席）；
  *   ④ 三表单提交载荷**逐键对拍**（含「立即上线」二次 PATCH、次币成对、subtasks 整组追加不丢旧行）；
+ *   ④' 下沉表单**预选锁定**：卡内表单就地渲染、不渲染选择器，锁的 ref = 被点那张卡（campaignId/taskId 对拍，
+ *      多活动臂另验「点第 2 张卡 ⇒ 锁 501≠502」）；
  *   ⑤ 保留段 `/wage` 不被 `:slug` 吞（项目页 hook 零出现、wage 页 hook 在场、零项目读口）；
  *   ⑥ 390 / 1536 两档零溢出（scrollWidth - clientWidth = 0）+ 零 pageerror。
  *
@@ -106,6 +109,34 @@ const projectView = () => ({
           subtasks: [],
         },
       ],
+    },
+  ],
+})
+
+// 多活动臂用夹具：第 2 张活动卡（无 snowflake ⇒ ref 回落 campaign_id；task_id 全局唯一 ⇒ 用 557，
+// 绝不复用 501 下的 556——复用会让「板卡内一枚入口」的读数被「同一 id 两张卡」污染）
+const secondCampaign = () => ({
+  campaign_id: 502,
+  project_id: '11',
+  title: '冬季招募',
+  description: '冬季打包高峰。',
+  status: 'draft',
+  time_start: null,
+  time_end: null,
+  tasks: [
+    {
+      task_id: 557,
+      campaign_id: '502',
+      title: '冷库复核',
+      description: '复核冷库批次。',
+      status: 'draft',
+      sort: 1,
+      time_start: null,
+      time_end: null,
+      reward_amount_primary: '8',
+      reward_cid_secondary: null,
+      reward_amount_secondary: null,
+      subtasks: [],
     },
   ],
 })
@@ -221,8 +252,51 @@ const SNAP_FN = `(() => {
     },
     manage: {
       present: !!q('[data-sf-m="project-manage"]'),
-      entries: qa('[data-sf-m^="project-entry-"]').length,
-      entryTexts: qa('[data-sf-m^="project-entry-"]').map((el) => txt(el)),
+      // 顶部操作区入口（现在只应剩【发布活动】一枚；卡片内入口用下面两组独立读数）
+      entries: qa('[data-sf-m="project-manage"] [data-sf-m^="project-entry-"]').length,
+      entryTexts: qa('[data-sf-m="project-manage"] [data-sf-m^="project-entry-"]').map((el) => txt(el)),
+      // 卡片内入口：活动卡【发布任务】（ref 列表）/ 任务卡【发布子任务】（task 列表）
+      cardTaskEntries: qa('[data-sf-m="project-campaign-entry-task"]').map((el) => el.getAttribute('data-sf-ref')),
+      cardSubtaskEntries: qa('[data-sf-m="project-task-entry-subtask"]').map((el) => el.getAttribute('data-sf-task')),
+      // 入口是否在所属卡头内（而不是漂在列表外）
+      taskEntryInCampaignHead: qa('[data-sf-m="project-campaign"] > .sf-project-campaign-head [data-sf-m="project-campaign-entry-task"]').length,
+      subtaskEntryInTaskHead: qa('[data-sf-m="project-task"] > .sf-project-task-head [data-sf-m="project-task-entry-subtask"]').length,
+      // 归属读数（closest/contains 判定）：入口是否真在**自己**那张卡的卡头里，且每张卡恰一枚
+      cards: {
+        campaignOwnHead: qa('[data-sf-m="project-campaign-entry-task"]').filter((el) => {
+          const card = el.closest('[data-sf-m="project-campaign"]')
+          const head = card ? card.querySelector(':scope > .sf-project-campaign-head') : null
+          return Boolean(head) && head.contains(el)
+        }).length,
+        subtaskOwnHead: qa('[data-sf-m="project-task-entry-subtask"]').filter((el) => {
+          const card = el.closest('[data-sf-m="project-task"]')
+          const head = card ? card.querySelector(':scope > .sf-project-task-head') : null
+          return Boolean(head) && head.contains(el)
+        }).length,
+        campaignCardsExactlyOne: qa('[data-sf-m="project-campaign"]').filter((el) => (
+          el.querySelectorAll(':scope > .sf-project-campaign-head [data-sf-m="project-campaign-entry-task"]').length === 1
+        )).length,
+        taskCardsExactlyOne: qa('[data-sf-m="project-task"]').filter((el) => (
+          el.querySelectorAll(':scope > .sf-project-task-head [data-sf-m="project-task-entry-subtask"]').length === 1
+        )).length,
+      },
+      // 下沉表单的锁定读数 + 选择器缺席读数
+      locked: {
+        campaign: (() => { const el = q('[data-sf-m="project-form-campaign-locked"]'); return el ? el.getAttribute('data-sf-ref') : null })(),
+        task: (() => {
+          const el = q('[data-sf-m="project-form-task-locked"]')
+          return el ? { campaign: el.getAttribute('data-sf-campaign'), task: el.getAttribute('data-sf-ref') } : null
+        })(),
+        campaignText: txt(q('[data-sf-m="project-form-campaign-locked"]')),
+        taskText: txt(q('[data-sf-m="project-form-task-locked"]')),
+      },
+      selects: {
+        campaign: qa('[data-sf-field="campaign"]').length,
+        task: qa('[data-sf-field="task"]').length,
+      },
+      formsInManage: qa('[data-sf-m="project-manage"] [data-sf-m^="project-form-"]').length,
+      taskFormInCard: qa('[data-sf-m="project-campaign"] [data-sf-m="project-form-task"]').length,
+      subtaskFormInTask: qa('[data-sf-m="project-task"] [data-sf-m="project-form-subtask"]').length,
       forms: {
         campaign: qa('[data-sf-m="project-form-campaign"]').length,
         task: qa('[data-sf-m="project-form-task"]').length,
@@ -344,7 +418,22 @@ async function main() {
   // ============================ ③ 入口显隐（owner 臂） ============================
   out.assertions.entryOwner = {
     managePresent: projSnap.manage.present === true,
-    threeEntries: projSnap.manage.entries === 3,
+    // 顶部只剩【发布活动】（旧判据 threeEntries===3 已被 Kevin 追加口径取代：任务/子任务入口下沉卡片）
+    topOnlyCampaignEntry: projSnap.manage.entries === 1,
+    topEntryIsCampaign: JSON.stringify(projSnap.manage.entryTexts) === JSON.stringify([ZH.project.entryCampaign]),
+    noTopTaskEntry: !projSnap.manage.entryTexts.includes(ZH.project.entryTask),
+    noTopSubtaskEntry: !projSnap.manage.entryTexts.includes(ZH.project.entrySubtask),
+    oneTaskEntryPerCampaign: JSON.stringify(projSnap.manage.cardTaskEntries) === JSON.stringify(['501']),
+    // 每张任务卡恰一枚（含「无子任务」的 556——入口按卡渲染，不按已有子任务行数）
+    oneSubtaskEntryPerTask: JSON.stringify(projSnap.manage.cardSubtaskEntries) === JSON.stringify(['555', '556']),
+    taskEntryInCampaignHead: projSnap.manage.taskEntryInCampaignHead === 1,
+    subtaskEntryInTaskHead: projSnap.manage.subtaskEntryInTaskHead === 2
+      && projSnap.manage.subtaskEntryInTaskHead === projSnap.project.tasks,
+    // 归属：入口在**自己**卡片的卡头里（closest 判定），且每卡恰一枚（不是 0 枚 / 不是 2 枚）
+    everyCampaignCardOwnsOneEntry: projSnap.manage.cards.campaignOwnHead === 1
+      && projSnap.manage.cards.campaignCardsExactlyOne === 1,
+    everyTaskCardOwnsOneEntry: projSnap.manage.cards.subtaskOwnHead === 2
+      && projSnap.manage.cards.taskCardsExactlyOne === 2,
     formsClosedByDefault: projSnap.manage.forms.campaign === 0 && projSnap.manage.forms.task === 0 && projSnap.manage.forms.subtask === 0,
   }
 
@@ -411,8 +500,8 @@ async function main() {
     noticeOk: Boolean(afterLaunch.manage.notice && afterLaunch.manage.notice.kind === 'ok'),
   }
 
-  // ============================ ④-c 发布任务（次币成对 + 一行子任务） ============================
-  await page.click('[data-sf-m="project-entry-task"]')
+  // ============================ ④-c 发布任务（入口在活动卡内；锁 501；次币成对 + 一行子任务） ==========
+  await page.click('[data-sf-m="project-campaign-entry-task"][data-sf-ref="501"]')
   await settle(page)
   const taskFormSnap = await page.evaluate(SNAP_FN)
   await page.fill('[data-sf-m="project-form-task"] [data-sf-field="title"]', '打包冲量')
@@ -441,6 +530,13 @@ async function main() {
   }
   out.assertions.taskForm = {
     formOpened: taskFormSnap.manage.forms.task === 1,
+    // 下沉形态：表单就地在该活动卡内、顶部操作区里没有表单
+    formInsideCampaignCard: taskFormSnap.manage.taskFormInCard === 1,
+    noFormInManage: taskFormSnap.manage.formsInManage === 0,
+    // 预选锁定：锁的是被点的活动 501，活动选择器不渲染
+    lockedCampaignRef: taskFormSnap.manage.locked.campaign === '501',
+    lockedCampaignText: String(taskFormSnap.manage.locked.campaignText || '').includes('秋季招募'),
+    noCampaignSelector: taskFormSnap.manage.selects.campaign === 0,
     postOnce: STATE.bodies.task.length === 1,
     campaignRef: taskCall.ref === '501',
     keysExactlyClosedSet: JSON.stringify(keysOf(taskBody)) === JSON.stringify([
@@ -458,7 +554,7 @@ async function main() {
   // 前置：把夹具行恢复成「任务 555 有 2 条旧子任务」的干净态（任务表单那臂不改 555）
   STATE.bodies.subtaskPatch.length = 0
   const beforePatch = STATE.view.campaigns[0].tasks[0].subtasks.length
-  await page.click('[data-sf-m="project-entry-subtask"]')
+  await page.click('[data-sf-m="project-task-entry-subtask"][data-sf-task="555"]')
   await settle(page)
   const subFormSnap = await page.evaluate(SNAP_FN)
   await page.selectOption('[data-sf-m="project-form-subtask"] [data-sf-field="type"]', 'quiz')
@@ -484,6 +580,15 @@ async function main() {
   }
   out.assertions.subtaskForm = {
     formOpened: subFormSnap.manage.forms.subtask === 1,
+    // 下沉形态：表单就地在该任务卡内
+    formInsideTaskCard: subFormSnap.manage.subtaskFormInTask === 1,
+    // 双预选锁定：活动 501 + 任务 555，两个选择器都不渲染
+    lockedCampaignRef: subFormSnap.manage.locked.task?.campaign === '501',
+    lockedTaskRef: subFormSnap.manage.locked.task?.task === '555',
+    lockedTextHasBoth: String(subFormSnap.manage.locked.taskText || '').includes('秋季招募')
+      && String(subFormSnap.manage.locked.taskText || '').includes('转发推文'),
+    noCampaignSelector: subFormSnap.manage.selects.campaign === 0,
+    noTaskSelector: subFormSnap.manage.selects.task === 0,
     patchedOnce: STATE.bodies.subtaskPatch.length === 1,
     patchTaskRef: subCall.ref === '555',
     onlySubtasksKey: JSON.stringify(keysOf(subCall.body)) === JSON.stringify(['subtasks']),
@@ -497,6 +602,62 @@ async function main() {
     noticeOk: Boolean(afterSub.manage.notice && afterSub.manage.notice.kind === 'ok'),
   }
 
+  // ============================ ④-e 多活动臂：每卡一枚 + 点哪张锁哪张（campaignId / taskId 对拍） =====
+  STATE.view.campaigns.push(secondCampaign())
+  STATE.bodies.task.length = 0
+  const multiSnap = await open('/sui', '[data-sf-m="project-page"]')
+  await page.click('[data-sf-m="project-campaign-list"] > [data-sf-m="project-campaign"]:nth-child(2) [data-sf-m="project-campaign-entry-task"]')
+  await settle(page)
+  const multiTaskSnap = await page.evaluate(SNAP_FN)
+  await page.fill('[data-sf-m="project-form-task"] [data-sf-field="title"]', '冷库复核')
+  await page.fill('[data-sf-m="project-form-task"] [data-sf-field="reward"]', '8')
+  await page.fill('[data-sf-m="project-form-task"] [data-sf-field="sort"]', '1')
+  await page.click('[data-sf-m="project-form-task"] [data-sf-m="project-form-submit"]')
+  await page.waitForFunction(() => !!document.querySelector('[data-sf-m="project-manage"] > [data-sf-m="project-form-notice"]'), null, { timeout: 8000 }).catch(() => {})
+  await settle(page)
+  const multiTaskCall = STATE.bodies.task[0] || {}
+  // 按「活动 502 卡内的任务 557」定位：选择器锚到活动卡，杜绝同 id 命中别张卡（读数串卡）
+  await page.click('[data-sf-m="project-campaign"][data-sf-ref="502"] [data-sf-m="project-task"][data-sf-task="557"] [data-sf-m="project-task-entry-subtask"]')
+  await settle(page)
+  const multiSubSnap = await page.evaluate(SNAP_FN)
+  await page.click('[data-sf-m="project-form-subtask"] [data-sf-m="project-form-cancel"]')
+  await settle(page)
+  STATE.view.campaigns.pop()
+  out.states['1536_multi_campaign'] = {
+    entries: multiSnap.manage.entryTexts,
+    cardTaskEntries: multiSnap.manage.cardTaskEntries,
+    cardSubtaskEntries: multiSnap.manage.cardSubtaskEntries,
+    lockedTask: multiTaskSnap.manage.locked,
+    lockedSubtask: multiSubSnap.manage.locked,
+    postedRef: multiTaskCall.ref,
+    selects: multiSubSnap.manage.selects,
+    formsAfterSubtaskEntry: multiSubSnap.manage.forms,
+    cards: multiSnap.manage.cards,
+  }
+  out.assertions.multiCampaign = {
+    topStillOnlyCampaign: multiSnap.manage.entries === 1 && multiSnap.manage.entryTexts[0] === ZH.project.entryCampaign,
+    oneTaskEntryPerCard: JSON.stringify(multiSnap.manage.cardTaskEntries) === JSON.stringify(['501', '502']),
+    // 3 张任务卡（501:555 / 501:556 / 502:557）各一枚，id 全局唯一 ⇒ 数组无重复
+    oneSubtaskEntryPerTask: JSON.stringify(multiSnap.manage.cardSubtaskEntries) === JSON.stringify(['555', '556', '557']),
+    everyCampaignCardOwnsOneEntry: multiSnap.manage.cards.campaignOwnHead === 2
+      && multiSnap.manage.cards.campaignCardsExactlyOne === 2,
+    everyTaskCardOwnsOneEntry: multiSnap.manage.cards.subtaskOwnHead === 3
+      && multiSnap.manage.cards.taskCardsExactlyOne === 3
+      && multiSnap.manage.subtaskEntryInTaskHead === 3,
+    // 点第 2 张活动卡 ⇒ 锁第 2 张（501 不得串到 502 上）
+    lockedSecondCampaign: multiTaskSnap.manage.locked.campaign === '502',
+    lockedSecondCampaignText: String(multiTaskSnap.manage.locked.campaignText || '').includes('冬季招募'),
+    formInSecondCard: multiTaskSnap.manage.taskFormInCard === 1,
+    noCampaignSelector: multiTaskSnap.manage.selects.campaign === 0,
+    postedToClickedCampaign: multiTaskCall.ref === '502',
+    // 点第 2 张任务卡 ⇒ 锁 502 / 556
+    subtaskLockedBoth: multiSubSnap.manage.locked.task?.campaign === '502' && multiSubSnap.manage.locked.task?.task === '557',
+    // 只开一张：点 502 的任务入口后，全局恰 1 个子任务表单（不得两张卡各开一个）
+    oneSubtaskFormOpen: multiSubSnap.manage.forms.subtask === 1,
+    subtaskNoSelectors: multiSubSnap.manage.selects.campaign === 0 && multiSubSnap.manage.selects.task === 0,
+    subtaskFormInTaskCard: multiSubSnap.manage.subtaskFormInTask === 1,
+  }
+
   // ============================ ③-b 普通用户臂（非 owner ∧ 无管理员能力） ============================
   // ★ owner 判定取读口行 `owner_uid`（不是 /api/user）⇒ 两处同时改：行主换人 + /api/user 无管理员三键
   STATE.userPayload = { uID: 999999 }
@@ -508,6 +669,7 @@ async function main() {
     manageAbsent: plainSnap.manage.present === false,
     zeroEntries: plainSnap.manage.entries === 0,
     zeroForms: plainSnap.manage.forms.campaign === 0 && plainSnap.manage.forms.task === 0 && plainSnap.manage.forms.subtask === 0,
+    zeroCardEntries: plainSnap.manage.cardTaskEntries.length === 0 && plainSnap.manage.cardSubtaskEntries.length === 0,
     nestedStillVisible: plainSnap.project.campaigns === 1 && plainSnap.project.subtasks >= 2,
     zeroWrites: STATE.calls.filter((c) => c.method !== 'GET').length === 0,
   }
@@ -519,7 +681,7 @@ async function main() {
   for (const [label, width, height] of [['390', 390, 844], ['1536', 1536, 960]]) {
     await page.setViewportSize({ width, height })
     const snap = await open('/sui', '[data-sf-m="project-page"]')
-    await page.click('[data-sf-m="project-entry-task"]')
+    await page.click('[data-sf-m="project-campaign-entry-task"]')
     await settle(page)
     const formSnap = await page.evaluate(SNAP_FN)
     geometry[label] = {
@@ -555,21 +717,36 @@ async function main() {
     'projectPage.campaignTitleLinked', 'projectPage.campaignState', 'projectPage.tasks2', 'projectPage.taskTitles',
     'projectPage.taskRewards', 'projectPage.subtasks2', 'projectPage.subtaskTypes5',
     'projectPage.subtaskCodesNotLeaked', 'projectPage.requiredFlags',
-    'entryOwner.managePresent', 'entryOwner.threeEntries', 'entryOwner.formsClosedByDefault',
+    'entryOwner.managePresent', 'entryOwner.topOnlyCampaignEntry', 'entryOwner.topEntryIsCampaign',
+    'entryOwner.noTopTaskEntry', 'entryOwner.noTopSubtaskEntry', 'entryOwner.oneTaskEntryPerCampaign',
+    'entryOwner.oneSubtaskEntryPerTask', 'entryOwner.taskEntryInCampaignHead', 'entryOwner.subtaskEntryInTaskHead',
+    'entryOwner.everyCampaignCardOwnsOneEntry', 'entryOwner.everyTaskCardOwnsOneEntry',
+    'entryOwner.formsClosedByDefault',
     'campaignDraft.formOpened', 'campaignDraft.postOnce', 'campaignDraft.keysExactlyClosedSet',
     'campaignDraft.projectIdFromPage', 'campaignDraft.titleAndDesc', 'campaignDraft.timesIso',
     'campaignDraft.noStatusKey', 'campaignDraft.noRewardKeys', 'campaignDraft.noLaunchPatch',
     'campaignDraft.noticeOk', 'campaignDraft.relisted',
     'campaignLaunch.postOnce', 'campaignLaunch.patchOnce', 'campaignLaunch.patchRefIsCreated',
     'campaignLaunch.patchBodyOnlyStatus', 'campaignLaunch.noticeOk',
-    'taskForm.formOpened', 'taskForm.postOnce', 'taskForm.campaignRef', 'taskForm.keysExactlyClosedSet',
+    'taskForm.formOpened', 'taskForm.formInsideCampaignCard', 'taskForm.noFormInManage',
+    'taskForm.lockedCampaignRef', 'taskForm.lockedCampaignText', 'taskForm.noCampaignSelector',
+    'taskForm.postOnce', 'taskForm.campaignRef', 'taskForm.keysExactlyClosedSet',
     'taskForm.rewardPrimaryUsd', 'taskForm.secondaryPair', 'taskForm.oneSubtask', 'taskForm.subtaskKeysExactly',
     'taskForm.subtaskFields', 'taskForm.noStatusKey',
-    'subtaskForm.formOpened', 'subtaskForm.patchedOnce', 'subtaskForm.patchTaskRef', 'subtaskForm.onlySubtasksKey',
+    'subtaskForm.formOpened', 'subtaskForm.formInsideTaskCard', 'subtaskForm.lockedCampaignRef',
+    'subtaskForm.lockedTaskRef', 'subtaskForm.lockedTextHasBoth', 'subtaskForm.noCampaignSelector',
+    'subtaskForm.noTaskSelector', 'subtaskForm.patchedOnce', 'subtaskForm.patchTaskRef', 'subtaskForm.onlySubtasksKey',
     'subtaskForm.groupIsOldPlusOne', 'subtaskForm.oldRowsResentWithId', 'subtaskForm.oldIdsPreserved',
     'subtaskForm.oldPayloadPreserved', 'subtaskForm.newRowLast', 'subtaskForm.freshReadBeforePatch',
     'subtaskForm.listReRendered', 'subtaskForm.noticeOk',
-    'entryPlain.manageAbsent', 'entryPlain.zeroEntries', 'entryPlain.zeroForms', 'entryPlain.nestedStillVisible',
+    'multiCampaign.topStillOnlyCampaign', 'multiCampaign.oneTaskEntryPerCard', 'multiCampaign.oneSubtaskEntryPerTask',
+    'multiCampaign.everyCampaignCardOwnsOneEntry', 'multiCampaign.everyTaskCardOwnsOneEntry',
+    'multiCampaign.oneSubtaskFormOpen',
+    'multiCampaign.lockedSecondCampaign', 'multiCampaign.lockedSecondCampaignText', 'multiCampaign.formInSecondCard',
+    'multiCampaign.noCampaignSelector', 'multiCampaign.postedToClickedCampaign', 'multiCampaign.subtaskLockedBoth',
+    'multiCampaign.subtaskNoSelectors', 'multiCampaign.subtaskFormInTaskCard',
+    'entryPlain.manageAbsent', 'entryPlain.zeroEntries', 'entryPlain.zeroForms', 'entryPlain.zeroCardEntries',
+    'entryPlain.nestedStillVisible',
     'entryPlain.zeroWrites',
     'geometry.zeroOverflow390', 'geometry.zeroOverflow1536', 'geometry.inputsWithinViewport390',
     'geometry.inputsWithinViewport1536', 'geometry.formRendersOnBoth', 'geometry.zeroPageErrors',

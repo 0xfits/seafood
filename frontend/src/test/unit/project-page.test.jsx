@@ -153,13 +153,27 @@ describe('项目页 `/:slug` · 步 1 骨架', () => {
 
   // ---------------------------------------------------------------- ④ 入口显隐
   describe('④ 操作区入口显隐（owner ∨ manage_tasks 管理员，且项目未 ended）', () => {
-    it('owner 臂：本人项目（recruiting）⇒ 三个入口可见', async () => {
-      API.fetchProjectDetail.mockResolvedValue(rowOf({ owner_uid: 7 }))
+    it('owner 臂：本人项目（recruiting）⇒ 顶部只【发布活动】，任务 / 子任务入口下沉到卡头', async () => {
+      API.fetchProjectDetail.mockResolvedValue(rowOf({
+        owner_uid: 7,
+        campaigns: [{
+          campaign_id: 501,
+          title: '秋季招募',
+          status: 'active',
+          tasks: [{ task_id: 555, title: '转发推文', status: 'active', sort: 1, subtasks: [] }],
+        }],
+      }))
       const { container } = renderAt('/sui')
       await waitFor(() => expect(container.querySelector('[data-sf-m="project-manage"]')).not.toBeNull())
       expect(container.querySelector('[data-sf-m="project-entry-campaign"]')).not.toBeNull()
-      expect(container.querySelector('[data-sf-m="project-entry-task"]')).not.toBeNull()
-      expect(container.querySelector('[data-sf-m="project-entry-subtask"]')).not.toBeNull()
+      // 入口下沉（Kevin 2026-10-21）：顶部操作区不再渲染【发布任务】/【发布子任务】
+      expect(container.querySelector('[data-sf-m="project-entry-task"]')).toBeNull()
+      expect(container.querySelector('[data-sf-m="project-entry-subtask"]')).toBeNull()
+      // 下沉版：活动卡头一枚【发布任务】、任务卡头一枚【发布子任务】
+      const campaignHead = container.querySelector('[data-sf-m="project-campaign"] > .sf-project-campaign-head')
+      expect(campaignHead.querySelector('[data-sf-m="project-campaign-entry-task"]')).not.toBeNull()
+      const taskHead = container.querySelector('[data-sf-m="project-task"] > .sf-project-task-head')
+      expect(taskHead.querySelector('[data-sf-m="project-task-entry-subtask"]')).not.toBeNull()
     })
 
     it('管理员臂：非 owner 但 manage_tasks ⇒ 三个入口可见', async () => {
