@@ -3548,6 +3548,9 @@ app.get('/api/project/:ref', async (req, res) => {
 // ----------------------------------------------------------------------------
 // GET /api/home/campaign-tasks —— 首页热门任务卡的数据面（公开 · 零门禁）：
 //   · 行集 = active campaign 下非 draft task（project 非 ended），按 time_created DESC 取 20；
+//   · p75 加性（2026-10-22）：每行附 `subtasks[]{subtask_id, type_code, title, required, sort}`
+//     （按 sort ASC, subtask_id ASC；无子任务 ⇒ `[]`；payload / content / 奖励口径**零下发**）——
+//     卡片除 task 标题外要列子任务标题；批量取（1 条 SQL）⇒ **零 N+1**、零新路由、零新错误码；
 //   · 空 ⇒ 200 []（前端按「无真数据 ⇒ mock 补足」降级，版块不塌）；
 //   · 公共缓存 = 同族 `setPublicCache`（30s + stale-while-revalidate 300s）；
 //   · 基础设施异常 ⇒ `sendInfraMapped`（503 + 机读 reason），**绝不**硬编码 500。

@@ -656,6 +656,19 @@ export const getProjectDetailByRef = async (
 //   · 排序 = `task.time_created DESC, task_id DESC` LIMIT 20；空 ⇒ []（200，不是 404/500）。
 // 出参全部字符串/数字：bigint 走 `::text`（route #67），金额保持十进制字符串（防精度丢失）。
 // ============================================================================
+/**
+ * 首页卡片 **子任务摘要**（p75 · 2026-10-22 派单）：**恰五键** —— 只够画「子任务清单」的最小骨架，
+ * **零泄露**：payload（quiz 正确答案 / prediction correct_option）· content（长文）· reward_amount
+ * （答对奖）· 任何奖励口径都**不下发**（前端卡片不需要，也不该拿到题库答案）。
+ */
+export interface HomeTaskSubtask {
+  subtask_id: string;
+  type_code: string;
+  title: string;
+  required: boolean;
+  sort: number;
+}
+
 export interface HomeCampaignTaskRow {
   task_id: string;
   title: string;
@@ -673,6 +686,11 @@ export interface HomeCampaignTaskRow {
   project_title: string;
   project_slug: string;
   project_avatar_url: string | null;
+  /**
+   * **加性（p75）**：本 task 的子任务摘要，按 `sort ASC, subtask_id ASC`；
+   * 无子任务 ⇒ **`[]`**（键**恒在场**，不省略 —— 前端 `row.subtasks.length` 免空判断）。
+   */
+  subtasks: HomeTaskSubtask[];
 }
 
 const HOME_TASK_DESCRIPTION_MAX = 120;
@@ -708,6 +726,34 @@ const HOME_CAMPAIGN_TASKS_SQL = `
    ORDER BY t.time_created DESC, t.task_id DESC
    LIMIT 20`;
 
+/**
+ * 首页卡片 `subtasks[]` 的**一次性批量取**（p75）—— **零 N+1**：本读口恒 **≤2 条语句**
+ * （上方行集 1 条 ＋ 本语句 1 条），查询数**不随行数增长**（20 行也是 2 条）。
+ *   · 归属收口 `s.task_id = ANY(string_to_array($1, ',')::bigint[])` ⇒ 只取本页 task 的子任务
+ *     （负控：去掉这一支 = 取全表子任务 ⇒ 别家子任务串进卡片，p75 臂③ 必红）；
+ *   · 排序 `sort ASC, subtask_id ASC`（同 `sort` 由 id 定序 ⇒ 前端顺序稳定，与库内一致）；
+ *   · **零泄露**：只 SELECT 五列 —— payload（quiz 答案 / prediction correct_option）· content（长文）
+ *     · reward_amount（答对奖）**一律不出表**（不是「取了再剥」，是根本不查）。
+ */
+const HOME_TASK_SUBTASKS_SQL = `
+  SELECT s.task_id::text    AS task_id,
+         s.subtask_id::text AS subtask_id,
+         s.type_code        AS type_code,
+         s.title            AS title,
+         s.required         AS required,
+         s.sort             AS sort
+    FROM public.subtask AS s
+   WHERE s.task_id = ANY(string_to_array($1::text, ',')::bigint[])
+   ORDER BY s.task_id ASC, s.sort ASC, s.subtask_id ASC`;
+
+const normalizeHomeTaskSubtaskRow = (row: Row): HomeTaskSubtask => ({
+  subtask_id: str(row.subtask_id),
+  type_code: str(row.type_code),
+  title: str(row.title),
+  required: row.required === true,
+  sort: int(row.sort),
+});
+
 const normalizeHomeCampaignTaskRow = (row: Row): HomeCampaignTaskRow => ({
   task_id: str(row.task_id),
   title: str(row.title),
@@ -725,12 +771,29 @@ const normalizeHomeCampaignTaskRow = (row: Row): HomeCampaignTaskRow => ({
   project_title: str(row.project_title),
   project_slug: str(row.project_slug),
   project_avatar_url: strOrNull(row.project_avatar_url),
+  // p75 加性：归组在 `listHomeCampaignTasks` 里统一补（此行默认 `[]` ⇒ 键恒在场）
+  subtasks: [],
 });
 
-/** 首页热门任务（公开只读；空行集 = [] —— 路由 200，绝不 404/500） */
+/**
+ * 首页热门任务（公开只读；空行集 = [] —— 路由 200，绝不 404/500）。
+ * p75 加性面：每行附 `subtasks[]`（五键摘要，按 `sort ASC, subtask_id ASC`；无子任务 ⇒ `[]`）。
+ * **零 N+1**：行集 1 条 SQL ＋ 子任务 1 条批量 SQL（`task_id = ANY(...)`）⇒ 内存归组；
+ * 空行集 ⇒ 第二条语句**根本不发**（0 行不必回查）。`LIMIT 20` / 30s 公共缓存语义一字不动。
+ */
 export const listHomeCampaignTasks = async (ex?: TxClient): Promise<HomeCampaignTaskRow[]> => {
   const rows = await readRows<Row>(HOME_CAMPAIGN_TASKS_SQL, [], ex);
-  return rows.map(normalizeHomeCampaignTaskRow);
+  const tasks = rows.map(normalizeHomeCampaignTaskRow);
+  if (tasks.length === 0) return [];
+  const subRows = await readRows<Row>(HOME_TASK_SUBTASKS_SQL, [tasks.map((t) => t.task_id).join(',')], ex);
+  const byTask = new Map<string, HomeTaskSubtask[]>();
+  for (const row of subRows) {
+    const key = str(row.task_id);
+    const bucket = byTask.get(key);
+    if (bucket === undefined) byTask.set(key, [normalizeHomeTaskSubtaskRow(row)]);
+    else bucket.push(normalizeHomeTaskSubtaskRow(row));
+  }
+  return tasks.map((t) => ({ ...t, subtasks: byTask.get(t.task_id) ?? [] }));
 };
 
 /**

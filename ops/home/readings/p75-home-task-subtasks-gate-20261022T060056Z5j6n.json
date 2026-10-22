@@ -1,0 +1,67 @@
+{
+  "run": "20261022T060056Z5j6n",
+  "name": "p75-home-task-subtasks-gate",
+  "at": "2026-10-22T06:01:03.828Z",
+  "committed_before": {
+    "tasks": 5,
+    "subtasks": 0,
+    "campaigns": 5,
+    "projects": 15,
+    "migrations": 70
+  },
+  "tx_error": "invalid input syntax for type bigint: \"\"",
+  "checks": [
+    {
+      "id": "A1",
+      "what": "键面：`HomeTaskSubtask` **恰五键**（subtask_id / type_code / title / required / sort，无 payload / content / reward / correct）· `HomeCampaignTaskRow.subtasks: HomeTaskSubtask[]` **非可选**（类型层即「键恒在场」，无 `?`）",
+      "pass": false,
+      "reading": "{\"iface_keys\":[],\"row_has_required_key\":true}"
+    },
+    {
+      "id": "A2",
+      "what": "★⑤ 无泄露（静态）：批量 SQL 只 SELECT 五列（task_id 仅归组用）· `payload` / `content` / `reward` / `correct` / `answers` 在 SQL 字面量里**零命中**（不是「取了再剥」，是根本不查）",
+      "pass": true,
+      "reading": "{\"sql_chars\":392,\"leak_tokens\":[]}"
+    },
+    {
+      "id": "A3",
+      "what": "★排序与收口：`WHERE s.task_id = ANY(string_to_array($1::text, 「,」)::bigint[])`（只取本页 task 的子任务 —— 负控 N1 去掉此支 ⇒ 臂③ 必红）· `ORDER BY s.task_id ASC, s.sort ASC, s.subtask_id ASC`（同 sort 由 id 定序 ⇒ 前端顺序稳定）",
+      "pass": true,
+      "reading": "{\"where\":true,\"order\":true}"
+    },
+    {
+      "id": "A4",
+      "what": "★④ 零 N+1（静态）：函数体内查询**恰 2 次**（行集 1 + 子任务批量 1，与行数无关）· 无 `for..of tasks` / 异步 `map` / `Promise.all` 包裹查询 · 归组在内存 `Map` 里 · 空行集早退（0 行 ⇒ 第二条语句不发）",
+      "pass": true,
+      "reading": "{\"query_awaits\":2,\"loops\":true,\"body_chars\":745}"
+    },
+    {
+      "id": "A5",
+      "what": "★路由面零改动：注册点仍 **109**（get 49 / post 53 / patch 4 / delete 3 / put 0）· 读口仍 `listHomeCampaignTasks()` → `setPublicCache(res)`（30s 公共缓存语义不变）→ `sendSuccess` · 块内零 `requireActor` · 异常仍 `sendInfraMapped(res, 「home.campaign_tasks」)`（零新错误码）",
+      "pass": false,
+      "reading": "{\"regs\":109,\"get\":49,\"post\":53,\"patch\":4,\"delete\":3,\"put\":0}"
+    },
+    {
+      "id": "A6",
+      "what": "同源读口零影响：`listHomeCampaignTasks` 在路由层**恰 2 处**（import + 本读口调用）⇒ 只此一口受益 · `GET /api/home` 与 `GET /api/prize/all` 块内零 `listHomeCampaignTasks` / 零 `HOME_TASK_SUBTASKS_SQL`（不连带改动）· 主 SQL `LIMIT 20` 与三处公开过滤逐字不变",
+      "pass": true,
+      "reading": "{\"call_sites\":2,\"main_has_limit20\":true}"
+    },
+    {
+      "id": "X",
+      "what": "事务内全链执行未抛未预期异常",
+      "pass": false,
+      "reading": "error=invalid input syntax for type bigint: \"\""
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "passed": 4,
+    "failed": 3,
+    "red": [
+      "A1",
+      "A5",
+      "X"
+    ]
+  }
+}
