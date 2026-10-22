@@ -301,7 +301,9 @@ const run = async () => {
       everyCardIsTask: listSnap.cards.every((c) => c.tag === 'a' && c.href === `/task/${c.task}`),
       titles: listSnap.cards.map((c) => c.title),
       hrefs: listSnap.cards.map((c) => c.href),
-      allRealCards: listSnap.cards.every((c) => c.mock === '0'),
+      // ★ 2026-10-22：`data-sf-camp-mock` 已随「零 mock」重构退役（home-campaign.js 不再产 isMock）
+      //   ⇒ 改判「卡是真链（/task/<id>）且不含 mock 壳钩子」；mock 壳此后不存在，负控仍由单独臂覆盖。
+      allRealCards: listSnap.cards.every((c) => c.tag === 'a' && (c.mock === null || c.mock === undefined)),
       readOnce: listCalls.length === 1,
       noNotFound: listSnap.hooks.notFound === false,
       noLegacyJobPage: listSnap.hooks.jobsFormWrap === false && listSnap.hooks.jobsDetail === false,

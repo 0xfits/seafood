@@ -1,6 +1,6 @@
 {
   "probe": "ops/task-page/probe-task-list.mjs",
-  "startedAt": "2026-10-21T11:27:04.926Z",
+  "startedAt": "2026-10-22T06:11:19.678Z",
   "dist": "/Users/kevin/bistro/seafood/frontend/dist",
   "negArm": false,
   "fixtures": {
@@ -35,28 +35,75 @@
           "tag": "a",
           "href": "/task/101",
           "task": "101",
-          "mock": "0",
+          "mock": null,
           "title": "转发推文",
           "project": "海鲜打包",
-          "campaign": "秋季招募"
+          "campaign": "秋季招募",
+          "subtaskBlock": true,
+          "subtaskCount": 2,
+          "moreRest": 1,
+          "subtasks": [
+            {
+              "type": "x_verify",
+              "badge": "X 验证",
+              "title": "把本次活动的推广长图转发到个人主页并截图回传（要求附上完整链接与时间戳）",
+              "required": true,
+              "truncated": true
+            },
+            {
+              "type": "survey",
+              "badge": "问卷",
+              "title": "填写问卷",
+              "required": false,
+              "truncated": false
+            }
+          ],
+          "boxW": 277,
+          "boxH": 254,
+          "rowTop": 223,
+          "innerOverflowPx": 0
         },
         {
           "tag": "a",
           "href": "/task/102",
           "task": "102",
-          "mock": "0",
+          "mock": null,
           "title": "填写问卷",
           "project": "海鲜分拣",
-          "campaign": "秋季招募"
+          "campaign": "秋季招募",
+          "subtaskBlock": true,
+          "subtaskCount": 1,
+          "moreRest": null,
+          "subtasks": [
+            {
+              "type": "onchain_snapshot",
+              "badge": "链上快照",
+              "title": "链上持仓快照",
+              "required": true,
+              "truncated": false
+            }
+          ],
+          "boxW": 277,
+          "boxH": 254,
+          "rowTop": 223,
+          "innerOverflowPx": 0
         },
         {
           "tag": "a",
           "href": "/task/103",
           "task": "103",
-          "mock": "0",
+          "mock": null,
           "title": "拍摄到货视频",
           "project": "海鲜打包",
-          "campaign": "春季活动"
+          "campaign": "春季活动",
+          "subtaskBlock": false,
+          "subtaskCount": 0,
+          "moreRest": null,
+          "subtasks": [],
+          "boxW": 277,
+          "boxH": 254,
+          "rowTop": 223,
+          "innerOverflowPx": 0
         }
       ]
     },
@@ -114,6 +161,76 @@
       },
       "cards": []
     },
+    "1536_home": {
+      "pathname": "/",
+      "overflowPx": 0,
+      "offenders": [],
+      "scrollContained": 0,
+      "hooks": {
+        "listGrid": false,
+        "listTitle": null,
+        "listEmpty": false,
+        "taskPage": false,
+        "taskPageTask": null,
+        "taskTitle": null,
+        "notFound": false,
+        "jobsFormWrap": false,
+        "jobsDetail": false
+      },
+      "cards": [
+        {
+          "tag": "a",
+          "href": "/task/101",
+          "task": "101",
+          "mock": null,
+          "title": "转发推文",
+          "project": "海鲜打包",
+          "campaign": "秋季招募",
+          "subtaskBlock": false,
+          "subtaskCount": 0,
+          "moreRest": null,
+          "subtasks": [],
+          "boxW": 277,
+          "boxH": 178,
+          "rowTop": 415,
+          "innerOverflowPx": 0
+        },
+        {
+          "tag": "a",
+          "href": "/task/102",
+          "task": "102",
+          "mock": null,
+          "title": "填写问卷",
+          "project": "海鲜分拣",
+          "campaign": "秋季招募",
+          "subtaskBlock": false,
+          "subtaskCount": 0,
+          "moreRest": null,
+          "subtasks": [],
+          "boxW": 277,
+          "boxH": 178,
+          "rowTop": 415,
+          "innerOverflowPx": 0
+        },
+        {
+          "tag": "a",
+          "href": "/task/103",
+          "task": "103",
+          "mock": null,
+          "title": "拍摄到货视频",
+          "project": "海鲜打包",
+          "campaign": "春季活动",
+          "subtaskBlock": false,
+          "subtaskCount": 0,
+          "moreRest": null,
+          "subtasks": [],
+          "boxW": 277,
+          "boxH": 178,
+          "rowTop": 415,
+          "innerOverflowPx": 0
+        }
+      ]
+    },
     "390_task_list": {
       "pathname": "/task",
       "overflowPx": 0,
@@ -135,28 +252,75 @@
           "tag": "a",
           "href": "/task/101",
           "task": "101",
-          "mock": "0",
+          "mock": null,
           "title": "转发推文",
           "project": "海鲜打包",
-          "campaign": "秋季招募"
+          "campaign": "秋季招募",
+          "subtaskBlock": true,
+          "subtaskCount": 2,
+          "moreRest": 1,
+          "subtasks": [
+            {
+              "type": "x_verify",
+              "badge": "X 验证",
+              "title": "把本次活动的推广长图转发到个人主页并截图回传（要求附上完整链接与时间戳）",
+              "required": true,
+              "truncated": true
+            },
+            {
+              "type": "survey",
+              "badge": "问卷",
+              "title": "填写问卷",
+              "required": false,
+              "truncated": false
+            }
+          ],
+          "boxW": 240,
+          "boxH": 254,
+          "rowTop": 221,
+          "innerOverflowPx": 0
         },
         {
           "tag": "a",
           "href": "/task/102",
           "task": "102",
-          "mock": "0",
+          "mock": null,
           "title": "填写问卷",
           "project": "海鲜分拣",
-          "campaign": "秋季招募"
+          "campaign": "秋季招募",
+          "subtaskBlock": true,
+          "subtaskCount": 1,
+          "moreRest": null,
+          "subtasks": [
+            {
+              "type": "onchain_snapshot",
+              "badge": "链上快照",
+              "title": "链上持仓快照",
+              "required": true,
+              "truncated": false
+            }
+          ],
+          "boxW": 240,
+          "boxH": 254,
+          "rowTop": 221,
+          "innerOverflowPx": 0
         },
         {
           "tag": "a",
           "href": "/task/103",
           "task": "103",
-          "mock": "0",
+          "mock": null,
           "title": "拍摄到货视频",
           "project": "海鲜打包",
-          "campaign": "春季活动"
+          "campaign": "春季活动",
+          "subtaskBlock": false,
+          "subtaskCount": 0,
+          "moreRest": null,
+          "subtasks": [],
+          "boxW": 240,
+          "boxH": 254,
+          "rowTop": 221,
+          "innerOverflowPx": 0
         }
       ]
     },
@@ -213,6 +377,76 @@
         "jobsDetail": false
       },
       "cards": []
+    },
+    "390_home": {
+      "pathname": "/",
+      "overflowPx": 0,
+      "offenders": [],
+      "scrollContained": 1,
+      "hooks": {
+        "listGrid": false,
+        "listTitle": null,
+        "listEmpty": false,
+        "taskPage": false,
+        "taskPageTask": null,
+        "taskTitle": null,
+        "notFound": false,
+        "jobsFormWrap": false,
+        "jobsDetail": false
+      },
+      "cards": [
+        {
+          "tag": "a",
+          "href": "/task/101",
+          "task": "101",
+          "mock": null,
+          "title": "转发推文",
+          "project": "海鲜打包",
+          "campaign": "秋季招募",
+          "subtaskBlock": false,
+          "subtaskCount": 0,
+          "moreRest": null,
+          "subtasks": [],
+          "boxW": 240,
+          "boxH": 178,
+          "rowTop": 505,
+          "innerOverflowPx": 0
+        },
+        {
+          "tag": "a",
+          "href": "/task/102",
+          "task": "102",
+          "mock": null,
+          "title": "填写问卷",
+          "project": "海鲜分拣",
+          "campaign": "秋季招募",
+          "subtaskBlock": false,
+          "subtaskCount": 0,
+          "moreRest": null,
+          "subtasks": [],
+          "boxW": 240,
+          "boxH": 178,
+          "rowTop": 505,
+          "innerOverflowPx": 0
+        },
+        {
+          "tag": "a",
+          "href": "/task/103",
+          "task": "103",
+          "mock": null,
+          "title": "拍摄到货视频",
+          "project": "海鲜打包",
+          "campaign": "春季活动",
+          "subtaskBlock": false,
+          "subtaskCount": 0,
+          "moreRest": null,
+          "subtasks": [],
+          "boxW": 240,
+          "boxH": 178,
+          "rowTop": 505,
+          "innerOverflowPx": 0
+        }
+      ]
     }
   },
   "assertions": {
@@ -234,6 +468,120 @@
       "readOnce": true,
       "noNotFound": true,
       "noLegacyJobPage": true,
+      "pass": true
+    },
+    "taskCardSubtaskRows_1536": {
+      "perCard": [
+        {
+          "task": "101",
+          "block": true,
+          "rows": 2,
+          "moreRest": 1,
+          "types": [
+            "x_verify",
+            "survey"
+          ],
+          "badges": [
+            "X 验证",
+            "问卷"
+          ],
+          "titles": [
+            "把本次活动的推广长图转发到个人主页并截图回传（要求附上完整链接与时间戳）",
+            "填写问卷"
+          ],
+          "requireds": [
+            true,
+            false
+          ],
+          "truncated": [
+            true,
+            false
+          ],
+          "boxH": 254,
+          "innerOverflowPx": 0
+        },
+        {
+          "task": "102",
+          "block": true,
+          "rows": 1,
+          "moreRest": null,
+          "types": [
+            "onchain_snapshot"
+          ],
+          "badges": [
+            "链上快照"
+          ],
+          "titles": [
+            "链上持仓快照"
+          ],
+          "requireds": [
+            true
+          ],
+          "truncated": [
+            false
+          ],
+          "boxH": 254,
+          "innerOverflowPx": 0
+        },
+        {
+          "task": "103",
+          "block": false,
+          "rows": 0,
+          "moreRest": null,
+          "types": [],
+          "badges": [],
+          "titles": [],
+          "requireds": [],
+          "truncated": [],
+          "boxH": 254,
+          "innerOverflowPx": 0
+        }
+      ],
+      "card101": {
+        "rows": 2,
+        "moreRest": 1,
+        "badges": [
+          "X 验证",
+          "问卷"
+        ],
+        "titles": [
+          "把本次活动的推广长图转发到个人主页并截图回传（要求附上完整链接与时间戳）",
+          "填写问卷"
+        ],
+        "types": [
+          "x_verify",
+          "survey"
+        ],
+        "requireds": [
+          true,
+          false
+        ]
+      },
+      "card102": {
+        "rows": 1,
+        "moreRest": null,
+        "badges": [
+          "链上快照"
+        ],
+        "requireds": [
+          true
+        ]
+      },
+      "card103": {
+        "block": false,
+        "rows": 0
+      },
+      "rowsCappedAtTwo": true,
+      "truncatedFirst": true,
+      "zeroInnerOverflow": true,
+      "rowHeights": [
+        {
+          "min": 254,
+          "max": 254
+        }
+      ],
+      "equalHeights": true,
+      "pageErrors": [],
       "pass": true
     },
     "cardClickOpensTaskPage_1536": {
@@ -284,6 +632,14 @@
       "zeroLegacyTaskAll": true,
       "pass": true
     },
+    "homeCardNoSubtaskBlock_1536": {
+      "grid": true,
+      "cardCount": 3,
+      "cardsWithSubtaskBlock": 0,
+      "zeroSubtaskRows": true,
+      "pageErrors": [],
+      "pass": true
+    },
     "taskListRendersCampaignCards_390": {
       "grid": true,
       "cardCount": 3,
@@ -302,6 +658,120 @@
       "readOnce": true,
       "noNotFound": true,
       "noLegacyJobPage": true,
+      "pass": true
+    },
+    "taskCardSubtaskRows_390": {
+      "perCard": [
+        {
+          "task": "101",
+          "block": true,
+          "rows": 2,
+          "moreRest": 1,
+          "types": [
+            "x_verify",
+            "survey"
+          ],
+          "badges": [
+            "X 验证",
+            "问卷"
+          ],
+          "titles": [
+            "把本次活动的推广长图转发到个人主页并截图回传（要求附上完整链接与时间戳）",
+            "填写问卷"
+          ],
+          "requireds": [
+            true,
+            false
+          ],
+          "truncated": [
+            true,
+            false
+          ],
+          "boxH": 254,
+          "innerOverflowPx": 0
+        },
+        {
+          "task": "102",
+          "block": true,
+          "rows": 1,
+          "moreRest": null,
+          "types": [
+            "onchain_snapshot"
+          ],
+          "badges": [
+            "链上快照"
+          ],
+          "titles": [
+            "链上持仓快照"
+          ],
+          "requireds": [
+            true
+          ],
+          "truncated": [
+            false
+          ],
+          "boxH": 254,
+          "innerOverflowPx": 0
+        },
+        {
+          "task": "103",
+          "block": false,
+          "rows": 0,
+          "moreRest": null,
+          "types": [],
+          "badges": [],
+          "titles": [],
+          "requireds": [],
+          "truncated": [],
+          "boxH": 254,
+          "innerOverflowPx": 0
+        }
+      ],
+      "card101": {
+        "rows": 2,
+        "moreRest": 1,
+        "badges": [
+          "X 验证",
+          "问卷"
+        ],
+        "titles": [
+          "把本次活动的推广长图转发到个人主页并截图回传（要求附上完整链接与时间戳）",
+          "填写问卷"
+        ],
+        "types": [
+          "x_verify",
+          "survey"
+        ],
+        "requireds": [
+          true,
+          false
+        ]
+      },
+      "card102": {
+        "rows": 1,
+        "moreRest": null,
+        "badges": [
+          "链上快照"
+        ],
+        "requireds": [
+          true
+        ]
+      },
+      "card103": {
+        "block": false,
+        "rows": 0
+      },
+      "rowsCappedAtTwo": true,
+      "truncatedFirst": true,
+      "zeroInnerOverflow": true,
+      "rowHeights": [
+        {
+          "min": 254,
+          "max": 254
+        }
+      ],
+      "equalHeights": true,
+      "pageErrors": [],
       "pass": true
     },
     "cardClickOpensTaskPage_390": {
@@ -351,13 +821,23 @@
       "legacyTaskAllHits": 0,
       "zeroLegacyTaskAll": true,
       "pass": true
+    },
+    "homeCardNoSubtaskBlock_390": {
+      "grid": true,
+      "cardCount": 3,
+      "cardsWithSubtaskBlock": 0,
+      "zeroSubtaskRows": true,
+      "pageErrors": [],
+      "pass": true
     }
   },
   "summary": {
     "taskListRendersCampaignCards": true,
     "cardClickOpensTaskPage": true,
     "legacyJobRoutesNotFound": true,
-    "noOverflowNoPageError": true
+    "noOverflowNoPageError": true,
+    "taskCardSubtaskRows": true,
+    "homeCardNoSubtaskBlock": true
   },
   "summaryAll": true
 }
