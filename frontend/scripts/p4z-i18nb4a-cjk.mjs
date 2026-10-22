@@ -24,7 +24,8 @@ const WRITE_SET = [
   'components/layout/AdminLayout.jsx',
   'pages/DashboardPage.jsx',
   'pages/admin/TasksManagement.jsx',
-  'pages/admin/RewardsManagement.jsx',
+  // `pages/admin/RewardsManagement.jsx` 已随 2026-10-22 下架单移出（页面文件删除，1a6994b）；
+  // locale 键 `adminRewards.*` 保留 ⇒ 本清单不再含该文件，脚本仍可跑。
 ]
 // B4b 接力面（本单只读；recon 表④ B4 的余下 5 文件）
 const REMAIN_SET = [

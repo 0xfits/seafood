@@ -46,7 +46,7 @@ const LANGS = ['zh', 'en', 'hk', 'vn']
 
 afterEach(() => { cleanup() })
 
-describe('P6-I18N-LIT-B4a · en 档渲染英文（后台面三个页面）', () => {
+describe('P6-I18N-LIT-B4a · en 档渲染英文（后台面两个页面；rewards 页 2026-10-22 下架）', () => {
   beforeEach(async () => { await i18n.changeLanguage('en') })
 
   it('AdminLayout（侧边栏 + 顶栏 + 账号区）：导航/面板名/角色/在线 全走英文', async () => {

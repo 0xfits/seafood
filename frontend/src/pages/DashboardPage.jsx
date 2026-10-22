@@ -77,13 +77,6 @@ const DashboardPage = () => {
       variant: 'primary',
     },
     {
-      title: t('adminNav.rewards'),
-      description: t('dashPage.linkRewardsDesc'),
-      to: '/dashboard/rewards',
-      icon: Gift,
-      variant: 'secondary',
-    },
-    {
       title: t('adminNav.users'),
       description: t('dashPage.linkUsersDesc'),
       to: '/dashboard/users',
@@ -270,7 +263,6 @@ const DashboardPage = () => {
   })
   const visiblePendingTasks = showAllPending ? filteredPendingTasks : filteredPendingTasks.slice(0, 6)
   const visibleManagementLinks = managementLinks.filter((item) => {
-    if (item.to === '/dashboard/rewards') return hasAdminPermission(access, ['manage_rewards', 'publish_prizes'])
     if (item.to === '/dashboard/tasks') return hasAdminPermission(access, ['manage_tasks', 'publish_tasks'])
     if (item.to === '/dashboard/users') return hasAdminPermission(access, 'read_users')
     if (item.to === '/dashboard/permissions') return hasAdminPermission(access, 'manage_permissions')

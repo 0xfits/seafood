@@ -18,11 +18,13 @@ export const PROJECT_SLUG_RE = /^[a-z0-9-]{1,32}$/
  * 保留段清单（**与 App.jsx 现取同表**，后端 `PROJECT_SLUG_RESERVED` 逐字一致）：
  *   A · 路由面静态一级段（`App.jsx` 现取，含 `/dashboard/*` 子路由一级段）——
  *       arbitration-review / audit-console / campaign / currency-review / dashboard / exchange /
- *       fee-rate / item / listing-review / login / messages / permissions / points / profile /
- *       register / rewards / settings / shard / shards / site-text / task / tasks / theme-preview /
+ *       fee-rate / item / login / messages / permissions / points / profile /
+ *       register / settings / shard / shards / site-text / task / tasks / theme-preview /
  *       users / wage / weight-matrix（`${lang}` 与 `:slug` 是动态段，不在此列）；
  *   B · 未注册但语义保留（复数/别名/历史与预留面，防静默不可达）——
  *       admin / api / assets / campaigns / items / jobs / market / order / orders / project / projects。
+ *       ★ `rewards` / `listing-review` 原属 A（`/dashboard/rewards`、`/dashboard/listing-review`），
+ *         2026-10-22 两页下架（1a6994b）后路由面已不含 ⇒ 降级为 B（数组不动、后端同表不动，防计数/对拍漂移）。
  * 命中 ⇒ `/:slug` 项目页**不渲染**，落 catch-all 404 提示页（不发请求）。
  * 判据：一级段若已有显式路由（静态段排名优先于 `:slug`），该 slug 的项目页**永远打不开** ⇒ 必须保留。
  * 对齐门：`ops/project/p68-00-slug-campaign-gate.ts` A10（前后端两表 + App.jsx 现取三方对拍）。

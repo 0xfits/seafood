@@ -1,0 +1,272 @@
+{
+  "probe": "ops/dashboard/remove-review-rewards.mjs",
+  "startedAt": "2026-10-22T07:30:48.981Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "fixtures": {
+    "auth": "localStorage seed + 自截 /api/admin/me（is_admin=true；零真登录 / 零后端 / 零库写）",
+    "api": "context.route in-probe JSON；campaign/all 一行两任务"
+  },
+  "states": {
+    "1536_rewards": {
+      "pathname": "/dashboard/rewards",
+      "overflowPx": 0,
+      "scrollContained": 0,
+      "offenders": [],
+      "sidebarHrefs": [
+        "/dashboard",
+        "/dashboard/tasks",
+        "/dashboard/shards",
+        "/dashboard/users",
+        "/dashboard/permissions",
+        "/dashboard/points",
+        "/dashboard/settings",
+        "/dashboard/fee-rate",
+        "/dashboard/weight-matrix",
+        "/dashboard/currency-review",
+        "/dashboard/arbitration-review",
+        "/dashboard/site-text",
+        "/dashboard/audit-console"
+      ],
+      "hasNotFoundHook": false,
+      "mainEmpty": true,
+      "mainText": "",
+      "bodyHasPrizeH2": false,
+      "bodyHasListingH2": false
+    },
+    "1536_listing_review": {
+      "pathname": "/dashboard/listing-review",
+      "overflowPx": 0,
+      "scrollContained": 0,
+      "offenders": [],
+      "sidebarHrefs": [
+        "/dashboard",
+        "/dashboard/tasks",
+        "/dashboard/shards",
+        "/dashboard/users",
+        "/dashboard/permissions",
+        "/dashboard/points",
+        "/dashboard/settings",
+        "/dashboard/fee-rate",
+        "/dashboard/weight-matrix",
+        "/dashboard/currency-review",
+        "/dashboard/arbitration-review",
+        "/dashboard/site-text",
+        "/dashboard/audit-console"
+      ],
+      "hasNotFoundHook": false,
+      "mainEmpty": true,
+      "mainText": "",
+      "bodyHasPrizeH2": false,
+      "bodyHasListingH2": false
+    },
+    "1536_tasks": {
+      "pathname": "/dashboard/tasks",
+      "overflowPx": 0,
+      "scrollContained": 0,
+      "offenders": [],
+      "sidebarHrefs": [
+        "/dashboard",
+        "/dashboard/tasks",
+        "/dashboard/shards",
+        "/dashboard/users",
+        "/dashboard/permissions",
+        "/dashboard/points",
+        "/dashboard/settings",
+        "/dashboard/fee-rate",
+        "/dashboard/weight-matrix",
+        "/dashboard/currency-review",
+        "/dashboard/arbitration-review",
+        "/dashboard/site-text",
+        "/dashboard/audit-console"
+      ],
+      "hasNotFoundHook": false,
+      "mainEmpty": false,
+      "mainText": "任务管理当前账号为只读模式：管理员端的招工发布、编辑与删除入口已下线。刷新活动 · 秋季招募Task A暂无描述10 积分开启",
+      "bodyHasPrizeH2": false,
+      "bodyHasListingH2": false
+    },
+    "390_rewards": {
+      "pathname": "/dashboard/rewards",
+      "overflowPx": 0,
+      "scrollContained": 0,
+      "offenders": [],
+      "sidebarHrefs": [
+        "/dashboard",
+        "/dashboard/tasks",
+        "/dashboard/shards",
+        "/dashboard/users",
+        "/dashboard/permissions",
+        "/dashboard/points",
+        "/dashboard/settings",
+        "/dashboard/fee-rate",
+        "/dashboard/weight-matrix",
+        "/dashboard/currency-review",
+        "/dashboard/arbitration-review",
+        "/dashboard/site-text",
+        "/dashboard/audit-console"
+      ],
+      "hasNotFoundHook": false,
+      "mainEmpty": true,
+      "mainText": "",
+      "bodyHasPrizeH2": false,
+      "bodyHasListingH2": false
+    },
+    "390_listing_review": {
+      "pathname": "/dashboard/listing-review",
+      "overflowPx": 0,
+      "scrollContained": 0,
+      "offenders": [],
+      "sidebarHrefs": [
+        "/dashboard",
+        "/dashboard/tasks",
+        "/dashboard/shards",
+        "/dashboard/users",
+        "/dashboard/permissions",
+        "/dashboard/points",
+        "/dashboard/settings",
+        "/dashboard/fee-rate",
+        "/dashboard/weight-matrix",
+        "/dashboard/currency-review",
+        "/dashboard/arbitration-review",
+        "/dashboard/site-text",
+        "/dashboard/audit-console"
+      ],
+      "hasNotFoundHook": false,
+      "mainEmpty": true,
+      "mainText": "",
+      "bodyHasPrizeH2": false,
+      "bodyHasListingH2": false
+    },
+    "390_tasks": {
+      "pathname": "/dashboard/tasks",
+      "overflowPx": 0,
+      "scrollContained": 1,
+      "offenders": [],
+      "sidebarHrefs": [
+        "/dashboard",
+        "/dashboard/tasks",
+        "/dashboard/shards",
+        "/dashboard/users",
+        "/dashboard/permissions",
+        "/dashboard/points",
+        "/dashboard/settings",
+        "/dashboard/fee-rate",
+        "/dashboard/weight-matrix",
+        "/dashboard/currency-review",
+        "/dashboard/arbitration-review",
+        "/dashboard/site-text",
+        "/dashboard/audit-console"
+      ],
+      "hasNotFoundHook": false,
+      "mainEmpty": false,
+      "mainText": "任务管理当前账号为只读模式：管理员端的招工发布、编辑与删除入口已下线。刷新活动 · 秋季招募Task A暂无描述10 积分开启",
+      "bodyHasPrizeH2": false,
+      "bodyHasListingH2": false
+    }
+  },
+  "assertions": {
+    "rewardsPageGone_1536": {
+      "shellInPlace": true,
+      "mainEmpty": true,
+      "noPrizeH2": true,
+      "noNotFoundPage": true,
+      "noPrizeApi": true,
+      "behavior": "AdminLayout 壳渲染（/dashboard/* 父路由匹配、子路由无匹配 ⇒ Outlet 空；非 404/非重定向）",
+      "pass": true
+    },
+    "listingReviewPageGone_1536": {
+      "shellInPlace": true,
+      "mainEmpty": true,
+      "noListingH2": true,
+      "noNotFoundPage": true,
+      "noListingApi": true,
+      "behavior": "同上：AdminLayout 壳 + 空 Outlet",
+      "pass": true
+    },
+    "sidebarClean_1536": {
+      "absentGone": true,
+      "presentAll": true,
+      "sidebarCount": 13,
+      "pass": true
+    },
+    "tasksIntact_1536": {
+      "mainNotEmpty": true,
+      "tasksH2": true,
+      "campaignAllOnce": true,
+      "pass": true
+    },
+    "geometry_1536": {
+      "overflow": {
+        "rewards": 0,
+        "listing": 0,
+        "tasks": 0
+      },
+      "offenders": {
+        "rewards": [],
+        "listing": [],
+        "tasks": []
+      },
+      "scrollContained": {
+        "rewards": 0,
+        "listing": 0,
+        "tasks": 0
+      },
+      "pageErrors": [],
+      "pass": true
+    },
+    "rewardsPageGone_390": {
+      "shellInPlace": true,
+      "mainEmpty": true,
+      "noPrizeH2": true,
+      "noNotFoundPage": true,
+      "noPrizeApi": true,
+      "behavior": "AdminLayout 壳渲染（/dashboard/* 父路由匹配、子路由无匹配 ⇒ Outlet 空；非 404/非重定向）",
+      "pass": true
+    },
+    "listingReviewPageGone_390": {
+      "shellInPlace": true,
+      "mainEmpty": true,
+      "noListingH2": true,
+      "noNotFoundPage": true,
+      "noListingApi": true,
+      "behavior": "同上：AdminLayout 壳 + 空 Outlet",
+      "pass": true
+    },
+    "sidebarClean_390": {
+      "absentGone": true,
+      "presentAll": true,
+      "sidebarCount": 13,
+      "pass": true
+    },
+    "tasksIntact_390": {
+      "mainNotEmpty": true,
+      "tasksH2": true,
+      "campaignAllOnce": true,
+      "pass": true
+    },
+    "geometry_390": {
+      "overflow": {
+        "rewards": 0,
+        "listing": 0,
+        "tasks": 0
+      },
+      "offenders": {
+        "rewards": [],
+        "listing": [],
+        "tasks": []
+      },
+      "scrollContained": {
+        "rewards": 0,
+        "listing": 0,
+        "tasks": 1
+      },
+      "pageErrors": [],
+      "pass": true
+    },
+    "retiredEndpointsSummary": {
+      "note": "GET /api/prize/all 与 GET /api/admin/listing 后端口保留（无 UI 后闲置无害）；本探针全程零命中由两臂 noPrizeApi / noListingApi 分担"
+    }
+  },
+  "pass": true,
+  "finishedAt": "2026-10-22T07:30:50.039Z"
+}

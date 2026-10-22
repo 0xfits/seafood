@@ -4,7 +4,6 @@ import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard,
   Trophy,
-  Gift,
   Users,
   Shield,
   BarChart3,
@@ -13,7 +12,6 @@ import {
   Percent,
   Network,
   ClipboardCheck,
-  ClipboardList,
   Gavel,
   Menu,
   X,

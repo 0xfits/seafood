@@ -119,18 +119,20 @@ describe('项目页 `/:slug` · 步 1 骨架', () => {
       expect(RESERVED_PROJECT_SEGMENTS).toHaveLength(37)
       expect(new Set(RESERVED_PROJECT_SEGMENTS).size).toBe(37)
       // 路由面现取（App.jsx 内层 + /dashboard/* 子段）抽样：这些段有显式路由 ⇒ slug 必保留
+      // （★ rewards / listing-review 已随 2026-10-22 下架单移出路由面 ⇒ 改入下方语义保留组）
       for (const seg of [
         'exchange', 'shard', 'messages', 'wage', 'task', 'item', 'campaign',
         'profile', 'login', 'register', 'theme-preview', 'dashboard', 'tasks',
-        'rewards', 'shards', 'users', 'permissions', 'points', 'settings',
-        'fee-rate', 'weight-matrix', 'currency-review', 'listing-review',
+        'shards', 'users', 'permissions', 'points', 'settings',
+        'fee-rate', 'weight-matrix', 'currency-review',
         'arbitration-review', 'site-text', 'audit-console',
       ]) {
         expect(RESERVED_PROJECT_SEGMENTS, `seg=${seg}`).toContain(seg)
       }
-      // 语义保留段（未注册路由但语义占用，防静默不可达）
+      // 语义保留段（未注册路由但语义占用，防静默不可达）；rewards / listing-review 为
+      // 下架后降级段（数组与后端同表均不动）
       for (const seg of ['admin', 'api', 'assets', 'market', 'order', 'orders', 'jobs',
-        'project', 'projects', 'campaigns', 'items']) {
+        'project', 'projects', 'campaigns', 'items', 'rewards', 'listing-review']) {
         expect(RESERVED_PROJECT_SEGMENTS, `seg=${seg}`).toContain(seg)
       }
     })

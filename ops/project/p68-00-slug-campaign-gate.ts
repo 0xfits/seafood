@@ -139,9 +139,14 @@ const APP_FIRST_SEGMENTS = [...new Set(APP_ROUTE_PATHS
   .filter((p) => p !== '' && p !== '*' && !p.includes('${'))
   .map((p) => p.split('/')[0])
   .filter((s) => s !== '' && !s.startsWith(':')))].sort();
-/** 语义保留段（未注册路由但语义占用：复数/别名/历史与预留面；纯新增路由**不必**加这里） */
+/** 语义保留段（未注册路由但语义占用：复数/别名/历史与预留面；纯新增路由**不必**加这里）
+ *  ★ 2026-10-22（下架单 1a6994b 后补）：`rewards` / `listing-review` 原 App.jsx 现取段
+ *    （/dashboard/rewards、/dashboard/listing-review）已随页面下架移除路由，但后端
+ *    `PROJECT_SLUG_RESERVED` 不动（下架单口径：后端零改动）⇒ 两段降级为语义保留段挂这里，
+ *    保住「App.jsx 现取 ∪ 语义保留 = 前后端两表（37 段）」三方对拍不红。 */
 const SEMANTIC_RESERVED = [
-  'admin', 'api', 'assets', 'campaigns', 'items', 'jobs', 'market', 'order', 'orders', 'project', 'projects',
+  'admin', 'api', 'assets', 'campaigns', 'items', 'jobs', 'listing-review', 'market', 'order', 'orders',
+  'project', 'projects', 'rewards',
 ];
 const EXPECTED_RESERVED = [...new Set([...APP_FIRST_SEGMENTS, ...SEMANTIC_RESERVED])].sort();
 /** 前端同表（`frontend/src/project-slug.js` 的 `RESERVED_PROJECT_SEGMENTS` 字面量） */
