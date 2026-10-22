@@ -1397,8 +1397,8 @@
       "pickOne": "請先選擇一個選項",
       "payout": "獎金 ${{amount}}"
     },
-    "predictionYes": "是",
-    "predictionNo": "否",
+    "predictionYes": "Yes",
+    "predictionNo": "No",
     "quiz": {
       "picks": "選出正確答案（可多選）",
       "pickAtLeastOne": "請至少選一個答案",

@@ -1397,8 +1397,8 @@
       "pickOne": "Hãy chọn một phương án trước",
       "payout": "Tiền thưởng ${{amount}}"
     },
-    "predictionYes": "Có",
-    "predictionNo": "Không",
+    "predictionYes": "Yes",
+    "predictionNo": "No",
     "quiz": {
       "picks": "Chọn đáp án đúng (có thể chọn nhiều)",
       "pickAtLeastOne": "Vui lòng chọn ít nhất một đáp án",
