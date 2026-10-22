@@ -83,7 +83,7 @@ const wireBothSurfaces = ({ tasks = TASKS, campaigns } = {}) => {
     if (u === '/api/currencies') return [{ cid: 1, symbol: '$' }]
     if (u === '/api/home?prize_limit=8') return { tasks: [], prizes: [], claimed_prize_ids: [], user_points: 0 }
     if (u === '/api/prize-item') return []
-    if (u === '/api/prize/all?skip=0&limit=36&sort=recommend') return []
+    if (u === '/api/prize/all?skip=0&limit=36') return []
     throw new Error(`Unexpected URL: ${u}`)
   })
 }

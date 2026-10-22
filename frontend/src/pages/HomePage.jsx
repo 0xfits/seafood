@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
@@ -17,6 +17,8 @@ import HomeCampaignCard from '../components/campaign/HomeCampaignCard'
 import { pickLocalized } from '../i18n-content'
 import { PLACEHOLDER_IMAGE } from '../assets/placeholder'
 import { buildLocalizedPath, getLanguageFromUrl } from '../utils'
+import { FEED_SORTS, mergeFeedRows, normalizeFeedSort, sortFeedRows } from '../home-feed-order'
+import { captureFeedCardRects, playFeedFlip } from '../home-feed-flip'
 
 // ============================================================================
 // 首页（**2026-10-11 合并单** · Kevin 追加裁定）
@@ -32,48 +34,36 @@ import { buildLocalizedPath, getLanguageFromUrl } from '../utils'
 //   ★ 原 `/reward`、`/listing*` 路由已随本单**硬删**（不 301）；卡片动作由「领取」改为「查看详情」（`item.viewDetail`）。
 // ============================================================================
 /**
- * FEED-PAGING-v1（2026-10-19 · Kevin 指令）
- *   首页商品 = **统一分页读口** `GET /api/prize/all?skip=<n>&limit=36&sort=recommend|new`（`sort` 见 FEED-SORT-v1）：
- *     ① 首屏 36 条（= 6 行 × 6 列，列数单另行裁定，本单只管数据面）；
- *     ② 滚到底继续 36/页，**直到某页返回 < 36（或空）**即终止；
- *     ③ 按 `bID` 去重（综合排序稳定，但分页期间新发商品插队会让相邻页出现重叠行）；
+ * FEED-PAGING-v2（2026-10-22 · Kevin 改口：排序改回前端）
+ *   首页商品 = **统一分页读口** `GET /api/prize/all?skip=<n>&limit=36`（**不带 `sort`**）：
+ *     ① 首屏 36 条（= 6 行 × 6 列）；
+ *     ② 滚到底继续 36/页，**直到某页返回 < 36（或空）**、或累计到 `FEED_MAX_ITEMS` 即终止；
+ *        ⇒ 首页**不分页**（无页码 UI），滚动加载至多 **18 行**（6 列 × 18 = 108 件）；
+ *     ③ 按 `bID` 去重（服务器默认序稳定，分页期间新发商品插队仍可能造成相邻页重叠行）；
  *     ④ 失败即停：保留已加载行 + 「重试」按钮，**不自动重试**（避免无限重试打后端）。
+ *   ★ 读口只负责「取下一页」；**序在客户端**（`../home-feed-order.js`）——
+ *     服务器默认顺序（score desc, time_created desc, id desc）保持不变 ⇒ 滚动加载不重不漏。
  *   `/api/home` 仍用于 tasks / user_points / claimed_prize_ids（响应形状不动），
  *   **其 `prizes` 字段不再被首页消费** ⇒ 不存在「8 条聚合口」与「36 条分页口」两份实现。
  */
 const FEED_PAGE_SIZE = 36
+/** 滚动加载上限：18 行 × 6 列 = 108 件（首页不分页，止于此）。 */
+const FEED_MAX_ROWS = 18
+const FEED_MAX_ITEMS = FEED_MAX_ROWS * 6 // 108 = 6 列 × 18 行
 
 /**
- * FEED-SORT-v1（2026-10-22 · Kevin：「精选奖励」四标签筛选整块下架 ⇒ 两标签【推荐】/【新发】）
- *   读口：`GET /api/prize/all?skip=<n>&limit=36&sort=recommend|new`
- *     · `recommend`（**默认**）= 后端加权分（缺省档，口径在后端，前端不算分）；
- *     · `new`                   = 发布时间降序。
- *   ★ 闭集下发：前端**只**发这两个值（`normalizeFeedSort` 归一，非闭集一律 `recommend`），
- *     不把 400 `sort_invalid` 留给运行期；切档 ⇒ **分页重置**（skip 0）并以对应 `sort` 重取首屏。
- *   ★ 旧四标签（全部 / 限量版 / 高价值 / 已兑换）与其**计数芯片**、以及基于它们的
- *     客户端过滤（`filteredRewards`）**一并删除** —— 列表 = 读口行集，不再二次筛选。
+ * FEED-SORT-v2（2026-10-22 · Kevin 改口：「排序改回前端」）
+ *   两标签【推荐】(默认) / 【新发】的**序由前端算**（`../home-feed-order.js` 纯函数，唯一真源）：
+ *     · `recommend`：`feed_score` 降序 → `time_created` 降序 → `bID` 降序
+ *       （`feed_score` = 后端 FEED-RANK-v2 五因子分的数字字符串，前端只读不算）；
+ *     · `new`      ：`time_created` 降序 → `bID` 降序。
+ *   ★ **切档零网络**：点标签只重排已加载行（`rewards` 是「到达序」源，渲染序 = 纯函数派生），
+ *     既不发请求、也不重置游标、也不重拉聚合口 / campaign / 币种。
+ *   ★ 每页 append 之后**重新应用当前档排序** ⇒ 新行落到该在的位置（不是简单追加到末尾）。
+ *   ★ 缺 `feed_score` 的旧缓存行 ⇒ 按 0 处理（排序仍稳定，不清列表、不报错）。
+ *   ★ 位置变化的**动态效果** = FLIP（`../home-feed-flip.js`，≤300ms，reduced-motion 瞬时降级）。
+ *   ★ 闭集归一（`normalizeFeedSort`）保留：非法值一律回退 `recommend`。
  */
-const FEED_SORTS = [
-  { key: 'recommend', labelKey: 'item.sortRecommend' },
-  { key: 'new', labelKey: 'item.sortNew' },
-]
-const FEED_SORT_KEYS = new Set(FEED_SORTS.map((sort) => sort.key))
-/** 排序闭集归一：未知值（含后端 `400 sort_invalid` 的成因值）一律回退 `recommend` */
-const normalizeFeedSort = (value) => (FEED_SORT_KEYS.has(value) ? value : 'recommend')
-
-
-/** 逐页并入 + 按 bID 去重（同一 bID 在后续页重复出现时保留首见行） */
-const mergeRewardPage = (prev, incoming) => {
-  const seen = new Set(prev.map((row) => row.bID ?? row.listing_id))
-  const merged = [...prev]
-  for (const row of incoming) {
-    const key = row.bID ?? row.listing_id
-    if (key == null || key === '' || seen.has(key)) continue
-    seen.add(key)
-    merged.push(row)
-  }
-  return merged
-}
 
 /**
  * HOME-CAMP-v1（2026-10-21 · Kevin 派单 · 前端半）
@@ -103,27 +93,32 @@ const HomePage = () => {
   const [symbols, setSymbols] = useState({})
   const [rewards, setRewards] = useState([])
   const [loading, setLoading] = useState(true)
-  // ★ FEED-PAGING-v1 分页态：`feedLoadingMore` = 下一页在飞；`feedHasMore` = 还有下一页；
+  // ★ FEED-PAGING-v2 分页态：`feedLoadingMore` = 下一页在飞；`feedHasMore` = 还有下一页；
   //   `feedError` = 某页失败（**失败即停**：不自动重试、只给按钮）
   const [feedLoadingMore, setFeedLoadingMore] = useState(false)
   const [feedHasMore, setFeedHasMore] = useState(true)
   const [feedError, setFeedError] = useState(false)
   const [userPoints, setUserPoints] = useState(0)
-  // ★ FEED-SORT-v1：两标签「推荐（默认）/ 新发」；`feedPending` = 切档后的首屏在飞（保留旧行，不闪空）
+  // ★ FEED-SORT-v2：两标签「推荐（默认）/ 新发」= **纯客户端排序档**（切档零网络请求）
   const [feedSort, setFeedSort] = useState('recommend')
-  const [feedPending, setFeedPending] = useState(false)
+  // 渲染序 = 到达序 × 当前档（纯函数派生；切档重算，不请求）。缺 `feed_score` 的行按 0 处理。
+  const orderedRewards = useMemo(() => sortFeedRows(rewards, feedSort), [rewards, feedSort])
 
   // 分页游标 / 并发闸 / sentinel 锚点。游标只在**请求成功后**前推 ⇒ 失败重试复用同一 skip。
   const feedSkipRef = useRef(0)
   const feedHasMoreRef = useRef(true)
   const feedInFlightRef = useRef(false)
   const feedCtxRef = useRef(null)
-  // 「整页上下文」指纹（身份 / 语言前缀 / token）：只变 `feedSort` 时走 pending 路径、不重拉聚合口
-  const feedCtxKeyRef = useRef(null)
-  // 已落地的元面（lang + claimed ids）：切档首屏沿用同一批 claimed ids ⇒ 卡状态与整页首载一致
+  // 已到达行的**唯一真源**（到达序）：`rewards` 状态由它派生 ⇒ append 时先合并去重再入库
+  const feedRowsRef = useRef([])
+  // 已落地的元面（lang + claimed ids）：续页沿用同一批 claimed ids ⇒ 卡状态与首屏一致
   const feedMetaRef = useRef({ lang: 'zh', claimedIds: new Set() })
   const feedSentinelRef = useRef(null)
   const feedLoadMoreRef = useRef(null)
+  // ★ FLIP：切档前记录的旧矩形 / 网格容器 / 续页滚动锚点（旧行保留不跳位）
+  const feedGridRef = useRef(null)
+  const flipBeforeRef = useRef(null)
+  const scrollAnchorRef = useRef(null)
 
   const getCurrentLang = () => {
     const pathParts = location.pathname.split('/')
@@ -166,37 +161,39 @@ const HomePage = () => {
     })
   )
 
+  /**
+   * 落地一页行（首屏 / 续页共用）：合并去重 → 入库（到达序）→ 判是否还有下一页。
+   * ★ 上限：累计到 `FEED_MAX_ITEMS`（108 = 6 列 × 18 行）即终止（首页不分页）。
+   * ★ 排序不在这里做：渲染序由 `orderedRewards` 纯函数按**当前档**派生 ⇒ append 后自动归位。
+   */
+  const applyFeedRows = useCallback((incoming, { replace = false } = {}) => {
+    const merged = mergeFeedRows(replace ? [] : feedRowsRef.current, incoming)
+    // 上限截断（正常路径 = 3 页 × 36 = 108，恰好在界内；此处只兜满页边界）
+    const next = merged.length > FEED_MAX_ITEMS ? merged.slice(0, FEED_MAX_ITEMS) : merged
+    feedRowsRef.current = next
+    const fullPage = Array.isArray(incoming) && incoming.length >= FEED_PAGE_SIZE
+    const hasMore = fullPage && next.length < FEED_MAX_ITEMS
+    feedHasMoreRef.current = hasMore
+    setFeedHasMore(hasMore)
+    setRewards(next)
+  }, [])
+
   useEffect(() => {
     let cancelled = false
     const controller = new AbortController()
     const { signal } = controller
 
-    // ★ FEED-SORT-v1：`ctxKey` = 「整页上下文」指纹（身份 / 语言前缀 / token）。
-    //   它不变而 `feedSort` 变 ⇒ **仅切档**：保留已加载行 + `feedPending` 态（**不闪空**），
-    //   也不重拉聚合口 / campaign / 币种（版块不跟着抖），更不出整页骨架。
-    const ctxKey = [
-      isAuthenticated ? '1' : '0',
-      location.pathname,
-      user?.uID ?? '',
-      user?.token ?? '',
-      user?.access_token ?? '',
-    ].join('|')
-    const sortOnly = feedCtxKeyRef.current === ctxKey
-    feedCtxKeyRef.current = ctxKey
-
-    // 游标、并发闸、分页态一并复位（切档同样从第 1 页开始 ⇒ skip = 0）
+    // 游标、并发闸、分页态一并复位（真·重载 = 上下文变了：身份 / 语言前缀 / token）。
+    // ★ 2026-10-22 起 `feedSort` **不在本 effect 的依赖里**：切档只重排已加载行（零网络）。
     feedSkipRef.current = 0
     feedHasMoreRef.current = true
     feedInFlightRef.current = false
+    feedRowsRef.current = []
     setFeedError(false)
     setFeedLoadingMore(false)
-    if (sortOnly) {
-      setFeedPending(true) // 保留旧行 ⇒ 不 `setRewards([])`、不 `setLoading(true)`
-    } else {
-      setRewards([])
-      setFeedHasMore(true)
-      setLoading(true)
-    }
+    setFeedHasMore(true)
+    setRewards([])
+    setLoading(true)
 
     // 本次运行的上下文（供 sentinel 触发的 `loadMore` 读取；卸载时置 cancelled ⇒ 迟到响应一律丢弃）
     const ctx = {
@@ -204,14 +201,14 @@ const HomePage = () => {
       cancelled: false,
       lang: feedMetaRef.current.lang,
       claimedIds: feedMetaRef.current.claimedIds,
-      pending: sortOnly,
     }
     feedCtxRef.current = ctx
 
     const fetchFeedPage = async (skip) => {
-      // ★ `sort` 恒显式下发（闭集 recommend | new）—— 不依赖后端缺省值，切档即换序
+      // ★ 读口只负责「取下一页」：**不带 `sort`** ⇒ 服务器默认序（score desc, time desc, id desc）
+      //   全档一致 ⇒ 滚动加载不重不漏；序在客户端按当前档算（`home-feed-order.js`）。
       const rows = await fetchApiJson(
-        `/api/prize/all?skip=${skip}&limit=${FEED_PAGE_SIZE}&sort=${feedSort}`,
+        `/api/prize/all?skip=${skip}&limit=${FEED_PAGE_SIZE}`,
         { signal },
       )
       return Array.isArray(rows) ? rows : []
@@ -238,23 +235,15 @@ const HomePage = () => {
       }
     }
 
-    // 首屏落地（整页首载与切档共用）：成功 ⇒ 替换行集 + 前推游标；失败 ⇒ 回退推荐 / 出「重试」
+    // 首屏落地：成功 ⇒ 入库（到达序）+ 前推游标；失败 ⇒ 停（「重试」按钮复用同一 skip）
     const applyFirstPage = (firstPage, currentLang) => {
       if (firstPage.ok) {
         feedSkipRef.current = firstPage.rows.length
-        setRewards(mergeRewardPage([], mapRewardsForHome(firstPage.rows, currentLang, ctx.claimedIds)))
-        const hasMore = firstPage.rows.length >= FEED_PAGE_SIZE
-        feedHasMoreRef.current = hasMore
-        setFeedHasMore(hasMore)
+        applyFeedRows(mapRewardsForHome(firstPage.rows, currentLang, ctx.claimedIds), { replace: true })
         return
       }
       console.error('Load feed error:', firstPage.error)
-      // ★ 失败回退推荐：非默认档首屏失败 ⇒ 退回 `recommend`（旧行仍在 ⇒ 不出空列表 / 假错误卡）；
-      //   默认档也失败才算真失败 ⇒ `feedError` + 「重试」（失败即停，不自动循环）。
-      if (feedSort !== 'recommend') {
-        setFeedSort('recommend')
-        return
-      }
+      setFeedHasMore(false)
       setFeedError(true)
     }
 
@@ -262,19 +251,8 @@ const HomePage = () => {
       try {
         const currentLang = getCurrentLang()
         ctx.lang = currentLang
+        // 上下文变了 ⇒ 重排用的排序档**保持用户当前选择**（不因重载被重置）
         const headers = isAuthenticated ? getAuthHeaders(user) : undefined
-
-        if (sortOnly) {
-          // ★ 仅切档：只重取首屏（skip 0），元面沿用上一次整页首载的 claimed ids
-          const firstPage = await fetchFeedPage(0).then(
-            (rows) => ({ ok: true, rows }),
-            (error) => ({ ok: false, error }),
-          )
-          if (cancelled) return
-          ctx.pending = false
-          applyFirstPage(firstPage, currentLang)
-          return
-        }
 
         // 聚合口（points / claimed ids）与**首屏 36 条**、campaign 任务、币种表并行；
         //   任一失败各自独立处置：聚合口失败 ⇒ 既有逐口回落（再失败才 toast）；
@@ -319,7 +297,6 @@ const HomePage = () => {
         setSymbols(symbolsData)
         setUserPoints(homePayload?.user_points || 0)
 
-        ctx.pending = false
         applyFirstPage(firstPage, currentLang)
       } catch (error) {
         if (!cancelled) {
@@ -329,30 +306,38 @@ const HomePage = () => {
       } finally {
         if (!cancelled) {
           setLoading(false)
-          setFeedPending(false)
         }
       }
     }
 
-    // ★ 下一页：同一时刻**只允许一个在飞**（并发防重）；返回 < 36 ⇒ 终止。
+    // ★ 下一页：同一时刻**只允许一个在飞**（并发防重）；返回 < 36 或累计满 108 ⇒ 终止。
     const loadMore = async () => {
       if (cancelled || ctx.cancelled) return
-      // 切档首屏在飞 ⇒ 不让 sentinel 拿旧游标抢跑（否则新序里会插进旧序的行）
-      if (ctx.pending) return
       if (feedInFlightRef.current || !feedHasMoreRef.current) return
       feedInFlightRef.current = true
       setFeedLoadingMore(true)
       setFeedError(false)
+      // ★ 续页滚动锚点：记下当前视口内第一张卡的位置 —— 新行按当前档插到上方时，
+      //   布局位移用「同量回滚」抵消（见下方 `useLayoutEffect`）⇒ 用户视感不跳。
+      const grid = feedGridRef.current
+      scrollAnchorRef.current = null
+      if (grid && typeof grid.children !== 'undefined') {
+        for (const node of grid.children) {
+          const rect = node.getBoundingClientRect()
+          if (rect.bottom > 0) {
+            scrollAnchorRef.current = { node, top: rect.top }
+            break
+          }
+        }
+      }
       try {
         const rows = await fetchFeedPage(feedSkipRef.current)
         if (cancelled || ctx.cancelled) return
         feedSkipRef.current += rows.length
-        setRewards((prev) => mergeRewardPage(prev, mapRewardsForHome(rows, ctx.lang, ctx.claimedIds)))
-        const hasMore = rows.length >= FEED_PAGE_SIZE
-        feedHasMoreRef.current = hasMore
-        setFeedHasMore(hasMore)
+        applyFeedRows(mapRewardsForHome(rows, ctx.lang, ctx.claimedIds))
       } catch (error) {
         // 失败即停：不自动重试，交给「重试」按钮（复用同一 skip）
+        scrollAnchorRef.current = null
         if (!cancelled && !ctx.cancelled) {
           console.error('Load more feed error:', error)
           setFeedError(true)
@@ -371,7 +356,31 @@ const HomePage = () => {
       feedInFlightRef.current = false
       controller.abort()
     }
-  }, [isAuthenticated, location.pathname, user?.uID, user?.token, user?.access_token, feedSort])
+  }, [applyFeedRows, isAuthenticated, location.pathname, user?.uID, user?.token, user?.access_token])
+
+  // ★ 续页滚动锚点回滚：新行按当前档插到已看内容上方时，浏览器会把视口「推下去」——
+  //   这里把同一位移按 delta 反向滚回来（`prefers-reduced-motion` 也走这条：属布局修正，不是动画）。
+  //   jsdom / 无布局环境下 `getBoundingClientRect` 恒 0 ⇒ delta 0 ⇒ 不触发（零副作用）。
+  useLayoutEffect(() => {
+    const anchor = scrollAnchorRef.current
+    scrollAnchorRef.current = null
+    if (!anchor || !anchor.node) return
+    if (anchor.node.isConnected === false) return // 节点已被换掉（例如重载）⇒ 不滚
+    if (typeof anchor.node.getBoundingClientRect !== 'function') return
+    const delta = anchor.node.getBoundingClientRect().top - anchor.top
+    if (Math.abs(delta) >= 1 && typeof window !== 'undefined' && typeof window.scrollBy === 'function') {
+      window.scrollBy(0, delta)
+    }
+  }, [rewards])
+
+  // ★ FLIP play 半步：切档 → 重排已在 render 里完成（`orderedRewards`）⇒ commit 之后
+  //   逐卡从「旧矩形」平移到新位置（invert + play）；reduced-motion 由 `playFeedFlip` 内部降级为瞬时。
+  useLayoutEffect(() => {
+    const before = flipBeforeRef.current
+    flipBeforeRef.current = null
+    if (!before) return
+    playFeedFlip(feedGridRef.current, before)
+  }, [feedSort])
 
   // 底部 sentinel 观察器：**只在「已出列表 ∧ 还有下一页 ∧ 无错误 ∧ 首屏已完成」时挂载**，卸载即 disconnect。
   // 依赖里带 `rewards.length` ⇒ 一页落地后重挂：若 sentinel 仍在视口内（列表未铺满屏）会立刻再取下一页，
@@ -416,12 +425,13 @@ const HomePage = () => {
     return id == null ? undefined : buildLocalizedPath(lang, '/item/' + id)
   }
 
-  // ★ FEED-SORT-v1（2026-10-22）：四标签筛选与 `filteredRewards` 客户端过滤**整块删除**
-  //   ⇒ 列表 = 读口行集（`rewards`）本身；切档 = 换 `sort` + 分页重置，不再二次筛。
+  // ★ FEED-SORT-v2（2026-10-22）：切档 = **纯客户端重排** —— 只改排序档，不发请求、
+  //   不重置游标、不重拉聚合口 / campaign / 币种。FLIP 的「F」在此处先记录旧矩形（重排前）。
   const handleFeedSortChange = (next) => {
     const target = normalizeFeedSort(next)
-    if (target === feedSort) return // 同档点击不重取（也不重置分页）
-    setFeedSort(target) // effect 按新 sort 重置游标（skip 0）并重取首屏；旧行保留 ⇒ pending 态
+    if (target === feedSort) return // 同档点击：零重排、零动画、零请求
+    flipBeforeRef.current = captureFeedCardRects(feedGridRef.current)
+    setFeedSort(target)
   }
 
   // ★ HOME-CAMP-v1：版块卡 = 读口行的**纯映射**（第一轮置首 / 最多 5 张 / 零补位）。
@@ -511,14 +521,13 @@ const HomePage = () => {
               <p className="text-gray-600">{t('homePage.featuredLead')}<span className="text-sm font-bold text-yellow-600 dark:text-yellow-400">$</span>{t('homePage.featuredTail')}</p>
             </div>
 
-            {/* ★ FEED-SORT-v1（2026-10-22 · Kevin）：四标签筛选（全部 / 限量版 / 高价值 / 已兑换）
-                与其**计数芯片**整块下架 ⇒ 两标签【推荐】(默认) / 【新发】(发布时间降序)。
-                切档 = 分页重置（skip 0）+ 带 `sort` 重取首屏；**不闪空**：旧行保留 + `feed-pending` 态。 */}
+            {/* ★ FEED-SORT-v2（2026-10-22 · Kevin）：两标签【推荐】(默认) / 【新发】。
+                切档 = **纯客户端重排已加载行**（零网络请求）+ FLIP 位移动画（≤300ms，
+                `prefers-reduced-motion` ⇒ 瞬时）。不再改 `sort` 参数、不再重取首屏。 */}
             <div
               className="flex flex-wrap gap-2 mb-6"
               data-sf-m="home-item-filter"
               role="tablist"
-              aria-busy={feedPending || undefined}
             >
               {FEED_SORTS.map((sort) => (
                 <button
@@ -536,14 +545,9 @@ const HomePage = () => {
               ))}
             </div>
 
-            {/* 切档 pending：旧行仍在 ⇒ 只出细提示，不整页骨架、不清列表（防「闪空」） */}
-            {feedPending && (
-              <div data-sf-m="feed-pending" role="status" className="mb-4 text-sm text-gray-500">
-                {t('loading')}
-              </div>
-            )}
+            {/* 切档不再有「pending 首屏」阶段（零请求 ⇒ 无在飞）：提示块与 `aria-busy` 一并撤除 */}
 
-            {rewards.length > 0 ? (
+            {orderedRewards.length > 0 ? (
               /* ★ 2026-10-21（Kevin）：卡**直落网格子项** —— 去掉了 `StaggerContainer`（本身即
                  `space-y-4` + 逐子 `FadeIn` = 两层 `animate-fade-in` 容器）与逐卡 `FadeIn`。
                  卡根 `RewardCard` 的 `.sf-reward-card` 直接成为 `.sf-grid` 的子项，几何由
@@ -556,8 +560,8 @@ const HomePage = () => {
                       基础 768–1279 = 4 列（`--sf-st-feed-cols`，shell.css `.sf-grid`）；
                       ≥1280 = 6 列（styles.css 顶层 `@media (min-width:1280px)` 覆盖 `.sf-feed`）；
                       ≤767 = 2 列（`.sf-grid` 唯一 767 断点块，`--sf-st-feed-cols-m`）。 */}
-                <div className="sf-grid sf-feed" data-sf-m="feed-grid">
-                  {rewards.map((reward) => (
+                <div className="sf-grid sf-feed" data-sf-m="feed-grid" ref={feedGridRef}>
+                  {orderedRewards.map((reward) => (
                     <RewardCard
                       key={reward.bID}
                       reward={reward}
@@ -589,7 +593,7 @@ const HomePage = () => {
 
             {/* ★ 无限加载锚点：IntersectionObserver 监听本节点 ⇒ 进视口即取下一页（36/页，<36 终止）。
                 失败即停（不自动重试）⇒ 出「重试」按钮，复用同一 skip。到底 ⇒ 出「没有更多数据了」。 */}
-            {rewards.length > 0 && (
+            {orderedRewards.length > 0 && (
               <div
                 ref={feedSentinelRef}
                 data-sf-m="feed-sentinel"

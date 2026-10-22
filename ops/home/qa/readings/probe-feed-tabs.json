@@ -1,5 +1,27 @@
 {
   "neg": false,
+  "expected": {
+    "recommend": [
+      "A1",
+      "A2",
+      "A3",
+      "A4",
+      "A5",
+      "A6",
+      "A7",
+      "A8"
+    ],
+    "new": [
+      "A6",
+      "A2",
+      "A8",
+      "A4",
+      "A1",
+      "A3",
+      "A5",
+      "A7"
+    ]
+  },
   "arms": {
     "vp1536_twoTabs": {
       "pass": true,
@@ -17,12 +39,83 @@
       "pass": true,
       "hits": []
     },
-    "vp1536_newSendsSortNew": {
+    "vp1536_recommendOrder": {
       "pass": true,
-      "firstNewRequest": {
-        "sort": "new",
-        "skip": "0"
-      }
+      "dom": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8"
+      ],
+      "expected": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8"
+      ]
+    },
+    "vp1536_switchZeroRequests": {
+      "pass": true,
+      "newPrizeAllRequests": 0,
+      "newApiRequests": []
+    },
+    "vp1536_sortParamNeverSent": {
+      "pass": true,
+      "sorts": [
+        null
+      ]
+    },
+    "vp1536_newOrder": {
+      "pass": true,
+      "dom": [
+        "A6",
+        "A2",
+        "A8",
+        "A4",
+        "A1",
+        "A3",
+        "A5",
+        "A7"
+      ],
+      "expected": [
+        "A6",
+        "A2",
+        "A8",
+        "A4",
+        "A1",
+        "A3",
+        "A5",
+        "A7"
+      ],
+      "newActive": true
+    },
+    "vp1536_flipAnimated": {
+      "pass": true,
+      "moving": 6,
+      "hook": "running"
+    },
+    "vp1536_flipCleared": {
+      "pass": true,
+      "hook": null
+    },
+    "vp1536_cardHeight392": {
+      "pass": true,
+      "heights": [
+        392,
+        392,
+        392,
+        392,
+        392,
+        392
+      ]
     },
     "vp1536_zeroOverflow": {
       "pass": true,
@@ -49,12 +142,83 @@
       "pass": true,
       "hits": []
     },
-    "vp390_newSendsSortNew": {
+    "vp390_recommendOrder": {
       "pass": true,
-      "firstNewRequest": {
-        "sort": "new",
-        "skip": "0"
-      }
+      "dom": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8"
+      ],
+      "expected": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8"
+      ]
+    },
+    "vp390_switchZeroRequests": {
+      "pass": true,
+      "newPrizeAllRequests": 0,
+      "newApiRequests": []
+    },
+    "vp390_sortParamNeverSent": {
+      "pass": true,
+      "sorts": [
+        null
+      ]
+    },
+    "vp390_newOrder": {
+      "pass": true,
+      "dom": [
+        "A6",
+        "A2",
+        "A8",
+        "A4",
+        "A1",
+        "A3",
+        "A5",
+        "A7"
+      ],
+      "expected": [
+        "A6",
+        "A2",
+        "A8",
+        "A4",
+        "A1",
+        "A3",
+        "A5",
+        "A7"
+      ],
+      "newActive": true
+    },
+    "vp390_flipAnimated": {
+      "pass": true,
+      "moving": 6,
+      "hook": "running"
+    },
+    "vp390_flipCleared": {
+      "pass": true,
+      "hook": null
+    },
+    "vp390_cardHeight392": {
+      "pass": true,
+      "heights": [
+        392,
+        392,
+        392,
+        392,
+        392,
+        392
+      ]
     },
     "vp390_zeroOverflow": {
       "pass": true,
@@ -64,76 +228,327 @@
     "vp390_noErrors": {
       "pass": true,
       "consoleErrors": 0
+    },
+    "rm1536_twoTabs": {
+      "pass": true,
+      "count": 2
+    },
+    "rm1536_recommendDefault": {
+      "pass": true,
+      "recommendActive": true
+    },
+    "rm1536_noCountChips": {
+      "pass": true,
+      "chips": 0
+    },
+    "rm1536_oldCopyGone": {
+      "pass": true,
+      "hits": []
+    },
+    "rm1536_recommendOrder": {
+      "pass": true,
+      "dom": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8"
+      ],
+      "expected": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8"
+      ]
+    },
+    "rm1536_switchZeroRequests": {
+      "pass": true,
+      "newPrizeAllRequests": 0,
+      "newApiRequests": []
+    },
+    "rm1536_sortParamNeverSent": {
+      "pass": true,
+      "sorts": [
+        null
+      ]
+    },
+    "rm1536_newOrder": {
+      "pass": true,
+      "dom": [
+        "A6",
+        "A2",
+        "A8",
+        "A4",
+        "A1",
+        "A3",
+        "A5",
+        "A7"
+      ],
+      "expected": [
+        "A6",
+        "A2",
+        "A8",
+        "A4",
+        "A1",
+        "A3",
+        "A5",
+        "A7"
+      ],
+      "newActive": true
+    },
+    "rm1536_flipDegraded": {
+      "pass": true,
+      "moving": 0,
+      "hook": null
+    },
+    "rm1536_flipCleared": {
+      "pass": true,
+      "hook": null
+    },
+    "rm1536_cardHeight392": {
+      "pass": true,
+      "heights": [
+        392,
+        392,
+        392,
+        392,
+        392,
+        392
+      ]
+    },
+    "rm1536_zeroOverflow": {
+      "pass": true,
+      "scrollWidth": 1536,
+      "innerWidth": 1536
+    },
+    "rm1536_noErrors": {
+      "pass": true,
+      "consoleErrors": 0
     }
   },
   "states": {
     "vp1536": {
       "before": {
-        "count": 2,
+        "order": [
+          "A1",
+          "A2",
+          "A3",
+          "A4",
+          "A5",
+          "A6",
+          "A7",
+          "A8"
+        ],
+        "heights": [
+          392,
+          392,
+          392,
+          392,
+          392,
+          392
+        ],
+        "tabCount": 2,
         "hasRecommend": true,
         "hasNew": true,
         "recommendActive": true,
+        "newActive": false,
         "chips": 0,
         "oldCopy": []
       },
       "after": {
-        "count": 2,
+        "order": [
+          "A6",
+          "A2",
+          "A8",
+          "A4",
+          "A1",
+          "A3",
+          "A5",
+          "A7"
+        ],
+        "heights": [
+          392,
+          392,
+          392,
+          392,
+          392,
+          392
+        ],
+        "tabCount": 2,
         "hasRecommend": true,
         "hasNew": true,
         "recommendActive": false,
+        "newActive": true,
         "chips": 0,
         "oldCopy": []
       },
       "allRequests": [
         {
-          "sort": "recommend",
-          "skip": "0"
-        },
-        {
-          "sort": "new",
+          "path": "/api/prize/all",
+          "search": "?skip=0&limit=36",
+          "sort": null,
           "skip": "0"
         }
       ],
-      "newTabRequests": [
-        {
-          "sort": "new",
-          "skip": "0"
-        }
-      ]
+      "newTabRequests": [],
+      "newApiRequests": [],
+      "flip": {
+        "clicked": true,
+        "moving": 6,
+        "hook": "running"
+      },
+      "flipCleared": null
     },
     "vp390": {
       "before": {
-        "count": 2,
+        "order": [
+          "A1",
+          "A2",
+          "A3",
+          "A4",
+          "A5",
+          "A6",
+          "A7",
+          "A8"
+        ],
+        "heights": [
+          392,
+          392,
+          392,
+          392,
+          392,
+          392
+        ],
+        "tabCount": 2,
         "hasRecommend": true,
         "hasNew": true,
         "recommendActive": true,
+        "newActive": false,
         "chips": 0,
         "oldCopy": []
       },
       "after": {
-        "count": 2,
+        "order": [
+          "A6",
+          "A2",
+          "A8",
+          "A4",
+          "A1",
+          "A3",
+          "A5",
+          "A7"
+        ],
+        "heights": [
+          392,
+          392,
+          392,
+          392,
+          392,
+          392
+        ],
+        "tabCount": 2,
         "hasRecommend": true,
         "hasNew": true,
         "recommendActive": false,
+        "newActive": true,
         "chips": 0,
         "oldCopy": []
       },
       "allRequests": [
         {
-          "sort": "recommend",
-          "skip": "0"
-        },
-        {
-          "sort": "new",
+          "path": "/api/prize/all",
+          "search": "?skip=0&limit=36",
+          "sort": null,
           "skip": "0"
         }
       ],
-      "newTabRequests": [
+      "newTabRequests": [],
+      "newApiRequests": [],
+      "flip": {
+        "clicked": true,
+        "moving": 6,
+        "hook": "running"
+      },
+      "flipCleared": null
+    },
+    "rm1536": {
+      "before": {
+        "order": [
+          "A1",
+          "A2",
+          "A3",
+          "A4",
+          "A5",
+          "A6",
+          "A7",
+          "A8"
+        ],
+        "heights": [
+          392,
+          392,
+          392,
+          392,
+          392,
+          392
+        ],
+        "tabCount": 2,
+        "hasRecommend": true,
+        "hasNew": true,
+        "recommendActive": true,
+        "newActive": false,
+        "chips": 0,
+        "oldCopy": []
+      },
+      "after": {
+        "order": [
+          "A6",
+          "A2",
+          "A8",
+          "A4",
+          "A1",
+          "A3",
+          "A5",
+          "A7"
+        ],
+        "heights": [
+          392,
+          392,
+          392,
+          392,
+          392,
+          392
+        ],
+        "tabCount": 2,
+        "hasRecommend": true,
+        "hasNew": true,
+        "recommendActive": false,
+        "newActive": true,
+        "chips": 0,
+        "oldCopy": []
+      },
+      "allRequests": [
         {
-          "sort": "new",
+          "path": "/api/prize/all",
+          "search": "?skip=0&limit=36",
+          "sort": null,
           "skip": "0"
         }
-      ]
+      ],
+      "newTabRequests": [],
+      "newApiRequests": [],
+      "flip": {
+        "clicked": true,
+        "moving": 0,
+        "hook": null
+      },
+      "flipCleared": null
     }
   },
   "errors": {
@@ -146,10 +561,15 @@
       "pageErrors": 0,
       "consoleErrors": 0,
       "sample": []
+    },
+    "rm1536": {
+      "pageErrors": 0,
+      "consoleErrors": 0,
+      "sample": []
     }
   },
   "summary": {
-    "checks": 14,
+    "checks": 39,
     "failed": 0,
     "failedNames": [],
     "verdict": "PASS"

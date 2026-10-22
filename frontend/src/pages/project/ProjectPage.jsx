@@ -10,6 +10,7 @@ import NotFoundPage from '../NotFoundPage'
 import ProjectNestedList from './ProjectNestedList'
 import ProjectForms from './ProjectForms'
 import ProjectEditModal from './ProjectEditModal'
+import ProjectAvatar from './ProjectAvatar'
 import './project.css'
 
 // ============================================================================
@@ -19,6 +20,13 @@ import './project.css'
 //       「活动与任务」**概况层**（每条活动 = 活动名链 `/campaign/:ref` + 状态徽标；其下只列
 //       任务摘要行：标题链 `/task/:taskId` + 状态 + 完成奖 `$` —— **零操作钮、零子任务清单**）→
 //       操作区（**仅 owner 或管理员**可见：【编辑项目】/【发布活动】）。
+//
+// ★ Kevin 2026-10-22②：**项目头像写口搬到本页头部**（`ProjectAvatar`）——头行最左 48px 圆形头像
+//   （有 `avatar_url` ⇒ img，无 ⇒ 项目名首字彩底）；owner ∨ 管理员在头像右下角见相机钮（
+//   `aria-label = project.avatarChange`），流水线 = 客户端压缩（共享 `src/image-compress.js`，与发布页
+//   同一份）→ `POST /api/media` → `PATCH /api/project/:projectId {avatar_url:'/api/media/<id>'}` →
+//   静默重拉；已有头像时另有【恢复默认】（行内二次确认 ⇒ `{avatar_url:null}`）。**ended 项目仍可改**
+//   （纯展示属性）；普通用户只见头像、DOM 里零入口零 input。
 //
 // ★ Kevin 2026-10-22：**任务/子任务全部操作入口迁 `/campaign/:ref`**（发布任务 / 发布子任务 /
 //   上线/下线 / 子任务编辑 / 删除）——本页对活动与任务只剩**概况**（`ProjectNestedList`
@@ -158,6 +166,9 @@ const ProjectPage = () => {
   const isAdmin = isWageProjectEditAdmin(adminFlags)
   // 入口闸（前端显隐）：owner ∨ 管理员，且项目未 ended（owner 写面的服务端闸同式）。
   const canManage = Boolean(view) && status !== 'ended' && (isOwner || isAdmin)
+  // ★ 头像闸（Kevin 2026-10-22）：owner ∨ 管理员即可，**不看 status** —— 头像纯展示属性，
+  //   已结束项目也该能换图 / 恢复默认（服务端 PATCH 未对 ended 封 `avatar_url`）。
+  const canEditAvatar = Boolean(view) && (isOwner || isAdmin)
 
   const batt = num(view?.wage_batt_per_claim)
   const hours = num(view?.wage_interval_hours)
@@ -225,7 +236,17 @@ const ProjectPage = () => {
           <>
             <section className="sf-panel sf-project-head" data-sf-m="project-head">
               <div className="sf-project-head-row">
-                <h1 className="sf-panel-title" data-sf-m="project-title">{view?.title || ''}</h1>
+                {/* 头像 + 标题成组（左），状态徽标最右：`space-between` 只分两组，标题不被推中 */}
+                <div className="sf-project-head-main">
+                  <ProjectAvatar
+                    view={view}
+                    canEdit={canEditAvatar}
+                    user={user}
+                    t={t}
+                    onChanged={() => load({ silent: true })}
+                  />
+                  <h1 className="sf-panel-title" data-sf-m="project-title">{view?.title || ''}</h1>
+                </div>
                 {statusKey ? (
                   <span
                     className={`sf-project-badge is-${status || 'unknown'}`}

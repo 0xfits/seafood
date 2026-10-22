@@ -1,11 +1,12 @@
 /**
- * FEED-PAGING-v1 单测（2026-10-19 · Kevin 指令）
- *   口径：首页商品 = `GET /api/prize/all?skip=<n>&limit=36&sort=recommend|new`（本文件恒 `recommend` 档）
+ * FEED-PAGING-v2 单测（2026-10-22 · Kevin 改口：排序回到前端）
+ *   口径：首页商品 = `GET /api/prize/all?skip=<n>&limit=36`（**不带 `sort`** —— 读口只取下一页）
  *     ① 首屏 36 条，且**不再用 `/api/home` 的 `prizes`**（聚合口只供 tasks / points / claimed ids）；
  *     ② 滚到底（sentinel 进视口）⇒ skip 36 → 72 …，< 36 即终止；
  *     ③ 按 bID 去重；
  *     ④ 卸载后不再发请求；
- *     ⑤ 某页失败 ⇒ 停（不自动重试）+ 「重试」按钮复用同一 skip。
+ *     ⑤ 某页失败 ⇒ 停（不自动重试）+ 「重试」按钮复用同一 skip；
+ *     ⑥ **上限 108 件**（18 行 × 6 列）：首页不分页，滚到第 3 页满页即止，不再发第 4 页。
  *   `IntersectionObserver` 在 jsdom 里不存在 ⇒ 本文件用可控 stub 触发（组件侧有存在性守卫）。
  */
 import React from 'react'
@@ -32,6 +33,8 @@ import { fetchApiJson, getAuthHeaders } from '../../auth'
 import { useAuth } from '../../auth-context'
 
 const PAGE_SIZE = 36
+/** 首页上限：18 行 × 6 列 */
+const MAX_ITEMS = 108
 
 const prizeRow = (bID) => ({
   bID,
@@ -114,7 +117,8 @@ const wireFetch = ({ pages, homePrizes = [{ bID: 9001, name: '聚合口商品', 
     }
     if (u.startsWith('/api/home/campaign-tasks')) return []
     if (u.startsWith('/api/currencies')) return []
-    const match = u.match(/^\/api\/prize\/all\?skip=(\d+)&limit=(\d+)&sort=([a-z]+)$/)
+    // ★ 读口 URL **只有 skip / limit**（无 `sort`）
+    const match = u.match(/^\/api\/prize\/all\?skip=(\d+)&limit=(\d+)$/)
     if (match) {
       const skip = Number(match[1])
       if (pendingFailure === skip) {
@@ -129,7 +133,7 @@ const wireFetch = ({ pages, homePrizes = [{ bID: 9001, name: '聚合口商品', 
   })
 }
 
-describe('HomePage · 商品分页（FEED-PAGING-v1）', () => {
+describe('HomePage · 商品分页（FEED-PAGING-v2）', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     MockIntersectionObserver.instances = []
@@ -146,13 +150,15 @@ describe('HomePage · 商品分页（FEED-PAGING-v1）', () => {
     vi.restoreAllMocks()
   })
 
-  it('首屏 36 条走 /api/prize/all?skip=0&limit=36&sort=recommend，且不再使用 /api/home 的 prizes', async () => {
+  it('首屏 36 条走 /api/prize/all?skip=0&limit=36（无 sort），且不再使用 /api/home 的 prizes', async () => {
     wireFetch({ pages: { 0: page(1, PAGE_SIZE) } })
     renderHomePage()
 
     await waitFor(() => expect(cardCount()).toBe(PAGE_SIZE))
 
-    expect(feedCalls()).toEqual([`/api/prize/all?skip=0&limit=36&sort=recommend`])
+    expect(feedCalls()).toEqual([`/api/prize/all?skip=0&limit=36`])
+    // ★ 读口不再下发排序档：URL 里既无 sort=recommend 也无 sort=new
+    expect(feedCalls().some((u) => u.includes('sort='))).toBe(false)
     // 聚合口的 `prizes` 字段不再被消费
     expect(screen.queryByText('聚合口商品')).toBeNull()
     // ★ HOME-CAMP-v1：聚合口的 `tasks` 字段同样不再被消费（任务版块改走 campaign 读口）
@@ -183,23 +189,23 @@ describe('HomePage · 商品分页（FEED-PAGING-v1）', () => {
     await triggerNextPage()
     await waitFor(() => expect(cardCount()).toBe(PAGE_SIZE * 2))
     expect(feedCalls()).toEqual([
-      '/api/prize/all?skip=0&limit=36&sort=recommend',
-      '/api/prize/all?skip=36&limit=36&sort=recommend',
+      '/api/prize/all?skip=0&limit=36',
+      '/api/prize/all?skip=36&limit=36',
     ])
 
-    // 第二次：跳 72
+    // 第二次：跳 72（累计 108 = 上限，止步）
     await triggerNextPage()
     await waitFor(() => expect(cardCount()).toBe(PAGE_SIZE * 3))
     expect(feedCalls()).toEqual([
-      '/api/prize/all?skip=0&limit=36&sort=recommend',
-      '/api/prize/all?skip=36&limit=36&sort=recommend',
-      '/api/prize/all?skip=72&limit=36&sort=recommend',
+      '/api/prize/all?skip=0&limit=36',
+      '/api/prize/all?skip=36&limit=36',
+      '/api/prize/all?skip=72&limit=36',
     ])
     // 不重复 bID ⇒ 卡数 == 去重后行数
     expect(new Set(page(1, PAGE_SIZE * 3).map((r) => r.bID)).size).toBe(cardCount())
   })
 
-  it('某页返回 < 36 ⇒ 终止（不再请求，出「没有更多数据了」，无加载态/按钮残留）', async () => {
+  it('③ 返回 < 36 ⇒ 终止（不再请求，出「没有更多数据了」，无加载态/按钮残留）', async () => {
     wireFetch({ pages: { 0: page(1, PAGE_SIZE), 36: page(37, 5) } })
     renderHomePage()
     await waitFor(() => expect(cardCount()).toBe(PAGE_SIZE))
@@ -219,7 +225,33 @@ describe('HomePage · 商品分页（FEED-PAGING-v1）', () => {
     expect(feedCalls().length).toBe(callsAfterLastPage)
   })
 
-  it('重复 bID 去重（相邻页因新发插队出现重叠行时，卡数不重复计）', async () => {
+  it('⑥ 上限 108 件（18 行 × 6 列）：第 3 页满页即止，不再发第 4 页', async () => {
+    wireFetch({
+      pages: {
+        0: page(1, PAGE_SIZE),
+        36: page(37, PAGE_SIZE),
+        72: page(73, PAGE_SIZE),
+        108: page(109, PAGE_SIZE),
+      },
+    })
+    renderHomePage()
+    await waitFor(() => expect(cardCount()).toBe(PAGE_SIZE))
+
+    await triggerNextPage()
+    await waitFor(() => expect(cardCount()).toBe(PAGE_SIZE * 2))
+    await triggerNextPage()
+    await waitFor(() => expect(cardCount()).toBe(MAX_ITEMS))
+
+    // 满 108 ⇒ hasMore=false：观察器卸载、出「到底」文案、第 4 页 never
+    await flushEffects()
+    expect(liveObserver()).toBeUndefined()
+    expect(document.querySelector('[data-sf-m="feed-end"]')).not.toBeNull()
+    await act(async () => {})
+    expect(feedCalls().filter((u) => u.includes('skip=108'))).toEqual([])
+    expect(cardCount()).toBe(MAX_ITEMS)
+  })
+
+  it('④ 重复 bID 去重（相邻页因新发插队出现重叠行时，卡数不重复计）', async () => {
     // 第 2 页与第 1 页重叠 30..36（7 行），新增 37..40（4 行）⇒ 去重后共 40
     wireFetch({ pages: { 0: page(1, PAGE_SIZE), 36: page(30, 11) } })
     renderHomePage()
@@ -251,7 +283,7 @@ describe('HomePage · 商品分页（FEED-PAGING-v1）', () => {
     expect(feedCalls().length).toBe(callsBeforeUnmount)
   })
 
-  it('下一页失败 ⇒ 停（不自动重试），给「重试」按钮；重试复用同一 skip', async () => {
+  it('⑤ 下一页失败 ⇒ 停（不自动重试），给「重试」按钮；重试复用同一 skip', async () => {
     wireFetch({ pages: { 0: page(1, PAGE_SIZE), 36: page(37, PAGE_SIZE) }, failOnceAt: 36 })
     renderHomePage()
     await waitFor(() => expect(cardCount()).toBe(PAGE_SIZE))

@@ -23,13 +23,180 @@
   }
 }
 
-/* 头行：标题 + 状态徽标（与 campaign 详情头行同构：标题在左、徽标在右） */
+/* 头行：头像 + 标题 + 状态徽标（头像/标题成组在左、徽标在右） */
 .sf-project-head-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+/* 头像 + 标题成组：`margin-right:auto` ⇒ 徽标被顶到最右，标题紧贴头像（不被 space-between 居中） */
+.sf-project-head-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  margin-right: auto;
+}
+
+/* 项目头像块（Kevin 2026-10-22）：48px 圆形头像 + 右下角写口 + 行内恢复默认/提示 */
+.sf-project-avatar-block {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  flex: none;
+}
+
+.sf-project-avatar {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: var(--sf-st-stroke-w-thin, 1px) solid var(--sf-panel-border, #d0d7de);
+  /* 不裁切容器：换图钮压在圆外右下角，若 `overflow:hidden` 会被圆形裁掉一半 */
+  overflow: visible;
+  background: var(--sf-bg-soft, #f6f8fa);
+}
+
+.sf-project-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 首字兜底：项目名首字 + 彩底（不依赖网络图；`aria-hidden` ⇒ 读屏不念这个装饰字） */
+.sf-project-avatar-initial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--sf-tag-bg, #f5c518);
+  color: var(--sf-tag-fg, #1f2328);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* 换头像钮：28px 圆形（≥24px 触控下限），右下角压边；键盘可达（真 <button>） */
+.sf-project-avatar-change {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  border: var(--sf-st-stroke-w-thin, 1px) solid var(--sf-panel-border, #d0d7de);
+  background: var(--sf-panel-bg, #fff);
+  color: var(--sf-title-fg, #1f2328);
+  cursor: pointer;
+}
+.sf-project-avatar-change:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.sf-project-avatar-change:focus-visible,
+.sf-project-avatar-reset:focus-visible,
+.sf-project-avatar-confirm-btn:focus-visible {
+  outline: 2px solid var(--sf-btna-bg, #f5c518);
+  outline-offset: 1px;
+}
+
+/* 隐藏的文件选择器：视觉不可见但仍在 DOM（按钮 click 触发），不占位、不可聚焦 */
+.sf-project-avatar-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 【恢复默认】：低于头像的小号文字钮（不抢主操作） */
+.sf-project-avatar-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-height: 24px;
+  padding: 0 2px;
+  border: 0;
+  background: none;
+  color: var(--sf-meta-fg, #57606a);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.sf-project-avatar-reset:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* 行内二次确认（提示 + 确认/取消）：白底小卡片，不与页面其它提示混淆 */
+.sf-project-avatar-confirm {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  padding: 4px 6px;
+  border-radius: var(--sf-st-radius-btna, 6px);
+  border: var(--sf-st-stroke-w-thin, 1px) solid var(--sf-panel-border, #d0d7de);
+  background: var(--sf-panel-bg, #fff);
+  font-size: 12px;
+  color: var(--sf-title-fg, #1f2328);
+  max-width: 260px;
+}
+
+.sf-project-avatar-confirm-text {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.sf-project-avatar-confirm-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-height: 24px;
+  padding: 0 6px;
+  border-radius: var(--sf-st-radius-btna, 6px);
+  border: var(--sf-st-stroke-w-thin, 1px) solid var(--sf-panel-border, #d0d7de);
+  background: var(--sf-panel-bg, #fff);
+  color: var(--sf-title-fg, #1f2328);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.sf-project-avatar-confirm-btn.is-ok {
+  background: var(--sf-btna-bg, #f5c518);
+  border-color: transparent;
+  color: var(--sf-btna-fg, #1f2328);
+}
+.sf-project-avatar-confirm-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* 头像写口失败/超限：行内提示（红字，带 `data-sf-err-*` 取证字段） */
+.sf-project-avatar-notice {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sf-down-fg, #cf222e);
+  overflow-wrap: anywhere;
 }
 
 /* 状态徽标（三态可区分：文案 + `data-sf-state` + 修饰类，不靠颜色单打） */

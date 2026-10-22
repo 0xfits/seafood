@@ -20,6 +20,9 @@
 // ============================================================================
 
 import { fetchApiJson, getAuthHeaders } from '../../auth'
+// 媒体上传口 = 全站唯一实现（`POST /api/media`，jpeg/png/webp、≤1MiB、同图去重）——
+// 头像与商品图片共用，禁在本层另写一份 fetch。
+import { uploadMedia } from '../item/item-api'
 
 const getJson = (url, user) => fetchApiJson(url, { headers: getAuthHeaders(user) })
 
@@ -62,6 +65,12 @@ export const fetchProjectCurrencies = (user) => getJson('/api/currencies', user)
  * 409/400 的 `details.reason` 由调用方（`ProjectEditModal`）映射成框内内联提示。
  */
 export const patchProject = (ref, body, user) => patchJson(`/api/project/${enc(ref)}`, body, user)
+
+/**
+ * 项目头像上传 = 复用既有媒体口（`POST /api/media`，仅 jpeg/png/webp、≤1MiB、同图去重）。
+ * 压缩归调用方（`src/image-compress.js` 共享实现）；本层零处理，只透传 `{content_type, data_base64}`。
+ */
+export const uploadProjectAvatar = uploadMedia
 
 /** 建 campaign（R4 口扩 project owner）。`project_id` = 项目主键（归属键）。 */
 export const createProjectCampaign = (body, user) => postJson('/api/campaign', body, user)

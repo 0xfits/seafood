@@ -1,0 +1,231 @@
+{
+  "probe": "ops/project/probe-project-avatar.mjs",
+  "startedAt": "2026-10-22T05:47:14.042Z",
+  "dist": "frontend/dist",
+  "fixtures": {
+    "project": "sui",
+    "media": "in-probe POST /api/media ⇒ media_id 901",
+    "auth": "localStorage seed",
+    "writes": "zero（全在 context.route 内截）"
+  },
+  "states": {
+    "owner_before": {
+      "avatarPresent": true,
+      "avatarSrc": null,
+      "initialText": "海",
+      "changePresent": true,
+      "changeLabel": "更换头像",
+      "changeTag": "BUTTON",
+      "changeBox": {
+        "w": 28,
+        "h": 28
+      },
+      "inputPresent": true,
+      "inputAccept": "image/*",
+      "resetPresent": false,
+      "resetConfirmPresent": false,
+      "noticeText": null,
+      "overflow": {
+        "doc": 0,
+        "page": 0,
+        "avatar": 0
+      }
+    },
+    "owner_after_upload": {
+      "avatarPresent": true,
+      "avatarSrc": "/api/media/901",
+      "initialText": null,
+      "changePresent": true,
+      "changeLabel": "更换头像",
+      "changeTag": "BUTTON",
+      "changeBox": {
+        "w": 28,
+        "h": 28
+      },
+      "inputPresent": true,
+      "inputAccept": "image/*",
+      "resetPresent": true,
+      "resetConfirmPresent": false,
+      "noticeText": null,
+      "overflow": {
+        "doc": 0,
+        "page": 0,
+        "avatar": 0
+      }
+    },
+    "owner_media_payload": [
+      {
+        "content_type": "image/webp",
+        "data_base64": "UklGRh4CAABXRUJQVlA4WAoAAAAgAAAAAAAAAAAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZWUDggMAAAANABAJ0BKgEAAQABQCIloAJ0ugH4AAOwAP7z32f+fmd24v6rf/sM/68y+vMv+wWAAA=="
+      }
+    ],
+    "owner_patch_payload": [
+      {
+        "avatar_url": "/api/media/901"
+      },
+      {
+        "avatar_url": null
+      }
+    ],
+    "owner_reset_confirm": {
+      "avatarPresent": true,
+      "avatarSrc": "/api/media/901",
+      "initialText": null,
+      "changePresent": true,
+      "changeLabel": "更换头像",
+      "changeTag": "BUTTON",
+      "changeBox": {
+        "w": 28,
+        "h": 28
+      },
+      "inputPresent": true,
+      "inputAccept": "image/*",
+      "resetPresent": false,
+      "resetConfirmPresent": true,
+      "noticeText": null,
+      "overflow": {
+        "doc": 0,
+        "page": 0,
+        "avatar": 0
+      }
+    },
+    "owner_reset_cancelled": {
+      "avatarPresent": true,
+      "avatarSrc": "/api/media/901",
+      "initialText": null,
+      "changePresent": true,
+      "changeLabel": "更换头像",
+      "changeTag": "BUTTON",
+      "changeBox": {
+        "w": 28,
+        "h": 28
+      },
+      "inputPresent": true,
+      "inputAccept": "image/*",
+      "resetPresent": true,
+      "resetConfirmPresent": false,
+      "noticeText": null,
+      "overflow": {
+        "doc": 0,
+        "page": 0,
+        "avatar": 0
+      }
+    },
+    "owner_after_reset": {
+      "avatarPresent": true,
+      "avatarSrc": null,
+      "initialText": "海",
+      "changePresent": true,
+      "changeLabel": "更换头像",
+      "changeTag": "BUTTON",
+      "changeBox": {
+        "w": 28,
+        "h": 28
+      },
+      "inputPresent": true,
+      "inputAccept": "image/*",
+      "resetPresent": false,
+      "resetConfirmPresent": false,
+      "noticeText": null,
+      "overflow": {
+        "doc": 0,
+        "page": 0,
+        "avatar": 0
+      }
+    },
+    "geometry": {
+      "w390": {
+        "doc": 0,
+        "page": 0,
+        "avatar": 0
+      },
+      "w1536": {
+        "doc": 0,
+        "page": 0,
+        "avatar": 0
+      }
+    },
+    "other_viewer": {
+      "avatarPresent": true,
+      "avatarSrc": "/api/media/9",
+      "initialText": null,
+      "changePresent": false,
+      "changeLabel": null,
+      "changeTag": null,
+      "changeBox": null,
+      "inputPresent": false,
+      "inputAccept": null,
+      "resetPresent": false,
+      "resetConfirmPresent": false,
+      "noticeText": null,
+      "overflow": {
+        "doc": 0,
+        "page": 0,
+        "avatar": 0
+      }
+    }
+  },
+  "assertions": {
+    "ownerEntry": {
+      "avatarRendered": true,
+      "changeEntryPresent": true,
+      "changeLabelI18n": true,
+      "changeIsButton": true,
+      "changeHitArea24": true,
+      "fileInputAcceptImage": true,
+      "initialFallback": true,
+      "noResetWithoutAvatar": true
+    },
+    "ownerUpload": {
+      "mediaCalledOnce": true,
+      "_mediaPayloadKeys": [
+        "content_type",
+        "data_base64"
+      ],
+      "mediaPayloadKeySetExact": true,
+      "mediaContentTypeImage": true,
+      "mediaBase64NonEmpty": true,
+      "patchCalledOnce": true,
+      "patchPayloadExact": true,
+      "avatarSrcUpdated": true,
+      "initialGone": true,
+      "resetEntryAppeared": true,
+      "silentReload": true,
+      "noErrorNotice": true
+    },
+    "ownerReset": {
+      "confirmRowShown": true,
+      "zeroPatchBeforeConfirm": true,
+      "cancelClosesRow": true,
+      "zeroPatchAfterCancel": true,
+      "patchAfterConfirm": true,
+      "resetPayloadExact": true,
+      "avatarBackToInitial": true,
+      "resetEntryGone": true
+    },
+    "geometry": {
+      "noOverflow390": true,
+      "noOverflow1536": true,
+      "noAvatarBlockOverflow": true
+    },
+    "otherViewer": {
+      "avatarVisible": true,
+      "noChangeEntry": true,
+      "noFileInput": true,
+      "noResetEntry": true,
+      "zeroWrites": true,
+      "noOverflow": true
+    }
+  },
+  "pageErrors": {
+    "owner": [],
+    "other": []
+  },
+  "summary": {
+    "assertions": 36,
+    "passed": 36,
+    "failed": [],
+    "pageErrors": 0,
+    "ok": true
+  }
+}
