@@ -1,0 +1,81 @@
+{
+  "api_base": "http://localhost:5788",
+  "taker_private_key": "[REDACTED]",
+  "taker_address": "0x8128a5208a77a0c44af8f509fee50dc7c14af88e",
+  "taker_uid": 971230,
+  "mint": {
+    "cid": 1,
+    "amount": "50000",
+    "idempotency_key": "ops:mm:taker:mint:usd:8128a520",
+    "idempotent_replay": true,
+    "txid": "4048"
+  },
+  "base_cid": 399,
+  "best_ask": 10050,
+  "buy": {
+    "side": "buy",
+    "price": 10050,
+    "amount": 2,
+    "create_key": "cli:mm:taker:buy:10050:2:8128a520",
+    "order_id": "29",
+    "order_status": "open"
+  },
+  "match": {
+    "ok": true,
+    "fill_no": "1",
+    "price": "10050",
+    "quantity": "2",
+    "turnover": "20100",
+    "fee": "2010",
+    "fee_rate_bp": 1000,
+    "fee_rate_source": "commission_policy.fee_rate_bp",
+    "buy_order_id": "29",
+    "sell_order_id": "28",
+    "taker_uid": "971230",
+    "counterparty_selected_server_side": true
+  },
+  "my_orders": [
+    {
+      "oID": 29,
+      "bID": 399,
+      "uID": 971230,
+      "side": "buy",
+      "price": 10050,
+      "volume_total": 2,
+      "volume_filled": 2,
+      "status": "filled",
+      "time_created": 1792655406,
+      "time_updated": 1792655620,
+      "symbol": "",
+      "brand_name": ""
+    }
+  ],
+  "trades": [
+    {
+      "trID": 9,
+      "bID": 399,
+      "buy_oID": 29,
+      "sell_oID": 28,
+      "buyer_uID": 971230,
+      "seller_uID": 971229,
+      "price": 10050,
+      "volume": 2,
+      "time_created": 1792655620,
+      "brand_symbol": ""
+    }
+  ],
+  "balances": [
+    {
+      "cid": 1,
+      "symbol": "$",
+      "name": "平台积分",
+      "balance": "27890"
+    },
+    {
+      "cid": 399,
+      "symbol": "₿",
+      "name": "BTTC",
+      "balance": "2"
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "env_file": "/Users/kevin/.config/seafood/mm.env",
+  "env_file_mode": "0600",
+  "private_key": "[REDACTED]",
+  "key_generated": false,
+  "evm_address": "0x6ba01ea3f2f75f2a232fd142b6694e988cb175de",
+  "uid": 971229,
+  "user_created": "reused_by_evm_lookup",
+  "currencies": {
+    "quote": {
+      "cid": 1,
+      "symbol": "$",
+      "decimals": 0,
+      "status": "listed"
+    },
+    "base": {
+      "cid": 399,
+      "symbol": "₿",
+      "name": "BTTC",
+      "decimals": 0,
+      "status": "listed"
+    }
+  },
+  "mints": [
+    {
+      "cid": 1,
+      "amount": "1000000",
+      "idempotency_key": "ops:mm:setup:mint:usd:e1",
+      "idempotent_replay": true,
+      "txid": "4042"
+    },
+    {
+      "cid": 399,
+      "amount": "10000",
+      "idempotency_key": "ops:mm:setup:mint:base:e1",
+      "idempotent_replay": true,
+      "txid": "4043"
+    }
+  ],
+  "same_transaction": true,
+  "accounts_after": [
+    {
+      "cid": 1,
+      "balance": "5000",
+      "frozen": "995000"
+    },
+    {
+      "cid": 399,
+      "balance": "9900",
+      "frozen": "100"
+    }
+  ]
+}

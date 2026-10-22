@@ -1,0 +1,48 @@
+{
+  "api_base": "http://localhost:5788",
+  "taker_private_key": "[REDACTED]",
+  "taker_address": "0x8128a5208a77a0c44af8f509fee50dc7c14af88e",
+  "taker_uid": 971230,
+  "mint": {
+    "cid": 1,
+    "amount": "50000",
+    "idempotency_key": "ops:mm:taker:mint:usd:8128a520",
+    "idempotent_replay": false,
+    "txid": "4048"
+  },
+  "base_cid": 399,
+  "best_ask": 10050,
+  "buy": {
+    "side": "buy",
+    "price": 10050,
+    "amount": 2,
+    "create_key": "cli:mm:taker:buy:10050:2:8128a520",
+    "order_id": "29",
+    "order_status": "open"
+  },
+  "my_orders": [
+    {
+      "oID": 29,
+      "bID": 399,
+      "uID": 971230,
+      "side": "buy",
+      "price": 10050,
+      "volume_total": 2,
+      "volume_filled": 0,
+      "status": "open",
+      "time_created": 1792655406,
+      "time_updated": 1792655406,
+      "symbol": "",
+      "brand_name": ""
+    }
+  ],
+  "trades": [],
+  "balances": [
+    {
+      "cid": 1,
+      "symbol": "$",
+      "name": "平台积分",
+      "balance": "29900"
+    }
+  ]
+}

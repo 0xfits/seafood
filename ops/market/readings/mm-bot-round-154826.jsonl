@@ -1,0 +1,2 @@
+{"ts":"2026-10-22T07:48:26.335Z","mm":"0x…b175de","pair":"399/1","level":"info","msg":"bot start: api=http://localhost:5788 spread=1% size=100 interval=60s state=/Users/kevin/.config/seafood/mm-state.json"}
+{"ts":"2026-10-22T07:48:29.668Z","mm":"0x…b175de","pair":"399/1","level":"info","round":1,"ref_price":10000,"ref_source":"env","targets":{"buyPrice":9950,"sellPrice":10050},"balances":{"quote_avail":5000,"base_avail":9900},"mode":"normal","keeps":[{"oID":27,"side":"buy","price":9950},{"oID":28,"side":"sell","price":10050}],"alerts":[],"ms":1749}

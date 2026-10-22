@@ -1,0 +1,86 @@
+{
+ "accounts": [
+  {
+   "uid": "971229",
+   "cid": "1",
+   "balance": "25100",
+   "frozen": "995000"
+  },
+  {
+   "uid": "971229",
+   "cid": "399",
+   "balance": "9900",
+   "frozen": "98"
+  },
+  {
+   "uid": "971230",
+   "cid": "1",
+   "balance": "27890",
+   "frozen": "0"
+  },
+  {
+   "uid": "971230",
+   "cid": "399",
+   "balance": "2",
+   "frozen": "0"
+  }
+ ],
+ "orders": [
+  {
+   "order_id": "27",
+   "owner_uid": "971229",
+   "side": "buy",
+   "price": "9950",
+   "amount": "100",
+   "amount_filled": "0",
+   "status": "open"
+  },
+  {
+   "order_id": "28",
+   "owner_uid": "971229",
+   "side": "sell",
+   "price": "10050",
+   "amount": "100",
+   "amount_filled": "2",
+   "status": "partial"
+  },
+  {
+   "order_id": "29",
+   "owner_uid": "971230",
+   "side": "buy",
+   "price": "10050",
+   "amount": "2",
+   "amount_filled": "2",
+   "status": "filled"
+  }
+ ],
+ "trades": [
+  {
+   "trade_id": "9",
+   "buy_order_id": "29",
+   "sell_order_id": "28",
+   "price": "10050",
+   "amount": "2",
+   "taker_uid": "971230",
+   "fee": "2010"
+  },
+  {
+   "trade_id": "8",
+   "buy_order_id": "22",
+   "sell_order_id": "16",
+   "price": "100",
+   "amount": "1",
+   "taker_uid": "12",
+   "fee": "1"
+  },
+  {
+   "trade_id": "7",
+   "buy_order_id": "20",
+   "sell_order_id": "19",
+   "price": "1000",
+   "amount": "1",
+   "taker_uid": "12",
+   "fee": "10"
+  }
+ ]
+}
