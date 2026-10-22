@@ -1,6 +1,6 @@
 {
   "probe": "ops/header-nav/probe-header-nav.mjs",
-  "startedAt": "2026-10-21T04:37:26.890Z",
+  "startedAt": "2026-10-22T03:01:05.319Z",
   "dist": "/Users/kevin/bistro/seafood/frontend/dist",
   "fixtures": {
     "auth": "localStorage seed（EVM = 管理员合约地址）+ /api/admin/me 自截（零后端 / 零库写）",
@@ -12,6 +12,12 @@
       "市场",
       "管理面板"
     ],
+    "imgSrcs": [
+      "/icons/nav/nav-bounty.png",
+      "/icons/nav/nav-market.png",
+      "/icons/nav/nav-admin.png"
+    ],
+    "ordersSrc": "/icons/nav/nav-orders.png",
     "pageTitleZh": "悬赏中心",
     "oldLongCopy": "悬赏中心"
   },
@@ -32,12 +38,9 @@
           "href": "/task",
           "label": "悬赏中心",
           "spanLabel": "悬赏中心",
-          "hasSvg": true,
-          "svg": {
-            "w": 16,
-            "h": 16,
-            "ariaHidden": "true"
-          },
+          "hasImg": false,
+          "imgSrc": null,
+          "img": null,
           "box": {
             "w": 102,
             "h": 37,
@@ -59,14 +62,18 @@
           "href": "/exchange",
           "label": "市场",
           "spanLabel": "市场",
-          "hasSvg": true,
-          "svg": {
-            "w": 16,
-            "h": 16,
-            "ariaHidden": "true"
+          "hasImg": true,
+          "imgSrc": "/icons/nav/nav-bounty.png",
+          "img": {
+            "w": 18,
+            "h": 18,
+            "alt": "",
+            "ariaHidden": "true",
+            "pixelated": "pixelated",
+            "naturalOk": true
           },
           "box": {
-            "w": 74,
+            "w": 76,
             "h": 37,
             "y": 14
           },
@@ -86,20 +93,24 @@
           "href": "/dashboard",
           "label": "管理面板",
           "spanLabel": "管理面板",
-          "hasSvg": true,
-          "svg": {
-            "w": 16,
-            "h": 16,
-            "ariaHidden": "true"
+          "hasImg": true,
+          "imgSrc": "/icons/nav/nav-admin.png",
+          "img": {
+            "w": 18,
+            "h": 18,
+            "alt": "",
+            "ariaHidden": "true",
+            "pixelated": "pixelated",
+            "naturalOk": true
           },
           "box": {
-            "w": 102,
+            "w": 104,
             "h": 37,
             "y": 14
           },
           "style": {
-            "backgroundColor": "rgba(147, 51, 234, 0.498)",
-            "color": "rgb(165, 170, 177)",
+            "backgroundColor": "rgba(147, 51, 234, 0.643)",
+            "color": "rgb(190, 194, 199)",
             "paddingTop": "8px",
             "paddingRight": "12px",
             "paddingBottom": "8px",
@@ -131,15 +142,51 @@
       },
       "overflowPx": 0,
       "offenders": []
+    },
+    "390_panel_open": {
+      "panelOpen": true,
+      "panelImgSrcs": [
+        "/icons/nav/nav-bounty.png",
+        "/icons/nav/nav-admin.png",
+        "/icons/nav/nav-orders.png"
+      ],
+      "panelPixelated": [
+        "pixelated",
+        "pixelated",
+        "pixelated"
+      ],
+      "ordersMobileSrc": "/icons/nav/nav-orders.png",
+      "ordersMobilePixelated": "pixelated",
+      "overflowOpened": 0
     }
   },
   "assertions": {
     "icons": {
       "navCount": 3,
-      "everyHasSvg": true,
-      "everySvg16": true,
-      "everySvgAriaHidden": true,
+      "everyHasImg": false,
+      "imgSrcsExact": false,
+      "everyImg18": false,
+      "everyImgPixelated": false,
+      "everyImgAltEmptyAriaHidden": false,
+      "everyImgDecoded": false,
       "everyHasLabel": true
+    },
+    "imgAssets200": {
+      "requestsRecorded": 4,
+      "allStatus200": true,
+      "allPngMime": true,
+      "allFourSrcsHit": true,
+      "noResourceErrors": true
+    },
+    "ordersEntry": {
+      "present": true,
+      "hrefIsProfile": true,
+      "hasImg": true,
+      "imgSrcExact": true,
+      "img18": true,
+      "pixelated": true,
+      "altEmptyAriaHidden": true,
+      "labelExact": true
     },
     "copy": {
       "labelsExact": false,
@@ -159,7 +206,7 @@
           "values": [
             "rgba(0, 0, 0, 0)",
             "rgba(0, 0, 0, 0)",
-            "rgba(147, 51, 234, 0.498)"
+            "rgba(147, 51, 234, 0.643)"
           ],
           "allEqual": false
         },
@@ -167,7 +214,7 @@
           "values": [
             "rgb(75, 85, 99)",
             "rgb(75, 85, 99)",
-            "rgb(165, 170, 177)"
+            "rgb(190, 194, 199)"
           ],
           "allEqual": false
         },
@@ -237,7 +284,9 @@
     },
     "i18n": {
       "enLabelsExact": false,
-      "enHasSvg": true,
+      "enHasImg": false,
+      "enImgSrcsExact": false,
+      "enOrdersSrcExact": true,
       "zeroOverflow1536en": true
     },
     "dashboardPage": {
@@ -250,28 +299,108 @@
       "zeroOverflow390": true,
       "zeroPageError390": true,
       "offendersNone": true
+    },
+    "mobilePanelSync": {
+      "panelOpen": true,
+      "taskImgSrcExact": true,
+      "ordersMobileImgSrcExact": true,
+      "allPixelated": true,
+      "noOldOrderSvg": true,
+      "zeroOverflowPanelOpen": true
     }
   },
   "errors": {
     "1536_home": {
       "pageErrors": [],
       "consoleErrors": [],
-      "resourceErrors": []
+      "resourceErrors": [],
+      "imgResponses": [
+        {
+          "path": "/icons/nav/nav-bounty.png",
+          "status": 200,
+          "contentType": "image/png"
+        },
+        {
+          "path": "/icons/nav/nav-market.png",
+          "status": 200,
+          "contentType": "image/png"
+        },
+        {
+          "path": "/icons/nav/nav-orders.png",
+          "status": 200,
+          "contentType": "image/png"
+        },
+        {
+          "path": "/icons/nav/nav-admin.png",
+          "status": 200,
+          "contentType": "image/png"
+        },
+        {
+          "path": "/icons/nav/nav-bounty.png",
+          "status": 200,
+          "contentType": "image/png"
+        },
+        {
+          "path": "/icons/nav/nav-market.png",
+          "status": 200,
+          "contentType": "image/png"
+        },
+        {
+          "path": "/icons/nav/nav-orders.png",
+          "status": 200,
+          "contentType": "image/png"
+        },
+        {
+          "path": "/icons/nav/nav-admin.png",
+          "status": 200,
+          "contentType": "image/png"
+        }
+      ]
     },
     "390_home": {
       "pageErrors": [],
       "consoleErrors": [],
-      "resourceErrors": []
+      "resourceErrors": [],
+      "imgResponses": [
+        {
+          "path": "/icons/nav/nav-bounty.png",
+          "status": 200,
+          "contentType": "image/png"
+        },
+        {
+          "path": "/icons/nav/nav-market.png",
+          "status": 200,
+          "contentType": "image/png"
+        },
+        {
+          "path": "/icons/nav/nav-orders.png",
+          "status": 200,
+          "contentType": "image/png"
+        },
+        {
+          "path": "/icons/nav/nav-admin.png",
+          "status": 200,
+          "contentType": "image/png"
+        }
+      ]
     }
   },
   "summary": {
-    "checks": 31,
-    "failed": 6,
+    "checks": 54,
+    "failed": 14,
     "failedNames": [
+      "icons.everyHasImg",
+      "icons.imgSrcsExact",
+      "icons.everyImg18",
+      "icons.everyImgPixelated",
+      "icons.everyImgAltEmptyAriaHidden",
+      "icons.everyImgDecoded",
       "copy.labelsExact",
       "copy.bountyIsShort",
       "copy.navHasNoOldLongCopy",
       "i18n.enLabelsExact",
+      "i18n.enHasImg",
+      "i18n.enImgSrcsExact",
       "sameBackground",
       "sameForeground"
     ],

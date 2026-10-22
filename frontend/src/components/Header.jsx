@@ -1,18 +1,29 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Menu, X, User, LogOut, LogIn, UserPlus, ChevronDown, Moon, Sun, Gift, Store, ShieldCheck } from 'lucide-react'
+import { Menu, X, User, LogOut, LogIn, UserPlus, ChevronDown, Moon, Sun } from 'lucide-react'
 import cnFlag from '../images/cn.svg'
 import usFlag from '../images/us.svg'
 import hkFlag from '../images/hk.svg'
 import vnFlag from '../images/vn.svg'
-// 订单入口图标（Kevin 2026-10-14 需求①；资产由派单方落盘，fill=currentColor，path 数据一字不改）
-import orderIcon from '../images/order.svg'
 import HoverMenu from './ui/HoverMenu'
 import { fetchAdminAccess } from '../admin-utils'
 import { fetchUserBalances, formatBalanceAmount, toBalanceRows } from '../balances-api'
 import { useAuth } from '../auth-context'
 import {buildLocalizedPath, buildLangPath, getLanguageFromUrl} from '../utils'
+
+// ★ 2026-10-22 · Kevin：顶栏四图标换**像素图**（透明底 PNG，48–64px 原图逐字节入库；
+//   展示 18px + `imageRendering: 'pixelated'` ⇒ 缩放不糊、像素风保留）。
+//   资产在 `frontend/public/icons/nav/`（public 目录 ⇒ URL = `/icons/nav/<file>`，构建时原样拷贝进 dist）：
+//   悬赏 = 贝壳含珍珠 / 市场 = 鲸鱼 / 管理面板 = 章鱼 / 订单 = 龙虾。
+const NAV_ICON_SRC = {
+  bounty: '/icons/nav/nav-bounty.png',
+  market: '/icons/nav/nav-market.png',
+  admin: '/icons/nav/nav-admin.png',
+  orders: '/icons/nav/nav-orders.png',
+}
+// 像素图统一渲染规格（alt="" + aria-hidden ⇒ 纯装饰；文案由旁侧 span/aria-label 承担）
+const NAV_ICON_IMG_PROPS = { className: 'h-[18px] w-[18px] shrink-0', style: { imageRendering: 'pixelated' } }
 
 // T86（v1.5 重算 · 取代 v1.1 T76 排除集）：移动汉堡面板 = 顶栏项集 − **底栏目标集**。
 // 本版底栏目标集 = `/`、`/exchange`、`/listing/new`、`/messages`、`/profile`（design-system.spec v1.5 §14.4）
@@ -140,15 +151,16 @@ const Header = () => {
   // 左侧 nav 仅存 任务/市场（+ 管理后台 仅管理员）。
   // ★ 2026-10-11 合并单：**删「社区奖励」项**（`reward` ⇒ 原 `/reward` 页已随 `RewardPage` 删除硬删）
   //   ⇒ 桌面左 nav = [社区任务, 市场]；移动面板 = 同一 `menuItems` − `exchange` = [社区任务]。
-  // 菜单项（Kevin 2026-10-21 需求②：三项均带图标 = 底栏同款尺寸 16px）
-  //   · 悬赏 = `Gift`（底栏无此格；与「市场 Store」同族线性图标）
-  //   · 市场 = `Store`（与底栏 shard 同款，保持一致）
-  //   · 管理面板 = `ShieldCheck`；★ 本单删「管理面板紫底特殊样式」⇒ 与其它项同渲染、
+  // 菜单项（Kevin 2026-10-22 需求：三菜单项图标 = 像素图 PNG（贝壳/鲸鱼/章鱼），18px 展示不糊）
+  //   · 悬赏 = `nav-bounty.png`（贝壳含珍珠）
+  //   · 市场 = `nav-market.png`（鲸鱼）
+  //   · 管理面板 = `nav-admin.png`（章鱼）；★ 已删「管理面板紫底特殊样式」⇒ 与其它项同渲染、
   //     零条件类名（原 `startsWith('/dashboard') ? bg-purple-600 …` 已移除）。
+  //   `icon` 字段从 2026-10-22 起为 **src 字符串**（原 lucide 组件 Gift/Store/ShieldCheck 退役）。
   const menuItems = [
-    { path: 'task', label: t('task'), icon: Gift },
-    { path: 'exchange', label: t('shard'), icon: Store },
-    ...(isAuthenticated && isAdmin ? [{ path: adminPath, label: t('admin_panel'), icon: ShieldCheck, absolute: true }] : [])
+    { path: 'task', label: t('task'), icon: NAV_ICON_SRC.bounty },
+    { path: 'exchange', label: t('shard'), icon: NAV_ICON_SRC.market },
+    ...(isAuthenticated && isAdmin ? [{ path: adminPath, label: t('admin_panel'), icon: NAV_ICON_SRC.admin, absolute: true }] : [])
   ]
 
   // 构建带语言前缀的路径（前缀逻辑统一走 utils，避免自造前缀/尾斜杠）
@@ -198,22 +210,19 @@ const Header = () => {
           <div className="hidden md:flex items-center space-x-4">
             {/* 桌面导航 */}
             <nav className="flex space-x-1 mr-4">
-              {menuItems.map((item) => {
-                const Icon = item.icon
-                return (
-                  <Link
-                    key={item.path}
-                    to={buildPath(item.path)}
-                    className={`nav-link inline-flex items-center gap-1.5 ${location.pathname.includes(item.path) ? 'active' : ''}`}
-                  >
-                    <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                    <span>{item.label}</span>
-                  </Link>
-                )
-              })}
+              {menuItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={buildPath(item.path)}
+                  className={`nav-link inline-flex items-center gap-1.5 ${location.pathname.includes(item.path) ? 'active' : ''}`}
+                >
+                  <img src={item.icon} alt="" {...NAV_ICON_IMG_PROPS} aria-hidden="true" />
+                  <span>{item.label}</span>
+                </Link>
+              ))}
             </nav>
             
-            {/* Kevin 2026-10-14 需求①：右上角「订单」按钮（图标 + 文案），指向 /profile（落地即我的交易）。
+            {/* Kevin 2026-10-14 需求① + 2026-10-22 像素图单：右上角「订单」按钮（龙虾图 + 文案），指向 /profile（落地即我的交易）。
                 未登录同样可点 ⇒ 由既有 ProtectedRoute 出登录引导；复用既有头部控件类 nav-link（不动桌面按钮几何）。 */}
             <Link
               to={buildPath('profile')}
@@ -222,7 +231,7 @@ const Header = () => {
               aria-label={t('header.orders')}
               title={t('header.orders')}
             >
-              <img src={orderIcon} alt="" className="inline-block w-4 h-4" aria-hidden="true" />
+              <img src={NAV_ICON_SRC.orders} alt="" {...NAV_ICON_IMG_PROPS} aria-hidden="true" />
               <span>{t('header.orders')}</span>
             </Link>
 
@@ -392,33 +401,30 @@ const Header = () => {
       {mobileMenuOpen && (
         <div className="md:hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
           <div className="px-2 pt-2 pb-3 space-y-1">
-            {menuItems.filter((item) => !MOBILE_PANEL_EXCLUDED_PATHS.includes(item.path)).map((item) => {
-              const Icon = item.icon
-              return (
-                <Link
-                  key={item.path}
-                  to={buildPath(item.path)}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium ${
-                    location.pathname.includes(item.path)
-                      ? 'bg-gray-100 dark:bg-gray-700'
-                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
-                  }`}
-                >
-                  <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                  <span>{item.label}</span>
-                </Link>
-              )
-            })}
-            {/* Kevin 2026-10-14 需求①：移动面板「订单」入口（登录态内外都可见；未登录进 profile 由 ProtectedRoute 出登录引导） */}
+            {menuItems.filter((item) => !MOBILE_PANEL_EXCLUDED_PATHS.includes(item.path)).map((item) => (
+              <Link
+                key={item.path}
+                to={buildPath(item.path)}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium ${
+                  location.pathname.includes(item.path)
+                    ? 'bg-gray-100 dark:bg-gray-700'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                <img src={item.icon} alt="" {...NAV_ICON_IMG_PROPS} aria-hidden="true" />
+                <span>{item.label}</span>
+              </Link>
+            ))}
+            {/* Kevin 2026-10-14 需求① + 2026-10-22 像素图单：移动面板「订单」入口（龙虾图，与桌面同款；登录态内外都可见） */}
             <Link
               to={buildPath('profile')}
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white"
               data-sf-m="header-orders-mobile"
             >
-              <img src={orderIcon} alt="" className="inline-block w-4 h-4" aria-hidden="true" />
-              {t('header.orders')}
+              <img src={NAV_ICON_SRC.orders} alt="" {...NAV_ICON_IMG_PROPS} aria-hidden="true" />
+              <span>{t('header.orders')}</span>
             </Link>
             {!isAuthenticated && (
               <>

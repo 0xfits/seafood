@@ -1,6 +1,6 @@
 {
   "probe": "ops/header-nav/probe-header-nav.mjs",
-  "startedAt": "2026-10-21T04:36:38.541Z",
+  "startedAt": "2026-10-22T03:00:18.972Z",
   "dist": "/Users/kevin/bistro/seafood/frontend/dist",
   "fixtures": {
     "auth": "localStorage seed（EVM = 管理员合约地址）+ /api/admin/me 自截（零后端 / 零库写）",
@@ -12,6 +12,12 @@
       "市场",
       "管理面板"
     ],
+    "imgSrcs": [
+      "/icons/nav/nav-bounty.png",
+      "/icons/nav/nav-market.png",
+      "/icons/nav/nav-admin.png"
+    ],
+    "ordersSrc": "/icons/nav/nav-orders.png",
     "pageTitleZh": "悬赏中心",
     "oldLongCopy": "悬赏中心"
   },
@@ -32,14 +38,18 @@
           "href": "/task",
           "label": "悬赏",
           "spanLabel": "悬赏",
-          "hasSvg": true,
-          "svg": {
-            "w": 16,
-            "h": 16,
-            "ariaHidden": "true"
+          "hasImg": true,
+          "imgSrc": "/icons/nav/nav-bounty.png",
+          "img": {
+            "w": 18,
+            "h": 18,
+            "alt": "",
+            "ariaHidden": "true",
+            "pixelated": "pixelated",
+            "naturalOk": true
           },
           "box": {
-            "w": 74,
+            "w": 76,
             "h": 37,
             "y": 14
           },
@@ -59,14 +69,18 @@
           "href": "/exchange",
           "label": "市场",
           "spanLabel": "市场",
-          "hasSvg": true,
-          "svg": {
-            "w": 16,
-            "h": 16,
-            "ariaHidden": "true"
+          "hasImg": true,
+          "imgSrc": "/icons/nav/nav-market.png",
+          "img": {
+            "w": 18,
+            "h": 18,
+            "alt": "",
+            "ariaHidden": "true",
+            "pixelated": "pixelated",
+            "naturalOk": true
           },
           "box": {
-            "w": 74,
+            "w": 76,
             "h": 37,
             "y": 14
           },
@@ -86,14 +100,18 @@
           "href": "/dashboard",
           "label": "管理面板",
           "spanLabel": "管理面板",
-          "hasSvg": true,
-          "svg": {
-            "w": 16,
-            "h": 16,
-            "ariaHidden": "true"
+          "hasImg": true,
+          "imgSrc": "/icons/nav/nav-admin.png",
+          "img": {
+            "w": 18,
+            "h": 18,
+            "alt": "",
+            "ariaHidden": "true",
+            "pixelated": "pixelated",
+            "naturalOk": true
           },
           "box": {
-            "w": 102,
+            "w": 104,
             "h": 37,
             "y": 14
           },
@@ -131,15 +149,51 @@
       },
       "overflowPx": 0,
       "offenders": []
+    },
+    "390_panel_open": {
+      "panelOpen": true,
+      "panelImgSrcs": [
+        "/icons/nav/nav-bounty.png",
+        "/icons/nav/nav-admin.png",
+        "/icons/nav/nav-orders.png"
+      ],
+      "panelPixelated": [
+        "pixelated",
+        "pixelated",
+        "pixelated"
+      ],
+      "ordersMobileSrc": "/icons/nav/nav-orders.png",
+      "ordersMobilePixelated": "pixelated",
+      "overflowOpened": 0
     }
   },
   "assertions": {
     "icons": {
       "navCount": 3,
-      "everyHasSvg": true,
-      "everySvg16": true,
-      "everySvgAriaHidden": true,
+      "everyHasImg": true,
+      "imgSrcsExact": true,
+      "everyImg18": true,
+      "everyImgPixelated": true,
+      "everyImgAltEmptyAriaHidden": true,
+      "everyImgDecoded": true,
       "everyHasLabel": true
+    },
+    "imgAssets200": {
+      "requestsRecorded": 4,
+      "allStatus200": true,
+      "allPngMime": true,
+      "allFourSrcsHit": true,
+      "noResourceErrors": true
+    },
+    "ordersEntry": {
+      "present": true,
+      "hrefIsProfile": true,
+      "hasImg": true,
+      "imgSrcExact": true,
+      "img18": true,
+      "pixelated": true,
+      "altEmptyAriaHidden": true,
+      "labelExact": true
     },
     "copy": {
       "labelsExact": true,
@@ -237,7 +291,9 @@
     },
     "i18n": {
       "enLabelsExact": true,
-      "enHasSvg": true,
+      "enHasImg": true,
+      "enImgSrcsExact": true,
+      "enOrdersSrcExact": true,
       "zeroOverflow1536en": true
     },
     "dashboardPage": {
@@ -250,22 +306,94 @@
       "zeroOverflow390": true,
       "zeroPageError390": true,
       "offendersNone": true
+    },
+    "mobilePanelSync": {
+      "panelOpen": true,
+      "taskImgSrcExact": true,
+      "ordersMobileImgSrcExact": true,
+      "allPixelated": true,
+      "noOldOrderSvg": true,
+      "zeroOverflowPanelOpen": true
     }
   },
   "errors": {
     "1536_home": {
       "pageErrors": [],
       "consoleErrors": [],
-      "resourceErrors": []
+      "resourceErrors": [],
+      "imgResponses": [
+        {
+          "path": "/icons/nav/nav-bounty.png",
+          "status": 200,
+          "contentType": "image/png"
+        },
+        {
+          "path": "/icons/nav/nav-market.png",
+          "status": 200,
+          "contentType": "image/png"
+        },
+        {
+          "path": "/icons/nav/nav-orders.png",
+          "status": 200,
+          "contentType": "image/png"
+        },
+        {
+          "path": "/icons/nav/nav-admin.png",
+          "status": 200,
+          "contentType": "image/png"
+        },
+        {
+          "path": "/icons/nav/nav-bounty.png",
+          "status": 200,
+          "contentType": "image/png"
+        },
+        {
+          "path": "/icons/nav/nav-market.png",
+          "status": 200,
+          "contentType": "image/png"
+        },
+        {
+          "path": "/icons/nav/nav-orders.png",
+          "status": 200,
+          "contentType": "image/png"
+        },
+        {
+          "path": "/icons/nav/nav-admin.png",
+          "status": 200,
+          "contentType": "image/png"
+        }
+      ]
     },
     "390_home": {
       "pageErrors": [],
       "consoleErrors": [],
-      "resourceErrors": []
+      "resourceErrors": [],
+      "imgResponses": [
+        {
+          "path": "/icons/nav/nav-bounty.png",
+          "status": 200,
+          "contentType": "image/png"
+        },
+        {
+          "path": "/icons/nav/nav-market.png",
+          "status": 200,
+          "contentType": "image/png"
+        },
+        {
+          "path": "/icons/nav/nav-orders.png",
+          "status": 200,
+          "contentType": "image/png"
+        },
+        {
+          "path": "/icons/nav/nav-admin.png",
+          "status": 200,
+          "contentType": "image/png"
+        }
+      ]
     }
   },
   "summary": {
-    "checks": 31,
+    "checks": 54,
     "failed": 0,
     "failedNames": [],
     "verdict": "PASS"
