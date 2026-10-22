@@ -22,12 +22,21 @@
 //      **存量兼容**：payload 仍是旧四键 {option_a, option_b, prize_amount, deadline} 的行，
 //      读（三态）/写（proof）/结算（correct_option）一律维持 `a|b` 口径 —— 按 payload 形状分支，
 //      两条路共存，**禁双开**（同一子任务的 payload 形状不可在改口里换口径）。
+//      **展示统一**（Kevin 2026-10-22）：读口**一律剥除** option_a / option_b 两枚存量文案，
+//      改出加性字段 `option_style: 'yes_no'|'ab_legacy'`（选项文案由前端 i18n 恒 Yes/No）；
+//      库内值不动 ⇒ 旧行仍只收 `choice:'a'|'b'`、新行只收 `choice:'yes'|'no'`（后端投票口径不变）。
 //   ⑤ quiz：payload 恰两键 {options:{a,b,c,d}(四键非空字符串), correct:['a'…]}（correct 1–4 个、
 //      去重、均在 a–d）；`correct` **永不出公开读口**（脱敏体例同 prediction 的结算键）。
 //      用户 `{answers:{picks:[…]}}`；提交时**集合相等**即答对 ⇒ **同一事务**发 `subtask.reward_amount`
 //      （平台 −N → 用户 +N，借 PLATFORM_PAYOUT_KIND）；答错也落 proof（提交即通过）但零发奖；
 //      同一 uid 同一子任务重提 ⇒ 409（与 prediction 一人一票同族）。
 //      奖励载体 = 列 `subtask.reward_amount`（迁移 0072；quiz 必填 > 0，非 quiz 传 ⇒ 400）。
+//   ⑥ 子任务**改与删**（Kevin 2026-10-22）：改走 `PATCH /api/campaign/task/:taskId` 的 `subtasks[]`
+//      （按 id upsert，零新路由）；删走同口闭集键 `subtasks_remove: number[]`（≤20、去重、均须属本 task）。
+//      · **prediction 发布即冻结**：父 task 非 draft ⇒ 变更涉 payload / type_code / title / content
+//        一律 409 `prediction_locked_after_publish`（仅 `sort` / `required` 可改）；
+//      · **有凭证不删**：目标子任务存在 `subtask_proof` 行（prediction 的票同表）⇒ 409 `subtask_has_proofs`；
+//      · upsert 与删除**同一事务**（一侧失败全回滚）；未知 / 跨 task id ⇒ 404 `LEDGER_REF_NOT_FOUND`。
 //
 // 五条结构性纪律（超范围即缺陷）：
 //   · **零新错误码**（33 码闭集不动）：400 借 `LEDGER_AMOUNT_INVALID` / 404 借 `LEDGER_REF_NOT_FOUND` /
@@ -111,6 +120,12 @@ export const PREDICTION_PAYLOAD_KEYS = ['prize_amount', 'deadline'] as const;
  * 只读兼容用途：**新写口不再产出**，改口若把存量行改写成新形状 ⇒ 400（禁双开）。
  */
 export const PREDICTION_LEGACY_PAYLOAD_KEYS = ['option_a', 'option_b', 'prize_amount', 'deadline'] as const;
+/**
+ * prediction 存量行 payload 里的两枚**选项文案键** —— **读口一律剥除**（Kevin 2026-10-22「展示统一 Yes/No」）。
+ * 库内值不动（投票 / 结算仍按行内口径走 `a|b`），只收出参边界：读面唯一选项来源 = 前端 i18n
+ * ＋ 加性字段 `option_style`（`yes_no` / `ab_legacy`）。零 deprecated 键（见 p73 门 A2）。
+ */
+export const PREDICTION_OPTION_TEXT_KEYS = ['option_a', 'option_b'] as const;
 /** 选项口径两值：`yes_no` = 新（Yes / No）· `ab_legacy` = 存量（a / b + option_a/option_b 文案） */
 export const PREDICTION_OPTION_STYLES = ['yes_no', 'ab_legacy'] as const;
 export type PredictionOptionStyle = (typeof PREDICTION_OPTION_STYLES)[number];
@@ -177,6 +192,15 @@ const asObject = (v: unknown): Row => {
 const isPlainObject = (v: unknown): v is Row =>
   Boolean(v) && typeof v === 'object' && !Array.isArray(v) && !(v instanceof Date);
 
+/** 深层**键序无关**的稳定序列化：jsonb 出参键序不定 ⇒ 变更判定不能靠原序 `JSON.stringify` */
+const canonicalJson = (v: unknown): string => {
+  if (Array.isArray(v)) return `[${v.map((x) => canonicalJson(x)).join(',')}]`;
+  if (isPlainObject(v)) {
+    return `{${Object.keys(v).sort().map((k) => `${JSON.stringify(k)}:${canonicalJson(v[k])}`).join(',')}}`;
+  }
+  return JSON.stringify(v) ?? 'null';
+};
+
 /** `:ref` / `:subtaskId` / `:taskId` 纯数字谓词（`all` / 非数字 ⇒ false ⇒ 路由落 404 而非 500 —— #60） */
 export const isCampaignRef = (ref: unknown): boolean =>
   typeof ref === 'string' && REF_PATTERN.test(ref) && ref.length <= 20;
@@ -203,16 +227,22 @@ export const isPredictionChoice = (style: PredictionOptionStyle, v: unknown): bo
   typeof v === 'string' && predictionChoicesFor(style).includes(v);
 
 /**
- * **公开读口脱敏**：quiz 的 `correct`（正确答案）永不出任何出参 payload ——
- * 与 prediction 的结算键同体例（服务端密钥不进读面）。其余类型原样透出（零形状变更）。
- * 入参是 `asObject(row.payload)` 的副本语义：返回**新对象**，不改库内值、不改调用方引用。
+ * **公开读口脱敏**（两族：服务端密钥 + 存量展示文案）：
+ *   · quiz 的 `correct`（正确答案）永不出任何出参 payload —— 与 prediction 的结算键同体例；
+ *   · prediction 的存量 `option_a` / `option_b`（旧行两枚选项文案）永不出读面 —— 展示统一 Yes / No，
+ *     选项来源 = 前端 i18n ＋ 加性 `option_style`（Kevin 2026-10-22）。库内值不动（投票仍 `a|b`）。
+ * 其余类型原样透出（零形状变更）。入参是 `asObject(row.payload)` 的副本语义：
+ * 命中剥键 ⇒ 返回**新对象**；未命中 ⇒ 原引用透出（零分配）。不改库内值、不改调用方引用。
  */
 export const publicSubtaskPayload = (typeCode: string, payload: Row): Row => {
-  if (typeCode !== 'quiz') return payload;
-  if (!Object.prototype.hasOwnProperty.call(payload, QUIZ_CORRECT_KEY)) return payload;
+  const keys = typeCode === 'quiz' ? [QUIZ_CORRECT_KEY]
+    : typeCode === 'prediction' ? PREDICTION_OPTION_TEXT_KEYS
+      : null;
+  if (keys === null) return payload;
+  if (!keys.some((k) => Object.prototype.hasOwnProperty.call(payload, k))) return payload;
   const out: Row = {};
   for (const [k, v] of Object.entries(payload)) {
-    if (k === QUIZ_CORRECT_KEY) continue;
+    if ((keys as readonly string[]).includes(k)) continue;
     out[k] = v;
   }
   return out;
@@ -254,6 +284,11 @@ export interface SubtaskView {
   reward_amount: string | null;
   /** 仅 prediction 类型：读时派生的生命周期态（open / deadline_reached / settled） */
   prediction_state: PredictionState | null;
+  /**
+   * **加性 · 仅 prediction**：payload 口径（`yes_no` 新两键 / `ab_legacy` 存量四键）——
+   * 前端据此决定提交值（`yes_no` ⇒ `yes|no`；`ab_legacy` ⇒ `a|b`）；非 prediction ⇒ `null`。
+   */
+  option_style: PredictionOptionStyle | null;
   time_created: string | null;
   time_updated: string | null;
   /** **加性 · 仅登录态**：本人提交（`null` = 未提交）；匿名读口 ⇒ 键缺省（不是 `null`） */
@@ -321,7 +356,9 @@ export const derivePredictionState = (payload: Row, nowMs: number = Date.now()):
 
 const normalizeSubtaskRow = (row: Row): SubtaskView => {
   const typeCode = str(row.type_code);
-  const payload = publicSubtaskPayload(typeCode, asObject(row.payload));
+  // 出参 payload = 脱敏后副本；**口径判别 / 三态派生只看库内原形**（脱敏已剥掉存量两枚文案）
+  const rawPayload = asObject(row.payload);
+  const payload = publicSubtaskPayload(typeCode, rawPayload);
   return {
     subtask_id: str(row.subtask_id),
     snowflake_id: str(row.snowflake_id),
@@ -334,7 +371,8 @@ const normalizeSubtaskRow = (row: Row): SubtaskView => {
     sort: int(row.sort),
     required: row.required === true,
     reward_amount: strOrNull(row.reward_amount),
-    prediction_state: typeCode === 'prediction' ? derivePredictionState(payload) : null,
+    prediction_state: typeCode === 'prediction' ? derivePredictionState(rawPayload) : null,
+    option_style: typeCode === 'prediction' ? predictionOptionStyle(rawPayload) : null,
     time_created: iso(row.time_created),
     time_updated: iso(row.time_updated),
   };
@@ -796,7 +834,10 @@ const TASK_CREATE_KEYS = [
   'title', 'description', 'time_start', 'time_end', 'sort',
   'reward_amount_primary', 'reward_cid_secondary', 'reward_amount_secondary', 'subtasks',
 ];
-const TASK_PATCH_KEYS = [...TASK_CREATE_KEYS, 'status'];
+/** 改口闭集：建口九键 ＋ `status` ＋ **`subtasks_remove`**（删除只走改口，零新路由） */
+const TASK_PATCH_KEYS = [...TASK_CREATE_KEYS, 'status', 'subtasks_remove'];
+/** 单次删除上限（闭集键 `subtasks_remove: number[]`，去重后计） */
+export const SUBTASK_REMOVE_MAX = 20;
 const TASK_FORBIDDEN = ['snowflake_id', 'task_id', 'campaign_id', 'time_created', 'time_updated'];
 
 export interface SubtaskInput {
@@ -825,6 +866,8 @@ export interface TaskPayload {
   reward_cid_secondary?: string | null;
   reward_amount_secondary?: string | null;
   subtasks?: SubtaskInput[];
+  /** **仅改口**：待删子任务 id 闭集（≤ `SUBTASK_REMOVE_MAX` 项、去重、均须属本 task） */
+  subtasks_remove?: string[];
 }
 
 const parseSubtaskInput = (raw: unknown, index: number): { input: SubtaskInput } | { err: VerbErr } => {
@@ -1020,6 +1063,42 @@ export const parseTaskPayload = (
       items.push(parsed.input);
     }
     out.subtasks = items;
+  }
+
+  // 删除键（仅改口）：正整数 id 数组 · 去重（保序）· 上限 SUBTASK_REMOVE_MAX · 与同请求 upsert 不相交
+  if (has('subtasks_remove')) {
+    if (!Array.isArray(input.subtasks_remove)) {
+      return { err: badRequest('SUBTASK_REMOVE_INVALID', { field: 'subtasks_remove', expected: 'positive_integer_array' }) };
+    }
+    const ids: string[] = [];
+    const seen = new Set<string>();
+    const rawList = input.subtasks_remove as unknown[];
+    for (let i = 0; i < rawList.length; i += 1) {
+      const id = asPositiveIntText(rawList[i]);
+      if (id === null) {
+        return { err: badRequest('SUBTASK_REMOVE_INVALID', { field: 'subtasks_remove', index: i, expected: 'positive_integer' }) };
+      }
+      if (seen.has(id)) continue;   // 去重（保首次出现顺序）—— 重复 id 不报错也不重复删
+      seen.add(id);
+      ids.push(id);
+    }
+    if (ids.length > SUBTASK_REMOVE_MAX) {
+      return { err: badRequest('SUBTASK_REMOVE_LIMIT', { field: 'subtasks_remove', max: SUBTASK_REMOVE_MAX, got: ids.length }) };
+    }
+    const upsertIds = new Set((out.subtasks ?? [])
+      .map((s) => s.subtask_id ?? s.snowflake_id)
+      .filter((v): v is string => typeof v === 'string'));
+    const overlap = ids.filter((id) => upsertIds.has(id));
+    if (overlap.length) {
+      return {
+        err: badRequest('SUBTASK_REMOVE_OVERLAP', {
+          field: 'subtasks_remove',
+          overlap_ids: overlap,
+          hint: '同一子任务不可在同一请求里既 upsert 又删除（语义二义 ⇒ 拒收，不是择一）',
+        }),
+      };
+    }
+    out.subtasks_remove = ids;
   }
   return { payload: out };
 };
@@ -1247,6 +1326,8 @@ export interface TaskDetailSubtaskView {
   required: boolean;
   /** quiz 答对奖励（`$`；0072 加性列；非 quiz 恒 `null`） */
   reward_amount: string | null;
+  /** **加性 · 仅 prediction**：payload 口径（`yes_no` / `ab_legacy`）；非 prediction ⇒ 键缺省 */
+  option_style?: PredictionOptionStyle;
   /** 加性可选：当前 DB 无 `subtask.status` 列 ⇒ **键缺省**（不是 null） */
   status?: string;
 }
@@ -1379,16 +1460,22 @@ export const getTaskDetailByRef = async (
       avatar_url: strOrNull(row.project_avatar_url),
       status: str(row.project_status),
     },
-    subtasks: subtaskRows.map((s) => ({
-      subtask_id: str(s.subtask_id),
-      type_code: str(s.type_code),
-      title: str(s.title),
-      content: strOrNull(s.content),
-      payload: publicSubtaskPayload(str(s.type_code), asObject(s.payload)),
-      sort: int(s.sort),
-      required: s.required === true,
-      reward_amount: strOrNull(s.reward_amount),
-    })),
+    subtasks: subtaskRows.map((s) => {
+      const rawPayload = asObject(s.payload);
+      const style = str(s.type_code) === 'prediction' ? predictionOptionStyle(rawPayload) : null;
+      return {
+        subtask_id: str(s.subtask_id),
+        type_code: str(s.type_code),
+        title: str(s.title),
+        content: strOrNull(s.content),
+        payload: publicSubtaskPayload(str(s.type_code), rawPayload),
+        sort: int(s.sort),
+        required: s.required === true,
+        reward_amount: strOrNull(s.reward_amount),
+        // 加性 · 仅 prediction（其余类型键集不变 —— 8 键，承 p70 契约）
+        ...(style === null ? {} : { option_style: style }),
+      };
+    }),
   };
 };
 
@@ -2033,35 +2120,84 @@ export const patchTaskVerb = async (input: { ref: string; body: unknown; ex?: Tx
       }
     }
 
-    // subtasks[] 整组 upsert：带 id ⇒ 更新（须属本任务，否则 404）、不带 ⇒ 插入；**永不 DELETE**
+    // 子任务域前置闸（一份快照同时服务 upsert 锁 与 subtasks_remove 删除闸；**零写副作用**）
     const items = p.subtasks ?? [];
+    const removeRefs = p.subtasks_remove ?? [];
+    /** 发布后 = 父 task 非 draft（含「本请求同一笔把 draft 推成 active」⇒ 用生效态，不留窗口） */
+    const published = nextStatus !== 'draft';
+    const snapshotOf = async (ref: string): Promise<Row | null> => {
+      const rows = await q(
+        `SELECT subtask_id::text AS subtask_id, task_id::text AS task_id, type_code, title, content, payload
+           FROM public.subtask
+          WHERE subtask_id = $1::bigint OR snowflake_id = $1::bigint LIMIT 1`,
+        [ref],
+      );
+      return rows.length ? rows[0] : null;
+    };
+
+    // subtasks[] 整组 upsert：带 id ⇒ 更新（须属本任务，否则 404）、不带 ⇒ 插入
     for (const item of items) {
       const bad = await assertTypeUsable(tx, item.type_code);
       if (bad) return bad;
       if (item.subtask_id !== undefined || item.snowflake_id !== undefined) {
         const ref = item.subtask_id ?? item.snowflake_id ?? '';
-        const owned = await q(
-          `SELECT task_id::text AS task_id, type_code, payload FROM public.subtask
-            WHERE subtask_id = $1::bigint OR snowflake_id = $1::bigint LIMIT 1`,
-          [ref],
-        );
-        if (!owned.length || str(owned[0].task_id) !== taskId) {
+        const owned = await snapshotOf(ref);
+        if (!owned || str(owned.task_id) !== taskId) {
           return notFound('subtask_not_found');
         }
+        const existingType = str(owned.type_code);
         // ★ 禁双开：存量四键行的改口必须继续用四键（a|b），新两键行必须继续用两键（yes|no）
         //   —— payload 口径不可在同一行上来回换；换口径会同时改掉已有 proof 的 choice 语义（不可逆）。
-        if (item.type_code === 'prediction' && str(owned[0].type_code) === 'prediction' && item.option_style) {
-          const existing = predictionOptionStyle(asObject(owned[0].payload));
+        if (item.type_code === 'prediction' && existingType === 'prediction' && item.option_style) {
+          const existing = predictionOptionStyle(asObject(owned.payload));
           if (existing !== item.option_style) {
             return badRequest('PREDICTION_OPTION_STYLE_IMMUTABLE', {
-              subtask_id: str(owned[0].subtask_id ?? ref),
+              subtask_id: str(owned.subtask_id ?? ref),
               existing_option_style: existing,
               payload_option_style: item.option_style,
               hint: '存量四键行改口仍用 {option_a, option_b, prize_amount, deadline}；新行恒 {prize_amount, deadline}',
             });
           }
         }
+        // ★ prediction 发布即冻结：父 task 非 draft ⇒ 只许改 `sort` / `required`。
+        //   判据是**值是否变化**（不是键是否出现）：改口请求本就带全字段，仅排期改动不得被锁误伤。
+        if (existingType === 'prediction' && published) {
+          const changed: string[] = [];
+          if (item.type_code !== existingType) changed.push('type_code');
+          if (item.title !== str(owned.title)) changed.push('title');
+          if ((item.content ?? null) !== strOrNull(owned.content)) changed.push('content');
+          if (canonicalJson(item.payload) !== canonicalJson(asObject(owned.payload))) changed.push('payload');
+          if (changed.length) {
+            return conflict('prediction_locked_after_publish', {
+              subtask_id: str(owned.subtask_id ?? ref),
+              task_status: nextStatus,
+              changed_fields: changed,
+              allowed_fields: ['sort', 'required'],
+              hint: 'prediction 发布后不可编辑（票与选项语义已冻结）；需要改 ⇒ 先把 task 退回 draft',
+            });
+          }
+        }
       }
+    }
+
+    // subtasks_remove：须属本 task（否则 404）· 有凭证一律 409（prediction 的票同表同闸）
+    const removeTargets: string[] = [];
+    for (const ref of removeRefs) {
+      const owned = await snapshotOf(ref);
+      if (!owned || str(owned.task_id) !== taskId) return notFound('subtask_not_in_task');
+      const subtaskId = str(owned.subtask_id);
+      const proof = await q(
+        `SELECT 1 FROM public.subtask_proof WHERE subtask_id = $1::bigint LIMIT 1`,
+        [subtaskId],
+      );
+      if (proof.length) {
+        return conflict('subtask_has_proofs', {
+          subtask_id: subtaskId,
+          type_code: str(owned.type_code),
+          hint: '有用户凭证（prediction 的票也在 subtask_proof）⇒ 不可删：凭证不丢',
+        });
+      }
+      removeTargets.push(subtaskId);
     }
 
     const updated = await q(
@@ -2091,6 +2227,16 @@ export const patchTaskVerb = async (input: { ref: string; body: unknown; ex?: Tx
       } else {
         await insertSubtask(tx, taskId, item);
       }
+    }
+
+    // 删除（同事务：任一侧失败 ⇒ upsert + delete 全回滚）；凭证闸已在前置闸拦下 ⇒ 此处 CASCADE 不吞任何凭证
+    for (const subtaskId of removeTargets) {
+      const gone = await q(
+        `DELETE FROM public.subtask WHERE subtask_id = $1::bigint RETURNING subtask_id::text AS subtask_id`,
+        [subtaskId],
+      );
+      // 前置快照到删之间行被并发抹掉 ⇒ 同一个 404 口径（不是 500）
+      if (!gone.length) return notFound('subtask_not_in_task');
     }
 
     const detail = await getTaskDetailById(taskId, tx);

@@ -28,8 +28,8 @@
  *   S1–S9 · 服务层真路径（同事务 · `ex` 注入）：
  *       S1 prediction 新两键入参 → 落库 → 读口（恰两键、state open）；
  *       S2 新两键投票/结算（`no`/`yes` 200、`a` ⇒ 400 口径交叉、到点 settle `yes` ⇒ floor 分发、重复 settle 409）；
- *       S3 **存量四键行双路**（直插存量形状 ⇒ `a|b` 可投可结算、`yes` 被拒）；
- *       S4 **禁双开**（建口四键 ⇒ 400；新两键行改口成四键 ⇒ 400 STYLE_IMMUTABLE；存量行四键改口 ⇒ 200）；
+ *       S3 **存量四键行读口统一**（直插存量形状 ⇒ 读口 payload 无 option_a/b、`option_style=ab_legacy`、库内值仍在；`a|b` 可投可结算、`yes` 被拒）；
+ *       S4 **禁双开 ＋ 发布后冻结**（建口四键 ⇒ 400；新两键行改口成四键 ⇒ 400 STYLE_IMMUTABLE；active task 改 legacy 四键 ⇒ 409 锁；另建 draft task 改四键 ⇒ 200）；
  *       S5 quiz 答对发奖**账实两腿**（account + ledger 对拍、顺序无关的 picks）；
  *       S6 quiz 答错零发奖（proof 落库、balance 不变、零分录）；
  *       S7 quiz 重复提交 ⇒ 409 `quiz_already_answered`（仍 1 行、零二次发奖）；
@@ -173,6 +173,9 @@ const verbOf = (r: unknown): number => {
   return x?.ok ? 200 : Number(x?.status ?? 0);
 };
 const reasonOf = (r: unknown) => String(((r as { details?: { reason?: unknown } })?.details?.reason) ?? '');
+/** 409 / 400 的 `details.changed_fields`（锁闸专用：判定哪些字段被锁） */
+const changedOf = (r: unknown): string[] =>
+  (((r as { details?: { changed_fields?: unknown } })?.details?.changed_fields ?? []) as string[]);
 const codeOf = (r: unknown) => String(((r as { code?: unknown })?.code) ?? '');
 const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T })?.view ?? {}) as T;
 const errOf = (x: unknown): unknown =>
@@ -229,7 +232,7 @@ const errOf = (x: unknown): unknown =>
   ck.t('A4', '★禁双开：建口只收新两键（`mode === create` 且 payload 为 `ab_legacy` ⇒ 400 `PREDICTION_PAYLOAD_SHAPE`）· 改口口径不可换（`PREDICTION_OPTION_STYLE_IMMUTABLE` 闸：存量四键行仍用四键、新两键行仍用两键）',
     /if \(mode === 'create' && parsed\.input\.option_style === 'ab_legacy'\)/.test(SVC)
       && /PREDICTION_OPTION_STYLE_IMMUTABLE/.test(SVC)
-      && /const existing = predictionOptionStyle\(asObject\(owned\[0\]\.payload\)\)/.test(SVC),
+      && /const existing = predictionOptionStyle\(asObject\(owned\.payload\)\)/.test(SVC),
     JSON.stringify({
       create_guard: /parsed\.input\.option_style === 'ab_legacy'/.test(SVC),
       style_immutable: (SVC.match(/PREDICTION_OPTION_STYLE_IMMUTABLE/g) ?? []).length,
@@ -264,8 +267,8 @@ const errOf = (x: unknown): unknown =>
   const sanitizerCalls = (SVC.match(/publicSubtaskPayload\(/g) ?? []).length;
   ck.t('A7', '★脱敏：`publicSubtaskPayload` 在**两处公开读口**（`normalizeSubtaskRow` 与 `getTaskDetailByRef` 的子任务映射）各被调用一次 ⇒ 计数 = 2（另有定义处不算调用）· 服务端 `correct` 的读取**只在 submitProofVerb 一处**（`payload[QUIZ_CORRECT_KEY]` 计数 = 1）⇒ 读面与判分面物理分离',
     sanitizerCalls === 2 && correctReads === 1
-      && /const payload = publicSubtaskPayload\(typeCode, asObject\(row\.payload\)\)/.test(SVC)
-      && /payload: publicSubtaskPayload\(str\(s\.type_code\), asObject\(s\.payload\)\)/.test(SVC),
+      && /const payload = publicSubtaskPayload\(typeCode, rawPayload\)/.test(SVC)
+      && /payload: publicSubtaskPayload\(str\(s\.type_code\), rawPayload\)/.test(SVC),
     JSON.stringify({ sanitizer_calls: sanitizerCalls, correct_reads: correctReads }));
 
   const codesInSvc = Array.from(new Set((SVC.match(/'(LEDGER_[A-Z_]+|AUTH_[A-Z_]+)'/g) ?? []).map((s) => s.slice(1, -1))));
@@ -536,7 +539,7 @@ const errOf = (x: unknown): unknown =>
         settled: sv, again: [verbOf(settleAgain), reasonOf(settleAgain)],
       }));
 
-    // ==================================================================== S3 · 存量四键行「双路」：a|b 仍可投可结算，yes|no 被拒
+    // ==================================================================== S3 · 存量四键行：读口统一 Yes/No（剥文案）、库内值不动、仍走 a|b
     const legacyId = String((await raw1<{ subtask_id: string }>(c,
       `INSERT INTO public.subtask (snowflake_id, task_id, type_code, title, payload, sort)
        VALUES (9920000000000002, $1::bigint, 'prediction', '存量四键', $2::jsonb, 9)
@@ -544,6 +547,9 @@ const errOf = (x: unknown): unknown =>
       [T, JSON.stringify({ option_a: 'Yes', option_b: 'No', prize_amount: '50', deadline: futureDl })]))?.subtask_id ?? '');
     const legacyView = (await listActiveCampaigns(ex)).find((x) => x.campaign_id === C)
       ?.tasks.find((x) => x.task_id === T)?.subtasks.find((s) => s.subtask_id === legacyId);
+    const legacyViewPayload = (legacyView?.payload ?? {}) as Record<string, unknown>;
+    const legacyDbBefore = await raw1<{ payload: Record<string, unknown> }>(c,
+      'SELECT payload FROM public.subtask WHERE subtask_id = $1::bigint', [legacyId]);
     const legacyCross = await submitProofVerb({ actorUid: U1, subtaskRef: legacyId, body: { choice: 'yes' }, ex });
     const legacyVote = await submitProofVerb({ actorUid: U1, subtaskRef: legacyId, body: { choice: 'a' }, ex });
     await c.query(
@@ -553,21 +559,26 @@ const errOf = (x: unknown): unknown =>
     const legacySettle = await settlePredictionVerb({ subtaskRef: legacyId, body: { correct_option: 'a' }, ex });
     const legacyAfter = await raw1<{ payload: Record<string, unknown> }>(c,
       'SELECT payload FROM public.subtask WHERE subtask_id = $1::bigint', [legacyId]);
-    ck.t('S3', '★存量四键行**双路共存**：直插存量形状（option_a/option_b）⇒ 读口 `prediction_state`=`open` 且 payload 原样（含两枚文案）· 投票 `a` ⇒ 200、`yes` ⇒ 400（该行口径 = ab_legacy）· 结算 `yes` ⇒ 400 `PREDICTION_CORRECT_OPTION_INVALID`、`a` ⇒ 200 且回填 `correct_option="a"`（新两键行的 `yes_no` 口径不被污染）',
+    ck.t('S3', '★存量四键行**读口统一 ＋ 库内值不动**：直插存量形状（option_a/option_b）⇒ 读口 payload **无** `option_a`/`option_b`（键集恰 `[deadline, prize_amount]`，选项文案由前端 i18n 恒 Yes/No）· 加性 `option_style`=`ab_legacy` · `prediction_state`=`open` · **库内两枚文案原样仍在**（剥的只是出参边界，零改库）· 该行口径仍 ab_legacy：投票 `a` ⇒ 200、`yes` ⇒ 400；结算 `yes` ⇒ 400 `PREDICTION_CORRECT_OPTION_INVALID`、`a` ⇒ 200 且回填 `correct_option="a"`',
       legacyView !== undefined && legacyView.prediction_state === 'open'
-        && String((legacyView.payload as Record<string, unknown>).option_a) === 'Yes'
+        && legacyView.option_style === 'ab_legacy'
+        && !('option_a' in legacyViewPayload) && !('option_b' in legacyViewPayload)
+        && JSON.stringify(Object.keys(legacyViewPayload).sort()) === JSON.stringify(['deadline', 'prize_amount'])
+        && String((legacyDbBefore?.payload ?? {}).option_a) === 'Yes'
+        && String((legacyDbBefore?.payload ?? {}).option_b) === 'No'
         && verbOf(legacyCross) === 400 && reasonOf(legacyCross) === 'PREDICTION_CHOICE_SHAPE'
         && legacyVote.ok === true
         && verbOf(legacyCrossSettle) === 400 && reasonOf(legacyCrossSettle) === 'PREDICTION_CORRECT_OPTION_INVALID'
         && legacySettle.ok === true
         && String((legacyAfter?.payload ?? {})[PREDICTION_CORRECT_OPTION_KEY] ?? '') === 'a',
       JSON.stringify({
-        view: legacyView ?? null, cross_vote: [verbOf(legacyCross), reasonOf(legacyCross)], vote: legacyVote.ok,
+        view: legacyView ?? null, view_payload: legacyViewPayload, db_before: legacyDbBefore?.payload ?? null,
+        cross_vote: [verbOf(legacyCross), reasonOf(legacyCross)], vote: legacyVote.ok,
         cross_settle: [verbOf(legacyCrossSettle), reasonOf(legacyCrossSettle)], settle: legacySettle.ok,
         backfill: (legacyAfter?.payload ?? {})[PREDICTION_CORRECT_OPTION_KEY] ?? null,
       }));
 
-    // ==================================================================== S4 · 禁双开（建口 / 改口）
+    // ==================================================================== S4 · 禁双开 ＋ 发布后冻结（active 改不动 / draft 可改）
     const createLegacy = await createTaskVerb({
       campaignRef: C,
       body: {
@@ -576,14 +587,14 @@ const errOf = (x: unknown): unknown =>
       },
       ex,
     });
-    // 新两键行 ≡ PRED；把它改成四键 ⇒ 口径不可换
+    // 新两键行 ≡ PRED；把它改成四键 ⇒ 口径不可换（口径闸先于锁闸 ⇒ 400 而非 409）
     const flipStyle = await patchTaskVerb({
       ref: T,
       body: { subtasks: [{ subtask_id: PRED, type_code: 'prediction', title: '预测（新两键）', payload: { option_a: 'A', option_b: 'B', prize_amount: '101', deadline: futureDl } }] },
       ex,
     });
-    // 存量四键行用四键改口 ⇒ 合法（同一口径内的普通更新）
-    const legacyRepatch = await patchTaskVerb({
+    // ① active task 上改存量四键行（同口径内的普通更新 + 改名）⇒ 发布后冻结 409（库内标题不动）
+    const lockedRepatch = await patchTaskVerb({
       ref: T,
       body: {
         subtasks: [
@@ -592,14 +603,48 @@ const errOf = (x: unknown): unknown =>
       },
       ex,
     });
-    const legacyTitle = await raw1<{ title: string }>(c, 'SELECT title FROM public.subtask WHERE subtask_id = $1::bigint', [legacyId]);
-    ck.t('S4', '★禁双开（写口两条闸）：建口传四键 ⇒ 400 `PREDICTION_PAYLOAD_SHAPE`（建口只收新两键）· 新两键行改口成四键 ⇒ 400 `PREDICTION_OPTION_STYLE_IMMUTABLE`（口径不可换）· 存量四键行继续用四键改口 ⇒ **200** 且标题落库（「两条路共存、禁双开」不是只有拒绝）',
+    const lockedTitle = await raw1<{ title: string }>(c, 'SELECT title FROM public.subtask WHERE subtask_id = $1::bigint', [legacyId]);
+    // ② 另建 **draft** task（直插 legacy 行）⇒ 同口径四键改口 200（锁只锁发布态，不是禁改）
+    const draftTask = await createTaskVerb({
+      campaignRef: C,
+      body: { title: `p72 draft ${RUN}`, reward_amount_primary: '3' },
+      ex,
+    });
+    const DRAFTT = String(viewOf<{ task_id?: string }>(draftTask).task_id ?? '');
+    const draftLegacyId = String((await raw1<{ subtask_id: string }>(c,
+      `INSERT INTO public.subtask (snowflake_id, task_id, type_code, title, payload, sort)
+       VALUES (9920000000000003, $1::bigint, 'prediction', 'draft 存量四键', $2::jsonb, 1)
+       RETURNING subtask_id::text AS subtask_id`,
+      [DRAFTT, JSON.stringify({ option_a: 'Yes', option_b: 'No', prize_amount: '50', deadline: futureDl })]))?.subtask_id ?? '');
+    const draftRepatch = await patchTaskVerb({
+      ref: DRAFTT,
+      body: {
+        subtasks: [
+          { subtask_id: draftLegacyId, type_code: 'prediction', title: 'draft 四键（改名）', payload: { option_a: 'Yes', option_b: 'No', prize_amount: '50', deadline: futureDl } },
+        ],
+      },
+      ex,
+    });
+    const draftRow = await raw1<{ title: string; payload: Record<string, unknown>; task_status: string }>(c,
+      `SELECT s.title, s.payload, t.status AS task_status
+         FROM public.subtask s JOIN public.task t ON t.task_id = s.task_id
+        WHERE s.subtask_id = $1::bigint`, [draftLegacyId]);
+    ck.t('S4', '★禁双开 ＋ 发布后冻结：建口传四键 ⇒ 400 `PREDICTION_PAYLOAD_SHAPE`（建口只收新两键）· 新两键行改口成四键 ⇒ 400 `PREDICTION_OPTION_STYLE_IMMUTABLE`（口径闸先于锁闸）· **active task 上改存量四键行 ⇒ 409 `prediction_locked_after_publish`**（`changed_fields` 含 `title`，库内标题未被写）· **另建 draft task（直插 legacy 行）后四键改口 ⇒ 200** 且标题落库、payload 仍四键（锁只锁发布态，draft 可改）',
       verbOf(createLegacy) === 400 && reasonOf(createLegacy) === 'PREDICTION_PAYLOAD_SHAPE'
         && verbOf(flipStyle) === 400 && reasonOf(flipStyle) === 'PREDICTION_OPTION_STYLE_IMMUTABLE'
-        && legacyRepatch.ok === true && /改名/.test(String(legacyTitle?.title ?? '')),
+        && verbOf(lockedRepatch) === 409 && reasonOf(lockedRepatch) === 'prediction_locked_after_publish'
+        && changedOf(lockedRepatch).includes('title')
+        && /^存量四键$/.test(String(lockedTitle?.title ?? ''))
+        && draftTask.ok === true && String(draftRow?.task_status ?? '') === 'draft'
+        && draftRepatch.ok === true && /改名/.test(String(draftRow?.title ?? ''))
+        && String((draftRow?.payload ?? {}).option_a) === 'Yes'
+        && JSON.stringify(Object.keys(draftRow?.payload ?? {}).sort())
+          === JSON.stringify(['deadline', 'option_a', 'option_b', 'prize_amount']),
       JSON.stringify({
         create: [verbOf(createLegacy), reasonOf(createLegacy)], flip: [verbOf(flipStyle), reasonOf(flipStyle)],
-        legacy_repatch: legacyRepatch.ok, legacy_title: legacyTitle?.title,
+        locked: [verbOf(lockedRepatch), reasonOf(lockedRepatch), changedOf(lockedRepatch)],
+        locked_title: lockedTitle?.title,
+        draft: { task: DRAFTT, ok: draftRepatch.ok, row: draftRow ?? null },
       }));
 
     // ==================================================================== S5 · quiz 答对发奖（账实两腿）

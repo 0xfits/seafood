@@ -1,0 +1,110 @@
+{
+  "run": "20261022T003155Zf5el",
+  "name": "p73-subtask-edit-gate",
+  "at": "2026-10-22T00:32:15.882Z",
+  "baseline": {
+    "subtask": 0,
+    "proofs": 0,
+    "ledger": 509,
+    "users": 79,
+    "migrations": 70
+  },
+  "readings": {
+    "fixture_users": [
+      973001,
+      973002
+    ],
+    "fixture_project": "5",
+    "fixture_campaign": "122",
+    "fixture": {
+      "campaign": "122",
+      "s1_task": "129",
+      "s2_task": "130",
+      "s5_task": "131",
+      "quiz": "158",
+      "x_verify": "159",
+      "prediction": "160"
+    },
+    "committed_touch": "none (single rollback tx)"
+  },
+  "checks": [
+    {
+      "id": "A1",
+      "what": "★闭集键：建口仍**九键**且**不含** `subtasks_remove`（建口带删除键 ⇒ 400 `NOT_SUPPORTED`）· 改口 = 九键 + `status` + `subtasks_remove`（拼装处逐字在场）· 子任务项闭集仍九键（塞 `option_style` 等旁键 ⇒ 400 `SUBTASK_INPUT_INVALID`）· 拼错键名（`subtasks_removed`）⇒ 400",
+      "pass": true,
+      "reading": "{\"create_keys\":179,\"patch_has_remove\":true,\"create_with_remove\":[400,\"NOT_SUPPORTED\"],\"typo_key\":[400,\"NOT_SUPPORTED\"],\"item_side_key\":[400,\"SUBTASK_INPUT_INVALID\"]}"
+    },
+    {
+      "id": "A2",
+      "what": "★上限 / 去重 / 相交：`SUBTASK_REMOVE_MAX` = **20**（恰 20 项通过、21 项 ⇒ 400 `SUBTASK_REMOVE_LIMIT`）· 重复 id **去重保序**（`[\"7\",\"7\",\"8\"] ⇒ [\"7\",\"8\"]`，不报错也不重复删）· 与同请求 `subtasks[]` 的 id **相交 ⇒ 400 `SUBTASK_REMOVE_OVERLAP`**（语义二义 ⇒ 拒收，不是择一）· 非数组 / 非正整数 ⇒ 400 `SUBTASK_REMOVE_INVALID`",
+      "pass": true,
+      "reading": "{\"max\":20,\"ok20\":20,\"over\":[400,\"SUBTASK_REMOVE_LIMIT\"],\"dup\":[\"7\",\"8\"],\"overlap\":[400,\"SUBTASK_REMOVE_OVERLAP\"],\"shape\":[400,\"SUBTASK_REMOVE_INVALID\"],\"zero\":[400,\"SUBTASK_REMOVE_INVALID\"]}"
+    },
+    {
+      "id": "A3",
+      "what": "★零新路由 / 零新码：注册点仍 **109**（get 49 / post 53 / patch 4 / delete 3 / put 0 —— 删除**没有**自己的路由）· 九口逐条在场 · 错误码闭集仍 **33**、ledger kind 仍 **24**：`SUBTASK_REMOVE_*` / `subtask_has_proofs` / `prediction_locked_after_publish` 全部只作 `details.reason`（不进闭集）",
+      "pass": true,
+      "reading": "{\"regs\":109,\"verbs\":{\"get\":49,\"post\":53,\"patch\":4,\"delete\":3},\"codes\":33,\"kinds\":24}"
+    },
+    {
+      "id": "A4",
+      "what": "★源码承重位（锁 / 删 / 事务）：`published = nextStatus !== 'draft'` ⇒ 判据取**生效态**（同请求 draft→active 不留窗口）· 变更判定是**值比较** `canonicalJson(item.payload) !== canonicalJson(asObject(owned.payload))`（不是键是否出现 ⇒ 只改排期不被误伤）· 白名单 `['sort', 'required']` · 锁闸在 `UPDATE public.task` **之前**、凭证闸在 `DELETE FROM public.subtask` **之前** · 删除与 upsert 同一 `runInTx`（零第二套写入面）",
+      "pass": true,
+      "reading": "{\"published_effective\":true,\"value_compare\":true,\"order\":{\"lock_before_update\":true,\"proof_before_delete\":true}}"
+    },
+    {
+      "id": "S1",
+      "what": "★编辑真路径（draft task，内联 upsert）：title / description / 子任务 title / content / payload / `reward_amount` 改后**读回全为新值**（quiz 奖励 5 → 8、options 文案换、x_verify screenshots 换）· `subtask_id` **保留**（同一行被 update 而非删建）· 子任务条数不变（2 → 2）",
+      "pass": true,
+      "reading": "{\"ok\":true,\"task\":{\"title\":\"S1 任务（改名）20261022T003155Zf5el\",\"desc\":\"edit-2\"},\"q1\":{\"subtask_id\":\"158\",\"snowflake_id\":\"362749618720768\",\"task_id\":\"129\",\"type_code\":\"quiz\",\"type_label\":\"答题\",\"title\":\"问答（改名）\",\"content\":\"新题干\",\"payload\":{\"options\":{\"a\":\"甲\",\"b\":\"乙\",\"c\":\"丙\",\"d\":\"丁\"}},\"sort\":1,\"required\":false,\"reward_amount\":\"8\",\"prediction_state\":null,\"option_style\":null,\"time_created\":\"2026-10-22T00:31:57.245Z\",\"time_updated\":\"2026-10-22T00:31:57.245Z\"},\"x1\":{\"subtask_id\":\"159\",\"snowflake_id\":\"362749619343360\",\"task_id\":\"129\",\"type_code\":\"x_verify\",\"type_label\":\"X 验证\",\"title\":\"X 验证（改名）\",\"content\":\"新说明\",\"payload\":{\"links\":[\"https://x.com/b\"],\"screenshots\":[\"m2\"]},\"sort\":2,\"required\":false,\"reward_amount\":null,\"prediction_state\":null,\"option_style\":null,\"time_created\":\"2026-10-22T00:31:57.245Z\",\"time_updated\":\"2026-10-22T00:31:57.245Z\"},\"q1db\":{\"title\":\"问答（改名）\",\"content\":\"新题干\",\"payload\":{\"correct\":[\"b\"],\"options\":{\"a\":\"甲\",\"b\":\"乙\",\"c\":\"丙\",\"d\":\"丁\"}},\"sort\":1,\"reward_amount\":\"8\"}}"
+    },
+    {
+      "id": "S2",
+      "what": "★锁定三臂：draft 上改 prediction payload（10 → 20）⇒ **200** 且落库 · 发布（active）后改 payload（→ 30）⇒ **409 `prediction_locked_after_publish`**、`changed_fields` 含 `payload`、库内仍 20（零半笔）· active 上**只改 `sort`**（payload 原值重发）⇒ **200**、sort 5、payload 仍 20（锁锁内容，不锁排期；值比较不是键出现）",
+      "pass": true,
+      "reading": "{\"draft_edit\":[true,{\"deadline\":\"2026-10-22T01:31:55.517Z\",\"prize_amount\":\"20\"}],\"active\":[true,\"active\"],\"locked\":[409,\"prediction_locked_after_publish\",[\"title\",\"payload\"]],\"after_locked\":{\"title\":\"预测（draft 改名）\",\"content\":null,\"payload\":{\"deadline\":\"2026-10-22T01:31:55.517Z\",\"prize_amount\":\"20\"},\"sort\":0,\"reward_amount\":null},\"sort_only\":[true,5]}"
+    },
+    {
+      "id": "S3",
+      "what": "★删除三臂：目标有 `subtask_proof` 行 ⇒ **409 `subtask_has_proofs`**（行仍在、凭证仍在 1 行 ⇒ 凭证不丢）· 目标属**别的 task** ⇒ **404 `subtask_not_in_task`**（不区分「不存在」与「不是你的」）· 目标无凭证 ⇒ **200** 且行**真消失**（连删两枚、含非 draft 的 prediction 无票行 —— 裁定：prediction 无票可删）",
+      "pass": true,
+      "reading": "{\"with_proof\":[409,\"subtask_has_proofs\",1],\"foreign\":[404,\"subtask_not_in_task\"],\"gone\":[null,null],\"remaining\":2}"
+    },
+    {
+      "id": "S4",
+      "what": "★同事务（upsert ＋ remove 一笔）：合法 upsert（改 title）＋ 非法 remove（他 task 的 id）⇒ **404 `subtask_not_in_task`** 且**零半笔**（标题仍是原值、行数不变、目标行仍在）⇒ 删除与 upsert 共享同一事务与同一份前置快照",
+      "pass": true,
+      "reading": "{\"mixed\":[404,\"subtask_not_in_task\"],\"before\":{\"title\":\"有凭证\",\"content\":null,\"payload\":{\"links\":[],\"screenshots\":[\"m\"]},\"sort\":7,\"reward_amount\":null},\"after\":{\"title\":\"有凭证\",\"content\":null,\"payload\":{\"links\":[],\"screenshots\":[\"m\"]},\"sort\":7,\"reward_amount\":null},\"subs\":2}"
+    },
+    {
+      "id": "S5",
+      "what": "★不留窗口：同一请求里 `status: draft → active` **＋** 改 prediction payload ⇒ **409 `prediction_locked_after_publish`**（判据用生效态 `nextStatus`，不是库内旧态）· 回滚后 task 仍 **draft**、payload 仍 11 ⇒ 无法用「一笔发布时顺手改」绕过冻结",
+      "pass": true,
+      "reading": "{\"same_req\":[409,\"prediction_locked_after_publish\",[\"payload\"]],\"status\":\"draft\",\"payload\":{\"deadline\":\"2026-10-22T01:31:55.517Z\",\"prize_amount\":\"11\"}}"
+    },
+    {
+      "id": "N1",
+      "what": "★负控① 锁闸承重：真实判据 `lockVerdict(true, [\"payload\"])` = **409**、`lockVerdict(false, [\"payload\"])` = 200（draft 放行）· **去掉锁闸**（`noLockVerdict([\"payload\"])`）= 200 ⇒ S2 的「active 改 payload ⇒ 409」必红 · 且**库面直写同一次改动成功**（`prize_amount` → 777，无库面锁 / 无约束拦）⇒ 409 的唯一屏障就是服务层锁闸",
+      "pass": true,
+      "reading": "{\"real\":[409,200,200],\"mutant\":200,\"db_direct\":\"777\"}"
+    },
+    {
+      "id": "N2",
+      "what": "★负控② 凭证闸承重：真实判据 `removeVerdict(true)` = **409**、`removeVerdict(false)` = 200 · **去掉凭证闸**（`noProofVerdict(true)`）= 200 ⇒ S3 的「有凭证 ⇒ 409」必红 · 且**库面直删能成**（行消失 ＋ `ON DELETE CASCADE` 把该行 proof 一起抹掉 ⇒ 凭证真会丢）⇒ 409 的唯一屏障就是凭证闸",
+      "pass": true,
+      "reading": "{\"real\":[409,200],\"mutant\":200,\"db_direct\":{\"proofs_before\":1,\"proofs_after\":0,\"row_left\":false}}"
+    },
+    {
+      "id": "Z1",
+      "what": "零残留：subtask / subtask_proof / ledger_entry / users / schema_migration 行数**事务前 = 事务后**（夹具与全部反事实臂都在单回滚事务内；基线 {\"subtask\":0,\"proofs\":0,\"ledger\":509,\"users\":79,\"migrations\":70}）",
+      "pass": true,
+      "reading": "{\"before\":{\"subtask\":0,\"proofs\":0,\"ledger\":509,\"users\":79,\"migrations\":70},\"after\":{\"subtask\":0,\"proofs\":0,\"ledger\":509,\"users\":79,\"migrations\":70}}"
+    }
+  ],
+  "summary": {
+    "total": 12,
+    "passed": 12,
+    "failed": 0,
+    "red": []
+  }
+}

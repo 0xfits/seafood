@@ -119,7 +119,8 @@ import {
 //   九口：R1/R2 公开读、R3 用户提凭证、R4–R8 管理员（manage_tasks：建改活动/任务/子任务、settle、task 完成奖）。
 //   ★ 0068 权限扩容：campaign/task/subtask 的**创建口**在 manage_tasks 之外新增 project_owner 支
 //     （owner_uid = 本人 ∧ 项目 status ≠ 'ended'；task/subtask 归属链经 campaign 校验）。
-//   subtask 增改内联于 task 写口（`subtasks[]` 整组 upsert、永不 DELETE）⇒ 无独立 subtask 路由。
+//   subtask 增/改/删**一律内联于 task 写口**（`subtasks[]` 按 id upsert ＋ 闭集键 `subtasks_remove` 删）⇒
+//   无独立 subtask 路由（零新注册点：删不是第十一口）。
 //   ★ 本单加性第十口：`GET /api/campaign/task/:taskId`（任务自己的页面 `/task/:taskId` 的公开读面；
 //     draft / ended 对公众 404，owner/admin 同形状 200）。注册点 129 → **130**（get 56 → 57）。
 import {
@@ -3607,7 +3608,8 @@ app.patch('/api/project/:projectId', async (req, res) => {
 // R4 POST  /api/campaign                            管理员 manage_tasks · 建活动（status 恒 draft）
 // R5 PATCH /api/campaign/:campaignId                管理员 · 改活动（闭集 5 键 ＋ 状态机）
 // R6 POST  /api/campaign/:campaignId/task           管理员 · 加任务（可内联 subtasks[]）
-// R7 PATCH /api/campaign/task/:taskId               管理员 · 改任务（subtasks[] 整组 upsert、永不 DELETE）
+// R7 PATCH /api/campaign/task/:taskId               管理员 · 改任务（`subtasks[]` 按 id upsert ＋
+//                                                   闭集键 `subtasks_remove` 删；prediction 发布后冻结）
 // R8 POST  /api/campaign/subtask/:subtaskId/settle  管理员 · prediction 结算（回填 ＋ 分发同一事务）
 // R9 POST  /api/campaign/task/:taskId/reward        管理员 · task 完成奖手动发放（全部子任务完成后）
 // R10 GET  /api/campaign/task/:taskId               公开 · 任务详情页读口（draft / ended 对公众 404；
