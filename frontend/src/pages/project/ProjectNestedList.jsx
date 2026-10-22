@@ -2,7 +2,8 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { buildLocalizedPath } from '../../utils'
 import { refOf, statusKeyOf, taskRewardOf, timeWindowOf, typeKeyOf } from '../campaign/campaign-util'
-import { patchProjectTaskStatus } from './project-api'
+import { patchProjectTaskStatus, removeProjectSubtasks } from './project-api'
+import { buildSubtaskRemovePayload } from './project-payload'
 import ProjectForms from './ProjectForms'
 
 // ============================================================================
@@ -18,6 +19,12 @@ import ProjectForms from './ProjectForms'
 //     显隐 = `canManage`（owner ∨ manage_tasks 管理员，父组件判）∧ 该行有数字主键；
 //   · 点开后表单**就地**渲染在该卡内，目标已预选锁定（活动卡 ⇒ 锁活动；任务卡 ⇒ 锁活动 + 任务），
 //     表单里**不渲染**选择器（ProjectForms 侧 `campaignLock` / `taskLock`）；
+//   · **子任务行级操作**（Kevin 2026-10-22）：每条子任务右侧【编辑】【删除】（仅 `canManage`）——
+//       编辑 = 该行就地切成 `SubtaskForm` 编辑态（预填），提交走 task PATCH `subtasks:[{subtask_id,...}]`；
+//       **prediction 且父 task 非 draft ⇒ 不出【编辑】**（服务端 409 `prediction_locked_after_publish`），
+//       只留「发布后不可编辑」一句；已结算的 prediction 同理；
+//       删除 = **行内二次确认**（不弹窗）⇒ PATCH `subtasks_remove:[id]`；409 `subtask_has_proofs` ⇒ 行内
+//       「已有用户提交，不能删除」；成功 ⇒ 页面静默重读（行消失以读口为准，不本地伪造）；
 //   · 无活动 ⇒ 无活动卡 ⇒ 无任务入口；活动无任务 ⇒ 无任务卡 ⇒ 无子任务入口（自然缺席，不占位）。
 //
 // 口径：
@@ -35,16 +42,46 @@ const num = (value, fallback = 0) => {
   return Number.isFinite(n) ? n : fallback
 }
 
-const SubtaskRow = ({ subtask, t }) => {
+/** 已结算 prediction 的 payload 键（settle 口独占写）⇒ 该行不可编辑（重发会抹掉结算键）。 */
+const PREDICTION_SETTLED_KEY = 'correct_option'
+
+/**
+ * prediction 行的【编辑】闸（Kevin 2026-10-22）：父 task 一旦发布（非 draft）即**不得编辑**
+ * payload/type/title（服务端 409 `prediction_locked_after_publish`）⇒ 前端直接不出按钮，
+ * 只留一行「发布后不可编辑」说明。已结算的行同理（结算键由 settle 口独占）。
+ */
+const predictionEditLocked = (subtask, taskStatus) => {
+  if (String(subtask?.type_code || '') !== 'prediction') return false
+  if (String(taskStatus || '') !== 'draft') return true
+  const payload = subtask?.payload && typeof subtask.payload === 'object' ? subtask.payload : {}
+  return Object.prototype.hasOwnProperty.call(payload, PREDICTION_SETTLED_KEY)
+}
+
+const SubtaskRow = ({
+  subtask,
+  t,
+  canManage = false,
+  editLocked = false,
+  editing = false,
+  confirming = false,
+  removing = false,
+  error = '',
+  form = null,
+  onEdit,
+  onAskDelete,
+  onCancelDelete,
+  onConfirmDelete,
+}) => {
   const typeKey = typeKeyOf(subtask?.type_code)
   const badge = typeKey ? t(typeKey) : (subtask?.type_label || '')
   const required = subtask?.required === true
   return (
     <li
-      className="sf-project-subtask"
+      className={`sf-project-subtask${editing ? ' is-editing' : ''}`}
       data-sf-m="project-subtask"
       data-sf-subtask={String(subtask?.subtask_id ?? '')}
       data-sf-type={String(subtask?.type_code ?? '')}
+      data-sf-editing={editing ? '1' : '0'}
     >
       <div className="sf-project-subtask-head">
         {badge ? <span className="sf-project-type-badge" data-sf-m="project-subtask-type">{badge}</span> : null}
@@ -54,15 +91,72 @@ const SubtaskRow = ({ subtask, t }) => {
           data-sf-m="project-subtask-required"
           data-sf-required={required ? '1' : '0'}
         >{t(required ? 'campaign.requiredTag' : 'campaign.optionalTag')}</span>
+        {canManage ? (
+          <div className="sf-project-subtask-actions" data-sf-m="project-subtask-actions">
+            {/* prediction 发布后：不出【编辑】，只给一句说明（标题/载荷/类型都已锁） */}
+            {editLocked ? (
+              <span className="sf-project-subtask-locked" data-sf-m="project-subtask-locked">
+                {t('project.predictionLocked')}
+              </span>
+            ) : (
+              <button
+                type="button"
+                className="sf-project-btn is-ghost is-row"
+                data-sf-m="project-subtask-edit"
+                data-sf-subtask={String(subtask?.subtask_id ?? '')}
+                aria-expanded={editing}
+                onClick={onEdit}
+              >{t('project.subtaskEdit')}</button>
+            )}
+            {confirming ? (
+              <>
+                <span className="sf-project-subtask-confirm-text" data-sf-m="project-subtask-confirm-text">
+                  {t('project.confirmDelete')}
+                </span>
+                <button
+                  type="button"
+                  className="sf-project-btn is-danger is-row"
+                  data-sf-m="project-subtask-confirm"
+                  data-sf-subtask={String(subtask?.subtask_id ?? '')}
+                  disabled={removing}
+                  onClick={onConfirmDelete}
+                >{t('project.subtaskDelete')}</button>
+                <button
+                  type="button"
+                  className="sf-project-btn is-ghost is-row"
+                  data-sf-m="project-subtask-cancel"
+                  disabled={removing}
+                  onClick={onCancelDelete}
+                >{t('project.cancel')}</button>
+              </>
+            ) : (
+              <button
+                type="button"
+                className="sf-project-btn is-ghost is-row"
+                data-sf-m="project-subtask-delete"
+                data-sf-subtask={String(subtask?.subtask_id ?? '')}
+                disabled={removing || editing}
+                onClick={onAskDelete}
+              >{t('project.subtaskDelete')}</button>
+            )}
+          </div>
+        ) : null}
       </div>
       {subtask?.content ? (
         <p className="sf-project-subtask-content" data-sf-m="project-subtask-content">{subtask.content}</p>
+      ) : null}
+      {/* 失败就地内联（409 subtask_has_proofs / prediction_locked_after_publish / 网络） */}
+      {error ? (
+        <p className="sf-project-notice is-err" data-sf-m="project-subtask-err" role="alert">{error}</p>
+      ) : null}
+      {editing && form ? (
+        <div className="sf-project-card-form" data-sf-m="project-card-form">{form}</div>
       ) : null}
     </li>
   )
 }
 
-const TaskBlock = ({ task, t, lang, symbols, canManage, user, subtaskOpen, subtaskForm, onEntrySubtask, onStatusChanged }) => {
+const TaskBlock = ({ task, campaign, slug, t, lang, symbols, canManage, user, subtaskOpen, subtaskForm, onEntrySubtask, onStatusChanged, onDone }) => {
   const window = timeWindowOf(task, lang)
   const reward = taskRewardOf(task)
   const secondarySymbol = reward.secondaryCid ? (symbols[reward.secondaryCid] || '') : ''
@@ -74,6 +168,11 @@ const TaskBlock = ({ task, t, lang, symbols, canManage, user, subtaskOpen, subta
   const nextStatus = status === 'draft' ? 'active' : status === 'active' ? 'draft' : ''
   const [statusBusy, setStatusBusy] = useState(false)
   const [statusErr, setStatusErr] = useState('')
+  // 行级操作（Kevin 2026-10-22）：编辑**就地**展开在行内（一次只开一行）；删除 = 行内二次确认（不弹窗）。
+  const [editingId, setEditingId] = useState('')
+  const [confirmingId, setConfirmingId] = useState('')
+  const [removingId, setRemovingId] = useState('')
+  const [rowErr, setRowErr] = useState({ id: '', text: '' })
 
   const toggleStatus = async () => {
     if (!nextStatus || statusBusy) return
@@ -89,6 +188,56 @@ const TaskBlock = ({ task, t, lang, symbols, canManage, user, subtaskOpen, subta
       // 失败（403 / 404 / 409 封板 / 网络）⇒ **就地内联**，不谎报状态已变
       // 文案复用 `project.publishFailed`（本项目域「写口失败」唯一句，零新键 ⇒ 四语计数不动）
       setStatusErr(t('project.publishFailed'))
+    }
+  }
+
+  /** 【编辑】= 就地切编辑态（同一行再点 = 收起）；换行 = 关掉上一行的编辑/确认态与在报的错。 */
+  const toggleEdit = (subtask) => {
+    const id = String(subtask?.subtask_id ?? '')
+    if (!id) return
+    setRowErr({ id: '', text: '' })
+    setConfirmingId('')
+    setEditingId((prev) => (prev === id ? '' : id))
+  }
+
+  /** 【删除】第一步：行内二次确认（不弹窗、不发请求）。 */
+  const askDelete = (subtask) => {
+    const id = String(subtask?.subtask_id ?? '')
+    if (!id || removingId) return
+    setRowErr({ id: '', text: '' })
+    setEditingId('')
+    setConfirmingId(id)
+  }
+
+  /** 【删除】第二步：PATCH `{subtasks_remove:[id]}`；成功 ⇒ 页面静默重读，失败 ⇒ 行内内联。 */
+  const confirmDelete = async (subtask) => {
+    const id = String(subtask?.subtask_id ?? '')
+    if (!id || removingId) return
+    const built = buildSubtaskRemovePayload([id])
+    if (!built.ok) {
+      setRowErr({ id, text: t('project.deleteFailed') })
+      return
+    }
+    setRemovingId(id)
+    setRowErr({ id: '', text: '' })
+    try {
+      await removeProjectSubtasks(taskRef, built.payload.subtasks_remove, user)
+      setConfirmingId('')
+      // 成功 ⇒ 由页面层给结论 + 静默重读（行消失由读口事实决定，不在本地伪造）
+      onDone?.({ kind: 'ok', text: t('project.subtaskDeleted') })
+    } catch (error) {
+      const code = String(error?.code || '')
+      setRowErr({
+        id,
+        text: code === 'subtask_has_proofs'
+          ? t('project.hasProofs')
+          : code === 'prediction_locked_after_publish'
+            ? t('project.predictionLocked')
+            : t('project.deleteFailed'),
+      })
+      setConfirmingId('')
+    } finally {
+      setRemovingId('')
     }
   }
 
@@ -161,9 +310,40 @@ const TaskBlock = ({ task, t, lang, symbols, canManage, user, subtaskOpen, subta
 
       {subtasks.length ? (
         <ul className="sf-project-subtasks" data-sf-m="project-subtasks">
-          {subtasks.map((subtask) => (
-            <SubtaskRow subtask={subtask} t={t} key={String(subtask?.subtask_id ?? '')} />
-          ))}
+          {subtasks.map((subtask) => {
+            const id = String(subtask?.subtask_id ?? '')
+            const manageable = canManage && Boolean(id)
+            const editing = manageable && editingId === id
+            return (
+              <SubtaskRow
+                subtask={subtask}
+                t={t}
+                canManage={manageable}
+                editLocked={predictionEditLocked(subtask, status)}
+                editing={editing}
+                confirming={manageable && confirmingId === id}
+                removing={manageable && removingId === id}
+                error={rowErr.id === id ? rowErr.text : ''}
+                form={editing ? (
+                  <ProjectForms
+                    panel="subtask"
+                    slug={slug}
+                    campaignLock={campaign}
+                    taskLock={task}
+                    subtask={subtask}
+                    t={t}
+                    onClose={() => setEditingId('')}
+                    onDone={onDone}
+                  />
+                ) : null}
+                onEdit={() => toggleEdit(subtask)}
+                onAskDelete={() => askDelete(subtask)}
+                onCancelDelete={() => setConfirmingId('')}
+                onConfirmDelete={() => confirmDelete(subtask)}
+                key={id || String(subtask?.title ?? '')}
+              />
+            )
+          })}
         </ul>
       ) : (
         <p className="sf-foot-note" data-sf-m="project-subtasks-empty">{t('project.subtasksEmpty')}</p>
@@ -287,6 +467,8 @@ const ProjectNestedList = ({
                     return (
                       <TaskBlock
                         task={task}
+                        campaign={campaign}
+                        slug={slug}
                         t={t}
                         lang={lang}
                         symbols={symbols}
@@ -306,6 +488,7 @@ const ProjectNestedList = ({
                         ) : null}
                         onEntrySubtask={(row) => onEntrySubtask?.(campaign, row)}
                         onStatusChanged={onTaskStatusChanged}
+                        onDone={onDone}
                         key={taskRef}
                       />
                     )

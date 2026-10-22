@@ -8,7 +8,10 @@
 //   POST  /api/campaign/:cid/task      { title, description, time_start, time_end, sort,
 //                                        reward_amount_primary, reward_cid_secondary?,
 //                                        reward_amount_secondary?, subtasks[] }
-//   PATCH /api/campaign/task/:taskId   同 task 键集 + status；subtasks[] **整组 upsert、永不 DELETE**
+//   PATCH /api/campaign/task/:taskId   同 task 键集 + status；subtasks[] 按 subtask_id **upsert**（编辑）
+//   PATCH /api/campaign/task/:taskId   ＋ `subtasks_remove: number[]`（删除；有凭证 ⇒ 409 subtask_has_proofs）
+//                                      prediction 在父 task 非 draft 时改 payload/type/title
+//                                      ⇒ 409 prediction_locked_after_publish（前端据此不出【编辑】钮）
 //   subtask（两处内联）               { type_code, title, content, payload, sort, required }
 //
 // 硬口径：
@@ -88,6 +91,27 @@ export const toIsoOrNull = (value) => {
 export const windowOk = (startIso, endIso) => {
   if (!startIso || !endIso) return true
   return Date.parse(endIso) > Date.parse(startIso)
+}
+
+const isPlainRow = (value) => Boolean(value) && typeof value === 'object' && !Array.isArray(value)
+
+/**
+ * ISO 串 / 毫秒（秒级也吃）→ `datetime-local` 的**本地时区**串 `YYYY-MM-DDTHH:mm`（编辑态预填用）。
+ * 空值 / 坏值 ⇒ `''`（输入框空着，不渲染假时间）。反向归一仍是 `toIsoOrNull`（提交前统一 ISO）。
+ */
+export const toLocalDateTimeInput = (value) => {
+  if (value === null || value === undefined || value === '') return ''
+  let ms = null
+  if (typeof value === 'number') ms = value > 1e12 ? value : value > 1e9 ? value * 1000 : null
+  else {
+    const raw = String(value).trim()
+    if (!raw) return ''
+    ms = /^\d+$/.test(raw) ? Number(raw) : Date.parse(raw)
+  }
+  if (!Number.isFinite(ms)) return ''
+  const d = new Date(ms)
+  const pad = (n) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
 /**
@@ -285,6 +309,89 @@ export const toExistingSubtaskInput = (row) => {
 }
 
 /**
+ * 读口子任务行 → 行编辑器草稿（**编辑态预填**；键集与 `ProjectForms.blankRow` 同）。
+ * · prediction：`prize_amount` → 奖池、`deadline`(ISO) → `datetime-local` 本地串；
+ *   **选项文案不预填**（展示恒 Yes/No；存量四键口径由 `buildSubtaskEditInput` 原样回送）；
+ * · quiz：`payload.options.a–d` + `correct[]` + 子任务列 `reward_amount`；
+ * · 其余三类：无专属字段（payload 原样由 `toExistingSubtaskInput` 负责，编辑不改它）。
+ */
+export const draftFromSubtask = (subtask) => {
+  const payload = isPlainRow(subtask?.payload) ? subtask.payload : {}
+  const options = isPlainRow(payload.options) ? payload.options : {}
+  const correct = Array.isArray(payload.correct)
+    ? QUIZ_OPTION_KEYS.filter((key) => payload.correct.includes(key))
+    : []
+  const draft = {
+    typeCode: trimmed(subtask?.type_code) || 'x_verify',
+    title: text(subtask?.title),
+    content: text(subtask?.content),
+    required: subtask?.required === true,
+    sort: String(nonNegInt(subtask?.sort ?? 0) ?? 0),
+    prize: text(payload.prize_amount),
+    deadline: toLocalDateTimeInput(payload.deadline),
+    quizA: '', quizB: '', quizC: '', quizD: '',
+    quizCorrect: correct,
+    quizReward: text(subtask?.reward_amount),
+  }
+  for (const key of QUIZ_OPTION_KEYS) {
+    draft[`quiz${key.toUpperCase()}`] = typeof options[key] === 'string' ? options[key] : ''
+  }
+  return draft
+}
+
+/**
+ * 子任务**编辑**输入：`buildSubtaskInput` 的同一闭集 + `subtask_id`（后端 R7 `subtasks[]` 的 upsert 键）。
+ * 存量 prediction 行（四键口径）**保持原口径**：选项原文原样回送 —— 服务端对换口径回 400
+ * `PREDICTION_OPTION_STYLE_IMMUTABLE`，前端不得因为「展示已统一 Yes/No」而改写存量行。
+ * 已结算（payload 带 `correct_option`）⇒ 拒发：重发会抹掉结算键（settle 口独占写）。
+ */
+export const buildSubtaskEditInput = (row, existing) => {
+  const ref = positiveIntText(existing?.subtask_id)
+  if (!ref) return { ok: false, error: 'subtask' }
+  const built = buildSubtaskInput(row)
+  if (!built.ok) return built
+  if (built.skip) return { ok: true, skip: true }
+  const input = { subtask_id: ref, ...built.input }
+  if (built.input.type_code !== 'prediction') return { ok: true, input }
+
+  const raw = isPlainRow(existing?.payload) ? existing.payload : {}
+  if (Object.prototype.hasOwnProperty.call(raw, PREDICTION_CORRECT_KEY)) {
+    return { ok: false, error: 'prediction' }
+  }
+  const keys = Object.keys(raw)
+  const isLegacy = keys.length === LEGACY_PREDICTION_KEYS.length
+    && keys.every((k) => LEGACY_PREDICTION_KEYS.includes(k))
+  if (!isLegacy) return { ok: true, input }
+  const optionA = trimmed(raw.option_a)
+  const optionB = trimmed(raw.option_b)
+  if (!optionA || !optionB) return { ok: false, error: 'prediction' }
+  input.payload = {
+    option_a: optionA,
+    option_b: optionB,
+    prize_amount: input.payload.prize_amount,
+    deadline: input.payload.deadline,
+  }
+  return { ok: true, input }
+}
+
+/**
+ * 子任务**删除**载荷：`{ subtasks_remove: number[] }`（数字主键数组，去重、非空）。
+ * 服务端按 task 归属校验；有凭证的行回 409 `subtask_has_proofs`（调用方内联提示，不谎报已删）。
+ */
+export const buildSubtaskRemovePayload = (ids) => {
+  const list = Array.isArray(ids) ? ids : [ids]
+  const out = []
+  for (const raw of list) {
+    const ref = positiveIntText(raw)
+    if (!ref) return { ok: false, error: 'subtask' }
+    const n = Number(ref)
+    if (!out.includes(n)) out.push(n)
+  }
+  if (!out.length) return { ok: false, error: 'subtask' }
+  return { ok: true, payload: { subtasks_remove: out } }
+}
+
+/**
  * 【发布子任务】整组追加账目（**负控在此**）：
  *   `group = 可重发旧行 + 新行`，且断言
  *     ① `group.length === resent + 1`（恰好多一条，绝不多送/少送）；
@@ -364,3 +471,7 @@ export const buildTaskPayload = (draft) => {
 export const CAMPAIGN_KEYS = ['title', 'project_id', 'description', 'time_start', 'time_end']
 export const TASK_REQUIRED_KEYS = ['title', 'description', 'time_start', 'time_end', 'sort', 'reward_amount_primary', 'subtasks']
 export const SUBTASK_KEYS = ['type_code', 'title', 'content', 'payload', 'sort', 'required']
+/** R7 `subtasks[]` upsert 键：编辑输入 = `subtask_id` + 六键闭集。 */
+export const SUBTASK_EDIT_KEYS = ['subtask_id', ...SUBTASK_KEYS]
+/** R7 删除键（数字主键数组）。 */
+export const SUBTASKS_REMOVE_KEY = 'subtasks_remove'

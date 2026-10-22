@@ -8,6 +8,7 @@ import {
   normalizePredictionChoice,
   predictionMetaOf,
   predictionOutcomeOf,
+  predictionWireChoice,
   quizOptionsOf,
   quizOutcomeOf,
   quizPicksOf,
@@ -135,8 +136,10 @@ const PredictionPanel = ({ subtask, t, lang, user, isAuthenticated, proof, onSav
     setBusy(true)
     setNotice(null)
     try {
-      const view = await submitSubtaskProof(subtask?.subtask_id, { choice: picked }, user)
-      const payload = { choice: picked }
+      // 票面值按行口径上送（存量四键行 = `a/b`，新两键行 = `yes/no`）——展示恒 Yes/No，内部口径不变
+      const wireChoice = predictionWireChoice(picked, meta.optionStyle) || picked
+      const view = await submitSubtaskProof(subtask?.subtask_id, { choice: wireChoice }, user)
+      const payload = { choice: wireChoice }
       writeProof(user?.uID ?? user?.uid, subtask?.subtask_id, payload)
       onSaved?.({ payload, time_created: typeof view?.time_created === 'string' ? view.time_created : null })
       setLocked(true)
@@ -199,9 +202,6 @@ const PredictionPanel = ({ subtask, t, lang, user, isAuthenticated, proof, onSav
                 {t(option.labelKey)}
                 {isCorrect ? ` · ${t('campaign.prediction.correct')}` : ''}
               </span>
-              {option.legacyText ? (
-                <span className="sf-campaign-vote-text" data-sf-m="campaign-vote-legacy">{option.legacyText}</span>
-              ) : null}
             </button>
           )
         })}

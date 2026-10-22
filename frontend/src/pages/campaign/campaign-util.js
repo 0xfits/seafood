@@ -123,21 +123,41 @@ export const normalizePredictionChoice = (value) => {
 }
 
 /**
- * 两个选项（恒两枚；文案走 i18n `labelKey`）。
- * `legacyText` = 旧四键行的 `option_a/option_b` 原文（仅作副行提示，不参与选择集；新行恒空）。
+ * prediction 票型口径（Kevin 2026-10-22 · 展示统一 Yes/No）：
+ *   · `yes_no`   = 新行（payload 两键）；票面值 = `'yes' | 'no'`；
+ *   · `ab_legacy`= 存量四键行；**内部票面值仍是 `'a' | 'b'`**（读写都不改库存量口径）。
+ * 读口增量字段 `option_style` 优先；旧读口未带该字段 ⇒ 按 payload 形状派生（两枚非空选项文案 ⇒ 存量）。
+ * 展示面**一律** Yes/No（见 `predictionOptionsOf`），本函数只决定上送/回读的票面值。
  */
-export const predictionOptionsOf = (subtask) => {
+export const predictionOptionStyleOf = (subtask) => {
+  const declared = String(subtask?.option_style || '')
+  if (declared === 'yes_no' || declared === 'ab_legacy') return declared
   const payload = subtask?.payload && typeof subtask.payload === 'object' ? subtask.payload : {}
-  const legacy = {
-    yes: typeof payload.option_a === 'string' ? payload.option_a.trim() : '',
-    no: typeof payload.option_b === 'string' ? payload.option_b.trim() : '',
-  }
-  return PREDICTION_CHOICES.map((choice) => ({
-    choice,
-    labelKey: choice === 'yes' ? 'campaign.predictionYes' : 'campaign.predictionNo',
-    legacyText: legacy[choice],
-  }))
+  const a = typeof payload.option_a === 'string' ? payload.option_a.trim() : ''
+  const b = typeof payload.option_b === 'string' ? payload.option_b.trim() : ''
+  return a && b ? 'ab_legacy' : 'yes_no'
 }
+
+/**
+ * 展示选择（`yes/no`）→ 该行口径的**票面值**：存量行送 `a/b`，新行送 `yes/no`。
+ * 服务端 settle/投票按行口径校验值域（跨口径即 400），故上送前必须过这一道。
+ */
+export const predictionWireChoice = (choice, style) => {
+  const normalized = normalizePredictionChoice(choice)
+  if (!normalized) return null
+  if (style !== 'ab_legacy') return normalized
+  return normalized === 'yes' ? 'a' : 'b'
+}
+
+/**
+ * 两个选项（**恒两枚**；文案**只**走 i18n `labelKey` = `campaign.predictionYes/No`）。
+ * 旧四键行的 `option_a/option_b` 文案**不参与展示**（Kevin 2026-10-22：展示统一 Yes/No），
+ * 只在编辑旧行时由 `project-payload` 原样回送（口径不可改）。
+ */
+export const predictionOptionsOf = () => PREDICTION_CHOICES.map((choice) => ({
+  choice,
+  labelKey: choice === 'yes' ? 'campaign.predictionYes' : 'campaign.predictionNo',
+}))
 
 /**
  * prediction 展示元信息。
@@ -161,7 +181,7 @@ export const predictionMetaOf = (subtask) => {
   const prize = payload.prize_amount === null || payload.prize_amount === undefined || payload.prize_amount === ''
     ? null
     : String(payload.prize_amount)
-  return { options: predictionOptionsOf(subtask), prize, correct, state, deadline: payload.deadline ?? null }
+  return { options: predictionOptionsOf(), prize, correct, state, deadline: payload.deadline ?? null, optionStyle: predictionOptionStyleOf(subtask) }
 }
 
 /**

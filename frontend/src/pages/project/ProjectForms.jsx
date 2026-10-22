@@ -4,6 +4,7 @@ import {
   appendProjectSubtasks,
   createProjectCampaign,
   createProjectCampaignTask,
+  editProjectSubtask,
   fetchProjectDetail,
   patchProjectCampaign,
 } from './project-api'
@@ -12,8 +13,10 @@ import {
   buildCampaignPayload,
   buildLaunchPayload,
   buildSubtaskAppendGroup,
+  buildSubtaskEditInput,
   buildSubtaskInput,
   buildTaskPayload,
+  draftFromSubtask,
 } from './project-payload'
 import { refOf } from '../campaign/campaign-util'
 
@@ -77,6 +80,19 @@ const errorTextOf = (code, t) => {
     case 'task': return t('project.errNeedTask')
     default: return t('project.publishFailed')
   }
+}
+
+/**
+ * 子任务写口（编辑 / 删除）的失败码 → 文案键。
+ *   · `prediction_locked_after_publish` = 父 task 已发布，prediction 不可再改（服务端闸）；
+ *   · `subtask_has_proofs` = 已有用户提交，不能删（服务端闸）。
+ * 其余（403 / 404 / 网络 / 换口径 400）一律落通用失败句 —— 不把机读码抛给用户。
+ */
+const writeErrorText = (error, t) => {
+  const code = String(error?.code || '')
+  if (code === 'prediction_locked_after_publish') return t('project.predictionLocked')
+  if (code === 'subtask_has_proofs') return t('project.hasProofs')
+  return t('project.publishFailed')
 }
 
 const Field = ({ label, children }) => (
@@ -551,12 +567,14 @@ const TaskForm = ({ t, onDone, onClose, currencies, campaignLock }) => {
   )
 }
 
-const SubtaskForm = ({ slug, t, onDone, onClose, campaignLock, taskLock }) => {
+const SubtaskForm = ({ slug, t, onDone, onClose, campaignLock, taskLock, subtask = null }) => {
   const { user } = useAuth()
   // 入口在任务卡内 ⇒ 活动 + 任务**双预选锁定**（两个选择器都不渲染；载荷 ref 恒为该卡）
   const lockedCampaignRef = refOf(campaignLock)
   const lockedTaskRef = taskLock?.task_id != null ? String(taskLock.task_id) : ''
-  const [row, setRow] = useState(() => blankRow())
+  // 编辑态 = 行上带着页面传入的子任务行（预填 type/title/content/payload/reward/required/sort）
+  const editing = subtask != null && String(subtask?.subtask_id ?? '') !== ''
+  const [row, setRow] = useState(() => (editing ? { key: nextRowKey(), ...draftFromSubtask(subtask) } : blankRow()))
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState(null)
 
@@ -578,6 +596,30 @@ const SubtaskForm = ({ slug, t, onDone, onClose, campaignLock, taskLock }) => {
     event.preventDefault()
     if (busy) return
     setErr(null)
+    // 编辑态：只送被改的那一条（subtask_id + 六键闭集）；不再「先读再整组重发」
+    if (editing) {
+      const built = buildSubtaskEditInput(row, subtask)
+      if (!built.ok) {
+        setErr({ kind: 'err', text: errorTextOf(built.error, t) })
+        return
+      }
+      if (built.skip) {
+        setErr({ kind: 'err', text: t('project.errNeedSubtask') })
+        return
+      }
+      setBusy(true)
+      try {
+        await editProjectSubtask(lockedTaskRef, built.input, user)
+        onDone?.({ kind: 'ok', text: t('project.subtaskSaved') })
+        onClose?.()
+      } catch (error) {
+        // 409（发布后锁 / 有凭证）就地内联，不谎报已存
+        setErr({ kind: 'err', text: writeErrorText(error, t) })
+      } finally {
+        setBusy(false)
+      }
+      return
+    }
     const built = buildSubtaskInput(row)
     if (!built.ok) {
       setErr({ kind: 'err', text: errorTextOf(built.error, t) })
@@ -615,7 +657,7 @@ const SubtaskForm = ({ slug, t, onDone, onClose, campaignLock, taskLock }) => {
   }
 
   return (
-    <form className="sf-project-form" data-sf-m="project-form-subtask" onSubmit={submit}>
+    <form className="sf-project-form" data-sf-m="project-form-subtask" data-sf-mode={editing ? 'edit' : 'create'} onSubmit={submit}>
       <LockedContext
         data-sf-m="project-form-task-locked"
         data-sf-campaign={lockedCampaignRef}
@@ -645,7 +687,7 @@ const SubtaskForm = ({ slug, t, onDone, onClose, campaignLock, taskLock }) => {
           data-sf-m="project-form-submit"
           disabled={busy}
         >
-          {busy ? t('project.submitting') : t('project.submitSubtask')}
+          {busy ? t('project.submitting') : t(editing ? 'project.subtaskSave' : 'project.submitSubtask')}
         </button>
         <button type="button" className="sf-project-btn" data-sf-m="project-form-cancel" onClick={onClose} disabled={busy}>
           {t('project.cancel')}
@@ -655,7 +697,7 @@ const SubtaskForm = ({ slug, t, onDone, onClose, campaignLock, taskLock }) => {
   )
 }
 
-const ProjectForms = ({ panel, view, slug, currencies, t, onClose, onDone, campaignLock, taskLock }) => {
+const ProjectForms = ({ panel, view, slug, currencies, t, onClose, onDone, campaignLock, taskLock, subtask = null }) => {
   if (!panel) return null
   if (panel === 'campaign') {
     return <CampaignForm view={view} t={t} onDone={onDone} onClose={onClose} />
@@ -678,6 +720,7 @@ const ProjectForms = ({ panel, view, slug, currencies, t, onClose, onDone, campa
         t={t}
         campaignLock={campaignLock}
         taskLock={taskLock}
+        subtask={subtask}
         onDone={onDone}
         onClose={onClose}
       />

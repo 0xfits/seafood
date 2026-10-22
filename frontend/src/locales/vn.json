@@ -1522,6 +1522,15 @@
     "submitCampaign": "Đăng chiến dịch",
     "submitTask": "Đăng nhiệm vụ",
     "submitSubtask": "Đăng nhiệm vụ con",
-    "cancel": "Hủy"
+    "cancel": "Hủy",
+    "subtaskEdit": "Chỉnh sửa",
+    "subtaskDelete": "Xóa",
+    "subtaskSave": "Lưu thay đổi",
+    "subtaskSaved": "Đã lưu nhiệm vụ con.",
+    "subtaskDeleted": "Đã xóa nhiệm vụ con.",
+    "confirmDelete": "Xác nhận xóa?",
+    "predictionLocked": "Không thể sửa sau khi công bố (dự đoán đã khóa).",
+    "hasProofs": "Đã có người dùng gửi nên không thể xóa.",
+    "deleteFailed": "Xóa thất bại, vui lòng thử lại sau."
   }
 }

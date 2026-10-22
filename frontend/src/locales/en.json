@@ -1522,6 +1522,15 @@
     "submitCampaign": "Publish campaign",
     "submitTask": "Publish task",
     "submitSubtask": "Publish subtask",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "subtaskEdit": "Edit",
+    "subtaskDelete": "Delete",
+    "subtaskSave": "Save changes",
+    "subtaskSaved": "Subtask saved.",
+    "subtaskDeleted": "Subtask deleted.",
+    "confirmDelete": "Delete this subtask?",
+    "predictionLocked": "Locked after publishing (prediction is locked).",
+    "hasProofs": "Users have already submitted, so it can’t be deleted.",
+    "deleteFailed": "Delete failed, please try again later."
   }
 }

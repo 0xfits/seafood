@@ -13,7 +13,8 @@
 //                                         （**无 status、无奖励**；status 恒 draft）
 //   PATCH /api/campaign/:cid           ⇒ 改 campaign（闭集五键 + status）——【立即上线】只送 status
 //   POST  /api/campaign/:cid/task      ⇒ 建 task（同上权限面；可内联 subtasks[]）
-//   PATCH /api/campaign/task/:taskId   ⇒ 改 task；`subtasks[]` **整组 upsert、永不 DELETE**
+//   PATCH /api/campaign/task/:taskId   ⇒ 改 task；`subtasks[]` 按 subtask_id **upsert**（编辑只送一条）、
+//                                        `subtasks_remove: number[]`（删除；有凭证 ⇒ 409 subtask_has_proofs）
 //
 // 写面载荷**不在此层拼**：一律由 `project-payload.js` 的纯构造器产出（键集与后端闭集对拍在单测里）。
 // ============================================================================
@@ -90,3 +91,19 @@ export const patchProjectTaskStatus = (taskRef, status, user) =>
  */
 export const appendProjectSubtasks = (taskRef, group, user) =>
   patchJson(`/api/campaign/task/${enc(taskRef)}`, { subtasks: group }, user)
+
+/**
+ * **编辑**一条子任务（R7 `subtasks[]` 按 id upsert）：只送被改的那一条（带 `subtask_id`），
+ * 其余行**不动**（不再整组重发 —— 整组重发会把不可重发行也卷进来）。
+ * 父 task 非 draft 的 prediction 改 payload/type/title ⇒ 409 `prediction_locked_after_publish`；
+ * 换 prediction 口径 ⇒ 400 `PREDICTION_OPTION_STYLE_IMMUTABLE`（调用方内联，不谎报已存）。
+ */
+export const editProjectSubtask = (taskRef, input, user) =>
+  patchJson(`/api/campaign/task/${enc(taskRef)}`, { subtasks: [input] }, user)
+
+/**
+ * **删除**子任务（R7 `subtasks_remove: number[]`）：只送主键，不重发整组。
+ * 有用户凭证的行 ⇒ 409 `subtask_has_proofs`（调用方内联提示，不谎报已删）。
+ */
+export const removeProjectSubtasks = (taskRef, ids, user) =>
+  patchJson(`/api/campaign/task/${enc(taskRef)}`, { subtasks_remove: ids }, user)

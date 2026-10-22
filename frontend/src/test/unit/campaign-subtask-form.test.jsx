@@ -24,7 +24,9 @@ import zh from '../../locales/zh.json'
 import en from '../../locales/en.json'
 import hk from '../../locales/hk.json'
 import vn from '../../locales/vn.json'
-import { predictionMetaOf, predictionOptionsOf, predictionOutcomeOf } from '../../pages/campaign/campaign-util'
+import {
+  predictionMetaOf, predictionOptionStyleOf, predictionOptionsOf, predictionOutcomeOf, predictionWireChoice,
+} from '../../pages/campaign/campaign-util'
 
 const TABLES = { zh, en, hk, vn }
 const LANGS = ['zh', 'en', 'hk', 'vn']
@@ -92,16 +94,35 @@ afterEach(() => {
 
 // ============================================================================
 describe('campaign-util · prediction 派生（纯函数）', () => {
-  it('选项恒为 Yes/No 两枚（与 payload 无关）；旧四键行的 option_a/b 只作副行原文', () => {
+  it('选项恒为 Yes/No 两枚（与 payload 无关）；旧四键行的 option_a/b 文案不再上屏', () => {
     const fixed = predictionOptionsOf(subtask())
     expect(fixed.map((o) => o.choice)).toEqual(['yes', 'no'])
     expect(fixed.map((o) => o.labelKey)).toEqual(['campaign.predictionYes', 'campaign.predictionNo'])
-    // 旧四键行：原文只落 legacyText（不再参与选择集）
-    expect(fixed.map((o) => o.legacyText)).toEqual(['甲队', '乙队'])
-    // 新两键行（无选项文案）⇒ 仍两枚，legacyText 皆空
+    // 旧四键行：`option_a/option_b` 原文**不再**进选项对象（Kevin 2026-10-22：展示统一 Yes/No）
+    expect(Object.keys(fixed[0])).toEqual(['choice', 'labelKey'])
+    expect(fixed.map((o) => o.legacyText)).toEqual([undefined, undefined])
+    // 新两键行（无选项文案）⇒ 仍两枚
     const fresh = predictionOptionsOf(subtask({ payload: { prize_amount: '100', deadline: new Date(Date.now() + 2 * HOUR).toISOString() } }))
-    expect(fresh.map((o) => o.legacyText)).toEqual(['', ''])
+    expect(fresh.map((o) => o.choice)).toEqual(['yes', 'no'])
     expect(fresh).toHaveLength(2)
+  })
+
+  it('行口径：读口 option_style 优先；缺字段时按 payload 形状派生（两枚文案 ⇒ 存量 a/b；否则 yes/no）', () => {
+    // 存量四键行（fixture 自带 option_a/option_b）⇒ ab_legacy
+    expect(predictionOptionStyleOf(subtask())).toBe('ab_legacy')
+    // 新两键行 ⇒ yes_no
+    const fresh = subtask({ payload: { prize_amount: '100', deadline: new Date(Date.now() + 2 * HOUR).toISOString() } })
+    expect(predictionOptionStyleOf(fresh)).toBe('yes_no')
+    // 读口显式声明优先（即便 payload 形状反着来）
+    expect(predictionOptionStyleOf(subtask({ option_style: 'yes_no' }))).toBe('yes_no')
+    expect(predictionOptionStyleOf(subtask({ option_style: 'ab_legacy', payload: {} }))).toBe('ab_legacy')
+    // 票面值：展示值 → 该行口径的 wire 值（跨口径即 400，故必须过这一道）
+    expect(predictionWireChoice('yes', 'yes_no')).toBe('yes')
+    expect(predictionWireChoice('no', 'yes_no')).toBe('no')
+    expect(predictionWireChoice('yes', 'ab_legacy')).toBe('a')
+    expect(predictionWireChoice('no', 'ab_legacy')).toBe('b')
+    expect(predictionWireChoice('', 'yes_no')).toBeNull()
+    expect(predictionMetaOf(subtask()).optionStyle).toBe('ab_legacy')
   })
 
   it('三态：服务端字段优先；缺字段时按 correct_option / deadline 派生', () => {
@@ -149,7 +170,9 @@ describe('prediction 面板', () => {
 
     await waitFor(() => expect(API.submitSubtaskProof).toHaveBeenCalledTimes(1))
     expect(API.submitSubtaskProof.mock.calls[0][0]).toBe(5011)
-    expect(API.submitSubtaskProof.mock.calls[0][1]).toEqual({ choice: 'yes' })
+    // fixture = 存量四键行（payload 带 option_a/option_b）⇒ 票面值按该行口径回落 `a/b`；
+    // 展示恒 Yes/No（Kevin 2026-10-22），口径不改（跨口径上送服务端即 400）
+    expect(API.submitSubtaskProof.mock.calls[0][1]).toEqual({ choice: 'a' })
 
     await waitFor(() => {
       const panel = container.querySelector('[data-sf-m="campaign-prediction"]')
@@ -161,6 +184,20 @@ describe('prediction 面板', () => {
     expect(container.querySelector('[data-sf-m="campaign-prediction-result"]').textContent).toContain(zh.campaign.prediction.voteLocked)
     expect(container.querySelector('[data-sf-m="campaign-prediction-submit"]')).toBeNull()
     expect(API.refresh).toHaveBeenCalled()
+  })
+
+  it('新两键口径行 ⇒ 票面值上送 yes/no（展示同 Yes/No，口径随行）', async () => {
+    API.submitSubtaskProof.mockResolvedValue({ proof_id: '10', payload: { choice: 'no' }, time_created: '2026-10-22T10:00:00.000Z' })
+    const fresh = subtask({ payload: { prize_amount: '100', deadline: new Date(Date.now() + 2 * HOUR).toISOString() } })
+    const { container } = renderItem(fresh)
+    fireEvent.click(container.querySelector('[data-sf-m="campaign-vote"][data-sf-choice="no"]'))
+    fireEvent.click(container.querySelector('[data-sf-m="campaign-prediction-submit"]'))
+
+    await waitFor(() => expect(API.submitSubtaskProof).toHaveBeenCalledTimes(1))
+    expect(API.submitSubtaskProof.mock.calls[0][1]).toEqual({ choice: 'no' })
+    await waitFor(() => {
+      expect(container.querySelector('[data-sf-m="campaign-prediction"]').getAttribute('data-sf-locked')).toBe('1')
+    })
   })
 
   it('服务端 my_proof 优先 ⇒ 直接锁定并显示所投选项', () => {

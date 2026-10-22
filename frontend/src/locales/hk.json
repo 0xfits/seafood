@@ -1522,6 +1522,15 @@
     "submitCampaign": "發佈活動",
     "submitTask": "發佈任務",
     "submitSubtask": "發佈子任務",
-    "cancel": "取消"
+    "cancel": "取消",
+    "subtaskEdit": "編輯",
+    "subtaskDelete": "刪除",
+    "subtaskSave": "儲存修改",
+    "subtaskSaved": "子任務已儲存。",
+    "subtaskDeleted": "子任務已刪除。",
+    "confirmDelete": "確認刪除？",
+    "predictionLocked": "發佈後不可編輯（預測已鎖定）。",
+    "hasProofs": "已有使用者提交，不能刪除。",
+    "deleteFailed": "刪除失敗，請稍後再試。"
   }
 }
