@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { useLocation, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
-import { getLanguageFromUrl } from '../../utils'
+import { buildLangPath, getLanguageFromUrl } from '../../utils'
 import { isReservedProjectSlug } from '../../project-slug'
 import { fetchProjectCurrencies, fetchProjectDetail } from './project-api'
 import { isWageProjectEditAdmin, loadListingEditAdmin } from '../item/item-edit-access'
@@ -10,6 +10,7 @@ import NotFoundPage from '../NotFoundPage'
 import ProjectNestedList from './ProjectNestedList'
 import ProjectForms from './ProjectForms'
 import ProjectEditModal from './ProjectEditModal'
+import ProjectRecruitModal from './ProjectRecruitModal'
 import ProjectAvatar from './ProjectAvatar'
 import './project.css'
 
@@ -40,6 +41,14 @@ import './project.css'
 //     提交只带变化字段 → `PATCH /api/project/:projectId`；409/400 在框内内联、框不关）；
 //   · 成功 ⇒ 关框 + `load({silent:true})` 重拉（标题/详情/工资行即时更新）+ 页内成功提示；
 //   · 字段构建/校验/载荷/`EDIT_REASON_MAP` 的单一真源 = `project-edit-form.js`（自 WagePage 移出）。
+//
+// ★ Kevin 2026-10-22③：**招工面独立成框**（【编辑项目】旁的【招工】）——
+//   · 6 个招工字段（人数 / 注册天数四选一 / 每次工资 / 领取间隔 / 次币 + 金额）自【编辑项目】
+//     移入 `ProjectRecruitModal`；两框**互不嵌套、各自提交**，共用外壳 `ProjectModalShell`
+//     与 `project-edit-form.js`（载荷键集互斥：`PROJECT_PAYLOAD_KEYS` / `RECRUIT_PAYLOAD_KEYS`）；
+//   · 两入口同闸（同一个 `allowEntry`）、移动到 390 也不溢出（`.sf-project-actions` 本就换行）；
+//   · **改 slug 后自愈**：PATCH 成功且地址变化 ⇒ `navigate('/'+新 slug, {replace:true})`，
+//     由 slug 驱动的 effect 重拉新地址（旧 ref 不再请求），框关 + 成功提示 —— 旧地址不停留 404。
 //
 // 硬口径：
 //   · `:slug` 路由注册在 App.jsx 内层 `<Routes>` **末位、catch-all 之前**；保留段
@@ -78,7 +87,9 @@ const ProjectPage = () => {
   // 本页不再有卡内面板（概况层零写口）。
   const [openPanel, setOpenPanel] = useState(null)
   const [editOpen, setEditOpen] = useState(false) // 【编辑项目】模态框（挂载 = 打开）
+  const [recruitOpen, setRecruitOpen] = useState(false) // 【招工】模态框（挂载 = 打开）
   const [notice, setNotice] = useState(null) // { kind: 'ok' | 'err', text }
+  const navigate = useNavigate()
 
   const userRef = useRef(user)
   userRef.current = user
@@ -205,9 +216,27 @@ const ProjectPage = () => {
     load({ silent: true })
   }
 
-  /** 项目编辑成功：关框 + 页内成功提示 + 静默重拉（标题 / 详情 / 工资行即时更新）。 */
+  /**
+   * 项目编辑成功（Kevin 2026-10-22③）：
+   *   · **地址改过**（`result.slug` = 新 slug）⇒ `navigate('/'+新 slug, {replace:true})`；
+   *     跳转后由 `slug` 变化驱动的 `load` effect 重拉新地址数据 —— 旧地址不再请求、不留 404
+   *     （此前旧 ref 重拉 ⇒ 读口 404 ⇒ 落「页面不存在」）；
+   *   · 地址未改 ⇒ 原地静默重拉（标题 / 详情 / 状态即时更新）。
+   * 两路都关框 + 页内成功提示。
+   */
   const handleEditSaved = (result) => {
     setEditOpen(false)
+    setNotice(result)
+    if (result?.slug && result.slug !== slug) {
+      navigate(buildLangPath(`/${result.slug}`, lang), { replace: true })
+      return
+    }
+    load({ silent: true })
+  }
+
+  /** 招工成功：关框 + 页内成功提示 + 静默重拉（人数 / 工资行 / 已招 X/Y 即时更新）。 */
+  const handleRecruitSaved = (result) => {
+    setRecruitOpen(false)
     setNotice(result)
     load({ silent: true })
   }
@@ -217,7 +246,17 @@ const ProjectPage = () => {
     if (!allowEntry()) return
     setNotice(null)
     setOpenPanel(null)
+    setRecruitOpen(false)
     setEditOpen(true)
+  }
+
+  /** 打开招工框：闸同【编辑项目】（同一个 `allowEntry`）；两框互斥（开一框先关另一框，不嵌套）。 */
+  const openRecruit = () => {
+    if (!allowEntry()) return
+    setNotice(null)
+    setOpenPanel(null)
+    setEditOpen(false)
+    setRecruitOpen(true)
   }
 
   return (
@@ -291,8 +330,9 @@ const ProjectPage = () => {
             {canManage ? (
               <section className="sf-panel sf-project-manage" data-sf-m="project-manage">
                 <h2 className="sf-project-section-title" data-sf-m="project-manage-title">{t('project.manageTitle')}</h2>
-                {/* 操作区（项目级操作留本页）：【编辑项目】（模态框）+【发布活动】；
-                    任务 / 子任务操作已迁 `/campaign/:ref`（概况层零写口）。 */}
+                {/* 操作区（项目级操作留本页）：【编辑项目】+【招工】（两个独立模态框）+【发布活动】；
+                    任务 / 子任务操作已迁 `/campaign/:ref`（概况层零写口）。三钮同闸、`:is-primary` 只在
+                    发布活动上 ⇒ 390 档换行也不抢主次（`.sf-project-actions` 本就 `flex-wrap`）。 */}
                 <div className="sf-project-actions">
                   <button
                     type="button"
@@ -300,6 +340,12 @@ const ProjectPage = () => {
                     data-sf-m="project-entry-edit"
                     onClick={openEdit}
                   >{t('wage.editTitle')}</button>
+                  <button
+                    type="button"
+                    className="sf-project-btn"
+                    data-sf-m="project-entry-recruit"
+                    onClick={openRecruit}
+                  >{t('project.entryRecruit')}</button>
                   <button
                     type="button"
                     className="sf-project-btn is-primary"
@@ -330,15 +376,24 @@ const ProjectPage = () => {
               </section>
             ) : null}
 
-            {/* 项目编辑模态框（Kevin 2026-10-21②）：portal 到 body，遮罩盖住悬浮菜单；
-                挂载 = 打开、卸载 = 关闭（背板/✕/Esc 三路零请求）。 */}
+            {/* 两个项目级模态框（Kevin 2026-10-22③ 拆框）：【编辑项目】= 项目面
+                （标题/说明/地址/状态）；【招工】= 招工面（6 键）。互不嵌套、各自提交；
+                均 portal 到 body，遮罩盖住悬浮菜单；挂载 = 打开、卸载 = 关闭。 */}
             {canManage && editOpen ? (
               <ProjectEditModal
                 view={view}
-                currencies={currencies}
                 t={t}
                 onClose={() => setEditOpen(false)}
                 onSaved={handleEditSaved}
+              />
+            ) : null}
+            {canManage && recruitOpen ? (
+              <ProjectRecruitModal
+                view={view}
+                currencies={currencies}
+                t={t}
+                onClose={() => setRecruitOpen(false)}
+                onSaved={handleRecruitSaved}
               />
             ) : null}
           </>

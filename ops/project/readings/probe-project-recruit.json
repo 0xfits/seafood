@@ -1,0 +1,279 @@
+{
+  "probe": "ops/project/probe-project-recruit.mjs",
+  "startedAt": "2026-10-22T13:26:20.875Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "fixtures": {
+    "project": "sui ⇒ haixian（PATCH slug）",
+    "auth": "localStorage seed",
+    "writes": "zero（全在 context.route 内截）"
+  },
+  "states": {
+    "owner_before": {
+      "path": "/sui",
+      "slugAttr": "sui",
+      "title": "海鲜打包",
+      "notFound": false,
+      "entries": {
+        "edit": true,
+        "recruit": true,
+        "campaign": true
+      },
+      "recruitLabel": "招工",
+      "recruitTitle": null,
+      "recruitFieldNames": [],
+      "editFieldNames": [],
+      "recruitOpen": false,
+      "editOpen": false,
+      "headcount": null,
+      "noticeText": null,
+      "overflow": {
+        "doc": 0,
+        "page": 0,
+        "recruitPanel": null
+      }
+    },
+    "recruit_open": {
+      "path": "/sui",
+      "slugAttr": "sui",
+      "title": "海鲜打包",
+      "notFound": false,
+      "entries": {
+        "edit": true,
+        "recruit": true,
+        "campaign": true
+      },
+      "recruitLabel": "招工",
+      "recruitTitle": "招工设置",
+      "recruitFieldNames": [
+        "headcount",
+        "minDays",
+        "batt",
+        "interval",
+        "cid",
+        "amount"
+      ],
+      "editFieldNames": [],
+      "recruitOpen": true,
+      "editOpen": false,
+      "headcount": "3",
+      "noticeText": null,
+      "overflow": {
+        "doc": 0,
+        "page": 0,
+        "recruitPanel": 0
+      }
+    },
+    "recruit_saved": {
+      "path": "/sui",
+      "slugAttr": "sui",
+      "title": "海鲜打包",
+      "notFound": false,
+      "entries": {
+        "edit": true,
+        "recruit": true,
+        "campaign": true
+      },
+      "recruitLabel": "招工",
+      "recruitTitle": null,
+      "recruitFieldNames": [],
+      "editFieldNames": [],
+      "recruitOpen": false,
+      "editOpen": false,
+      "headcount": null,
+      "noticeText": "招工设置已保存",
+      "overflow": {
+        "doc": 0,
+        "page": 0,
+        "recruitPanel": null
+      }
+    },
+    "recruit_patch_payload": [
+      {
+        "headcount": 5
+      },
+      {
+        "slug": "haixian"
+      }
+    ],
+    "edit_open": {
+      "path": "/sui",
+      "slugAttr": "sui",
+      "title": "海鲜打包",
+      "notFound": false,
+      "entries": {
+        "edit": true,
+        "recruit": true,
+        "campaign": true
+      },
+      "recruitLabel": "招工",
+      "recruitTitle": null,
+      "recruitFieldNames": [],
+      "editFieldNames": [
+        "title",
+        "description",
+        "slug",
+        "status"
+      ],
+      "recruitOpen": false,
+      "editOpen": true,
+      "headcount": null,
+      "noticeText": null,
+      "overflow": {
+        "doc": 0,
+        "page": 0,
+        "recruitPanel": null
+      }
+    },
+    "slug_saved": {
+      "path": "/haixian",
+      "slugAttr": "haixian",
+      "title": "海鲜打包",
+      "notFound": false,
+      "entries": {
+        "edit": true,
+        "recruit": true,
+        "campaign": true
+      },
+      "recruitLabel": "招工",
+      "recruitTitle": null,
+      "recruitFieldNames": [],
+      "editFieldNames": [],
+      "recruitOpen": false,
+      "editOpen": false,
+      "headcount": null,
+      "noticeText": "已保存",
+      "overflow": {
+        "doc": 0,
+        "page": 0,
+        "recruitPanel": null
+      }
+    },
+    "slug_reads": [
+      "sui",
+      "sui",
+      "haixian"
+    ],
+    "slug_patch_payload": [
+      {
+        "headcount": 5
+      },
+      {
+        "slug": "haixian"
+      }
+    ],
+    "geometry": {
+      "w390": {
+        "doc": 0,
+        "page": 0,
+        "recruitPanel": 0
+      },
+      "w1536": {
+        "doc": 0,
+        "page": 0,
+        "recruitPanel": 0
+      },
+      "modalOpen390": true,
+      "entries390": {
+        "edit": true,
+        "recruit": true,
+        "campaign": true
+      }
+    },
+    "other_viewer": {
+      "path": "/sui",
+      "slugAttr": "sui",
+      "title": "海鲜打包",
+      "notFound": false,
+      "entries": {
+        "edit": false,
+        "recruit": false,
+        "campaign": false
+      },
+      "recruitLabel": null,
+      "recruitTitle": null,
+      "recruitFieldNames": [],
+      "editFieldNames": [],
+      "recruitOpen": false,
+      "editOpen": false,
+      "headcount": null,
+      "noticeText": null,
+      "overflow": {
+        "doc": 0,
+        "page": 0,
+        "recruitPanel": null
+      }
+    }
+  },
+  "assertions": {
+    "twoEntries": {
+      "pageRendered": true,
+      "editEntryPresent": true,
+      "recruitEntryPresent": true,
+      "campaignEntryPresent": true,
+      "recruitLabelI18n": true,
+      "noModalInitially": true,
+      "noOverflow1536": true
+    },
+    "recruitFieldSet": {
+      "modalOpen": true,
+      "titleI18n": true,
+      "exactlySixFields": true,
+      "_recruitFieldNames": [
+        "headcount",
+        "minDays",
+        "batt",
+        "interval",
+        "cid",
+        "amount"
+      ],
+      "noProjectFields": true,
+      "prefillHeadcount": true,
+      "noOverflow": true
+    },
+    "recruitSubmit": {
+      "patchCalledOnce": true,
+      "payloadExactHeadcount": true,
+      "modalClosed": true,
+      "okNotice": true,
+      "headcountLineUpdated": true
+    },
+    "editFieldSet": {
+      "modalOpen": true,
+      "exactlyFourProjectFields": true,
+      "noRecruitFields": true
+    },
+    "slugSelfHeal": {
+      "patchPayloadSlugOnly": true,
+      "urlBecameNewSlug": true,
+      "pageStillRendered": true,
+      "slugAttrUpdated": true,
+      "refetchedNewSlug": true,
+      "noReadOfOldSlugAfterSave": true,
+      "editModalClosed": true,
+      "okNotice": true
+    },
+    "geometry": {
+      "noOverflow390": true,
+      "noOverflow1536": true,
+      "allThreeEntriesAt390": true
+    },
+    "otherViewer": {
+      "pageRendered": true,
+      "noEditEntry": true,
+      "noRecruitEntry": true,
+      "zeroWrites": true,
+      "noOverflow": true
+    }
+  },
+  "pageErrors": {
+    "owner": [],
+    "other": []
+  },
+  "summary": {
+    "assertions": 37,
+    "passed": 37,
+    "failed": [],
+    "pageErrors": 0,
+    "ok": true
+  }
+}

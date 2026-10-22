@@ -1,24 +1,27 @@
 /**
- * 项目页 `/:slug` · 【编辑项目】模态框单测（Kevin 2026-10-21②：编辑自 /wage 卡移入项目页）
+ * 项目页 `/:slug` · 【编辑项目】模态框单测（Kevin 2026-10-21②：编辑自 /wage 卡移入项目页；
+ *   2026-10-22③：招工面 6 字段已拆出成独立【招工】框 —— 本文件只覆盖**项目面**）
  *
  * 覆盖面（逐条对齐派单收尾项）：
  *   ① 入口显隐三臂 + 两向闸：owner / `manage_tasks` 管理员可见；普通用户与 ended 项目不可见；
- *      未登录不渲染入口且**零** `/api/user` 取数（编辑判定已随入口搬到本页，故本页必须有这三键路径）；
+ *      未登录不渲染入口且**零** `/api/user` 取数；
  *   ② 模态开合：点入口 ⇒ 挂载（`role=dialog` + 标题 + 预填 + 背景滚动锁定）；
  *      **背板 / ✕ / Esc 三路关闭零请求**（零 PATCH、零重拉），卸载即还原 body 滚动原值；
- *      面板内 mousedown 不关框（只认背板自身）；
- *   ③ 载荷**只带变化字段**：改标题 ⇒ 恰 `{title}`；清空次币 ⇒ 恰两键 null；无变化 ⇒ 零请求关框；
+ *      面板内 mousedown 不关框（只认背板自身）；**框内无招工字段**（字段集恰 4 = 项目面）；
+ *   ③ 载荷**只带变化字段**：改标题 ⇒ 恰 `{title}`；无变化 ⇒ 零请求关框；
  *      成功后 ⇒ 关框 + 页内成功提示 + `load({silent:true})` 重拉（标题即时更新）；
- *   ④ 注册天数四选一：7 ⇒ 选中「一周」无提示；90 / 0 ⇒ 预选「一天」+ 提示行；保存载荷 = 选中天数；
- *   ⑤ 服务端错误**框内内联、框不关**：400 `SLUG_TAKEN` ⇒ slug 字段；409 `project_headcount_below_hired`
- *      ⇒ headcount 字段（含 hired 数值）；客户端校验（间隔越界 / slug 格式）⇒ 零 PATCH。
+ *   ④ **改 slug 自愈**：PATCH 成功且地址变化 ⇒ `navigate('/'+新 slug, {replace:true})`，
+ *      页面按新地址重拉并正常渲染（不落 404），旧地址在保存后**不再请求**；地址未改 ⇒ 不跳转；
+ *   ⑤ 服务端错误**框内内联、框不关**：400 `SLUG_TAKEN` ⇒ slug 字段；
+ *      客户端校验（slug 格式 / 保留字）⇒ 零 PATCH。
  *
- * 注：几何（390/1536 零溢出）与真契约联调由 `ops/project-page/probe-project-page.mjs` 的 modal 臂覆盖，
- *     jsdom 不套用 media query，故此处不断言面板宽度。
+ * 招工面（人数 / 注册天数四选一 / 每次工资 / 间隔 / 次币成对）的断言见
+ * `project-page-recruit.test.jsx`；几何（390/1536 零溢出）与真契约联调见
+ * `ops/project/probe-project-recruit.mjs`（jsdom 不套用 media query，故此处不断言面板宽度）。
  */
 import React from 'react'
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import zh from '../../locales/zh.json'
@@ -95,15 +98,22 @@ const viewOf = (patch = {}) => ({
 
 const renderAt = (entry = '/sui') => render(
   <MemoryRouter initialEntries={[entry]} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <LocationProbe />
     <Routes>
       <Route path=":slug" element={<ProjectPage />} />
     </Routes>
   </MemoryRouter>,
 )
 
+/** 当前 URL（改 slug 后父组件 navigate 的取证锚；`replace` 语义由「无历史可回」另行覆盖）。 */
+const LocationProbe = () => <span data-sf-loc={useLocation().pathname} />
+const pathname = () => document.querySelector('[data-sf-loc]').getAttribute('data-sf-loc')
+
 const modal = () => document.querySelector('[data-sf-m="project-edit"]')
 const panel = () => document.querySelector('[data-sf-m="project-edit-panel"]')
 const field = (name) => document.querySelector(`[data-sf-edit="${name}"]`)
+const editFieldNames = () => [...document.querySelectorAll('[data-sf-m="project-edit-form"] [data-sf-edit]')]
+  .map((el) => el.getAttribute('data-sf-edit'))
 const editErr = (name) => document.querySelector(`[data-sf-edit-err="${name}"]`)
 const entry = (container) => container.querySelector('[data-sf-m="project-entry-edit"]')
 const saveBtn = () => document.querySelector('[data-sf-m="project-edit-save"]')
@@ -198,21 +208,23 @@ describe('① 【编辑项目】入口显隐（已登录 ∧ 未 ended ∧（own
 
 // ---------------------------------------------------------------- ② 开合
 describe('② 模态开合：挂载即打开，背板 / ✕ / Esc 三路零请求', () => {
-  it('点入口 ⇒ 挂载 dialog 面板、字段预填、背景滚动锁定（body.overflow=hidden）', async () => {
+  it('点入口 ⇒ 挂载 dialog 面板、项目面字段预填（无招工字段）、背景滚动锁定', async () => {
     const { container } = renderAt()
     const p = await openModal(container)
     expect(p).not.toBeNull()
     expect(p.getAttribute('role')).toBe('dialog')
     expect(p.getAttribute('aria-modal')).toBe('true')
     expect(document.querySelector('[data-sf-m="project-edit-title"]').textContent).toBe(zh.wage.editTitle)
-    // 预填 = 行值
+    // 预填 = 行值（项目面 4 字段）
     expect(field('title').value).toBe('海鲜打包')
     expect(field('description').value).toBe('每天打包 20 单')
-    expect(field('headcount').value).toBe('3')
-    expect(field('batt').value).toBe('30')
-    expect(field('interval').value).toBe('4')
     expect(field('slug').value).toBe('sui')
     expect(field('status').value).toBe('recruiting')
+    expect(editFieldNames()).toEqual(['title', 'description', 'slug', 'status'])
+    // 招工面（已拆出到【招工】框）在本框内零残留
+    for (const name of ['headcount', 'minDays', 'batt', 'interval', 'cid', 'amount']) {
+      expect(field(name)).toBeNull()
+    }
     expect(document.body.style.overflow).toBe('hidden')
   })
 
@@ -280,23 +292,6 @@ describe('③ 载荷只带变化字段 + 成功回写', () => {
     expect(container.querySelector('[data-sf-m="project-status"]').getAttribute('data-sf-state')).toBe('working')
   })
 
-  it('清空次币 ⇒ body 恰为两键 null（成对上送），且成功关框', async () => {
-    VIEW.current = viewOf({ wage_cid: 4, wage_currency_amount: 50 })
-    const { container } = renderAt()
-    await openModal(container)
-    expect(field('cid').value).toBe('4')
-    expect(field('amount').value).toBe('50')
-    fireEvent.change(field('cid'), { target: { value: '' } })
-    // 选「无」⇒ 定额联动清空并禁用（两键同空）
-    expect(field('amount').value).toBe('')
-    expect(field('amount').disabled).toBe(true)
-    await submit()
-
-    await waitFor(() => expect(API.patchProject).toHaveBeenCalledTimes(1))
-    expect(API.patchProject.mock.calls[0][1]).toEqual({ wage_cid: null, wage_currency_amount: null })
-    await waitFor(() => expect(modal()).toBeNull())
-  })
-
   it('无变化保存 ⇒ 零 PATCH、零重拉，框直接关（「只带变化字段」下没有可发的键）', async () => {
     const { container } = renderAt()
     await openModal(container)
@@ -308,48 +303,55 @@ describe('③ 载荷只带变化字段 + 成功回写', () => {
   })
 })
 
-// ---------------------------------------------------------------- ④ 四选一
-describe('④ 注册天数条件 = 四选一（1/7/30/365）', () => {
-  it('预填 7 ⇒ 选中「一周」、无提示行；改选「一月」保存 ⇒ body 恰 {recruit_min_account_days:30}', async () => {
+// ---------------------------------------------------------------- ④ 改 slug 自愈
+describe('④ 改 slug 保存后自动跳到新地址（旧地址不留 404）', () => {
+  it('改地址 + 保存 ⇒ PATCH 只带 {slug}；URL 变 /haixian-weekend；新地址正常渲染、旧地址不再请求', async () => {
     const { container } = renderAt()
     await openModal(container)
-    const sel = field('minDays')
-    expect(sel.tagName).toBe('SELECT')
-    expect([...sel.options].map((o) => o.value)).toEqual(['1', '7', '30', '365'])
-    expect(sel.value).toBe('7')
-    expect(document.querySelector('[data-sf-edit-hint="minDays"]')).toBeNull()
+    expect(pathname()).toBe('/sui')
+    const oldSlugReads = API.fetchProjectDetail.mock.calls.filter(([ref]) => ref === 'sui').length
 
-    fireEvent.change(sel, { target: { value: '30' } })
+    fireEvent.change(field('slug'), { target: { value: 'haixian-weekend' } })
     await submit()
+
     await waitFor(() => expect(API.patchProject).toHaveBeenCalledTimes(1))
-    expect(API.patchProject.mock.calls[0][1]).toEqual({ recruit_min_account_days: 30 })
+    expect(API.patchProject.mock.calls[0][1]).toEqual({ slug: 'haixian-weekend' })
+
+    // ① 地址跳到新 slug（replace 语义；MemoryRouter 下 pathname 即取证锚）
+    await waitFor(() => expect(pathname()).toBe('/haixian-weekend'))
+    await waitFor(() => expect(modal()).toBeNull()) // 框关
+    // ② 页面按新地址重拉并正常渲染 —— 不是「页面不存在」
+    await waitFor(() => expect(API.fetchProjectDetail.mock.calls.some(([ref]) => ref === 'haixian-weekend')).toBe(true))
+    expect(document.querySelector('[data-sf-m="not-found-page"]')).toBeNull()
+    await waitFor(() => expect(container.querySelector('[data-sf-m="project-title"]').textContent).toBe('海鲜打包'))
+    expect(container.querySelector('[data-sf-m="project-page"]').getAttribute('data-sf-slug')).toBe('haixian-weekend')
+    // ③ 旧地址保存后不再请求（此前旧 ref 重拉 ⇒ 404 ⇒ 落提示页的根因）
+    expect(API.fetchProjectDetail.mock.calls.filter(([ref]) => ref === 'sui').length).toBe(oldSlugReads)
+    // ④ 成功提示仍在（框关 + 提示成功）
+    const n = notice(container)
+    expect(n.getAttribute('data-sf-kind')).toBe('ok')
+    expect(n.textContent).toBe(zh.wage.editSaved)
   })
 
-  it('预填 90（非四档）⇒ 预选「一天」+ 历史值提示行；原样保存 ⇒ body 恰 {recruit_min_account_days:1}', async () => {
-    VIEW.current = viewOf({ recruit_min_account_days: 90 })
+  it('地址未改（只改标题）⇒ 不跳转、原地静默重拉', async () => {
     const { container } = renderAt()
     await openModal(container)
-    expect(field('minDays').value).toBe('1')
-    const hint = document.querySelector('[data-sf-edit-hint="minDays"]')
-    expect(hint).not.toBeNull()
-    expect(hint.textContent).toBe(zh.bountyProject.minDaysLegacy.replace('{{n}}', '90'))
-
+    fireEvent.change(field('title'), { target: { value: '海鲜打包·周末班' } })
     await submit()
-    await waitFor(() => expect(API.patchProject).toHaveBeenCalledTimes(1))
-    expect(API.patchProject.mock.calls[0][1]).toEqual({ recruit_min_account_days: 1 })
-  })
 
-  it('预填 0（历史无门槛）⇒ 预选「一天」+「原为无门槛」提示', async () => {
-    VIEW.current = viewOf({ recruit_min_account_days: 0 })
-    const { container } = renderAt()
-    await openModal(container)
-    expect(field('minDays').value).toBe('1')
-    expect(document.querySelector('[data-sf-edit-hint="minDays"]').textContent).toBe(zh.bountyProject.minDaysNoGate)
+    await waitFor(() => expect(API.patchProject).toHaveBeenCalledTimes(1))
+    expect(API.patchProject.mock.calls[0][1]).toEqual({ title: '海鲜打包·周末班' })
+    await waitFor(() => expect(modal()).toBeNull())
+    await waitFor(() => (
+      expect(container.querySelector('[data-sf-m="project-title"]').textContent).toBe('海鲜打包·周末班')
+    ))
+    expect(pathname()).toBe('/sui')
+    expect(API.fetchProjectDetail.mock.calls.some(([ref]) => ref !== 'sui')).toBe(false)
   })
 })
 
 // ---------------------------------------------------------------- ⑤ 框内内联
-describe('⑤ 服务端 400/409 与客户端校验：框内内联、框不关', () => {
+describe('⑤ 服务端 400 与客户端校验：框内内联、框不关', () => {
   it('400 SLUG_TAKEN ⇒ slug 字段内联冲突文案，框不关', async () => {
     API.patchProject.mockRejectedValueOnce(Object.assign(new Error('slug_taken'), {
       status: 400, details: { reason: 'SLUG_TAKEN' },
@@ -364,21 +366,7 @@ describe('⑤ 服务端 400/409 与客户端校验：框内内联、框不关', 
     expect(editErr('slug').getAttribute('role')).toBe('alert')
     expect(modal()).not.toBeNull() // 框不关，可改后重提
     expect(field('slug').value).toBe('other-slug') // 用户输入不被吞
-  })
-
-  it('409 project_headcount_below_hired ⇒ headcount 字段内联（含 hired 数值），框不关', async () => {
-    VIEW.current = viewOf({ hired_count: 3 })
-    API.patchProject.mockRejectedValueOnce(Object.assign(new Error('below_hired'), {
-      status: 409, details: { reason: 'project_headcount_below_hired', headcount: 1, hired_count: 3 },
-    }))
-    const { container } = renderAt()
-    await openModal(container)
-    fireEvent.change(field('headcount'), { target: { value: '1' } })
-    await submit()
-
-    await waitFor(() => expect(editErr('headcount')).not.toBeNull())
-    expect(editErr('headcount').textContent).toBe(zh.wage.errHeadcountBelowHired.replace('{{hired}}', '3'))
-    expect(modal()).not.toBeNull()
+    expect(pathname()).toBe('/sui') // 失败不跳转
   })
 
   it('未登记 reason ⇒ 表单级兜底句（机读码不外泄），框不关', async () => {
@@ -393,16 +381,6 @@ describe('⑤ 服务端 400/409 与客户端校验：框内内联、框不关', 
     await waitFor(() => expect(editErr('general')).not.toBeNull())
     expect(editErr('general').textContent).toBe(zh.wage.editFailed)
     expect(modal()).not.toBeNull()
-  })
-
-  it('客户端校验：间隔 200 ⇒ 零 PATCH + 复用 bountyProject.intervalInvalid 内联', async () => {
-    const { container } = renderAt()
-    await openModal(container)
-    fireEvent.change(field('interval'), { target: { value: '200' } })
-    await submit()
-    await waitFor(() => expect(editErr('interval')).not.toBeNull())
-    expect(editErr('interval').textContent).toBe(zh.bountyProject.intervalInvalid)
-    expect(API.patchProject).not.toHaveBeenCalled()
   })
 
   it('客户端校验：slug 格式非法（大写）/ 保留字 ⇒ 零 PATCH + 字段内联', async () => {

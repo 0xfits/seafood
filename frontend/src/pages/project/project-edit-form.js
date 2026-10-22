@@ -1,14 +1,19 @@
 // ============================================================================
-// 项目编辑表单 · 纯逻辑（单一真源）
+// 项目表单 · 纯逻辑（单一真源：两个模态框共用）
 // ----------------------------------------------------------------------------
 // 沿革：本模块逐条自 `pages/wage/WagePage.jsx` **移出**（Kevin 2026-10-21②）——
 //   编辑入口从 /wage 项目卡的行内展开**搬到项目自己的页面**（`/:slug` 的【编辑项目】），
-//   表单改为模态框。为避免两套字段/校验/载荷各自漂移，逻辑只留这一份：
-//   · `EDIT_REASON_MAP` —— 服务端 409/400 `details.reason` ⇒ { field, key }（字段级内联）；
-//   · `editFormOf` —— 读口行 ⇒ 表单初值（数字/两币字段一律字符串化；注册天数回落四选一 select）；
-//   · `validateEditForm` —— 提交前客户端校验（与后端 400 逐字段同口径，避免无用往返）；
+//   表单改为模态框。
+//   ★ Kevin 2026-10-22③：**拆成两个模态框** —— 【编辑项目】（项目面：标题 / 说明 / 地址 /
+//     状态）与【招工】（招工面：人数 / 注册天数 / 每次工资 / 间隔 / 次币 + 金额）**互不嵌套、
+//     各自提交**。为避免两套字段/校验/载荷各自漂移，逻辑仍只留这一份，按**字段集合**切分：
+//   · `EDIT_REASON_MAP` —— 服务端 409/400 `details.reason` ⇒ { field, key }（字段级内联）；两框共用；
+//   · `editFormOf` —— 读口行 ⇒ 表单初值（两框共用同一份初值；各自只渲染自己的字段）；
+//   · `validateEditForm` / `validateRecruitForm` —— 提交前客户端校验，按集合切分；
 //   · `slugSubmitErrorOf` —— 项目地址 slug 的提交前置校验（格式/保留字/清空已设地址）；
-//   · `buildEditPayload` —— **只带变化字段**的载荷（两币成对；清空 ⇒ 两键 null）；
+//   · `buildEditPayload` / `buildRecruitPayload` —— **只带变化字段**的载荷，键集由
+//     `PROJECT_PAYLOAD_KEYS` / `RECRUIT_PAYLOAD_KEYS` 定死（两币成对；清空 ⇒ 两键 null）；
+//   · `errsOfPatchFailure` —— 写口失败 ⇒ 框内内联 errs（字段级优先，未登记 reason ⇒ 表单级兜底）；
 //   · `currencyOptions` —— 次币下拉选项（排除平台 $ 的 cid 1，后端 `PROJECT_WAGE_CID_INVALID` 拒收）。
 // 本模块**不引 React**：可被模态框与单测直接调用。
 // ============================================================================
@@ -20,6 +25,7 @@ import { slugFieldErrorOf } from '../../project-slug'
  * 编辑表单的 `details.reason` ⇒ { field, key }（409/400 按**字段**内联；`field: null` = 表单级）。
  * `key` = 完整 i18n 键（间隔校验复用 `bountyProject.intervalInvalid`，同字段同文案）。
  * 未登记的 reason ⇒ 表单级兜底句（`wage.editFailed`），机读码不外泄。
+ * 两框共用：字段落在哪一框由入口决定（招工框只会收到招工字段的 reason，项目框只会收到项目字段的）。
  */
 export const EDIT_REASON_MAP = {
   project_headcount_below_hired: { field: 'headcount', key: 'wage.errHeadcountBelowHired' },
@@ -46,6 +52,23 @@ export const EDIT_REASON_MAP = {
   NOT_SUPPORTED: { field: null, key: 'wage.editFailed' },
 }
 
+/**
+ * 两框的**载荷键集**（Kevin 2026-10-22③ 拆框）。
+ *   · 项目面（【编辑项目】）= 标题 / 说明 / 项目地址 / 状态；
+ *   · 招工面（【招工】）= 人数 / 注册天数条件 / 每次工资 / 领取间隔 / 次币 cid / 次币金额。
+ * 集合互斥且并集 = `editFormOf` 的全部可写字段（`project-edit-form.test` 有对拍断言）：
+ * 拆框后任一键只归一个模态框，不会出现「两框都发同一键」的漂移。
+ */
+export const PROJECT_PAYLOAD_KEYS = ['title', 'description', 'slug', 'status']
+export const RECRUIT_PAYLOAD_KEYS = [
+  'headcount',
+  'recruit_min_account_days',
+  'wage_batt_per_claim',
+  'wage_interval_hours',
+  'wage_cid',
+  'wage_currency_amount',
+]
+
 const num = (value, fallback = 0) => {
   const n = Number(value)
   return Number.isFinite(n) ? n : fallback
@@ -68,6 +91,7 @@ export const currencyOptions = (rows) => (Array.isArray(rows) ? rows : [])
 
 /**
  * 行 → 表单初值（数字 / 两币字段一律字符串化；次币缺省 = '' 即「无（仅 batt）」）。
+ * **两框共用同一份初值**：各自只渲染自己集合内的字段，载荷再按集合筛键（见 `buildEditPayload`）。
  * 注册天数条件（Kevin 2026-10-21）= 四选一 select（常量真源 `src/recruit-min-days.js`）：
  * 恰为 1/7/30/365 ⇒ 预选对应项；否则（历史 0 / 90 / 缺键）⇒ 预选「一天」+ 表单下提示行。
  */
@@ -85,12 +109,18 @@ export const editFormOf = (row) => ({
   status: String(row?.status || '') === 'working' ? 'working' : 'recruiting',
 })
 
-/** 表单校验（提交前；与后端 400 逐字段同口径，避免无用往返）。`t` = i18n 取词。 */
+/** 项目面校验（【编辑项目】：标题 / 说明）。`t` = i18n 取词。 */
 export const validateEditForm = (form, t) => {
   const errs = {}
   const title = String(form?.title ?? '').trim()
   if (!title || title.length > 200) errs.title = t('wage.errTitle')
   if (String(form?.description ?? '').length > 20000) errs.description = t('wage.errDescription')
+  return errs
+}
+
+/** 招工面校验（【招工】：人数 / 注册天数 / 每次工资 / 间隔 / 次币成对）。 */
+export const validateRecruitForm = (form, t) => {
+  const errs = {}
   if (!isIntText(form?.headcount) || Number(String(form.headcount).trim()) < 1) {
     errs.headcount = t('wage.errHeadcount')
   }
@@ -134,10 +164,11 @@ export const slugSubmitErrorOf = (row, form, t) => {
 }
 
 /**
- * 载荷 = **只带变化字段**（与行原值逐字段比对；两币任一侧变化 ⇒ 两键成对上送，
- * 清空 ⇒ 两键都 null —— 后端对「同现同缺」整包校验）。无变化 ⇒ 空对象（调用方零请求关闭）。
+ * 全字段候选载荷（**只带变化字段**；与行原值逐字段比对；两币任一侧变化 ⇒ 两键成对上送，
+ * 清空 ⇒ 两键都 null —— 后端对「同现同缺」整包校验）。
+ * 内部件：对外只暴露按集合筛过的 `buildEditPayload` / `buildRecruitPayload`（键集互斥，不重叠）。
  */
-export const buildEditPayload = (row, form) => {
+const payloadOfAll = (row, form) => {
   const body = {}
   const nextTitle = String(form?.title ?? '').trim()
   if (nextTitle !== String(row?.title ?? '')) body.title = nextTitle
@@ -186,4 +217,34 @@ export const buildEditPayload = (row, form) => {
   const nextStatus = form?.status === 'working' ? 'working' : 'recruiting'
   if (nextStatus !== String(row?.status || '')) body.status = nextStatus
   return body
+}
+
+/** 按集合筛键（键序 = 集合声明序；值来自 `payloadOfAll` 的变化项）。 */
+const payloadOf = (keys, row, form) => {
+  const all = payloadOfAll(row, form)
+  const out = {}
+  for (const key of keys) {
+    if (Object.prototype.hasOwnProperty.call(all, key)) out[key] = all[key]
+  }
+  return out
+}
+
+/** 【编辑项目】载荷：只带**项目面**的变化字段（标题 / 说明 / 地址 / 状态）。无变化 ⇒ `{}`。 */
+export const buildEditPayload = (row, form) => payloadOf(PROJECT_PAYLOAD_KEYS, row, form)
+
+/** 【招工】载荷：只带**招工面**的变化字段（6 键）。无变化 ⇒ `{}`（调用方零请求关闭）。 */
+export const buildRecruitPayload = (row, form) => payloadOf(RECRUIT_PAYLOAD_KEYS, row, form)
+
+/**
+ * 写口失败 ⇒ 框内内联 errs（两框共用）：
+ *   ① 已登记 `details.reason` ⇒ 该字段内联（`hired` 插值供人数下限文案用）；
+ *   ② 未登记 ⇒ 表单级兜底句 `wage.editFailed`（机读码不外泄）。
+ */
+export const errsOfPatchFailure = (error, t) => {
+  const details = error?.details && typeof error.details === 'object' ? error.details : null
+  const reason = typeof details?.reason === 'string' ? details.reason : ''
+  const mapped = EDIT_REASON_MAP[reason]
+  if (!mapped) return { general: t('wage.editFailed') }
+  const text = t(mapped.key, { hired: num(details?.hired_count, 0) })
+  return mapped.field ? { [mapped.field]: text } : { general: text }
 }

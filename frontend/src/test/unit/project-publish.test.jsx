@@ -492,17 +492,17 @@ describe('③ 概况层：活动行 + 任务摘要行（一行一条），空态
 // ---------------------------------------------------------------------------
 // ④ 操作区只剩项目级两入口（【编辑项目】/【发布活动】）；任务 / 子任务操作元素零渲染
 // ---------------------------------------------------------------------------
-describe('④ 操作区 = 【编辑项目】+【发布活动】；任务/子任务操作元素零渲染（迁 /campaign/:ref）', () => {
-  it('owner：顶部恰 2 个入口（编辑 / 发布活动）；五类任务操作元素全仓 0（概况层零写口）', async () => {
+describe('④ 操作区 = 【编辑项目】+【招工】+【发布活动】；任务/子任务操作元素零渲染（迁 /campaign/:ref）', () => {
+  it('owner：顶部恰 3 个入口（编辑 / 招工 / 发布活动）；五类任务操作元素全仓 0（概况层零写口）', async () => {
     API.fetchProjectDetail.mockResolvedValue(viewOf({ campaigns: campaignsTwo() }))
     const { container } = renderAt('/sui')
     await waitFor(() => expect(container.querySelector('[data-sf-m="project-manage"]')).not.toBeNull())
 
-    // ① 顶部操作区 = 【编辑项目】+【发布活动】两枚（项目级操作留本页）
+    // ① 顶部操作区 = 【编辑项目】+【招工】+【发布活动】三枚（项目级操作留本页；招工面 2026-10-22③ 独立成框）
     const topEntries = [...container.querySelectorAll('[data-sf-m="project-manage"] [data-sf-m^="project-entry-"]')]
-    expect(topEntries).toHaveLength(2)
+    expect(topEntries).toHaveLength(3)
     expect(topEntries.map((el) => el.getAttribute('data-sf-m')))
-      .toEqual(['project-entry-edit', 'project-entry-campaign'])
+      .toEqual(['project-entry-edit', 'project-entry-recruit', 'project-entry-campaign'])
 
     // ② 概况层在场：2 张活动卡（各链 /campaign/:ref）+ 2 条任务摘要行（各链 /task/:taskId）
     const links = [...container.querySelectorAll('[data-sf-m="project-campaign-link"]')].map((el) => el.getAttribute('href'))
