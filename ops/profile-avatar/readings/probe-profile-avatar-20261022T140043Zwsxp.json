@@ -1,0 +1,272 @@
+{
+  "probe": "ops/profile-avatar/probe-profile-avatar.mjs",
+  "run": "20261022T140043Zwsxp",
+  "startedAt": "2026-10-22T14:00:44.791Z",
+  "app": "http://localhost:5787",
+  "api": "http://localhost:5788",
+  "project_id": "quiet-math-65207667",
+  "fixtures": {
+    "evm": "0x2947de4faf1d96ddc9e815e33fde4219dccdf82b",
+    "env_file": "/Users/kevin/.config/seafood/p77-probe.env",
+    "private_key": "[REDACTED]",
+    "media": "真 POST /api/media（探针内 UI 触发）",
+    "uid": 971238
+  },
+  "states": {
+    "db_before": {
+      "uid": "971238",
+      "bio": "",
+      "avatar_url": null
+    },
+    "before": {
+      "settingsView": true,
+      "blockPresent": true,
+      "avatarPresent": true,
+      "avatarMode": "initial",
+      "avatarTone": "10",
+      "imgSrc": null,
+      "imgComplete": null,
+      "initialText": "2",
+      "changePresent": true,
+      "changeTag": "BUTTON",
+      "changeLabel": "更换头像",
+      "changeBox": {
+        "w": 28,
+        "h": 28
+      },
+      "inputPresent": true,
+      "inputAccept": "image/*",
+      "inputHidden": true,
+      "resetPresent": false,
+      "confirmPresent": false,
+      "noticeText": null,
+      "overflow": {
+        "doc": 0,
+        "block": 0,
+        "avatar": 0
+      }
+    },
+    "camera_hit": {
+      "inputClickHits": 1
+    },
+    "after_upload": {
+      "settingsView": true,
+      "blockPresent": true,
+      "avatarPresent": true,
+      "avatarMode": "img",
+      "avatarTone": null,
+      "imgSrc": "/api/media/15",
+      "imgComplete": false,
+      "initialText": null,
+      "changePresent": true,
+      "changeTag": "BUTTON",
+      "changeLabel": "更换头像",
+      "changeBox": {
+        "w": 28,
+        "h": 28
+      },
+      "inputPresent": true,
+      "inputAccept": "image/*",
+      "inputHidden": true,
+      "resetPresent": true,
+      "confirmPresent": false,
+      "noticeText": null,
+      "overflow": {
+        "doc": 0,
+        "block": 0,
+        "avatar": 0
+      }
+    },
+    "profile_payloads": [
+      {
+        "avatar_url": "/api/media/15"
+      }
+    ],
+    "db_after_upload": {
+      "uid": "971238",
+      "bio": "",
+      "avatar_url": "/api/media/15"
+    },
+    "get_user_after_upload": {},
+    "reset_confirm": {
+      "settingsView": true,
+      "blockPresent": true,
+      "avatarPresent": true,
+      "avatarMode": "img",
+      "avatarTone": null,
+      "imgSrc": "/api/media/15",
+      "imgComplete": true,
+      "initialText": null,
+      "changePresent": true,
+      "changeTag": "BUTTON",
+      "changeLabel": "更换头像",
+      "changeBox": {
+        "w": 28,
+        "h": 28
+      },
+      "inputPresent": true,
+      "inputAccept": "image/*",
+      "inputHidden": true,
+      "resetPresent": false,
+      "confirmPresent": true,
+      "noticeText": null,
+      "overflow": {
+        "doc": 0,
+        "block": 0,
+        "avatar": 0
+      }
+    },
+    "after_reset": {
+      "settingsView": true,
+      "blockPresent": true,
+      "avatarPresent": true,
+      "avatarMode": "initial",
+      "avatarTone": "10",
+      "imgSrc": null,
+      "imgComplete": null,
+      "initialText": "2",
+      "changePresent": true,
+      "changeTag": "BUTTON",
+      "changeLabel": "更换头像",
+      "changeBox": {
+        "w": 28,
+        "h": 28
+      },
+      "inputPresent": true,
+      "inputAccept": "image/*",
+      "inputHidden": true,
+      "resetPresent": false,
+      "confirmPresent": false,
+      "noticeText": null,
+      "overflow": {
+        "doc": 0,
+        "block": 0,
+        "avatar": 0
+      }
+    },
+    "db_after_reset": {
+      "uid": "971238",
+      "bio": "",
+      "avatar_url": null
+    },
+    "geometry": {
+      "w390": {
+        "doc": 17,
+        "block": 0,
+        "avatar": 0
+      },
+      "w1536": {
+        "doc": 0,
+        "block": 0,
+        "avatar": 0
+      }
+    }
+  },
+  "assertions": {
+    "entry": {
+      "settingsView": true,
+      "avatarBlockVisible": true,
+      "initialMode": true,
+      "noImgYet": true,
+      "initialIsAddressFirstChar": true,
+      "_expectedInitial": "2",
+      "toneAssigned": true,
+      "changeButton": true,
+      "changeHit24": true,
+      "fileInputPresent": true,
+      "fileInputHidden": true,
+      "noResetWithoutAvatar": true,
+      "noNotice": true
+    },
+    "upload": {
+      "mediaCalledOnce": true,
+      "mediaReallyStored": true,
+      "profileCalledOnce": true,
+      "payloadKeySetExact": true,
+      "payloadPointsAtMedia": true,
+      "noBioKey": true,
+      "dbWriteLanded": true,
+      "bioUntouched": true,
+      "readBackSame": false,
+      "requiresProfileCompletionStillTrue": false,
+      "imgMode": false,
+      "initialGone": true,
+      "resetEntryAppeared": true,
+      "noNotice": true
+    },
+    "reset": {
+      "confirmRowShown": true,
+      "zeroWriteBeforeConfirm": true,
+      "cancelClosesRow": true,
+      "zeroWriteAfterCancel": true,
+      "payloadExactNull": true,
+      "dbCleared": true,
+      "readBackNull": true,
+      "bioStillUntouched": true,
+      "backToInitial": true,
+      "resetEntryGone": true
+    },
+    "geometry": {
+      "noDocOverflow390": false,
+      "noDocOverflow1536": true,
+      "noBlockOverflow390": true,
+      "noBlockOverflow1536": true
+    },
+    "noPageErrors": {
+      "zeroPageErrors": true
+    },
+    "cleanup": {
+      "usersGone": false,
+      "mediaGone": true,
+      "translationGone": true,
+      "noCleanupErrors": false,
+      "_left": {
+        "users": 1,
+        "media": 0,
+        "translation": 0,
+        "errors": [
+          {
+            "table": "users",
+            "error": "update or delete on table \"users\" violates foreign key constraint \"user_activity_hour_uid_fk\" on table \"user_activity_hour\""
+          }
+        ]
+      }
+    }
+  },
+  "pageErrors": [],
+  "network": [
+    {
+      "kind": "media",
+      "status": 200,
+      "media_id": 15,
+      "url": "/api/media/15"
+    },
+    {
+      "kind": "profile",
+      "status": 200,
+      "avatar_url": "/api/media/15",
+      "code": null
+    },
+    {
+      "kind": "profile",
+      "status": 200,
+      "avatar_url": null,
+      "code": null
+    }
+  ],
+  "summary": {
+    "assertions": 45,
+    "passed": 39,
+    "failed": [
+      "upload.readBackSame",
+      "upload.requiresProfileCompletionStillTrue",
+      "upload.imgMode",
+      "geometry.noDocOverflow390",
+      "cleanup.usersGone",
+      "cleanup.noCleanupErrors"
+    ],
+    "pageErrors": 0,
+    "ok": false
+  },
+  "finishedAt": "2026-10-22T14:01:41.121Z"
+}

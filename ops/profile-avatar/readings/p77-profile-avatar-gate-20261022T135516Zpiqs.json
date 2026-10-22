@@ -1,0 +1,148 @@
+{
+  "run": "20261022T135516Zpiqs",
+  "name": "p77-profile-avatar-gate",
+  "at": "2026-10-22T13:56:15.482Z",
+  "script": "backend-ts/scripts/p77-00-profile-avatar-gate.ts",
+  "project_id_expected": "quiet-math-65207667",
+  "db_identity": {
+    "pid": "quiet-math-65207667",
+    "db": "neondb"
+  },
+  "http_base": "http://127.0.0.1:58608",
+  "checks": [
+    {
+      "id": "A1",
+      "what": "★路由面：注册点仍 **109**（49/53/4/3/0 · 零新路由：`POST /api/user/profile` 是既有口，本单只加键）",
+      "pass": true,
+      "reading": "{\"regs\":109,\"get\":49,\"post\":53,\"patch\":4,\"delete\":3,\"put\":0}"
+    },
+    {
+      "id": "A2",
+      "what": "★接线（按现取形状）：has-flag 两键（`hasOwnProperty`）· 形状闸常量 `/^\\/api\\/media\\/[0-9]{1,12}$/`· 非法 ⇒ `sendVerbError` 400 `AVATAR_URL_INVALID`（details.reason 同值）· `null` ⇒ 置空分支· 两者都不传/`bio` 空 ⇒ 既有 400 `bio is required` 逐字未动",
+      "pass": true,
+      "reading": "{\"has_avatar_flag\":true,\"pattern\":\"const USER_AVATAR_URL_PATTERN = /^\\\\/api\\\\/media\\\\/[0-9]{1,12}$/;\",\"null_branch\":true,\"bio_required_untouched\":true}"
+    },
+    {
+      "id": "A3",
+      "what": "★只改头像 ⇒ **零翻译入队**：`enqueueTranslation` 只在 `if (hasBio)` 分支内（静态守门，行为面由 SB 的 `content_translation` 计数复核）；`fields` 按「给了才进」构造",
+      "pass": true,
+      "reading": "{\"enqueue_guarded\":true}"
+    },
+    {
+      "id": "A4",
+      "what": "★服务层 `updateUserProfile` = has-flag 动态 SET：`avatar_url` 分支在（`!!== undefined` 才进 SET）·`null` 走 `= $n::text` 显式绑 NULL（COALESCE 语汇零残留）· 零字段 ⇒ 纯回读不写库",
+      "pass": true,
+      "reading": "{\"avatar_branch\":true}"
+    },
+    {
+      "id": "A5",
+      "what": "★回执与 `/api/user` **同源**：两者皆 `buildUserPayload`（⇒ 头像加性透出，前端可直刷会话）·`normalizeUser` 透出 `avatar_url`（空/缺 ⇒ null）",
+      "pass": true,
+      "reading": "{\"profile_same_source\":true}"
+    },
+    {
+      "id": "A6",
+      "what": "★前端编辑器钩子（探针定位依赖）：`data-sf-m` 键齐（block/avatar/avatar-img/avatar-initial/avatar-change/avatar-input/avatar-reset/reset-confirm/notice）+ 错误取证三字段 · `.sf-prof-avatar*` CSS 在",
+      "pass": true,
+      "reading": "{\"hooks\":[[\"profile-avatar-block\",true],[\"profile-avatar\",true],[\"profile-avatar-img\",true],[\"profile-avatar-initial\",true],[\"profile-avatar-change\",true],[\"profile-avatar-input\",true],[\"profile-avatar-reset\",true],[\"profile-avatar-reset-confirm\",true],[\"profile-avatar-notice\",true]]}"
+    },
+    {
+      "id": "H1",
+      "what": "★真 HTTP（守卫未动）：无 token `POST /api/user/profile` ⇒ 401（requireActor 前置不变）",
+      "pass": true,
+      "reading": "{\"status\":401,\"code\":\"AUTH_UNAUTHORIZED\"}"
+    },
+    {
+      "id": "SD",
+      "what": "★真 HTTP（旧面逐字未动）：`{}` 与 `{bio:\"   \"}` ⇒ **均 400 `bio is required`**（message 逐字）· 库内 bio/avatar 零变化",
+      "pass": true,
+      "reading": "{\"d1\":{\"status\":400,\"message\":\"bio is required\"},\"d2\":{\"status\":400,\"message\":\"bio is required\"},\"before\":{\"uid\":\"971247\",\"bio\":\"\",\"avatar_url\":null},\"after\":{\"uid\":\"971247\",\"bio\":\"\",\"avatar_url\":null}}"
+    },
+    {
+      "id": "SA",
+      "what": "★真 HTTP（回归）：只带 `bio` ⇒ 200 · bio 落库 · 回执**含 `avatar_url` 键**（未设 ⇒ null）· 既有译文登记仍在（>0 行）⇒ 本单没动 bio 老路",
+      "pass": true,
+      "reading": "{\"status\":200,\"db\":{\"uid\":\"971244\",\"bio\":\"p77 头像闸夹具简介 20261022T135516Zpiqs\",\"avatar_url\":null},\"resp_avatar_key\":true,\"resp_avatar\":null,\"tr_before\":0,\"tr_after\":3}"
+    },
+    {
+      "id": "SB",
+      "what": "★真 HTTP（核心）：`POST /api/media` 取**真 media_id** ⇒ 只带 `avatar_url`（不带 bio）⇒ 200· 库内 `users.avatar_url` = 该路径 · **bio 不变**（原 null 仍 null）· **零翻译入队**（`content_translation` 行数不变）· `GET /api/user` 回读**同一值**（回执=回读同源）· `requires_profile_completion` 仍 true（bio 面没被头像写口带脏）",
+      "pass": true,
+      "reading": "{\"media\":{\"status\":200,\"media_id\":\"14\"},\"profile\":{\"status\":200,\"avatar_url\":\"/api/media/14\"},\"db\":{\"uid\":\"971245\",\"bio\":\"\",\"avatar_url\":\"/api/media/14\"},\"get_user\":\"/api/media/14\",\"tr_before\":0,\"tr_after\":0,\"bio_before\":\"\"}"
+    },
+    {
+      "id": "SB2",
+      "what": "★真 HTTP（加性键形 · 只带头像）：「bio 缺席」不回退成 400 —— 响应 data 键集仍含既有键（`uID`/`bio`/`points`/`admin`/`requires_profile_completion`）+ 新增 `avatar_url`",
+      "pass": true,
+      "reading": "{\"keys\":[\"EVM\",\"admin\",\"avatar_url\",\"bio\",\"is_admin\",\"points\",\"requires_profile_completion\",\"time_login_last\",\"time_reg\",\"uID\"]}"
+    },
+    {
+      "id": "SC",
+      "what": "★真 HTTP（形状闸）：六类非法形态（相对路径 / 外部 URL / 非数字 id / 超长 id / 空串 / 非字符串类型×3）⇒ **均 400 `AVATAR_URL_INVALID`**（details.field=avatar_url · reason 同值 · i18n_key=`ledger.err.AVATAR_URL_INVALID`）· 库内 avatar/bio **一个字节没动**（非法值零脏写）",
+      "pass": true,
+      "reading": "{\"rows\":[{\"id\":\"C1\",\"why\":\"相对路径（缺 /api/media/ 前缀）\",\"status\":400,\"code\":\"AVATAR_URL_INVALID\",\"reason\":\"AVATAR_URL_INVALID\",\"ok\":true},{\"id\":\"C2\",\"why\":\"外部 URL\",\"status\":400,\"code\":\"AVATAR_URL_INVALID\",\"reason\":\"AVATAR_URL_INVALID\",\"ok\":true},{\"id\":\"C3\",\"why\":\"非数字 id\",\"status\":400,\"code\":\"AVATAR_URL_INVALID\",\"reason\":\"AVATAR_URL_INVALID\",\"ok\":true},{\"id\":\"C4\",\"why\":\"超长 id（13 位 > 12）\",\"status\":400,\"code\":\"AVATAR_URL_INVALID\",\"reason\":\"AVATAR_URL_INVALID\",\"ok\":true},{\"id\":\"C5\",\"why\":\"空串（不是清空，是非法值）\",\"status\":400,\"code\":\"AVATAR_URL_INVALID\",\"reason\":\"AVATAR_URL_INVALID\",\"ok\":true},{\"id\":\"C6a\",\"why\":\"数字\",\"status\":400,\"code\":\"AVATAR_URL_INVALID\",\"reason\":\"AVATAR_URL_INVALID\",\"ok\":true},{\"id\":\"C6b\",\"why\":\"对象\",\"status\":400,\"code\":\"AVATAR_URL_INVALID\",\"reason\":\"AVATAR_URL_INVALID\",\"ok\":true},{\"id\":\"C6c\",\"why\":\"布尔\",\"status\":400,\"code\":\"AVATAR_URL_INVALID\",\"reason\":\"AVATAR_URL_INVALID\",\"ok\":true}],\"before\":{\"uid\":\"971246\",\"bio\":\"\",\"avatar_url\":null},\"after\":{\"uid\":\"971246\",\"bio\":\"\",\"avatar_url\":null}}"
+    },
+    {
+      "id": "SE",
+      "what": "★真 HTTP（清空）：`{avatar_url: null}` ⇒ 200 · 库内 **NULL** · bio 不变 · 回读 null· 仍零翻译入队",
+      "pass": true,
+      "reading": "{\"status\":200,\"db\":{\"uid\":\"971245\",\"bio\":\"\",\"avatar_url\":null},\"resp\":null,\"read_back\":null,\"tr\":0}"
+    },
+    {
+      "id": "SE2",
+      "what": "★清空只作用于头像：A 的 bio 全程未被牵连（`bio` 键缺席 ⇒ 不进 SET）；头像写口与 bio 写口互不扰动",
+      "pass": true,
+      "reading": "{\"status\":200,\"db\":{\"uid\":\"971244\",\"bio\":\"p77 头像闸夹具简介 20261022T135516Zpiqs\",\"avatar_url\":null}}"
+    },
+    {
+      "id": "F2",
+      "what": "★负控②（谓词可证伪自检）：喂真 400 体 ⇒ true；喂「mutant 200 且脏值落库」⇒ **false**（判据本身对「形状闸被短路」敏感）",
+      "pass": true,
+      "reading": "{\"real\":true,\"mutant\":false}"
+    },
+    {
+      "id": "F1",
+      "what": "★负控①（**真 mutant**：`USER_AVATAR_URL_PATTERN` 短路成 `/^[\\s\\S]*$/` · 子进程 5796 真 HTTP· 六类形态真打 mutant）：字符串五类**全部不再 400 `AVATAR_URL_INVALID`**（C 段谓词必红）· 非字符串类型**仍 400**（类型闸未动 ⇒ 短路只切了形态闸）· 脏值真落库",
+      "pass": true,
+      "reading": "{\"string_forms\":[{\"id\":\"C1\",\"value\":\"media/123\",\"status\":200,\"escaped\":true},{\"id\":\"C2\",\"value\":\"https://cdn.example.com/a.png\",\"status\":200,\"escaped\":true},{\"id\":\"C3\",\"value\":\"/api/media/abc123\",\"status\":200,\"escaped\":true},{\"id\":\"C4\",\"value\":\"/api/media/1234567890123\",\"status\":200,\"escaped\":true},{\"id\":\"C5\",\"value\":\"\",\"status\":200,\"escaped\":true}],\"type_forms\":[{\"id\":\"C6a\",\"status\":400,\"code\":\"AVATAR_URL_INVALID\",\"still_guarded\":true},{\"id\":\"C6b\",\"status\":400,\"code\":\"AVATAR_URL_INVALID\",\"still_guarded\":true},{\"id\":\"C6c\",\"status\":400,\"code\":\"AVATAR_URL_INVALID\",\"still_guarded\":true}],\"dirty_db\":{\"uid\":\"971249\",\"bio\":\"\",\"avatar_url\":\"\"}}"
+    },
+    {
+      "id": "Z1",
+      "what": "★零残留：夹具 users / content_translation / media 全删 · 本轮**零** `batt_entry` 行（append-only 审计行不可删 ⇒ 夹具改直插建户，从源头不产生）；收尾用「删-等-复核」两轮稳",
+      "pass": true,
+      "reading": "{\"left\":{\"users\":0,\"tr\":0,\"media\":0},\"batt_entry_rows\":0,\"cleanup_errors\":[]}"
+    },
+    {
+      "id": "Z2",
+      "what": "★非夹具用户 `avatar_url` 前后指纹逐字相等、用户总数回到基线（5 位 md5 指纹 + 计数双闸 ⇒ 本轮零外溢写）",
+      "pass": true,
+      "reading": "{\"before\":{\"n\":\"88\",\"fp\":\"ca792b802fd4d1f588e35b7b3c8f7642\"},\"after\":{\"n\":\"88\",\"fp\":\"ca792b802fd4d1f588e35b7b3c8f7642\"},\"fixtures\":6}"
+    }
+  ],
+  "summary": {
+    "total": 18,
+    "passed": 18,
+    "failed": 0,
+    "red": []
+  },
+  "fixtures": {
+    "env_file": "/Users/kevin/.config/seafood/p77-gate.env",
+    "private_keys": "[REDACTED]",
+    "uids": {
+      "A": 971244,
+      "B": 971245,
+      "C": 971246,
+      "D": 971247,
+      "E": 971248,
+      "F": 971249
+    },
+    "addresses": {
+      "A": "0xd2a6cc70caa57fbb07089facadcdc3a6c5ab89f6",
+      "B": "0x96540bfaad3729ff94cfc2853db4309a7bf74cf8",
+      "C": "0xf537daa99205417e1d86cbdbaed32ffd1b7a1cfd",
+      "D": "0xce048ca2b063a7d87edda1a7fabcd73b8c315c6d",
+      "E": "0x2c2b331a216b728d2f8ff1f54f6b6ff44c3fcbe6",
+      "F": "0xd17560694c83a81b7b0c36bf7632df151d6a4cde"
+    }
+  }
+}

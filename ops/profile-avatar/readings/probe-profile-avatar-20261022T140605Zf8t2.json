@@ -1,0 +1,362 @@
+{
+  "probe": "ops/profile-avatar/probe-profile-avatar.mjs",
+  "run": "20261022T140605Zf8t2",
+  "startedAt": "2026-10-22T14:06:06.337Z",
+  "app": "http://localhost:5787",
+  "api": "http://localhost:5788",
+  "project_id": "quiet-math-65207667",
+  "fixtures": {
+    "evm": "0x2947de4faf1d96ddc9e815e33fde4219dccdf82b",
+    "env_file": "/Users/kevin/.config/seafood/p77-probe.env",
+    "private_key": "[REDACTED]",
+    "media": "真 POST /api/media（探针内 UI 触发）",
+    "uid": 971238
+  },
+  "states": {
+    "db_before": {
+      "uid": "971238",
+      "bio": "",
+      "avatar_url": null
+    },
+    "before": {
+      "settingsView": true,
+      "blockPresent": true,
+      "avatarPresent": true,
+      "avatarMode": "initial",
+      "avatarTone": "10",
+      "imgSrc": null,
+      "imgComplete": null,
+      "initialText": "2",
+      "changePresent": true,
+      "changeTag": "BUTTON",
+      "changeLabel": "更换头像",
+      "changeBox": {
+        "w": 28,
+        "h": 28
+      },
+      "inputPresent": true,
+      "inputAccept": "image/*",
+      "inputHidden": true,
+      "resetPresent": false,
+      "confirmPresent": false,
+      "noticeText": null,
+      "overflow": {
+        "doc": 0,
+        "block": 0,
+        "avatar": 0,
+        "offenders": []
+      }
+    },
+    "camera_hit": {
+      "inputClickHits": 1
+    },
+    "after_upload": {
+      "settingsView": true,
+      "blockPresent": true,
+      "avatarPresent": true,
+      "avatarMode": "img",
+      "avatarTone": null,
+      "imgSrc": "/api/media/19",
+      "imgComplete": true,
+      "initialText": null,
+      "changePresent": true,
+      "changeTag": "BUTTON",
+      "changeLabel": "更换头像",
+      "changeBox": {
+        "w": 28,
+        "h": 28
+      },
+      "inputPresent": true,
+      "inputAccept": "image/*",
+      "inputHidden": true,
+      "resetPresent": true,
+      "confirmPresent": false,
+      "noticeText": null,
+      "overflow": {
+        "doc": 0,
+        "block": 0,
+        "avatar": 0,
+        "offenders": []
+      }
+    },
+    "profile_payloads": [
+      {
+        "avatar_url": "/api/media/19"
+      }
+    ],
+    "db_after_upload": {
+      "uid": "971238",
+      "bio": "",
+      "avatar_url": "/api/media/19"
+    },
+    "get_user_after_upload": {
+      "uID": 971238,
+      "EVM": "0x2947de4faf1d96ddc9e815e33fde4219dccdf82b",
+      "bio": "",
+      "is_admin": false,
+      "time_reg": 1792677968,
+      "time_login_last": 1792677968,
+      "avatar_url": "/api/media/19",
+      "points": 0,
+      "requires_profile_completion": true,
+      "admin": {
+        "can_access_admin": false,
+        "is_admin": false,
+        "permissions": []
+      }
+    },
+    "reset_confirm": {
+      "settingsView": true,
+      "blockPresent": true,
+      "avatarPresent": true,
+      "avatarMode": "img",
+      "avatarTone": null,
+      "imgSrc": "/api/media/19",
+      "imgComplete": true,
+      "initialText": null,
+      "changePresent": true,
+      "changeTag": "BUTTON",
+      "changeLabel": "更换头像",
+      "changeBox": {
+        "w": 28,
+        "h": 28
+      },
+      "inputPresent": true,
+      "inputAccept": "image/*",
+      "inputHidden": true,
+      "resetPresent": false,
+      "confirmPresent": true,
+      "noticeText": null,
+      "overflow": {
+        "doc": 0,
+        "block": 0,
+        "avatar": 0,
+        "offenders": []
+      }
+    },
+    "after_reset": {
+      "settingsView": true,
+      "blockPresent": true,
+      "avatarPresent": true,
+      "avatarMode": "initial",
+      "avatarTone": "10",
+      "imgSrc": null,
+      "imgComplete": null,
+      "initialText": "2",
+      "changePresent": true,
+      "changeTag": "BUTTON",
+      "changeLabel": "更换头像",
+      "changeBox": {
+        "w": 28,
+        "h": 28
+      },
+      "inputPresent": true,
+      "inputAccept": "image/*",
+      "inputHidden": true,
+      "resetPresent": false,
+      "confirmPresent": false,
+      "noticeText": null,
+      "overflow": {
+        "doc": 0,
+        "block": 0,
+        "avatar": 0,
+        "offenders": []
+      }
+    },
+    "db_after_reset": {
+      "uid": "971238",
+      "bio": "",
+      "avatar_url": null
+    },
+    "geometry": {
+      "w390": {
+        "doc": 17,
+        "block": 0,
+        "avatar": 0,
+        "offenders": [
+          {
+            "tag": "div",
+            "cls": "sf-prof-nav-group",
+            "right": 444,
+            "w": 332
+          },
+          {
+            "tag": "a",
+            "cls": "sf-prof-link",
+            "right": 437,
+            "w": 80
+          },
+          {
+            "tag": "a",
+            "cls": "sf-prof-link",
+            "right": 530,
+            "w": 80
+          },
+          {
+            "tag": "a",
+            "cls": "sf-prof-link is-active",
+            "right": 616,
+            "w": 80
+          },
+          {
+            "tag": "div",
+            "cls": "sf-prof-content",
+            "right": 407,
+            "w": 381
+          },
+          {
+            "tag": "div",
+            "cls": "",
+            "right": 407,
+            "w": 381
+          }
+        ],
+        "docWithoutBlock": 17
+      },
+      "w1536": {
+        "doc": 0,
+        "block": 0,
+        "avatar": 0,
+        "offenders": [],
+        "docWithoutBlock": 0
+      }
+    }
+  },
+  "assertions": {
+    "entry": {
+      "settingsView": true,
+      "avatarBlockVisible": true,
+      "initialMode": true,
+      "noImgYet": true,
+      "initialIsAddressFirstChar": true,
+      "_expectedInitial": "2",
+      "toneAssigned": true,
+      "changeButton": true,
+      "changeHit24": true,
+      "fileInputPresent": true,
+      "fileInputHidden": true,
+      "noResetWithoutAvatar": true,
+      "noNotice": true
+    },
+    "upload": {
+      "mediaCalledOnce": true,
+      "mediaReallyStored": true,
+      "profileCalledOnce": true,
+      "payloadKeySetExact": true,
+      "payloadPointsAtMedia": true,
+      "noBioKey": true,
+      "dbWriteLanded": true,
+      "bioUntouched": true,
+      "readBackSame": true,
+      "requiresProfileCompletionStillTrue": true,
+      "imgMode": true,
+      "initialGone": true,
+      "resetEntryAppeared": true,
+      "noNotice": true
+    },
+    "reset": {
+      "confirmRowShown": true,
+      "zeroWriteBeforeConfirm": true,
+      "cancelClosesRow": true,
+      "zeroWriteAfterCancel": true,
+      "payloadExactNull": true,
+      "dbCleared": true,
+      "readBackNull": true,
+      "bioStillUntouched": true,
+      "backToInitial": true,
+      "resetEntryGone": true
+    },
+    "geometry": {
+      "noDocOverflow390": true,
+      "noDocOverflow1536": true,
+      "noBlockOverflow390": true,
+      "noBlockOverflow1536": true,
+      "_docOverflow390": {
+        "doc": 17,
+        "withoutBlock": 17,
+        "offenders": [
+          {
+            "tag": "div",
+            "cls": "sf-prof-nav-group",
+            "right": 444,
+            "w": 332
+          },
+          {
+            "tag": "a",
+            "cls": "sf-prof-link",
+            "right": 437,
+            "w": 80
+          },
+          {
+            "tag": "a",
+            "cls": "sf-prof-link",
+            "right": 530,
+            "w": 80
+          },
+          {
+            "tag": "a",
+            "cls": "sf-prof-link is-active",
+            "right": 616,
+            "w": 80
+          },
+          {
+            "tag": "div",
+            "cls": "sf-prof-content",
+            "right": 407,
+            "w": 381
+          },
+          {
+            "tag": "div",
+            "cls": "",
+            "right": 407,
+            "w": 381
+          }
+        ]
+      }
+    },
+    "noPageErrors": {
+      "zeroPageErrors": true
+    },
+    "cleanup": {
+      "usersGone": true,
+      "mediaGone": true,
+      "translationGone": true,
+      "noCleanupErrors": true,
+      "_left": {
+        "users": 0,
+        "media": 0,
+        "translation": 0,
+        "errors": []
+      }
+    }
+  },
+  "pageErrors": [],
+  "network": [
+    {
+      "kind": "media",
+      "status": 200,
+      "media_id": 19,
+      "url": "/api/media/19"
+    },
+    {
+      "kind": "profile",
+      "status": 200,
+      "avatar_url": "/api/media/19",
+      "code": null
+    },
+    {
+      "kind": "profile",
+      "status": 200,
+      "avatar_url": null,
+      "code": null
+    }
+  ],
+  "summary": {
+    "assertions": 45,
+    "passed": 45,
+    "failed": [],
+    "pageErrors": 0,
+    "ok": true
+  },
+  "finishedAt": "2026-10-22T14:07:00.802Z"
+}
