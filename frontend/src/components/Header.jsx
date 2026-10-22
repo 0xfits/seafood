@@ -163,6 +163,20 @@ const Header = () => {
     ...(isAuthenticated && isAdmin ? [{ path: adminPath, label: t('admin_panel'), icon: NAV_ICON_SRC.admin, absolute: true }] : [])
   ]
 
+  // ★ Kevin 2026-10-22：顶栏「选中态」统一 —— 四项（悬赏/市场/管理面板/订单）共用同一 active 判据，
+  //   避免只有前两项在 `.nav-link.active` 下拿到底色的不一致。判据 = 语言前缀剥离后「等值或按段前缀」匹配，
+  //   于是 `/task/1` 命中「悬赏」、`/profile/assets` 命中「订单」、`/dashboard/*` 命中「管理面板」。
+  const strippedPath = (() => {
+    const m = location.pathname.match(/^\/(zh|en|hk|vn)(?=\/|$)/)
+    return m ? (location.pathname.slice(m[0].length) || '/') : location.pathname
+  })()
+  const navActive = (path) => {
+    const target = String(path || '').startsWith('/') ? String(path) : `/${path}`
+    if (strippedPath === target) return true
+    const withSlash = target.endsWith('/') ? target : `${target}/`
+    return strippedPath.startsWith(withSlash)
+  }
+
   // 构建带语言前缀的路径（前缀逻辑统一走 utils，避免自造前缀/尾斜杠）
   const buildPath = (path) => {
     // dashboard 路径不需要语言前缀
@@ -214,7 +228,7 @@ const Header = () => {
                 <Link
                   key={item.path}
                   to={buildPath(item.path)}
-                  className={`nav-link inline-flex items-center gap-1.5 ${location.pathname.includes(item.path) ? 'active' : ''}`}
+                  className={`nav-link inline-flex items-center gap-1.5 ${navActive(item.path) ? 'active' : ''}`}
                 >
                   <img src={item.icon} alt="" {...NAV_ICON_IMG_PROPS} aria-hidden="true" />
                   <span>{item.label}</span>
@@ -226,7 +240,7 @@ const Header = () => {
                 未登录同样可点 ⇒ 由既有 ProtectedRoute 出登录引导；复用既有头部控件类 nav-link（不动桌面按钮几何）。 */}
             <Link
               to={buildPath('profile')}
-              className="nav-link inline-flex items-center gap-1.5"
+              className={`nav-link inline-flex items-center gap-1.5 ${navActive('profile') ? 'active' : ''}`}
               data-sf-m="header-orders"
               aria-label={t('header.orders')}
               title={t('header.orders')}
@@ -407,7 +421,7 @@ const Header = () => {
                 to={buildPath(item.path)}
                 onClick={() => setMobileMenuOpen(false)}
                 className={`flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium ${
-                  location.pathname.includes(item.path)
+                  navActive(item.path)
                     ? 'bg-gray-100 dark:bg-gray-700'
                     : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
                 }`}
@@ -420,7 +434,11 @@ const Header = () => {
             <Link
               to={buildPath('profile')}
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white"
+              className={`flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium ${
+                navActive('profile')
+                  ? 'bg-gray-100 dark:bg-gray-700'
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+              }`}
               data-sf-m="header-orders-mobile"
             >
               <img src={NAV_ICON_SRC.orders} alt="" {...NAV_ICON_IMG_PROPS} aria-hidden="true" />
