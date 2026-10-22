@@ -53,7 +53,7 @@ import { buyListing, refundListingOrder } from './listing-funds-service';
 // 8②：同模块的读口 `getCommissionPolicy` 供新增 admin 读口复用（**不得自写第二套取数**，§19.2(c)）
 import { getCommissionPolicy, insertCommissionPolicy } from './commission';
 // P4-B3e（§4.2 M1/M2/M3 · §4.3 资金四栏 · DL85/DL87/DL90 + DL68 币对串行化）：交易所资金编排
-import { placeMarketOrder, cancelMarketOrder, cancelAllMarketOrders } from './market-service';
+import { placeMarketOrder, cancelMarketOrder, cancelAllMarketOrders, matchTakerOrderLoop } from './market-service';
 // P4-B3a：币种面**真资金**编排（§1.1:147-148 · §4.2 C1/C2 · §7-3 已裁）
 import { createCurrencyVerb, listCurrencyVerb } from './currency-service';
 // P4-B2c：权限与设置（非资金面）service（§1 #36/#37/#38 的 verb + DL36 的 ops: 幂等键）
@@ -1231,9 +1231,28 @@ app.post('/api/order', async (req, res) => {
       headerKey: req.header('idempotency-key'),
     });
     if (!result.ok) return sendVerbError(res, result);
+    // ★ P76：taker 循环撮合（**非 replay** 才补撮合；撮合失败**不吞单** ⇒ 只记日志、响应仍 200 + matches:[]）
+    let matches: Array<Record<string, unknown>> = [];
+    let remaining: string | null = null;
+    let orderStatus: string | null = null;
+    // [P76-MATCH-BEGIN]
+    if (!result.replay) {
+      const loop = await matchTakerOrderLoop({ takerOrderId: Number(result.view.order_id), actorUid: actor.user.uID });
+      matches = loop.matches as Array<Record<string, unknown>>;
+      remaining = loop.remaining;
+      orderStatus = loop.order_status || null;
+      if (!loop.ok) {
+        console.error('[market.order] taker match loop stopped early (order kept):', JSON.stringify({
+          order_id: result.view.order_id, reason: loop.reason, error: loop.error,
+        }));
+      }
+    }
+    // [P76-MATCH-END]
     return sendSuccess(
       res,
-      result.view,
+      result.replay
+        ? { ...result.view, matches }
+        : { ...result.view, order_status: orderStatus ?? result.view.order_status, matches, remaining },
       result.replay ? 'Order created (idempotent replay)' : 'Order created',
       200,
       result.replay ? { idempotent_replay: true } : undefined,

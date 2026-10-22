@@ -4204,6 +4204,27 @@ export class DatabaseService {
     };
   }
 
+  /**
+   * §4.2 M3 / **D-1 的服务面派生位**（`market-service.ts` 文件头既有注释位兑现；**只读**）：
+   * taker 订单的**下一个 `fill_no`** = 该 taker 已落账成交笔数 + 1。
+   * 计数口径 = `ledger_entry` 里 `ref_type='market_trade'` 且事件根键命中
+   * `biz:market:trade:<taker_order_id>:<fill_no>` 前缀（`0016:382` 键形状 / `0016:865` ref 落列）的
+   * **DISTINCT event_root_key** 数 —— 每笔成交事件恰一次 `market_trade` 引用，重放不新增键
+   * ⇒ 同一次撮合决策的重投计数不变，幂等键稳定；**本方法不派生任何业务内容、不写库**。
+   * 专供撮合**循环**编排（`matchTakerOrderLoop`）；M3 单笔动词仍维持 **D-1 fail-loud（fill_no 必填）**。
+   */
+  static async resolveNextFillNo(takerOrderId: number): Promise<number> {
+    const sql = getSql();
+    const row = firstRow(await sql`
+      SELECT count(DISTINCT e.event_root_key)::int AS fills
+        FROM public.ledger_entry e
+       WHERE e.ref_type = 'market_trade'
+         AND e.event_root_key LIKE 'biz:market:trade:' || ${takerOrderId}::text || ':%'
+    `);
+    const fills = Number(getValue(row ?? {}, 'fills') ?? 0);
+    return Number.isFinite(fills) && fills >= 0 ? fills + 1 : 1;
+  }
+
   /** §4.2 M2「全撤 = 逐单」的**只读**候选集（`status ∈ {open,partial}` 且有余量；`order_id` 升序确定）。 */
   static async listOpenMarketOrderIds(uid: number): Promise<number[]> {
     const sql = getSql();

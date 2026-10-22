@@ -588,3 +588,188 @@ export const matchMarketOrders = async (params: {
     },
   };
 };
+
+// ============================================================================
+// M3-L · taker 循环撮合（**服务编排动词**；零新路由 / 零新错误码 / 零新 kind）
+// ----------------------------------------------------------------------------
+// 把 M3 单笔成交编排成循环：每轮 `resolveMarketCounterparty`（excludeSelf=true 首选、
+//   回退 false）→ `resolveNextFillNo`（本单已落账成交笔数 + 1，只读派生位）→
+//   `matchMarketOrders`（**内部服务面**调用：actorUid **不传** = 撮合服务身份，见 M3 ⑤），
+// 直到 **taker 无余量（filled）** 或 **无对手方** 为止。单笔失败（如 `LEDGER_SELF_TRANSFER`
+//   自成交闸 / 409 冲突）⇒ 循环终止并**保留已完成部分**（每笔 trade 独立事件，不整批回滚）。
+// 返回加性 `matches[]`（trade_id/price/amount/counterparty_uid）、`remaining`（taker 最终剩余）
+//   与 `order_status`（taker 行 **DB 真值**：收尾现读 —— 挂单响应里的创建快照恒 'open'，
+//   撮合后已过期；partial/filled 以库为准上抛，未落单面 = '' 由调用方回落快照）。
+// **自成交双闸保持**：MM 自己两单 / 同账号两单依旧不互碰（excludeSelf 首选 + DB 响亮拒绝兜底）。
+// **调用面**：`POST /api/order` 在 `placeMarketOrder` 成功且非 replay 后调用（撮合失败不吞单）；
+//   本动词自身**不抛**（内部吞异常转 `reason='error'`），调用方无需再包 try/catch 也能 200。
+// ============================================================================
+
+/** 循环单笔上限（防病态死循环的护栏；自然终止性：每轮成功成交至少消耗 taker 余量 1 单位） */
+const MATCH_LOOP_MAX_ITERATIONS = 10_000;
+
+export type MatchTakerLoopMatch = {
+  trade_id: string;
+  price: string;
+  amount: string;
+  counterparty_uid: string;
+};
+
+export type MatchTakerOrderLoopResult = {
+  /** true = 循环自然终止（filled / no_counterparty / 无单可撮）；false = 归属闸或撮合内部失败（单仍在） */
+  ok: boolean;
+  matches: MatchTakerLoopMatch[];
+  /** taker 最终剩余（amount − amount_filled；订单不存在时 = '0'） */
+  remaining: string;
+  /** taker 行 status 的 **DB 真值**（收尾现读：open/partial/filled/…；未落单面 = ''，调用方回落创建快照） */
+  order_status: string;
+  reason: 'filled' | 'no_counterparty' | 'not_open' | 'order_not_found' | 'forbidden' | 'error';
+  fills: number;
+  error: { status: number; code: string; message: string } | null;
+};
+
+export const matchTakerOrderLoop = async (params: {
+  takerOrderId: number;
+  /** actor 身份：给定则必须 = taker 订单 owner（归属健全性闸；非授权面 —— 授权在路由 requireActor） */
+  actorUid?: number | null;
+}): Promise<MatchTakerOrderLoopResult> => {
+  const out = (over: Partial<MatchTakerOrderLoopResult>): MatchTakerOrderLoopResult => ({
+    ok: true, matches: [], remaining: '0', order_status: '', reason: 'filled', fills: 0, error: null, ...over,
+  });
+  const takerId = Number(params.takerOrderId);
+  if (!Number.isInteger(takerId) || takerId <= 0) {
+    return out({ reason: 'order_not_found', error: { status: 404, code: 'LEDGER_REF_NOT_FOUND', message: 'Referenced object not found' } });
+  }
+
+  let taker: Awaited<ReturnType<typeof DatabaseService.resolveMarketOrder>>;
+  try {
+    taker = await DatabaseService.resolveMarketOrder(takerId);
+  } catch (e) {
+    const v = fromLedgerError(e);
+    return out({ reason: 'error', error: { status: v.status, code: v.code, message: v.message } });
+  }
+  if (!taker) {
+    return out({ reason: 'order_not_found', error: { status: 404, code: 'LEDGER_REF_NOT_FOUND', message: 'Referenced object not found' } });
+  }
+
+  // 收尾读库（**status/remaining 以 DB 为准**）：路由响应里的 `order_status` 是 place 时的创建快照
+  //   （挂单刻恒 'open'），撮合发生后已过期 ⇒ 每个落单后的出口都从这里现读 taker 行真值再返回
+  //   （重读失败沿用本轮 ① 的库值快照，与循环内重读同口径；不吞掉 over 里既有的错误语义）。
+  const finish = async (over: Partial<MatchTakerOrderLoopResult>): Promise<MatchTakerOrderLoopResult> => {
+    let status = taker?.status ?? '';
+    let remaining = over.remaining ?? '0';
+    try {
+      const row = await DatabaseService.resolveMarketOrder(takerId);
+      if (row) {
+        status = row.status;
+        const rowTotal = BigInt(row.amount || '0');
+        const rowFilled = BigInt(row.amountFilled || '0');
+        remaining = (rowTotal > rowFilled ? rowTotal - rowFilled : 0n).toString();
+      }
+    } catch {
+      /* 收尾重读失败 ⇒ 沿用 over.remaining（本轮 ① 已是库值快照） */
+    }
+    return out({ ...over, order_status: status, remaining });
+  };
+
+  // 归属健全性闸（actor 给定则须 = taker owner；码与 M2/M3 授权族同名 AUTH_FORBIDDEN，零新码）
+  if (params.actorUid !== undefined && params.actorUid !== null) {
+    const actor = actorGate(params.actorUid);
+    if (!actor.ok) {
+      return out({ ok: false, reason: 'forbidden', error: { status: actor.err.status, code: actor.err.code, message: actor.err.message } });
+    }
+    if (actor.uid !== taker.ownerUid) {
+      return out({ ok: false, reason: 'forbidden', error: { status: 403, code: 'AUTH_FORBIDDEN', message: 'You do not have permission to perform this action' } });
+    }
+  }
+
+  const matches: MatchTakerLoopMatch[] = [];
+  const base = taker.baseCid;
+  const quote = taker.quoteCid;
+
+  for (let i = 0; i < MATCH_LOOP_MAX_ITERATIONS; i += 1) {
+    // ① taker 余量（**每轮重读**；status/amount_filled 的服务端真源）
+    try {
+      taker = (await DatabaseService.resolveMarketOrder(takerId)) ?? taker;
+    } catch {
+      /* 重读失败沿用上一轮真值（下一步的 DB 闸仍会响亮拒绝） */
+    }
+    const total = BigInt(taker.amount || '0');
+    const filled = BigInt(taker.amountFilled || '0');
+    const left = total > filled ? total - filled : 0n;
+    if (left <= 0n) {
+      return await finish({ matches, remaining: '0', reason: 'filled', fills: matches.length });
+    }
+    if (taker.status !== 'open' && taker.status !== 'partial') {
+      return await finish({ matches, remaining: left.toString(), reason: 'not_open', fills: matches.length });
+    }
+
+    // ② 对手方（服务端选择；excludeSelf=true 首选 ⇒ 无「非自身」候选才回退含自身，双闸同 M3 ⑥）
+    let cp: Awaited<ReturnType<typeof DatabaseService.resolveMarketCounterparty>>;
+    try {
+      cp = await DatabaseService.resolveMarketCounterparty({
+        baseCid: base, quoteCid: quote, takerOrderId: taker.orderId, takerSide: taker.side,
+        takerPrice: taker.price, takerOwnerUid: taker.ownerUid, excludeSelf: true,
+      });
+      if (!cp) {
+        cp = await DatabaseService.resolveMarketCounterparty({
+          baseCid: base, quoteCid: quote, takerOrderId: taker.orderId, takerSide: taker.side,
+          takerPrice: taker.price, takerOwnerUid: taker.ownerUid, excludeSelf: false,
+        });
+      }
+    } catch (e) {
+      const v = fromLedgerError(e);
+      return await finish({ matches, remaining: left.toString(), reason: 'error', fills: matches.length, error: { status: v.status, code: v.code, message: v.message } });
+    }
+    if (!cp) {
+      return await finish({ matches, remaining: left.toString(), reason: 'no_counterparty', fills: matches.length });
+    }
+
+    // ③ 本次成交量 = min(taker 余量, 对手方余量)（min 保证每轮余量严格下降 ⇒ 自然终止）
+    const cpLeft = BigInt(cp.remaining || '0');
+    const qty = left < cpLeft ? left : cpLeft;
+    if (qty <= 0n) {
+      return await finish({ matches, remaining: left.toString(), reason: 'no_counterparty', fills: matches.length });
+    }
+
+    // ④ fill_no = 本单已落账成交笔数 + 1（`resolveNextFillNo` 只读派生位；同决策重投计数不变）
+    let fillNo: number;
+    try {
+      fillNo = await DatabaseService.resolveNextFillNo(takerId);
+    } catch (e) {
+      const v = fromLedgerError(e);
+      return await finish({ matches, remaining: left.toString(), reason: 'error', fills: matches.length, error: { status: v.status, code: v.code, message: v.message } });
+    }
+
+    // ⑤ M3 单笔（**内部服务面**：actorUid 不传；失败 ⇒ 停循环、保留已完成部分）
+    const one = await matchMarketOrders({
+      body: { taker_order_id: String(takerId), fill_no: String(fillNo), amount: qty.toString() },
+    });
+    if (!one.ok) {
+      return await finish({
+        matches,
+        remaining: left.toString(),
+        reason: 'error',
+        fills: matches.length,
+        error: { status: one.status, code: one.code, message: one.message },
+      });
+    }
+    const view = (one.view ?? {}) as Record<string, unknown>;
+    matches.push({
+      trade_id: String(view.trade_id ?? ''),
+      price: String(view.buy_price ?? view.price ?? taker.price),
+      amount: String(view.quantity ?? qty.toString()),
+      counterparty_uid: String(cp.ownerUid),
+    });
+  }
+
+  // 护栏兜底（不可达面：每轮成功成交至少消耗 1 单位余量；万一到达 ⇒ 停循环保单）
+  return await finish({
+    ok: false,
+    matches,
+    remaining: (BigInt(taker.amount || '0') - BigInt(taker.amountFilled || '0')).toString(),
+    reason: 'error',
+    fills: matches.length,
+    error: { status: 500, code: 'LEDGER_TRANSACTION_REQUIRED', message: 'The service is temporarily unavailable, please try again later' },
+  });
+};

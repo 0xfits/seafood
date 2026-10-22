@@ -1,0 +1,232 @@
+{
+  "run": "20261022T085737Ziaz0",
+  "name": "p76-taker-match-gate",
+  "at": "2026-10-22T08:58:54.117Z",
+  "script": "ops/market/p76-00-taker-match-gate.ts",
+  "price": "10000",
+  "currencies": {
+    "quote_cid": 1,
+    "base_cid": 399
+  },
+  "book_before": {
+    "open_total": 8,
+    "non_fixture_owners": [
+      {
+        "uid": "11",
+        "n": "3"
+      },
+      {
+        "uid": "970001",
+        "n": "3"
+      },
+      {
+        "uid": "971229",
+        "n": "2"
+      }
+    ]
+  },
+  "http_base": "http://127.0.0.1:49947",
+  "checks": [
+    {
+      "id": "A1",
+      "what": "★路由面：注册点仍 **109**（get 49 / post 53 / patch 4 / delete 3 / put 0 · 零新路由）",
+      "pass": true,
+      "reading": "{\"regs\":109,\"get\":49,\"post\":53,\"patch\":4,\"delete\":3}"
+    },
+    {
+      "id": "A2",
+      "what": "★`POST /api/order` 接线（判据按 index.ts **现取形状**写，不写假想形）：marker 对在（负控可切）· `matchTakerOrderLoop` 全文件恰 1 次调用（import 面无括号）· **非 replay** 条件守门· 调用实参 `takerOrderId: Number(result.view.order_id)` ＋ `actorUid: actor.user.uID`· loop 三件进响应：`matches`/`remaining` 加性 ＋ `order_status` 以 `orderStatus ?? result.view.order_status` 覆写（DB 真值）· replay 走既有体例 `{ ...result.view, matches }`",
+      "pass": true,
+      "reading": "{\"in_route\":true,\"markers\":true,\"call_count\":1,\"non_replay\":true,\"status_override\":true,\"send_body_keys\":[true,true,true]}"
+    },
+    {
+      "id": "A3",
+      "what": "★`matchTakerOrderLoop` 组成：cp `excludeSelf=true` 首选 + 回退 `false` · 每轮重读 taker 余量（status/amount_filled 真源）· `resolveNextFillNo` 派生 fill_no · M3 调用 **actorUid 不传**（内部服务面）· 单笔 !ok ⇒ 停循环、保留已完成（error 上抛给路由记日志）",
+      "pass": true,
+      "reading": "{\"excl_self\":1,\"fill_no\":true}"
+    },
+    {
+      "id": "A4",
+      "what": "★matches 元素字段闭集 = trade_id/price/amount/counterparty_uid；返回加性 `remaining`（string）；终止 reasons = filled/no_counterparty/not_open/order_not_found/forbidden/error",
+      "pass": true,
+      "reading": "ok"
+    },
+    {
+      "id": "A5",
+      "what": "★`resolveNextFillNo` 落在 database.ts：按 `ledger_entry` 的 `market_trade` 行（事件根键 `biz:market:trade:<taker>:%` 前缀）DISTINCT 计数 + 1（D-1 派生位兑现 · 只读 · 不写库）",
+      "pass": true,
+      "reading": "ok"
+    },
+    {
+      "id": "A6",
+      "what": "★零新错误码 / 零新 kind：新代码段零 `fail(` 调用、零 kind 字面量（loop 只上抛既有码；事件面 kinds 不变）",
+      "pass": true,
+      "reading": "ok"
+    },
+    {
+      "id": "H1",
+      "what": "★真 HTTP（守卫未动）：无 token `POST /api/order` ⇒ 401（requireActor 前置不变）",
+      "pass": true,
+      "reading": "{\"status\":401}"
+    },
+    {
+      "id": "H2",
+      "what": "★真 HTTP（形状闸未动）：空 body ⇒ 400 `LEDGER_IDEMPOTENCY_KEY_REQUIRED`（create_key fail-loud 不变）",
+      "pass": true,
+      "reading": "{\"status\":400,\"code\":\"LEDGER_IDEMPOTENCY_KEY_REQUIRED\"}"
+    },
+    {
+      "id": "S1a",
+      "what": "★S1 前半（真 HTTP）：A 挂卖 10@10000 ⇒ 200 · `matches:[]`（无 ≥10000 买价可吃）· `remaining=10` · 单 open（**卖单 taker 循环空转** = 无对手方即终止）",
+      "pass": true,
+      "reading": "{\"status\":200,\"matches\":[],\"remaining\":\"10\",\"order_status\":\"open\",\"order_id\":\"48\"}"
+    },
+    {
+      "id": "S1b",
+      "what": "★S1 核心（真 HTTP · s1MatchesPredicate）：B 买 10@10000 ⇒ 200 · `matches` 恰 1（price=10000 · amount=10 · counterparty_uid=A · trade_id 非空）· `remaining=0`（`order_status` = loop 收尾 DB 真值 **filled**；amount_filled 终态断言走 DB = S1d）",
+      "pass": true,
+      "reading": "{\"status\":200,\"matches\":[{\"trade_id\":\"18\",\"price\":\"10000\",\"amount\":\"10\",\"counterparty_uid\":\"971231\"}],\"remaining\":\"0\",\"order_status\":\"filled\",\"order_id\":\"49\"}"
+    },
+    {
+      "id": "S1c",
+      "what": "★S1 账面（trade 腿 4 + fee 腿 2）：根键 `biz:market:trade:<B单>:1` 分录 kinds 恰 trade×4 + trade_fee×2；taker=B 付费（B −fee / 平台 −1 +fee）· 四腿方向：B 出 $（冻结结算）、B 入 base、A 出 base（冻结结算）、A 入 $（maker 不付费）",
+      "pass": true,
+      "reading": "{\"order_b\":\"49\",\"bp\":1000,\"fee_oracle\":\"10000\",\"legs\":[{\"uid\":\"971232\",\"cid\":\"1\",\"delta\":\"0\",\"frozen_delta\":\"-100000\",\"kind\":\"trade\"},{\"uid\":\"971232\",\"cid\":\"399\",\"delta\":\"10\",\"frozen_delta\":\"0\",\"kind\":\"trade\"},{\"uid\":\"971231\",\"cid\":\"399\",\"delta\":\"0\",\"frozen_delta\":\"-10\",\"kind\":\"trade\"},{\"uid\":\"971231\",\"cid\":\"1\",\"delta\":\"100000\",\"frozen_delta\":\"0\",\"kind\":\"trade\"},{\"uid\":\"971232\",\"cid\":\"1\",\"delta\":\"-10000\",\"frozen_delta\":\"0\",\"kind\":\"trade_fee\"},{\"uid\":\"-1\",\"cid\":\"1\",\"delta\":\"10000\",\"frozen_delta\":\"0\",\"kind\":\"trade_fee\"}]}"
+    },
+    {
+      "id": "S1d",
+      "what": "★S1 资金四栏（余额对拍）：A $ +100000（maker 全额）· A base −10 · B $ −(100000+fee) · B base +10 · 双方单 filled（DB 真源 status/amount_filled）",
+      "pass": true,
+      "reading": "{\"a_usd\":\"100000\",\"a_base\":\"-10\",\"b_usd\":\"-110000\",\"b_base\":\"10\",\"fee\":\"10000\",\"oA\":{\"st\":\"filled\",\"f\":\"10\",\"oid\":\"48\"},\"oB\":{\"st\":\"filled\",\"f\":\"10\",\"oid\":\"49\"}}"
+    },
+    {
+      "id": "H3",
+      "what": "★真 HTTP（加性键形）：非 replay 响应 = 既有键（order_id/price/amount/order_status） + 恰加性 `matches`(Array) 与 `remaining`(string)",
+      "pass": true,
+      "reading": "{\"keys\":[\"accounts\",\"amount\",\"amount_filled\",\"base_cid\",\"client_owner_uid_ignored\",\"created\",\"currency_status\",\"entries\",\"entry_count\",\"event_kinds\",\"frozen_hold\",\"idempotent_replay\",\"kinds\",\"ledger_event_keys\",\"ledger_idempotency_key\",\"matches\",\"op\",\"order_id\",\"order_status\",\"owner_uid\",\"pair_lock\",\"price\",\"quote_cid\",\"remaining\",\"side\",\"trade_id\",\"txid\"]}"
+    },
+    {
+      "id": "S2a",
+      "what": "★S2 循环多笔（真 HTTP）：C1/C2 各卖 6@10000（挂单响应各自 `matches:[]`）⇒ B 买 10 ⇒ `matches` 恰 **2**：[0]=C1×6（同价 time_created 先者）、[1]=C2×4 · 两个 trade_id 相异",
+      "pass": true,
+      "reading": "{\"c1\":[],\"c2\":[],\"matches\":[{\"trade_id\":\"19\",\"price\":\"10000\",\"amount\":\"6\",\"counterparty_uid\":\"971233\"},{\"trade_id\":\"20\",\"price\":\"10000\",\"amount\":\"4\",\"counterparty_uid\":\"971234\"}],\"order_b\":\"52\"}"
+    },
+    {
+      "id": "S2b",
+      "what": "★S2 幂等键链（fill_no 1/2）：B 单根键 `:1`/`:2` 各落账 trade×4 · C1 单 filled×6、C2 单 partial×4（余 2）· B 单 filled×10",
+      "pass": true,
+      "reading": "{\"trade_keys\":2,\"oC1\":{\"st\":\"filled\",\"f\":\"6\",\"oid\":\"50\"},\"oC2\":{\"st\":\"partial\",\"f\":\"4\",\"oid\":\"51\"},\"oB2\":{\"st\":\"filled\",\"f\":\"10\",\"oid\":\"52\"}}"
+    },
+    {
+      "id": "S2c",
+      "what": "★S2 两对手都吃到（余额对拍）：C1 $ +60000 / base −6 · C2 $ +40000 / base −4 · B $ −(60000+40000+两笔 fee) / base +10",
+      "pass": true,
+      "reading": "{\"c1_usd\":\"60000\",\"c2_usd\":\"40000\",\"b_usd\":\"-110000\",\"fees\":[\"6000\",\"4000\"]}"
+    },
+    {
+      "id": "S3",
+      "what": "★S3 自成交（同账号买卖同价）：`matches=[]` · 订单 **open**（余 10）· 零 trade （双闸：excludeSelf 首选无外部候选 ⇒ 回退含自身 ⇒ DB 自成交闸响亮拒绝 ⇒ 循环保已完成部分 = 空）· 自家卖单原封（open · 余 10）",
+      "pass": true,
+      "reading": "{\"matches\":[],\"remaining\":\"10\",\"order_status\":\"open\",\"order_d_buy\":{\"st\":\"open\",\"f\":\"0\",\"oid\":\"54\"},\"order_d_sell\":{\"st\":\"open\",\"f\":\"0\",\"oid\":\"53\"},\"trade_keys\":0}"
+    },
+    {
+      "id": "S4",
+      "what": "★S4 replay（同 create_key 重投）：200 · 顶层 `idempotent_replay:true` · `matches:[]`（**不补撮合**）· 单据原样（同 order_id · filled）· 零新 trade（根键计数仍 1）",
+      "pass": true,
+      "reading": "{\"idempotent_replay\":true,\"matches\":[],\"order_id\":\"49\",\"trade_keys\":1}"
+    },
+    {
+      "id": "H4",
+      "what": "★真 HTTP（replay 体例）：响应 data 无 `remaining` 键（既有体例 + 恰加性 `matches`）",
+      "pass": true,
+      "reading": "{\"keys\":[\"accounts\",\"amount\",\"amount_filled\",\"base_cid\",\"client_owner_uid_ignored\",\"created\",\"currency_status\",\"entries\",\"entry_count\",\"event_kinds\",\"frozen_hold\",\"idempotent_replay\",\"kinds\",\"ledger_event_keys\",\"ledger_idempotency_key\",\"matches\",\"op\",\"order_id\",\"order_status\",\"owner_uid\",\"pair_lock\",\"price\",\"quote_cid\",\"side\",\"trade_id\",\"txid\"]}"
+    },
+    {
+      "id": "H5",
+      "what": "★真 HTTP（无对手方臂）：E 挂卖 4@10000 ⇒ `matches:[]` · `remaining=4`（全量）· open",
+      "pass": true,
+      "reading": "{\"matches\":[],\"remaining\":\"4\"}"
+    },
+    {
+      "id": "S5",
+      "what": "★S5 部分成交：对手只有 4 ⇒ taker 转 **partial**（余 6）· `matches` 恰 1（amount=4 · counterparty=E）· `remaining=6` · E 单 filled×4 · F $ −(40000+fee) / base +4",
+      "pass": true,
+      "reading": "{\"matches\":[{\"trade_id\":\"21\",\"price\":\"10000\",\"amount\":\"4\",\"counterparty_uid\":\"971236\"}],\"remaining\":\"6\",\"order_status\":\"partial\",\"fee\":\"4000\",\"oE\":{\"st\":\"filled\",\"f\":\"4\",\"oid\":\"55\"},\"oF\":{\"st\":\"partial\",\"f\":\"4\",\"oid\":\"56\"}}"
+    },
+    {
+      "id": "N2",
+      "what": "★负控②（谓词可证伪）：同一 `s1MatchesPredicate` 喂真响应 ⇒ true；喂 mutant 响应（缺 matches / `matches:[]`）⇒ **false**（判据本身对「路由没接 loop」敏感）",
+      "pass": true,
+      "reading": "{\"real\":true,\"mutant_no_key\":false,\"mutant_empty\":false}"
+    },
+    {
+      "id": "N1",
+      "what": "★负控①（**真 mutant**：路由 [P76-MATCH-BEGIN..END] 块注掉 · 子进程 5797 真 HTTP· S1 流经 `base` 切换真打 mutant · 前置夹具全撤＋双向盘面净检）：同 S1 流（A 卖 10@10000 → B 买 10@10000）⇒ S1 谓词**必红**（matches 空 · 单 open 未撮）· 零 trade（根键前缀计数 0）⇒ 证明 S1 绿是真由 loop 驱动",
+      "pass": true,
+      "reading": "{\"status\":200,\"matches\":[],\"order_status\":\"open\",\"trade_keys\":0}"
+    },
+    {
+      "id": "Z1",
+      "what": "★零残留（活面）：夹具 open/partial 订单 = **0**（逐场景 + 收尾全撤；平台全撤口自身不受影响）",
+      "pass": true,
+      "reading": "{\"fixture_open_orders\":0}"
+    },
+    {
+      "id": "Z2",
+      "what": "★本轮 taker 全为夹具单（未吃任何在市挂单，MM 盘面未被本门触碰）",
+      "pass": true,
+      "reading": "{\"trades_30min\":9,\"owners\":[\"971232\",\"971237\"],\"fixture_uids\":[971231,971232,971233,971234,971235,971236,971237]}"
+    },
+    {
+      "id": "Z3",
+      "what": "★MM/外部盘面前后不变：非夹具 open 订单按 owner 计数逐字相等、open 总数相等",
+      "pass": true,
+      "reading": "{\"before\":[{\"uid\":\"11\",\"n\":\"3\"},{\"uid\":\"970001\",\"n\":\"3\"},{\"uid\":\"971229\",\"n\":\"2\"}],\"after\":[{\"uid\":\"11\",\"n\":\"3\"},{\"uid\":\"970001\",\"n\":\"3\"},{\"uid\":\"971229\",\"n\":\"2\"}],\"total_before\":8,\"total_after\":8}"
+    }
+  ],
+  "summary": {
+    "total": 26,
+    "passed": 26,
+    "failed": 0,
+    "red": []
+  },
+  "fixtures": {
+    "env_file": "/Users/kevin/.config/seafood/p76-gate.env",
+    "private_keys": "[REDACTED]",
+    "uids": {
+      "A": 971231,
+      "B": 971232,
+      "C1": 971233,
+      "C2": 971234,
+      "D": 971235,
+      "E": 971236,
+      "F": 971237
+    },
+    "addresses": {
+      "A": "0xa68e3c0008296a47a986276a7ff4c28b09db0493",
+      "B": "0x34b620ac42def47e7ce2b51262a2ba969436d946",
+      "C1": "0xb094d69549053d587e26e915fa7e19f1f4c29501",
+      "C2": "0xe02e8720f43f488fa3f31fd021a6a8a991267e8b",
+      "D": "0x1743b909a9ca882c542cf4f654efec7ff34d0a0f",
+      "E": "0x30720a05fb4fec8bfd2ad94ff2ad14300d0f56b7",
+      "F": "0x07d57dde76802395e0a5f73034b47ad8426edee2"
+    },
+    "mint_keys": [
+      "ops:p76:gate:mint:usd:a68e3c00",
+      "ops:p76:gate:mint:base:a68e3c00",
+      "ops:p76:gate:mint:usd:34b620ac",
+      "ops:p76:gate:mint:base:34b620ac",
+      "ops:p76:gate:mint:usd:b094d695",
+      "ops:p76:gate:mint:base:b094d695",
+      "ops:p76:gate:mint:usd:e02e8720",
+      "ops:p76:gate:mint:base:e02e8720",
+      "ops:p76:gate:mint:usd:1743b909",
+      "ops:p76:gate:mint:base:1743b909",
+      "ops:p76:gate:mint:usd:30720a05",
+      "ops:p76:gate:mint:base:30720a05",
+      "ops:p76:gate:mint:usd:07d57dde",
+      "ops:p76:gate:mint:base:07d57dde"
+    ],
+    "fee_rate_bp": 1000
+  }
+}
