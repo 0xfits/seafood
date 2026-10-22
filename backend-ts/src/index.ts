@@ -727,7 +727,11 @@ app.post('/api/auth/login', async (req, res) => {
 //   `?sort=` 只认闭集 `FEED_SORT_MODES`（`recommend` 缺省 = 五因子加权分 / `new` = 纯发布时间降序）；
 //   非法值 ⇒ **400** `LEDGER_AMOUNT_INVALID` + `details.reason='sort_invalid'`（借码、零新错误码），
 //   且**不进服务层、不查库**（形状闸前置）。判据单一定义点 = `resolveFeedSortQuery`（上方）。
-//   响应键集**零变化**（score 及各因子原始值都不出）；分页 skip/limit 语义不变。
+//   响应形状：**恰一个**行加性派生键 `feed_score`（五因子加权分 · 6 位小数字符串 = 前端排序依据；
+//   `/api/home` 同源同键）；五因子**原始值**（recency / rating / wants_n / views_n / sale_rate）及
+//   中间量一律不出。`sort=new` 时该键**照旧返回**（值与排序无关 ⇒ 前端切标签无需重拉）。
+//   服务端默认序仍 `feed_score DESC, time_created DESC, listing_id DESC`（`new` ⇒ 纯时间降序）——
+//   与页面显示顺序**解耦**：稳定全序才能保证无限滚动翻页不重不漏。分页 skip/limit 语义不变。
 //   `sort` 落在 URL 查询串 ⇒ CDN 缓存键天然区分两态（不新增 Vary、不改缓存头口径）。
 app.get('/api/prize/all', async (req, res) => {
   try {

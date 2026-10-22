@@ -588,13 +588,27 @@ const PRIZE_PRICE_FLOOR_MIN_DURATION_SECONDS = 30 * 24 * 60 * 60;
 //        `paid` = 已付款且未退款 = 唯一的「真成交」稳态；`created`（未付）/ `refunded`（已退款）/
 //        `cancelled`（已取消）**一律不计**。计**件数**（quantity）而非订单行数 —— 与库存同量纲
 //        （多件购买下单条 quantity>1 不会被低估）。
-//      tie-break 全确定、可重复：score DESC, time_created DESC, listing_id DESC
-// ② **新发态**（`sort=new`）—— **不算分**：score 恒 0 ⇒ ORDER BY 退化为
-//      time_created DESC, listing_id DESC（纯发布时间降序 = 「无 score 的两键排序」逐字等价）。
-//    手法 = score 列 `CASE WHEN $sort='new' THEN 0.0 ELSE <五因子公式> END` ⇒ 单条 SQL 两态共用
-//    （new 态下 rating 子查询 / 订单聚合结果**不被求值** ⇒ 真「不算分」），ORDER BY 字面量两态
-//    同一行 ⇒ 永不出现第二份排序真源。
-// ③ **权重配置**（可选单行 · 改权不改码 · fail-open · **逐项回落**）：
+//      tie-break 全确定、可重复：feed_score DESC, time_created DESC, listing_id DESC
+// ② **排序轴**（`?sort=`）—— **只决定服务端默认顺序，不影响分值**（★ 2026-10-22 Kevin 改口：
+//    排序改回前端 ⇒ 服务端把排序依据 `feed_score` 交给前端，前端只对**已加载行**重排、不重拉）：
+//     · `recommend`（缺省）⇒ 三级序 = `feed_score DESC, time_created DESC, listing_id DESC`；
+//     · `new` ⇒ 同一行 ORDER BY 里 `CASE WHEN $sort='new' THEN 0.0 ELSE f.feed_score END` 取 0.0
+//       ⇒ 该项零区分度 ⇒ 退化为 `time_created DESC, listing_id DESC`（纯发布时间降序 =
+//       「无分值两键排序」逐字等价）。
+//    手法 = **分值无条件算（公式不再包 CASE）** + ORDER BY 里一层 CASE 把排序轴摘出来 ⇒
+//    单条 SQL 两态共用、ORDER BY 字面量恰一处 ⇒ 永不出现第二份排序真源。
+//    ⇒ 服务端默认顺序**与页面显示顺序解耦**：全序稳定才能保证无限滚动翻页**不重不漏**
+//    （首页不分页 / 滚到 18 行×6 列 = 108 件，但 `skip/limit` 语义一字未改）。
+// ④ **契约键 `feed_score`**（feed 行**加性**键 · 行键 50 → **51**）：五因子加权分以
+//    **6 位小数字符串**（`toFixed(6)`）下发，`/api/prize/all` 与 `/api/home` 两口同源一致。
+//    ★ 保密口径**改判**（2026-10-22 Kevin：前端要自己排序 ⇒ 分值必须可见）：由「零泄露」改为
+//    「**恰一个**派生键 `feed_score`；五因子**原始值**（recency / rating / wants_n / views_n /
+//    sale_rate）及中间量（均星裸值、view_count、sold_qty）仍一律不出」。
+//    `sort=new` 时该键**照旧返回**（同权重同公式，与排序无关）⇒ 前端切回推荐无需重拉。
+//    透出面 = `normalizeBrand` 的「行携带该列才出」条件块：feed 两个读口带、详情读口不带
+//    ⇒ 详情响应键数不变。
+// ⑤ **权重读口**（两态共用：分值无条件算 ⇒ `sort=new` 也必须读权重，原「new 态不读配置」作废）——
+//    见下 ③ 权重配置（可选单行 · 改权不改码 · fail-open · **逐项回落**）：
 //      app_config 行 key='feed_score_weights'，value 例：
 //        {"recency":"0.40","rating":"0.20","wants":"0.15","views":"0.15","sale_rate":"0.10"}
 //      · 值可为 JSON 数字或数字字符串（运维手写友好）；
@@ -634,6 +648,12 @@ const FEED_RATING_NEUTRAL_STARS = 3.0;
 /** 饱和归一常数：`wants = c/(c+5)` · `views = v/(v+100)`（集中在此，SQL 侧引用同源常量） */
 const FEED_WANTS_SATURATION = 5;
 const FEED_VIEWS_SATURATION = 100;
+/**
+ * ★ 契约键 `feed_score` 的下发精度（**6 位小数**固定串）—— 唯一定义点。
+ * 为什么是**字符串**：分值 = 浮点派生量，`number` 经 JSON 序列化后位数不定（0.44 vs 0.4400000000000001），
+ * 前端要拿它做**稳定排序依据**（同分才落 tie-break）⇒ 定长小数串把「同一分」钉成同一字面量。
+ */
+export const FEED_SCORE_DECIMALS = 6;
 
 /** 权重解析结果（`normalized` 供 SQL 直接用；其余字段供门 / 日志诊断） */
 export interface FeedScoreWeights {
@@ -1576,6 +1596,16 @@ const normalizeUser = (row: RawRow): UserRecord => ({
   time_login_last: toTimestamp(getValue(row, 'time_login_last')),
 });
 
+/**
+ * `feed_score` 归一（**唯一**派生键的出形态）：number / numeric 字符串 ⇒ `toFixed(6)` 定长串。
+ * 缺值 / 非有限数 ⇒ `null`（不编值：正常路径两读口恒带该列 ⇒ 走不到兜底，兜底只为不炸）。
+ */
+const toFeedScoreString = (value: unknown): string | null => {
+  if (value === null || value === undefined) return null;
+  const n = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(n) ? n.toFixed(FEED_SCORE_DECIMALS) : null;
+};
+
 const normalizeBrand = (
   row: RawRow,
   counts?: {
@@ -1731,6 +1761,15 @@ const normalizeBrand = (
   //   **真布尔**（禁 `'true'` 串 / `0-1`）；`true ∧ stock = 1` 是正常终态 ⇒ 照实返回 true。
   if (row.allow_multi_buy !== undefined) {
     record.allow_multi_buy = row.allow_multi_buy === true;
+  }
+  // ★ 2026-10-22 契约键 `feed_score`（feed 行加性键 · 行键 50→**51**，尾部追加 ⇒ 零重排）：
+  //   五因子加权分（FEED-RANK-v2）以 **6 位小数字符串**下发 —— 前端的排序依据（排序改回前端）。
+  //   · 仅当行携带该列（`listBrands` 专有派生列）时透出：详情读口不选 ⇒ 详情键数不变；
+  //   · **保密口径改判**：由「零泄露」改为「**恰这一个**派生键」—— 五个因子的原始值与中间量
+  //     （均星裸值 / 浏览量 / 成交量等）仍一律不出（口径见文件顶部常量块）；
+  //   · `sort=new` 也照旧返回（值与排序无关）⇒ 前端在「推荐/新发」间切换无需重拉。
+  if (row.feed_score !== undefined) {
+    record.feed_score = toFeedScoreString(row.feed_score);
   }
   // P6-TR-1b：`name_*`/`description_*` 由 applyI18n 生成（有 ready 译文用译文，否则回落源文；含 i18n_status）
   applyI18n('listing', String(record.bID), record, i18nIndex);
@@ -2999,31 +3038,32 @@ export class DatabaseService {
   }
 
   /**
-   * ★ FEED-SORT-v1 · 首页 / 商品列表读口（`/api/prize/all`、`/api/home` 共用）—— 改**排序轴**，不改行形状。
+   * ★ FEED-SORT-v1 · 首页 / 商品列表读口（`/api/prize/all`、`/api/home` 共用）—— 改**排序轴**，不改行形状
+   *   （唯一例外 = 2026-10-22 Kevin 改口后的加性契约键 `feed_score`）。
    *   `sort` ∈ `FEED_SORT_MODES`（`recommend` 缺省 / `new`）；缺参或非法值 ⇒ 回落 `recommend`
    *   （**路由层才是 400 闸**，服务层只做归一 —— 单一定义点，避免两处判据漂移）。
-   *   · `recommend` ⇒ FEED-RANK-v2 五因子加权分（公式 / 口径见文件顶部常量块注释）：
-   *       score = w·recency + w·rating + w·wants + w·views + w·sale_rate（权重已归一化，来自
+   *   · 分值 `feed_score` = FEED-RANK-v2 五因子加权（公式 / 口径见文件顶部常量块注释）：
+   *       feed_score = w·recency + w·rating + w·wants + w·views + w·sale_rate（权重已归一化，来自
    *       `app_config.feed_score_weights`，缺行/非法 ⇒ 默认 0.40/0.20/0.15/0.15/0.10，逐项回落）；
-   *   · `new` ⇒ **不算分**：score 列恒 0 ⇒ `ORDER BY score DESC, time_created DESC, listing_id DESC`
-   *       退化为纯 `time_created DESC, listing_id DESC`（与两键排序逐字等价）；
+   *       **两态无条件算、无条件下发**（`sort` 不影响分值 ⇒ `new` 也带真分值）。
+   *   · `recommend` ⇒ `ORDER BY feed_score DESC, time_created DESC, listing_id DESC`；
+   *   · `new` ⇒ ORDER BY 里 `CASE WHEN $sort='new' THEN 0.0 ELSE f.feed_score END` 取 0.0 ⇒ 退化为
+   *       `time_created DESC, listing_id DESC`（与两键排序逐字等价）；
    *   · 两态共用同一条 SQL、同一行 ORDER BY 字面量 ⇒ 排序真源只有一处（无第二套实现）。
-   *   三级 tie-break 全确定、可重复；**分页语义不变**（LIMIT/OFFSET 照旧，只换排序值）。
-   *   `score` 是**排他派生列**：`normalizeBrand` 逐键显式列举输出（无 spread）⇒ 永不进响应行；
-   *   wants / views 的**原始值**也不新增键（wants 走既有 `want_count` 口径，views 完全不出）。
-   *   性能注记：rating 均星子查询 + 订单聚合各一次（后者已在 `so` 里按 listing 预聚合）；
+   *   三级 tie-break 全确定、可重复；**分页语义不变**（LIMIT/OFFSET 照旧）⇒ 前端无限滚动
+   *   「下一页」不重不漏；**页面显示顺序由前端对已加载行重排**（服务端顺序与之解耦）。
+   *   `feed_score` 是**唯一**派生输出列（`normalizeBrand` 逐键显式列举输出、无 spread ⇒ 只出这一键）；
+   *   wants / views 的**原始值**不新增键（wants 走既有 `want_count` 口径，views 完全不出）。
+   *   性能注记：分值两态都算 ⇒ rating 均星子查询 + 订单聚合各一次（后者已在 `so` 里预聚合）；
    *   真上量后另立单评估索引，本单不加索引 / 不加缓存。
    */
   static async listBrands(skip = 0, limit = 100, ex?: SqlRunner, sort: unknown = FEED_SORT_DEFAULT): Promise<BrandRecord[]> {
     const sql = sqlFor(ex);
     // 排序模式归一（非法 ⇒ 推荐）
-    // ★ new 态**不读**权重配置（省一次往返）：SQL 里五个权重参数仍要占位，用**代码默认常量**填
-    //   —— `CASE WHEN $sort='new' THEN 0.0 ELSE <公式> END` 在 new 态**不取 ELSE 分支** ⇒ 这些常量
-    //   只作绑定占位、不参与任何计算（真「不算分」，且配置坏/配置读失败都影响不到 new 态）。
     const feedSort = normalizeFeedSort(sort) ?? FEED_SORT_DEFAULT;
-    const feedWeightParams = feedSort === 'new'
-      ? DEFAULT_FEED_SCORE_WEIGHTS
-      : (await this.getFeedScoreWeights(ex)).normalized;
+    // ★ 2026-10-22 改口：分值**无条件算**（`sort` 只影响 ORDER BY）⇒ 两态都要权重配置
+    //   （原 `new` 态三元短路省一次往返的做法作废 —— 否则 new 态下发的 `feed_score` 是假分）。
+    const feedWeightParams = (await this.getFeedScoreWeights(ex)).normalized;
     // P4-B1-c: prize→listing 读侧换表（bID←listing_id、points←price、name←title；description/status/
     // time_created/time_updated 同名核对）。旧 gift_counts/shard_counts/transfer_counts CTE 引用的
     // prize_item/shard/shard_transfer 在新 schema 无对应表（probe.json 三口径 42P01）
@@ -3072,40 +3112,38 @@ export class DatabaseService {
           (SELECT avg(r.stars)::float8 FROM public.rating AS r WHERE r.ratee_uid = l.seller_uid) AS seller_rating_avg,
           -- ★ FEED-RANK-v2（五因子加权 · 权重 = 配置归一化后的值，见顶部常量块）：
           --   recency(发布时间) · rating(质量) · wants(收藏饱和) · views(浏览饱和) · sale_rate(成交率)
-          --   new 态 ⇒ 整表达式退化为常量 0 ⇒ ORDER BY 的 score 项失去区分度 ⇒ 纯时间降序
-          --   （rating 子查询 / 订单聚合在 new 态不被求值 ⇒ 真「不算分」）
-          CASE
-            WHEN ${feedSort}::text = 'new' THEN 0.0::float8
-            ELSE
-                ${feedWeightParams.recency}::float8
-                * (1.0 / (1.0 + GREATEST((EXTRACT(EPOCH FROM (now() - l.time_created)) / 86400.0)::float8, 0.0)))
-              + ${feedWeightParams.rating}::float8
-                * (
-                    COALESCE(
-                      (SELECT avg(r.stars)::float8 FROM public.rating AS r WHERE r.ratee_uid = l.seller_uid),
-                      ${FEED_RATING_NEUTRAL_STARS}::float8
-                    ) / 5.0
-                  )
-              -- wants = c/(c+5)（无收藏 ⇒ 0；c=5 ⇒ .5；有界、抗长尾）
-              + ${feedWeightParams.wants}::float8
-                * (
-                    COALESCE(fav.want_count, 0)::float8
-                    / (COALESCE(fav.want_count, 0)::float8 + ${FEED_WANTS_SATURATION}::float8)
-                  )
-              -- views = v/(v+100)（listing.view_count，迁移 0057；NULL / 负数 ⇒ 0）
-              + ${feedWeightParams.views}::float8
-                * (
-                    GREATEST(COALESCE(l.view_count, 0), 0)::float8
-                    / (GREATEST(COALESCE(l.view_count, 0), 0)::float8 + ${FEED_VIEWS_SATURATION}::float8)
-                  )
-              -- sale_rate = 已售/(已售+库存)（已售 = status='paid' 的 quantity 之和；分母 0 ⇒ 0）
-              + ${feedWeightParams.sale_rate}::float8
-                * COALESCE(
-                    so.sold_qty::float8
-                    / NULLIF(so.sold_qty::float8 + GREATEST(l.stock, 0)::float8, 0.0),
-                    0.0
-                  )
-          END AS score
+          --   ★ 2026-10-22 改口：公式**不再包 CASE**（分值两态都算、都下发 —— 前端排序依据）；
+          --     sort 只进下方 ORDER BY 的 CASE ⇒ 排序轴与分值解耦。
+          --   列名 feed_score = 下发给前端的契约键（归一器出 6 位小数串）。
+          ${feedWeightParams.recency}::float8
+            * (1.0 / (1.0 + GREATEST((EXTRACT(EPOCH FROM (now() - l.time_created)) / 86400.0)::float8, 0.0)))
+          + ${feedWeightParams.rating}::float8
+            * (
+                COALESCE(
+                  (SELECT avg(r.stars)::float8 FROM public.rating AS r WHERE r.ratee_uid = l.seller_uid),
+                  ${FEED_RATING_NEUTRAL_STARS}::float8
+                ) / 5.0
+              )
+          -- wants = c/(c+5)（无收藏 ⇒ 0；c=5 ⇒ .5；有界、抗长尾）
+          + ${feedWeightParams.wants}::float8
+            * (
+                COALESCE(fav.want_count, 0)::float8
+                / (COALESCE(fav.want_count, 0)::float8 + ${FEED_WANTS_SATURATION}::float8)
+              )
+          -- views = v/(v+100)（listing.view_count，迁移 0057；NULL / 负数 ⇒ 0）
+          + ${feedWeightParams.views}::float8
+            * (
+                GREATEST(COALESCE(l.view_count, 0), 0)::float8
+                / (GREATEST(COALESCE(l.view_count, 0), 0)::float8 + ${FEED_VIEWS_SATURATION}::float8)
+              )
+          -- sale_rate = 已售/(已售+库存)（已售 = status='paid' 的 quantity 之和；分母 0 ⇒ 0）
+          + ${feedWeightParams.sale_rate}::float8
+            * COALESCE(
+                so.sold_qty::float8
+                / NULLIF(so.sold_qty::float8 + GREATEST(l.stock, 0)::float8, 0.0),
+                0.0
+              )
+          AS feed_score
         FROM listing AS l
         LEFT JOIN public.users AS u ON u.uid = l.seller_uid
         -- ★ 2026-10-19 商品卡结构重定义：收藏聚合（每个 listing 一行；无收藏的 listing 由
@@ -3126,7 +3164,13 @@ export class DatabaseService {
         ) AS so ON so.listing_id = l.listing_id
         WHERE l.status = 'listed'
       ) AS f
-      ORDER BY f.score DESC, f.time_created DESC, f.listing_id DESC
+      -- ★ 排序轴（sort 在 SQL 里**只出现这一次**）：recommend ⇒ feed_score DESC 三级序；
+      --   new ⇒ CASE 取常量 0.0 ⇒ 该项零区分度 ⇒ 纯 time_created DESC, listing_id DESC。
+      --   **与分值下发解耦**：feed_score 两态都算、都返回（前端排序依据）。
+      --   服务端默认序 = 稳定全序（三级 tie-break 全确定）⇒ 无限滚动翻页不重不漏。
+      ORDER BY (CASE WHEN ${feedSort}::text = 'new' THEN 0.0::float8 ELSE f.feed_score END) DESC,
+               f.time_created DESC,
+               f.listing_id DESC
       LIMIT ${limit} OFFSET ${skip}
     `);
 

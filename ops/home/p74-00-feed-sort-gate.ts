@@ -9,21 +9,28 @@
  * 派单面（本门逐条守住，Kevin 2026-10-22）：
  *   ① `GET /api/prize/all?sort=` 只认 **`recommend`（缺省）/ `new`**；其它值 ⇒ **400**
  *      `LEDGER_AMOUNT_INVALID` + `details.reason='sort_invalid'`（**借码**、零新错误码）；
- *   ② `new` ⇒ **纯发布时间降序**（`time_created DESC, listing_id DESC`）· **不算分**；
- *   ③ `recommend` ⇒ FEED-RANK-v2 五因子加权：
- *        score = 0.40·recency + 0.20·rating + 0.15·wants + 0.15·views + 0.10·sale_rate
+ *   ② `new` ⇒ **纯发布时间降序**（`time_created DESC, listing_id DESC`）—— 只换**排序轴**，
+ *      分值照算照发（分值不再包 CASE；`sort` 只出现在 ORDER BY 一处）；
+ *   ③ `recommend`（服务端缺省序）⇒ FEED-RANK-v2 五因子加权：
+ *        feed_score = 0.40·recency + 0.20·rating + 0.15·wants + 0.15·views + 0.10·sale_rate
  *        （recency=1/(1+age_days) · rating=COALESCE(均星,3)/5 · wants=c/(c+5) · views=v/(v+100) ·
  *          sale_rate=已售/(已售+库存)，已售 = `listing_order.status='paid'` 的 `sum(quantity)`）；
  *        权重来自 `app_config.feed_score_weights`（**逐项**回落默认 + **按和归一化**）；
- *   ④ 响应键集**零变化**（不泄露 `score` 与任何因子原始值；`wants` 既有键口径不变；`views` 不进 feed）。
+ *   ④ 响应形状（★ 2026-10-22 Kevin 改口：排序改回前端）：**恰一个**行加性派生键 `feed_score`
+ *      （五因子加权分 · **6 位小数字符串** · feed 行键 50→**51**，两个同源读口一致）；
+ *      五因子**原始值**零泄露（`wants` 既有键口径不变；`views` 不进 feed）。
+ *      保密口径由「零泄露」**改判**为「恰一个派生键 + 因子原值零泄露」；
+ *      `sort=new` 与 `recommend` 的 `feed_score` **逐行相等**（分值只由公式+权重决定，与排序无关）。
  *   ⑤ 零新路由（注册点仍 **109**）/ 零迁移 / 零 DDL。
  *
  * 判据面：
  *   A · 静态（零 DB）：注册点 109 逐 verb · 路由接线（`resolveFeedSortQuery` / 400 `sort_invalid` /
  *       `allowed=[...FEED_SORT_MODES]` / 异常走 `sendInfraMapped`）· **排序真源唯一**（ORDER BY 字面量恰 1 处 ·
- *       `CASE WHEN $sort='new'` 恰 1 处 · new 态不读权重配置）· 五因子与饱和常数全在 SQL ·
- *       权重常量集中（默认权重逐字 0.40/0.20/0.15/0.15/0.10）· `APP_CONFIG_LEGAL_KEYS` **未动**（仍 10 键、
- *       不含 `feed_score_weights`）· `/api/home` 调用逐字未变（首页仍走推荐）· 归一器零新键、无 spread。
+ *       `CASE WHEN $sort='new'` 恰 1 处且在 ORDER BY 里 · 分值公式不包 CASE · 两态都读权重配置）·
+ *       五因子与饱和常数全在 SQL · 权重常量集中（默认权重逐字 0.40/0.20/0.15/0.15/0.10）·
+ *       `APP_CONFIG_LEGAL_KEYS` **未动**（仍 10 键、不含 `feed_score_weights`）·
+ *       `/api/home` 调用逐字未变（首页仍走推荐）· 归一器**恰一个**派生键 `feed_score`、无 spread、因子原值零泄露 ·
+ *       6 位小数常量唯一。
  *   U · 纯函数单测：`normalizeFeedSort` 矩阵（大小写/空白/非法/非字符串）· `parseFeedScoreWeights`
  *       矩阵（缺行 / 全配置（字符串与数字）/ 逐项回落 / 负数 / 非数 / 全 0 / 和归一化等价性）+ **可证伪自检**
  *       （mutant：忽略配置恒返回默认 ⇒ 配置类判据必转 false）。
@@ -33,12 +40,18 @@
  *       B2 `new` 臂全页 = 独立 oracle（两键时间序）**逐行相同**；
  *       B3 `recommend` 臂全页 = 独立 oracle（五因子公式按默认权重复算）逐行相同（近分并列容忍 1e-6）；
  *       B4 分页语义：`(0,2)+(2,2)` == 全序前 4、无重复；`b_id` 全页唯一；
- *       B5 键集零变化：两臂同 id 行键集**逐字相同**、无 `score`/`recency`/`rating_raw`/`sale_rate` 键、
- *          `wants` = `listing_favorite` 计数（口径不变）；
+ *       B5 键集：两臂同 id 行键集**逐字相同**、恰 **51** 键、`feed_score` 恒在场且 6 位小数串、
+ *          **恰此一个**派生键（`feed_*` 只 1 个）· 无因子原始值键 · `wants` = `listing_favorite` 计数（口径不变）；
  *       B6 **五因子逐项生效**：每个因子对（同刻发布、只差该因子，且「弱项」listing_id 更大 ⇒ 若该因子
  *          被忽略则靠 tie-break 反而排前）⇒ 强项必在弱点之前；
  *       B7 **权重配置四臂**（逐项覆盖）：缺行 ⇒ 默认 / 全配置（只给 wants=1）⇒ 按配置且序变 /
  *          部分配置（wants=9）⇒ 逐项回落 + 归一化 / 非法（负数 · 非数 · null）⇒ 全默认 + warn。
+ *   S · 分值契约（★ 本单新增）：
+ *       S9 **`feed_score` 逐行对拍公式**：全页每行 = 独立 oracle（SQL 五因子复算）同名分值（1e-6）；
+ *          并取三行（wants / sale_rate / rating 各一行）用门内**手算算术**（TS 里逐项写死 0.40/0.20/0.15/
+ *          0.15/0.10 与 5 / 100 / 中性 3 星）对拍（年龄按门实测 ⇒ 容差 2e-5，`now()` 漂移）；
+ *       S9n **负控**：把 `feed_score` 输出改成常量 `0.000000` ⇒ 同一 S9 判据必转 **false**；
+ *       S10 **与排序无关**：`sort=new` 与 `sort=recommend` 两份响应同 id 行 `feed_score` **逐行相等**（2e-6）。
  *   N · **负控**：N1 `new` 若仍用 score ⇒ 时间组序必错（用 recommend 实序作 mutant ⇒ 判据转 false）；
  *       N2 权重若硬编默认 ⇒ 配置臂必红（配置序 ≠ 默认序，且默认序喂进配置判据必 false）；
  *       N3 `wants` 因子若写死 0 ⇒ 收藏对判据必红（mutant 权重下该对退化为 tie-break 反转）。
@@ -108,6 +121,10 @@ const countVerb = (v: string) => (INDEX_TS.match(new RegExp(`^app\\.${v}\\(`, 'g
 const FEED_BLOCK = routeBlock("app.get('/api/prize/all'");
 const FEED_SQL = sliceBetween(DB, 'static async listBrands(', 'LIMIT ${limit} OFFSET ${skip}');
 const NORMALIZE_BLOCK = sliceBetween(DB, 'const normalizeBrand =', 'const normalizePrizeItem =');
+/** 排序真源计数（唯一定义点：ORDER BY 一行 · `sort` 只在其中出现一次） */
+const ORDER_BY_LITERAL_RX = /ORDER BY \(CASE WHEN \$\{feedSort\}::text = 'new' THEN 0\.0::float8 ELSE f\.feed_score END\) DESC,\s*f\.time_created DESC,\s*f\.listing_id DESC/g;
+const ORDER_BY_LITERAL_HITS = (DB.match(ORDER_BY_LITERAL_RX) ?? []).length;
+const sortCaseHits = (DB.match(/\$\{feedSort\}::text = 'new'/g) ?? []).length;
 
 const DEFAULT_FIVE = FEED_SCORE_WEIGHT_FIELDS.map((f) => DEFAULT_FEED_SCORE_WEIGHTS[f]);
 
@@ -231,6 +248,31 @@ const tx = async <T>(p: ReturnType<typeof mkPool>, fn: (c: Qx) => Promise<T>) =>
 };
 
 const keysOf = (v: unknown) => (v && typeof v === 'object' ? Object.keys(v as Record<string, unknown>).sort() : []);
+/** 行数组 ⇒ `bID → feed_score 原文` 表（S9/S10 逐行对拍用；保留**下发的字符串**，不提前转数） */
+const rowsToSheet = (rows: Array<Record<string, unknown>>) =>
+  new Map<number, string>(rows.map((row) => [Number(row.bID), String(row.feed_score ?? '')]));
+/** 6 位小数定长串（契约形态） */
+const isSixDp = (s: string) => /^\d+\.\d{6}$/.test(s);
+/**
+ * S9 判据本体（**独立于实现**，供真实臂与常量 0 mutant 共用）：
+ *   ① 每行 `feed_score` 都是 6 位小数串；② 每行 = 独立 oracle 同名分值（1e-6）；
+ *   ③ 三行手算对拍（2e-5；年龄含 now() 漂移）且手算值同时贴近字面量期望（5e-4）。
+ */
+const s9Passes = (
+  sheet: Map<number, string>,
+  oracle: Map<number, number>,
+  hand: Array<{ id: number; want: number; literal: number }>,
+) => {
+  if (sheet.size === 0 || oracle.size === 0 || hand.length !== 3) return false;
+  const formatOk = [...sheet.values()].every(isSixDp);
+  const oracleOk = [...sheet].every(([id, s]) => oracle.has(id) && Math.abs(Number(s) - (oracle.get(id) as number)) <= 1e-6);
+  const handOk = hand.every((h) => {
+    const got = sheet.get(h.id);
+    if (got === undefined) return false;
+    return Math.abs(Number(got) - h.want) <= 2e-5 && Math.abs(h.want - h.literal) <= 5e-4;
+  });
+  return formatOk && oracleOk && handOk;
+};
 
 (async () => {
   const ck = checker();
@@ -259,19 +301,23 @@ const keysOf = (v: unknown) => (v && typeof v === 'object' ? Object.keys(v as Re
     }));
 
   ck.t('A2',
-    '★排序真源**唯一**：`ORDER BY f.score DESC, f.time_created DESC, f.listing_id DESC` 全仓恰 **1 处** · '
-    + "`CASE WHEN ${feedSort}::text = 'new'` 恰 **1 处**（new 态 score 恒 0 ⇒ 退化为纯时间两键）· "
-    + '`new` 态**不读**权重配置（`feedSort === \'new\' ? DEFAULT_FEED_SCORE_WEIGHTS : '
-    + '(await this.getFeedScoreWeights(ex)).normalized`，三元短路 ⇒ 配置坏也影响不到 new 态）· '
-    + '`/api/home` 调用逐字未变（仍 2 参 ⇒ 首页默认推荐）· `listPrizes` 薄壳透传（零第二套业务）',
-    (DB.match(/ORDER BY f\.score DESC, f\.time_created DESC, f\.listing_id DESC/g) ?? []).length === 1
-      && (DB.match(/\$\{feedSort\}::text = 'new'/g) ?? []).length === 1
-      && /feedSort === 'new'\s*\?\s*DEFAULT_FEED_SCORE_WEIGHTS\s*:\s*\(await this\.getFeedScoreWeights\(ex\)\)\.normalized/.test(DB)
+    '★排序真源**唯一**（且与分值解耦）：`ORDER BY (CASE WHEN ${feedSort}::text = \'new\' THEN 0.0::float8 '
+    + 'ELSE f.feed_score END) DESC, f.time_created DESC, f.listing_id DESC` 全仓恰 **1 处** · '
+    + '`CASE WHEN ${feedSort}::text = \'new\'` 恰 **1 处且在 ORDER BY 里**（分值公式**不再包 CASE**）· '
+    + '**两态都读**权重配置（`const feedWeightParams = (await this.getFeedScoreWeights(ex)).normalized`，'
+    + '三元短路已取消 —— 否则 new 态下发假分）· `/api/home` 调用逐字未变（仍 2 参 ⇒ 首页默认推荐）· '
+    + '`listPrizes` 薄壳透传（零第二套业务）',
+    ORDER_BY_LITERAL_HITS === 1
+      && sortCaseHits === 1
+      && /ORDER BY \(CASE WHEN \$\{feedSort\}::text = 'new' THEN 0\.0::float8 ELSE f\.feed_score END\) DESC/.test(FEED_SQL)
+      && /const feedWeightParams = \(await this\.getFeedScoreWeights\(ex\)\)\.normalized;/.test(DB)
+      && !/feedSort === 'new'\s*\?/.test(DB)
       && /DatabaseService\.listPrizes\(0, prizeLimit\)/.test(INDEX_TS)
       && /static async listPrizes\([\s\S]{0,220}return this\.listBrands\(skip, limit, ex, sort\);/.test(DB),
     JSON.stringify({
-      order_hits: (DB.match(/ORDER BY f\.score DESC, f\.time_created DESC, f\.listing_id DESC/g) ?? []).length,
-      sort_case_hits: (DB.match(/\$\{feedSort\}::text = 'new'/g) ?? []).length,
+      order_hits: ORDER_BY_LITERAL_HITS,
+      sort_case_hits: sortCaseHits,
+      ternary_shortcut: /feedSort === 'new'\s*\?/.test(DB),
       home_call_unchanged: /DatabaseService\.listPrizes\(0, prizeLimit\)/.test(INDEX_TS),
     }));
 
@@ -300,22 +346,31 @@ const keysOf = (v: unknown) => (v && typeof v === 'object' ? Object.keys(v as Re
     }));
 
   ck.t('A4',
-    '★**响应键集零变化**：`score` 仍是**排他派生列**（`AS score` 全仓恰 1 处、在 feed SQL 内）· '
-    + '归一器 `normalizeBrand` **无 spread**（逐键显式列举）且不出 `score` / `recency` / `rating_raw` / '
-    + '`sale_rate` 任何因子键 · `views` 不进 feed（`row.view_count` 条件透出只在详情面）',
-    (DB.match(/AS score/g) ?? []).length === 1
-      && /AS score/.test(FEED_SQL)
+    '★**保密口径改判：恰一个派生键 `feed_score` + 五因子原始值零泄露**（替代原「零泄露」）：'
+    + '`AS feed_score` 全仓**恰 1 处**且在 feed SQL 内 · 归一器 `normalizeBrand` **无 spread**（逐键显式列举）、'
+    + '**恰一处**写该键（`record.feed_score = toFeedScoreString(row.feed_score)`，行携带该列才出）· '
+    + '归一器**不出现**任何因子原始值键（`recency` / `sale_rate` / `rating_raw` / `wants_n` / `views_n`）· '
+    + '`views` 不进 feed（`row.view_count` 条件透出只在详情面）· 6 位小数常量唯一（`FEED_SCORE_DECIMALS = 6`）',
+    (DB.match(/AS feed_score/g) ?? []).length === 1
+      && /AS feed_score/.test(FEED_SQL)
       && /FROM listing AS l\b/.test(FEED_SQL)
-      && /ORDER BY f\.score DESC/.test(FEED_SQL)
+      && /ORDER BY \(CASE WHEN/.test(FEED_SQL)
       && !/\.\.\.\s*row\b/.test(NORMALIZE_BLOCK)
-      && !/\bscore\s*:/.test(NORMALIZE_BLOCK)
+      && /if \(row\.feed_score !== undefined\) \{\s*\n\s*record\.feed_score = toFeedScoreString\(row\.feed_score\);\s*\n\s*\}/.test(NORMALIZE_BLOCK)
+      && (NORMALIZE_BLOCK.match(/feed_score/g) ?? []).length === 4
       && !/recency/.test(NORMALIZE_BLOCK)
       && !/sale_rate/.test(NORMALIZE_BLOCK)
-      && !/row\.view_count/.test(FEED_SQL),
+      && !/rating_raw/.test(NORMALIZE_BLOCK)
+      && !/\bviews_n\b/.test(NORMALIZE_BLOCK)
+      && !/row\.view_count/.test(FEED_SQL)
+      && /export const FEED_SCORE_DECIMALS = 6;/.test(DB)
+      && (DB.match(/export const FEED_SCORE_DECIMALS/g) ?? []).length === 1,
     JSON.stringify({
-      as_score_hits: (DB.match(/AS score/g) ?? []).length,
+      as_feed_score_hits: (DB.match(/AS feed_score/g) ?? []).length,
       normalize_bytes: NORMALIZE_BLOCK.length,
+      normalize_feed_score_tokens: (NORMALIZE_BLOCK.match(/feed_score/g) ?? []).length,
       spread: /\.\.\.\s*row\b/.test(NORMALIZE_BLOCK),
+      decimals_const: (DB.match(/export const FEED_SCORE_DECIMALS/g) ?? []).length,
     }));
 
   ck.t('A5',
@@ -625,10 +680,15 @@ const keysOf = (v: unknown) => (v && typeof v === 'object' ? Object.keys(v as Re
 
     // ---- 键集 / wants 口径（recommend 臂行）
     const recRows = armDefault.rows as unknown as Array<Record<string, unknown>>;
+    const newRows = armNewRows as unknown as Array<Record<string, unknown>>;
     R.keys = {
       recommend: keysOf(recRows[0]),
-      newArm: keysOf(armNewRows[0]),
+      newArm: keysOf(newRows[0]),
       count: keysOf(recRows[0]).length,
+      feedScoreTokens: keysOf(recRows[0]).filter((k) => k.includes('feed')),
+      feedScoreValues: recRows.map((row) => String(row.feed_score ?? '')),
+      feedScoreTypes: [...new Set(recRows.map((row) => typeof row.feed_score))],
+      newArmFeedScores: newRows.map((row) => String(row.feed_score ?? '')),
     };
     const wantMap = new Map<number, number>();
     for (const row of await raw<{ listing_id: string; n: number }>(c,
@@ -636,6 +696,51 @@ const keysOf = (v: unknown) => (v && typeof v === 'object' ? Object.keys(v as Re
       wantMap.set(Number(row.listing_id), Number(row.n));
     }
     R.wantsOk = recRows.every((row) => Number(row.wants) === (wantMap.get(Number(row.bID)) ?? 0));
+
+    // ---- S9 手算三行：三行因子实测（年龄用 DB now() ⇒ 与下发分值同一时间基准）
+    //   手算里 0.40/0.20/0.15/0.15/0.10 与饱和常数 5 / 100 / 中性 3 星**逐字写死**（不复用实现常量，
+    //   双录入对账）；期望值另附**字面量**（0.44 / 0.343333 / 0.314286）作为第二重佐证。
+    const HAND_SPEC_SQL = `
+      SELECT EXTRACT(EPOCH FROM (now() - l.time_created)) / 86400.0 AS age_days,
+             COALESCE(fav.want_count, 0)::int AS want_count,
+             GREATEST(COALESCE(l.view_count, 0), 0)::int AS views,
+             (SELECT avg(r.stars)::float8 FROM public.rating AS r WHERE r.ratee_uid = l.seller_uid) AS avg_stars,
+             COALESCE(so.sold_qty, 0)::int AS sold,
+             GREATEST(l.stock, 0)::int AS stock
+        FROM public.listing AS l
+        LEFT JOIN (SELECT listing_id, count(*)::int AS want_count FROM public.listing_favorite GROUP BY listing_id) AS fav
+               ON fav.listing_id = l.listing_id
+        LEFT JOIN (SELECT listing_id, sum(quantity)::int AS sold_qty FROM public.listing_order WHERE status = 'paid' GROUP BY listing_id) AS so
+               ON so.listing_id = l.listing_id
+       WHERE l.listing_id = $1::bigint`;
+    const handRows: Array<{ id: number; factor: string; want: number; literal: number }> = [];
+    for (const [factor, id, literal] of [
+      ['wants', wHi, 0.44], ['sale_rate', sHi, 0.343333], ['rating', rHi, 0.314286],
+    ] as Array<[string, number, number]>) {
+      const f = await raw1<{ age_days: number; want_count: number; views: number; avg_stars: number | null; sold: number; stock: number }>(c, HAND_SPEC_SQL, [id]);
+      if (!f) continue;
+      const age = Math.max(Number(f.age_days), 0);
+      const recency = 1 / (1 + age);
+      const rating = (f.avg_stars === null ? 3.0 : Number(f.avg_stars)) / 5;
+      const cWants = Number(f.want_count);
+      const wants = cWants / (cWants + 5);
+      const v = Number(f.views);
+      const views = v / (v + 100);
+      const sold = Number(f.sold);
+      const stock = Number(f.stock);
+      const saleRate = sold + stock === 0 ? 0 : sold / (sold + stock);
+      const want = 0.40 * recency + 0.20 * rating + 0.15 * wants + 0.15 * views + 0.10 * saleRate;
+      handRows.push({ id, factor, want, literal });
+    }
+    R.handRows = handRows;
+    R.sheetRecommend = rowsToSheet(recRows);
+    R.sheetNew = rowsToSheet(newRows);
+
+    // ---- S10 两份响应的 `feed_score` 逐行相等（背靠背两次调用 ⇒ now() 漂移压到毫秒级）
+    R.sheetBackToBack = {
+      recommend: rowsToSheet(await DatabaseService.listBrands(0, pageLimit, ex, 'recommend') as unknown as Array<Record<string, unknown>>),
+      newArm: rowsToSheet(await DatabaseService.listBrands(0, pageLimit, ex, 'new') as unknown as Array<Record<string, unknown>>),
+    };
 
     // ---- 负控用 mutant 序（独立 oracle 复算，不改代码）
     R.oracleDefaultFull = oracleDefault;
@@ -698,15 +803,77 @@ const keysOf = (v: unknown) => (v && typeof v === 'object' ? Object.keys(v as Re
     JSON.stringify({ pages: R.pages, head4: R.armNew?.slice(0, 4), unique: R.armNew ? new Set(R.armNew).size : null, n: R.armNew?.length }));
 
   const keyList: string[] = R.keys?.recommend ?? [];
-  const forbidden = ['score', 'recency', 'rating_raw', 'sale_rate', 'seller_rating_avg', 'view_count'];
+  const forbidden = ['score', 'recency', 'rating_raw', 'wants_n', 'views_n', 'sale_rate', 'seller_rating_avg', 'view_count', 'sold_qty'];
+  const newArmKeyList: string[] = R.keys?.newArm ?? [];
+  const feedScoreValues: string[] = R.keys?.feedScoreValues ?? [];
   ck.t('B5',
-    '★**响应键集零变化**：两臂同批行键集**逐字相同** · 无 `score` / `recency` / `rating_raw` / `sale_rate` / '
-    + '`view_count` 键（因子原始值一律不出）· `wants` 键仍 = `listing_favorite` 计数（口径不变）',
-    keyList.length > 0
-      && JSON.stringify(keyList) === JSON.stringify(R.keys?.newArm ?? [])
+    '★**恰一个派生键 `feed_score`**（键集 50→**51**）：两臂同批行键集**逐字相同**、恰 **51** 键 · '
+    + '`feed_*` 键只有 `feed_score` 一个且恒在场（**6 位小数字符串**，不是 number）· '
+    + '无 `score` / 因子原始值键（`recency` / `rating_raw` / `wants_n` / `views_n` / `sale_rate` / `view_count`）· '
+    + '`wants` 键仍 = `listing_favorite` 计数（口径不变）',
+    keyList.length === 51
+      && JSON.stringify(keyList) === JSON.stringify(newArmKeyList)
+      && keyList.includes('feed_score')
+      && JSON.stringify(R.keys?.feedScoreTokens ?? []) === JSON.stringify(['feed_score'])
+      && JSON.stringify(R.keys?.feedScoreTypes ?? []) === JSON.stringify(['string'])
+      && feedScoreValues.every(isSixDp)
       && forbidden.every((k) => !keyList.includes(k))
       && R.wantsOk === true,
-    JSON.stringify({ key_count: keyList.length, keys: keyList, forbidden_hits: forbidden.filter((k) => keyList.includes(k)), wants_ok: R.wantsOk }));
+    JSON.stringify({
+      key_count: keyList.length, feed_tokens: R.keys?.feedScoreTokens, types: R.keys?.feedScoreTypes,
+      forbidden_hits: forbidden.filter((k) => keyList.includes(k)), wants_ok: R.wantsOk,
+      sample: feedScoreValues.slice(0, 4),
+    }));
+
+  // ---- S9 · `feed_score` 逐行对拍公式（全页 vs 独立 oracle + 三行手算）
+  const oracleMap = new Map<number, number>();
+  ((R.oracleDefaultFull?.ids ?? []) as number[]).forEach((id, i) => {
+    oracleMap.set(id, Number(R.oracleDefaultFull.scores[i]));
+  });
+  const sheetRec: Map<number, string> = R.sheetRecommend ?? new Map();
+  const handRows: Array<{ id: number; factor: string; want: number; literal: number }> = R.handRows ?? [];
+  ck.t('S9',
+    '★**`feed_score` 逐行对拍公式**：全页每行 = 独立 oracle（SQL 五因子复算 · 默认权重）同名分值（1e-6）· '
+    + '三行**手算**（门内 TS 算术逐项写死 0.40/0.20/0.15/0.15/0.10 与 5 / 100 / 中性 3 星）对拍（2e-5，'
+    + '`now()` 年龄漂移）且贴字面量期望（wants 行 0.44 · sale_rate 行 0.343333 · rating 行 0.314286）· '
+    + '每行形态 = 6 位小数串',
+    s9Passes(sheetRec, oracleMap, handRows),
+    JSON.stringify({
+      rows: sheetRec.size, oracle_rows: oracleMap.size,
+      hand: handRows.map((h) => ({ factor: h.factor, id: h.id, hand: Number(h.want.toFixed(6)), literal: h.literal, got: sheetRec.get(h.id) })),
+      max_abs_diff_vs_oracle: Math.max(0, ...[...sheetRec].map(([id, s]) => Math.abs(Number(s) - (oracleMap.get(id) ?? 0)))),
+    }));
+
+  // ---- S9n · 负控：把 `feed_score` 输出改成常量 0 ⇒ 同一判据必转 false
+  const mutantZeroSheet = new Map<number, string>([...sheetRec.keys()].map((id) => [id, '0.000000']));
+  ck.t('S9n',
+    '★**负控（S9 非恒真）**：把 `feed_score` 输出改成常量 `0.000000`（同 id 集合、同串形态）⇒ 同一 S9 判据必转 **false**；'
+    + '真实态为 **true**',
+    s9Passes(sheetRec, oracleMap, handRows) === true
+      && s9Passes(mutantZeroSheet, oracleMap, handRows) === false,
+    JSON.stringify({
+      real: s9Passes(sheetRec, oracleMap, handRows),
+      mutant_constant_zero: s9Passes(mutantZeroSheet, oracleMap, handRows),
+      mutant_sample: [...mutantZeroSheet].slice(0, 3),
+    }));
+
+  // ---- S10 · 分值只由公式 + 权重决定，与排序轴无关
+  const sheetA: Map<number, string> = R.sheetBackToBack?.recommend ?? new Map();
+  const sheetB: Map<number, string> = R.sheetBackToBack?.newArm ?? new Map();
+  const shared = [...sheetA.keys()].filter((id) => sheetB.has(id));
+  const diffs = shared.map((id) => Math.abs(Number(sheetA.get(id)) - Number(sheetB.get(id))));
+  ck.t('S10',
+    '★**与排序无关**：`sort=recommend` 与 `sort=new` 两份响应（背靠背同事务）同 id 行 `feed_score` **逐行相等**'
+    + '（2e-6 = 6 位小数的 2 个末位；`recency` 含 `now()` ⇒ 两次调用的毫秒漂移不可见）· 两臂 id 集合覆盖全页 ·'
+    + ' 两臂均 6 位小数串',
+    shared.length > 0 && shared.length === sheetA.size && shared.length === sheetB.size
+      && diffs.every((d) => d <= 2e-6)
+      && [...sheetA.values()].every(isSixDp) && [...sheetB.values()].every(isSixDp),
+    JSON.stringify({
+      rows: shared.length, max_abs_diff: Math.max(0, ...diffs),
+      identical_strings: shared.filter((id) => sheetA.get(id) === sheetB.get(id)).length,
+      sample: shared.slice(0, 3).map((id) => ({ id, recommend: sheetA.get(id), new: sheetB.get(id) })),
+    }));
 
   const pairArms: Array<{ id: string; label: string; hi: number; lo: number; note: string }> = [
     { id: 'B6a', label: 'wants（收藏 c/(c+5)）', hi: g('wHi'), lo: g('wLo'), note: '20 收藏 vs 0' },
@@ -886,10 +1053,26 @@ const keysOf = (v: unknown) => (v && typeof v === 'object' ? Object.keys(v as Re
       !/public/.test(hBad.cache),
       JSON.stringify({ cache: hBad.cache }));
 
+    // ★ 两个同源读口一致：`/api/home` 的 prizes 与 `/api/prize/all` 同批行：键集 51 且 `feed_score` 逐行相等
+    const hHome = await getJson('/api/home?prize_limit=5');
+    const homePrizes = ((hHome.body.data ?? {}) as { prizes?: Array<Record<string, unknown>> }).prizes ?? [];
+    const homeSheet = rowsToSheet(homePrizes);
+    const allSheet = rowsToSheet((hRec.body.data ?? []) as Array<Record<string, unknown>>);
+    const homeKeys = homePrizes.length ? Object.keys(homePrizes[0]).sort() : [];
+    const homeShared = [...allSheet.keys()].filter((id) => homeSheet.has(id));
+    ck.t('H5',
+      '★**两份同源读口一致**：`/api/home` 与 `/api/prize/all` 的 feed 行键集**逐字相同（51 键）**、'
+      + '`feed_score` 同 id 行**逐行相等**（2e-6）⇒ 首页与列表页拿到的排序依据同源同值',
+      hHome.status === 200 && homePrizes.length > 0 && homeKeys.length === 51
+        && homeShared.length > 0
+        && homeShared.every((id) => Math.abs(Number(homeSheet.get(id)) - Number(allSheet.get(id))) <= 2e-6)
+        && [...homeSheet.values()].every(isSixDp),
+      JSON.stringify({ status: hHome.status, home_rows: homePrizes.length, home_keys: homeKeys.length, shared: homeShared.length, sample: homeShared.slice(0, 3).map((id) => ({ id, home: homeSheet.get(id), all: allSheet.get(id) })) }));
+
     await new Promise<void>((resolve) => server.close(() => resolve()));
-    out.http = { port, bad: { status: hBad.status, error: errBad }, new_head: idsOf(hNew.body), rec_head: idsOf(hRec.body) };
+    out.http = { port, bad: { status: hBad.status, error: errBad }, new_head: idsOf(hNew.body), rec_head: idsOf(hRec.body), home_head: idsOf({ data: homePrizes }) };
   } catch (e) {
-    for (const id of ['H1', 'H2', 'H3', 'H4']) {
+    for (const id of ['H1', 'H2', 'H3', 'H4', 'H5']) {
       ck.t(id, '★真 HTTP 臂', false, `error=${String((e as Error).message ?? e)}`);
     }
   }

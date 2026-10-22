@@ -28,7 +28,7 @@
  *       ② 去购买闸 —— 绕开服务层直调真 `listing_post_event`（qty=2 ∧ allow=false）⇒
  *          照常成交（订单 / 库存 / 余额全动）⇒ **B2 判据必红**（DB 层故意不设闸，服务层闸是唯一防线）；
  *   C · 读口键数（同 tx）：详情 service 52 / 路由合成 **53** · mine **14** · edit **14** ·
- *       feed **50**（零 `allow_multi_buy`）；键型 = 真布尔；
+ *       feed **51**（零 `allow_multi_buy`；+1 = `feed_score` 派生键，见 p74）；键型 = 真布尔；
  *   E · 桩回收 · F · 零残留 + committed 库面未动。
  *
  * 纪律：**不 apply、不写版本表、一切写在回滚事务内**（SAVEPOINT 包预期失败/须撤销臂）；
@@ -156,8 +156,8 @@ const got = (r: { ok?: boolean; status?: number; code?: string; details?: Record
   const regsByVerb = ['get', 'post', 'put', 'delete', 'patch'].map((v) =>
     (INDEX_TS.match(new RegExp(`^app\\.${v}\\(`, 'gm')) ?? []).length);
   const regs = regsByVerb.reduce((a, b) => a + b, 0);
-  ck.t('A1', '**零新路由**：注册点 = 128（get 55 / post 66 / put 0 / delete 3 / patch 4；118 + campaign-domain 九口 route §49.18 ＋ user-balances `GET /api/user/balances` +1）—— 写口/购买口全是既有端点收新字段',
-    regs === 128 && JSON.stringify(regsByVerb) === JSON.stringify([55, 66, 0, 3, 4]),
+  ck.t('A1', '**零新路由**：注册点 = 109（get 49 / post 53 / put 0 / delete 3 / patch 4；job 域下线 −21 后现取）—— 写口/购买口全是既有端点收新字段',
+    regs === 109 && JSON.stringify(regsByVerb) === JSON.stringify([49, 53, 0, 3, 4]),
     `registration_points=${regs} by_verb=${JSON.stringify(regsByVerb)}`);
 
   /** 从某一路由声明起，截到下一个顶层 `app.` 注册点（或文件尾）——PATCH 口是全文件唯一 patch ⇒ 也能截到 */
@@ -264,6 +264,9 @@ const got = (r: { ok?: boolean; status?: number; code?: string; details?: Record
 
   // ====================================================================== 真库段（B / W / M / N / C）
   const pool = mkPool(2);
+  // ★ 开跑前迁移头基线（F2「本门零版本行」以基线为准；2026-10-22 修：原本硬编 0061 早已过期）
+  const headStart = await raw1Retry<{ version: string }>(pool, 'SELECT version FROM schema_migration ORDER BY version DESC LIMIT 1');
+  const baselineVersion = headStart?.version ?? '';
   const projRows = await qRetry<{ project_id: string }>(pool, "SELECT current_setting('neon.project_id', true) AS project_id");
   const projectId = String(projRows[0]?.project_id ?? '');
   out.env = { project_id: projectId, expect_dev: 'quiet-math-65207667' };
@@ -584,7 +587,7 @@ const got = (r: { ok?: boolean; status?: number; code?: string; details?: Record
       const feed = await DatabaseService.listBrands(0, 60, ex);
       const feedKeys = feed.length ? Object.keys(feed[0]) : [];
       const feedBad = feed.filter((x) => (x as unknown as Record<string, unknown>).allow_multi_buy !== undefined
-        || Object.keys(x).length !== 50);
+        || Object.keys(x).length !== 51);
       ck.t('C1', '**详情 52→53**：service 层 **52 键** + 路由合成 `seller` ⇒ **53 键**；`allow_multi_buy` 在场且为**真布尔**（FB 行 = true）',
         dKeys.length === 52 && dKeys.includes('allow_multi_buy') && routeShape === 53
         && (dRec as unknown as Record<string, unknown>).allow_multi_buy === true,
@@ -595,8 +598,8 @@ const got = (r: { ok?: boolean; status?: number; code?: string; details?: Record
       ck.t('C3', '**edit 13→14**（与 mine 键面恒等的派生硬律）：edit 行恰 **14 键**、键名逐字 = mine 同族（`allow_multi_buy` 恒在场）⇒ 编辑页预填不断链',
         editKeys.length === 14 && JSON.stringify([...editKeys].sort()) === JSON.stringify(MINE_14),
         JSON.stringify({ keys: editKeys.length, sorted: [...editKeys].sort() }));
-      ck.t('C4', '**feed 50 不变**：`listBrands` 全部行恰 **50 键**、**零行**出现 `allow_multi_buy`（列表卡不参与购买决策）',
-        feed.length > 0 && feedBad.length === 0 && feedKeys.length === 50,
+      ck.t('C4', '**feed 51 不变**：`listBrands` 全部行恰 **51 键**（含 `feed_score`）、**零行**出现 `allow_multi_buy`（列表卡不参与购买决策）',
+        feed.length > 0 && feedBad.length === 0 && feedKeys.length === 51,
         JSON.stringify({ rows: feed.length, bad: feedBad.length, keys: feedKeys.length }));
     } finally {
       Object.assign(svc, orig);
@@ -620,12 +623,12 @@ const got = (r: { ok?: boolean; status?: number; code?: string; details?: Record
   const postCol = await raw1Retry<{ n: number }>(pool2,
     "SELECT count(*)::int AS n FROM information_schema.columns WHERE table_schema='public' AND table_name='listing'");
   await pool2.end();
-  out.migration_state = { head: head?.version ?? '', committed_cols: postCol?.n ?? -1 };
+  out.migration_state = { pre_version: baselineVersion, head: head?.version ?? '', committed_cols: postCol?.n ?? -1 };
   ck.t('F1', '**零残留**：回滚后 `create_key LIKE cli:p61-gate:%` 与 `symbol LIKE p61g%` 命中均 = 0（夹具 / 订单 / 账本分录 / 余额随事务整体回滚）',
     Number(residue?.n ?? -1) === 0 && Number(residueCur?.n ?? -1) === 0,
     `listing_residue=${residue?.n} currency_residue=${residueCur?.n}`);
-  ck.t('F2', '**committed 库面未被本门改动**：迁移头仍 = 0061（本门零版本行）· listing 列数 = 18 与开跑一致',
-    (head?.version ?? '') === '0061' && Number(postCol?.n ?? -1) === 18,
+  ck.t('F2', '**committed 库面未被本门改动**：迁移头 = 开跑前基线（本门零版本行）· listing 列数 = 18 与开跑一致',
+    (head?.version ?? '') === baselineVersion && Number(postCol?.n ?? -1) === 18,
     JSON.stringify(out.migration_state));
 
   // ====================================================================== 落盘
