@@ -475,8 +475,8 @@ const FIXTURE_KEY_PREFIX = 'cli:p57-gate:';
       return DatabaseService.listBrands(0, 8, c as unknown as SqlRunner);
     });
     const feed = feedTx.result ?? [];
-    const feedBad = feed.filter((r) => Object.keys(r).length !== 50 || 'views' in r || 'condition' in r);
-    ck.t('C6', '**feed 行键 50**（48 + 0060 的 item_code + snowflake_id）：全部行恰 50 键且 `views`/`condition` 均不出现（feed 不加计数键、不计数）',
+    const feedBad = feed.filter((r) => Object.keys(r).length !== 51 || 'views' in r || 'condition' in r || !('feed_score' in r));
+    ck.t('C6', '**feed 行键 51**（48 + 0060 的 item_code + snowflake_id + 契约键 feed_score）：全部行恰 51 键且 `views`/`condition` 均不出现（feed 不加计数键、不计数）',
       feed.length > 0 && feedBad.length === 0,
       JSON.stringify({ rows: feed.length, bad_rows: feedBad.length, sample_keys: feed[0] ? Object.keys(feed[0]).length : 0 }));
 

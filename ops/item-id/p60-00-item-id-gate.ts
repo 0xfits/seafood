@@ -450,7 +450,8 @@ const tx = async <T>(
 
     const feed = await DatabaseService.listBrands(0, 8, ex);
     const feedKeys = feed.length ? Object.keys(feed[0]) : [];
-    const feedBad = feed.filter((r) => Object.keys(r).length !== 50 || !('item_code' in r) || !('snowflake_id' in r)
+    const feedBad = feed.filter((r) => Object.keys(r).length !== 51 || !('item_code' in r) || !('snowflake_id' in r)
+      || !('feed_score' in r)
       || !ITEM_CODE_PATTERN.test(String(r.item_code ?? '')) || ALL_DIGITS.test(String(r.item_code ?? '')));
 
     const mine = await DatabaseService.listListingsBySeller(sellerUid, 0, 100, ex);
