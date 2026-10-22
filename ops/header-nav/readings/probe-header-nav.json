@@ -1,6 +1,6 @@
 {
   "probe": "ops/header-nav/probe-header-nav.mjs",
-  "startedAt": "2026-10-22T03:00:18.972Z",
+  "startedAt": "2026-10-22T04:40:58.002Z",
   "dist": "/Users/kevin/bistro/seafood/frontend/dist",
   "fixtures": {
     "auth": "localStorage seed（EVM = 管理员合约地址）+ /api/admin/me 自截（零后端 / 零库写）",
@@ -129,6 +129,36 @@
         }
       ]
     },
+    "inline": [
+      {
+        "key": "nav-0",
+        "leftOfText": true,
+        "vCenterDelta": 0,
+        "display": "flex",
+        "rowWithin": true
+      },
+      {
+        "key": "nav-1",
+        "leftOfText": true,
+        "vCenterDelta": 0,
+        "display": "flex",
+        "rowWithin": true
+      },
+      {
+        "key": "nav-2",
+        "leftOfText": true,
+        "vCenterDelta": 0,
+        "display": "flex",
+        "rowWithin": true
+      },
+      {
+        "key": "orders",
+        "leftOfText": false,
+        "vCenterDelta": 19.5,
+        "display": "block",
+        "rowWithin": false
+      }
+    ],
     "1536_en": {
       "navLabels": [
         "Bounties",
@@ -194,6 +224,14 @@
       "pixelated": true,
       "altEmptyAriaHidden": true,
       "labelExact": true
+    },
+    "iconInline": {
+      "rowCount": 4,
+      "everyLeftOfText": false,
+      "everyVCentered": false,
+      "ordersNotStacked": false,
+      "everySingleRowHeight": false,
+      "everyFlexDisplay": false
     },
     "copy": {
       "labelsExact": true,
@@ -393,9 +431,15 @@
     }
   },
   "summary": {
-    "checks": 54,
-    "failed": 0,
-    "failedNames": [],
-    "verdict": "PASS"
+    "checks": 59,
+    "failed": 5,
+    "failedNames": [
+      "iconInline.everyLeftOfText",
+      "iconInline.everyVCentered",
+      "iconInline.ordersNotStacked",
+      "iconInline.everySingleRowHeight",
+      "iconInline.everyFlexDisplay"
+    ],
+    "verdict": "FAIL"
   }
 }

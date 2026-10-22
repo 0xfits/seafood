@@ -226,7 +226,7 @@ const Header = () => {
                 未登录同样可点 ⇒ 由既有 ProtectedRoute 出登录引导；复用既有头部控件类 nav-link（不动桌面按钮几何）。 */}
             <Link
               to={buildPath('profile')}
-              className="nav-link"
+              className="nav-link inline-flex items-center gap-1.5"
               data-sf-m="header-orders"
               aria-label={t('header.orders')}
               title={t('header.orders')}

@@ -319,6 +319,43 @@ async function main() {
     labelExact: deskSnap.orders ? deskSnap.orders.spanLabel === NEW.zh.header.orders : false,
   }
 
+  // ★ Kevin 2026-10-22：「订单」图标必须在**文字左侧**，与前三项排布一致（Tailwind preflight 把 img 变
+  //   block ⇒ 只写 nav-link 会垂直堆叠）。这里量四个入口的 img/span 矩形：图在文左（img.right ≤ span.left）
+  //   且垂直居中（中心线差 ≤ 4px），并核对容器为 flex 行排。负控：摘掉 inline-flex ⇒ imgBelowText 转红。
+  const inlineSnap = await d.page.evaluate(() => {
+    const rows = []
+    const push = (el, key) => {
+      if (!el) return
+      const img = el.querySelector('img')
+      const span = el.querySelector('span')
+      if (!img || !span) { rows.push({ key, ok: false, why: 'missing_img_or_span' }); return }
+      const ir = img.getBoundingClientRect()
+      const sr = span.getBoundingClientRect()
+      const er = el.getBoundingClientRect()
+      const cs = getComputedStyle(el)
+      rows.push({
+        key,
+        leftOfText: Math.round(ir.right * 10) / 10 <= Math.round(sr.left * 10) / 10,
+        vCenterDelta: Math.abs((ir.top + ir.height / 2) - (sr.top + sr.height / 2)),
+        display: cs.display,
+        rowWithin: er.height > 0 && er.height <= 44,
+      })
+    }
+    const nav = document.querySelector('nav')
+    ;[...(nav ? nav.querySelectorAll('a') : [])].forEach((a, i) => push(a, `nav-${i}`))
+    push(document.querySelector('[data-sf-m="header-orders"]'), 'orders')
+    return rows
+  })
+  out.states.inline = inlineSnap
+  out.assertions.iconInline = {
+    rowCount: inlineSnap.length,
+    everyLeftOfText: inlineSnap.length === 4 && inlineSnap.every((r) => r.leftOfText === true),
+    everyVCentered: inlineSnap.every((r) => typeof r.vCenterDelta === 'number' && r.vCenterDelta <= 4),
+    ordersNotStacked: (inlineSnap.find((r) => r.key === 'orders') || {}).leftOfText === true,
+    everySingleRowHeight: inlineSnap.every((r) => r.rowWithin === true),
+    everyFlexDisplay: inlineSnap.every((r) => /flex/.test(String(r.display))),
+  }
+
   out.assertions.copy = {
     labelsExact: sameArr(deskSnap.navLabels, EXPECT_LABELS_ZH),
     bountyIsShort: (items[0] || {}).label === '悬赏',
