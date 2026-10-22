@@ -1,0 +1,10 @@
+{
+  "name": "seafood-mm",
+  "version": "1.0.0",
+  "private": true,
+  "description": "seafood 做市机器人容器镜像的最小依赖清单（仅 ethers：EIP-191 personal_sign 登录用）",
+  "type": "module",
+  "dependencies": {
+    "ethers": "6.17.0"
+  }
+}

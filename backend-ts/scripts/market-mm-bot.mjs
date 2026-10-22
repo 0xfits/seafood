@@ -5,38 +5,51 @@
 //       taker 挂价格交叉的对手单后走 M3 撮合动词 matchMarketOrders（对手方服务端选择、
 //       定价恒 = 买单限价 DL85、手费 = taker 且恒 $ DL87）；自成交双闸不变 ——
 //       MM 自己的买单（低价）与卖单（高价）永不互碰。
-// 长跑：cron/pm2/systemd 拉起即可（缺省死循环 + 出错指数退避）；--once 单轮退出（验收/巡检用）。
-// 运行：node backend-ts/scripts/market-mm-bot.mjs [--env ~/.config/seafood/mm.env] [--once]
+// 长跑：cron/pm2/systemd/fly 拉起即可（缺省死循环 + 出错指数退避）；--once 单轮退出（验收/巡检用）。
+// 运行：
+//   node backend-ts/scripts/market-mm-bot.mjs [--env <env>] [--once]
+//   node backend-ts/scripts/market-mm-bot.mjs [--env <env>] --status    # 只读本地 state/指标，不登录不下单
 // 安全：私钥/token 只进闭包，绝不打印、绝不落 state；日志只记决策与响应状态。
 // 纪律：不改撮合引擎、零新路由 —— 本文件是纯 API 消费者。
+//
+// P1（可托管服务 · 风险兑底，不依赖本机）：
+//   ① 急停 flag：`<env 同目录>/mm-kill.flag` 存在 ⇒ 本轮只撤不挂 + 告警；进程保留，flag 删掉自动恢复。
+//   ② 硬限额：MM_MAX_NOTIONAL_USD（单边单笔名义额）/ MM_MAX_INVENTORY_SKEW_PCT（两侧库存偏离，超限该侧不挂）。
+//   ③ 自动降级：连续 MM_MAX_CONSEC_FAIL 轮报价失败 ⇒ 只撤不挂 + 告警（进程不退出，恢复后自动回双边）。
+//   ④ 指标：每轮一行 JSON（stdout）+ `<state_dir>/mm-metrics.json` 滚动 MM_METRICS_LIMIT 轮。
 // ============================================================================
 import fs from 'node:fs';
+import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import {
-  CONFIG_DEFAULTS,
+  appendMetricEntry,
   buildCreateKey,
+  buildStatusView,
   computeQuoteTargets,
   deriveRefPrice,
+  killSwitchState,
   openOwnOrdersForPair,
   planQuotes,
   resolveConfig,
+  shouldDegrade,
+  summarizeMetrics,
   windowSeq,
 } from './market-mm-quotes.mjs';
 
 const require = createRequire(import.meta.url);
-const { Wallet } = require('ethers'); // 复用 backend-ts 既有依赖（零新增）
 
 // ---------------------------------------------------------------- CLI / env 装载
 const argv = process.argv.slice(2);
 const flag = (name) => argv.includes(name);
 const argValue = (name) => {
   const i = argv.indexOf(name);
-  return i >= 0 && i + 1 < argv.length ? argv[i + 1] : null;
+  return i >= 0 && i + 1 < argv.length && !String(argv[i + 1]).startsWith('--') ? argv[i + 1] : null;
 };
 
 const envPath = path.resolve(argValue('--env') || path.join(os.homedir(), '.config/seafood/mm.env'));
+const STATUS = flag('--status');
 const ONCE = flag('--once') || String(process.env.MM_ONCE || '') === '1';
 
 /** 读 env 文件：键值进 process.env（已存在的进程 env 优先，dotenv 同语义）。 */
@@ -57,9 +70,16 @@ function loadEnvFile(file) {
   return out;
 }
 
-if (!fs.existsSync(envPath)) {
-  console.error(JSON.stringify({ ts: new Date().toISOString(), level: 'fatal', msg: `env file missing: ${envPath} (run market-mm-setup.ts first)` }));
-  process.exit(1);
+const envFileExists = fs.existsSync(envPath);
+const hasKeyInProcEnv = String(process.env.MM_PRIVATE_KEY || '').trim() !== '';
+if (!envFileExists && !STATUS) {
+  // 托管口径：配置可整体来自平台 secrets（fly/railway 注入 process.env）⇒ env 文件缺失不致命
+  if (hasKeyInProcEnv) {
+    console.log(JSON.stringify({ ts: new Date().toISOString(), level: 'warn', msg: `env file missing: ${envPath} — running on process env (secrets mode)` }));
+  } else {
+    console.error(JSON.stringify({ ts: new Date().toISOString(), level: 'fatal', msg: `env file missing: ${envPath} and no MM_PRIVATE_KEY in process env (run market-mm-setup.ts first)` }));
+    process.exit(1);
+  }
 }
 loadEnvFile(envPath);
 
@@ -71,16 +91,22 @@ try {
   process.exit(1);
 }
 
-const wallet = new Wallet(String(process.env.MM_PRIVATE_KEY || ''));
-const MM_ADDRESS = wallet.address.toLowerCase();
-if (!/^0x[0-9a-f]{40}$/.test(MM_ADDRESS)) {
-  console.error(JSON.stringify({ ts: new Date().toISOString(), level: 'fatal', msg: 'MM_PRIVATE_KEY missing/invalid in env file' }));
-  process.exit(1);
+// --status 不需要私钥（只读本地 state/指标）；起跑/撤单才需要签名钱包
+let wallet = null;
+let MM_ADDRESS = '';
+if (!STATUS) {
+  wallet = new (require('ethers').Wallet)(String(process.env.MM_PRIVATE_KEY || ''));
+  MM_ADDRESS = String(wallet.address || '').toLowerCase();
+  if (!/^0x[0-9a-f]{40}$/.test(MM_ADDRESS)) {
+    console.error(JSON.stringify({ ts: new Date().toISOString(), level: 'fatal', msg: 'MM_PRIVATE_KEY missing/invalid in env file' }));
+    process.exit(1);
+  }
 }
 
-const stateFile = CFG.stateFile
-  ? path.resolve(CFG.stateFile)
-  : path.join(path.dirname(envPath), 'mm-state.json');
+const stateDir = CFG.stateFile ? path.dirname(path.resolve(CFG.stateFile)) : path.dirname(envPath);
+const stateFile = CFG.stateFile ? path.resolve(CFG.stateFile) : path.join(stateDir, 'mm-state.json');
+const metricsFile = path.join(stateDir, 'mm-metrics.json');
+const killFlagFile = CFG.killFlagFile ? path.resolve(CFG.killFlagFile) : path.join(path.dirname(envPath), 'mm-kill.flag');
 
 function readState() {
   try {
@@ -98,8 +124,67 @@ function writeState(state) {
   }
 }
 
+function readMetrics() {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(metricsFile, 'utf8'));
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+function appendMetrics(entry) {
+  try {
+    fs.mkdirSync(stateDir, { recursive: true });
+    const next = appendMetricEntry(readMetrics(), entry, CFG.metricsLimit);
+    const tmp = `${metricsFile}.tmp`;
+    fs.writeFileSync(tmp, JSON.stringify(next) + '\n', { mode: 0o600 });
+    fs.renameSync(tmp, metricsFile);
+  } catch (e) {
+    log({ level: 'warn', msg: `metrics write failed: ${e.message}` });
+  }
+}
+
+function readKillFlag() {
+  try {
+    const st = fs.statSync(killFlagFile);
+    return killSwitchState({ flagExists: true, flagPath: killFlagFile, flagMtimeMs: st.mtimeMs });
+  } catch {
+    return killSwitchState({ flagExists: false, flagPath: killFlagFile });
+  }
+}
+
 function log(fields) {
-  console.log(JSON.stringify({ ts: new Date().toISOString(), mm: `0x…${MM_ADDRESS.slice(-6)}`, pair: `${CFG.baseCid}/${CFG.quoteCid}`, ...fields }));
+  console.log(JSON.stringify({
+    ts: new Date().toISOString(),
+    ...(MM_ADDRESS ? { mm: `0x…${MM_ADDRESS.slice(-6)}` } : {}),
+    pair: `${CFG.baseCid}/${CFG.quoteCid}`,
+    ...fields,
+  }));
+}
+
+// ---------------------------------------------------------------- --status（健康视图；也供容器探活）
+function statusView() {
+  const nowMs = Date.now();
+  const state = readState();
+  const metrics = readMetrics();
+  const view = buildStatusView({ state, metrics, nowMs });
+  const kill = readKillFlag();
+  const stale = view.age_seconds === null || view.age_seconds > CFG.statusMaxAgeS;
+  return {
+    ...view,
+    rounds_last_hour: summarizeMetrics(metrics, nowMs).rounds_last_hour,
+    kill_switch: { active: kill.active, path: kill.flag_path, age_s: kill.flag_age_s },
+    degraded: state.degraded === true,
+    stale,
+    max_age_s: CFG.statusMaxAgeS,
+    state_file: stateFile,
+  };
+}
+
+if (STATUS) {
+  const view = statusView();
+  console.log(JSON.stringify(view));
+  process.exit(view.stale ? 2 : 0);
 }
 
 // ---------------------------------------------------------------- HTTP 层
@@ -170,7 +255,55 @@ const fetchJsonNumber = (rows, cid) => {
   return row ? Math.max(0, Math.floor(Number(row.balance) || 0)) : 0;
 };
 
-async function round(n) {
+/** 只撤不挂：把本币对全部在挂单撤掉（逐单，一笔失败不中断）。 */
+async function cancelAllOwn(token, n, mine) {
+  let cancelled = 0;
+  let failed = 0;
+  for (const o of mine) {
+    try {
+      await api(token, 'DELETE', `/api/order/${o.oID}`);
+      cancelled += 1;
+    } catch (e) {
+      failed += 1;
+      log({ level: 'warn', round: n, msg: `cancel ${o.oID} failed: ${e.message}`, oID: o.oID, status: e.status, code: e.code });
+    }
+  }
+  return { cancelled, failed };
+}
+
+/** 落 state + 指标一条（每轮必落：正常 / 只撤不挂 / 降级）。 */
+function persistRound({ state, t0, n, ref, quotes, balances, mode, cancelReason, placed, cancelled, errors, degraded = false }) {
+  const tsIso = new Date(t0).toISOString();
+  writeState({
+    ...state,
+    last_ref_price: ref.refPrice,
+    last_ref_source: ref.source,
+    last_round_ts: t0,
+    last_round_ts_iso: tsIso,
+    last_round: n,
+    last_mode: mode,
+    last_quotes: quotes || null,
+    last_balances: balances,
+    last_cancel_reason: cancelReason || null,
+    last_round_summary: { mode, placed, cancelled, errors },
+    degraded,
+  });
+  appendMetrics({
+    ts: tsIso,
+    round: n,
+    ref_price: ref.refPrice,
+    ref_source: ref.source,
+    quotes: quotes || null,
+    placed,
+    cancelled,
+    errors,
+    mode,
+  });
+}
+
+async function round(n, opts = {}) {
+  const cancelOnly = opts.cancelOnly === true;
+  const cancelReason = opts.reason || null;
   const token = await getToken();
   const t0 = Date.now();
 
@@ -188,23 +321,44 @@ async function round(n) {
     envRefPrice: CFG.refPriceEnv,
     stateRefPrice: state.last_ref_price,
   });
-
-  if (ref.refPrice === null) {
-    // 停止条件：ref 无来源（无成交 ∧ env 未给 ∧ state 无存）⇒ 只撤不挂 + 告警
-    const mine = openOwnOrdersForPair(ownOrders, CFG.baseCid);
-    for (const o of mine) {
-      await api(token, 'DELETE', `/api/order/${o.oID}`).catch((e) => log({ level: 'warn', round: n, msg: `cancel ${o.oID} failed: ${e.message}` }));
-    }
-    log({ level: 'alert', round: n, msg: 'ref_price_unavailable: cancelled own orders, no quotes placed', source: ref.source, open_cancelled: mine.length });
-    writeState({ ...state, last_round_ts: t0, last_round: n, last_round_summary: { mode: 'cancel_only_no_ref' } });
-    return;
-  }
-
-  const targets = computeQuoteTargets({ refPrice: ref.refPrice, spreadPct: CFG.spreadPct });
   const mine = openOwnOrdersForPair(ownOrders, CFG.baseCid);
   const quoteAvail = fetchJsonNumber(balances, CFG.quoteCid);
   const baseAvail = fetchJsonNumber(balances, CFG.baseCid);
+  const bal = { quote_avail: quoteAvail, base_avail: baseAvail };
 
+  // ---------- 只撤不挂（急停 flag / 连续失败降级 / ref 无来源）----------
+  if (cancelOnly || ref.refPrice === null) {
+    const reason = cancelOnly
+      ? cancelReason || (opts.degraded ? 'degraded_consecutive_failures' : 'cancel_only')
+      : 'ref_price_unavailable';
+    const res = await cancelAllOwn(token, n, mine);
+    log({
+      level: 'alert',
+      round: n,
+      msg: `cancel_only: ${reason}`,
+      mode: 'cancel_only',
+      reason,
+      ref_price: ref.refPrice,
+      ref_source: ref.source,
+      open_orders: mine.length,
+      cancelled: res.cancelled,
+      failed: res.failed,
+      balances: bal,
+      book_levels: Array.isArray(book) ? book.length : null,
+      ms: Date.now() - t0,
+    });
+    persistRound({
+      state, t0, n, ref, quotes: null, balances: bal,
+      mode: 'cancel_only', cancelReason: reason,
+      placed: 0, cancelled: res.cancelled, errors: res.failed,
+      degraded: opts.degraded === true,
+    });
+    return { mode: 'cancel_only', reason, errors: res.failed, placed: 0, cancelled: res.cancelled, quoteFailed: false };
+  }
+
+  // ---------- 正常双边 ----------
+  const targets = computeQuoteTargets({ refPrice: ref.refPrice, spreadPct: CFG.spreadPct });
+  const quotes = { buy: targets.buyPrice, sell: targets.sellPrice };
   const plan = planQuotes({
     targets,
     ownOpenOrders: mine,
@@ -213,10 +367,13 @@ async function round(n) {
     baseAvail,
     orderSizeBase: CFG.orderSizeBase,
     maxInventoryPct: CFG.maxInventoryPct,
+    maxNotionalUsd: CFG.maxNotionalUsd,
+    maxInventorySkewPct: CFG.maxInventorySkewPct,
   });
 
   const seq = windowSeq(Date.now(), CFG.intervalS);
   const done = [];
+  let errors = 0;
 
   for (const c of plan.cancels) {
     try {
@@ -224,6 +381,7 @@ async function round(n) {
       done.push({ action: 'cancel', oID: c.oID, side: c.side, price: c.price, reason: c.reason, ok: true });
     } catch (e) {
       // 已被成交/已撤 ⇒ 404/409 属良性；其余记失败不中断本轮
+      errors += 1;
       done.push({ action: 'cancel', oID: c.oID, side: c.side, price: c.price, reason: c.reason, ok: false, status: e.status, code: e.code });
     }
   }
@@ -252,46 +410,146 @@ async function round(n) {
       });
     } catch (e) {
       // 模糊失败（超时等）同窗重试 = 同 create_key ⇒ 服务端幂等重放兜底
+      errors += 1;
       done.push({ action: 'place', side: p.side, price: p.price, amount: p.amount, create_key: createKey, ok: false, status: e.status, code: e.code });
     }
   }
 
+  const placedOk = done.filter((d) => d.action === 'place' && d.ok === true).length;
+  const cancelledOk = done.filter((d) => d.action === 'cancel' && d.ok === true).length;
+  // 「报价失败」= 本轮有挂单动作但一单都没挂上（连续满 N 轮 ⇒ 降级）
+  const quoteFailed = plan.places.length > 0 && placedOk === 0;
+
   log({
-    level: plan.mode === 'cancel_only' ? 'alert' : 'info',
+    level: plan.mode === 'cancel_only' ? 'alert' : quoteFailed ? 'warn' : 'info',
     round: n,
     ref_price: ref.refPrice,
     ref_source: ref.source,
     targets,
-    balances: { quote_avail: quoteAvail, base_avail: baseAvail },
+    quotes,
+    skew_pct: plan.skew.skewPct,
+    balances: bal,
     mode: plan.mode,
+    limits: {
+      max_notional_usd: CFG.maxNotionalUsd,
+      max_inventory_skew_pct: CFG.maxInventorySkewPct,
+      order_size_base: CFG.orderSizeBase,
+    },
     keeps: plan.keeps.map((k) => ({ oID: k.oID, side: k.side, price: k.price })),
     alerts: plan.alerts,
+    placed: placedOk,
+    cancelled: cancelledOk,
+    quote_failed: quoteFailed,
     ms: Date.now() - t0,
   });
   for (const d of done) log({ level: d.ok === false ? 'warn' : 'info', round: n, ...d });
 
-  writeState({ ...state, last_ref_price: ref.refPrice, last_ref_source: ref.source, last_round_ts: t0, last_round: n, last_round_summary: { mode: plan.mode, placed: plan.places.length, cancelled: plan.cancels.length } });
+  persistRound({
+    state, t0, n, ref, quotes, balances: bal,
+    mode: plan.mode, cancelReason: null,
+    placed: placedOk, cancelled: cancelledOk, errors,
+  });
+  return { mode: plan.mode, errors, placed: placedOk, cancelled: cancelledOk, quoteFailed };
 }
 
-// ---------------------------------------------------------------- 主循环（错误退避）
+// ---------------------------------------------------------------- 健康探活（托管用；MM_HEALTH_PORT=0 ⇒ 不开）
+function startHealthServer() {
+  const server = http.createServer((req, res) => {
+    const url = String(req.url || '/');
+    if (url === '/healthz' || url === '/' || url === '/status') {
+      const view = statusView();
+      res.writeHead(view.stale ? 503 : 200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+      res.end(JSON.stringify(view) + '\n');
+      return;
+    }
+    res.writeHead(404, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'not_found', paths: ['/healthz'] }) + '\n');
+  });
+  server.listen(CFG.healthPort, () => {
+    log({ level: 'info', msg: `health server listening on :${CFG.healthPort}/healthz`, stale_after_s: CFG.statusMaxAgeS });
+  });
+  server.on('error', (e) => log({ level: 'error', msg: `health server error: ${e.message}` }));
+}
+
+// ---------------------------------------------------------------- 主循环（急停 / 降级 / 错误退避）
 let roundNo = 0;
 let errorStreak = 0;
+let degraded = false;
+let degradedReason = null;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function main() {
-  log({ level: 'info', msg: `bot start: api=${CFG.apiBase} spread=${CFG.spreadPct}% size=${CFG.orderSizeBase} interval=${CFG.intervalS}s state=${stateFile}` });
+  log({
+    level: 'info',
+    msg: `bot start: api=${CFG.apiBase} spread=${CFG.spreadPct}% size=${CFG.orderSizeBase} interval=${CFG.intervalS}s state=${stateFile} metrics=${metricsFile} kill_flag=${killFlagFile}`,
+    limits: {
+      max_notional_usd: CFG.maxNotionalUsd,
+      max_inventory_skew_pct: CFG.maxInventorySkewPct,
+      max_consec_fail: CFG.maxConsecFail,
+    },
+  });
+  if (CFG.healthPort > 0) startHealthServer();
+
   for (;;) {
     roundNo += 1;
+    const kill = readKillFlag();
+    const cancelOnly = kill.active || degraded;
+    const reason = kill.active ? kill.reason : degraded ? degradedReason : null;
+
     try {
-      await round(roundNo);
-      errorStreak = 0;
+      const summary = await round(roundNo, { cancelOnly, reason, degraded });
+      // 一轮完整跑完（含只撤不挂轮）⇒ API 可达，清错误计数并解除降级（下一轮回双边）
+      errorStreak = summary.quoteFailed ? 1 : 0;
+      const d = shouldDegrade({ consecutiveFailures: errorStreak, threshold: CFG.maxConsecFail });
+      if (d.degraded && !degraded) {
+        degraded = true;
+        degradedReason = d.reason;
+        log({ level: 'alert', msg: `degrade_on: ${d.reason} ⇒ cancel_only until a round completes`, consecutive_failures: errorStreak });
+      } else if (!d.degraded && degraded) {
+        degraded = false;
+        degradedReason = null;
+        log({ level: 'alert', msg: 'degrade_off: round recovered ⇒ resume two-sided quoting' });
+      }
+      if (kill.active) {
+        log({ level: 'alert', round: roundNo, msg: `kill_switch_active: ${kill.flag_path} (delete file to resume)`, flag_age_s: kill.flag_age_s });
+      }
     } catch (e) {
       errorStreak += 1;
+      const d = shouldDegrade({ consecutiveFailures: errorStreak, threshold: CFG.maxConsecFail });
+      if (d.degraded && !degraded) {
+        degraded = true;
+        degradedReason = d.reason;
+        log({ level: 'alert', msg: `degrade_on: ${d.reason} ⇒ cancel_only until a round completes`, consecutive_failures: errorStreak });
+      }
       const backoffMs = Math.min(CFG.intervalS * 1000 * 2 ** errorStreak, CFG.intervalS * 1000 * 10);
-      log({ level: 'error', round: roundNo, msg: `round failed: ${e.message}`, backoff_s: Math.round(backoffMs / 1000) });
-      if (!ONCE) await sleep(backoffMs);
+      log({
+        level: 'error',
+        round: roundNo,
+        msg: `round failed: ${e.message}`,
+        consecutive_failures: errorStreak,
+        degraded,
+        backoff_s: Math.round(backoffMs / 1000),
+      });
+      appendMetrics({
+        ts: new Date().toISOString(),
+        round: roundNo,
+        ref_price: null,
+        ref_source: null,
+        quotes: null,
+        placed: 0,
+        cancelled: 0,
+        errors: 1,
+        mode: 'error',
+      });
+      writeState({
+        ...readState(),
+        last_error: { ts: new Date().toISOString(), msg: String(e.message || '').slice(0, 200) },
+        degraded,
+        last_round: roundNo,
+      });
       if (ONCE) process.exit(1);
+      await sleep(backoffMs);
       continue;
     }
     if (ONCE) return;

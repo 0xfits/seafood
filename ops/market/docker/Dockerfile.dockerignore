@@ -1,0 +1,22 @@
+# BuildKit 会读取与 Dockerfile 同名的忽略文件（= Dockerfile.dockerignore，BuildKit ≥ 20.10）。
+# 构建上下文 = 仓库根 ⇒ 只放行镜像真正需要的 4 个文件，其余全挡（上下文从 ~GB 降到 ~KB）。
+.git
+.gitignore
+**/node_modules
+node_modules
+**/.env
+**/.env.*
+**/*.log
+frontend
+docs
+ops/market/readings
+ops/market/front
+ops/market/base-combobox
+backend-ts/src
+backend-ts/dist
+backend-ts/scripts/*
+!backend-ts/scripts/market-mm-quotes.mjs
+!backend-ts/scripts/market-mm-bot.mjs
+!backend-ts/scripts/market-mm-kill.mjs
+ops/market/*
+!ops/market/docker

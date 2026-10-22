@@ -9,7 +9,8 @@
 | 文件 | 作用 |
 | --- | --- |
 | `backend-ts/scripts/market-mm-quotes.mjs` | 纯函数决策核（零 IO）：报价/撤旧挂新/库存护栏/create_key |
-| `backend-ts/scripts/market-mm-quotes.test.mjs` | node:test 单测（22 例） |
+| `backend-ts/scripts/market-mm-quotes.test.mjs` | node:test 单测（**37 例**） |
+| `backend-ts/scripts/market-mm-kill.mjs` | **kill switch**：登录 → `DELETE /api/order` 全撤；`--dry-run` 只列不撤；成功写 `mm-kill.flag`（0600）⇒ bot 只撤不挂，删 flag 自动恢复 |
 | `backend-ts/scripts/market-mm-bot.mjs` | 长跑 bot：每轮 拉行情→决策→撤旧挂新；`--once` 单轮 |
 | `backend-ts/scripts/market-mm-setup.ts` | 一次性初始化：建 MM users 行 + mint 库存（幂等） |
 | `backend-ts/scripts/market-mm-taker-probe.ts` | 验收探针：临时第三方账号 挂交叉买单 + M3 撮合吃 MM 卖单 |
@@ -61,6 +62,13 @@ dev 后端起法：`cd backend-ts && PORT=5788 ./node_modules/.bin/ts-node --tra
 | `MM_REF_PRICE` | `1000` | 无成交时的参考价（ref 1000 · 全跨 1% ⇒ 买 **995** / 卖 **1005**）；显式置空（`''`/`0`）= 不给 env 价 |
 | `MM_INTERVAL_S` | `60` | 轮间隔秒 + create_key 时间窗宽 |
 | `MM_MAX_INVENTORY_PCT` | `50` | 单笔名义额 ≤ 库存总值的 % |
+| `MM_MAX_NOTIONAL_USD` | `500000` | 单边挂单名义额硬上限（$） |
+| `MM_MAX_INVENTORY_SKEW_PCT` | `90` | 买卖两侧库存偏离上限（%），超限则该侧不挂 |
+| `MM_MAX_CONSEC_FAIL` | `5` | 连续 N 轮报价失败 ⇒ 自动降级「只撤不挂」 |
+| `MM_METRICS_LIMIT` | `100` | `mm-metrics.json` 滚动保留轮数 |
+| `MM_KILL_FLAG` | `<env 同目录>/mm-kill.flag` | kill flag 路径（存在 ⇒ 只撤不挂） |
+| `MM_HEALTH_PORT` | 空（不启用） | 设端口则暴露 `GET /healthz` |
+| `MM_STATUS_MAX_AGE_S` | `300` | `--status` 判 stale 的阈值（超龄退出码 2） |
 | `MM_STATE_FILE` | `<mm.env 同目录>/mm-state.json` | state 路径 |
 | `MM_MINT_USD` / `MM_MINT_BASE` / `MM_SETUP_KEY_EPOCH` | `1000000` / `10000` / `1` | 仅 setup |
 | `MM_TAKER_API_BASE` / `MM_TAKER_MINT_USD` / `MM_TAKER_BUY_AMOUNT` | `http://localhost:5788` / `50000` / `2` | 仅探针 |
@@ -81,6 +89,22 @@ sudo env PATH=$PATH:/usr/local/bin /Users/kevin/.nvm/versions/node/v20.20.2/lib/
 
 - 现状：`pm2 save` 已执行；**登录后自动 resurrect**（LaunchAgent）。机器重启但未登录 → 不启动（用户级限制）。
 - 停做市：`pm2 stop seafood-mm`；彻底移除：`pm2 delete seafood-mm && pm2 save`。
+
+## 运维速查（P1 · 2026-10-22）
+
+```bash
+# 健康快照（离线读 state/metrics；stale ⇒ 退出码 2）
+node backend-ts/scripts/market-mm-bot.mjs --env ~/.config/seafood/mm-prod.env --status
+
+# 一键停做市并全撤（写 kill flag ⇒ bot 只撤不挂；删 flag 自动恢复）
+node backend-ts/scripts/market-mm-kill.mjs --env ~/.config/seafood/mm-prod.env
+node backend-ts/scripts/market-mm-kill.mjs --env ~/.config/seafood/mm-prod.env --dry-run  # 只列不撤
+rm ~/.config/seafood/mm-kill.flag                                                      # 恢复报价
+
+# 每轮指标：MM_ENV 同目录 mm-metrics.json（滚动 100 轮：ts/ref/quotes/placed/cancelled/errors）
+```
+
+容器化（未部署）：`ops/market/docker/{Dockerfile,fly.toml,package.json}` —— Fly 最小配置（shared-cpu-1x/256MB、`min_machines_running=1`、`/data` 卷、私钥走 secrets）。
 
 ## 撮合与费用（平台现口径，勿凭直觉假设）
 
@@ -132,7 +156,7 @@ console.log('cancelled:', JSON.stringify(del).slice(0, 200));
 
 ## dev 验收记录（2026-10-22，PORT=5788，schema 0072）
 
-- 单测 22/22 绿（`node --test scripts/market-mm-quotes.test.mjs`）。
+- 单测 **37/37** 绿（`node --test scripts/market-mm-quotes.test.mjs`）。
 - setup 幂等重跑：两 mint 均 `idempotent_replay: true`（键 `ops:mm:setup:mint:{usd,base}:e1`）；
   MM = uid 971229，库存 $1,000,000 + ₿10,000。
 - bot `--once` 保单轮：双边 9950/10050 已在目标价 ⇒ keeps 两单、零撤零挂、`mode: normal`。

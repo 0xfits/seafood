@@ -1,0 +1,59 @@
+# fly.toml — seafood 做市机器人（worker 形态：无业务 HTTP，只开 /healthz 供 fly 探活）
+# 部署（不在本仓库 CI 里执行）：
+#   cd <repo root>                       # 构建上下文必须是仓库根（Dockerfile 里 COPY backend-ts/scripts/*.mjs）
+#   fly volumes create mm_data --region hkg --size 1
+#   fly secrets set MM_PRIVATE_KEY=0x…   # 只进 secrets，绝不进 [env]
+#   fly deploy . --config ops/market/docker/fly.toml
+# 急停：fly ssh console -a seafood-mm → touch /data/mm-kill.flag（bot 下一轮只撤不挂）
+#      或 node market-mm-kill.mjs --env /data/mm.env --dry-run / 去掉 --dry-run 真撤
+
+app = "seafood-mm"
+primary_region = "hkg"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  MM_API_BASE = "https://0xseafood.com"
+  MM_BASE_CID = "4"          # 生产 BTTC（dev 库为 399）
+  MM_QUOTE_CID = "1"
+  MM_SPREAD_PCT = "1"
+  MM_ORDER_SIZE_BASE = "100"
+  MM_INTERVAL_S = "60"
+  # P1 硬限额（缺省值显式写死，避免平台默认变化悄悄放宽）
+  MM_MAX_NOTIONAL_USD = "500000"
+  MM_MAX_INVENTORY_SKEW_PCT = "90"
+  MM_MAX_CONSEC_FAIL = "5"
+  # state / metrics / kill flag / 可选 mm.env 都落卷
+  MM_STATE_FILE = "/data/mm-state.json"
+  MM_KILL_FLAG = "/data/mm-kill.flag"
+  MM_HEALTH_PORT = "8080"
+
+# worker 也需要一个内部端口承载 /healthz（bot 内置健康服务器；不是业务 API）
+[http_service]
+  internal_port = 8080
+  force_https = false
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+  [http_service.concurrency]
+    type = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
+[[mounts]]
+  source = "mm_data"
+  destination = "/data"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
+
+[checks]
+  [checks.health]
+    type = "http"
+    port = 8080
+    path = "/healthz"
+    interval = "60s"
+    timeout = "10s"
+    grace_period = "90s"
