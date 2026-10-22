@@ -25,6 +25,10 @@
 //      **展示统一**（Kevin 2026-10-22）：读口**一律剥除** option_a / option_b 两枚存量文案，
 //      改出加性字段 `option_style: 'yes_no'|'ab_legacy'`（选项文案由前端 i18n 恒 Yes/No）；
 //      库内值不动 ⇒ 旧行仍只收 `choice:'a'|'b'`、新行只收 `choice:'yes'|'no'`（后端投票口径不变）。
+//      **无损等值旁路**（写口鲁棒性，2026-10-22）：读口剥文案的下游后果是「客户端可能把四键行按新两键重发」；
+//      若两枚共键值全等（金额规范化相等、deadline 同一 instant）⇒ 视作**无变更**（不写库、不报 400/409，
+//      选项文案原样保留），同请求其它子任务照常处理；值真变才按原规则拒（active ⇒ 409、draft ⇒ 400）。
+//      对称：`yes_no` 行收到文案恰为 Yes / No 的旧四键 ⇒ 同样视为无变更（见 `predictionEquivalentWrite`）。
 //   ⑤ quiz：payload 恰两键 {options:{a,b,c,d}(四键非空字符串), correct:['a'…]}（correct 1–4 个、
 //      去重、均在 a–d）；`correct` **永不出公开读口**（脱敏体例同 prediction 的结算键）。
 //      用户 `{answers:{picks:[…]}}`；提交时**集合相等**即答对 ⇒ **同一事务**发 `subtask.reward_amount`
@@ -167,6 +171,14 @@ type Row = Record<string, unknown>;
 
 const str = (v: unknown): string => (v === null || v === undefined ? '' : String(v));
 const strOrNull = (v: unknown): string | null => (v === null || v === undefined ? null : String(v));
+/** numeric 列文本比较（PG 回文本形态不定：`'10'` vs `'10.00'` ⇒ 按数值判等） */
+const sameMoney = (a: string | null, b: string | null): boolean => {
+  if (a === null || b === null) return a === b;
+  const na = Number(a);
+  const nb = Number(b);
+  if (!Number.isFinite(na) || !Number.isFinite(nb)) return a === b;
+  return na === nb;
+};
 const int = (v: unknown, fallback = 0): number => {
   const n = Number(v);
   return Number.isFinite(n) ? Math.trunc(n) : fallback;
@@ -225,6 +237,67 @@ export const predictionChoicesFor = (style: PredictionOptionStyle): readonly str
 /** 值是否落在该口径值域内（越值 ⇒ false） */
 export const isPredictionChoice = (style: PredictionOptionStyle, v: unknown): boolean =>
   typeof v === 'string' && predictionChoicesFor(style).includes(v);
+
+/** `yes_no` 行的选项文案恒为 Yes / No（**不落库**，展示由前端 i18n 固定）—— 对称等值判定用这条口径 */
+export const YES_NO_OPTION_TEXTS = ['Yes', 'No'] as const;
+
+/**
+ * **无损等值旁路**（Kevin 2026-10-22 · 写口鲁棒性，只增不减的判据）：
+ * 读口为「展示统一」**剥掉**了存量行的 `option_a` / `option_b`，个别客户端据此把四键行按**新两键**重发 ——
+ * 那种重发**一个值都没改**，却会先撞 `PREDICTION_OPTION_STYLE_IMMUTABLE`（400，禁双开）或
+ * `prediction_locked_after_publish`（409，发布即冻结），表层显示成「发布失败」。
+ * 命中条件（**只放行无损**，任一不满足 ⇒ `null` 走原规则）：
+ *   · 库内与请求的 payload 键集**恰**为各自口径的全集（多一键 / 少一键都不是「同值重发」）；
+ *   · 两侧口径**不同**（同口径直接逐值比较即可，无需旁路）；
+ *   · `prize_amount` 规范化后**金额相等**（`asPositiveIntText` ＋ BigInt ⇒ `'10'` / `10` / `'010'` 同值）；
+ *   · `deadline` **同一 instant**（`asTimeOrNull` 规范化 ＋ `Date.parse` ⇒ 字符串写法无关）；
+ *   · 对称支 `yes_no` 行收旧四键 ⇒ 两枚文案须恰为 `Yes` / `No`（该口径的展示文案，库内不存 ⇒ 无可改之物）。
+ * 返回**库内 payload 原值**（`ab_legacy` 行的 `option_a` / `option_b` 原样保留 ⇒ 零丢失），
+ * 调用方据此视作**无变更**：不写库、不报 400/409，继续处理同请求的其它子任务。
+ * 值真变（金额 / deadline / 文案）⇒ 不命中 ⇒ 原规则照旧（active ⇒ 409、draft ⇒ 400 / 200）。
+ */
+export const predictionEquivalentWrite = (
+  existing: unknown,
+  incoming: unknown,
+): { payload: Row; option_style: PredictionOptionStyle } | null => {
+  if (!isPlainObject(existing) || !isPlainObject(incoming)) return null;
+  const cur = existing as Row;
+  const inc = incoming as Row;
+  const curStyle = predictionOptionStyle(cur);
+  const incStyle = predictionOptionStyle(inc);
+  if (curStyle === incStyle) return null;
+  const exactKeys = (obj: Row, keys: readonly string[]): boolean =>
+    Object.keys(obj).length === keys.length
+    && keys.every((k) => Object.prototype.hasOwnProperty.call(obj, k));
+  const curKeys: readonly string[] = curStyle === 'ab_legacy' ? PREDICTION_LEGACY_PAYLOAD_KEYS : PREDICTION_PAYLOAD_KEYS;
+  const incKeys: readonly string[] = incStyle === 'ab_legacy' ? PREDICTION_LEGACY_PAYLOAD_KEYS : PREDICTION_PAYLOAD_KEYS;
+  if (!exactKeys(cur, curKeys) || !exactKeys(inc, incKeys)) return null;
+
+  const curPrize = asPositiveIntText(cur.prize_amount);
+  const incPrize = asPositiveIntText(inc.prize_amount);
+  if (curPrize === null || incPrize === null) return null;
+  let samePrize = false;
+  try {
+    samePrize = BigInt(curPrize) === BigInt(incPrize);
+  } catch {
+    samePrize = false;
+  }
+  if (!samePrize) return null;
+
+  const curDl = asTimeOrNull(cur.deadline);
+  const incDl = asTimeOrNull(inc.deadline);
+  if ('err' in curDl || 'err' in incDl || curDl.value === null || incDl.value === null) return null;
+  if (Date.parse(curDl.value) !== Date.parse(incDl.value)) return null;
+
+  if (curStyle === 'yes_no') {
+    // 库内不存文案 ⇒「与库内一致」= 恰为该口径的展示文案（Yes / No）
+    const a = str(inc.option_a).trim();
+    const b = str(inc.option_b).trim();
+    if (a.toLowerCase() !== YES_NO_OPTION_TEXTS[0].toLowerCase()
+      || b.toLowerCase() !== YES_NO_OPTION_TEXTS[1].toLowerCase()) return null;
+  }
+  return { payload: cur, option_style: curStyle };
+};
 
 /**
  * **公开读口脱敏**（两族：服务端密钥 + 存量展示文案）：
@@ -2123,11 +2196,14 @@ export const patchTaskVerb = async (input: { ref: string; body: unknown; ex?: Tx
     // 子任务域前置闸（一份快照同时服务 upsert 锁 与 subtasks_remove 删除闸；**零写副作用**）
     const items = p.subtasks ?? [];
     const removeRefs = p.subtasks_remove ?? [];
+    /** 无损等值 / 幂等重发命中 ⇒ 该子任务整行无需写（空写会 bump `time_updated` ⇒ 必须真跳过） */
+    const noopRefs = new Set<string>();
     /** 发布后 = 父 task 非 draft（含「本请求同一笔把 draft 推成 active」⇒ 用生效态，不留窗口） */
     const published = nextStatus !== 'draft';
     const snapshotOf = async (ref: string): Promise<Row | null> => {
       const rows = await q(
-        `SELECT subtask_id::text AS subtask_id, task_id::text AS task_id, type_code, title, content, payload
+        `SELECT subtask_id::text AS subtask_id, task_id::text AS task_id, type_code, title, content, payload,
+                sort, required, reward_amount::text AS reward_amount
            FROM public.subtask
           WHERE subtask_id = $1::bigint OR snowflake_id = $1::bigint LIMIT 1`,
         [ref],
@@ -2146,11 +2222,47 @@ export const patchTaskVerb = async (input: { ref: string; body: unknown; ex?: Tx
           return notFound('subtask_not_found');
         }
         const existingType = str(owned.type_code);
+        const existingPayload = asObject(owned.payload);
+        // ★ **无损等值旁路**（只增判据，不改原语义）：读口为展示统一剥掉了存量行的 option_a / option_b
+        //   ⇒ 个别客户端把四键行按「新两键」重发。若两枚共键值**全等**（金额规范化相等、deadline 同一 instant），
+        //   这笔请求**一个值都没改** ⇒ 视作无变更：回填库内原 payload（选项文案原样保留、零丢失），
+        //   既不撞下面「禁双开」400，也不被「发布后冻结」误报 409；同一请求的其它子任务照常处理。
+        //   值真变（金额 / deadline / 文案）⇒ 不命中 ⇒ 原规则照旧（active ⇒ 409、draft ⇒ 400 / 200）。
+        //   对称支：`yes_no` 行收到旧四键、两枚文案恰为 Yes / No ⇒ 同样按无变更处理（库内两键不动）。
+        const equivalent = item.type_code === 'prediction' && existingType === 'prediction'
+          ? predictionEquivalentWrite(existingPayload, item.payload)
+          : null;
+        if (equivalent !== null) {
+          item.payload = equivalent.payload;
+          item.option_style = equivalent.option_style;
+        }
+        // ★ 变更清单（单一真源：口径闸例外 / 冻结闸 / 幂等重发三处共用；判据是**值是否变化**）
+        const changedFieldsOf = (): string[] => {
+          const fields: string[] = [];
+          if (item.type_code !== existingType) fields.push('type_code');
+          if (item.title !== str(owned.title)) fields.push('title');
+          if ((item.content ?? null) !== strOrNull(owned.content)) fields.push('content');
+          if (canonicalJson(item.payload) !== canonicalJson(asObject(owned.payload))) fields.push('payload');
+          return fields;
+        };
+        const lockErr = (fields: string[]): VerbErr => conflict('prediction_locked_after_publish', {
+          subtask_id: str(owned.subtask_id ?? ref),
+          task_status: nextStatus,
+          changed_fields: fields,
+          allowed_fields: ['sort', 'required'],
+          hint: 'prediction 发布后不可编辑（票与选项语义已冻结）；需要改 ⇒ 先把 task 退回 draft',
+        });
         // ★ 禁双开：存量四键行的改口必须继续用四键（a|b），新两键行必须继续用两键（yes|no）
         //   —— payload 口径不可在同一行上来回换；换口径会同时改掉已有 proof 的 choice 语义（不可逆）。
         if (item.type_code === 'prediction' && existingType === 'prediction' && item.option_style) {
           const existing = predictionOptionStyle(asObject(owned.payload));
           if (existing !== item.option_style) {
+            // 例外（只此一条 · 值真变）：存量四键行收到**新两键**的改值请求 ⇒ 主因是「想改已发布的 prediction」
+            //   而非口径切换 ⇒ 发布态按 409（与冻结闸同一错误；下游客户端才能把「发布后不可改」如实呈现）。
+            //   反向（新两键行 ⇒ 四键）与 draft 态一律维持原 400 —— 口径仍然不可换。
+            if (existing === 'ab_legacy' && item.option_style === 'yes_no' && published) {
+              return lockErr(changedFieldsOf());
+            }
             return badRequest('PREDICTION_OPTION_STYLE_IMMUTABLE', {
               subtask_id: str(owned.subtask_id ?? ref),
               existing_option_style: existing,
@@ -2162,20 +2274,22 @@ export const patchTaskVerb = async (input: { ref: string; body: unknown; ex?: Tx
         // ★ prediction 发布即冻结：父 task 非 draft ⇒ 只许改 `sort` / `required`。
         //   判据是**值是否变化**（不是键是否出现）：改口请求本就带全字段，仅排期改动不得被锁误伤。
         if (existingType === 'prediction' && published) {
-          const changed: string[] = [];
-          if (item.type_code !== existingType) changed.push('type_code');
-          if (item.title !== str(owned.title)) changed.push('title');
-          if ((item.content ?? null) !== strOrNull(owned.content)) changed.push('content');
-          if (canonicalJson(item.payload) !== canonicalJson(asObject(owned.payload))) changed.push('payload');
-          if (changed.length) {
-            return conflict('prediction_locked_after_publish', {
-              subtask_id: str(owned.subtask_id ?? ref),
-              task_status: nextStatus,
-              changed_fields: changed,
-              allowed_fields: ['sort', 'required'],
-              hint: 'prediction 发布后不可编辑（票与选项语义已冻结）；需要改 ⇒ 先把 task 退回 draft',
-            });
-          }
+          const changed = changedFieldsOf();
+          if (changed.length) return lockErr(changed);
+        }
+        // ★ 幂等重发：整行**无一处变化**（payload 逐值相等 ＋ 其余列相等）⇒ 不写。
+        //   否则 `updateSubtask` 会空写一遍，触发器 `trg_subtask_touch_updated` 把 `time_updated` 抬走
+        //   —— 客户端「原样再提交一次」就成了「改动过」，审计面失真。
+        const sameRow = canonicalJson(item.payload) === canonicalJson(existingPayload)
+          && item.type_code === existingType
+          && item.title === str(owned.title)
+          && (item.content ?? null) === strOrNull(owned.content)
+          && sameMoney(strOrNull(owned.reward_amount), item.reward_amount)
+          && item.sort === int(owned.sort, 0)
+          && item.required === (owned.required === true);
+        if (sameRow) {
+          noopRefs.add(str(owned.subtask_id));
+          noopRefs.add(String(ref));
         }
       }
     }
@@ -2222,6 +2336,8 @@ export const patchTaskVerb = async (input: { ref: string; body: unknown; ex?: Tx
     for (const item of items) {
       const ref = item.subtask_id ?? item.snowflake_id;
       if (ref !== undefined) {
+        // 无损等值 / 幂等重发 ⇒ **零写入**（前置闸已判过锁与口径；跳过即不 bump `time_updated`）
+        if (noopRefs.has(String(ref))) continue;
         const patched = await updateSubtask(tx, ref, item);
         if (!patched) return notFound('subtask_not_found');
       } else {

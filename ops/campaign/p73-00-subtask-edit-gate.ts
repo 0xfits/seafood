@@ -28,6 +28,14 @@
  *   S3 · 删除三臂：无凭证 ⇒ 行消失 · 有凭证 ⇒ 409 `subtask_has_proofs`（行仍在）· 非本 task ⇒ 404 `subtask_not_in_task`
  *   S4 · 同事务：合法 upsert ＋ 非法 remove（他 task 的 id）⇒ 404 且**标题未被写**（零半笔）
  *   S5 · 不留窗口：同一请求 `draft → active` ＋ 改 prediction payload ⇒ 409，库内仍 draft、payload 未动
+ *   S6 · 无损等值旁路（臂①）：active 上**存量四键行**按「读口两键」同值重发（金额同值、deadline 同一 instant 的
+ *        `+00:00` 写法）⇒ 200、payload 仍恰四键（`option_a`/`option_b` 零丢失）、`time_updated` 不变；同请求的
+ *        其它子任务照常落库；对称支（新两键行收旧四键、文案恰 Yes / No）⇒ 同样 200 零变更；文案变 ⇒ 400
+ *   S7 · 值真变 ⇒ 409（臂②）：legacy 行按两键改金额 / 改 deadline ⇒ 409 `prediction_locked_after_publish`
+ *        （`changed_fields` 含 payload、零写入）；**负控**：旁路改成「任意新两键都放行」⇒ 200 ⇒ 本臂必红，
+ *        且放行是真丢数据（两键覆盖写把 `option_a`/`option_b` 抹掉，旧行 `a|b` 口径不可逆）
+ *   S8 · draft 下同值重发（臂③）：draft 的 legacy 行两键同值重发 ⇒ 200 零变更（`time_updated` 不变、非删建）；
+ *        同一 draft 行改金额 ⇒ 仍 400 `PREDICTION_OPTION_STYLE_IMMUTABLE`（口径不可换原规则照旧）
  *   N1 · 负控①：库面直写可改 prediction payload（无库面锁）⇒ 409 的唯一屏障是服务层锁闸；去锁闸 ⇒ S2 断言必红
  *   N2 · 负控②：库面直删可抹掉有凭证的子任务（CASCADE 连 proof 一起没）⇒ 409 的唯一屏障是凭证闸；去闸 ⇒ S3 断言必红
  *   Z  · 残留：全程单回滚事务；subtask / subtask_proof / ledger_entry / users / schema_migration 行数**事务前 = 事务后**
@@ -443,6 +451,193 @@ type Row = Record<string, unknown>;
         && (await dbTaskStatus(T3)) === 'draft'
         && afterSameReq !== null && String(afterSameReq.payload.prize_amount) === '11',
       JSON.stringify({ same_req: [verbOf(sameReq), reasonOf(sameReq), changedOf(sameReq)], status: await dbTaskStatus(T3), payload: afterSameReq?.payload ?? null }));
+
+    // ==================================================================== S6 · 无损等值旁路（legacy 行 ＋ 同值新两键 ⇒ 200 零变更）
+    const t4 = await createTaskVerb({
+      campaignRef: C,
+      body: {
+        title: `S6 任务 ${RUN}`, reward_amount_primary: '10',
+        subtasks: [{ type_code: 'x_verify', title: 'X 验证', sort: 2, payload: { screenshots: ['m'], links: [] } }],
+      },
+      ex,
+    });
+    const T4 = String(viewOf<{ task_id?: string }>(t4).task_id ?? '');
+    const X4 = String((viewOf<{ subtasks?: Array<Record<string, unknown>> }>(t4).subtasks ?? [])
+      .find((s) => String(s.type_code) === 'x_verify')?.subtask_id ?? '');
+    // 直插存量四键行（读口会剥文案 ⇒ 客户端手里只有两键）
+    const LEG4 = await insSub(T4, '9930000000000004', 'prediction', '存量预测',
+      { option_a: 'Yes', option_b: 'No', prize_amount: '50', deadline: FUTURE }, 1);
+    // 同一条 active 任务上再放一枚**新两键**行，用来验对称支（收旧四键、文案恰 Yes / No）
+    const YES4 = await insSub(T4, '9930000000000005', 'prediction', '新两键预测',
+      { prize_amount: '7', deadline: FUTURE }, 3);
+    const act4 = await patchTaskVerb({ ref: T4, body: { status: 'active' }, ex });
+    /**
+     * 子任务快照。注意两枚「写入证据」在本门里为何都不成立/成立：
+     *   · `time_updated` 由 BEFORE UPDATE 触发器写 `now()`（**事务起始时刻**）⇒ 同一事务内恒等，不能证明「没写」；
+     *   · `xmin` = 写入事务 id ⇒ 同一事务内所有行恒等，同样不能区分。
+     *   ⇒ 用**物理元组指针 `ctid`**：真发生 UPDATE 必产生新元组（新行指针）⇒ ctid 变；未 UPDATE ⇒ ctid 不变。
+     */
+    const subSnap = async (subtaskId: string): Promise<{ title: string; payload: Row; sort: number; ctid: string; time_updated: string } | null> =>
+      one<{ title: string; payload: Row; sort: number; ctid: string; time_updated: string }>(
+        `SELECT title, payload, sort, ctid::text AS ctid,
+                to_char(time_updated, 'YYYY-MM-DD"T"HH24:MI:SS.US') AS time_updated
+           FROM public.subtask WHERE subtask_id = $1::bigint`, [subtaskId]);
+    const leg4Before = await subSnap(LEG4);
+    const yes4Before = await subSnap(YES4);
+    const x4Before = await subSnap(X4);
+    // deadline 用**同一 instant 的另一种写法**（+00:00 而非 Z）⇒ 判等必须是 instant 而不是字符串
+    const DL4_ALT = FUTURE.replace('Z', '+00:00');
+    const equivResend = await patchTaskVerb({
+      ref: T4,
+      body: {
+        subtasks: [
+          // ① legacy 行按「读口看到的两键」原样重发（值一个都没改）
+          { subtask_id: LEG4, type_code: 'prediction', title: '存量预测', payload: { prize_amount: '50', deadline: DL4_ALT }, sort: 1 },
+          // 对称支：新两键行收旧四键，文案恰 Yes / No
+          { subtask_id: YES4, type_code: 'prediction', title: '新两键预测',
+            payload: { option_a: 'Yes', option_b: 'No', prize_amount: '7', deadline: FUTURE }, sort: 3 },
+          // 同请求的**其它**子任务照常处理（非 prediction ⇒ 不受冻结，改名应落库）
+          { subtask_id: X4, type_code: 'x_verify', title: 'X 验证（旁路同请求改名）', payload: { screenshots: ['m'], links: [] }, sort: 2 },
+        ],
+      },
+      ex,
+    });
+    const leg4After = await subSnap(LEG4);
+    const yes4After = await subSnap(YES4);
+    const x4After = await subSnap(X4);
+    const leg4View = (await getTaskDetailById(T4, ex))?.subtasks.find((s) => s.subtask_id === LEG4);
+    /** 对称支的反向：文案不是 Yes / No（值真变）⇒ 仍按口径闸 400 */
+    const yes4BadText = await patchTaskVerb({
+      ref: T4,
+      body: { subtasks: [{ subtask_id: YES4, type_code: 'prediction', title: '新两键预测',
+        payload: { option_a: 'Yeah', option_b: 'No', prize_amount: '7', deadline: FUTURE }, sort: 3 }] },
+      ex,
+    });
+    ck.t('S6', '★无损等值旁路（臂①）：active 任务上的**存量四键行**按「读口两键」原样重发（金额同值、deadline 同一 instant 的另一种写法 `+00:00`）⇒ **200**、库内 payload 仍**恰四键**（`option_a`/`option_b` 原样在：零丢失）、行内容逐字不变、**物理元组指针 `ctid` 与 `time_updated` 全未动**（事务内 `now()`/`xmin` 都冻结 ⇒ 只有 `ctid` 能证明「零物理写」，空写必红）、读口仍 `option_style=ab_legacy`；**同一请求**里其它子任务的改名照常落库（其 `ctid` 必变）⇒ 旁路是「跳过这一枚」，不是「整笔放行」；对称支（新两键行收旧四键、文案恰 `Yes`/`No`）⇒ 同样 200 且库内仍两键、`ctid` 不变；文案真变（`Yeah`）⇒ 仍 400 `PREDICTION_OPTION_STYLE_IMMUTABLE`',
+      act4.ok === true
+        && leg4Before !== null && yes4Before !== null && x4Before !== null
+        && equivResend.ok === true
+        && leg4After !== null && yes4After !== null && x4After !== null
+        && JSON.stringify(Object.keys(leg4After.payload).sort())
+          === JSON.stringify(['deadline', 'option_a', 'option_b', 'prize_amount'])
+        && String(leg4After.payload.option_a) === 'Yes' && String(leg4After.payload.option_b) === 'No'
+        && String(leg4After.payload.prize_amount) === '50'
+        && leg4After.ctid === leg4Before.ctid
+        && leg4After.time_updated === leg4Before.time_updated
+        && leg4After.title === leg4Before.title
+        && JSON.stringify(Object.keys(yes4After.payload).sort()) === JSON.stringify(['deadline', 'prize_amount'])
+        && yes4After.ctid === yes4Before.ctid
+        && yes4After.time_updated === yes4Before.time_updated
+        && x4After.title === 'X 验证（旁路同请求改名）' && x4After.ctid !== x4Before.ctid
+        && leg4View !== undefined && leg4View.option_style === 'ab_legacy'
+        && verbOf(yes4BadText) === 400 && reasonOf(yes4BadText) === 'PREDICTION_OPTION_STYLE_IMMUTABLE',
+      JSON.stringify({
+        active: act4.ok, resend: equivResend.ok,
+        legacy_before: leg4Before, legacy_after: leg4After,
+        yes_no_before: yes4Before, yes_no_after: yes4After,
+        other_item: { before: x4Before?.title, after: x4After?.title, ctid: [x4Before?.ctid, x4After?.ctid] },
+        view_option_style: leg4View?.option_style ?? null,
+        flipped_text: [verbOf(yes4BadText), reasonOf(yes4BadText)],
+      }));
+
+    // ==================================================================== S7 · 值真变 ⇒ 409（臂②）＋ 负控（放行即丢文案 · 必红）
+    const leg4Pre = await subSnap(LEG4);
+    const changedPrize = await patchTaskVerb({
+      ref: T4,
+      body: { subtasks: [{ subtask_id: LEG4, type_code: 'prediction', title: '存量预测',
+        payload: { prize_amount: '51', deadline: FUTURE }, sort: 1 }] },
+      ex,
+    });
+    const changedDeadline = await patchTaskVerb({
+      ref: T4,
+      body: { subtasks: [{ subtask_id: LEG4, type_code: 'prediction', title: '存量预测',
+        payload: { prize_amount: '50', deadline: new Date(Date.parse(FUTURE) + 86400 * 1000).toISOString() }, sort: 1 }] },
+      ex,
+    });
+    const leg4Post = await subSnap(LEG4);
+    // ---- 负控（折进臂②）：把等值旁路改成「任意新两键都放行」⇒ 本臂必红；且放行会真丢文案
+    const n3 = await undoAfter(c, 'n3', async () => {
+      // 反事实：放行后写口落在 `payload = {prize_amount, deadline}`（客户端手里那两键）⇒ option_a/option_b 被覆盖掉
+      await c.query(
+        `UPDATE public.subtask SET payload = $2::jsonb WHERE subtask_id = $1::bigint`,
+        [LEG4, JSON.stringify({ prize_amount: '51', deadline: FUTURE })]);
+      return one<{ payload: Row }>('SELECT payload FROM public.subtask WHERE subtask_id = $1::bigint', [LEG4]);
+    });
+    /** 等值旁路的**变体**：去掉「值全等」这一项（任意新两键都算等值） */
+    const equivVerdict = (published: boolean, equivalent: boolean, changed: string[]): number =>
+      (equivalent ? 200 : published && changed.length ? 409 : 200);
+    const laxEquivVerdict = (published: boolean, _equivalent: boolean, _changed: string[]): number =>
+      (published ? 200 : 200);
+    const n3payload = ((n3.value as { payload?: Row } | null)?.payload ?? {}) as Row;
+    ck.t('S7', '★值真变 ⇒ 原规则 409（臂②）：active 任务上 legacy 行按两键改**金额**（50 → 51）⇒ **409 `prediction_locked_after_publish`**、`changed_fields` 含 `payload`；改 **deadline**（+1 天，instant 变了）⇒ 同样 409；两种拒法都**零写入**（payload 仍四键、金额仍 50、文案仍在、`time_updated` 不变）—— 旁路只拦「一个值都没改」的重发。**负控**：真实判据 `equivVerdict(true,等价,[payload])`=200 / `equivVerdict(true,非等价,[payload])`=409，把旁路改成「**任意新两键都放行**」⇒ 200 ⇒ 本臂必红；且放行是**真丢数据**（按客户端两键覆盖写后 `option_a`/`option_b` 永久消失 ⇒ 已投票的 `a|b` 口径不可逆）',
+      changedPrize.ok !== true && verbOf(changedPrize) === 409 && reasonOf(changedPrize) === 'prediction_locked_after_publish'
+        && changedOf(changedPrize).includes('payload')
+        && verbOf(changedDeadline) === 409 && reasonOf(changedDeadline) === 'prediction_locked_after_publish'
+        && changedOf(changedDeadline).includes('payload')
+        && leg4Pre !== null && leg4Post !== null
+        && leg4Post.ctid === leg4Pre.ctid
+        && leg4Post.time_updated === leg4Pre.time_updated
+        && String(leg4Post.payload.prize_amount) === '50' && String(leg4Post.payload.option_a) === 'Yes'
+        && JSON.stringify(Object.keys(leg4Post.payload).sort())
+          === JSON.stringify(['deadline', 'option_a', 'option_b', 'prize_amount'])
+        && equivVerdict(true, true, ['payload']) === 200
+        && equivVerdict(true, false, ['payload']) === 409
+        && equivVerdict(false, false, ['payload']) === 200
+        && laxEquivVerdict(true, false, ['payload']) === 200
+        && n3.sqlstate === null
+        && JSON.stringify(Object.keys(n3payload).sort()) === JSON.stringify(['deadline', 'prize_amount'])
+        && !('option_a' in n3payload) && !('option_b' in n3payload),
+      JSON.stringify({
+        prize: [verbOf(changedPrize), reasonOf(changedPrize), changedOf(changedPrize)],
+        deadline: [verbOf(changedDeadline), reasonOf(changedDeadline), changedOf(changedDeadline)],
+        before: leg4Pre, after: leg4Post,
+        real_verdicts: [equivVerdict(true, true, ['payload']), equivVerdict(true, false, ['payload']), equivVerdict(false, false, ['payload'])],
+        mutant_verdict: laxEquivVerdict(true, false, ['payload']),
+        overwritten_payload: n3payload,
+      }));
+
+    // ==================================================================== S8 · draft 下同值重发 ⇒ 200 零变更（臂③）
+    const t5 = await createTaskVerb({
+      campaignRef: C,
+      body: {
+        title: `S8 任务 ${RUN}`, reward_amount_primary: '10',
+        subtasks: [{ type_code: 'x_verify', title: 'X 验证', sort: 2, payload: { screenshots: ['m'], links: [] } }],
+      },
+      ex,
+    });
+    const T5 = String(viewOf<{ task_id?: string }>(t5).task_id ?? '');
+    const LEG5 = await insSub(T5, '9930000000000006', 'prediction', 'draft 存量预测',
+      { option_a: 'Yes', option_b: 'No', prize_amount: '30', deadline: FUTURE }, 1);
+    const leg5Before = await subSnap(LEG5);
+    const draftResend = await patchTaskVerb({
+      ref: T5,
+      body: { subtasks: [{ subtask_id: LEG5, type_code: 'prediction', title: 'draft 存量预测',
+        payload: { prize_amount: '30', deadline: FUTURE }, sort: 1 }] },
+      ex,
+    });
+    const leg5After = await subSnap(LEG5);
+    const draftChanged = await patchTaskVerb({
+      ref: T5,
+      body: { subtasks: [{ subtask_id: LEG5, type_code: 'prediction', title: 'draft 存量预测',
+        payload: { prize_amount: '31', deadline: FUTURE }, sort: 1 }] },
+      ex,
+    });
+    const leg5End = await subSnap(LEG5);
+    ck.t('S8', '★draft 下同值重发（臂③）：draft 任务的 legacy 行按两键同值重发 ⇒ **200** 且**零变更**（payload 仍四键、文案仍在、物理元组指针 `ctid` 与 `time_updated` 全未动、`subtask_id` 不变 ⇒ 不是删建）；同一 draft 行改金额（30 → 31）⇒ 仍 **400 `PREDICTION_OPTION_STYLE_IMMUTABLE`**（口径不可换的原规则在 draft 上照旧）且库内未动（`ctid` 不变）',
+      draftResend.ok === true
+        && leg5Before !== null && leg5After !== null && leg5End !== null
+        && leg5After.ctid === leg5Before.ctid
+        && leg5After.time_updated === leg5Before.time_updated
+        && JSON.stringify(Object.keys(leg5After.payload).sort())
+          === JSON.stringify(['deadline', 'option_a', 'option_b', 'prize_amount'])
+        && String(leg5After.payload.prize_amount) === '30'
+        && verbOf(draftChanged) === 400 && reasonOf(draftChanged) === 'PREDICTION_OPTION_STYLE_IMMUTABLE'
+        && String(leg5End.payload.prize_amount) === '30' && leg5End.ctid === leg5Before.ctid
+        && leg5End.time_updated === leg5Before.time_updated,
+      JSON.stringify({
+        resend: draftResend.ok, before: leg5Before, after: leg5After,
+        changed: [verbOf(draftChanged), reasonOf(draftChanged)], end: leg5End,
+      }));
 
     // ==================================================================== N1 · 负控① 去锁闸 ⇒ active 可改（S2 必红）
     const n1 = await undoAfter(c, 'n1', async () => {
