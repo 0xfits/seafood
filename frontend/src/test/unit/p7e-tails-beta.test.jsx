@@ -129,13 +129,20 @@ describe('② MarketPage 我的挂单 status/side 查表（四语 + 未知兜底
     const seen = {}
     for (const lang of ['zh', 'hk', 'en', 'vn']) {
       setLang(lang)
-      fetchMyOrders.mockResolvedValue([{ order_id: 9, side: 'sell', status: 'filled', price: 3, amount: 5, amount_filled: 5 }])
+      // ★ 2026-10-22（/exchange 价格走势 + 撤全修复）：面板现只列**活动单** ⇒ 夹具状态取 `partial`
+      //   （`filled`/`cancelled` 已按契约不入面板，见 `market-trend-and-orders.test.jsx` 的过滤三态）。
+      //   本例意图不变：**已知取值 ⇒ 四语标签查表**（不含原始枚举）。
+      fetchMyOrders.mockResolvedValue([{ order_id: 9, side: 'sell', status: 'partial', price: 3, amount: 5, amount_filled: 2 }])
       renderMarket()
       await waitFor(() => expect(orderMeta()).toBeTruthy())
-      expect(orderMeta().textContent).toContain(TABLES[lang].orders.statusLabel.filled)
+      expect(orderMeta().textContent).toContain(TABLES[lang].orders.statusLabel.partial)
       expect(orderTitle().textContent).toContain(TABLES[lang].orders.sideLabel.sell)
-      expect(orderMeta().textContent).not.toContain('filled')   // 判负：原始枚举不得进用户面
-      expect(orderTitle().textContent).not.toContain('sell')
+      // 判负：**原始枚举本身**不得作为用户可见文案（en 的 `Partially filled` 合法地含 filled 一词
+      // ⇒ 不得用子串否定；改为「文本 ≠ 原值」+ `data-sf-status` 仍保留原值供排查）
+      expect(orderMeta().textContent.trim().endsWith('partial')).toBe(false)
+      expect(orderMeta().getAttribute('data-sf-status')).toBe('partial')
+      expect(orderTitle().textContent).not.toBe('sell')
+      expect(orderTitle().getAttribute('data-sf-side')).toBe('sell')
       seen[lang] = `${orderMeta().textContent}|${orderTitle().textContent}`
       cleanup()
     }

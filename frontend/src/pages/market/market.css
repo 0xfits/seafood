@@ -46,11 +46,14 @@
   text-decoration: underline;
 }
 
-/* 行情条（ticker）：窄屏一列、宽屏两列 */
+/* 行情条（ticker）：窄屏一列、宽屏两列；第三块（价格走势）恒占满整行 */
 .sf-mkt-ticker {
-  /* 结构常量（本规则内定义并消费）：行情条**盒高固定** —— 日/夜文本度量不得改盒子高度。
+  /* 结构常量（本规则内定义并消费）：行情条**文字区最小盒高** —— 日/夜文本度量不得改盒高。
      探针实测（`p4z-b4ciib-geometry.mjs`）：无此约束时本元素 day h≠night h（→ 级联出 14 处 rect 差）；
-     固定盒高 + 子元素显式 font-size/line-height（两档同值）后复测 = 0。 */
+     固定盒高 + 子元素显式 font-size/line-height（两档同值）后复测 = 0。
+     ★ 2026-10-22 价格走势块入条：`height` → `min-height`（走势图固定 72px 高，盒子需能撑开）。
+       文字区仍钉在 66px 常量上、走势块几何（72px + 12px 小字）与主题无关 ⇒ 两档 rect 仍恒等
+       （`ops/market/front/probe-exchange-trend.mjs` 臂 ③ 日/夜实测同高）。 */
   --sf-k-ticker-h: 66px;
   --sf-k-ticker-line: 1.2;
   display: grid;
@@ -60,7 +63,7 @@
   /* ★ 描边**不得**用 `--sf-ticker-border`：该主题 token 在日档值 = `none`（`tokens.js` DAY），
      `border: 1.5px solid none` 无效 ⇒ 日档 border-width=0 / 夜档=1px ⇒ 盒高差 2px（探针实测 86 vs 88）。
      故描边宽度取结构常量、颜色取**两档都是颜色**的 token（`--sf-card-border`）⇒ 主题只差颜色、不差几何。
-     另加 `box-sizing: border-box` 把盒高钉死在结构常量上（本元素在四语/两档下 rect 恒等）。 */
+     另加 `box-sizing: border-box` 把最小盒高钉死在结构常量上（本元素在四语/两档下 rect 恒等）。 */
   border: var(--sf-st-stroke-w-thin) solid var(--sf-card-border);
   box-sizing: border-box;
   border-radius: var(--sf-st-radius-btna);
@@ -68,7 +71,7 @@
   -webkit-clip-path: none;
   clip-path: none;
   padding: 10px 12px;
-  height: var(--sf-k-ticker-h);
+  min-height: var(--sf-k-ticker-h);
   align-items: center;
 }
 
@@ -93,6 +96,95 @@
 .sf-mkt-pair {
   color: var(--sf-tk-pair-fg);
   font-size: 12px;
+}
+
+/* 价格走势（sparkline）—— 行情条第三块，恒占满整行（Kevin 2026-10-22）。
+   颜色：涨 = `--sf-up-fg`、跌 = `--sf-down-fg`（**既有 token，零新色值**）；面积渐变 = 同色 + 透明度（非色值）。
+   几何：viewBox 100×40 + `preserveAspectRatio="none"` ⇒ 宽度随容器自适应；线宽/圆点走
+   `vector-effect: non-scaling-stroke` ⇒ 横向拉伸不改线宽、圆点不被拉成椭圆。高度 72px 固定，
+   小字行高取 --sf-k-ticker-line（两档同值）⇒ 日/夜盒高恒等（探针臂 ③ 实测）。 */
+.sf-mkt-trend {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.sf-mkt-trend-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+}
+
+.sf-mkt-trend .sf-mkt-pair {
+  font-size: 12px;
+  line-height: var(--sf-k-ticker-line);
+}
+
+.sf-mkt-trend-range {
+  font-size: 12px;
+  line-height: var(--sf-k-ticker-line);
+  color: var(--sf-meta-fg);
+  font-variant-numeric: tabular-nums;
+  font-family: var(--sf-st-num-font);
+}
+
+.sf-mkt-trend-svg {
+  display: block;
+  width: 100%;
+  height: 72px;
+}
+
+.sf-mkt-trend-up {
+  color: var(--sf-up-fg);
+}
+
+.sf-mkt-trend-down {
+  color: var(--sf-down-fg);
+}
+
+.sf-mkt-trend-area {
+  stroke: none;
+}
+
+.sf-mkt-trend-stop-top {
+  stop-color: currentColor;
+  stop-opacity: 0.3;
+}
+
+.sf-mkt-trend-stop-bottom {
+  stop-color: currentColor;
+  stop-opacity: 0.02;
+}
+
+.sf-mkt-trend-line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* 末点圆点 = zero-length 段 + round linecap（r 由 stroke-width 6px 表达，不被 viewBox 拉伸） */
+.sf-mkt-trend-dot {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 6px;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.sf-mkt-trend-empty {
+  color: var(--sf-empty-fg);
+  border: var(--sf-st-stroke-w-thin) dashed var(--sf-card-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  padding: 10px;
+  font-size: 12px;
+  text-align: center;
 }
 
 .sf-mkt-last {

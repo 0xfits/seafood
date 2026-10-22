@@ -20,6 +20,8 @@ import {
 // 批 7-A：「账本流水」面板 = 已注册读口 `GET /api/user/ledger?kind=transfer`
 //   （§5.1「碎片读口 ②」：旧 `GET /api/shard/transfer` 的语义由本读口取代）
 import { fetchMyLedger, LEDGER_PAGE_SIZE } from '../../ledger-api'
+// 价格走势（sparkline）：纯几何层（零新依赖、零新接口），入参 = `trades.rows`
+import { TREND_VIEW_H, TREND_VIEW_W, buildTrendSeries, trendGeometry } from './sparkline'
 import './market.css'
 
 // ============================================================================
@@ -50,6 +52,21 @@ const MARKET_LIMIT = 50
 //   标签键 = 本单新增 `orders.statusLabel.*` / `orders.sideLabel.*`（四语齐备，含 `unknown` 兜底）。
 const MARKET_ORDER_STATUS_KEYS = ['open', 'partial', 'filled', 'cancelled']
 const MARKET_ORDER_SIDE_KEYS = ['buy', 'sell']
+
+// 「我的挂单」面板只列**活动单**（Kevin 2026-10-22 实测缺陷修复）：
+//   缺陷 = `GET /api/order` 是**全量**（`SELECT o.* FROM market_order WHERE owner_uid=…`，含已终结行），
+//   原渲染不分状态全列 ⇒ 全撤后旧行仍在（状态变「已撤」），读起来像「没撤掉」。
+// 口径（**已终结态才隐藏**）：`filled`（全成交）/ `cancelled`（已撤）不入面板；
+//   `open` / `partial` 必留；**未知/缺省状态 fail-open 一律保留** —— 理由：
+//     ① 服务端 `normalizeMarketOrder` 恒给 `status`（缺省回落 `'open'`，`database.ts:2424`），
+//        未知值只可能来自未来新增枚举，此时**藏行比显示更危险**（用户看不到自己的钱压在哪）；
+//     ② 未知值仍走 `orders.statusLabel.unknown` 本地化兜底（不泄原始枚举）；
+//     ③ 现取测试契约（`p7e-tails-beta.test.jsx` ②）以 `filled`/未知/缺省三态钉住标签查表 ⇒ 三态语义保持可测。
+const MARKET_ORDER_TERMINAL_STATUS = ['filled', 'cancelled']
+const isActiveMarketOrder = (row) => {
+  const status = String(row?.status ?? '').trim()
+  return !MARKET_ORDER_TERMINAL_STATUS.includes(status)
+}
 
 // 「标的币种」combobox（Kevin 2026-10-21）：选项行文案 = `symbol · name · #cid`
 //   （symbol 为展示符号、可为空；空段跳过，`#cid` 恒在场）。
@@ -317,8 +334,27 @@ const MarketPage = () => {
   const onCancelAll = async () => {
     setAct({ phase: 'loading', message: t('jobs.submitting') })
     try {
-      await cancelAllOrders(user) // **query only**：本层不发 body（§9.B B12）
-      setAct({ phase: 'ok', message: t('market.cancelAllOk') })
+      // **query only**：本层不发 body（§9.B B12）。回包 `data` = `{cancelled, attempted, failed, orders}`
+      //   （`market-service.ts:425` 现取）⇒ 提示文案带**服务端计数**，不再笼统一句「已撤销全部挂单」
+      //   （cancelled=0 时那句是假阳性：本来就没有活动挂单）。
+      const view = await cancelAllOrders(user)
+      const cancelled = Number(view?.cancelled)
+      const failed = Number(view?.failed)
+      const cancelledN = Number.isFinite(cancelled) && cancelled > 0 ? cancelled : 0
+      const failedN = Number.isFinite(failed) && failed > 0 ? failed : 0
+      if (failedN > 0) {
+        // 部分/全部失败：有成功过 ⇒ 中性提示；一单没撤成 ⇒ 错误态（与「已撤」区分）
+        setAct({
+          phase: cancelledN > 0 ? 'ok' : 'error',
+          message: t('market.cancelPartial', { n: failedN }),
+          cancelled: cancelledN,
+          failed: failedN,
+        })
+      } else if (cancelledN > 0) {
+        setAct({ phase: 'ok', message: t('market.cancelAllOkCount', { n: cancelledN }), cancelled: cancelledN, failed: 0 })
+      } else {
+        setAct({ phase: 'ok', message: t('market.cancelAllNone'), cancelled: 0, failed: 0 })
+      }
       await refresh()
     } catch (error) {
       setAct({ phase: 'error', message: String(error?.message || t('error')) })
@@ -326,13 +362,18 @@ const MarketPage = () => {
   }
 
   const lastTrade = trades.rows[0] || null
+  // 价格走势：成交行（最新在前）⇒ 升序序列 ⇒ viewBox 几何。真空（零笔可绘）⇒ `null` ⇒ 空态占位。
+  const trendSeries = useMemo(() => buildTrendSeries(trades.rows), [trades.rows])
+  const trend = useMemo(() => trendGeometry(trendSeries), [trendSeries])
+  // 「我的挂单」只画面板活动单（已终结态 `filled`/`cancelled` 已由服务端写入，但列表仍是全量）
+  const activeMineRows = useMemo(() => mine.rows.filter(isActiveMarketOrder), [mine.rows])
   // TR-2：当前语言（`utils.SUPPORTED_LANGS` 同一白名单）。
   //   · 「我的挂单」行 = `market_order` 行（`/api/order`）⇒ 面板渲染的文本键只有 `name`/`title`（用户录入文本）。
   //   · R-7E-6（批 8 A 小项）：`side`/`status` 是 **DB 枚举**（`open`/`filled`/`buy`…），**不得入翻译面** ——
   //     它们由 `orders.statusLabel.*` / `orders.sideLabel.*` 查表渲染（下方渲染处），不走 `*_<lang>` 后缀列。
   //     故本行 keys 收敛为 `['name','title']`（去 `side`/`status`）。
   const lang = getLanguageFromUrl(location.pathname)
-  const mineRows = mine.rows.map((row) => localizeFields(row, ['name', 'title'], lang))
+  const mineRows = activeMineRows.map((row) => localizeFields(row, ['name', 'title'], lang))
 
   return (
     <div className="sf-layout" data-sf-m="mkt-layout">
@@ -346,7 +387,8 @@ const MarketPage = () => {
             </div>
           </div>
 
-          {/* 行情条：窄屏单列 / 宽屏两列；无成交 ⇒ 显示占位，不用假数据 */}
+          {/* 行情条：窄屏单列 / 宽屏两列；无成交 ⇒ 显示占位，不用假数据。
+              第三块 = 价格走势（sparkline，零新依赖/零新接口）：数据 = 同一份 `trades.rows`（升序后出图）。 */}
           <div className="sf-mkt-ticker" data-sf-m="mkt-ticker">
             <div>
               <div className="sf-mkt-pair">{`#${baseValid ? baseCid : '-'} / #${QUOTE_CID}`}</div>
@@ -355,6 +397,45 @@ const MarketPage = () => {
             <div>
               <div className="sf-mkt-pair">{t('market.trades')}</div>
               <div className="sf-mkt-meta">{`${trades.phase} · ${trades.rows.length}`}</div>
+            </div>
+            <div className="sf-mkt-trend" data-sf-m="mkt-trend" data-sf-points={trendSeries.length}>
+              <div className="sf-mkt-trend-head">
+                <span className="sf-mkt-pair">{t('market.priceTrend')}</span>
+                {trend && (
+                  <span className="sf-mkt-trend-range" data-sf-m="mkt-trend-range">
+                    {t('market.trendRange', {
+                      high: String(trend.max),
+                      low: String(trend.min),
+                      last: String(trend.last),
+                    })}
+                  </span>
+                )}
+              </div>
+              {!trend
+                ? <div className="sf-mkt-trend-empty" data-sf-m="mkt-trend-empty">{trades.message || t('market.tradesEmpty')}</div>
+                : (
+                  <svg
+                    className={`sf-mkt-trend-svg ${trend.dir < 0 ? 'sf-mkt-trend-down' : 'sf-mkt-trend-up'}`}
+                    data-sf-m="mkt-trend-svg"
+                    data-sf-dir={trend.dir < 0 ? 'down' : 'up'}
+                    data-sf-count={trend.count}
+                    viewBox={`0 0 ${TREND_VIEW_W} ${TREND_VIEW_H}`}
+                    preserveAspectRatio="none"
+                    role="img"
+                    aria-label={t('market.priceTrend')}
+                  >
+                    <defs>
+                      <linearGradient id="sf-mkt-trend-grad" x1="0" y1="0" x2="0" y2="1">
+                        <stop className="sf-mkt-trend-stop-top" offset="0" />
+                        <stop className="sf-mkt-trend-stop-bottom" offset="1" />
+                      </linearGradient>
+                    </defs>
+                    <path className="sf-mkt-trend-area" d={trend.area} fill="url(#sf-mkt-trend-grad)" />
+                    <path className="sf-mkt-trend-line" d={trend.line} />
+                    {/* 末点圆点：zero-length 段 + round linecap（`vector-effect` 保证不被 viewBox 拉伸成椭圆） */}
+                    <path className="sf-mkt-trend-dot" d={`M${trend.dot.x},${trend.dot.y} l0.01,0`} data-sf-m="mkt-trend-dot" />
+                  </svg>
+                )}
             </div>
           </div>
 
@@ -455,6 +536,8 @@ const MarketPage = () => {
                 className={`sf-mkt-status${act.phase === 'error' ? ' sf-mkt-err' : ''}${act.phase === 'ok' ? ' sf-mkt-ok' : ''}`}
                 data-sf-m="mkt-status"
                 data-sf-phase={act.phase}
+                data-sf-cancelled={act.cancelled === undefined ? undefined : act.cancelled}
+                data-sf-failed={act.failed === undefined ? undefined : act.failed}
                 role="status"
               >
                 {act.message}
@@ -486,9 +569,9 @@ const MarketPage = () => {
               {trades.rows.length === 0
                 ? <div className="sf-mkt-empty" data-sf-m="mkt-trades-empty">{trades.message || t('market.tradesEmpty')}</div>
                 : trades.rows.map((row, i) => (
-                  <div className="sf-mkt-trade-row" key={String(row.trade_id ?? i)}>
+                  <div className="sf-mkt-trade-row" key={String(row.trID ?? row.trade_id ?? i)}>
                     <span>{String(row.price ?? '-')}</span>
-                    <span>{String(row.amount ?? '-')}</span>
+                    <span>{String(row.volume ?? row.amount ?? '-')}</span>
                     <span>{`#${String(row.buyer_uID ?? '-')}→#${String(row.seller_uID ?? '-')}`}</span>
                   </div>
                 ))}
@@ -512,7 +595,7 @@ const MarketPage = () => {
               {t('market.cancelAll')}
             </button>
           </div>
-          {mine.rows.length === 0
+          {activeMineRows.length === 0
             ? <div className="sf-mkt-empty" data-sf-m="mkt-mine-empty">{mine.message || t('market.mineEmpty')}</div>
             : mineRows.map((row) => {
               // P7-E 小尾巴批-β ②：枚举字段（`status`/`side`）**不得原样渲染**（原文把 `market_order`
