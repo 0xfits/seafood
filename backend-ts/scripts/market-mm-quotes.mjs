@@ -19,7 +19,7 @@ export const CONFIG_DEFAULTS = Object.freeze({
   MM_QUOTE_CID: '1', // $ 平台积分
   MM_SPREAD_PCT: '1', // 全跨 1% ⇒ 双边各 0.5%
   MM_ORDER_SIZE_BASE: '100', // BTTC / 单
-  MM_REF_PRICE: '10000', // 无成交时的参考价；显式置空（''/0）= 不给 env 价
+  MM_REF_PRICE: '1000', // 无成交时的参考价（Kevin 2026-10-22：ref 1000 · 全跨 1% ⇒ 买 995 / 卖 1005）；显式置空（''/0）= 不给 env 价
   MM_INTERVAL_S: '60',
   MM_MAX_INVENTORY_PCT: '50', // 单笔订单名义额 ≤ 库存总值的 50%
   MM_STATE_FILE: '', // '' ⇒ <mm.env 同目录>/mm-state.json

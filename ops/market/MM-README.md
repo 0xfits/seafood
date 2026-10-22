@@ -58,7 +58,7 @@ dev 后端起法：`cd backend-ts && PORT=5788 ./node_modules/.bin/ts-node --tra
 | `MM_QUOTE_CID` | `1` | quote = $ 平台积分（服务端恒 1，仅决策/对账用） |
 | `MM_SPREAD_PCT` | `1` | 全跨 %，双边各摊一半（买 floor / 卖 ceil） |
 | `MM_ORDER_SIZE_BASE` | `100` | 单笔目标挂量（BTTC 个数） |
-| `MM_REF_PRICE` | `10000` | 无成交时的参考价；显式置空（`''`/`0`）= 不给 env 价 |
+| `MM_REF_PRICE` | `1000` | 无成交时的参考价（ref 1000 · 全跨 1% ⇒ 买 **995** / 卖 **1005**）；显式置空（`''`/`0`）= 不给 env 价 |
 | `MM_INTERVAL_S` | `60` | 轮间隔秒 + create_key 时间窗宽 |
 | `MM_MAX_INVENTORY_PCT` | `50` | 单笔名义额 ≤ 库存总值的 % |
 | `MM_STATE_FILE` | `<mm.env 同目录>/mm-state.json` | state 路径 |
@@ -69,10 +69,14 @@ ref 价格来源链：**最近成交价 → env → state → 无**（无来源 
 
 ## 撮合与费用（平台现口径，勿凭直觉假设）
 
-- **挂单不自动撮合**：`POST /api/order` 只建单（`market_post_event(op='order')`，hold ×2 冻结腿）。
-- 成交 = **M3 撮合动词** `matchMarketOrders`（服务层函数，**当前无 HTTP 路由**）：对手方**服务端选择**
-  （价格交叉 + 非自身优先）、定价**恒 = 买单限价**（DL85）、幂等键 `biz:market:trade:<taker_order_id>:<fill_no>`。
-- taker 流程：挂价格交叉的对手单（买价 ≥ 最优卖价）→ 触发 M3 → 即与 MM 对手单成交。
+- **挂单即撮合（2026-10-22 起）**：`POST /api/order` 建单后自动执行 taker 循环撮合
+  （`matchTakerOrderLoop` → M3 `matchMarketOrders`）；响应加性 `matches[]` / `remaining`；
+  replay（同 `create_key` 重投）不补撮合。
+- 成交口径：对手方**服务端选择**（价格交叉 + 非自身优先）、定价**恒 = 买单限价**（DL85）、
+  幂等键 `biz:market:trade:<taker_order_id>:<fill_no>`；单笔失败（含自成交）终止循环保留已完成部分。
+- **自成交**：同一账号的买卖单永不互相成交（编排排除 + 账本 `v_from = v_to` 双闸）⇒ MM 自己的
+  两单互不撮合，但任何第三方单都能吃到 MM 的报价。
+- taker 流程：挂价格交叉的单（买价 ≥ 最优卖价）⇒ 下单响应即带成交明细。
 - **手费 = taker 付**，恒 `$`(cid 1)、是消耗不是冻结（撤单不退）：`fee = (qty × 买单限价 × fee_rate_bp + 5000) / 10000`
   （半进位），费率真源 `commission_policy.fee_rate_bp`。**maker（MM）不付手续费**。
   dev 实测费率 `1000bp`（10%）：2 ₿ @ 10050 成交收 taker $2,010（trade_id 9）。

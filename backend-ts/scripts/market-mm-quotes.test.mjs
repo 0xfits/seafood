@@ -18,13 +18,13 @@ import {
 } from './market-mm-quotes.mjs';
 
 // ---------------------------------------------------------------- 配置解析
-test('resolveConfig: 缺省值（spread 1% / 100 BTTC / interval 60s / ref 10000）', () => {
+test('resolveConfig: 缺省值（spread 1% / 100 BTTC / interval 60s / ref 1000）', () => {
   const cfg = resolveConfig({});
   assert.equal(cfg.spreadPct, 1);
   assert.equal(cfg.orderSizeBase, 100);
   assert.equal(cfg.intervalS, 60);
   assert.equal(cfg.maxInventoryPct, 50);
-  assert.equal(cfg.refPriceEnv, 10000);
+  assert.equal(cfg.refPriceEnv, 1000);
   assert.equal(cfg.baseCid, 4);
   assert.equal(cfg.quoteCid, 1);
   assert.equal(cfg.apiBase, 'https://0xseafood.com');
@@ -77,6 +77,8 @@ test('buildCreateKey 幂等: 同窗同价重试同键（重放安全）；换窗
 // ---------------------------------------------------------------- 报价计算
 test('computeQuoteTargets: ref 10000 / spread 1% ⇒ 买 9950（floor）/ 卖 10050（ceil）', () => {
   assert.deepEqual(computeQuoteTargets({ refPrice: 10000, spreadPct: 1 }), { buyPrice: 9950, sellPrice: 10050 });
+  // ★ Kevin 2026-10-22 生产口径：ref 1000 · 全跨 1% ⇒ 买 995 / 卖 1005
+  assert.deepEqual(computeQuoteTargets({ refPrice: 1000, spreadPct: 1 }), { buyPrice: 995, sellPrice: 1005 });
 });
 
 test('computeQuoteTargets: 取整方向（9950.005→9950 买 / 10050.005→10051 卖）', () => {
