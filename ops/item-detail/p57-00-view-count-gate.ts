@@ -103,8 +103,13 @@ const FIXTURE_KEY_PREFIX = 'cli:p57-gate:';
 
   // ====================================================================== A · 静态面（零 DB）
   const regs = (INDEX_TS.match(/^app\.(get|post|put|delete|patch)\(/gm) ?? []).length;
-  ck.t('A1', '**零新路由**：注册点 = 128（118 + campaign-domain 九口 route §49.18 ＋ user-balances `GET /api/user/balances` +1 —— 本单只改既有读口/写口，零新注册点）',
-    regs === 128, `registration_points=${regs}`);
+  // ★ 注册点总数随「首页四标签筛选下线」等既有单**同期下修**（128 → 109，逐 verb 面与 p74 A1 / p7b-03 AC10-2 同口径）。
+  //   本单（p57 浏览计数）自始至终**零新注册点** ⇒ 判据仍是**逐字相等**（不放宽成区间）。
+  const verbCount = (v: string) => (INDEX_TS.match(new RegExp(`^app\\.${v}\\(`, 'gm')) ?? []).length;
+  ck.t('A1', '**零新路由**：注册点 = 109（get 49 / post 53 / patch 4 / delete 3 / put 0 —— 本单只改既有读口/写口，零新注册点；总数已含 campaign-domain 九口与 user-balances 等前单加性口）',
+    regs === 109 && verbCount('get') === 49 && verbCount('post') === 53
+      && verbCount('patch') === 4 && verbCount('delete') === 3 && verbCount('put') === 0,
+    `registration_points=${regs} verbs=${JSON.stringify({ get: verbCount('get'), post: verbCount('post'), patch: verbCount('patch'), delete: verbCount('delete'), put: verbCount('put') })}`);
 
   const detailBlock = sliceBetween(INDEX_TS, "app.get('/api/prize/:bID'", "app.get('/api/user'");
   ck.t('A2', '详情读口已换「自增+读」专用口：`getPrizeDetailRecordingView` 在场、`getPrizeById` 不再被详情路由调用（裸读只留内部回执用）',
@@ -118,9 +123,13 @@ const FIXTURE_KEY_PREFIX = 'cli:p57-gate:';
     `increment_sites=${incrHits} in_detail_cte=${/view_count = view_count \+ 1/.test(detailSvc)}`);
 
   const feedSvc = sliceBetween(DB, 'static async listBrands', 'static async listClaimedPrizeIdsByUser');
-  ck.t('A4', 'feed（`listBrands`）SQL **不选** `view_count` / `item_condition` ⇒ 计数两键不出现、不计数（行键 48→50 由 0060 两列驱动）',
-    feedSvc.length > 0 && !feedSvc.includes('view_count') && !feedSvc.includes('item_condition'),
-    `listBrands_slice_bytes=${feedSvc.length}`);
+  // ★ P74 起（FEED-RANK-v2 五因子）：`listBrands` 的 score 表达式会**读取** `l.view_count`（views 因子）
+  //   ⇒ 判据从「切片不含该词」（已不成立）收紧为**意图判据**：feed 行不得把 view_count 作为**输出列**
+  //   （`AS view_count` 别名）/ 不得经归一器透出 `views` 键 ⇒ 键集与计数语义均不变（键集总面由 p74 B5 守）。
+  const feedEmitsViewsKey = /AS\s+view_count\b/i.test(feedSvc) || feedSvc.includes('row.view_count !== undefined');
+  ck.t('A4', 'feed（`listBrands`）行**不出** `views` 键 / 不计数：SQL 无 `AS view_count` 输出列 · 归一器无 `row.view_count` 透出 · 仍不选 `item_condition`（★ P74 起 `l.view_count` 仅作 FEED-RANK-v2 的 views 因子在 score 表达式内读取，**不是**输出列；行键 48→50 由 0060 两列驱动，本单不变）',
+    feedSvc.length > 0 && !feedEmitsViewsKey && !feedSvc.includes('item_condition'),
+    `listBrands_slice_bytes=${feedSvc.length} emits_views_key=${feedEmitsViewsKey}`);
 
   const condHits = (DB.match(/row\.item_condition !== undefined/g) ?? []).length;
   const viewHits = (DB.match(/row\.view_count !== undefined/g) ?? []).length;

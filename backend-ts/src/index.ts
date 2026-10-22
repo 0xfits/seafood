@@ -25,7 +25,12 @@ import {
   validateAppConfigKey,
   validateAppConfigValue,
   SYSTEM_SETTINGS_KEY,
+  // ★ FEED-SORT-v1：`?sort=` 闭集 + 归一（单一定义点在 database.ts，路由层不自拟字面量）
+  FEED_SORT_DEFAULT,
+  FEED_SORT_MODES,
+  normalizeFeedSort,
 } from './database';
+import type { FeedSortMode } from './database';
 import { healthCheck } from './db';
 // 方案 A · 对账定时化：三条**纯只读**对账（供应量/账本、account/ledger、batt_account/batt_entry）
 import { runLedgerRecon } from './ops-recon';
@@ -338,6 +343,24 @@ const getPagination = (req: Request) => ({
   skip: Math.max(0, parseInteger(req.query.skip, 0)),
   limit: Math.max(1, parseInteger(req.query.limit, 100)),
 });
+
+/**
+ * ★ FEED-SORT-v1（首页两标签 · Kevin 2026-10-22）：`GET /api/prize/all?sort=` 的**路由层判据唯一落点**。
+ *   · 缺参 / 空串 ⇒ `recommend`（宽松：前端清空参数不该 400）；
+ *   · `recommend` / `new`（大小写与首尾空白归一）⇒ 该值；
+ *   · **其余一切**（`banana` / `newest` / 数组参数 `?sort=a&sort=b`）⇒ `ok:false` ⇒ 调用方 **400**
+ *     `LEDGER_AMOUNT_INVALID` + `details.reason='sort_invalid'`（**借码**：不新增错误码，33 码闭集不动）。
+ */
+type FeedSortQuery = { ok: true; sort: FeedSortMode } | { ok: false; raw: string };
+const resolveFeedSortQuery = (req: Request): FeedSortQuery => {
+  const raw = req.query.sort;
+  if (raw === undefined) return { ok: true, sort: FEED_SORT_DEFAULT };
+  if (Array.isArray(raw)) return { ok: false, raw: raw.map((v) => String(v)).join(',') };
+  const text = String(raw).trim();
+  if (text === '') return { ok: true, sort: FEED_SORT_DEFAULT };
+  const sort = normalizeFeedSort(text);
+  return sort ? { ok: true, sort } : { ok: false, raw: text };
+};
 
 type ActorContext = {
   session: {
@@ -700,10 +723,25 @@ app.post('/api/auth/login', async (req, res) => {
 //   · **不动**：400 分支、33 码/bucket、真凭据 401 的位置、410 弃用面、任何成功路径响应形状；
 //     零 IO 面（`/api/shard`、`/api/shard/transfer` 恒空态，catch 只可能见代码缺陷）⇒ 保留 500。
 // ============================================================================
+// ★ FEED-SORT-v1（首页两标签「推荐 / 新发」· Kevin 2026-10-22）：
+//   `?sort=` 只认闭集 `FEED_SORT_MODES`（`recommend` 缺省 = 五因子加权分 / `new` = 纯发布时间降序）；
+//   非法值 ⇒ **400** `LEDGER_AMOUNT_INVALID` + `details.reason='sort_invalid'`（借码、零新错误码），
+//   且**不进服务层、不查库**（形状闸前置）。判据单一定义点 = `resolveFeedSortQuery`（上方）。
+//   响应键集**零变化**（score 及各因子原始值都不出）；分页 skip/limit 语义不变。
+//   `sort` 落在 URL 查询串 ⇒ CDN 缓存键天然区分两态（不新增 Vary、不改缓存头口径）。
 app.get('/api/prize/all', async (req, res) => {
   try {
     const { skip, limit } = getPagination(req);
-    const prizes = await DatabaseService.listPrizes(skip, limit);
+    const sortQuery = resolveFeedSortQuery(req);
+    if (!sortQuery.ok) {
+      return sendVerbError(res, adminVerbError(400, 'LEDGER_AMOUNT_INVALID', {
+        field: 'sort',
+        reason: 'sort_invalid',
+        value: sortQuery.raw.slice(0, 32),
+        allowed: [...FEED_SORT_MODES],
+      }, 'Sort is invalid'));
+    }
+    const prizes = await DatabaseService.listPrizes(skip, limit, sortQuery.sort);
     setPublicCache(res);
     sendSuccess(res, prizes);
   } catch (error) {

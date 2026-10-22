@@ -1,0 +1,267 @@
+{
+  "run": "20261022T050657Z1vy5",
+  "name": "p74-feed-sort-gate",
+  "at": "2026-10-22T05:07:15.476Z",
+  "http": {
+    "port": 49474,
+    "bad": {
+      "status": 400,
+      "error": {
+        "code": "LEDGER_AMOUNT_INVALID",
+        "message": "Sort is invalid",
+        "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+        "details": {
+          "field": "sort",
+          "reason": "sort_invalid",
+          "value": "banana",
+          "allowed": [
+            "recommend",
+            "new"
+          ]
+        }
+      }
+    },
+    "new_head": [
+      76,
+      71,
+      24,
+      23,
+      19
+    ],
+    "rec_head": [
+      13,
+      76,
+      71,
+      24,
+      23,
+      19
+    ]
+  },
+  "checks": [
+    {
+      "id": "A1",
+      "what": "★路由面：注册点仍 **109**（get 49 / post 53 / patch 4 / delete 3 / put 0 · 零新路由）· `/api/prize/all` 经 `resolveFeedSortQuery` 解析 `?sort=` · 非法值 ⇒ 400 `LEDGER_AMOUNT_INVALID` + `details.reason='sort_invalid'` + `allowed=[...FEED_SORT_MODES]` · 合法值经第 3 参透传 `listPrizes(skip, limit, sort)` · 成功面仍 `setPublicCache` + `sendSuccess` · 异常仍 `sendInfraMapped`",
+      "pass": true,
+      "reading": "{\"regs\":109,\"get\":49,\"post\":53,\"patch\":4,\"delete\":3,\"put\":0,\"block_bytes\":840}"
+    },
+    {
+      "id": "A2",
+      "what": "★排序真源**唯一**：`ORDER BY f.score DESC, f.time_created DESC, f.listing_id DESC` 全仓恰 **1 处** · `CASE WHEN ${feedSort}::text = 'new'` 恰 **1 处**（new 态 score 恒 0 ⇒ 退化为纯时间两键）· `new` 态**不读**权重配置（`feedSort === 'new' ? DEFAULT_FEED_SCORE_WEIGHTS : (await this.getFeedScoreWeights(ex)).normalized`，三元短路 ⇒ 配置坏也影响不到 new 态）· `/api/home` 调用逐字未变（仍 2 参 ⇒ 首页默认推荐）· `listPrizes` 薄壳透传（零第二套业务）",
+      "pass": true,
+      "reading": "{\"order_hits\":1,\"sort_case_hits\":1,\"home_call_unchanged\":true}"
+    },
+    {
+      "id": "A3",
+      "what": "★五因子全在 SQL 且各自取数口径正确：recency(1/(1+age_days)) · rating(COALESCE 均星 3.0 / 5) · wants(COALESCE(fav.want_count,0)/(…+5)) · views(GREATEST(COALESCE(l.view_count,0),0)/(…+100)) · sale_rate(sum(quantity) WHERE status='paid' / (已售+GREATEST(stock,0))，NULLIF 分母 0 ⇒ 0）· 五个权重均取 `feedWeightParams.<factor>`（**不散落字面量**）· 饱和常数走具名常量",
+      "pass": true,
+      "reading": "{\"sql_bytes\":5981,\"factors\":[true,true,true,true,true],\"literal_weight_in_sql\":false}"
+    },
+    {
+      "id": "A4",
+      "what": "★**响应键集零变化**：`score` 仍是**排他派生列**（`AS score` 全仓恰 1 处、在 feed SQL 内）· 归一器 `normalizeBrand` **无 spread**（逐键显式列举）且不出 `score` / `recency` / `rating_raw` / `sale_rate` 任何因子键 · `views` 不进 feed（`row.view_count` 条件透出只在详情面）",
+      "pass": true,
+      "reading": "{\"as_score_hits\":1,\"normalize_bytes\":8210,\"spread\":false}"
+    },
+    {
+      "id": "A5",
+      "what": "★权重常量**集中唯一定义**：`DEFAULT_FEED_SCORE_WEIGHTS` = {recency 0.40, rating 0.20, wants 0.15, views 0.15, sale_rate 0.10}（逐字）· 键名常量 `FEED_SCORE_WEIGHTS_KEY` 恰 1 处定义 · `app_config` 合法键清单**未动**（仍 10 键、**不含** `feed_score_weights` ⇒ 只读不写、`/api/admin/settings` 无其校验器 ⇒ fail-closed 拒写）",
+      "pass": true,
+      "reading": "{\"defaults\":[0.4,0.2,0.15,0.15,0.1],\"legal_keys\":10,\"key_registered\":false,\"sort_modes\":[\"recommend\",\"new\"],\"sort_default\":\"recommend\"}"
+    },
+    {
+      "id": "A6",
+      "what": "★**零新错误码**（借码）：`LEDGER_ERROR_CODES` 仍恰 **33** 码 · 路由层 `sort_invalid` 只作 `details.reason`（不新增码、不改分类器）· 权重键未登记 ⇒ 不新增 admin 写面、零 DDL / 零迁移",
+      "pass": true,
+      "reading": "{\"codes\":33,\"sort_invalid_tokens\":3}"
+    },
+    {
+      "id": "U1",
+      "what": "`normalizeFeedSort` 矩阵（trim + lowercase 归一；闭集外 / 空串 / 非字符串 ⇒ null）：",
+      "pass": true,
+      "reading": "[[\"recommend\",\"recommend\",\"recommend\"],[\"new\",\"new\",\"new\"],[\"  NEW  \",\"new\",\"new\"],[\"Recommend\",\"recommend\",\"recommend\"],[\"newest\",null,null],[\"\",null,null],[\"   \",null,null],[\"undefined\",null,null],[\"null\",null,null],[\"42\",null,null],[\"new\",null,null]]"
+    },
+    {
+      "id": "U2",
+      "what": "`parseFeedScoreWeights` 矩阵（缺行/全配置/未归一/逐项回落/负数/非数/全 0/清单外字段）：与门自带独立复算**逐项对齐**、归一化后和恒 = 1、`overridden` 集合一致",
+      "pass": true,
+      "reading": "[{\"cfg\":null,\"src\":\"default\",\"ok\":true,\"note\":\"缺行 ⇒ 全默认\"},{\"cfg\":{},\"src\":\"default\",\"ok\":true,\"note\":\"空对象 ⇒ 全默认\"},{\"cfg\":{\"recency\":\"0.40\",\"rating\":\"0.20\",\"wants\":\"0.15\",\"views\":\"0.15\",\"sale_rate\":\"0.10\"},\"src\":\"config\",\"ok\":true,\"note\":\"全配置（字符串）⇒ 逐字默认权重\"},{\"cfg\":{\"recency\":4,\"rating\":2,\"wants\":1.5,\"views\":1.5,\"sale_rate\":1},\"src\":\"config\",\"ok\":true,\"note\":\"全配置（数字·未归一）⇒ 和归一化后等价默认\"},{\"cfg\":{\"wants\":\"9\"},\"src\":\"partial\",\"ok\":true,\"note\":\"只给 wants ⇒ 其余逐项回落 + 归一化\"},{\"cfg\":{\"wants\":\"-1\",\"views\":\"banana\",\"recency\":null},\"src\":\"default\",\"ok\":true,\"note\":\"负数/非数/null ⇒ 全默认\"},{\"cfg\":{\"wants\":\"0.5\",\"views\":\"banana\"},\"src\":\"partial\",\"ok\":true,\"note\":\"部分非法 ⇒ 该项回落、其余采信\"},{\"cfg\":{\"recency\":\"0\",\"rating\":\"0\",\"wants\":\"0\",\"views\":\"0\",\"sale_rate\":\"0\"},\"src\":\"default\",\"ok\":true,\"note\":\"和 = 0 ⇒ 全默认\"},{\"cfg\":{\"recency\":\"1\",\"note\":\"x\"},\"src\":\"partial\",\"ok\":true,\"note\":\"清单外字段忽略（不使整行失效）\"}]"
+    },
+    {
+      "id": "U3",
+      "what": "★可证伪自检：把解析器换成「忽略配置恒返回默认」的 mutant ⇒ 同一「配置是否生效」谓词必转 **false**（证明 U2 的配置臂不是恒真）",
+      "pass": true,
+      "reading": "{\"real\":true,\"mutant\":false}"
+    },
+    {
+      "id": "B0",
+      "what": "事务内全链执行未抛未预期异常（夹具 = 真 `createListingRow` 写路径 ×13 · `listing.view_count` 列在场）",
+      "pass": true,
+      "reading": "{\"error\":\"\",\"listed_total\":22,\"schema\":{\"view_count_col\":1},\"ms\":12185}"
+    },
+    {
+      "id": "B1",
+      "what": "★`new` 臂（真路径）：时间组三条按 `time_created` **逐字降序**（0.2d → 1.2d → 2.2d），且该序与同三条的 **score 序不同**（`n-old` 的 wants+views 拉满 ⇒ 推荐态它排第一）⇒ 证明 new **真按时间、不算分**",
+      "pass": true,
+      "reading": "{\"new_group\":[367,368,369],\"recommend_group\":[369,367,368],\"expect_time_desc\":[367,368,369]}"
+    },
+    {
+      "id": "B2",
+      "what": "★`new` 臂**全页逐行** = 独立 oracle（`ORDER BY time_created DESC, listing_id DESC`，全库 listed 含夹具）—— 排序轴单一、分页上限内零缺行零错位",
+      "pass": true,
+      "reading": "{\"n\":22,\"first5\":[367,365,358,357,368],\"oracle5\":[367,365,358,357,368]}"
+    },
+    {
+      "id": "B3",
+      "what": "★`recommend` 臂**全页逐行** = 独立 oracle（五因子公式 · 默认权重 0.40/0.20/0.15/0.15/0.10 复算）—— 五因子组合口径与实现一致（近分并列容忍 1e-6，真实并列由三级 tie-break 消解）",
+      "pass": true,
+      "reading": "{\"ok\":true,\"reason\":\"\",\"swaps\":0,\"n\":22,\"first5\":[369,367,357,359,365],\"oracle5\":[369,367,357,359,365]}"
+    },
+    {
+      "id": "B4",
+      "what": "★分页语义不变：`skip=0&limit=2` + `skip=2&limit=2` 拼起来 == `new` 全序前 4、两页无交集；全页 `b_id` **唯一**（去重语义不变）",
+      "pass": true,
+      "reading": "{\"pages\":{\"page1\":[367,365],\"page2\":[358,357]},\"head4\":[367,365,358,357],\"unique\":22,\"n\":22}"
+    },
+    {
+      "id": "B5",
+      "what": "★**响应键集零变化**：两臂同批行键集**逐字相同** · 无 `score` / `recency` / `rating_raw` / `sale_rate` / `view_count` 键（因子原始值一律不出）· `wants` 键仍 = `listing_favorite` 计数（口径不变）",
+      "pass": true,
+      "reading": "{\"key_count\":50,\"keys\":[\"activated_count\",\"available_quantity\",\"bID\",\"circulation_seconds\",\"claims_count\",\"current_shard_supply\",\"description\",\"description_en\",\"description_hk\",\"description_vn\",\"duration_seconds\",\"free_shard_quota\",\"free_shard_ratio\",\"free_shards_distributed\",\"free_shards_remaining\",\"gift_limit\",\"i18n_status\",\"image_url\",\"issued_quantity\",\"item_code\",\"item_type\",\"lifecycle_status\",\"liquidation_seconds\",\"market_floor_points\",\"market_is_open\",\"market_shard_cap\",\"media_urls\",\"minimum_shard_price\",\"name\",\"name_en\",\"name_hk\",\"name_vn\",\"points\",\"price_floor_active\",\"price_floor_eligible\",\"price_floor_enabled\",\"redeemed_quantity\",\"remaining_market_shards\",\"seller\",\"snowflake_id\",\"stores_count\",\"symbol\",\"time_actived\",\"time_created\",\"time_end\",\"time_start\",\"time_updated\",\"total_quantity\",\"url_image\",\"wants\"],\"forbidden_hits\":[],\"wants_ok\":true}"
+    },
+    {
+      "id": "B6a",
+      "what": "★因子单独生效（wants（收藏 c/(c+5)））：同刻发布、只差该因子的一对（20 收藏 vs 0）⇒ 强项必在弱项**之前**（弱项 listing_id 更大 ⇒ 若该因子被忽略，tie-break 会让它反而排前 ⇒ 该臂非恒真）",
+      "pass": true,
+      "reading": "{\"hi\":357,\"lo\":358,\"pos_hi\":2,\"pos_lo\":6}"
+    },
+    {
+      "id": "B6b",
+      "what": "★因子单独生效（views（浏览 v/(v+100)））：同刻发布、只差该因子的一对（900 浏览 vs 0）⇒ 强项必在弱项**之前**（弱项 listing_id 更大 ⇒ 若该因子被忽略，tie-break 会让它反而排前 ⇒ 该臂非恒真）",
+      "pass": true,
+      "reading": "{\"hi\":359,\"lo\":360,\"pos_hi\":3,\"pos_lo\":9}"
+    },
+    {
+      "id": "B6c",
+      "what": "★因子单独生效（sale_rate（已售/(已售+库存)））：同刻发布、只差该因子的一对（9 已售/库存 1（0.90）vs 0/100（0））⇒ 强项必在弱项**之前**（弱项 listing_id 更大 ⇒ 若该因子被忽略，tie-break 会让它反而排前 ⇒ 该臂非恒真）",
+      "pass": true,
+      "reading": "{\"hi\":361,\"lo\":362,\"pos_hi\":5,\"pos_lo\":10}"
+    },
+    {
+      "id": "B6d",
+      "what": "★因子单独生效（rating（卖家均星/5））：同刻发布、只差该因子的一对（5★ 卖家 vs 1★ 卖家）⇒ 强项必在弱项**之前**（弱项 listing_id 更大 ⇒ 若该因子被忽略，tie-break 会让它反而排前 ⇒ 该臂非恒真）",
+      "pass": true,
+      "reading": "{\"hi\":363,\"lo\":364,\"pos_hi\":7,\"pos_lo\":16}"
+    },
+    {
+      "id": "B6e",
+      "what": "★因子单独生效（recency（发布时间 1/(1+age)））：同刻发布、只差该因子的一对（0.5 天 vs 6 天）⇒ 强项必在弱项**之前**（弱项 listing_id 更大 ⇒ 若该因子被忽略，tie-break 会让它反而排前 ⇒ 该臂非恒真）",
+      "pass": true,
+      "reading": "{\"hi\":365,\"lo\":366,\"pos_hi\":4,\"pos_lo\":13}"
+    },
+    {
+      "id": "B7a",
+      "what": "★权重臂①**缺行 ⇒ 默认**：`source=\"default\"`、`overridden=[]`、归一化权重逐字 = 0.40/0.20/0.15/0.15/0.10，且推荐序 == 默认权重 oracle",
+      "pass": true,
+      "reading": "{\"source\":\"default\",\"normalized\":{\"recency\":0.4,\"rating\":0.2,\"wants\":0.15,\"views\":0.15,\"sale_rate\":0.1},\"sum\":1.0000000000000002}"
+    },
+    {
+      "id": "B7b",
+      "what": "★权重臂②**全配置 ⇒ 按配置算**：`{recency:0,rating:0,wants:1,views:0,sale_rate:0}` ⇒ `source=\"config\"`、five overridden、`normalized.wants=1`、推荐序 == 该配置 oracle 的**逐行相同**序，且与默认序**不同**（配置真被读取，不是恒默认）",
+      "pass": true,
+      "reading": "{\"source\":\"config\",\"overridden\":[\"recency\",\"rating\",\"wants\",\"views\",\"sale_rate\"],\"normalized\":{\"recency\":0,\"rating\":0,\"wants\":1,\"views\":0,\"sale_rate\":0},\"same_order_as_default\":false,\"head\":[369,357,367,365,358]}"
+    },
+    {
+      "id": "B7c",
+      "what": "★权重臂③**逐项回落 + 和归一化**（只给 `wants=9`）：`source=\"partial\"`、`overridden=[\"wants\"]`、`raw` = wants 9 / 其余默认、`normalized` 和 = 1 且与门独立复算逐项一致、推荐序 == 该权重 oracle",
+      "pass": true,
+      "reading": "{\"source\":\"partial\",\"overridden\":[\"wants\"],\"raw\":{\"recency\":0.4,\"rating\":0.2,\"wants\":9,\"views\":0.15,\"sale_rate\":0.1},\"normalized\":{\"recency\":0.04060913705583757,\"rating\":0.020304568527918784,\"wants\":0.9137055837563453,\"views\":0.015228426395939087,\"sale_rate\":0.010152284263959392},\"sum\":9.85}"
+    },
+    {
+      "id": "B7d",
+      "what": "★权重臂④**非法 ⇒ 全默认 + 日志**（`{recency:null,wants:\"-1\",views:\"banana\"}`）：`source=\"default\"`、`overridden=[]`、推荐序 == 默认序、且 `console.warn` 有 `[feed.score]` 回落日志（fail-open 但不静默）",
+      "pass": false,
+      "reading": "{\"source\":\"default\",\"overridden\":[],\"warns\":[]}"
+    },
+    {
+      "id": "B7e",
+      "what": "★权重臂⑤**部分非法 ⇒ 该项回落、其余采信**（`{wants:\"0.5\",views:\"banana\"}`）：`source=\"partial\"`、`raw.wants=0.5` / `raw.views=默认`、推荐序 == 该权重 oracle、且有 `[feed.score]` 部分回落日志",
+      "pass": false,
+      "reading": "{\"source\":\"partial\",\"raw\":{\"recency\":0.4,\"rating\":0.2,\"wants\":0.5,\"views\":0.15,\"sale_rate\":0.1},\"warns\":[]}"
+    },
+    {
+      "id": "B7f",
+      "what": "权重臂收尾：删行后 `getFeedScoreWeights` 回 `source=\"default\"`（同一真源语句的「行缺席」分支真实可达）",
+      "pass": true,
+      "reading": "{\"source\":\"default\"}"
+    },
+    {
+      "id": "N1",
+      "what": "★负控①**`new` 若仍用 score ⇒ 本门必红**：用 recommend 实序（= score 序）当 mutant 喂进「new 时间降序」判据 ⇒ 谓词转 **false**；同时对真实 new 序为 **true**（判据非恒真/恒假）",
+      "pass": true,
+      "reading": "{\"mutant_score_order\":[369,367,368],\"real_new_order\":[367,368,369],\"want\":[367,368,369]}"
+    },
+    {
+      "id": "N2",
+      "what": "★负控②**权重读回若硬编默认 ⇒ 配置臂必红**：配置序 ≠ 默认序（同一 DB 同一夹具），且把**默认序**喂进「配置臂」判据（要求与配置 oracle 逐行相同）⇒ 必 false",
+      "pass": true,
+      "reading": "{\"config_head\":[369,357,367,365],\"default_head\":[369,367,357,359],\"oracle_config_head\":[369,357,367,365],\"default_passes_config_predicate\":false}"
+    },
+    {
+      "id": "N3",
+      "what": "★负控③**`wants` 因子若写死 0 ⇒ 收藏对臂必红**：把 wants 权重置 0（独立 oracle 复算 mutant）⇒ 该对两行同分 ⇒ 退化为 `listing_id DESC` 让**弱项**排前 ⇒ `pairOk` 转 false（B6a 非恒真）",
+      "pass": true,
+      "reading": "{\"mutant_pos_hi\":6,\"mutant_pos_lo\":5,\"real_pos_hi\":2,\"real_pos_lo\":6}"
+    },
+    {
+      "id": "H1",
+      "what": "★真 HTTP（非法 sort）：`/api/prize/all?sort=banana` ⇒ **400** · `error.code=LEDGER_AMOUNT_INVALID`（借码）· `details.reason='sort_invalid'` · `details.field='sort'` · `allowed` 含 recommend/new（证明路由已注册、参数解析到位，**不是**末尾 catch-all 的 `route_not_found`）",
+      "pass": true,
+      "reading": "{\"status\":400,\"error\":{\"code\":\"LEDGER_AMOUNT_INVALID\",\"message\":\"Sort is invalid\",\"i18n_key\":\"ledger.err.LEDGER_AMOUNT_INVALID\",\"details\":{\"field\":\"sort\",\"reason\":\"sort_invalid\",\"value\":\"banana\",\"allowed\":[\"recommend\",\"new\"]}}}"
+    },
+    {
+      "id": "H2",
+      "what": "★真 HTTP（`sort=new&limit=5`）⇒ 200 · `data` 长度 ≤ 5 · id 序列 = 独立时间序 oracle 前 5（**真走公共读口**）",
+      "pass": true,
+      "reading": "{\"status\":200,\"got\":[76,71,24,23,19],\"oracle5\":[76,71,24,23,19]}"
+    },
+    {
+      "id": "H3",
+      "what": "★真 HTTP（缺省语义）：`?sort=recommend&limit=6` 与**缺参** `?limit=6` 的 id 序列**逐字相同**（缺省 = 推荐）· `?sort=%20NEW%20` 归一后 200（大小写/空白容错）",
+      "pass": true,
+      "reading": "{\"recommend\":[13,76,71,24,23,19],\"default\":[13,76,71,24,23,19],\"upper_status\":200}"
+    },
+    {
+      "id": "H4",
+      "what": "★真 HTTP（错误体不带公共缓存头）：400 响应 `Cache-Control` 不含 `public`（错误体不得进 CDN）",
+      "pass": true,
+      "reading": "{\"cache\":\"\"}"
+    },
+    {
+      "id": "Z1",
+      "what": "★零残留：listing / listing_order / listing_favorite / rating / app_config / schema_migration 行数**前后相等**（夹具与配置翻行全在单回滚事务内）",
+      "pass": true,
+      "reading": "{\"before\":{\"listing\":26,\"listing_order\":18,\"listing_favorite\":0,\"rating\":0,\"app_config\":4,\"migrations\":70},\"after\":{\"listing\":26,\"listing_order\":18,\"listing_favorite\":0,\"rating\":0,\"app_config\":4,\"migrations\":70}}"
+    },
+    {
+      "id": "Z2",
+      "what": "★零残留（夹具面）：`cli:p74-gate:*` listing 命中 0 · `p74-gate` 用户 0 · `feed_score_weights` 行回落到改前状态",
+      "pass": true,
+      "reading": "{\"fixture_left\":0,\"users_left\":0,\"cfg_left\":0}"
+    },
+    {
+      "id": "Z3",
+      "what": "★库身份与门自身健全：`inRollbackTx` 恒 ROLLBACK（`rolled_back=true` 且无 error）· 夹具 uid 段 ≥ 909801",
+      "pass": true,
+      "reading": "{\"rolled_back\":true,\"ms\":12185,\"attempts\":1,\"uid_base\":909801}"
+    }
+  ],
+  "summary": {
+    "total": 36,
+    "passed": 34,
+    "failed": 2,
+    "red": [
+      "B7d",
+      "B7e"
+    ]
+  }
+}
