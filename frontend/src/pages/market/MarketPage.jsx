@@ -342,8 +342,6 @@ const MarketPage = () => {
             <h1 className="sf-mkt-title">{t('market.title')}</h1>
             <p className="sf-mkt-note">{t('market.note')}</p>
             <div className="sf-mkt-actions">
-              <Link className="sf-mkt-link" to={buildLocalizedPath(lang, '/')}>{t('item.line')}</Link>
-              <Link className="sf-mkt-link" to={buildLocalizedPath(lang, '/item/new')}>{t('item.publish')}</Link>
               <button className="sf-btn sf-mkt-btn" type="button" onClick={refresh} data-sf-m="mkt-refresh">{t('market.refresh')}</button>
             </div>
           </div>
