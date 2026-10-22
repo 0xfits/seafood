@@ -29,7 +29,7 @@ import { avatarToneOf } from '../../home-campaign'
 //   · 开关 = **props.showSubtasks**（页面显式传）⇒ 首页「热门任务」版块不传此旗标，
 //     即便读口行带了 `subtasks` 也**维持原卡面**（零回归）；只有 `/task` 列表开；
 //   · 每条 = 类型徽标（五类 `campaign.type.*` 中文名，复用既有键）+ 标题单行截断（ellipsis）+
-//     必做小标（复用既有 `campaign.requiredTag`，仅 required 行出）；最多 2 条，
+//     必做星标 `*`（2026-10-22 改版：`.sf-required-star`，仅 required 行出；可访问名 = `project.fRequired`）；最多 2 条，
 //     超出补「+N 项子任务」（唯一新键 `taskPage.moreSubtasks`）；
 //   · 无子任务 / 缺键 ⇒ 整块不渲染（**不占位**，卡高与改动前一致）；
 //   · 等高：卡体 flex column + 子任务块 `min-height:0`，同一行卡由容器 stretch（grid/flex）
@@ -85,9 +85,13 @@ const HomeCampaignCard = ({ card, lang, t, symbols, showSubtasks = false }) => {
             {subtask.title || ''}
           </span>
           {subtask.required ? (
-            <span className="sf-home-camp-subtask-required" data-sf-m="home-camp-subtask-required">
-              {t('campaign.requiredTag')}
-            </span>
+            <span
+              className="sf-required-star"
+              data-sf-m="home-camp-subtask-required"
+              role="img"
+              aria-label={t('project.fRequired')}
+              title={t('project.fRequired')}
+            >*</span>
           ) : null}
         </li>
       ))}

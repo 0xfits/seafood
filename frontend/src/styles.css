@@ -1279,7 +1279,9 @@ section[id^="section_"] .grid { gap: 1.25rem; }
    · 层级：小号（行 12px / 徽标 11px），行距紧凑（gap 4px），上分隔线用既有 `--sf-panel-border`；
    · 文字全部吃既有 token（page-fg / meta-fg / tag-bg|border|fg）⇒ **零新色值**；
    · 长标题单行 ellipsis：行容器 `min-width:0` + 标题 `flex:1 1 auto; min-width:0` ⇒ 不撑宽卡；
-   · 等高：块 `min-height:0`（可压缩、不顶破）＋卡体 flex column，行内卡由容器 stretch 拉平。 */
+   · 等高：块 `min-height:0`（可压缩、不顶破）＋卡体 flex column，行内卡由容器 stretch 拉平；
+   · 2026-10-22 同步：必做小标改星标 `*`（`.sf-required-star`，规则移出本节 = 下方共用段；
+     可访问名走 `project.fRequired`）。 */
 .sf-home-camp-subtasks {
   display: flex;
   flex-direction: column;
@@ -1324,16 +1326,6 @@ section[id^="section_"] .grid { gap: 1.25rem; }
   line-height: 16px;
   white-space: nowrap;
   text-overflow: ellipsis;
-}
-
-/* 必做小标 */
-.sf-home-camp-subtask-required {
-  flex: 0 0 auto;
-  color: var(--sf-meta-fg);
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 16px;
-  white-space: nowrap;
 }
 
 /* 「+N 项子任务」溢出提示行 */
@@ -1384,6 +1376,17 @@ section[id^="section_"] .grid { gap: 1.25rem; }
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* 子任务「必做」星标 `*`（2026-10-22 · 三处共用：/task 卡行 + 活动详情行 + 任务页行；
+   色值复用既有 nav hover 色（HoverMenu.css 同值，零新色值）；可访问名走 `project.fRequired`；
+   flex:none + nowrap 承接旧「必做」小标的行内不收缩不换行口径） */
+.sf-required-star {
+  flex: none;
+  color: #d97706;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 /* 奖励：$ 金额（17px/700）+ 次币「+N 符号」（12px，同比例口径承 reward-card 价格行） */

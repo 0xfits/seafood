@@ -164,8 +164,11 @@ describe('① 正常渲染', () => {
     expect(rows[0].getAttribute('data-sf-type')).toBe('x_verify')
     expect(rows[0].querySelector('[data-sf-m="task-subtask-type"]').textContent).toBe('X 验证')
     expect(rows[0].querySelector('[data-sf-m="task-subtask-title"]').textContent).toBe('转发官方推文')
-    expect(rows[0].querySelector('[data-sf-m="task-subtask-required"]').textContent).toBe('必做')
-    expect(rows[0].querySelector('[data-sf-m="task-subtask-required"]').getAttribute('data-sf-required')).toBe('1')
+    // 必做标记 = 星标 `*`（2026-10-22 改版；可访问名 = `project.fRequired` 的 zh 值「必做」，旧文案不再直出）
+    const req0 = rows[0].querySelector('[data-sf-m="task-subtask-required"]')
+    expect(req0.textContent).toBe('*')
+    expect(req0.getAttribute('aria-label')).toBe('必做')
+    expect(req0.getAttribute('data-sf-required')).toBe('1')
     expect(rows[0].querySelector('[data-sf-m="task-subtask-content"]').textContent).toBe('附上你的转发链接')
     expect(rows[1].querySelector('[data-sf-m="task-subtask-type"]').textContent).toBe('问卷')
     expect(rows[1].querySelector('[data-sf-m="task-subtask-required"]').textContent).toBe('选做')

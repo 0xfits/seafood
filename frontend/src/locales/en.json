@@ -1340,7 +1340,7 @@
     "statusActive": "Live",
     "statusEnded": "Ended",
     "statusDraft": "Not published",
-    "requiredTag": "Required",
+    "requiredTag": "*",
     "optionalTag": "Optional",
     "submitted": "Submitted",
     "unsubmitted": "Not submitted",

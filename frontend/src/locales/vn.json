@@ -1340,7 +1340,7 @@
     "statusActive": "Đang diễn ra",
     "statusEnded": "Đã kết thúc",
     "statusDraft": "Chưa công bố",
-    "requiredTag": "Bắt buộc",
+    "requiredTag": "*",
     "optionalTag": "Tự chọn",
     "submitted": "Đã gửi",
     "unsubmitted": "Chưa gửi",

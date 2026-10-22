@@ -1340,7 +1340,7 @@
     "statusActive": "进行中",
     "statusEnded": "已结束",
     "statusDraft": "未上线",
-    "requiredTag": "必做",
+    "requiredTag": "*",
     "optionalTag": "选做",
     "submitted": "已提交",
     "unsubmitted": "未提交",

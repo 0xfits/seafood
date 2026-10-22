@@ -11,7 +11,8 @@
  *   ④ 390 / 1536 两档：**零横向溢出**（`documentElement.scrollWidth - clientWidth === 0` 且零真·offender，
  *      横滚容器内的越界元素只记 `scrollContained`）、**零 pageerror**、**零 `/api/task/all` 命中**。
  *   ⑤（TASK-LIST-SUBTASK-v1，2026-10-22）`/task` 卡内**子任务区**：子任务行在场（类型徽标 + 标题 +
- *      必做小标）、超 2 条 ⇒ 「+N 项子任务」、缺键 ⇒ 整块不渲染、长标题单行截断（ellipsis 生效）、
+ *      必做星标 `*`（2026-10-22 同步：tag 文案断 `*`、区域零「必做」旧文案；可访问名 = `project.fRequired`））、
+ *      超 2 条 ⇒ 「+N 项子任务」、缺键 ⇒ 整块不渲染、长标题单行截断（ellipsis 生效）、
  *      **卡内零溢出**（每卡 scrollWidth ≤ clientWidth）、**同行卡等高**（逐行 max-min === 0）、零 pageerror；
  *   ⑥ **首页卡零回归**：首页热门任务卡即便读口行带 `subtasks` 也**不渲染**子任务区（开关只在 /task 开）。
  *
@@ -64,7 +65,7 @@ const LIST_ROWS = [
     task_id: 102, campaign_id: 501, title: '填写问卷', status: 'active',
     joined_count: 7, joined_target: null, reward_amount_primary: '3',
     campaign_title: '秋季招募', project_title: '海鲜分拣', project_slug: 'fenjian', project_avatar_url: null,
-    // ★ 恰好 1 条（onchain_snapshot ⇒ 徽标「链上快照」；required ⇒ 必做小标）
+    // ★ 恰好 1 条（onchain_snapshot ⇒ 徽标「链上快照」；required ⇒ 必做星标 `*`）
     subtasks: [
       { subtask_id: '911', type_code: 'onchain_snapshot', title: '链上持仓快照', required: true, sort: 1 },
     ],
@@ -192,6 +193,8 @@ const SNAP_FN = () => {
             badge: txt(row.querySelector('[data-sf-m="home-camp-subtask-type"]')),
             title: txt(titleEl),
             required: !!row.querySelector('[data-sf-m="home-camp-subtask-required"]'),
+            // 2026-10-22 同步：必做 tag 文案 = 星标 `*`（可访问名走 aria-label，不在 txt 内）
+            reqTag: txt(row.querySelector('[data-sf-m="home-camp-subtask-required"]')),
             // 截断 = 标题真被收口（scrollWidth 超 clientWidth）且走 ellipsis
             truncated: !!titleEl && titleEl.scrollWidth > titleEl.clientWidth + 1
               && getComputedStyle(titleEl).textOverflow === 'ellipsis',
@@ -339,6 +342,7 @@ const run = async () => {
         badges: c.subtasks.map((s) => s.badge),
         titles: c.subtasks.map((s) => s.title),
         requireds: c.subtasks.map((s) => s.required),
+        reqTags: c.subtasks.map((s) => s.reqTag),
         truncated: c.subtasks.map((s) => s.truncated),
         boxH: c.boxH,
         innerOverflowPx: c.innerOverflowPx,
@@ -351,16 +355,20 @@ const run = async () => {
         titles: st[0]?.subtasks.map((s) => s.title) ?? [],
         types: st[0]?.subtasks.map((s) => s.type) ?? [],
         requireds: st[0]?.subtasks.map((s) => s.required) ?? [],
+        reqTags: st[0]?.subtasks.map((s) => s.reqTag) ?? [],
       },
       card102: {
         rows: st[1]?.subtaskCount ?? -1,
         moreRest: st[1]?.moreRest ?? null,
         badges: st[1]?.subtasks.map((s) => s.badge) ?? [],
         requireds: st[1]?.subtasks.map((s) => s.required) ?? [],
+        reqTags: st[1]?.subtasks.map((s) => s.reqTag) ?? [],
       },
       card103: { block: st[2]?.subtaskBlock ?? null, rows: st[2]?.subtaskCount ?? -1 },
       rowsCappedAtTwo: st.every((c) => c.subtaskCount <= 2),
       truncatedFirst: st[0]?.subtasks[0]?.truncated === true,
+      // 2026-10-22 同步：必做 tag 文案 = `*`；「必做」旧文案在子任务行区域零命中（表单标签不在本面，不作全局断言）
+      zeroLegacyRequiredTag: st.every((c) => c.subtasks.every((s) => s.reqTag !== '必做')),
       zeroInnerOverflow: st.every((c) => c.innerOverflowPx === 0),
       rowHeights: [...rowGroups.values()].map((hs) => ({ min: Math.min(...hs), max: Math.max(...hs) })),
       equalHeights: [...rowGroups.values()].every((hs) => Math.max(...hs) - Math.min(...hs) === 0),
@@ -378,10 +386,13 @@ const run = async () => {
         && stArm.card101.titles[1] === '填写问卷'
         && stArm.card101.requireds[0] === true
         && stArm.card101.requireds[1] === false
+        && stArm.card101.reqTags[0] === '*'
         && stArm.card102.rows === 1
         && stArm.card102.moreRest === null
         && stArm.card102.badges[0] === '链上快照'
         && stArm.card102.requireds[0] === true
+        && stArm.card102.reqTags[0] === '*'
+        && stArm.zeroLegacyRequiredTag
         && stArm.card103.block === false
         && stArm.card103.rows === 0
         && stArm.rowsCappedAtTwo

@@ -101,10 +101,11 @@ describe('/task 列表卡 · 子任务区（真数据 + 真实 i18n）', () => {
     expect(first.querySelector('[data-sf-m="home-camp-subtask-type"]').getAttribute('data-sf-type')).toBe('x_verify')
     // 标题原文（长标题靠 CSS ellipsis 收口，DOM 里保留全文）
     expect(first.querySelector('[data-sf-m="home-camp-subtask-title"]').textContent).toBe(LONG_TITLE)
-    // 必做小标只在 required 行出现（901 必做 / 902 非必做）
+    // 必做星标只在 required 行出现（901 必做 / 902 非必做）；文案 = `*`，可访问名 = `project.fRequired`
     const reqTags = [...first.querySelectorAll('[data-sf-m="home-camp-subtask-required"]')]
     expect(reqTags).toHaveLength(1)
-    expect(reqTags[0].textContent).toBe('必做')
+    expect(reqTags[0].textContent).toBe('*')
+    expect(reqTags[0].getAttribute('aria-label')).toBe('必做')
     // 单条子任务的行同样出徽标与标题
     const second = cardsOf(container)[1]
     expect(subtaskRowsOf(second)).toHaveLength(1)
@@ -146,7 +147,8 @@ describe('HomeCampaignCard · 子任务区开关（首页热门任务卡零回�
       'common.ongoing': '进行中',
       'wage.statusClosed': '已截止',
       'jobs.participants': `已参与 ${values?.count} 人`,
-      'campaign.requiredTag': '必做',
+      'campaign.requiredTag': '*', // 2026-10-22 起四语值 = 星标（组件 required 臂已改走 `project.fRequired` 可访问名）
+      'project.fRequired': '必做',
       'campaign.type.x_verify': 'X 验证',
       'campaign.type.survey': '问卷',
       'taskPage.moreSubtasks': `+${values?.n} 项子任务`,

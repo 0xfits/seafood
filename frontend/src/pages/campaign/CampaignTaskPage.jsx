@@ -31,7 +31,7 @@ import './campaign.css'
 //   · 文案键**全部复用既有键**（`campaign.*` / `jobs.*` / `common.*`）+ 2026-10-22 的 quiz/Yes-No 新键：
 //     状态徽标 `campaign.statusActive|statusEnded|statusDraft`、时间窗 `campaign.timeWindow*`、
 //     奖励 `campaign.rewardCompletion|rewardSecondary`、参与数 `jobs.participantsHeadcount|participants`、
-//     子任务 `campaign.requiredTag|optionalTag` + `campaign.type.<code>`、CTA `common.joinNow`。
+//     子任务必做星标 `*`（2026-10-22 改版，可访问名 `project.fRequired`）| `campaign.optionalTag` + `campaign.type.<code>`、CTA `common.joinNow`。
 //   · 类名自成一套 `sf-task-*`（不借 `sf-campaign-task*` 的任务卡类，也不借 `sf-item*`）；
 //     颜色一律主题 token、几何取结构常量（同 campaign.css 纪律）。
 // ============================================================================
@@ -231,11 +231,22 @@ const CampaignTaskPage = () => {
                           <span className="sf-task-type-badge" data-sf-m="task-subtask-type">{badge}</span>
                         ) : null}
                         <span className="sf-task-subtask-title" data-sf-m="task-subtask-title">{subtask?.title || ''}</span>
-                        <span
-                          className={`sf-task-req ${required ? 'is-required' : 'is-optional'}`}
-                          data-sf-m="task-subtask-required"
-                          data-sf-required={required ? '1' : '0'}
-                        >{t(required ? 'campaign.requiredTag' : 'campaign.optionalTag')}</span>
+                        {required ? (
+                          <span
+                            className="sf-required-star"
+                            data-sf-m="task-subtask-required"
+                            data-sf-required="1"
+                            role="img"
+                            aria-label={t('project.fRequired')}
+                            title={t('project.fRequired')}
+                          >*</span>
+                        ) : (
+                          <span
+                            className="sf-task-req is-optional"
+                            data-sf-m="task-subtask-required"
+                            data-sf-required="0"
+                          >{t('campaign.optionalTag')}</span>
+                        )}
                       </div>
                       {subtask?.content ? (
                         <p className="sf-task-subtask-content" data-sf-m="task-subtask-content">{subtask.content}</p>
