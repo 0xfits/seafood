@@ -110,6 +110,12 @@ const myRoleOf = (row) => {
 
 /** 服务端 `details.reason` ⇒ 文案键（未知 reason 落到动作各自的兜底句，不外泄机读码）。 */
 const REASON_TEXT_KEYS = {
+  // ★ 2026-10-22：后端 `details.reason` 实际是**小写蛇形**（`wage_interval_not_reached` /
+  //   `worker_not_hired` / `project_ended_frozen`），旧表只写了大写码 ⇒ 永远查不中 ⇒ 一律兜底。
+  //   现按「大小写不敏感」建表（下面 REASON_TEXT_BY_LOWER 归一），旧大写键保留兼容。
+  wage_interval_not_reached: 'claimTooSoon',
+  worker_not_hired: 'notHired',
+  project_ended_frozen: 'statusClosed',
   WAGE_INTERVAL_NOT_REACHED: 'claimTooSoon',
   WAGE_CLAIM_TOO_SOON: 'claimTooSoon',
   CLAIM_TOO_SOON: 'claimTooSoon',
@@ -123,6 +129,9 @@ const REASON_TEXT_KEYS = {
   HEADCOUNT_FULL: 'full',
   PROJECT_CLOSED: 'statusClosed',
 }
+const REASON_TEXT_BY_LOWER = Object.freeze(
+  Object.fromEntries(Object.entries(REASON_TEXT_KEYS).map(([k, v]) => [k.toLowerCase(), v])),
+)
 
 const WagePage = () => {
   const { t } = useTranslation()
@@ -229,7 +238,8 @@ const WagePage = () => {
   const reasonNotice = (error, fallbackKey) => {
     const details = error?.details
     const reason = typeof details?.reason === 'string' ? details.reason : ''
-    const key = REASON_TEXT_KEYS[reason] || fallbackKey
+    // 大小写不敏感查表（reason 由后端给出，形态可能是小写蛇形或大写码）
+    const key = reason ? (REASON_TEXT_BY_LOWER[String(reason).trim().toLowerCase()] || fallbackKey) : fallbackKey
     // 服务端若在失败体里带了下次可领时间 / 剩余秒数 ⇒ 接成倒计时（不本地猜间隔）。
     const instant = parseInstant(details?.next_claim_at ?? details?.next_claim_time ?? details?.claimable_at)
     const remaining = num(details?.claim_ready_in_seconds ?? details?.remaining_seconds, null)
@@ -414,7 +424,13 @@ const WagePage = () => {
                 data-sf-claimable={claimable ? '1' : '0'}
                 data-sf-remaining={claimable ? '0' : String(Math.ceil(remainingMs / 1000))}
                 disabled={!claimable || busyAction === 'claim'}
-                onClick={(event) => { event.stopPropagation(); onClaim(row) }}
+                onClick={(event) => {
+                  // 卡根是 <Link>：stopPropagation 只挡 React 合成事件冒泡，
+                  // **不挡锚点默认导航** ⇒ 必须同时 preventDefault（Kevin 2026-10-22 复现：点按钮整页跳走）。
+                  event.preventDefault()
+                  event.stopPropagation()
+                  onClaim(row)
+                }}
               >
                 {busyAction === 'claim' ? t('wage.claiming') : t('wage.claim')}
               </button>
@@ -433,7 +449,11 @@ const WagePage = () => {
                 data-sf-action="join"
                 data-sf-need-login={isAuthenticated ? '0' : '1'}
                 disabled={joinedElsewhere || isFull || busyAction === 'join'}
-                onClick={(event) => { event.stopPropagation(); onJoin(row) }}
+                onClick={(event) => {
+                  event.preventDefault()
+                  event.stopPropagation()
+                  onJoin(row)
+                }}
               >
                 {busyAction === 'join' ? t('wage.joining') : t('wage.join')}
               </button>
