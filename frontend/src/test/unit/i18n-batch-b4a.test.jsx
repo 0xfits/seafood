@@ -40,7 +40,6 @@ vi.mock('../../admin-utils', () => ({
 
 import AdminLayout from '../../components/layout/AdminLayout'
 import TasksManagement from '../../pages/admin/TasksManagement'
-import RewardsManagement from '../../pages/admin/RewardsManagement'
 
 const SRC = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const LANGS = ['zh', 'en', 'hk', 'vn']
@@ -55,7 +54,7 @@ describe('P6-I18N-LIT-B4a · en 档渲染英文（后台面三个页面）', () 
 
     // 侧边栏 8 条导航（`adminNav.*`）
     for (const label of [
-      'Dashboard', 'Task Management', 'Prize Management', 'Shard Management',
+      'Dashboard', 'Task Management', 'Shard Management',
       'User Management', 'Permission Management', 'Points Management', 'System Settings',
     ]) {
       expect(await screen.findByText(label)).toBeInTheDocument()
@@ -89,21 +88,6 @@ describe('P6-I18N-LIT-B4a · en 档渲染英文（后台面三个页面）', () 
     expect(screen.queryByText('任务管理')).toBeNull()
   })
 
-  it('RewardsManagement（en 档）：页头 / 兜底名 / 徽标（总量·库存·已兑换·过期）全走英文', async () => {
-    render(<RewardsManagement />)
-
-    expect(await screen.findByText('Prize Management')).toBeInTheDocument()
-    expect(screen.getByText(/read-only mode/)).toBeInTheDocument()
-    // `name` 为空 ⇒ `adminRewards.fallbackName`
-    expect(await screen.findByText('Prize #7')).toBeInTheDocument()
-    expect(screen.getByText('No description')).toBeInTheDocument()
-    expect(screen.getByText('Total: 3')).toBeInTheDocument()
-    expect(screen.getByText('Stock: 5')).toBeInTheDocument()
-    expect(screen.getByText('Redeemed: 2')).toBeInTheDocument()
-    expect(screen.getByText('Expired')).toBeInTheDocument()
-    expect(screen.queryByText('奖品管理')).toBeNull()
-    expect(screen.queryByText('已过期')).toBeNull()
-  })
 })
 
 describe('P6-I18N-LIT-B4a · 四语 locale 键集（6 命名空间 144 键 + 逐文件相等）', () => {

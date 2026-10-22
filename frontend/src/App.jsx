@@ -50,7 +50,6 @@ import NotFoundPage from './pages/NotFoundPage'
 
 // 管理页面组件
 import TasksManagement from './pages/admin/TasksManagement'
-import RewardsManagement from './pages/admin/RewardsManagement'
 import ShardsManagement from './pages/admin/ShardsManagement'
 import UsersManagement from './pages/admin/UsersManagement'
 import PermissionsManagement from './pages/admin/PermissionsManagement'
@@ -59,7 +58,6 @@ import SystemSettings from './pages/admin/SystemSettings'
 import FeeRatePage from './pages/admin/FeeRatePage'
 import ReferralWeightMatrixPage from './pages/admin/ReferralWeightMatrixPage'
 import CurrencyReviewPage from './pages/admin/CurrencyReviewPage'
-import ListingReviewPage from './pages/admin/ListingReviewPage'
 import ArbitrationReviewPage from './pages/admin/ArbitrationReviewPage'
 import SiteTextPage from './pages/admin/SiteTextPage'
 import AuditConsolePage from './pages/admin/AuditConsolePage'
@@ -404,7 +402,6 @@ function App() {
         >
           <Route index element={<ProtectedRoute adminOnly={true}><DashboardPage /></ProtectedRoute>} />
           <Route path="tasks" element={<ProtectedRoute adminOnly={true} requiredPermission={['manage_tasks', 'publish_tasks']}><TasksManagement /></ProtectedRoute>} />
-          <Route path="rewards" element={<ProtectedRoute adminOnly={true} requiredPermission={['manage_rewards', 'publish_prizes']}><RewardsManagement /></ProtectedRoute>} />
           <Route path="shards" element={<ProtectedRoute adminOnly={true} requiredPermission={['manage_rewards', 'publish_prizes']}><ShardsManagement /></ProtectedRoute>} />
           <Route path="users" element={<ProtectedRoute adminOnly={true} requiredPermission="read_users"><UsersManagement /></ProtectedRoute>} />
           <Route path="permissions" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_permissions"><PermissionsManagement /></ProtectedRoute>} />
@@ -416,7 +413,6 @@ function App() {
           {/* 8④（spec §23.6/§23.7）：自建单位审核页，闸 = review_tasks */}
           <Route path="currency-review" element={<ProtectedRoute adminOnly={true} requiredPermission="review_tasks"><CurrencyReviewPage /></ProtectedRoute>} />
           {/* 8⑤（spec §25.2/§25.7）：商品合规审核页 / 招工仲裁页，闸 = review_tasks */}
-          <Route path="listing-review" element={<ProtectedRoute adminOnly={true} requiredPermission="review_tasks"><ListingReviewPage /></ProtectedRoute>} />
           <Route path="arbitration-review" element={<ProtectedRoute adminOnly={true} requiredPermission="review_tasks"><ArbitrationReviewPage /></ProtectedRoute>} />
           {/* P9①（spec §27.2/§26.6）：站点文案页（角色文案 + 站点标语 + 数值项），闸 = manage_settings */}
           <Route path="site-text" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><SiteTextPage /></ProtectedRoute>} />

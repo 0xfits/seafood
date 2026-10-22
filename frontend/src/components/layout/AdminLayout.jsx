@@ -52,13 +52,6 @@ const AdminLayout = () => {
       requiredPermission: ['manage_tasks', 'publish_tasks'],
     },
     {
-      title: t('adminNav.rewards'),
-      icon: Gift,
-      path: '/dashboard/rewards',
-      description: t('adminNav.rewardsDesc'),
-      requiredPermission: ['manage_rewards', 'publish_prizes'],
-    },
-    {
       title: t('adminNav.shards'),
       icon: Layers,
       path: '/dashboard/shards',
@@ -112,13 +105,6 @@ const AdminLayout = () => {
       icon: ClipboardCheck,
       path: '/dashboard/currency-review',
       description: t('adminNav.currencyReviewDesc'),
-      requiredPermission: 'review_tasks',
-    },
-    {
-      title: t('adminNav.listingReview'),
-      icon: ClipboardList,
-      path: '/dashboard/listing-review',
-      description: t('adminNav.listingReviewDesc'),
       requiredPermission: 'review_tasks',
     },
     {
