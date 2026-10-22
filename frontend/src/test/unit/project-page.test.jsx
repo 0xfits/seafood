@@ -182,7 +182,7 @@ describe('项目页 `/:slug` · 步 1 骨架', () => {
 
   // ---------------------------------------------------------------- ④ 入口显隐
   describe('④ 操作区入口显隐（owner ∨ manage_tasks 管理员，且项目未 ended）', () => {
-    it('owner 臂：本人项目（recruiting）⇒ 顶部只【发布活动】，任务 / 子任务入口下沉到卡头', async () => {
+    it('owner 臂：本人项目（recruiting）⇒ 顶部只【发布活动】；概况层零操作钮、子任务清单不上项目页', async () => {
       API.fetchProjectDetail.mockResolvedValue(rowOf({
         owner_uid: 7,
         campaigns: [{
@@ -195,14 +195,26 @@ describe('项目页 `/:slug` · 步 1 骨架', () => {
       const { container } = renderAt('/sui')
       await waitFor(() => expect(container.querySelector('[data-sf-m="project-manage"]')).not.toBeNull())
       expect(container.querySelector('[data-sf-m="project-entry-campaign"]')).not.toBeNull()
-      // 入口下沉（Kevin 2026-10-21）：顶部操作区不再渲染【发布任务】/【发布子任务】
+      // 项目级操作留本页；任务 / 子任务操作全部迁 `/campaign/:ref`（Kevin 2026-10-22 裁定）
       expect(container.querySelector('[data-sf-m="project-entry-task"]')).toBeNull()
       expect(container.querySelector('[data-sf-m="project-entry-subtask"]')).toBeNull()
-      // 下沉版：活动卡头一枚【发布任务】、任务卡头一枚【发布子任务】
-      const campaignHead = container.querySelector('[data-sf-m="project-campaign"] > .sf-project-campaign-head')
-      expect(campaignHead.querySelector('[data-sf-m="project-campaign-entry-task"]')).not.toBeNull()
-      const taskHead = container.querySelector('[data-sf-m="project-task"] > .sf-project-task-head')
-      expect(taskHead.querySelector('[data-sf-m="project-task-entry-subtask"]')).not.toBeNull()
+      // 概况层零操作钮：活动卡 / 任务摘要行一个 button 都不渲染（表单同理零）
+      const overview = container.querySelector('[data-sf-m="project-campaigns"]')
+      expect(overview).not.toBeNull()
+      expect(overview.querySelectorAll('button')).toHaveLength(0)
+      // 活动行 = 活动名链 `/campaign/501` + 状态徽标
+      const campaignHead = container.querySelector('[data-sf-m="project-campaign"]')
+      expect(campaignHead).not.toBeNull()
+      expect(campaignHead.querySelector('[data-sf-m="project-campaign-link"]').getAttribute('href')).toBe('/campaign/501')
+      expect(campaignHead.querySelector('[data-sf-m="project-campaign-status"]').getAttribute('data-sf-state')).toBe('active')
+      // 任务摘要行：标题链 `/task/555` + 状态徽标（只读导航，不是操作入口）
+      const taskRow = container.querySelector('[data-sf-m="project-task-row"]')
+      expect(taskRow).not.toBeNull()
+      expect(taskRow.querySelector('[data-sf-m="project-task-link"]').getAttribute('href')).toBe('/task/555')
+      expect(taskRow.querySelector('[data-sf-m="project-task-row-status"]').getAttribute('data-sf-state')).toBe('active')
+      // 子任务清单不上项目页（具体内容与操作都在活动页 / 任务页）
+      expect(container.querySelector('[data-sf-m="project-subtask"]')).toBeNull()
+      expect(container.querySelector('[data-sf-m="project-form-subtask"]')).toBeNull()
     })
 
     it('管理员臂：非 owner 但 manage_tasks ⇒ 三个入口可见', async () => {

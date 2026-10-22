@@ -1,10 +1,16 @@
 /**
- * 项目页写口失败 · **可定位内联**（Kevin 2026-10-22）
+ * 写口失败 · **可定位内联**（Kevin 2026-10-22）
  *
  * 背景：`PATCH /api/campaign/task/:taskId` 的错误体形如
  *   `{ error: { code, message, i18n_key, details: { reason, ... } } }`，
  *   三个表单与子任务行原先一律只落 `project.publishFailed`（「发布失败，请稍后重试。」）
  *   ⇒ 页面看不出是哪条闸拦住（409 发布后锁 / 400 换口径 / 409 有凭证 / 403 无权限）。
+ *
+ * ★ Kevin 2026-10-22：任务/子任务操作入口迁 `/campaign/:ref` ⇒ ②③④ 的真实渲染臂
+ *   挂载点自项目页 `ProjectNestedList` 迁至 `CampaignDetailPage`（断言契约逐条原样保留，
+ *   仅探针随迁：`project-task-status-err` → `campaign-task-status-err`、
+ *   `project-subtask-delete/confirm/err` → `campaign-subtask-*`；【发布子任务】表单本体
+ *   仍是 `ProjectForms`，`project-form-*` 钩子名原样）。①为纯函数臂，与挂载点无关。
  *
  * 本文件钉死四件事：
  *   ① `writeFailNotice` 把 `{code, details.reason, status}` 拼进文案（模板 `project.failDetail` /
@@ -19,7 +25,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import React from 'react'
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
@@ -29,7 +35,7 @@ import {
   writeFailNotice,
 } from '../../pages/project/project-error'
 
-// 键回显 t：断言里直接比键名 + 插值（文案真源在 locale，四语齐备由 s8 门把关）
+// 键回显 t：断言里直接比键名 + 插值（文案真源在 locale，四语齐备由 s8 键集门把关）
 const t = (key, values) => (values ? `${key}:${JSON.stringify(values)}` : key)
 
 vi.mock('react-i18next', () => ({
@@ -39,22 +45,24 @@ vi.mock('react-i18next', () => ({
   }),
 }))
 
-const AUTH = vi.hoisted(() => ({ user: { uID: 7 } }))
+const AUTH = vi.hoisted(() => ({ isAuthenticated: true, user: { uID: 7 } }))
 vi.mock('../../auth-context', () => ({ useAuth: () => AUTH }))
 
-const API = vi.hoisted(() => ({
-  fetchProjectDetail: vi.fn(),
-  appendProjectSubtasks: vi.fn(),
-  editProjectSubtask: vi.fn(),
-  removeProjectSubtasks: vi.fn(),
-  patchProjectTaskStatus: vi.fn(),
-  createProjectCampaign: vi.fn(),
-  createProjectCampaignTask: vi.fn(),
-  patchProjectCampaign: vi.fn(),
-}))
-vi.mock('../../pages/project/project-api', () => API)
+// 最底层出口 = fetchApiJson（auth.js）。只换这一个 ⇒ campaign-api / project-api 的
+// URL / 方法 / body 全链现取（spy 按 URL 路由，GET / PATCH 各归各）。
+const NET = vi.hoisted(() => ({ fetchApiJson: vi.fn(), getAuthHeaders: vi.fn(() => ({})) }))
+vi.mock('../../auth', async (importOriginal) => {
+  const actual = await importOriginal()
+  return { ...actual, fetchApiJson: NET.fetchApiJson, getAuthHeaders: NET.getAuthHeaders }
+})
 
-import ProjectNestedList from '../../pages/project/ProjectNestedList'
+const ADMIN = vi.hoisted(() => ({ loadListingEditAdmin: vi.fn() }))
+vi.mock('../../pages/item/item-edit-access', async () => {
+  const actual = await vi.importActual('../../pages/item/item-edit-access')
+  return { ...actual, loadListingEditAdmin: ADMIN.loadListingEditAdmin }
+})
+
+import CampaignDetailPage from '../../pages/campaign/CampaignDetailPage'
 
 const SRC = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..') // = frontend/src
 const zhTable = JSON.parse(fs.readFileSync(path.join(SRC, 'locales/zh.json'), 'utf8'))
@@ -172,51 +180,96 @@ const taskOf = (patch = {}) => ({
   ...patch,
 })
 
-const campaignsOf = (task) => ([{
+const campaignOf = (patch = {}) => ({
   campaign_id: 501,
+  snowflake_id: '70501',
+  project_id: '11',
   title: '秋季招募',
   description: '活动说明',
   status: 'active',
   time_start: '2026-10-01T00:00:00.000Z',
   time_end: '2026-10-31T00:00:00.000Z',
-  tasks: [task],
-}])
+  tasks: [taskOf()],
+  ...patch,
+})
 
-const renderList = (task, props = {}) => render(
-  <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-    <ProjectNestedList
-      campaigns={campaignsOf(task)}
-      t={t}
-      lang="zh"
-      symbols={{}}
-      slug="sui"
-      canManage
-      user={{ uID: 7 }}
-      {...props}
-    />
+const projectRow = (patch = {}) => ({
+  project_id: 11,
+  snowflake_id: '70011',
+  slug: 'sui',
+  title: '海鲜打包',
+  description: '每天打包 20 单',
+  status: 'recruiting',
+  headcount: 3,
+  hired_count: 2,
+  owner_uid: 7,
+  avatar_url: null,
+  wage_batt_per_claim: 30,
+  wage_interval_hours: 4,
+  wage_currency_amount: 0,
+  wage_cid: null,
+  campaigns: [campaignOf()],
+  ...patch,
+})
+
+// `fetchApiJson` 被整替 ⇒ 返回值即 API 层拿到的解包后数据（success 信封在本出口内，一并被替）。
+const NET_STATE = { campaign: null, project: null, taskPatch: null }
+
+const netCalls = (url, method) => NET.fetchApiJson.mock.calls.filter(([u, o = {}]) =>
+  u === url && (method ? o.method === method : !o.method))
+
+beforeEach(() => {
+  vi.clearAllMocks()
+  AUTH.isAuthenticated = true
+  AUTH.user = { uID: 7 }
+  NET.getAuthHeaders.mockClear()
+  NET_STATE.campaign = campaignOf()
+  NET_STATE.project = projectRow() // 【发布子任务】提交前的新鲜读（GET /api/project/:slug）同源
+  NET_STATE.taskPatch = null
+  NET.fetchApiJson.mockImplementation((url, options = {}) => {
+    if (url === '/api/currencies') return Promise.resolve([])
+    if (url === '/api/campaign/501') return Promise.resolve(NET_STATE.campaign)
+    if (url.startsWith('/api/project/')) return Promise.resolve(NET_STATE.project)
+    if (url === '/api/campaign/task/555' && options.method === 'PATCH') {
+      const behavior = NET_STATE.taskPatch
+      if (typeof behavior === 'function') return Promise.resolve().then(() => behavior(options))
+      return Promise.resolve(behavior ?? {})
+    }
+    return Promise.reject(Object.assign(new Error(`no net route: ${url}`), { status: 404 }))
+  })
+  ADMIN.loadListingEditAdmin.mockResolvedValue(null)
+})
+
+afterEach(cleanup)
+
+const renderCampaign = (ref = '501') => render(
+  <MemoryRouter initialEntries={[`/campaign/${ref}`]} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <Routes>
+      <Route path="/campaign/:ref" element={<CampaignDetailPage />} />
+    </Routes>
   </MemoryRouter>,
 )
 
-/** 【发布子任务】表单**已开**（表单开合由页面层 panel/ref 控制，不是行内本地态）。 */
-const OPEN_SUBTASK_FORM = { panel: 'subtask', openCampaignRef: '501', openTaskRef: '555' }
+/** 【发布子任务】表单**已开**（挂载点 = 任务卡内就地开面板，活动 + 任务双锁）。 */
+const openSubtaskForm = async (container) => {
+  await waitFor(() => expect(container.querySelector('[data-sf-m="campaign-task-entry-subtask"]')).not.toBeNull())
+  fireEvent.click(container.querySelector('[data-sf-m="campaign-task-entry-subtask"]'))
+  await waitFor(() => expect(container.querySelector('[data-sf-m="project-form-subtask"]')).not.toBeNull())
+  return container.querySelector('[data-sf-m="project-form-subtask"]')
+}
 
 describe('② 表单失败路径：内联 code + reason + HTTP（探针取证）', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-    API.fetchProjectDetail.mockResolvedValue({ campaigns: campaignsOf(taskOf()) })
-  })
-  afterEach(cleanup)
-
   it('【发布子任务】失败 ⇒ 通知里带具体因由，元素带 data-sf-err-code / -reason / -status', async () => {
-    API.appendProjectSubtasks.mockRejectedValueOnce(Object.assign(new Error('not owned'), {
-      code: 'SUBTASK_NOT_FOUND',
-      status: 404,
-      details: { reason: 'subtask_not_in_task' },
-    }))
-    const { container } = renderList(taskOf(), OPEN_SUBTASK_FORM)
-    await waitFor(() => expect(container.querySelector('[data-sf-m="project-form-subtask"]')).not.toBeNull())
+    NET_STATE.taskPatch = () => {
+      throw Object.assign(new Error('not owned'), {
+        code: 'SUBTASK_NOT_FOUND',
+        status: 404,
+        details: { reason: 'subtask_not_in_task' },
+      })
+    }
+    const { container } = renderCampaign()
+    const form = await openSubtaskForm(container)
 
-    const form = container.querySelector('[data-sf-m="project-form-subtask"]')
     fireEvent.change(form.querySelector('[data-sf-field="title"]'), { target: { value: '新问卷' } })
     fireEvent.submit(form)
 
@@ -232,13 +285,14 @@ describe('② 表单失败路径：内联 code + reason + HTTP（探针取证）
   })
 
   it('未知 reason ⇒ 文案回退到 code（不吞掉失败、也不谎报成功）', async () => {
-    API.appendProjectSubtasks.mockRejectedValueOnce(Object.assign(new Error('style'), {
-      code: 'PREDICTION_OPTION_STYLE_IMMUTABLE',
-      status: 400,
-    }))
-    const { container } = renderList(taskOf(), OPEN_SUBTASK_FORM)
-    await waitFor(() => expect(container.querySelector('[data-sf-m="project-form-subtask"]')).not.toBeNull())
-    const form = container.querySelector('[data-sf-m="project-form-subtask"]')
+    NET_STATE.taskPatch = () => {
+      throw Object.assign(new Error('style'), {
+        code: 'PREDICTION_OPTION_STYLE_IMMUTABLE',
+        status: 400,
+      })
+    }
+    const { container } = renderCampaign()
+    const form = await openSubtaskForm(container)
     fireEvent.change(form.querySelector('[data-sf-field="title"]'), { target: { value: '新问卷' } })
     fireEvent.submit(form)
 
@@ -254,10 +308,11 @@ describe('② 表单失败路径：内联 code + reason + HTTP（探针取证）
   })
 
   it('无错误体（网络断）⇒ 原文案照旧，data-* 为空串', async () => {
-    API.appendProjectSubtasks.mockRejectedValueOnce(new Error('Failed to fetch'))
-    const { container } = renderList(taskOf(), OPEN_SUBTASK_FORM)
-    await waitFor(() => expect(container.querySelector('[data-sf-m="project-form-subtask"]')).not.toBeNull())
-    const form = container.querySelector('[data-sf-m="project-form-subtask"]')
+    NET_STATE.taskPatch = () => {
+      throw new Error('Failed to fetch')
+    }
+    const { container } = renderCampaign()
+    const form = await openSubtaskForm(container)
     fireEvent.change(form.querySelector('[data-sf-field="title"]'), { target: { value: '新问卷' } })
     fireEvent.submit(form)
 
@@ -272,20 +327,21 @@ describe('② 表单失败路径：内联 code + reason + HTTP（探针取证）
 
 // ---------------------------------------------------------------------------
 describe('③ 任务卡上线/下线失败：同样内联 code + reason + HTTP', () => {
-  beforeEach(() => vi.clearAllMocks())
-  afterEach(cleanup)
-
   it('PATCH status 被拒（campaign_ended_frozen + reason）⇒ 卡内提示带因由与 data-sf-err-*', async () => {
-    API.patchProjectTaskStatus.mockRejectedValueOnce(Object.assign(new Error('frozen'), {
-      code: 'CAMPAIGN_ENDED_FROZEN',
-      status: 409,
-      details: { reason: 'subtask_remove_overlap' },
-    }))
-    const { container } = renderList(taskOf({ status: 'active' }))
-    fireEvent.click(container.querySelector('[data-sf-m="project-task-status-toggle"]'))
+    NET_STATE.campaign = campaignOf({ tasks: [taskOf({ status: 'active' })] })
+    NET_STATE.taskPatch = () => {
+      throw Object.assign(new Error('frozen'), {
+        code: 'CAMPAIGN_ENDED_FROZEN',
+        status: 409,
+        details: { reason: 'subtask_remove_overlap' },
+      })
+    }
+    const { container } = renderCampaign()
+    await waitFor(() => expect(container.querySelector('[data-sf-m="campaign-task-status-toggle"]')).not.toBeNull())
+    fireEvent.click(container.querySelector('[data-sf-m="campaign-task-status-toggle"]'))
 
     await waitFor(() => {
-      const err = container.querySelector('[data-sf-m="project-task-status-err"]')
+      const err = container.querySelector('[data-sf-m="campaign-task-status-err"]')
       expect(err).not.toBeNull()
       expect(err.textContent).toBe('project.failDetail:{"detail":"project.reasonSubtaskRemoveOverlap","status":409}')
       expect(err.getAttribute('data-sf-err-code')).toBe('CAMPAIGN_ENDED_FROZEN')
@@ -295,12 +351,16 @@ describe('③ 任务卡上线/下线失败：同样内联 code + reason + HTTP',
   })
 
   it('无错误体（网络断）⇒ 原文案照旧（`project.publishFailed`），data-* 为空串', async () => {
-    API.patchProjectTaskStatus.mockRejectedValueOnce(new Error('Failed to fetch'))
-    const { container } = renderList(taskOf({ status: 'active' }))
-    fireEvent.click(container.querySelector('[data-sf-m="project-task-status-toggle"]'))
+    NET_STATE.campaign = campaignOf({ tasks: [taskOf({ status: 'active' })] })
+    NET_STATE.taskPatch = () => {
+      throw new Error('Failed to fetch')
+    }
+    const { container } = renderCampaign()
+    await waitFor(() => expect(container.querySelector('[data-sf-m="campaign-task-status-toggle"]')).not.toBeNull())
+    fireEvent.click(container.querySelector('[data-sf-m="campaign-task-status-toggle"]'))
 
     await waitFor(() => {
-      const err = container.querySelector('[data-sf-m="project-task-status-err"]')
+      const err = container.querySelector('[data-sf-m="campaign-task-status-err"]')
       expect(err.textContent).toBe('project.publishFailed')
       expect(err.getAttribute('data-sf-err-code')).toBe('')
     })
@@ -309,27 +369,28 @@ describe('③ 任务卡上线/下线失败：同样内联 code + reason + HTTP',
 
 // ---------------------------------------------------------------------------
 describe('④ 行级删除失败：删除模板 + 取证字段', () => {
-  beforeEach(() => vi.clearAllMocks())
-  afterEach(cleanup)
-
   it('删除遇 subtask_has_proofs（带 reason）⇒ 行内「删除失败：已有用户提交，不能删除（HTTP 409）」', async () => {
     const row = {
       subtask_id: 5012, task_id: 555, type_code: 'x_verify', type_label: 'X 验证',
       title: '转发推文', content: '转发并附链接', payload: {}, sort: 1, required: false,
     }
-    API.removeProjectSubtasks.mockRejectedValueOnce(Object.assign(new Error('has proofs'), {
-      code: 'subtask_has_proofs',
-      status: 409,
-      details: { reason: 'subtask_has_proofs' },
-    }))
-    const { container } = renderList(taskOf({ subtasks: [row] }))
+    NET_STATE.campaign = campaignOf({ tasks: [taskOf({ subtasks: [row] })] })
+    NET_STATE.taskPatch = () => {
+      throw Object.assign(new Error('has proofs'), {
+        code: 'subtask_has_proofs',
+        status: 409,
+        details: { reason: 'subtask_has_proofs' },
+      })
+    }
+    const { container } = renderCampaign()
+    await waitFor(() => expect(container.querySelector('[data-sf-m="campaign-subtask-delete"]')).not.toBeNull())
 
-    fireEvent.click(container.querySelector('[data-sf-m="project-subtask-delete"]'))
-    await waitFor(() => expect(container.querySelector('[data-sf-m="project-subtask-confirm"]')).not.toBeNull())
-    fireEvent.click(container.querySelector('[data-sf-m="project-subtask-confirm"]'))
+    fireEvent.click(container.querySelector('[data-sf-m="campaign-subtask-delete"]'))
+    await waitFor(() => expect(container.querySelector('[data-sf-m="campaign-subtask-confirm"]')).not.toBeNull())
+    fireEvent.click(container.querySelector('[data-sf-m="campaign-subtask-confirm"]'))
 
     await waitFor(() => {
-      const err = container.querySelector('[data-sf-m="project-subtask-err"]')
+      const err = container.querySelector('[data-sf-m="campaign-subtask-err"]')
       expect(err).not.toBeNull()
       expect(err.textContent).toBe('project.deleteFailDetail:{"detail":"project.hasProofs","status":409}')
       expect(err.getAttribute('data-sf-err-code')).toBe('subtask_has_proofs')

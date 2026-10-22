@@ -1020,3 +1020,117 @@ a.sf-task-campaign-name:hover {
     min-height: 44px;
   }
 }
+
+/* ---------------------------------------------------------------------------
+ * 活动页任务管理（`/campaign/:ref` 操作主场 · 自项目页迁入，Kevin 2026-10-22）
+ * 颜色 = 主题 token 槽位（同 `.sf-campaign-btn` 体例，不引用已退役 `--sf-btn-*`）；
+ * 手机档触控 ≥44 由上方既有 767 块的 `.sf-campaign-btn` 统一抬高，此处不重复。
+ * ------------------------------------------------------------------------ */
+.sf-campaign-task-head-right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  min-width: 0;
+}
+
+.sf-campaign-card-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 12px;
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-btna);
+  background: var(--sf-panel-bg);
+}
+
+.sf-campaign-subtask-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+}
+
+/* 行内小按钮只在桌面档缩小；手机档沿用 767 块的 ≥44 触控目标（主要操作路径口径） */
+@media (min-width: 768px) {
+  .sf-campaign-subtask-actions .sf-campaign-btn {
+    min-height: 30px;
+    padding: 4px 10px;
+    font-size: 13px;
+  }
+}
+
+.sf-campaign-btn.is-ghost {
+  background: transparent;
+}
+
+.sf-campaign-btn.is-danger {
+  color: var(--sf-down-fg, #cf222e);
+  border-color: var(--sf-down-fg, #cf222e);
+  background: transparent;
+}
+
+.sf-campaign-subtask-locked {
+  color: var(--sf-meta-fg, #57606a);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sf-campaign-subtask-confirm-text {
+  color: var(--sf-down-fg, #cf222e);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sf-campaign-manage {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sf-campaign-manage-title {
+  margin: 0;
+  color: var(--sf-title-fg);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.sf-campaign-project-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: inherit;
+  text-decoration: none;
+  min-width: 0;
+}
+
+.sf-campaign-project-row:hover .sf-campaign-project-title {
+  text-decoration: underline;
+}
+
+.sf-campaign-project-avatar {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.sf-campaign-project-avatar.is-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sf-tag-bg);
+  color: var(--sf-tag-fg);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.sf-campaign-project-title {
+  color: var(--sf-meta-fg);
+  font-size: 13px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}

@@ -695,3 +695,46 @@ textarea.sf-project-input {
     height: 44px;
   }
 }
+
+/* ---------------------------------------------------------------------------
+ * 「活动与任务」概况层 · 任务摘要行（Kevin 2026-10-22：操作主场迁 `/campaign/:ref` 后，
+ * 项目页每条活动下只剩任务摘要行：标题链 `/task/:taskId` + 状态徽标 + 完成奖 `$`，
+ * 一行一条；零操作钮、零子任务清单。颜色 = 主题 token，几何沿用既有结构常量。）
+ * ------------------------------------------------------------------------ */
+.sf-project-task-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sf-project-task-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  padding: 6px 8px;
+  border: var(--sf-st-stroke-w-thin, 1px) solid var(--sf-panel-border, #d0d7de);
+  border-radius: var(--sf-st-radius-btna, 6px);
+  background: var(--sf-panel-bg, #fff);
+  font-size: 13px;
+}
+
+.sf-project-task-row-title {
+  color: var(--sf-title-fg, #1f2328);
+  font-weight: 600;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+a.sf-project-task-row-title:hover {
+  text-decoration: underline;
+}
+
+.sf-project-task-row-reward {
+  color: var(--sf-title-fg, #1f2328);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}

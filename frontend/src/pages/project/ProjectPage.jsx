@@ -6,7 +6,6 @@ import { getLanguageFromUrl } from '../../utils'
 import { isReservedProjectSlug } from '../../project-slug'
 import { fetchProjectCurrencies, fetchProjectDetail } from './project-api'
 import { isWageProjectEditAdmin, loadListingEditAdmin } from '../item/item-edit-access'
-import { refOf } from '../campaign/campaign-util'
 import NotFoundPage from '../NotFoundPage'
 import ProjectNestedList from './ProjectNestedList'
 import ProjectForms from './ProjectForms'
@@ -17,9 +16,13 @@ import './project.css'
 // 项目页 `/:slug`（Kevin 2026-10-21 · /wage 卡可点击进项目页的落点）
 // ----------------------------------------------------------------------------
 // 形态：项目头（标题 / 状态 / 已招 X/Y / 工资行）→ **详细介绍**（description pre-wrap）→
-//       嵌套活动列表（该项目的 campaigns/tasks/subtasks，与 campaign 详情同族卡片）→
-//       操作区（**仅 owner 或管理员**可见：【编辑项目】/【发布活动】；【发布任务】在每张活动卡内、
-//       【发布子任务】在每张任务卡内，点击就地开表单且目标预选锁定）。
+//       「活动与任务」**概况层**（每条活动 = 活动名链 `/campaign/:ref` + 状态徽标；其下只列
+//       任务摘要行：标题链 `/task/:taskId` + 状态 + 完成奖 `$` —— **零操作钮、零子任务清单**）→
+//       操作区（**仅 owner 或管理员**可见：【编辑项目】/【发布活动】）。
+//
+// ★ Kevin 2026-10-22：**任务/子任务全部操作入口迁 `/campaign/:ref`**（发布任务 / 发布子任务 /
+//   上线/下线 / 子任务编辑 / 删除）——本页对活动与任务只剩**概况**（`ProjectNestedList`
+//   概况层，零写口）；具体内容与操作都去活动页。项目级操作（【编辑项目】/【发布活动】）留本页。
 //
 // ★ Kevin 2026-10-21②：**项目编辑搬进本页**（/wage 卡不再有【编辑】，只保留整卡链接与
 //   加入/领工资）——
@@ -36,7 +39,7 @@ import './project.css'
 //     直接落 catch-all 同款 `<NotFoundPage />`（不发请求、不白屏）；
 //   · slug 无效 / 项目不存在（读口 404）⇒ 同样落 `<NotFoundPage />` 提示页；
 //   · 读口 = `GET /api/project/:ref`（三形态：snowflake / 数字 id / slug，原样透传）；
-//   · 写口（三个入口）闸 = manage_tasks 管理员 ∨ **project owner**（项目未 ended）——
+//   · 写口（编辑项目 / 发布活动）闸 = manage_tasks 管理员 ∨ **project owner**（项目未 ended）——
 //     前端只做入口显隐与提示，真正的闸在服务端；未授权点入口 ⇒ 页内提示、零请求；
 //   · 管理员三键判定复用 `item/item-edit-access`（同一份 `/api/user` 载荷 + 模块缓存 +
 //     fail-safe：取不到 ⇒ 只按 owner_uid 判，绝不误判管理员，同 WagePage 体例）；
@@ -63,11 +66,9 @@ const ProjectPage = () => {
   const [symbols, setSymbols] = useState({})
   const [currencies, setCurrencies] = useState([])
   const [adminFlags, setAdminFlags] = useState(null)
-  // 打开中的面板 + 其锁定目标：'campaign'（顶部）| 'task'（活动卡）| 'subtask'（任务卡）
-  // 活动卡入口 ⇒ `openCampaignRef` = 该卡 ref；任务卡入口 ⇒ 再带 `openTaskRef` = 该卡 task_id。
+  // 打开中的面板：'campaign'（顶部【发布活动】）。任务 / 子任务表单已迁 `/campaign/:ref`，
+  // 本页不再有卡内面板（概况层零写口）。
   const [openPanel, setOpenPanel] = useState(null)
-  const [openCampaignRef, setOpenCampaignRef] = useState('')
-  const [openTaskRef, setOpenTaskRef] = useState('')
   const [editOpen, setEditOpen] = useState(false) // 【编辑项目】模态框（挂载 = 打开）
   const [notice, setNotice] = useState(null) // { kind: 'ok' | 'err', text }
 
@@ -164,7 +165,7 @@ const ProjectPage = () => {
   const symbol = symbols[String(view?.wage_cid ?? '')] || ''
 
   // 入口统一闸：未登录 / 无权限 ⇒ 页内提示、零请求（按钮本就只对 owner ∨ 管理员渲染，
-  // 这里是时序 / 状态漂移的双保险）。三个入口（顶部活动、卡内任务、卡内子任务）共用。
+  // 这里是时序 / 状态漂移的双保险）。两个入口（【发布活动】/【编辑项目】）共用。
   const allowEntry = () => {
     if (!isAuthenticated) {
       setNotice({ kind: 'err', text: t('project.needLogin') })
@@ -177,30 +178,19 @@ const ProjectPage = () => {
     return true
   }
 
-  const closePanels = () => {
-    setOpenPanel(null)
-    setOpenCampaignRef('')
-    setOpenTaskRef('')
-  }
+  const closePanel = () => setOpenPanel(null)
 
-  // 同一入口再点 = 收起；换卡 / 换面板 = 只留一个面板（表单就地渲染在所属卡片内）。
-  const openEntry = (panel, campaignRef = '', taskRef = '') => {
+  // 同一入口再点 = 收起；打开 = 只留【发布活动】面板。
+  const openEntry = () => {
     if (!allowEntry()) return
-    const same = openPanel === panel && openCampaignRef === campaignRef && openTaskRef === taskRef
     setNotice(null)
-    if (same) {
-      closePanels()
-      return
-    }
-    setOpenPanel(panel)
-    setOpenCampaignRef(campaignRef)
-    setOpenTaskRef(taskRef)
+    setOpenPanel((prev) => (prev === 'campaign' ? null : 'campaign'))
   }
 
   const handleDone = (result) => {
     // 写口成功（或建成功但未上线）⇒ 先给结论、再静默重读（列表 / 嵌套立即反映新行）
     setNotice(result)
-    closePanels()
+    closePanel()
     load({ silent: true })
   }
 
@@ -211,23 +201,11 @@ const ProjectPage = () => {
     load({ silent: true })
   }
 
-  /**
-   * 任务上线 / 下线成功（卡片内已发 PATCH）：页内提示 + **静默重读嵌套列表**
-   * （徽标与首页热门任务读口同源，刷新后即反映新状态）；失败不走这里（卡片就地内联）。
-   */
-  const handleTaskStatusChanged = (next, task) => {
-    setNotice({
-      kind: 'ok',
-      text: t(next === 'active' ? 'project.okLaunched' : 'project.okDraft'),
-    })
-    load({ silent: true })
-  }
-
   /** 打开编辑框：同一入口再点不切换（框是模态，打开期间不渲染入口自身状态）；无权限 ⇒ 页内提示零请求。 */
   const openEdit = () => {
     if (!allowEntry()) return
     setNotice(null)
-    closePanels()
+    setOpenPanel(null)
     setEditOpen(true)
   }
 
@@ -280,33 +258,20 @@ const ProjectPage = () => {
               )}
             </section>
 
-            {/* 嵌套活动列表（campaigns → tasks → subtasks，与 campaign 详情同族卡片）
-                · 任务 / 子任务入口**下沉到卡片头**：每张活动卡一枚【发布任务】、每张任务卡一枚
-                  【发布子任务】；点开就地渲染表单，目标预选锁定（无选择器）。
-                · 无活动 ⇒ 无活动卡 ⇒ 任务入口自然缺席；活动无任务 ⇒ 无任务卡 ⇒ 子任务入口缺席。 */}
+            {/* 「活动与任务」概况层（Kevin 2026-10-22）：每条活动 = 活动名链 `/campaign/:ref`
+                + 状态徽标；其下只列任务摘要行（标题链 `/task/:taskId` + 状态 + 完成奖 $）。
+                零操作钮、零子任务清单、零表单 —— 具体内容与全部操作都在活动页。 */}
             <ProjectNestedList
               campaigns={view?.campaigns}
               t={t}
               lang={lang}
-              symbols={symbols}
-              canManage={canManage}
-              user={user}
-              panel={openPanel}
-              openCampaignRef={openCampaignRef}
-              openTaskRef={openTaskRef}
-              slug={slug}
-              currencies={currencies}
-              onEntryTask={(campaign, ref) => openEntry('task', ref || refOf(campaign))}
-              onEntrySubtask={(campaign, task) => openEntry('subtask', refOf(campaign), String(task?.task_id ?? ''))}
-              onTaskStatusChanged={handleTaskStatusChanged}
-              onClose={closePanels}
-              onDone={handleDone}
             />
 
             {canManage ? (
               <section className="sf-panel sf-project-manage" data-sf-m="project-manage">
                 <h2 className="sf-project-section-title" data-sf-m="project-manage-title">{t('project.manageTitle')}</h2>
-                {/* 顶部操作区：【编辑项目】（模态框）+【发布活动】；任务 / 子任务入口在各卡片头右侧 */}
+                {/* 操作区（项目级操作留本页）：【编辑项目】（模态框）+【发布活动】；
+                    任务 / 子任务操作已迁 `/campaign/:ref`（概况层零写口）。 */}
                 <div className="sf-project-actions">
                   <button
                     type="button"
@@ -319,7 +284,7 @@ const ProjectPage = () => {
                     className="sf-project-btn is-primary"
                     data-sf-m="project-entry-campaign"
                     aria-expanded={openPanel === 'campaign'}
-                    onClick={() => openEntry('campaign')}
+                    onClick={openEntry}
                   >{t('project.entryCampaign')}</button>
                 </div>
                 {notice?.text && !openPanel ? (
@@ -338,7 +303,7 @@ const ProjectPage = () => {
                   slug={slug}
                   currencies={currencies}
                   t={t}
-                  onClose={closePanels}
+                  onClose={closePanel}
                   onDone={handleDone}
                 />
               </section>
