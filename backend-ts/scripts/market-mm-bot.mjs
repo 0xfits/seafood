@@ -196,8 +196,31 @@ class ApiError extends Error {
   }
 }
 
+/**
+ * 失败重试：本机 DNS 被 TUN/fake-ip 接管时，单次 `fetch` 会偶发 ECONNRESET
+ * （实测 10 次里 1 次）——一轮要打 4 个请求 ⇒ 约 35% 的轮次整轮作废、被迫退避 2 分钟。
+ * 这里只对**网络层**错误重试（`ApiError` = 服务端应答，不重试）：
+ *   GET 天然幂等；写口带 `create_key` 幂等指纹 ⇒ 同键重放不会重复挂单/撤单。
+ */
+const NET_RETRIES = Number(CFG.netRetries) > 0 ? Number(CFG.netRetries) : 3;
+const NET_RETRY_DELAY_MS = 350;
+
+async function fetchWithRetry(url, init) {
+  let lastErr = null;
+  for (let attempt = 1; attempt <= NET_RETRIES; attempt += 1) {
+    try {
+      return await fetch(url, init);
+    } catch (error) {
+      lastErr = error;
+      if (attempt === NET_RETRIES) break;
+      await new Promise((r) => setTimeout(r, NET_RETRY_DELAY_MS * attempt));
+    }
+  }
+  throw lastErr;
+}
+
 async function api(token, method, urlPath, body) {
-  const res = await fetch(CFG.apiBase + urlPath, {
+  const res = await fetchWithRetry(CFG.apiBase + urlPath, {
     method,
     headers: {
       'Content-Type': 'application/json',
@@ -318,6 +341,7 @@ async function round(n, opts = {}) {
   const state = readState();
   const ref = deriveRefPrice({
     trades,
+    fixedRefPrice: CFG.refPriceFixed,
     envRefPrice: CFG.refPriceEnv,
     stateRefPrice: state.last_ref_price,
   });

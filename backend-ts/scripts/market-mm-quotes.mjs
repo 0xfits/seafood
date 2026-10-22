@@ -19,11 +19,13 @@ export const CONFIG_DEFAULTS = Object.freeze({
   MM_QUOTE_CID: '1', // $ 平台积分
   MM_SPREAD_PCT: '1', // 全跨 1% ⇒ 双边各 0.5%
   MM_ORDER_SIZE_BASE: '100', // BTTC / 单
+  MM_REF_FIXED: '', // ★ 固定基准价（钉死报价中心，不再跟随成交价）；空/0 = 关闭，走下面的来源链
   MM_REF_PRICE: '1000', // 无成交时的参考价（Kevin 2026-10-22：ref 1000 · 全跨 1% ⇒ 买 995 / 卖 1005）；显式置空（''/0）= 不给 env 价
   MM_INTERVAL_S: '60',
   MM_MAX_INVENTORY_PCT: '50', // 单笔订单名义额 ≤ 库存总值的 50%
   MM_STATE_FILE: '', // '' ⇒ <mm.env 同目录>/mm-state.json
   // ---- P1 托管化：硬限额 / 降级 / 运维（缺省即保守值，env 可覆盖） ----
+  MM_NET_RETRIES: '3', // 单请求网络层重试次数（本机 DNS 劫持下 fetch 偶发 ECONNRESET）
   MM_MAX_NOTIONAL_USD: '500000', // 单边单笔挂单名义额上限（USD）；挂量 = min(..., 上限/价)
   MM_MAX_INVENTORY_SKEW_PCT: '90', // 买卖两侧库存名义额偏离上限 %，超限则该「加仓侧」不挂
   MM_MAX_CONSEC_FAIL: '5', // 连续 N 轮报价失败 ⇒ 自动只撤不挂 + 告警
@@ -85,6 +87,9 @@ export function resolveConfig(env = {}) {
   if (healthPort > 65535) throw new Error(`config MM_HEALTH_PORT must be within [0, 65535], got ${healthPort}`);
   const refRaw = pick('MM_REF_PRICE');
   const refNum = Number(refRaw);
+  const fixedRaw = pick('MM_REF_FIXED');
+  const fixedNum = Number(fixedRaw);
+  const refPriceFixed = fixedRaw === '' || fixedRaw === '0' || !Number.isFinite(fixedNum) || fixedNum <= 0 ? null : fixedNum;
   const refPriceEnv = refRaw === '' || refRaw === '0' || !Number.isFinite(refNum) || refNum <= 0 ? null : refNum;
   return {
     apiBase: pick('MM_API_BASE').replace(/\/+$/, ''),
@@ -92,11 +97,13 @@ export function resolveConfig(env = {}) {
     quoteCid: toPosInt(pick('MM_QUOTE_CID'), 'MM_QUOTE_CID'),
     spreadPct,
     orderSizeBase: toPosInt(pick('MM_ORDER_SIZE_BASE'), 'MM_ORDER_SIZE_BASE'),
+    refPriceFixed,
     refPriceEnv,
     intervalS,
     maxInventoryPct,
     maxInventorySkewPct,
     maxNotionalUsd: toPosNum(pick('MM_MAX_NOTIONAL_USD'), 'MM_MAX_NOTIONAL_USD'),
+    netRetries: toPosInt(pick('MM_NET_RETRIES'), 'MM_NET_RETRIES'),
     maxConsecFail: toPosInt(pick('MM_MAX_CONSEC_FAIL'), 'MM_MAX_CONSEC_FAIL'),
     metricsLimit: toPosInt(pick('MM_METRICS_LIMIT'), 'MM_METRICS_LIMIT'),
     killFlagFile: pick('MM_KILL_FLAG'),
@@ -143,11 +150,15 @@ export function computeQuoteTargets({ refPrice, spreadPct }) {
  * ref price 来源链：最近成交 → env → 本地 state → 无。
  * trades 形如 API 返回（按时间倒序）：[{ price, time_created }]；取第一条可解析价。
  */
-export function deriveRefPrice({ trades, envRefPrice = null, stateRefPrice = null } = {}) {
+export function deriveRefPrice({ trades, fixedRefPrice = null, envRefPrice = null, stateRefPrice = null } = {}) {
   const okNum = (v) => {
     const n = Number(v);
     return Number.isFinite(n) && n > 0 ? n : null;
   };
+  // ★ MM_REF_FIXED 优先级最高：操作者显式钉死基准价 ⇒ 报价中心恒为该值，
+  //   成交价只用于成交/库存变化，不再移动报价（999/1011 ⇐ ref 1005 的漂移由此消除）。
+  const fixedP = okNum(fixedRefPrice);
+  if (fixedP !== null) return { refPrice: fixedP, source: 'fixed' };
   if (Array.isArray(trades)) {
     for (const t of trades) {
       const p = okNum(t && (t.price ?? t.Price));

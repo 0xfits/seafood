@@ -449,3 +449,27 @@ test('buildStatusView: state + 指标 → --status 视图（age/ref/quotes/balan
   assert.deepEqual(empty.quotes, { buy: null, sell: null });
   assert.equal(empty.errors_last_hour, 0);
 });
+
+// ───────────────────────── MM_REF_FIXED（Kevin 2026-10-22：钉死 995/1005） ─────────────────────────
+test('deriveRefPrice: MM_REF_FIXED 压过成交价（钉死基准价）', () => {
+  assert.deepEqual(
+    deriveRefPrice({ trades: [{ price: '1005' }], fixedRefPrice: 1000, envRefPrice: 1000, stateRefPrice: 999 }),
+    { refPrice: 1000, source: 'fixed' },
+  );
+});
+
+test('deriveRefPrice: MM_REF_FIXED 为空/0/非法 ⇒ 关闭，回落来源链', () => {
+  const trades = [{ price: '1005' }];
+  for (const off of [null, undefined, 0, '', 'abc', -1]) {
+    assert.deepEqual(deriveRefPrice({ trades, fixedRefPrice: off, envRefPrice: 1000 }), { refPrice: 1005, source: 'trades' }, `fixed=${String(off)}`);
+  }
+});
+
+test('deriveRefPrice: 只有 fixed 时不依赖成交价（无成交也能报价）', () => {
+  assert.deepEqual(deriveRefPrice({ trades: [], fixedRefPrice: 1000 }), { refPrice: 1000, source: 'fixed' });
+});
+
+test('computeQuoteTargets(spread 1% 全宽, ref 1000) ⇒ 995 / 1005（Kevin 的验收口径）', () => {
+  // spreadPct 是**全跨**（每侧 ±½），非单侧半价差
+  assert.deepEqual(computeQuoteTargets({ refPrice: 1000, spreadPct: 1 }), { buyPrice: 995, sellPrice: 1005 });
+});

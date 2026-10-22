@@ -9,7 +9,7 @@
 | 文件 | 作用 |
 | --- | --- |
 | `backend-ts/scripts/market-mm-quotes.mjs` | 纯函数决策核（零 IO）：报价/撤旧挂新/库存护栏/create_key |
-| `backend-ts/scripts/market-mm-quotes.test.mjs` | node:test 单测（**37 例**） |
+| `backend-ts/scripts/market-mm-quotes.test.mjs` | node:test 单测（**41 例**） |
 | `backend-ts/scripts/market-mm-kill.mjs` | **kill switch**：登录 → `DELETE /api/order` 全撤；`--dry-run` 只列不撤；成功写 `mm-kill.flag`（0600）⇒ bot 只撤不挂，删 flag 自动恢复 |
 | `backend-ts/scripts/market-mm-bot.mjs` | 长跑 bot：每轮 拉行情→决策→撤旧挂新；`--once` 单轮 |
 | `backend-ts/scripts/market-mm-setup.ts` | 一次性初始化：建 MM users 行 + mint 库存（幂等） |
@@ -62,6 +62,8 @@ dev 后端起法：`cd backend-ts && PORT=5788 ./node_modules/.bin/ts-node --tra
 | `MM_REF_PRICE` | `1000` | 无成交时的参考价（ref 1000 · 全跨 1% ⇒ 买 **995** / 卖 **1005**）；显式置空（`''`/`0`）= 不给 env 价 |
 | `MM_INTERVAL_S` | `60` | 轮间隔秒 + create_key 时间窗宽 |
 | `MM_MAX_INVENTORY_PCT` | `50` | 单笔名义额 ≤ 库存总值的 % |
+| `MM_REF_FIXED` | 空（关闭） | **钉死基准价**：设了就恒以此为报价中心（生产 `1000` ⇒ 995/1005），成交价不再移动报价；空/0 = 回到来源链 |
+| `MM_NET_RETRIES` | `3` | 单请求网络层重试次数（本机 DNS 劫持下 fetch 偶发 ECONNRESET，一轮 4 请求） |
 | `MM_MAX_NOTIONAL_USD` | `500000` | 单边挂单名义额硬上限（$） |
 | `MM_MAX_INVENTORY_SKEW_PCT` | `90` | 买卖两侧库存偏离上限（%），超限则该侧不挂 |
 | `MM_MAX_CONSEC_FAIL` | `5` | 连续 N 轮报价失败 ⇒ 自动降级「只撤不挂」 |
@@ -156,7 +158,7 @@ console.log('cancelled:', JSON.stringify(del).slice(0, 200));
 
 ## dev 验收记录（2026-10-22，PORT=5788，schema 0072）
 
-- 单测 **37/37** 绿（`node --test scripts/market-mm-quotes.test.mjs`）。
+- 单测 **41/41** 绿（`node --test scripts/market-mm-quotes.test.mjs`）。
 - setup 幂等重跑：两 mint 均 `idempotent_replay: true`（键 `ops:mm:setup:mint:{usd,base}:e1`）；
   MM = uid 971229，库存 $1,000,000 + ₿10,000。
 - bot `--once` 保单轮：双边 9950/10050 已在目标价 ⇒ keeps 两单、零撤零挂、`mode: normal`。
