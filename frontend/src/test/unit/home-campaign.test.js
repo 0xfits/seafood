@@ -6,6 +6,7 @@ import {
   avatarToneOf,
   buildHomeCampaignCards,
   normalizeHomeCampaignRow,
+  normalizeSubtaskRows,
 } from '../../home-campaign'
 import { isCampaignListedTask, listedTasksOf } from '../../pages/campaign/campaign-util'
 
@@ -172,6 +173,45 @@ describe('normalizeHomeCampaignRow · 行归一', () => {
     expect(view.joinedTarget).toBe(500)
     expect(view.rewardPrimary).toBe('12345678901234567890')
     expect(view.rewardSecondaryCid).toBe(2)
+  })
+
+  it('缺 `subtasks` 键 / 非数组 / 畸形项 ⇒ `[]`（不占位、不炸）', () => {
+    expect(normalizeHomeCampaignRow({}).subtasks).toEqual([])
+    expect(normalizeHomeCampaignRow({ subtasks: null }).subtasks).toEqual([])
+    expect(normalizeHomeCampaignRow({ subtasks: 'oops' }).subtasks).toEqual([])
+    expect(normalizeSubtaskRows([null, 1, 'x', {}, { title: '无号' }])).toEqual([])
+  })
+})
+
+describe('normalizeSubtaskRows · 子任务行归一（/task 卡内子任务区）', () => {
+  it('五面白名单透传：subtask_id / type_code / title / required / sort（其余键丢弃）', () => {
+    const [first] = normalizeSubtaskRows([
+      { subtask_id: '901', type_code: 'survey', title: '  填写问卷  ', required: true, sort: 2, payload: { secret: 1 }, extra: 'x' },
+    ])
+    expect(first).toEqual({ subtaskId: '901', typeCode: 'survey', title: '填写问卷', required: true, sort: 2 })
+    expect(first.payload).toBeUndefined()
+  })
+
+  it('required 三种真值形态（true / 1 / "1"）；其余（含字符串 "true"）⇒ false', () => {
+    const flags = normalizeSubtaskRows([
+      { subtask_id: 1, required: true },
+      { subtask_id: 2, required: 1 },
+      { subtask_id: 3, required: '1' },
+      { subtask_id: 4, required: 'true' },
+      { subtask_id: 5 },
+    ]).map((s) => s.required)
+    expect(flags).toEqual([true, true, true, false, false])
+  })
+
+  it('按 sort 升序（缺 sort / 坏值 ⇒ 排末尾，稳定保序）', () => {
+    const ids = normalizeSubtaskRows([
+      { subtask_id: 'c', sort: null },
+      { subtask_id: 'b', sort: 2 },
+      { subtask_id: 'a', sort: 1 },
+      { subtask_id: 'd', sort: 'x' },
+      { subtask_id: 'e', sort: 2 },
+    ]).map((s) => s.subtaskId)
+    expect(ids).toEqual(['a', 'b', 'e', 'c', 'd'])
   })
 })
 

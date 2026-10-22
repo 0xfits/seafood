@@ -447,7 +447,8 @@
     "emptyCompleted": "暂无已完成悬赏",
     "emptyCompletedHint": "开始参与悬赏赚取积分吧",
     "emptyVerification": "暂无待验证悬赏",
-    "emptyVerificationHint": "提交的悬赏审核过程中会显示在这里"
+    "emptyVerificationHint": "提交的悬赏审核过程中会显示在这里",
+    "moreSubtasks": "+{{n}} 项子任务"
   },
   "header": {
     "orders": "订单"

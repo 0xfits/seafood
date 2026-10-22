@@ -21,10 +21,14 @@ import { buildLocalizedPath, getLanguageFromUrl } from '../utils'
 //               reward_cid_secondary?, reward_amount_secondary?, campaign_id, campaign_title,
 //               project_title, project_slug, project_avatar_url? }
 //     **旧 job 数据面 `/api/task/all`、`/api/task-progress` 全部退出本页**（不再是本页读口）；
-//   · 卡 = 复用首页卡 `HomeCampaignCard`（圆头像 + 项目名 + 活动名 + 标题 + 状态 + 参与 + 奖励），
-//     整卡 → `/task/<taskId>`（卡内唯一构造器 `buildLocalizedPath`，随页语言前缀）；
+//   · 卡 = 复用首页卡 `HomeCampaignCard`（圆头像 + 项目名 + 活动名 + 标题 + **子任务标题列表** +
+//     状态 + 参与 + 奖励），整卡 → `/task/<taskId>`（卡内唯一构造器 `buildLocalizedPath`，随页语言前缀）；
+//     子任务区**只在本页开**（传 `showSubtasks`）—— 首页「热门任务」版块不传 ⇒ 卡面维持原样；
+//     行内 `subtasks[]`（后端加性字段，缺键 ⇒ `[]`）由 `normalizeHomeCampaignRow` 透传，
+//     最多列 2 条 + 「+N 项子任务」（详情见卡组件头注）；
 //   · 页头标题沿用既有键 `taskPage.title`（= 悬赏中心，Kevin 明示保留）；空态复用
-//     `taskPage.emptyAvailable` / `taskPage.emptyAvailableHint` ⇒ **本页零新增 i18n 键**；
+//     `taskPage.emptyAvailable` / `taskPage.emptyAvailableHint` ⇒ **本页新增 i18n 键只有 1 个**
+//     （`taskPage.moreSubtasks`，四语对称；类型徽标 / 必做小标全部复用既有 `campaign.*` 键）；
 //   · 发布口 `/task/new` 已下线（后端 `POST /api/job` 随 job 体系删除）⇒ 本页**不再有发布入口**；
 //     审核口 `/task/review` 保留（唯一入口 = 页头条按钮）；
 //   · 类名只吃既有 `sf-home-camp-grid` / `sf-home-camp-card`（卡组件自带）+ `sf-jobs*`（页头条），
@@ -130,6 +134,7 @@ const TaskPage = () => {
                   lang={lang}
                   t={t}
                   symbols={symbols}
+                  showSubtasks
                 />
               ))}
             </div>

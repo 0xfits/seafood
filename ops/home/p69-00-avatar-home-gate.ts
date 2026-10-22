@@ -465,10 +465,10 @@ const LONG_DESCRIPTION = 'P69 门夹具长描述：' + '甲乙丙丁戊己庚辛
     const expectKeys = [
       'campaign_id', 'campaign_title', 'description', 'joined_count', 'project_avatar_url', 'project_id',
       'project_slug', 'project_title', 'reward_amount_primary', 'reward_amount_secondary', 'reward_cid_secondary',
-      'status', 'task_id', 'time_end', 'time_start', 'title',
+      'status', 'subtasks', 'task_id', 'time_end', 'time_start', 'title',
     ].sort();
     ck.t('S2',
-      `★读口有数据臂：行在场 · \`project_avatar_url\` = ${AVATAR_OK} · \`joined_count\` = 2（**3 行凭证 / 2 个去重人** ⇒ DISTINCT 承重，非行数）· \`description\` 裁到 120（原 ${LONG_DESCRIPTION.length} 字）· 16 键齐（加性，无缺无多）· 首行 = 最新任务（time_created DESC）· 行数 ≤ 20`,
+      `★读口有数据臂：行在场 · \`project_avatar_url\` = ${AVATAR_OK} · \`joined_count\` = 2（**3 行凭证 / 2 个去重人** ⇒ DISTINCT 承重，非行数）· \`description\` 裁到 120（原 ${LONG_DESCRIPTION.length} 字）· 17 键齐（加性，无缺无多；p75 起含 \`subtasks\`）· 首行 = 最新任务（time_created DESC）· 行数 ≤ 20`,
       hit !== undefined
         && hit.project_avatar_url === AVATAR_OK
         && hit.joined_count === 2

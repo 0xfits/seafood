@@ -1177,6 +1177,7 @@ section[id^="section_"] .grid { gap: 1.25rem; }
 .sf-home-camp-card {
   flex: 0 0 auto;
   width: 240px;
+  min-height: 0; /* 等高：内容不顶破行高（子任务区多了也不撑破同排卡） */
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -1273,6 +1274,78 @@ section[id^="section_"] .grid { gap: 1.25rem; }
   line-height: 20px;
 }
 
+/* ===== TASK-LIST-SUBTASK-v1（2026-10-22）· `/task` 卡内子任务区 =====
+   仅 `/task` 列表卡渲染（卡组件 `showSubtasks` 开）；首页热门任务卡不传旗标 ⇒ 本节样式不生效。
+   · 层级：小号（行 12px / 徽标 11px），行距紧凑（gap 4px），上分隔线用既有 `--sf-panel-border`；
+   · 文字全部吃既有 token（page-fg / meta-fg / tag-bg|border|fg）⇒ **零新色值**；
+   · 长标题单行 ellipsis：行容器 `min-width:0` + 标题 `flex:1 1 auto; min-width:0` ⇒ 不撑宽卡；
+   · 等高：块 `min-height:0`（可压缩、不顶破）＋卡体 flex column，行内卡由容器 stretch 拉平。 */
+.sf-home-camp-subtasks {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 0;
+  margin: 0;
+  padding: 7px 0 0;
+  border-top: 1px solid var(--sf-panel-border);
+  list-style: none;
+}
+
+.sf-home-camp-subtask {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+/* 类型徽标（五类：X 验证 / 链上快照 / 问卷 / 预测 / 答题）—— 吃既有 tag token */
+.sf-home-camp-subtask-type {
+  flex: 0 0 auto;
+  padding: 0 5px;
+  border: 1px solid var(--sf-tag-border);
+  border-radius: var(--sf-tag-radius);
+  background: var(--sf-tag-bg);
+  color: var(--sf-tag-fg);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+/* 子任务标题：单行截断（ellipsis） */
+.sf-home-camp-subtask-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--sf-page-fg);
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 必做小标 */
+.sf-home-camp-subtask-required {
+  flex: 0 0 auto;
+  color: var(--sf-meta-fg);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+/* 「+N 项子任务」溢出提示行 */
+.sf-home-camp-subtask-more {
+  color: var(--sf-meta-fg);
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* 状态徽标（进行中 / 已截止）+ 参与进度 */
 .sf-home-camp-meta {
   display: flex;
@@ -1344,6 +1417,7 @@ section[id^="section_"] .grid { gap: 1.25rem; }
   .sf-home-camp-grid {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-items: stretch; /* 卡高自适应：同一行卡等高（内容长的卡拉平，不破行基线） */
     overflow-x: visible;
   }
 

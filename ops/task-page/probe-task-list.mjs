@@ -10,6 +10,10 @@
  *      **都**落 `[data-sf-m="not-found-page"]`；且 `/task/new` **零** `/api/campaign/task/new` 请求；
  *   ④ 390 / 1536 两档：**零横向溢出**（`documentElement.scrollWidth - clientWidth === 0` 且零真·offender，
  *      横滚容器内的越界元素只记 `scrollContained`）、**零 pageerror**、**零 `/api/task/all` 命中**。
+ *   ⑤（TASK-LIST-SUBTASK-v1，2026-10-22）`/task` 卡内**子任务区**：子任务行在场（类型徽标 + 标题 +
+ *      必做小标）、超 2 条 ⇒ 「+N 项子任务」、缺键 ⇒ 整块不渲染、长标题单行截断（ellipsis 生效）、
+ *      **卡内零溢出**（每卡 scrollWidth ≤ clientWidth）、**同行卡等高**（逐行 max-min === 0）、零 pageerror；
+ *   ⑥ **首页卡零回归**：首页热门任务卡即便读口行带 `subtasks` 也**不渲染**子任务区（开关只在 /task 开）。
  *
  * 手法（同 ops/task-page/probe-task-page.mjs 体例）：
  *   · 静态服务 = `context.route` 把 `http://sf.local/**` 映射到 `frontend/dist`（零 dev server）；
@@ -49,11 +53,21 @@ const LIST_ROWS = [
     joined_count: 3, joined_target: 50, reward_amount_primary: '5',
     reward_cid_secondary: null, reward_amount_secondary: null,
     campaign_title: '秋季招募', project_title: '海鲜打包', project_slug: 'sui', project_avatar_url: null,
+    // ★ 加性 `subtasks[]`（后端并行单口径）：3 条（1 长标题验截断 · 1 非必做）⇒ 卡内只列 2 + 「+1」
+    subtasks: [
+      { subtask_id: '901', type_code: 'x_verify', title: '把本次活动的推广长图转发到个人主页并截图回传（要求附上完整链接与时间戳）', required: true, sort: 1 },
+      { subtask_id: '902', type_code: 'survey', title: '填写问卷', required: false, sort: 2 },
+      { subtask_id: '903', type_code: 'quiz', title: '答题三题', required: false, sort: 3 },
+    ],
   },
   {
     task_id: 102, campaign_id: 501, title: '填写问卷', status: 'active',
     joined_count: 7, joined_target: null, reward_amount_primary: '3',
     campaign_title: '秋季招募', project_title: '海鲜分拣', project_slug: 'fenjian', project_avatar_url: null,
+    // ★ 恰好 1 条（onchain_snapshot ⇒ 徽标「链上快照」；required ⇒ 必做小标）
+    subtasks: [
+      { subtask_id: '911', type_code: 'onchain_snapshot', title: '链上持仓快照', required: true, sort: 1 },
+    ],
   },
   {
     task_id: 103, campaign_id: 502, title: '拍摄到货视频', status: 'active',
@@ -156,15 +170,39 @@ const SNAP_FN = () => {
       jobsFormWrap: !!q('[data-sf-m="jobs-form-wrap"]'),
       jobsDetail: !!q('[data-sf-m="jobs-detail"]'),
     },
-    cards: cards.map((c) => ({
-      tag: c.tagName.toLowerCase(),
-      href: c.getAttribute('href'),
-      task: c.getAttribute('data-sf-task'),
-      mock: c.getAttribute('data-sf-camp-mock'),
-      title: txt(c.querySelector('[data-sf-m="home-camp-title"]')),
-      project: txt(c.querySelector('[data-sf-m="home-camp-project"]')),
-      campaign: txt(c.querySelector('[data-sf-m="home-camp-campaign"]')),
-    })),
+    cards: cards.map((c) => {
+      const box = c.getBoundingClientRect()
+      const more = c.querySelector('[data-sf-m="home-camp-subtask-more"]')
+      return {
+        tag: c.tagName.toLowerCase(),
+        href: c.getAttribute('href'),
+        task: c.getAttribute('data-sf-task'),
+        mock: c.getAttribute('data-sf-camp-mock'),
+        title: txt(c.querySelector('[data-sf-m="home-camp-title"]')),
+        project: txt(c.querySelector('[data-sf-m="home-camp-project"]')),
+        campaign: txt(c.querySelector('[data-sf-m="home-camp-campaign"]')),
+        // ── 子任务区读数（TASK-LIST-SUBTASK-v1）：行 / 徽标 / 必做 / 截断 / 几何 ──
+        subtaskBlock: !!c.querySelector('[data-sf-m="home-camp-subtasks"]'),
+        subtaskCount: c.querySelectorAll('[data-sf-m="home-camp-subtask"]').length,
+        moreRest: more ? Number(more.getAttribute('data-sf-rest')) : null,
+        subtasks: [...c.querySelectorAll('[data-sf-m="home-camp-subtask"]')].map((row) => {
+          const titleEl = row.querySelector('[data-sf-m="home-camp-subtask-title"]')
+          return {
+            type: row.querySelector('[data-sf-m="home-camp-subtask-type"]')?.getAttribute('data-sf-type') || null,
+            badge: txt(row.querySelector('[data-sf-m="home-camp-subtask-type"]')),
+            title: txt(titleEl),
+            required: !!row.querySelector('[data-sf-m="home-camp-subtask-required"]'),
+            // 截断 = 标题真被收口（scrollWidth 超 clientWidth）且走 ellipsis
+            truncated: !!titleEl && titleEl.scrollWidth > titleEl.clientWidth + 1
+              && getComputedStyle(titleEl).textOverflow === 'ellipsis',
+          }
+        }),
+        boxW: Math.round(box.width),
+        boxH: Math.round(box.height),
+        rowTop: Math.round(c.getBoundingClientRect().top),
+        innerOverflowPx: Math.max(0, c.scrollWidth - c.clientWidth),
+      }
+    }),
   }
 }
 
@@ -282,6 +320,75 @@ const run = async () => {
         && listArm.noLegacyJobPage,
     }
 
+    // ⑤ `/task` 卡内子任务区（TASK-LIST-SUBTASK-v1）：行在场 · 2+N · 缺键不占位 · 截断 · 卡内零溢出 · 等高
+    const st = listSnap.cards
+    const rowGroups = new Map()
+    for (const c of st) {
+      if (!rowGroups.has(c.rowTop)) rowGroups.set(c.rowTop, [])
+      rowGroups.get(c.rowTop).push(c.boxH)
+    }
+    const stArm = {
+      perCard: st.map((c) => ({
+        task: c.task,
+        block: c.subtaskBlock,
+        rows: c.subtaskCount,
+        moreRest: c.moreRest,
+        types: c.subtasks.map((s) => s.type),
+        badges: c.subtasks.map((s) => s.badge),
+        titles: c.subtasks.map((s) => s.title),
+        requireds: c.subtasks.map((s) => s.required),
+        truncated: c.subtasks.map((s) => s.truncated),
+        boxH: c.boxH,
+        innerOverflowPx: c.innerOverflowPx,
+      })),
+      // 行在场：101 三条子任务只列 2 + 「+1」；102 恰 1 条无 +N；103 缺键 ⇒ 整块不渲染
+      card101: {
+        rows: st[0]?.subtaskCount ?? -1,
+        moreRest: st[0]?.moreRest ?? null,
+        badges: st[0]?.subtasks.map((s) => s.badge) ?? [],
+        titles: st[0]?.subtasks.map((s) => s.title) ?? [],
+        types: st[0]?.subtasks.map((s) => s.type) ?? [],
+        requireds: st[0]?.subtasks.map((s) => s.required) ?? [],
+      },
+      card102: {
+        rows: st[1]?.subtaskCount ?? -1,
+        moreRest: st[1]?.moreRest ?? null,
+        badges: st[1]?.subtasks.map((s) => s.badge) ?? [],
+        requireds: st[1]?.subtasks.map((s) => s.required) ?? [],
+      },
+      card103: { block: st[2]?.subtaskBlock ?? null, rows: st[2]?.subtaskCount ?? -1 },
+      rowsCappedAtTwo: st.every((c) => c.subtaskCount <= 2),
+      truncatedFirst: st[0]?.subtasks[0]?.truncated === true,
+      zeroInnerOverflow: st.every((c) => c.innerOverflowPx === 0),
+      rowHeights: [...rowGroups.values()].map((hs) => ({ min: Math.min(...hs), max: Math.max(...hs) })),
+      equalHeights: [...rowGroups.values()].every((hs) => Math.max(...hs) - Math.min(...hs) === 0),
+      pageErrors,
+    }
+    out.assertions[`taskCardSubtaskRows_${label}`] = {
+      ...stArm,
+      pass: stArm.card101.rows === 2
+        && stArm.card101.moreRest === 1
+        && stArm.card101.types[0] === 'x_verify'
+        && stArm.card101.types[1] === 'survey'
+        && stArm.card101.badges[0] === 'X 验证'
+        && stArm.card101.badges[1] === '问卷'
+        && stArm.card101.titles[0] === '把本次活动的推广长图转发到个人主页并截图回传（要求附上完整链接与时间戳）'
+        && stArm.card101.titles[1] === '填写问卷'
+        && stArm.card101.requireds[0] === true
+        && stArm.card101.requireds[1] === false
+        && stArm.card102.rows === 1
+        && stArm.card102.moreRest === null
+        && stArm.card102.badges[0] === '链上快照'
+        && stArm.card102.requireds[0] === true
+        && stArm.card103.block === false
+        && stArm.card103.rows === 0
+        && stArm.rowsCappedAtTwo
+        && stArm.truncatedFirst
+        && stArm.zeroInnerOverflow
+        && stArm.equalHeights
+        && stArm.pageErrors.length === 0,
+    }
+
     // ② 点卡进 `/task/:id`
     let clickArm = { clicked: false }
     if (listArm.cardCount > 0) {
@@ -354,6 +461,27 @@ const run = async () => {
       ...overflowArm,
       pass: overflowArm.zeroOverflow && overflowArm.zeroPageError && overflowArm.zeroLegacyTaskAll,
     }
+
+    // ⑥ 首页「热门任务」卡零回归：同一读口行带 `subtasks` ⇒ 首页卡**不渲染**子任务区
+    STATE.calls.length = 0
+    const homeSnap = await open(page, '/', '[data-sf-m="home-camp-grid"]')
+    out.states[`${label}_home`] = homeSnap
+    const homeCards = homeSnap.cards
+    const homeArm = {
+      grid: homeSnap.hooks.listGrid === true || !!homeCards.length,
+      cardCount: homeCards.length,
+      cardsWithSubtaskBlock: homeCards.filter((c) => c.subtaskBlock).length,
+      zeroSubtaskRows: homeCards.every((c) => c.subtaskCount === 0),
+      pageErrors,
+    }
+    out.assertions[`homeCardNoSubtaskBlock_${label}`] = {
+      ...homeArm,
+      // 卡数是读数不作判据（首页行集走可见性谓词）；判据 = 有卡时全部零子任务区
+      pass: homeCards.length > 0
+        && homeArm.cardsWithSubtaskBlock === 0
+        && homeArm.zeroSubtaskRows
+        && homeArm.pageErrors.length === 0,
+    }
     await page.context().close()
   }
 
@@ -366,6 +494,8 @@ const run = async () => {
     cardClickOpensTaskPage: passOf(a.cardClickOpensTaskPage_1536) && passOf(a.cardClickOpensTaskPage_390),
     legacyJobRoutesNotFound: passOf(a.legacyJobRoutesNotFound_1536) && passOf(a.legacyJobRoutesNotFound_390),
     noOverflowNoPageError: passOf(a.noOverflowNoPageError_1536) && passOf(a.noOverflowNoPageError_390),
+    taskCardSubtaskRows: passOf(a.taskCardSubtaskRows_1536) && passOf(a.taskCardSubtaskRows_390),
+    homeCardNoSubtaskBlock: passOf(a.homeCardNoSubtaskBlock_1536) && passOf(a.homeCardNoSubtaskBlock_390),
   }
   out.summaryAll = Object.values(out.summary).every(Boolean)
 

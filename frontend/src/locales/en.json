@@ -447,7 +447,8 @@
     "emptyCompleted": "No completed bounties",
     "emptyCompletedHint": "Join bounties to start earning points",
     "emptyVerification": "No bounties awaiting review",
-    "emptyVerificationHint": "Submitted bounties appear here while under review"
+    "emptyVerificationHint": "Submitted bounties appear here while under review",
+    "moreSubtasks": "+{{n}} more subtasks"
   },
   "header": {
     "orders": "Orders"

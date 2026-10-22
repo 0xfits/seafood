@@ -447,7 +447,8 @@
     "emptyCompleted": "暫無已完成懸賞",
     "emptyCompletedHint": "開始參與懸賞賺取積分啦",
     "emptyVerification": "暫無待驗證懸賞",
-    "emptyVerificationHint": "提交嘅懸賞喺審核過程中會顯示喺度"
+    "emptyVerificationHint": "提交嘅懸賞喺審核過程中會顯示喺度",
+    "moreSubtasks": "+{{n}} 項子任務"
   },
   "header": {
     "orders": "訂單"

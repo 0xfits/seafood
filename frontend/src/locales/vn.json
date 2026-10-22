@@ -447,7 +447,8 @@
     "emptyCompleted": "Chưa có treo thưởng đã xong",
     "emptyCompletedHint": "Tham gia treo thưởng để bắt đầu kiếm điểm",
     "emptyVerification": "Chưa có treo thưởng chờ duyệt",
-    "emptyVerificationHint": "Treo thưởng đã gửi sẽ hiển thị ở đây trong khi chờ duyệt"
+    "emptyVerificationHint": "Treo thưởng đã gửi sẽ hiển thị ở đây trong khi chờ duyệt",
+    "moreSubtasks": "+{{n}} nhiệm vụ con"
   },
   "header": {
     "orders": "Đơn hàng"

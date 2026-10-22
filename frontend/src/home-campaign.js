@@ -41,6 +41,33 @@ export const avatarToneOf = (projectTitle) => {
 }
 
 /**
+ * 读口行 `subtasks[]` ⇒ 卡片子任务模型（Kevin 2026-10-22：`/task` 卡列出 subtask 标题）。
+ *   · **缺键 / 非数组 / 畸形项 ⇒ `[]`**（渲染层据此整块不渲染，绝不占位）；
+ *   · 只留 `{subtask_id, type_code, title, required, sort}` 五面（后端加性字段白名单，其余丢弃）；
+ *   · `required` 吃三种真值形态（true / 1 / '1'），其余一律 false（真值判定不在渲染层做）；
+ *   · 按 `sort` 升序（缺 sort ⇒ 排末尾）；`Array#sort` 稳定 ⇒ 同 sort 保持读口序。
+ */
+export const normalizeSubtaskRows = (value) => {
+  const rows = Array.isArray(value) ? value : []
+  return rows
+    .filter((s) => s && typeof s === 'object')
+    .map((s) => {
+      // `Number(null) === 0` / `Number('') === 0` 是陷阱 ⇒ 先判「键是否真有值」再转数字
+      const hasSort = s.sort !== null && s.sort !== undefined && String(s.sort).trim() !== ''
+      const sortRaw = hasSort ? Number(s.sort) : Number.NaN
+      return {
+        subtaskId: s.subtask_id ?? null,
+        typeCode: textOf(s.type_code),
+        title: textOf(s.title),
+        required: s.required === true || s.required === 1 || s.required === '1',
+        sort: Number.isFinite(sortRaw) ? sortRaw : null,
+      }
+    })
+    .filter((s) => s.subtaskId !== null)
+    .sort((a, b) => (a.sort ?? Number.MAX_SAFE_INTEGER) - (b.sort ?? Number.MAX_SAFE_INTEGER))
+}
+
+/**
  * 读口行 ⇒ 卡片视图模型（缺字段给空值兜底；渲染层按空值**整行不渲染**，不渲染残行）。
  * 数字字段统一走 Number（坏值 ⇒ 0 / null），金额保持字符串原样（防大数精度丢失，同 balances-api）。
  */
@@ -58,6 +85,7 @@ export const normalizeHomeCampaignRow = (row) => ({
   projectTitle: textOf(row?.project_title),
   projectSlug: textOf(row?.project_slug),
   projectAvatarUrl: textOf(row?.project_avatar_url),
+  subtasks: normalizeSubtaskRows(row?.subtasks),
 })
 
 /**
