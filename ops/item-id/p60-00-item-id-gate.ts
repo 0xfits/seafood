@@ -129,8 +129,8 @@ const tx = async <T>(
 
   // ====================================================================== A · 静态面（零 DB）
   const regs = (INDEX_TS.match(/^app\.(get|post|put|delete|patch)\(/gm) ?? []).length;
-  ck.t('A1', '**零新路由**：注册点 = 128（118 + campaign-domain 九口 route §49.18 ＋ user-balances `GET /api/user/balances` +1 —— `:ref` 只扩既有 `GET /api/prize/:bID` 的参数取值域，不新增注册点）',
-    regs === 128, `registration_points=${regs}`);
+  ck.t('A1', '**零新路由**：注册点 = 109（job 域下线 −21 后现取 —— `:ref` 只扩既有 `GET /api/prize/:bID` 的参数取值域，不新增注册点）',
+    regs === 109, `registration_points=${regs}`);
 
   const detailBlock = sliceBetween(INDEX_TS, "app.get('/api/prize/:", "app.get('/api/user'");
   const dual = {
@@ -506,8 +506,8 @@ const tx = async <T>(
     && R.routeShapeKeys === 53,
     JSON.stringify({ same_row: R.sameRow, views_step: R.viewsStep, detail_keys: dKeys.length, route_shape: R.routeShapeKeys, detail_code: R.detailCode, code: R.codeA }));
 
-  ck.t('C4', '**feed 行键 50**（48 + item_code + snowflake_id）：全部行恰 50 键、两键恒在场、码全部合法且非纯数字（存量回填行同样成立）',
-    Number(R.feedRows) > 0 && Number(R.feedBad) === 0 && fKeys.length === 50,
+  ck.t('C4', '**feed 行键 51**（48 + item_code + snowflake_id + feed_score）：全部行恰 51 键、两键恒在场、码全部合法且非纯数字（存量回填行同样成立）',
+    Number(R.feedRows) > 0 && Number(R.feedBad) === 0 && fKeys.length === 51,
     JSON.stringify({ rows: R.feedRows, bad: R.feedBad, keys: fKeys.length }));
 
   ck.t('C5', '**mine 行键 14**（11 + item_code + snowflake_id + allow_multi_buy）：全部行恰 14 键且三键在场 · **edit 读口同族 14 键**（编辑页一套预填）',
