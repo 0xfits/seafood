@@ -1,6 +1,6 @@
 /**
  * FEED-PAGING-v1 单测（2026-10-19 · Kevin 指令）
- *   口径：首页商品 = `GET /api/prize/all?skip=<n>&limit=36`
+ *   口径：首页商品 = `GET /api/prize/all?skip=<n>&limit=36&sort=recommend|new`（本文件恒 `recommend` 档）
  *     ① 首屏 36 条，且**不再用 `/api/home` 的 `prizes`**（聚合口只供 tasks / points / claimed ids）；
  *     ② 滚到底（sentinel 进视口）⇒ skip 36 → 72 …，< 36 即终止；
  *     ③ 按 bID 去重；
@@ -114,7 +114,7 @@ const wireFetch = ({ pages, homePrizes = [{ bID: 9001, name: '聚合口商品', 
     }
     if (u.startsWith('/api/home/campaign-tasks')) return []
     if (u.startsWith('/api/currencies')) return []
-    const match = u.match(/^\/api\/prize\/all\?skip=(\d+)&limit=(\d+)$/)
+    const match = u.match(/^\/api\/prize\/all\?skip=(\d+)&limit=(\d+)&sort=([a-z]+)$/)
     if (match) {
       const skip = Number(match[1])
       if (pendingFailure === skip) {
@@ -146,13 +146,13 @@ describe('HomePage · 商品分页（FEED-PAGING-v1）', () => {
     vi.restoreAllMocks()
   })
 
-  it('首屏 36 条走 /api/prize/all?skip=0&limit=36，且不再使用 /api/home 的 prizes', async () => {
+  it('首屏 36 条走 /api/prize/all?skip=0&limit=36&sort=recommend，且不再使用 /api/home 的 prizes', async () => {
     wireFetch({ pages: { 0: page(1, PAGE_SIZE) } })
     renderHomePage()
 
     await waitFor(() => expect(cardCount()).toBe(PAGE_SIZE))
 
-    expect(feedCalls()).toEqual([`/api/prize/all?skip=0&limit=36`])
+    expect(feedCalls()).toEqual([`/api/prize/all?skip=0&limit=36&sort=recommend`])
     // 聚合口的 `prizes` 字段不再被消费
     expect(screen.queryByText('聚合口商品')).toBeNull()
     // ★ HOME-CAMP-v1：聚合口的 `tasks` 字段同样不再被消费（任务版块改走 campaign 读口）
@@ -183,17 +183,17 @@ describe('HomePage · 商品分页（FEED-PAGING-v1）', () => {
     await triggerNextPage()
     await waitFor(() => expect(cardCount()).toBe(PAGE_SIZE * 2))
     expect(feedCalls()).toEqual([
-      '/api/prize/all?skip=0&limit=36',
-      '/api/prize/all?skip=36&limit=36',
+      '/api/prize/all?skip=0&limit=36&sort=recommend',
+      '/api/prize/all?skip=36&limit=36&sort=recommend',
     ])
 
     // 第二次：跳 72
     await triggerNextPage()
     await waitFor(() => expect(cardCount()).toBe(PAGE_SIZE * 3))
     expect(feedCalls()).toEqual([
-      '/api/prize/all?skip=0&limit=36',
-      '/api/prize/all?skip=36&limit=36',
-      '/api/prize/all?skip=72&limit=36',
+      '/api/prize/all?skip=0&limit=36&sort=recommend',
+      '/api/prize/all?skip=36&limit=36&sort=recommend',
+      '/api/prize/all?skip=72&limit=36&sort=recommend',
     ])
     // 不重复 bID ⇒ 卡数 == 去重后行数
     expect(new Set(page(1, PAGE_SIZE * 3).map((r) => r.bID)).size).toBe(cardCount())

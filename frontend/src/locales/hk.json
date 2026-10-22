@@ -232,6 +232,8 @@
     "filterLimited": "限量版",
     "filterHighValue": "高價值",
     "filterClaimed": "已兌換",
+    "sortRecommend": "推薦",
+    "sortNew": "新發",
     "viewDetail": "查看詳情",
     "chat": "聊一聊",
     "imagesLabel": "商品圖片（可選，最多 4 張）",

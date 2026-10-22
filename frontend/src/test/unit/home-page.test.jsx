@@ -71,7 +71,7 @@ describe('HomePage · 热门任务（campaign 体系 · 真数据）', () => {
           user_points: 42,
         }
       }
-      if (u === '/api/prize/all?skip=0&limit=36') return prizeRows
+      if (u === '/api/prize/all?skip=0&limit=36&sort=recommend') return prizeRows
       if (u.startsWith('/api/prize-item')) return []
       if (u.startsWith('/api/user/asset/')) return { points: 520 }
       if (u.startsWith('/api/prize/all?')) return []
@@ -243,7 +243,7 @@ describe('HomePage · 热门任务（campaign 体系 · 真数据）', () => {
       if (u === '/api/home/campaign-tasks') throw new Error('campaign endpoint not deployed')
       if (u === '/api/currencies') return []
       if (u === '/api/home?prize_limit=8') return { tasks: [], prizes: [], claimed_prize_ids: [], user_points: 0 }
-      if (u === '/api/prize/all?skip=0&limit=36') return []
+      if (u === '/api/prize/all?skip=0&limit=36&sort=recommend') return []
       throw new Error(`Unexpected URL: ${u}`)
     })
 
@@ -273,7 +273,7 @@ describe('HomePage · 去 animate-fade-in 容器（无包裹层）', () => {
       if (u === '/api/home/campaign-tasks') return []
       if (u === '/api/currencies') return [{ cid: 1, symbol: '$' }]
       if (u === '/api/home?prize_limit=8') return { tasks: [], prizes: [], claimed_prize_ids: [], user_points: 42 }
-      if (u === '/api/prize/all?skip=0&limit=36') {
+      if (u === '/api/prize/all?skip=0&limit=36&sort=recommend') {
         return [{
           bID: 2, name: '奖励甲', points: 120, stores_count: 3, claims_count: 0,
           seller: { uid: 7, nickname: '0x12**12', avatar: null, credit: 'excellent' },

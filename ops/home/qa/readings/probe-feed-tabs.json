@@ -1,0 +1,157 @@
+{
+  "neg": false,
+  "arms": {
+    "vp1536_twoTabs": {
+      "pass": true,
+      "count": 2
+    },
+    "vp1536_recommendDefault": {
+      "pass": true,
+      "recommendActive": true
+    },
+    "vp1536_noCountChips": {
+      "pass": true,
+      "chips": 0
+    },
+    "vp1536_oldCopyGone": {
+      "pass": true,
+      "hits": []
+    },
+    "vp1536_newSendsSortNew": {
+      "pass": true,
+      "firstNewRequest": {
+        "sort": "new",
+        "skip": "0"
+      }
+    },
+    "vp1536_zeroOverflow": {
+      "pass": true,
+      "scrollWidth": 1536,
+      "innerWidth": 1536
+    },
+    "vp1536_noErrors": {
+      "pass": true,
+      "consoleErrors": 0
+    },
+    "vp390_twoTabs": {
+      "pass": true,
+      "count": 2
+    },
+    "vp390_recommendDefault": {
+      "pass": true,
+      "recommendActive": true
+    },
+    "vp390_noCountChips": {
+      "pass": true,
+      "chips": 0
+    },
+    "vp390_oldCopyGone": {
+      "pass": true,
+      "hits": []
+    },
+    "vp390_newSendsSortNew": {
+      "pass": true,
+      "firstNewRequest": {
+        "sort": "new",
+        "skip": "0"
+      }
+    },
+    "vp390_zeroOverflow": {
+      "pass": true,
+      "scrollWidth": 390,
+      "innerWidth": 390
+    },
+    "vp390_noErrors": {
+      "pass": true,
+      "consoleErrors": 0
+    }
+  },
+  "states": {
+    "vp1536": {
+      "before": {
+        "count": 2,
+        "hasRecommend": true,
+        "hasNew": true,
+        "recommendActive": true,
+        "chips": 0,
+        "oldCopy": []
+      },
+      "after": {
+        "count": 2,
+        "hasRecommend": true,
+        "hasNew": true,
+        "recommendActive": false,
+        "chips": 0,
+        "oldCopy": []
+      },
+      "allRequests": [
+        {
+          "sort": "recommend",
+          "skip": "0"
+        },
+        {
+          "sort": "new",
+          "skip": "0"
+        }
+      ],
+      "newTabRequests": [
+        {
+          "sort": "new",
+          "skip": "0"
+        }
+      ]
+    },
+    "vp390": {
+      "before": {
+        "count": 2,
+        "hasRecommend": true,
+        "hasNew": true,
+        "recommendActive": true,
+        "chips": 0,
+        "oldCopy": []
+      },
+      "after": {
+        "count": 2,
+        "hasRecommend": true,
+        "hasNew": true,
+        "recommendActive": false,
+        "chips": 0,
+        "oldCopy": []
+      },
+      "allRequests": [
+        {
+          "sort": "recommend",
+          "skip": "0"
+        },
+        {
+          "sort": "new",
+          "skip": "0"
+        }
+      ],
+      "newTabRequests": [
+        {
+          "sort": "new",
+          "skip": "0"
+        }
+      ]
+    }
+  },
+  "errors": {
+    "vp1536": {
+      "pageErrors": 0,
+      "consoleErrors": 0,
+      "sample": []
+    },
+    "vp390": {
+      "pageErrors": 0,
+      "consoleErrors": 0,
+      "sample": []
+    }
+  },
+  "summary": {
+    "checks": 14,
+    "failed": 0,
+    "failedNames": [],
+    "verdict": "PASS"
+  }
+}

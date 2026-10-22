@@ -232,6 +232,8 @@
     "filterLimited": "Limited edition",
     "filterHighValue": "High value",
     "filterClaimed": "Redeemed",
+    "sortRecommend": "Recommended",
+    "sortNew": "New",
     "viewDetail": "View details",
     "chat": "Chat",
     "imagesLabel": "Product images (optional, up to 4)",

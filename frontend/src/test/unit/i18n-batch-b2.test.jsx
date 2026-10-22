@@ -118,7 +118,7 @@ describe('P6-I18N-LIT-B2 · en 档渲染英文文案（Task / Home / Profile）'
     expect(document.querySelector('[data-sf-m="jobs-form-wrap"]')).toBeNull()
   })
 
-  it('HomePage（/en，= 唯一「闲置物品」列表）：发布入口 / 分类筛选 / 卡片走英文（「我的积分」已迁出 ⇒ 零命中）', async () => {
+  it('HomePage（/en，= 唯一「闲置物品」列表）：发布入口 / 排序标签 / 卡片走英文（「我的积分」已迁出 ⇒ 零命中）', async () => {
     render(<MemoryRouter initialEntries={['/en']}><HomePage /></MemoryRouter>)
 
     // 发布入口（原「查看奖励」→ `/item/new`；文案 = 闲置物品语义）
@@ -126,11 +126,15 @@ describe('P6-I18N-LIT-B2 · en 档渲染英文文案（Task / Home / Profile）'
     // ★ 2026-10-21 改锚（合法移除 ×1）：「我的积分」卡内容整体迁至 `/profile/assets`
     //   （钩子 `assets-my-points`，见 sf14-profile-views 的资产页断言）⇒ 首页必须**零命中**。
     expect(screen.queryByText('My points')).toBeNull()
-    // 分类筛选（并入自 RewardPage；计数随数据面派生）
-    expect(screen.getByText('All (1)')).toBeInTheDocument()
-    expect(screen.getByText('Limited edition (0)')).toBeInTheDocument()
-    expect(screen.getByText('High value (0)')).toBeInTheDocument()
-    expect(screen.getByText('Redeemed (0)')).toBeInTheDocument()
+    // ★ 2026-10-22 改锚（合法移除 ×2）：四标签筛选 + 计数芯片整块下架 ⇒ 两标签【推荐】/【新发】
+    //   （`item.sortRecommend` / `item.sortNew`，README 见 HomePage 的 FEED-SORT-v1）；
+    //   旧四档 `All (1)` / `Limited edition (0)` / `High value (0)` / `Redeemed (0)` **零命中**。
+    expect(screen.getByText('Recommended')).toBeInTheDocument()
+    expect(screen.getByText('New')).toBeInTheDocument()
+    expect(screen.queryByText(/^All \(/)).toBeNull()
+    expect(screen.queryByText('Limited edition')).toBeNull()
+    expect(screen.queryByText('High value')).toBeNull()
+    expect(screen.queryByText('Redeemed')).toBeNull()
     // ★ 2026-10-19 改锚（合法移除 ×2）：品牌行（上一版移除）与**描述行**（本版四行结构无槽位）都不再渲染，
     //   卡面英文文案只剩标题一处（卖家栏昵称 = 后端掩码派生，与本断言无关）。
     expect(screen.getAllByText('English reward').length).toBe(1)
