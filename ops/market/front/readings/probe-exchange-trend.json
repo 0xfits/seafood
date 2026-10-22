@@ -1,0 +1,61 @@
+{
+  "neg": false,
+  "arms": {
+    "vp1536_trendWithPoints": {
+      "pass": true,
+      "points": "3",
+      "expectPoints": "3",
+      "hasSvg": true,
+      "empty": false
+    },
+    "vp1536_rangeLabels": {
+      "pass": true,
+      "text": "价格走势最高 1020 · 最低 1000 · 最新 1020"
+    },
+    "vp1536_zeroOverflow": {
+      "pass": true,
+      "overflowPx": 0
+    },
+    "vp1536_noErrors": {
+      "pass": true,
+      "pageErrors": 0,
+      "consoleErrors": 0
+    },
+    "vp390_trendWithPoints": {
+      "pass": true,
+      "points": "3",
+      "expectPoints": "3",
+      "hasSvg": true,
+      "empty": false
+    },
+    "vp390_rangeLabels": {
+      "pass": true,
+      "text": "价格走势最高 1020 · 最低 1000 · 最新 1020"
+    },
+    "vp390_zeroOverflow": {
+      "pass": true,
+      "overflowPx": 0
+    },
+    "vp390_noErrors": {
+      "pass": true,
+      "pageErrors": 0,
+      "consoleErrors": 0
+    }
+  },
+  "errors": {
+    "vp1536": {
+      "pageErrors": [],
+      "consoleErrors": []
+    },
+    "vp390": {
+      "pageErrors": [],
+      "consoleErrors": []
+    }
+  },
+  "summary": {
+    "checks": 8,
+    "failed": 0,
+    "failedNames": [],
+    "verdict": "PASS"
+  }
+}
