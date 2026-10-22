@@ -15,29 +15,22 @@
 //     日/夜两档各自成立）。
 // ============================================================================
 import { isCampaignListedTask } from './pages/campaign/campaign-util'
+import { AVATAR_TONE_COUNT } from './avatar-tone'
 
 /** 版块卡位上限（一行最多 5 张；**不是**补位目标 —— 数据不足不补）。 */
 export const HOME_CAMPAIGN_CARD_SLOTS = 5
 /** 主卡标题（逐字匹配，trim 后比较）。 */
 export const MAIN_TASK_TITLE = '第一轮'
 /** 头像兜底渐变档数 = `--sf-thumb-1 … --sf-thumb-10`（theme/tokens.js 既有键）。 */
-export const HOME_AVATAR_TONE_COUNT = 10
+export const HOME_AVATAR_TONE_COUNT = AVATAR_TONE_COUNT
+
+// ★ 头像档位 / 首字已抽到 `src/avatar-tone.js`（与项目页、/wage 卡头共用唯一实现）；
+//   此处 re-export 保持本模块既有 import 面（`from './home-campaign'` 取 `avatarToneOf`）不变。
+export { avatarToneOf, avatarInitialOf, AVATAR_TONE_COUNT } from './avatar-tone'
 
 const textOf = (value) => {
   const raw = String(value ?? '').trim()
   return raw
-}
-
-/**
- * 项目名 ⇒ 头像兜底档位（1..10）。逐字符码点和：稳定、跨端一致、对任意语言字符都分布均匀。
- * 空名 ⇒ 恒 1（渲染层对空项目名本就回落占位符）。
- */
-export const avatarToneOf = (projectTitle) => {
-  const raw = textOf(projectTitle)
-  if (!raw) return 1
-  let sum = 0
-  for (let i = 0; i < raw.length; i += 1) sum += raw.charCodeAt(i)
-  return (sum % HOME_AVATAR_TONE_COUNT) + 1
 }
 
 /**

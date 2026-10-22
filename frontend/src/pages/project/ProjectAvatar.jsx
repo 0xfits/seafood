@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react'
 import { Camera, Check, RotateCcw, X } from 'lucide-react'
 import { compressImage } from '../../image-compress'
+import { avatarInitialOf } from '../../avatar-tone'
 import { errPartsOf, writeFailNotice } from './project-error'
 import { patchProject, uploadProjectAvatar } from './project-api'
 
@@ -43,7 +44,7 @@ const ProjectAvatar = ({ view, canEdit, user, t, onChanged }) => {
 
   const raw = typeof view?.avatar_url === 'string' ? view.avatar_url.trim() : ''
   const title = String(view?.title || '')
-  const initial = Array.from(title.trim())[0] || '?'
+  const initial = avatarInitialOf(title)
   // PATCH 目标：项目主键优先（读口三形态都收，主键最不含糊）
   const projectRef = view?.project_id ?? view?.snowflake_id ?? view?.slug ?? ''
 

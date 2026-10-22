@@ -46,13 +46,56 @@
   justify-content: space-between;
 }
 
-/* 标题行左组：标题 + 【已加入】徽标（徽标与详情页标签同族：12px/700/圆角 2px/黄底黑字） */
+/* 标题行左组：头像 + 标题 + 【已加入】徽标（徽标与详情页标签同族：12px/700/圆角 2px/黄底黑字）。
+ * ★ 2026-10-22 加 40px 圆形头像：`flex-wrap: nowrap` + 标题 `min-width:0` + ellipsis ⇒
+ *   头像**不把卡头挤折行**（390 / 1536 两档同构）；徽标 `flex:none` 始终跟在标题同行右侧。 */
 .sf-wage-card-head-main {
   display: flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   min-width: 0;
+}
+
+/* 卡头头像：40px 圆形（两档同值，几何常量、零主题分支）。
+ * 有 `avatar_url` ⇒ 内嵌 `<img>`（object-fit:cover 铺满圆形）；无 ⇒ 首字 + 十档既有渐变 token。 */
+.sf-wage-card-avatar {
+  box-sizing: border-box;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sf-thumb-1);
+}
+
+/* 兜底十档渐变 = 既有主题 token（`src/avatar-tone.js` 的 hash 选档，data-sf-tone 1..10）*/
+.sf-wage-card-avatar[data-sf-tone="1"] { background: var(--sf-thumb-1); }
+.sf-wage-card-avatar[data-sf-tone="2"] { background: var(--sf-thumb-2); }
+.sf-wage-card-avatar[data-sf-tone="3"] { background: var(--sf-thumb-3); }
+.sf-wage-card-avatar[data-sf-tone="4"] { background: var(--sf-thumb-4); }
+.sf-wage-card-avatar[data-sf-tone="5"] { background: var(--sf-thumb-5); }
+.sf-wage-card-avatar[data-sf-tone="6"] { background: var(--sf-thumb-6); }
+.sf-wage-card-avatar[data-sf-tone="7"] { background: var(--sf-thumb-7); }
+.sf-wage-card-avatar[data-sf-tone="8"] { background: var(--sf-thumb-8); }
+.sf-wage-card-avatar[data-sf-tone="9"] { background: var(--sf-thumb-9); }
+.sf-wage-card-avatar[data-sf-tone="10"] { background: var(--sf-thumb-10); }
+
+.sf-wage-card-avatar-initial {
+  color: var(--sf-tag-fg);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.sf-wage-card-avatar-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .sf-wage-joined-badge {
@@ -90,13 +133,19 @@
   z-index: 1;
 }
 
+/* 标题可收缩：`min-width:0` + 单行 ellipsis ⇒ 长项目名 / 390 档都不把卡头挤折行
+ * （头像 40px 固定 ⇒ 标题吃掉剩余宽度；DOM 文本仍是全名，探针/测试读 textContent 不受影响）。*/
 .sf-wage-card-title {
   color: var(--sf-title-fg);
   font-size: 16px;
   font-weight: 700;
   line-height: 1.3;
   margin: 0;
-  overflow-wrap: anywhere;
+  min-width: 0;
+  flex: 1 1 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sf-wage-status {

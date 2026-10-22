@@ -1,0 +1,3486 @@
+{
+  "probe": "ops/wage/front/probe-wage.mjs",
+  "startedAt": "2026-10-22T12:26:56.254Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "fixtures": {
+    "rows": 10,
+    "recruiting": 8,
+    "closed": 2,
+    "hired": 1,
+    "auth": "localStorage seed only（零真登录）",
+    "api": "context.route in-probe JSON（零后端 / 零库写）"
+  },
+  "states": {
+    "1536_menu": {
+      "present": true,
+      "count": 5,
+      "keys": [
+        "wage",
+        "sell",
+        "messages",
+        "app",
+        "support"
+      ],
+      "labels": [
+        "领工资",
+        "卖闲置",
+        "消息",
+        "APP",
+        "客服"
+      ],
+      "hrefs": [
+        "/wage",
+        "/item/new",
+        "/messages",
+        null,
+        null
+      ],
+      "dividers": 4,
+      "feedbackHooks": 0,
+      "feedbackFormHooks": 0,
+      "menuText": "领工资卖闲置消息APP客服"
+    },
+    "1536_checkin": {
+      "checkin": {
+        "wrapperPresent": true,
+        "hasCard": true,
+        "cardId": "batt-checkin",
+        "hasMeter": true,
+        "meterText": "70%电量",
+        "buttonTexts": [],
+        "cardTop": 136,
+        "cardBottom": 276,
+        "listTop": 285,
+        "listPresent": true,
+        "cardRight": 1516,
+        "cardInViewport": true,
+        "scrollY": 0,
+        "activitiesPageHooks": 0,
+        "notFoundHooks": 0,
+        "pathname": "/wage"
+      },
+      "page": {
+        "hasPage": true,
+        "hasList": true,
+        "hasLogin": false,
+        "hasEmpty": false,
+        "hasError": false
+      },
+      "cards": 10,
+      "overflowPx": 0,
+      "apiCalls": [
+        "/api/batt",
+        "/api/project/all"
+      ]
+    },
+    "1536_hash_deeplink": {
+      "wrapperPresent": true,
+      "hasCard": true,
+      "cardId": "batt-checkin",
+      "hasMeter": true,
+      "meterText": "70%电量",
+      "buttonTexts": [],
+      "cardTop": 34,
+      "cardBottom": 174,
+      "listTop": 183,
+      "listPresent": true,
+      "cardRight": 1516,
+      "cardInViewport": true,
+      "scrollY": 102,
+      "activitiesPageHooks": 0,
+      "notFoundHooks": 0,
+      "pathname": "/wage"
+    },
+    "1536_activities_gone": {
+      "wrapperPresent": false,
+      "hasCard": false,
+      "cardId": null,
+      "hasMeter": false,
+      "meterText": null,
+      "buttonTexts": [],
+      "cardTop": null,
+      "cardBottom": null,
+      "listTop": null,
+      "listPresent": false,
+      "cardRight": null,
+      "cardInViewport": null,
+      "scrollY": 0,
+      "activitiesPageHooks": 0,
+      "notFoundHooks": 1,
+      "pathname": "/activities"
+    },
+    "1536_list": {
+      "page": {
+        "hasPage": true,
+        "hasList": true,
+        "hasLogin": false,
+        "hasEmpty": false,
+        "hasError": false
+      },
+      "cards": [
+        {
+          "left": 20,
+          "avatar": {
+            "present": true,
+            "mode": "initial",
+            "tone": "10",
+            "w": 40,
+            "h": 40,
+            "radiusPx": 20,
+            "radiusRaw": "50%",
+            "overflow": "hidden",
+            "imgSrc": null,
+            "imgAlt": null,
+            "imgFit": null,
+            "initial": "海",
+            "bgImage": "linear-gradient(140deg, rgb(240, 227, 200), rgb(217, 188, 134))",
+            "left": 38,
+            "right": 78,
+            "top": 299,
+            "bottom": 339,
+            "centerY": 319
+          },
+          "head": {
+            "titleCenterY": 319,
+            "titleTop": 308.6,
+            "titleLeft": 84,
+            "titleH": 20.8,
+            "titleTextOverflow": "ellipsis",
+            "titleWhiteSpace": "nowrap",
+            "titleEllipsis": true
+          },
+          "project": "101",
+          "title": "海鲜打包",
+          "statusText": "招募中",
+          "statusState": "recruiting",
+          "headcount": "已招 2/3",
+          "wage": "工资：batt 30/次（间隔 4 小时）＋20 BTTC/次",
+          "wageExtra": "＋20 BTTC/次",
+          "action": "claim",
+          "actionText": "领工资",
+          "actionDisabled": false,
+          "needLogin": "0",
+          "loginLink": false,
+          "claimable": "1",
+          "remaining": "0",
+          "actionH": 39,
+          "hint": null,
+          "noticeKind": null,
+          "noticeText": null,
+          "right": 312,
+          "joined": "1",
+          "role": "hired",
+          "joinedBadge": "已加入",
+          "joinCount": 0,
+          "claimCount": 1,
+          "editBtn": false,
+          "editBtnText": null,
+          "cardTag": "ARTICLE",
+          "cardHref": null,
+          "bgColor": "rgb(255, 255, 255)",
+          "borderLeftWidth": "4px",
+          "borderLeftColor": "rgb(255, 230, 15)",
+          "tintBg": "rgb(255, 230, 15)",
+          "tintOpacity": "0.12"
+        },
+        {
+          "left": 321,
+          "avatar": {
+            "present": true,
+            "mode": "initial",
+            "tone": "4",
+            "w": 40,
+            "h": 40,
+            "radiusPx": 20,
+            "radiusRaw": "50%",
+            "overflow": "hidden",
+            "imgSrc": null,
+            "imgAlt": null,
+            "imgFit": null,
+            "initial": "冷",
+            "bgImage": "linear-gradient(140deg, rgb(201, 244, 228), rgb(91, 215, 180))",
+            "left": 336,
+            "right": 376,
+            "top": 299,
+            "bottom": 339,
+            "centerY": 319
+          },
+          "head": {
+            "titleCenterY": 319,
+            "titleTop": 308.6,
+            "titleLeft": 382,
+            "titleH": 20.8,
+            "titleTextOverflow": "ellipsis",
+            "titleWhiteSpace": "nowrap",
+            "titleEllipsis": true
+          },
+          "project": "102",
+          "title": "冷库分拣",
+          "statusText": "招募中",
+          "statusState": "recruiting",
+          "headcount": "已招 1/4",
+          "wage": "工资：batt 25/次（间隔 6 小时）",
+          "wageExtra": null,
+          "action": "join",
+          "actionText": "加入",
+          "actionDisabled": true,
+          "needLogin": "0",
+          "loginLink": false,
+          "claimable": null,
+          "remaining": null,
+          "actionH": 39,
+          "hint": "同时只能在一个项目打工",
+          "noticeKind": null,
+          "noticeText": null,
+          "right": 613,
+          "joined": "0",
+          "role": "none",
+          "joinedBadge": null,
+          "joinCount": 1,
+          "claimCount": 0,
+          "editBtn": false,
+          "editBtnText": null,
+          "cardTag": "ARTICLE",
+          "cardHref": null,
+          "bgColor": "rgb(255, 255, 255)",
+          "borderLeftWidth": "1px",
+          "borderLeftColor": "rgb(3, 4, 2)",
+          "tintBg": "rgba(0, 0, 0, 0)",
+          "tintOpacity": "1"
+        },
+        {
+          "left": 622,
+          "avatar": {
+            "present": true,
+            "mode": "img",
+            "tone": null,
+            "w": 40,
+            "h": 40,
+            "radiusPx": 20,
+            "radiusRaw": "50%",
+            "overflow": "hidden",
+            "imgSrc": "/api/media/9001",
+            "imgAlt": "",
+            "imgFit": "cover",
+            "initial": null,
+            "bgImage": "linear-gradient(140deg, rgb(255, 232, 163), rgb(255, 196, 77))",
+            "left": 637,
+            "right": 677,
+            "top": 299,
+            "bottom": 339,
+            "centerY": 319
+          },
+          "head": {
+            "titleCenterY": 319,
+            "titleTop": 308.6,
+            "titleLeft": 683,
+            "titleH": 20.8,
+            "titleTextOverflow": "ellipsis",
+            "titleWhiteSpace": "nowrap",
+            "titleEllipsis": true
+          },
+          "project": "103",
+          "title": "文案校对",
+          "statusText": "招募中",
+          "statusState": "recruiting",
+          "headcount": "已招 2/5",
+          "wage": "工资：batt 20/次（间隔 8 小时）＋50 BTTC/次",
+          "wageExtra": "＋50 BTTC/次",
+          "action": "join",
+          "actionText": "加入",
+          "actionDisabled": true,
+          "needLogin": "0",
+          "loginLink": false,
+          "claimable": null,
+          "remaining": null,
+          "actionH": 39,
+          "hint": "同时只能在一个项目打工",
+          "noticeKind": null,
+          "noticeText": null,
+          "right": 914,
+          "joined": "0",
+          "role": "none",
+          "joinedBadge": null,
+          "joinCount": 1,
+          "claimCount": 0,
+          "editBtn": false,
+          "editBtnText": null,
+          "cardTag": "A",
+          "cardHref": "/wend-an",
+          "bgColor": "rgb(255, 255, 255)",
+          "borderLeftWidth": "1px",
+          "borderLeftColor": "rgb(3, 4, 2)",
+          "tintBg": "rgba(0, 0, 0, 0)",
+          "tintOpacity": "1"
+        },
+        {
+          "left": 923,
+          "avatar": {
+            "present": true,
+            "mode": "initial",
+            "tone": "2",
+            "w": 40,
+            "h": 40,
+            "radiusPx": 20,
+            "radiusRaw": "50%",
+            "overflow": "hidden",
+            "imgSrc": null,
+            "imgAlt": null,
+            "imgFit": null,
+            "initial": "客",
+            "bgImage": "linear-gradient(140deg, rgb(255, 211, 165), rgb(253, 158, 91))",
+            "left": 938,
+            "right": 978,
+            "top": 299,
+            "bottom": 339,
+            "centerY": 319
+          },
+          "head": {
+            "titleCenterY": 319,
+            "titleTop": 308.6,
+            "titleLeft": 984,
+            "titleH": 20.8,
+            "titleTextOverflow": "ellipsis",
+            "titleWhiteSpace": "nowrap",
+            "titleEllipsis": true
+          },
+          "project": "104",
+          "title": "客服值守",
+          "statusText": "招募中",
+          "statusState": "recruiting",
+          "headcount": "已招 0/2",
+          "wage": "工资：batt 18/次（间隔 12 小时）",
+          "wageExtra": null,
+          "action": "join",
+          "actionText": "加入",
+          "actionDisabled": true,
+          "needLogin": "0",
+          "loginLink": false,
+          "claimable": null,
+          "remaining": null,
+          "actionH": 39,
+          "hint": "同时只能在一个项目打工",
+          "noticeKind": null,
+          "noticeText": null,
+          "right": 1215,
+          "joined": "0",
+          "role": "none",
+          "joinedBadge": null,
+          "joinCount": 1,
+          "claimCount": 0,
+          "editBtn": false,
+          "editBtnText": null,
+          "cardTag": "ARTICLE",
+          "cardHref": null,
+          "bgColor": "rgb(255, 255, 255)",
+          "borderLeftWidth": "1px",
+          "borderLeftColor": "rgb(3, 4, 2)",
+          "tintBg": "rgba(0, 0, 0, 0)",
+          "tintOpacity": "1"
+        },
+        {
+          "left": 1224,
+          "avatar": {
+            "present": true,
+            "mode": "img",
+            "tone": null,
+            "w": 40,
+            "h": 40,
+            "radiusPx": 20,
+            "radiusRaw": "50%",
+            "overflow": "hidden",
+            "imgSrc": "/api/media/9002",
+            "imgAlt": "",
+            "imgFit": "cover",
+            "initial": null,
+            "bgImage": "linear-gradient(140deg, rgb(255, 232, 163), rgb(255, 196, 77))",
+            "left": 1239,
+            "right": 1279,
+            "top": 299,
+            "bottom": 339,
+            "centerY": 319
+          },
+          "head": {
+            "titleCenterY": 319,
+            "titleTop": 308.6,
+            "titleLeft": 1285,
+            "titleH": 20.8,
+            "titleTextOverflow": "ellipsis",
+            "titleWhiteSpace": "nowrap",
+            "titleEllipsis": true
+          },
+          "project": "105",
+          "title": "图片精修",
+          "statusText": "招募中",
+          "statusState": "recruiting",
+          "headcount": "已招 3/6",
+          "wage": "工资：batt 22/次（间隔 6 小时）",
+          "wageExtra": null,
+          "action": "join",
+          "actionText": "加入",
+          "actionDisabled": true,
+          "needLogin": "0",
+          "loginLink": false,
+          "claimable": null,
+          "remaining": null,
+          "actionH": 39,
+          "hint": "同时只能在一个项目打工",
+          "noticeKind": null,
+          "noticeText": null,
+          "right": 1516,
+          "joined": "0",
+          "role": "none",
+          "joinedBadge": null,
+          "joinCount": 1,
+          "claimCount": 0,
+          "editBtn": false,
+          "editBtnText": null,
+          "cardTag": "ARTICLE",
+          "cardHref": null,
+          "bgColor": "rgb(255, 255, 255)",
+          "borderLeftWidth": "1px",
+          "borderLeftColor": "rgb(3, 4, 2)",
+          "tintBg": "rgba(0, 0, 0, 0)",
+          "tintOpacity": "1"
+        },
+        {
+          "left": 20,
+          "avatar": {
+            "present": true,
+            "mode": "initial",
+            "tone": "1",
+            "w": 40,
+            "h": 40,
+            "radiusPx": 20,
+            "radiusRaw": "50%",
+            "overflow": "hidden",
+            "imgSrc": null,
+            "imgAlt": null,
+            "imgFit": null,
+            "initial": "同",
+            "bgImage": "linear-gradient(140deg, rgb(255, 232, 163), rgb(255, 196, 77))",
+            "left": 35,
+            "right": 75,
+            "top": 526.3,
+            "bottom": 566.3,
+            "centerY": 546.3
+          },
+          "head": {
+            "titleCenterY": 546.3,
+            "titleTop": 535.9,
+            "titleLeft": 81,
+            "titleH": 20.8,
+            "titleTextOverflow": "ellipsis",
+            "titleWhiteSpace": "nowrap",
+            "titleEllipsis": true
+          },
+          "project": "106",
+          "title": "同城跑腿",
+          "statusText": "招募中",
+          "statusState": "recruiting",
+          "headcount": "已招 4/8",
+          "wage": "工资：batt 15/次（间隔 10 小时）",
+          "wageExtra": null,
+          "action": "join",
+          "actionText": "加入",
+          "actionDisabled": true,
+          "needLogin": "0",
+          "loginLink": false,
+          "claimable": null,
+          "remaining": null,
+          "actionH": 39,
+          "hint": "同时只能在一个项目打工",
+          "noticeKind": null,
+          "noticeText": null,
+          "right": 312,
+          "joined": "0",
+          "role": "none",
+          "joinedBadge": null,
+          "joinCount": 1,
+          "claimCount": 0,
+          "editBtn": false,
+          "editBtnText": null,
+          "cardTag": "ARTICLE",
+          "cardHref": null,
+          "bgColor": "rgb(255, 255, 255)",
+          "borderLeftWidth": "1px",
+          "borderLeftColor": "rgb(3, 4, 2)",
+          "tintBg": "rgba(0, 0, 0, 0)",
+          "tintOpacity": "1"
+        },
+        {
+          "left": 321,
+          "avatar": {
+            "present": true,
+            "mode": "initial",
+            "tone": "3",
+            "w": 40,
+            "h": 40,
+            "radiusPx": 20,
+            "radiusRaw": "50%",
+            "overflow": "hidden",
+            "imgSrc": null,
+            "imgAlt": null,
+            "imgFit": null,
+            "initial": "夜",
+            "bgImage": "linear-gradient(140deg, rgb(191, 233, 255), rgb(111, 195, 247))",
+            "left": 336,
+            "right": 376,
+            "top": 526.3,
+            "bottom": 566.3,
+            "centerY": 546.3
+          },
+          "head": {
+            "titleCenterY": 546.3,
+            "titleTop": 535.9,
+            "titleLeft": 382,
+            "titleH": 20.8,
+            "titleTextOverflow": "ellipsis",
+            "titleWhiteSpace": "nowrap",
+            "titleEllipsis": true
+          },
+          "project": "107",
+          "title": "夜间补货",
+          "statusText": "招募中",
+          "statusState": "recruiting",
+          "headcount": "已招 2/2",
+          "wage": "工资：batt 28/次（间隔 12 小时）",
+          "wageExtra": null,
+          "action": "join",
+          "actionText": "加入",
+          "actionDisabled": true,
+          "needLogin": "0",
+          "loginLink": false,
+          "claimable": null,
+          "remaining": null,
+          "actionH": 39,
+          "hint": "同时只能在一个项目打工",
+          "noticeKind": null,
+          "noticeText": null,
+          "right": 613,
+          "joined": "0",
+          "role": "none",
+          "joinedBadge": null,
+          "joinCount": 1,
+          "claimCount": 0,
+          "editBtn": false,
+          "editBtnText": null,
+          "cardTag": "ARTICLE",
+          "cardHref": null,
+          "bgColor": "rgb(255, 255, 255)",
+          "borderLeftWidth": "1px",
+          "borderLeftColor": "rgb(3, 4, 2)",
+          "tintBg": "rgba(0, 0, 0, 0)",
+          "tintOpacity": "1"
+        },
+        {
+          "left": 622,
+          "avatar": {
+            "present": true,
+            "mode": "initial",
+            "tone": "2",
+            "w": 40,
+            "h": 40,
+            "radiusPx": 20,
+            "radiusRaw": "50%",
+            "overflow": "hidden",
+            "imgSrc": null,
+            "imgAlt": null,
+            "imgFit": null,
+            "initial": "冷",
+            "bgImage": "linear-gradient(140deg, rgb(255, 211, 165), rgb(253, 158, 91))",
+            "left": 637,
+            "right": 677,
+            "top": 526.3,
+            "bottom": 566.3,
+            "centerY": 546.3
+          },
+          "head": {
+            "titleCenterY": 546.3,
+            "titleTop": 535.9,
+            "titleLeft": 683,
+            "titleH": 20.8,
+            "titleTextOverflow": "ellipsis",
+            "titleWhiteSpace": "nowrap",
+            "titleEllipsis": true
+          },
+          "project": "108",
+          "title": "冷库盘点",
+          "statusText": "已截止",
+          "statusState": "closed",
+          "headcount": "已招 3/3",
+          "wage": "工资：batt 12/次（间隔 24 小时）",
+          "wageExtra": null,
+          "action": null,
+          "actionText": null,
+          "actionDisabled": null,
+          "needLogin": null,
+          "loginLink": false,
+          "claimable": null,
+          "remaining": null,
+          "actionH": null,
+          "hint": null,
+          "noticeKind": null,
+          "noticeText": null,
+          "right": 914,
+          "joined": "0",
+          "role": "none",
+          "joinedBadge": null,
+          "joinCount": 0,
+          "claimCount": 0,
+          "editBtn": false,
+          "editBtnText": null,
+          "cardTag": "ARTICLE",
+          "cardHref": null,
+          "bgColor": "rgb(255, 255, 255)",
+          "borderLeftWidth": "1px",
+          "borderLeftColor": "rgb(3, 4, 2)",
+          "tintBg": "rgba(0, 0, 0, 0)",
+          "tintOpacity": "1"
+        },
+        {
+          "left": 923,
+          "avatar": {
+            "present": true,
+            "mode": "initial",
+            "tone": "2",
+            "w": 40,
+            "h": 40,
+            "radiusPx": 20,
+            "radiusRaw": "50%",
+            "overflow": "hidden",
+            "imgSrc": null,
+            "imgAlt": null,
+            "imgFit": null,
+            "initial": "旧",
+            "bgImage": "linear-gradient(140deg, rgb(255, 211, 165), rgb(253, 158, 91))",
+            "left": 938,
+            "right": 978,
+            "top": 526.3,
+            "bottom": 566.3,
+            "centerY": 546.3
+          },
+          "head": {
+            "titleCenterY": 546.3,
+            "titleTop": 535.9,
+            "titleLeft": 984,
+            "titleH": 20.8,
+            "titleTextOverflow": "ellipsis",
+            "titleWhiteSpace": "nowrap",
+            "titleEllipsis": true
+          },
+          "project": "109",
+          "title": "旧仓搬迁",
+          "statusText": "已截止",
+          "statusState": "closed",
+          "headcount": "已招 4/4",
+          "wage": "工资：batt 10/次（间隔 24 小时）",
+          "wageExtra": null,
+          "action": null,
+          "actionText": null,
+          "actionDisabled": null,
+          "needLogin": null,
+          "loginLink": false,
+          "claimable": null,
+          "remaining": null,
+          "actionH": null,
+          "hint": null,
+          "noticeKind": null,
+          "noticeText": null,
+          "right": 1215,
+          "joined": "0",
+          "role": "none",
+          "joinedBadge": null,
+          "joinCount": 0,
+          "claimCount": 0,
+          "editBtn": false,
+          "editBtnText": null,
+          "cardTag": "ARTICLE",
+          "cardHref": null,
+          "bgColor": "rgb(255, 255, 255)",
+          "borderLeftWidth": "1px",
+          "borderLeftColor": "rgb(3, 4, 2)",
+          "tintBg": "rgba(0, 0, 0, 0)",
+          "tintOpacity": "1"
+        },
+        {
+          "left": 1224,
+          "avatar": {
+            "present": true,
+            "mode": "initial",
+            "tone": "8",
+            "w": 40,
+            "h": 40,
+            "radiusPx": 20,
+            "radiusRaw": "50%",
+            "overflow": "hidden",
+            "imgSrc": null,
+            "imgAlt": null,
+            "imgFit": null,
+            "initial": "跨",
+            "bgImage": "linear-gradient(140deg, rgb(255, 233, 196), rgb(255, 184, 92))",
+            "left": 1239,
+            "right": 1279,
+            "top": 526.3,
+            "bottom": 566.3,
+            "centerY": 546.3
+          },
+          "head": {
+            "titleCenterY": 546.3,
+            "titleTop": 535.9,
+            "titleLeft": 1285,
+            "titleH": 20.8,
+            "titleTextOverflow": "ellipsis",
+            "titleWhiteSpace": "nowrap",
+            "titleEllipsis": true
+          },
+          "project": "110",
+          "title": "跨境选品",
+          "statusText": "招募中",
+          "statusState": "recruiting",
+          "headcount": "已招 1/5",
+          "wage": "工资：batt 35/次（间隔 8 小时）＋80 BTTC/次",
+          "wageExtra": "＋80 BTTC/次",
+          "action": "join",
+          "actionText": "加入",
+          "actionDisabled": true,
+          "needLogin": "0",
+          "loginLink": false,
+          "claimable": null,
+          "remaining": null,
+          "actionH": 39,
+          "hint": "同时只能在一个项目打工",
+          "noticeKind": null,
+          "noticeText": null,
+          "right": 1516,
+          "joined": "0",
+          "role": "none",
+          "joinedBadge": null,
+          "joinCount": 1,
+          "claimCount": 0,
+          "editBtn": false,
+          "editBtnText": null,
+          "cardTag": "ARTICLE",
+          "cardHref": null,
+          "bgColor": "rgb(255, 255, 255)",
+          "borderLeftWidth": "1px",
+          "borderLeftColor": "rgb(3, 4, 2)",
+          "tintBg": "rgba(0, 0, 0, 0)",
+          "tintOpacity": "1"
+        }
+      ],
+      "overflowPx": 0
+    },
+    "1536_joined_card": {
+      "joined": {
+        "left": 20,
+        "avatar": {
+          "present": true,
+          "mode": "initial",
+          "tone": "10",
+          "w": 40,
+          "h": 40,
+          "radiusPx": 20,
+          "radiusRaw": "50%",
+          "overflow": "hidden",
+          "imgSrc": null,
+          "imgAlt": null,
+          "imgFit": null,
+          "initial": "海",
+          "bgImage": "linear-gradient(140deg, rgb(240, 227, 200), rgb(217, 188, 134))",
+          "left": 38,
+          "right": 78,
+          "top": 299,
+          "bottom": 339,
+          "centerY": 319
+        },
+        "head": {
+          "titleCenterY": 319,
+          "titleTop": 308.6,
+          "titleLeft": 84,
+          "titleH": 20.8,
+          "titleTextOverflow": "ellipsis",
+          "titleWhiteSpace": "nowrap",
+          "titleEllipsis": true
+        },
+        "project": "101",
+        "title": "海鲜打包",
+        "statusText": "招募中",
+        "statusState": "recruiting",
+        "headcount": "已招 2/3",
+        "wage": "工资：batt 30/次（间隔 4 小时）＋20 BTTC/次",
+        "wageExtra": "＋20 BTTC/次",
+        "action": "claim",
+        "actionText": "领工资",
+        "actionDisabled": false,
+        "needLogin": "0",
+        "loginLink": false,
+        "claimable": "1",
+        "remaining": "0",
+        "actionH": 39,
+        "hint": null,
+        "noticeKind": null,
+        "noticeText": null,
+        "right": 312,
+        "joined": "1",
+        "role": "hired",
+        "joinedBadge": "已加入",
+        "joinCount": 0,
+        "claimCount": 1,
+        "editBtn": false,
+        "editBtnText": null,
+        "cardTag": "ARTICLE",
+        "cardHref": null,
+        "bgColor": "rgb(255, 255, 255)",
+        "borderLeftWidth": "4px",
+        "borderLeftColor": "rgb(255, 230, 15)",
+        "tintBg": "rgb(255, 230, 15)",
+        "tintOpacity": "0.12"
+      },
+      "plain": {
+        "left": 321,
+        "avatar": {
+          "present": true,
+          "mode": "initial",
+          "tone": "4",
+          "w": 40,
+          "h": 40,
+          "radiusPx": 20,
+          "radiusRaw": "50%",
+          "overflow": "hidden",
+          "imgSrc": null,
+          "imgAlt": null,
+          "imgFit": null,
+          "initial": "冷",
+          "bgImage": "linear-gradient(140deg, rgb(201, 244, 228), rgb(91, 215, 180))",
+          "left": 336,
+          "right": 376,
+          "top": 299,
+          "bottom": 339,
+          "centerY": 319
+        },
+        "head": {
+          "titleCenterY": 319,
+          "titleTop": 308.6,
+          "titleLeft": 382,
+          "titleH": 20.8,
+          "titleTextOverflow": "ellipsis",
+          "titleWhiteSpace": "nowrap",
+          "titleEllipsis": true
+        },
+        "project": "102",
+        "title": "冷库分拣",
+        "statusText": "招募中",
+        "statusState": "recruiting",
+        "headcount": "已招 1/4",
+        "wage": "工资：batt 25/次（间隔 6 小时）",
+        "wageExtra": null,
+        "action": "join",
+        "actionText": "加入",
+        "actionDisabled": true,
+        "needLogin": "0",
+        "loginLink": false,
+        "claimable": null,
+        "remaining": null,
+        "actionH": 39,
+        "hint": "同时只能在一个项目打工",
+        "noticeKind": null,
+        "noticeText": null,
+        "right": 613,
+        "joined": "0",
+        "role": "none",
+        "joinedBadge": null,
+        "joinCount": 1,
+        "claimCount": 0,
+        "editBtn": false,
+        "editBtnText": null,
+        "cardTag": "ARTICLE",
+        "cardHref": null,
+        "bgColor": "rgb(255, 255, 255)",
+        "borderLeftWidth": "1px",
+        "borderLeftColor": "rgb(3, 4, 2)",
+        "tintBg": "rgba(0, 0, 0, 0)",
+        "tintOpacity": "1"
+      }
+    },
+    "1536_full_arm": {
+      "c107": {
+        "left": 321,
+        "avatar": {
+          "present": true,
+          "mode": "initial",
+          "tone": "3",
+          "w": 40,
+          "h": 40,
+          "radiusPx": 20,
+          "radiusRaw": "50%",
+          "overflow": "hidden",
+          "imgSrc": null,
+          "imgAlt": null,
+          "imgFit": null,
+          "initial": "夜",
+          "bgImage": "linear-gradient(140deg, rgb(191, 233, 255), rgb(111, 195, 247))",
+          "left": 336,
+          "right": 376,
+          "top": 526.3,
+          "bottom": 566.3,
+          "centerY": 546.3
+        },
+        "head": {
+          "titleCenterY": 546.3,
+          "titleTop": 535.9,
+          "titleLeft": 382,
+          "titleH": 20.8,
+          "titleTextOverflow": "ellipsis",
+          "titleWhiteSpace": "nowrap",
+          "titleEllipsis": true
+        },
+        "project": "107",
+        "title": "夜间补货",
+        "statusText": "招募中",
+        "statusState": "recruiting",
+        "headcount": "已招 2/2",
+        "wage": "工资：batt 28/次（间隔 12 小时）",
+        "wageExtra": null,
+        "action": "join",
+        "actionText": "加入",
+        "actionDisabled": true,
+        "needLogin": "0",
+        "loginLink": false,
+        "claimable": null,
+        "remaining": null,
+        "actionH": 39,
+        "hint": "已招满",
+        "noticeKind": null,
+        "noticeText": null,
+        "right": 613,
+        "joined": "0",
+        "role": "none",
+        "joinedBadge": null,
+        "joinCount": 1,
+        "claimCount": 0,
+        "editBtn": false,
+        "editBtnText": null,
+        "cardTag": "ARTICLE",
+        "cardHref": null,
+        "bgColor": "rgb(255, 255, 255)",
+        "borderLeftWidth": "1px",
+        "borderLeftColor": "rgb(3, 4, 2)",
+        "tintBg": "rgba(0, 0, 0, 0)",
+        "tintOpacity": "1"
+      },
+      "c102": {
+        "left": 321,
+        "avatar": {
+          "present": true,
+          "mode": "initial",
+          "tone": "4",
+          "w": 40,
+          "h": 40,
+          "radiusPx": 20,
+          "radiusRaw": "50%",
+          "overflow": "hidden",
+          "imgSrc": null,
+          "imgAlt": null,
+          "imgFit": null,
+          "initial": "冷",
+          "bgImage": "linear-gradient(140deg, rgb(201, 244, 228), rgb(91, 215, 180))",
+          "left": 336,
+          "right": 376,
+          "top": 299,
+          "bottom": 339,
+          "centerY": 319
+        },
+        "head": {
+          "titleCenterY": 319,
+          "titleTop": 308.6,
+          "titleLeft": 382,
+          "titleH": 20.8,
+          "titleTextOverflow": "ellipsis",
+          "titleWhiteSpace": "nowrap",
+          "titleEllipsis": true
+        },
+        "project": "102",
+        "title": "冷库分拣",
+        "statusText": "招募中",
+        "statusState": "recruiting",
+        "headcount": "已招 1/4",
+        "wage": "工资：batt 25/次（间隔 6 小时）",
+        "wageExtra": null,
+        "action": "join",
+        "actionText": "加入",
+        "actionDisabled": false,
+        "needLogin": "0",
+        "loginLink": false,
+        "claimable": null,
+        "remaining": null,
+        "actionH": 39,
+        "hint": null,
+        "noticeKind": null,
+        "noticeText": null,
+        "right": 613,
+        "joined": "0",
+        "role": "none",
+        "joinedBadge": null,
+        "joinCount": 1,
+        "claimCount": 0,
+        "editBtn": false,
+        "editBtnText": null,
+        "cardTag": "ARTICLE",
+        "cardHref": null,
+        "bgColor": "rgb(255, 255, 255)",
+        "borderLeftWidth": "1px",
+        "borderLeftColor": "rgb(3, 4, 2)",
+        "tintBg": "rgba(0, 0, 0, 0)",
+        "tintOpacity": "1"
+      }
+    },
+    "1536_countdown_before": {
+      "left": 20,
+      "avatar": {
+        "present": true,
+        "mode": "initial",
+        "tone": "10",
+        "w": 40,
+        "h": 40,
+        "radiusPx": 20,
+        "radiusRaw": "50%",
+        "overflow": "hidden",
+        "imgSrc": null,
+        "imgAlt": null,
+        "imgFit": null,
+        "initial": "海",
+        "bgImage": "linear-gradient(140deg, rgb(240, 227, 200), rgb(217, 188, 134))",
+        "left": 38,
+        "right": 78,
+        "top": 299,
+        "bottom": 339,
+        "centerY": 319
+      },
+      "head": {
+        "titleCenterY": 319,
+        "titleTop": 308.6,
+        "titleLeft": 84,
+        "titleH": 20.8,
+        "titleTextOverflow": "ellipsis",
+        "titleWhiteSpace": "nowrap",
+        "titleEllipsis": true
+      },
+      "project": "101",
+      "title": "海鲜打包",
+      "statusText": "招募中",
+      "statusState": "recruiting",
+      "headcount": "已招 2/3",
+      "wage": "工资：batt 30/次（间隔 4 小时）＋20 BTTC/次",
+      "wageExtra": "＋20 BTTC/次",
+      "action": "claim",
+      "actionText": "领工资",
+      "actionDisabled": true,
+      "needLogin": "0",
+      "loginLink": false,
+      "claimable": "0",
+      "remaining": "7",
+      "actionH": 39,
+      "hint": "0:07 后可领",
+      "noticeKind": null,
+      "noticeText": null,
+      "right": 312,
+      "joined": "1",
+      "role": "hired",
+      "joinedBadge": "已加入",
+      "joinCount": 0,
+      "claimCount": 1,
+      "editBtn": false,
+      "editBtnText": null,
+      "cardTag": "ARTICLE",
+      "cardHref": null,
+      "bgColor": "rgb(255, 255, 255)",
+      "borderLeftWidth": "4px",
+      "borderLeftColor": "rgb(255, 230, 15)",
+      "tintBg": "rgb(255, 230, 15)",
+      "tintOpacity": "0.12"
+    },
+    "1536_countdown_after": {
+      "due": true,
+      "card": {
+        "left": 20,
+        "avatar": {
+          "present": true,
+          "mode": "initial",
+          "tone": "10",
+          "w": 40,
+          "h": 40,
+          "radiusPx": 20,
+          "radiusRaw": "50%",
+          "overflow": "hidden",
+          "imgSrc": null,
+          "imgAlt": null,
+          "imgFit": null,
+          "initial": "海",
+          "bgImage": "linear-gradient(140deg, rgb(240, 227, 200), rgb(217, 188, 134))",
+          "left": 38,
+          "right": 78,
+          "top": 299,
+          "bottom": 339,
+          "centerY": 319
+        },
+        "head": {
+          "titleCenterY": 319,
+          "titleTop": 308.6,
+          "titleLeft": 84,
+          "titleH": 20.8,
+          "titleTextOverflow": "ellipsis",
+          "titleWhiteSpace": "nowrap",
+          "titleEllipsis": true
+        },
+        "project": "101",
+        "title": "海鲜打包",
+        "statusText": "招募中",
+        "statusState": "recruiting",
+        "headcount": "已招 2/3",
+        "wage": "工资：batt 30/次（间隔 4 小时）＋20 BTTC/次",
+        "wageExtra": "＋20 BTTC/次",
+        "action": "claim",
+        "actionText": "领工资",
+        "actionDisabled": false,
+        "needLogin": "0",
+        "loginLink": false,
+        "claimable": "1",
+        "remaining": "0",
+        "actionH": 39,
+        "hint": null,
+        "noticeKind": null,
+        "noticeText": null,
+        "right": 312,
+        "joined": "1",
+        "role": "hired",
+        "joinedBadge": "已加入",
+        "joinCount": 0,
+        "claimCount": 1,
+        "editBtn": false,
+        "editBtnText": null,
+        "cardTag": "ARTICLE",
+        "cardHref": null,
+        "bgColor": "rgb(255, 255, 255)",
+        "borderLeftWidth": "4px",
+        "borderLeftColor": "rgb(255, 230, 15)",
+        "tintBg": "rgb(255, 230, 15)",
+        "tintOpacity": "0.12"
+      }
+    },
+    "1536_countdown_claim": {
+      "card": {
+        "left": 20,
+        "avatar": {
+          "present": true,
+          "mode": "initial",
+          "tone": "10",
+          "w": 40,
+          "h": 40,
+          "radiusPx": 20,
+          "radiusRaw": "50%",
+          "overflow": "hidden",
+          "imgSrc": null,
+          "imgAlt": null,
+          "imgFit": null,
+          "initial": "海",
+          "bgImage": "linear-gradient(140deg, rgb(240, 227, 200), rgb(217, 188, 134))",
+          "left": 38,
+          "right": 78,
+          "top": 299,
+          "bottom": 339,
+          "centerY": 319
+        },
+        "head": {
+          "titleCenterY": 319,
+          "titleTop": 308.6,
+          "titleLeft": 84,
+          "titleH": 20.8,
+          "titleTextOverflow": "ellipsis",
+          "titleWhiteSpace": "nowrap",
+          "titleEllipsis": true
+        },
+        "project": "101",
+        "title": "海鲜打包",
+        "statusText": "招募中",
+        "statusState": "recruiting",
+        "headcount": "已招 2/3",
+        "wage": "工资：batt 30/次（间隔 4 小时）＋20 BTTC/次",
+        "wageExtra": "＋20 BTTC/次",
+        "action": "claim",
+        "actionText": "领工资",
+        "actionDisabled": true,
+        "needLogin": "0",
+        "loginLink": false,
+        "claimable": "0",
+        "remaining": "12294",
+        "actionH": 39,
+        "hint": "3:24:54 后可领",
+        "noticeKind": "ok",
+        "noticeText": "已领到 batt 30 与 20 BTTC",
+        "right": 312,
+        "joined": "1",
+        "role": "hired",
+        "joinedBadge": "已加入",
+        "joinCount": 0,
+        "claimCount": 1,
+        "editBtn": false,
+        "editBtnText": null,
+        "cardTag": "ARTICLE",
+        "cardHref": null,
+        "bgColor": "rgb(255, 255, 255)",
+        "borderLeftWidth": "4px",
+        "borderLeftColor": "rgb(255, 230, 15)",
+        "tintBg": "rgb(255, 230, 15)",
+        "tintOpacity": "0.12"
+      },
+      "remainingSeconds": 12294,
+      "intervalFallbackSeconds": 14400,
+      "serverNextAtSeconds": 12294,
+      "claimPosts": 1,
+      "listFetches": 2
+    },
+    "1536_claim_ok": {
+      "noticeKind": "ok",
+      "noticeText": "已领到 batt 30 与 20 BTTC",
+      "claimable": "0",
+      "remaining": "12294",
+      "hint": "3:24:54 后可领",
+      "listRefetched": 2,
+      "claimPosts": [
+        {
+          "method": "POST",
+          "path": "/api/project/101/claim"
+        }
+      ]
+    },
+    "1536_claim_fail": {
+      "noticeKind": "err",
+      "noticeText": "领取间隔未到，请稍后再来",
+      "claimable": "0",
+      "remaining": "91",
+      "cards": 10,
+      "bodyTextEmpty": false
+    },
+    "390_geometry": {
+      "overflowPx": 0,
+      "cards": 10,
+      "cardRightMax": 380,
+      "actionHeights": [
+        44
+      ],
+      "floatmenuCount": 5,
+      "checkinPresent": true,
+      "checkinRight": 380,
+      "checkinAboveList": true,
+      "checkinButtons": [],
+      "avatarModes": [
+        "101:initial",
+        "102:initial",
+        "103:img",
+        "104:initial",
+        "105:img",
+        "106:initial",
+        "107:initial",
+        "108:initial",
+        "109:initial",
+        "110:initial"
+      ],
+      "avatarSizes": [
+        "40x40"
+      ],
+      "avatarTones": [
+        "10",
+        "4",
+        "2",
+        "1",
+        "3",
+        "2",
+        "2",
+        "8"
+      ],
+      "joinedCards": 1,
+      "joinedBorder": "4px",
+      "joinedTint": "0.12",
+      "joinedBadge": "已加入",
+      "plainBorder": "1px",
+      "plainTint": "1"
+    },
+    "1536_geometry": {
+      "overflowPx": 0,
+      "cards": 10,
+      "cardRightMax": 1516,
+      "actionHeights": [
+        39
+      ],
+      "floatmenuCount": 5,
+      "checkinPresent": true,
+      "checkinRight": 1516,
+      "checkinAboveList": true,
+      "checkinButtons": [],
+      "avatarModes": [
+        "101:initial",
+        "102:initial",
+        "103:img",
+        "104:initial",
+        "105:img",
+        "106:initial",
+        "107:initial",
+        "108:initial",
+        "109:initial",
+        "110:initial"
+      ],
+      "avatarSizes": [
+        "40x40"
+      ],
+      "avatarTones": [
+        "10",
+        "4",
+        "2",
+        "1",
+        "3",
+        "2",
+        "2",
+        "8"
+      ],
+      "joinedCards": 1,
+      "joinedBorder": "4px",
+      "joinedTint": "0.12",
+      "joinedBadge": "已加入",
+      "plainBorder": "1px",
+      "plainTint": "1"
+    },
+    "1536_avatar": {
+      "rows": 2,
+      "imgCards": [
+        {
+          "present": true,
+          "mode": "img",
+          "tone": null,
+          "w": 40,
+          "h": 40,
+          "radiusPx": 20,
+          "radiusRaw": "50%",
+          "overflow": "hidden",
+          "imgSrc": "/api/media/9001",
+          "imgAlt": "",
+          "imgFit": "cover",
+          "initial": null,
+          "bgImage": "linear-gradient(140deg, rgb(255, 232, 163), rgb(255, 196, 77))",
+          "left": 637,
+          "right": 677,
+          "top": 299,
+          "bottom": 339,
+          "centerY": 319
+        },
+        {
+          "present": true,
+          "mode": "img",
+          "tone": null,
+          "w": 40,
+          "h": 40,
+          "radiusPx": 20,
+          "radiusRaw": "50%",
+          "overflow": "hidden",
+          "imgSrc": "/api/media/9002",
+          "imgAlt": "",
+          "imgFit": "cover",
+          "initial": null,
+          "bgImage": "linear-gradient(140deg, rgb(255, 232, 163), rgb(255, 196, 77))",
+          "left": 1239,
+          "right": 1279,
+          "top": 299,
+          "bottom": 339,
+          "centerY": 319
+        }
+      ],
+      "initialCards": [
+        {
+          "project": "101",
+          "avatar": {
+            "present": true,
+            "mode": "initial",
+            "tone": "10",
+            "w": 40,
+            "h": 40,
+            "radiusPx": 20,
+            "radiusRaw": "50%",
+            "overflow": "hidden",
+            "imgSrc": null,
+            "imgAlt": null,
+            "imgFit": null,
+            "initial": "海",
+            "bgImage": "linear-gradient(140deg, rgb(240, 227, 200), rgb(217, 188, 134))",
+            "left": 38,
+            "right": 78,
+            "top": 299,
+            "bottom": 339,
+            "centerY": 319
+          },
+          "head": {
+            "titleCenterY": 319,
+            "titleTop": 308.6,
+            "titleLeft": 84,
+            "titleH": 20.8,
+            "titleTextOverflow": "ellipsis",
+            "titleWhiteSpace": "nowrap",
+            "titleEllipsis": true
+          }
+        },
+        {
+          "project": "102",
+          "avatar": {
+            "present": true,
+            "mode": "initial",
+            "tone": "4",
+            "w": 40,
+            "h": 40,
+            "radiusPx": 20,
+            "radiusRaw": "50%",
+            "overflow": "hidden",
+            "imgSrc": null,
+            "imgAlt": null,
+            "imgFit": null,
+            "initial": "冷",
+            "bgImage": "linear-gradient(140deg, rgb(201, 244, 228), rgb(91, 215, 180))",
+            "left": 336,
+            "right": 376,
+            "top": 299,
+            "bottom": 339,
+            "centerY": 319
+          },
+          "head": {
+            "titleCenterY": 319,
+            "titleTop": 308.6,
+            "titleLeft": 382,
+            "titleH": 20.8,
+            "titleTextOverflow": "ellipsis",
+            "titleWhiteSpace": "nowrap",
+            "titleEllipsis": true
+          }
+        },
+        {
+          "project": "104",
+          "avatar": {
+            "present": true,
+            "mode": "initial",
+            "tone": "2",
+            "w": 40,
+            "h": 40,
+            "radiusPx": 20,
+            "radiusRaw": "50%",
+            "overflow": "hidden",
+            "imgSrc": null,
+            "imgAlt": null,
+            "imgFit": null,
+            "initial": "客",
+            "bgImage": "linear-gradient(140deg, rgb(255, 211, 165), rgb(253, 158, 91))",
+            "left": 938,
+            "right": 978,
+            "top": 299,
+            "bottom": 339,
+            "centerY": 319
+          },
+          "head": {
+            "titleCenterY": 319,
+            "titleTop": 308.6,
+            "titleLeft": 984,
+            "titleH": 20.8,
+            "titleTextOverflow": "ellipsis",
+            "titleWhiteSpace": "nowrap",
+            "titleEllipsis": true
+          }
+        },
+        {
+          "project": "106",
+          "avatar": {
+            "present": true,
+            "mode": "initial",
+            "tone": "1",
+            "w": 40,
+            "h": 40,
+            "radiusPx": 20,
+            "radiusRaw": "50%",
+            "overflow": "hidden",
+            "imgSrc": null,
+            "imgAlt": null,
+            "imgFit": null,
+            "initial": "同",
+            "bgImage": "linear-gradient(140deg, rgb(255, 232, 163), rgb(255, 196, 77))",
+            "left": 35,
+            "right": 75,
+            "top": 526.3,
+            "bottom": 566.3,
+            "centerY": 546.3
+          },
+          "head": {
+            "titleCenterY": 546.3,
+            "titleTop": 535.9,
+            "titleLeft": 81,
+            "titleH": 20.8,
+            "titleTextOverflow": "ellipsis",
+            "titleWhiteSpace": "nowrap",
+            "titleEllipsis": true
+          }
+        },
+        {
+          "project": "107",
+          "avatar": {
+            "present": true,
+            "mode": "initial",
+            "tone": "3",
+            "w": 40,
+            "h": 40,
+            "radiusPx": 20,
+            "radiusRaw": "50%",
+            "overflow": "hidden",
+            "imgSrc": null,
+            "imgAlt": null,
+            "imgFit": null,
+            "initial": "夜",
+            "bgImage": "linear-gradient(140deg, rgb(191, 233, 255), rgb(111, 195, 247))",
+            "left": 336,
+            "right": 376,
+            "top": 526.3,
+            "bottom": 566.3,
+            "centerY": 546.3
+          },
+          "head": {
+            "titleCenterY": 546.3,
+            "titleTop": 535.9,
+            "titleLeft": 382,
+            "titleH": 20.8,
+            "titleTextOverflow": "ellipsis",
+            "titleWhiteSpace": "nowrap",
+            "titleEllipsis": true
+          }
+        },
+        {
+          "project": "108",
+          "avatar": {
+            "present": true,
+            "mode": "initial",
+            "tone": "2",
+            "w": 40,
+            "h": 40,
+            "radiusPx": 20,
+            "radiusRaw": "50%",
+            "overflow": "hidden",
+            "imgSrc": null,
+            "imgAlt": null,
+            "imgFit": null,
+            "initial": "冷",
+            "bgImage": "linear-gradient(140deg, rgb(255, 211, 165), rgb(253, 158, 91))",
+            "left": 637,
+            "right": 677,
+            "top": 526.3,
+            "bottom": 566.3,
+            "centerY": 546.3
+          },
+          "head": {
+            "titleCenterY": 546.3,
+            "titleTop": 535.9,
+            "titleLeft": 683,
+            "titleH": 20.8,
+            "titleTextOverflow": "ellipsis",
+            "titleWhiteSpace": "nowrap",
+            "titleEllipsis": true
+          }
+        },
+        {
+          "project": "109",
+          "avatar": {
+            "present": true,
+            "mode": "initial",
+            "tone": "2",
+            "w": 40,
+            "h": 40,
+            "radiusPx": 20,
+            "radiusRaw": "50%",
+            "overflow": "hidden",
+            "imgSrc": null,
+            "imgAlt": null,
+            "imgFit": null,
+            "initial": "旧",
+            "bgImage": "linear-gradient(140deg, rgb(255, 211, 165), rgb(253, 158, 91))",
+            "left": 938,
+            "right": 978,
+            "top": 526.3,
+            "bottom": 566.3,
+            "centerY": 546.3
+          },
+          "head": {
+            "titleCenterY": 546.3,
+            "titleTop": 535.9,
+            "titleLeft": 984,
+            "titleH": 20.8,
+            "titleTextOverflow": "ellipsis",
+            "titleWhiteSpace": "nowrap",
+            "titleEllipsis": true
+          }
+        },
+        {
+          "project": "110",
+          "avatar": {
+            "present": true,
+            "mode": "initial",
+            "tone": "8",
+            "w": 40,
+            "h": 40,
+            "radiusPx": 20,
+            "radiusRaw": "50%",
+            "overflow": "hidden",
+            "imgSrc": null,
+            "imgAlt": null,
+            "imgFit": null,
+            "initial": "跨",
+            "bgImage": "linear-gradient(140deg, rgb(255, 233, 196), rgb(255, 184, 92))",
+            "left": 1239,
+            "right": 1279,
+            "top": 526.3,
+            "bottom": 566.3,
+            "centerY": 546.3
+          },
+          "head": {
+            "titleCenterY": 546.3,
+            "titleTop": 535.9,
+            "titleLeft": 1285,
+            "titleH": 20.8,
+            "titleTextOverflow": "ellipsis",
+            "titleWhiteSpace": "nowrap",
+            "titleEllipsis": true
+          }
+        }
+      ]
+    },
+    "390_avatar": {
+      "imgCards": [
+        {
+          "present": true,
+          "mode": "img",
+          "tone": null,
+          "w": 40,
+          "h": 40,
+          "radiusPx": 20,
+          "radiusRaw": "50%",
+          "overflow": "hidden",
+          "imgSrc": "/api/media/9001",
+          "imgAlt": "",
+          "imgFit": "cover",
+          "initial": null,
+          "bgImage": "linear-gradient(140deg, rgb(255, 232, 163), rgb(255, 196, 77))",
+          "left": 25,
+          "right": 65,
+          "top": 745.2,
+          "bottom": 785.2,
+          "centerY": 765.2
+        },
+        {
+          "present": true,
+          "mode": "img",
+          "tone": null,
+          "w": 40,
+          "h": 40,
+          "radiusPx": 20,
+          "radiusRaw": "50%",
+          "overflow": "hidden",
+          "imgSrc": "/api/media/9002",
+          "imgAlt": "",
+          "imgFit": "cover",
+          "initial": null,
+          "bgImage": "linear-gradient(140deg, rgb(255, 232, 163), rgb(255, 196, 77))",
+          "left": 25,
+          "right": 65,
+          "top": 1147.4,
+          "bottom": 1187.4,
+          "centerY": 1167.4
+        }
+      ],
+      "initialCards": [
+        {
+          "project": "101",
+          "avatar": {
+            "present": true,
+            "mode": "initial",
+            "tone": "10",
+            "w": 40,
+            "h": 40,
+            "radiusPx": 20,
+            "radiusRaw": "50%",
+            "overflow": "hidden",
+            "imgSrc": null,
+            "imgAlt": null,
+            "imgFit": null,
+            "initial": "海",
+            "bgImage": "linear-gradient(140deg, rgb(240, 227, 200), rgb(217, 188, 134))",
+            "left": 28,
+            "right": 68,
+            "top": 343,
+            "bottom": 383,
+            "centerY": 363
+          },
+          "head": {
+            "titleCenterY": 363,
+            "titleTop": 352.6,
+            "titleLeft": 74,
+            "titleH": 20.8,
+            "titleTextOverflow": "ellipsis",
+            "titleWhiteSpace": "nowrap",
+            "titleEllipsis": true
+          }
+        },
+        {
+          "project": "102",
+          "avatar": {
+            "present": true,
+            "mode": "initial",
+            "tone": "4",
+            "w": 40,
+            "h": 40,
+            "radiusPx": 20,
+            "radiusRaw": "50%",
+            "overflow": "hidden",
+            "imgSrc": null,
+            "imgAlt": null,
+            "imgFit": null,
+            "initial": "冷",
+            "bgImage": "linear-gradient(140deg, rgb(201, 244, 228), rgb(91, 215, 180))",
+            "left": 25,
+            "right": 65,
+            "top": 555.8,
+            "bottom": 595.8,
+            "centerY": 575.8
+          },
+          "head": {
+            "titleCenterY": 575.8,
+            "titleTop": 565.4,
+            "titleLeft": 71,
+            "titleH": 20.8,
+            "titleTextOverflow": "ellipsis",
+            "titleWhiteSpace": "nowrap",
+            "titleEllipsis": true
+          }
+        },
+        {
+          "project": "104",
+          "avatar": {
+            "present": true,
+            "mode": "initial",
+            "tone": "2",
+            "w": 40,
+            "h": 40,
+            "radiusPx": 20,
+            "radiusRaw": "50%",
+            "overflow": "hidden",
+            "imgSrc": null,
+            "imgAlt": null,
+            "imgFit": null,
+            "initial": "客",
+            "bgImage": "linear-gradient(140deg, rgb(255, 211, 165), rgb(253, 158, 91))",
+            "left": 25,
+            "right": 65,
+            "top": 958,
+            "bottom": 998,
+            "centerY": 978
+          },
+          "head": {
+            "titleCenterY": 978,
+            "titleTop": 967.6,
+            "titleLeft": 71,
+            "titleH": 20.8,
+            "titleTextOverflow": "ellipsis",
+            "titleWhiteSpace": "nowrap",
+            "titleEllipsis": true
+          }
+        },
+        {
+          "project": "106",
+          "avatar": {
+            "present": true,
+            "mode": "initial",
+            "tone": "1",
+            "w": 40,
+            "h": 40,
+            "radiusPx": 20,
+            "radiusRaw": "50%",
+            "overflow": "hidden",
+            "imgSrc": null,
+            "imgAlt": null,
+            "imgFit": null,
+            "initial": "同",
+            "bgImage": "linear-gradient(140deg, rgb(255, 232, 163), rgb(255, 196, 77))",
+            "left": 25,
+            "right": 65,
+            "top": 1336.7,
+            "bottom": 1376.7,
+            "centerY": 1356.7
+          },
+          "head": {
+            "titleCenterY": 1356.7,
+            "titleTop": 1346.3,
+            "titleLeft": 71,
+            "titleH": 20.8,
+            "titleTextOverflow": "ellipsis",
+            "titleWhiteSpace": "nowrap",
+            "titleEllipsis": true
+          }
+        },
+        {
+          "project": "107",
+          "avatar": {
+            "present": true,
+            "mode": "initial",
+            "tone": "3",
+            "w": 40,
+            "h": 40,
+            "radiusPx": 20,
+            "radiusRaw": "50%",
+            "overflow": "hidden",
+            "imgSrc": null,
+            "imgAlt": null,
+            "imgFit": null,
+            "initial": "夜",
+            "bgImage": "linear-gradient(140deg, rgb(191, 233, 255), rgb(111, 195, 247))",
+            "left": 25,
+            "right": 65,
+            "top": 1526.1,
+            "bottom": 1566.1,
+            "centerY": 1546.1
+          },
+          "head": {
+            "titleCenterY": 1546.1,
+            "titleTop": 1535.7,
+            "titleLeft": 71,
+            "titleH": 20.8,
+            "titleTextOverflow": "ellipsis",
+            "titleWhiteSpace": "nowrap",
+            "titleEllipsis": true
+          }
+        },
+        {
+          "project": "108",
+          "avatar": {
+            "present": true,
+            "mode": "initial",
+            "tone": "2",
+            "w": 40,
+            "h": 40,
+            "radiusPx": 20,
+            "radiusRaw": "50%",
+            "overflow": "hidden",
+            "imgSrc": null,
+            "imgAlt": null,
+            "imgFit": null,
+            "initial": "冷",
+            "bgImage": "linear-gradient(140deg, rgb(255, 211, 165), rgb(253, 158, 91))",
+            "left": 25,
+            "right": 65,
+            "top": 1715.4,
+            "bottom": 1755.4,
+            "centerY": 1735.4
+          },
+          "head": {
+            "titleCenterY": 1735.4,
+            "titleTop": 1725,
+            "titleLeft": 71,
+            "titleH": 20.8,
+            "titleTextOverflow": "ellipsis",
+            "titleWhiteSpace": "nowrap",
+            "titleEllipsis": true
+          }
+        },
+        {
+          "project": "109",
+          "avatar": {
+            "present": true,
+            "mode": "initial",
+            "tone": "2",
+            "w": 40,
+            "h": 40,
+            "radiusPx": 20,
+            "radiusRaw": "50%",
+            "overflow": "hidden",
+            "imgSrc": null,
+            "imgAlt": null,
+            "imgFit": null,
+            "initial": "旧",
+            "bgImage": "linear-gradient(140deg, rgb(255, 211, 165), rgb(253, 158, 91))",
+            "left": 25,
+            "right": 65,
+            "top": 1860.8,
+            "bottom": 1900.8,
+            "centerY": 1880.8
+          },
+          "head": {
+            "titleCenterY": 1880.7,
+            "titleTop": 1870.3,
+            "titleLeft": 71,
+            "titleH": 20.8,
+            "titleTextOverflow": "ellipsis",
+            "titleWhiteSpace": "nowrap",
+            "titleEllipsis": true
+          }
+        },
+        {
+          "project": "110",
+          "avatar": {
+            "present": true,
+            "mode": "initial",
+            "tone": "8",
+            "w": 40,
+            "h": 40,
+            "radiusPx": 20,
+            "radiusRaw": "50%",
+            "overflow": "hidden",
+            "imgSrc": null,
+            "imgAlt": null,
+            "imgFit": null,
+            "initial": "跨",
+            "bgImage": "linear-gradient(140deg, rgb(255, 233, 196), rgb(255, 184, 92))",
+            "left": 25,
+            "right": 65,
+            "top": 2006.1,
+            "bottom": 2046.1,
+            "centerY": 2026.1
+          },
+          "head": {
+            "titleCenterY": 2026.1,
+            "titleTop": 2015.7,
+            "titleLeft": 71,
+            "titleH": 20.8,
+            "titleTextOverflow": "ellipsis",
+            "titleWhiteSpace": "nowrap",
+            "titleEllipsis": true
+          }
+        }
+      ],
+      "overflowPx": 0
+    },
+    "1536_zeroedit_owner": {
+      "cards": 10,
+      "editCards": [],
+      "editSurface": {
+        "editButtons": 0,
+        "formRoots": 0,
+        "fields": 0,
+        "hints": 0,
+        "errs": 0,
+        "saveButtons": 0,
+        "minDaysSelect": 0,
+        "minDaysHint": 0,
+        "option365": 0
+      },
+      "userFetches": 0,
+      "patches": [],
+      "link": {
+        "slugCard": {
+          "tag": "A",
+          "href": "/wend-an"
+        },
+        "legacyCard": {
+          "tag": "ARTICLE",
+          "href": null
+        }
+      }
+    },
+    "zeroedit_viewports": {
+      "wide": {
+        "surface": {
+          "editButtons": 0,
+          "formRoots": 0,
+          "fields": 0,
+          "hints": 0,
+          "errs": 0,
+          "saveButtons": 0,
+          "minDaysSelect": 0,
+          "minDaysHint": 0,
+          "option365": 0
+        },
+        "cards": 10,
+        "overflowPx": 0
+      },
+      "mobile": {
+        "surface": {
+          "editButtons": 0,
+          "formRoots": 0,
+          "fields": 0,
+          "hints": 0,
+          "errs": 0,
+          "saveButtons": 0,
+          "minDaysSelect": 0,
+          "minDaysHint": 0,
+          "option365": 0
+        },
+        "cards": 10,
+        "overflowPx": 0
+      },
+      "patches": 0,
+      "userFetches": 0
+    },
+    "1536_zeroedit_admin": {
+      "editCards": [],
+      "editSurface": {
+        "editButtons": 0,
+        "formRoots": 0,
+        "fields": 0,
+        "hints": 0,
+        "errs": 0,
+        "saveButtons": 0,
+        "minDaysSelect": 0,
+        "minDaysHint": 0,
+        "option365": 0
+      },
+      "userFetches": 0,
+      "payloadAdmin": {
+        "can_access_admin": true,
+        "is_admin": false,
+        "permissions": [
+          "manage_tasks"
+        ]
+      }
+    },
+    "1536_zeroedit_user": {
+      "editCount": 0,
+      "editSurface": {
+        "editButtons": 0,
+        "formRoots": 0,
+        "fields": 0,
+        "hints": 0,
+        "errs": 0,
+        "saveButtons": 0,
+        "minDaysSelect": 0,
+        "minDaysHint": 0,
+        "option365": 0
+      },
+      "userFetches": 0
+    },
+    "1536_zeroedit_mindays": {
+      "surface": {
+        "editButtons": 0,
+        "formRoots": 0,
+        "fields": 0,
+        "hints": 0,
+        "errs": 0,
+        "saveButtons": 0,
+        "minDaysSelect": 0,
+        "minDaysHint": 0,
+        "option365": 0
+      },
+      "cards": 10,
+      "patches": 0,
+      "legacyRowsVisible": true
+    },
+    "1536_guest": {
+      "page": {
+        "hasPage": true,
+        "hasList": true,
+        "hasLogin": true,
+        "hasEmpty": false,
+        "hasError": false
+      },
+      "cardCount": 10,
+      "titles": [
+        "海鲜打包",
+        "冷库分拣",
+        "文案校对",
+        "客服值守",
+        "图片精修",
+        "同城跑腿",
+        "夜间补货",
+        "冷库盘点",
+        "旧仓搬迁",
+        "跨境选品"
+      ],
+      "overflowPx": 0,
+      "c101": {
+        "left": 20,
+        "avatar": {
+          "present": true,
+          "mode": "initial",
+          "tone": "10",
+          "w": 40,
+          "h": 40,
+          "radiusPx": 20,
+          "radiusRaw": "50%",
+          "overflow": "hidden",
+          "imgSrc": null,
+          "imgAlt": null,
+          "imgFit": null,
+          "initial": "海",
+          "bgImage": "linear-gradient(140deg, rgb(240, 227, 200), rgb(217, 188, 134))",
+          "left": 35,
+          "right": 75,
+          "top": 253.2,
+          "bottom": 293.2,
+          "centerY": 273.2
+        },
+        "head": {
+          "titleCenterY": 273.2,
+          "titleTop": 262.8,
+          "titleLeft": 81,
+          "titleH": 20.8,
+          "titleTextOverflow": "ellipsis",
+          "titleWhiteSpace": "nowrap",
+          "titleEllipsis": true
+        },
+        "project": "101",
+        "title": "海鲜打包",
+        "statusText": "招募中",
+        "statusState": "recruiting",
+        "headcount": "已招 2/3",
+        "wage": "工资：batt 30/次（间隔 4 小时）＋20 BTTC/次",
+        "wageExtra": "＋20 BTTC/次",
+        "action": "join",
+        "actionText": "加入",
+        "actionDisabled": false,
+        "needLogin": "1",
+        "loginLink": false,
+        "claimable": null,
+        "remaining": null,
+        "actionH": 39,
+        "hint": null,
+        "noticeKind": null,
+        "noticeText": null,
+        "right": 312,
+        "joined": "0",
+        "role": "anonymous",
+        "joinedBadge": null,
+        "joinCount": 1,
+        "claimCount": 0,
+        "editBtn": false,
+        "editBtnText": null,
+        "cardTag": "ARTICLE",
+        "cardHref": null,
+        "bgColor": "rgb(255, 255, 255)",
+        "borderLeftWidth": "1px",
+        "borderLeftColor": "rgb(3, 4, 2)",
+        "tintBg": "rgba(0, 0, 0, 0)",
+        "tintOpacity": "1"
+      },
+      "c102": {
+        "left": 321,
+        "avatar": {
+          "present": true,
+          "mode": "initial",
+          "tone": "4",
+          "w": 40,
+          "h": 40,
+          "radiusPx": 20,
+          "radiusRaw": "50%",
+          "overflow": "hidden",
+          "imgSrc": null,
+          "imgAlt": null,
+          "imgFit": null,
+          "initial": "冷",
+          "bgImage": "linear-gradient(140deg, rgb(201, 244, 228), rgb(91, 215, 180))",
+          "left": 336,
+          "right": 376,
+          "top": 253.2,
+          "bottom": 293.2,
+          "centerY": 273.2
+        },
+        "head": {
+          "titleCenterY": 273.2,
+          "titleTop": 262.8,
+          "titleLeft": 382,
+          "titleH": 20.8,
+          "titleTextOverflow": "ellipsis",
+          "titleWhiteSpace": "nowrap",
+          "titleEllipsis": true
+        },
+        "project": "102",
+        "title": "冷库分拣",
+        "statusText": "招募中",
+        "statusState": "recruiting",
+        "headcount": "已招 1/4",
+        "wage": "工资：batt 25/次（间隔 6 小时）",
+        "wageExtra": null,
+        "action": "join",
+        "actionText": "加入",
+        "actionDisabled": false,
+        "needLogin": "1",
+        "loginLink": false,
+        "claimable": null,
+        "remaining": null,
+        "actionH": 39,
+        "hint": null,
+        "noticeKind": null,
+        "noticeText": null,
+        "right": 613,
+        "joined": "0",
+        "role": "anonymous",
+        "joinedBadge": null,
+        "joinCount": 1,
+        "claimCount": 0,
+        "editBtn": false,
+        "editBtnText": null,
+        "cardTag": "ARTICLE",
+        "cardHref": null,
+        "bgColor": "rgb(255, 255, 255)",
+        "borderLeftWidth": "1px",
+        "borderLeftColor": "rgb(3, 4, 2)",
+        "tintBg": "rgba(0, 0, 0, 0)",
+        "tintOpacity": "1"
+      },
+      "c103": {
+        "left": 622,
+        "avatar": {
+          "present": true,
+          "mode": "img",
+          "tone": null,
+          "w": 40,
+          "h": 40,
+          "radiusPx": 20,
+          "radiusRaw": "50%",
+          "overflow": "hidden",
+          "imgSrc": "/api/media/9001",
+          "imgAlt": "",
+          "imgFit": "cover",
+          "initial": null,
+          "bgImage": "linear-gradient(140deg, rgb(255, 232, 163), rgb(255, 196, 77))",
+          "left": 637,
+          "right": 677,
+          "top": 253.2,
+          "bottom": 293.2,
+          "centerY": 273.2
+        },
+        "head": {
+          "titleCenterY": 273.2,
+          "titleTop": 262.8,
+          "titleLeft": 683,
+          "titleH": 20.8,
+          "titleTextOverflow": "ellipsis",
+          "titleWhiteSpace": "nowrap",
+          "titleEllipsis": true
+        },
+        "project": "103",
+        "title": "文案校对",
+        "statusText": "招募中",
+        "statusState": "recruiting",
+        "headcount": "已招 2/5",
+        "wage": "工资：batt 20/次（间隔 8 小时）＋50 BTTC/次",
+        "wageExtra": "＋50 BTTC/次",
+        "action": "join",
+        "actionText": "加入",
+        "actionDisabled": false,
+        "needLogin": "1",
+        "loginLink": false,
+        "claimable": null,
+        "remaining": null,
+        "actionH": 39,
+        "hint": null,
+        "noticeKind": null,
+        "noticeText": null,
+        "right": 914,
+        "joined": "0",
+        "role": "anonymous",
+        "joinedBadge": null,
+        "joinCount": 1,
+        "claimCount": 0,
+        "editBtn": false,
+        "editBtnText": null,
+        "cardTag": "A",
+        "cardHref": "/wend-an",
+        "bgColor": "rgb(255, 255, 255)",
+        "borderLeftWidth": "1px",
+        "borderLeftColor": "rgb(3, 4, 2)",
+        "tintBg": "rgba(0, 0, 0, 0)",
+        "tintOpacity": "1"
+      },
+      "afterJoinClick": {
+        "left": 321,
+        "avatar": {
+          "present": true,
+          "mode": "initial",
+          "tone": "4",
+          "w": 40,
+          "h": 40,
+          "radiusPx": 20,
+          "radiusRaw": "50%",
+          "overflow": "hidden",
+          "imgSrc": null,
+          "imgAlt": null,
+          "imgFit": null,
+          "initial": "冷",
+          "bgImage": "linear-gradient(140deg, rgb(201, 244, 228), rgb(91, 215, 180))",
+          "left": 336,
+          "right": 376,
+          "top": 253.2,
+          "bottom": 293.2,
+          "centerY": 273.2
+        },
+        "head": {
+          "titleCenterY": 273.2,
+          "titleTop": 262.8,
+          "titleLeft": 382,
+          "titleH": 20.8,
+          "titleTextOverflow": "ellipsis",
+          "titleWhiteSpace": "nowrap",
+          "titleEllipsis": true
+        },
+        "project": "102",
+        "title": "冷库分拣",
+        "statusText": "招募中",
+        "statusState": "recruiting",
+        "headcount": "已招 1/4",
+        "wage": "工资：batt 25/次（间隔 6 小时）",
+        "wageExtra": null,
+        "action": "join",
+        "actionText": "加入",
+        "actionDisabled": false,
+        "needLogin": "1",
+        "loginLink": true,
+        "claimable": null,
+        "remaining": null,
+        "actionH": 39,
+        "hint": null,
+        "noticeKind": "login",
+        "noticeText": "登录后即可加入项目、领工资去登录",
+        "right": 613,
+        "joined": "0",
+        "role": "anonymous",
+        "joinedBadge": null,
+        "joinCount": 1,
+        "claimCount": 0,
+        "editBtn": false,
+        "editBtnText": null,
+        "cardTag": "ARTICLE",
+        "cardHref": null,
+        "bgColor": "rgb(255, 255, 255)",
+        "borderLeftWidth": "1px",
+        "borderLeftColor": "rgb(3, 4, 2)",
+        "tintBg": "rgba(0, 0, 0, 0)",
+        "tintOpacity": "1"
+      },
+      "afterJoinClick101": {
+        "left": 20,
+        "avatar": {
+          "present": true,
+          "mode": "initial",
+          "tone": "10",
+          "w": 40,
+          "h": 40,
+          "radiusPx": 20,
+          "radiusRaw": "50%",
+          "overflow": "hidden",
+          "imgSrc": null,
+          "imgAlt": null,
+          "imgFit": null,
+          "initial": "海",
+          "bgImage": "linear-gradient(140deg, rgb(240, 227, 200), rgb(217, 188, 134))",
+          "left": 35,
+          "right": 75,
+          "top": 253.2,
+          "bottom": 293.2,
+          "centerY": 273.2
+        },
+        "head": {
+          "titleCenterY": 273.2,
+          "titleTop": 262.8,
+          "titleLeft": 81,
+          "titleH": 20.8,
+          "titleTextOverflow": "ellipsis",
+          "titleWhiteSpace": "nowrap",
+          "titleEllipsis": true
+        },
+        "project": "101",
+        "title": "海鲜打包",
+        "statusText": "招募中",
+        "statusState": "recruiting",
+        "headcount": "已招 2/3",
+        "wage": "工资：batt 30/次（间隔 4 小时）＋20 BTTC/次",
+        "wageExtra": "＋20 BTTC/次",
+        "action": "join",
+        "actionText": "加入",
+        "actionDisabled": false,
+        "needLogin": "1",
+        "loginLink": true,
+        "claimable": null,
+        "remaining": null,
+        "actionH": 39,
+        "hint": null,
+        "noticeKind": "login",
+        "noticeText": "登录后即可加入项目、领工资去登录",
+        "right": 312,
+        "joined": "0",
+        "role": "anonymous",
+        "joinedBadge": null,
+        "joinCount": 1,
+        "claimCount": 0,
+        "editBtn": false,
+        "editBtnText": null,
+        "cardTag": "ARTICLE",
+        "cardHref": null,
+        "bgColor": "rgb(255, 255, 255)",
+        "borderLeftWidth": "1px",
+        "borderLeftColor": "rgb(3, 4, 2)",
+        "tintBg": "rgba(0, 0, 0, 0)",
+        "tintOpacity": "1"
+      },
+      "writeCalls": []
+    },
+    "390_guest": {
+      "overflowPx": 0,
+      "cards": 10,
+      "actionHeights": [
+        44
+      ],
+      "cardRightMax": 380,
+      "hasBannerAndList": true
+    }
+  },
+  "assertions": {
+    "menu": {
+      "fiveItems": true,
+      "noFeedback": true,
+      "firstIsWage": true,
+      "orderMatches": true,
+      "dividers4": true,
+      "order": [
+        "wage",
+        "sell",
+        "messages",
+        "app",
+        "support"
+      ],
+      "labels": [
+        "领工资",
+        "卖闲置",
+        "消息",
+        "APP",
+        "客服"
+      ],
+      "hrefs": [
+        "/wage",
+        "/item/new",
+        "/messages",
+        null,
+        null
+      ],
+      "dividers": 4
+    },
+    "checkin": {
+      "wrapperPresent": true,
+      "cardPresent": true,
+      "meterPresent": true,
+      "meterHasBattText": true,
+      "checkinUiRetired": true,
+      "mintAreaRetired": true,
+      "battReadWired": true,
+      "listBelowCheckin": true,
+      "gapPx": 9,
+      "cardsStillListed": true,
+      "zeroOverflow": true
+    },
+    "hashDeepLink": {
+      "cardPresent": true,
+      "cardInViewport": true,
+      "listStillBelow": true
+    },
+    "activitiesGone": {
+      "pathnameIsActivities": true,
+      "noActivitiesPageHook": true,
+      "catchAllNotFound": true,
+      "notRedirectedToWage": true
+    },
+    "list": {
+      "tenCards": true,
+      "recruitingCards": true,
+      "closedCards": true,
+      "recruitingCount": 8,
+      "closedCount": 2,
+      "statusTexts": [
+        "招募中",
+        "已截止"
+      ],
+      "headcountText": "已招 2/3",
+      "wageText": "工资：batt 30/次（间隔 4 小时）＋20 BTTC/次",
+      "currencyExtra": "＋50 BTTC/次",
+      "hiredCardClaimEnabled": true,
+      "otherJoinDisabled": true,
+      "otherHintOneAtATime": true,
+      "fullCardDisabledWithHint": true,
+      "closedNoAction": true,
+      "joinEnabledWhenFree": true
+    },
+    "joinedCard": {
+      "hiredOnlyClaim": true,
+      "noCardMixesJoinAndClaim": true,
+      "otherCardsJoinOnly": true,
+      "joinedFlag": true,
+      "plainFlag": true,
+      "joinedBadgeText": true,
+      "plainNoBadge": true,
+      "badgeCount1": true,
+      "borderDiffers": true,
+      "borderIsAccent": true,
+      "tintDiffers": true,
+      "plainTintNone": true
+    },
+    "countdown": {
+      "gatedWithCountdown": true,
+      "zeroWriteWhileGated": true,
+      "autoEnabledAtDueTime": true,
+      "claimOkWithBothCurrencies": true,
+      "regatedByServerNextAt": true,
+      "claimPostCount1": true,
+      "listRefetchedAfterClaim": true
+    },
+    "claimOk": {
+      "postCount1": true,
+      "postPath": "/api/project/101/claim",
+      "noticeOk": true,
+      "noticeHasBatt": true,
+      "noticeHasCurrency": true,
+      "cardRefreshedAndGated": true,
+      "listRefetched": true,
+      "cardStillPresent": true
+    },
+    "beforeFailClick": {
+      "claimable": "1",
+      "disabled": false
+    },
+    "claimFail": {
+      "noticeErr": true,
+      "noticeIsReason": true,
+      "noWhiteScreen": true,
+      "countdownFromServer": true
+    },
+    "geometry": {
+      "zeroOverflow390": true,
+      "zeroOverflow1536": true,
+      "cards390": true,
+      "touchTarget44On390": true,
+      "cardRightWithinViewport390": true,
+      "checkin390": true,
+      "checkin1536": true,
+      "zeroPageErrors": true,
+      "joinedDistinct390": true,
+      "joinedBadge390": true,
+      "joinedDistinct1536": true,
+      "joinedBadge1536": true
+    },
+    "avatar": {
+      "avatarOnEveryCard": true,
+      "avatarSize40Both": true,
+      "avatarCircleBoth": true,
+      "avatarClipBoth": true,
+      "avatarTwoForms": true,
+      "avatarImgArm": true,
+      "avatarInitialArm": true,
+      "avatarToneInRange": true,
+      "avatarToneStable": true,
+      "avatarSameRowBoth": true,
+      "avatarTitleEllipsisBoth": true,
+      "avatarTitleSingleLine": true,
+      "avatarInsideCardBoth": true,
+      "avatarZeroOverflow390": true,
+      "avatarZeroOverflow1536": true,
+      "avatarCardCountBoth": true,
+      "zeroPageErrors": true
+    },
+    "zeroEditOwner": {
+      "zeroEditButtonsAnywhere": true,
+      "ownerCardNoEdit": true,
+      "othersNoEdit": true,
+      "zeroEditFormRoots": true,
+      "zeroEditFieldContainers": true,
+      "zeroEditHints": true,
+      "zeroUserFetches": true,
+      "zeroPatches": true,
+      "cardLinkIntact": true
+    },
+    "zeroEditViewports": {
+      "zeroEditButtons1536": true,
+      "zeroEditForms1536": true,
+      "zeroEditFields1536": true,
+      "zeroPatches1536": true,
+      "zeroEditButtons390": true,
+      "zeroEditForms390": true,
+      "zeroEditFields390": true,
+      "zeroOverflow390NoEditForm": true
+    },
+    "zeroEditAdmin": {
+      "adminPayloadApplied": true,
+      "zeroEditOnAllCards": true,
+      "hiredCardNoEdit": true,
+      "closedCardNoEdit": true,
+      "zeroUserFetches": true,
+      "zeroPatches": true
+    },
+    "zeroEditUser": {
+      "noEditButtonsAnywhere": true,
+      "zeroUserFetches": true,
+      "zeroPatchRequests": true
+    },
+    "zeroEditFields": {
+      "noMinDaysSelect": true,
+      "noOption365InPage": true,
+      "noMinDaysHint": true,
+      "noEditFieldContainers": true,
+      "noSaveControl": true,
+      "legacyRowsVisible": true,
+      "zeroPatches": true,
+      "zeroUserFetches": true
+    },
+    "guest": {
+      "cardsVisible": true,
+      "cardCount": 10,
+      "listRendered": true,
+      "bannerWithList": true,
+      "titleVisible": true,
+      "wageVisible": true,
+      "currencyExtraVisible": true,
+      "noClaimButtons": true,
+      "allCardsJoinOnly": true,
+      "noJoinedFlag": true,
+      "rolesAnonymous": true,
+      "joinEnabled": true,
+      "joinClickLoginPrompt": true,
+      "joinClickLoginPrompt101": true,
+      "zeroWriteRequests": true,
+      "writeCallPaths": [],
+      "cardsStableAfterClicks": true,
+      "zeroOverflowGuest": true,
+      "zeroOverflow390": true,
+      "cards390": true,
+      "touchTarget44On390": true,
+      "bannerAndList390": true
+    }
+  },
+  "pageErrors": [],
+  "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+  ],
+  "finishedAt": "2026-10-22T12:27:15.143Z",
+  "verdict": {
+    "required": [
+      {
+        "key": "menu.fiveItems",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "menu.noFeedback",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "menu.firstIsWage",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "menu.orderMatches",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "menu.dividers4",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.wrapperPresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.cardPresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.meterPresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.meterHasBattText",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.checkinUiRetired",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.mintAreaRetired",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.battReadWired",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.listBelowCheckin",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.cardsStillListed",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "checkin.zeroOverflow",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "hashDeepLink.cardPresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "hashDeepLink.cardInViewport",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "hashDeepLink.listStillBelow",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "activitiesGone.pathnameIsActivities",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "activitiesGone.noActivitiesPageHook",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "activitiesGone.catchAllNotFound",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "activitiesGone.notRedirectedToWage",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.tenCards",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.recruitingCards",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.closedCards",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.hiredCardClaimEnabled",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.otherJoinDisabled",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.joinEnabledWhenFree",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.otherHintOneAtATime",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.fullCardDisabledWithHint",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "list.closedNoAction",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinedCard.hiredOnlyClaim",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinedCard.noCardMixesJoinAndClaim",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinedCard.otherCardsJoinOnly",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinedCard.joinedFlag",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinedCard.plainFlag",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinedCard.joinedBadgeText",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinedCard.plainNoBadge",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinedCard.badgeCount1",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinedCard.borderDiffers",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinedCard.borderIsAccent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinedCard.tintDiffers",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinedCard.plainTintNone",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "countdown.gatedWithCountdown",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "countdown.zeroWriteWhileGated",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "countdown.autoEnabledAtDueTime",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "countdown.claimOkWithBothCurrencies",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "countdown.regatedByServerNextAt",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "countdown.claimPostCount1",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "countdown.listRefetchedAfterClaim",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "claimOk.postCount1",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "claimOk.noticeOk",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "claimOk.noticeHasBatt",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "claimOk.noticeHasCurrency",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "claimOk.cardRefreshedAndGated",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "claimOk.listRefetched",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "claimFail.noticeErr",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "claimFail.noticeIsReason",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "claimFail.noWhiteScreen",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.zeroOverflow390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.zeroOverflow1536",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.cards390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.touchTarget44On390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.zeroPageErrors",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.checkin390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.checkin1536",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.joinedDistinct390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.joinedBadge390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.joinedDistinct1536",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.joinedBadge1536",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.cardsVisible",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.listRendered",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.bannerWithList",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.titleVisible",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.wageVisible",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.currencyExtraVisible",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.joinEnabled",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.noClaimButtons",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.allCardsJoinOnly",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.noJoinedFlag",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.rolesAnonymous",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.joinClickLoginPrompt",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.joinClickLoginPrompt101",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.zeroWriteRequests",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.cardsStableAfterClicks",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.zeroOverflowGuest",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.zeroOverflow390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.cards390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.touchTarget44On390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.bannerAndList390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditOwner.zeroEditButtonsAnywhere",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditOwner.ownerCardNoEdit",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditOwner.othersNoEdit",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditOwner.zeroEditFormRoots",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditOwner.zeroEditFieldContainers",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditOwner.zeroEditHints",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditOwner.zeroUserFetches",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditOwner.zeroPatches",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditOwner.cardLinkIntact",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditViewports.zeroEditButtons1536",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditViewports.zeroEditForms1536",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditViewports.zeroEditFields1536",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditViewports.zeroPatches1536",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditViewports.zeroEditButtons390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditViewports.zeroEditForms390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditViewports.zeroEditFields390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditViewports.zeroOverflow390NoEditForm",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditAdmin.adminPayloadApplied",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditAdmin.zeroEditOnAllCards",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditAdmin.hiredCardNoEdit",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditAdmin.closedCardNoEdit",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditAdmin.zeroUserFetches",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditAdmin.zeroPatches",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditUser.noEditButtonsAnywhere",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditUser.zeroUserFetches",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditUser.zeroPatchRequests",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditFields.noMinDaysSelect",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditFields.noOption365InPage",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditFields.noMinDaysHint",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditFields.noEditFieldContainers",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditFields.noSaveControl",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditFields.legacyRowsVisible",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditFields.zeroPatches",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "zeroEditFields.zeroUserFetches",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "avatar.avatarOnEveryCard",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "avatar.avatarSize40Both",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "avatar.avatarCircleBoth",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "avatar.avatarClipBoth",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "avatar.avatarTwoForms",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "avatar.avatarImgArm",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "avatar.avatarInitialArm",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "avatar.avatarToneInRange",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "avatar.avatarToneStable",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "avatar.avatarSameRowBoth",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "avatar.avatarTitleEllipsisBoth",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "avatar.avatarTitleSingleLine",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "avatar.avatarInsideCardBoth",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "avatar.avatarZeroOverflow390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "avatar.avatarZeroOverflow1536",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "avatar.avatarCardCountBoth",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "avatar.zeroPageErrors",
+        "value": true,
+        "pass": true
+      }
+    ],
+    "failed": [],
+    "pass": true
+  }
+}

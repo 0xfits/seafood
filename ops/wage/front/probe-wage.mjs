@@ -14,6 +14,10 @@
  *      零注册天数 select（旧 wage-edit 表单件全绝迹）；两档（1536 / 390）同判；
  *      整卡链接保留（有 slug ⇒ `<a href="…/slug">`，历史行 ⇒ `<article>`）。
  *      编辑本身的字段 / 校验 / 载荷 / 模态框行为由 `ops/project-page/probe-project-page.mjs` 的 modal 臂覆盖。
+ *   ⑦ 卡头头像（Kevin 2026-10-22）：每张卡卡头左组首位 = **40px 圆形头像**，与标题同一行、垂直居中；
+ *      行有 `avatar_url` ⇒ `<img src>`（`object-fit:cover`、`alt=""`），无 ⇒ 项目名首字 + `data-sf-tone`
+ *      （档位 = 前端唯一真源 `avatarToneOf(name)`，1..10）；标题 `min-width:0` + ellipsis ⇒ 卡头不因头像折行；
+ *      1536 / 390 两档尺寸/圆形/档位稳定、零横向溢出、零 pageerror。
  *
  * 手法（同 ops/v119-msg-panel 体例）：
  *   · 静态服务 = context.route 把 http://sf.local/** 映射到磁盘 dist（零 dev server）；
@@ -28,6 +32,9 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { createRequire } from 'node:module'
+// 头像档位真源 = 前端同一份纯函数（探针直接引用源码，不复制 hash）：
+//   卡头 `data-sf-tone` 必须等于 `avatarToneOf(项目名)` ⇒ 首字彩底由名字决定这条可机判。
+import { avatarToneOf } from '../../../frontend/src/avatar-tone.js'
 
 const REPO = '/Users/kevin/bistro/seafood'
 const require = createRequire(path.join(REPO, 'frontend/package.json'))
@@ -59,9 +66,11 @@ const ROWS = [
   { project_id: 102, snowflake_id: '7102', title: '冷库分拣', description: '早班分拣冻品。', headcount: 4, hired_count: 1, recruit_min_account_days: 7, wage_batt_per_claim: 25, wage_cid: 1, wage_currency_amount: 0, wage_interval_hours: 6, status: 'recruiting', my_role: 'none' },
   // ★ 2026-10-21②：103 带合法 slug ⇒ 整卡是 `<a href="…/wend-an">`（编辑搬走后「入口保留」的可验面）；
   //   101 保持无 slug（历史行）⇒ 仍是 `<article>`（不得因去编辑被误链到不存在的项目页）。
-  { project_id: 103, snowflake_id: '7103', slug: 'wend-an', title: '文案校对', description: '校对商品描述与错别字。', headcount: 5, hired_count: 2, recruit_min_account_days: 1, wage_batt_per_claim: 20, wage_cid: 4, wage_currency_amount: 50, wage_interval_hours: 8, status: 'recruiting', my_role: 'none' },
+  // ★ 2026-10-22 卡头头像（Kevin：/wage 项目卡显示各 project 的 avatar）：
+  //   103 / 105 两行带 `avatar_url`（⇒ `<img>` 臂）；其余 8 行整键缺省（⇒ 首字彩底臂）。
+  { project_id: 103, snowflake_id: '7103', slug: 'wend-an', title: '文案校对', description: '校对商品描述与错别字。', headcount: 5, hired_count: 2, recruit_min_account_days: 1, wage_batt_per_claim: 20, wage_cid: 4, wage_currency_amount: 50, wage_interval_hours: 8, status: 'recruiting', my_role: 'none', avatar_url: '/api/media/9001' },
   { project_id: 104, snowflake_id: '7104', title: '客服值守', description: '白天在线答疑。', headcount: 2, hired_count: 0, recruit_min_account_days: 90, wage_batt_per_claim: 18, wage_cid: null, wage_currency_amount: null, wage_interval_hours: 12, status: 'recruiting', my_role: 'none' },
-  { project_id: 105, snowflake_id: '7105', title: '图片精修', description: '商品图去背与调色。', headcount: 6, hired_count: 3, recruit_min_account_days: 365, wage_batt_per_claim: 22, wage_cid: 1, wage_currency_amount: 0, wage_interval_hours: 6, status: 'recruiting', my_role: 'none' },
+  { project_id: 105, snowflake_id: '7105', title: '图片精修', description: '商品图去背与调色。', headcount: 6, hired_count: 3, recruit_min_account_days: 365, wage_batt_per_claim: 22, wage_cid: 1, wage_currency_amount: 0, wage_interval_hours: 6, status: 'recruiting', my_role: 'none', avatar_url: '/api/media/9002' },
   { project_id: 106, snowflake_id: '7106', title: '同城跑腿', description: '当天送达同城订单。', headcount: 8, hired_count: 4, recruit_min_account_days: 1, wage_batt_per_claim: 15, wage_cid: 1, wage_currency_amount: 0, wage_interval_hours: 10, status: 'recruiting', my_role: 'none' },
   { project_id: 107, snowflake_id: '7107', title: '夜间补货', description: '凌晨补货上架。', headcount: 2, hired_count: 2, recruit_min_account_days: 30, wage_batt_per_claim: 28, wage_cid: 1, wage_currency_amount: 0, wage_interval_hours: 12, status: 'recruiting', my_role: 'none' },
   { project_id: 108, snowflake_id: '7108', title: '冷库盘点', description: '季度盘点，已结束招募。', headcount: 3, hired_count: 3, recruit_min_account_days: 1, wage_batt_per_claim: 12, wage_cid: 1, wage_currency_amount: 0, wage_interval_hours: 24, status: 'closed', my_role: 'none' },
@@ -72,6 +81,12 @@ const ROWS = [
 // 行主缺省 900001（=「别人」）：owner_uid 是【编辑】可见性的行键（真实后端恒透出 ⇒ 契约 12 键行）；
 // owner 臂用 STATE.rows 把 103 改成自己的 uID，resetRows() 即回「别人」。
 for (const r of ROWS) r.owner_uid = '900001'
+
+// 卡头头像两形态夹具划分（103 / 105 带 url ⇒ `<img>`；其余首字彩底）。
+const AVATAR_IMG_IDS = ROWS.filter((r) => typeof r.avatar_url === 'string' && r.avatar_url.trim()).map((r) => String(r.project_id))
+const AVATAR_INITIAL_IDS = ROWS.filter((r) => !(typeof r.avatar_url === 'string' && r.avatar_url.trim())).map((r) => String(r.project_id))
+// 头像臂用的 1×1 PNG（/api/media/* 直出，避免 <img> 因 404 变成破图）
+const PNG_1PX = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFAAH/q842iQAAAABJRU5ErkJggg==', 'base64')
 
 const CUR = [{ cid: 1, symbol: '$' }, { cid: 4, symbol: 'BTTC' }]
 
@@ -260,10 +275,57 @@ const SNAP_FN = `(() => {
       const extra = c.querySelector('[data-sf-m="wage-card-wage-extra"]')
       const notice = c.querySelector('[data-sf-m="wage-card-notice"]')
       const badge = c.querySelector('[data-sf-m="wage-card-joined"]')
+      const ttl = c.querySelector('[data-sf-m="wage-card-title"]')
+      const av = c.querySelector('[data-sf-m="wage-card-avatar"]')
+      const avImg = av ? av.querySelector('img') : null
+      const avInit = av ? av.querySelector('.sf-wage-card-avatar-initial') : null
+      const avCs = av ? getComputedStyle(av) : null
+      const avR = av ? av.getBoundingClientRect() : null
+      // 圆角读数：border-radius 50% 的 computed 值会把百分比原样返（如 "50%"）⇒ 按短边折算成 px，
+      // 否则「圆形」判据会被读成 50px 而假过。
+      const avRadiusRaw = avCs ? avCs.borderTopLeftRadius : null
+      const avRadiusPx = avR
+        ? (String(avRadiusRaw).indexOf('%') >= 0
+          ? (parseFloat(avRadiusRaw) / 100) * Math.min(avR.width, avR.height)
+          : parseFloat(avRadiusRaw))
+        : null
+      const tR = ttl ? ttl.getBoundingClientRect() : null
+      const tCs = ttl ? getComputedStyle(ttl) : null
       const r = c.getBoundingClientRect()
       const cs = getComputedStyle(c)
       const tint = getComputedStyle(c, '::before')
       return {
+        left: Math.round(r.left * 10) / 10,
+        // ★ 2026-10-22 卡头头像读数：40px 圆形 / 两形态（img ・ 首字彩底）/ 档位 / 与标题同一行
+        avatar: av ? {
+          present: true,
+          mode: av.getAttribute('data-sf-avatar'),
+          tone: av.getAttribute('data-sf-tone'),
+          w: Math.round(avR.width * 10) / 10,
+          h: Math.round(avR.height * 10) / 10,
+          radiusPx: Math.round(avRadiusPx * 10) / 10,
+          radiusRaw: avRadiusRaw,
+          overflow: avCs.overflow,
+          imgSrc: avImg ? avImg.getAttribute('src') : null,
+          imgAlt: avImg ? avImg.getAttribute('alt') : null,
+          imgFit: avImg ? getComputedStyle(avImg).objectFit : null,
+          initial: avInit ? txt(avInit) : null,
+          bgImage: avCs.backgroundImage.slice(0, 80),
+          left: Math.round(avR.left * 10) / 10,
+          right: Math.round(avR.right * 10) / 10,
+          top: Math.round(avR.top * 10) / 10,
+          bottom: Math.round(avR.bottom * 10) / 10,
+          centerY: Math.round(((avR.top + avR.bottom) / 2) * 10) / 10,
+        } : { present: false },
+        head: {
+          titleCenterY: tR ? Math.round(((tR.top + tR.bottom) / 2) * 10) / 10 : null,
+          titleTop: tR ? Math.round(tR.top * 10) / 10 : null,
+          titleLeft: tR ? Math.round(tR.left * 10) / 10 : null,
+          titleH: tR ? Math.round(tR.height * 10) / 10 : null,
+          titleTextOverflow: tCs ? tCs.textOverflow : null,
+          titleWhiteSpace: tCs ? tCs.whiteSpace : null,
+          titleEllipsis: tCs ? tCs.textOverflow === 'ellipsis' && tCs.whiteSpace === 'nowrap' : null,
+        },
         project: c.getAttribute('data-sf-project'),
         title: txt(c.querySelector('[data-sf-m="wage-card-title"]')),
         statusText: txt(st),
@@ -322,6 +384,10 @@ const attachRoutes = async (ctx) => {
     const req = route.request()
     const u = new URL(req.url())
     if (u.hostname !== 'sf.local') return route.abort()
+    // 媒体口直出 1×1 PNG：卡头 `<img>` 头像臂需要一张真图（否则破图会影响几何读数）
+    if (u.pathname.startsWith('/api/media/')) {
+      return route.fulfill({ status: 200, contentType: 'image/png', body: PNG_1PX })
+    }
     if (u.pathname.startsWith('/api/')) {
       const payload = apiResponse(req.method(), u.pathname, req.postData())
       const status = payload && payload.__status ? payload.__status : 200
@@ -641,9 +707,11 @@ async function main() {
   STATE.claimFail = false
 
   // ============================ ④ 两档几何 / pageerror =============================
+  const geoSnaps = {}
   for (const [label, width, height] of [['390', 390, 844], ['1536', 1536, 960]]) {
     await page.setViewportSize({ width, height })
     const snap = await open('/wage')
+    geoSnaps[label] = snap
     out.states[`${label}_geometry`] = {
       overflowPx: snap.overflowPx,
       cards: snap.cards.length,
@@ -656,6 +724,10 @@ async function main() {
       checkinAboveList: snap.checkin.cardBottom !== null && snap.checkin.listTop !== null
         && snap.checkin.cardBottom <= snap.checkin.listTop,
       checkinButtons: snap.checkin.buttonTexts,
+      // ★ 2026-10-22 卡头头像（两档读数留证）：形态 / 尺寸 / 档位
+      avatarModes: snap.cards.map((c) => `${c.project}:${c.avatar.mode}`),
+      avatarSizes: [...new Set(snap.cards.map((c) => `${c.avatar.w}x${c.avatar.h}`))],
+      avatarTones: snap.cards.filter((c) => c.avatar.mode === 'initial').map((c) => c.avatar.tone),
       // 已加入卡的配色区分在两档都必须成立（joined 卡 = 4px 黄边 + 淡黄叠加 + 徽标）
       joinedCards: snap.cards.filter((c) => c.joined === '1').length,
       joinedBorder: (snap.cards.find((c) => c.joined === '1') || {}).borderLeftWidth,
@@ -686,6 +758,94 @@ async function main() {
       && out.states['1536_geometry'].joinedBorder !== out.states['1536_geometry'].plainBorder
       && out.states['1536_geometry'].joinedTint !== out.states['1536_geometry'].plainTint,
     joinedBadge1536: out.states['1536_geometry'].joinedBadge === ZH.wage.joinedBadge,
+  }
+
+  // ============================ ⑦ 卡头头像（Kevin 2026-10-22）=========================
+  // 口径：卡头左组首位 = 40px 圆形头像，与标题同一行、垂直居中；
+  //   行有 `avatar_url` ⇒ `<img src>`（object-fit:cover、alt=""）；
+  //   无 ⇒ 项目名首字 + `data-sf-tone`（档位 = 前端唯一真源 `avatarToneOf(name)`，1..10）；
+  //   两档（1536 / 390）尺寸/圆形/同行/标题 ellipsis 全等，零溢出、零 pageerror。
+  const AVATAR_TITLE = Object.fromEntries(ROWS.map((r) => [String(r.project_id), r.title]))
+  const AVATAR_URL = Object.fromEntries(ROWS.map((r) => [
+    String(r.project_id),
+    typeof r.avatar_url === 'string' ? r.avatar_url.trim() : '',
+  ]))
+  const cardsOf = (snap) => snap.cards
+  const byProject = (snap) => Object.fromEntries(snap.cards.map((c) => [c.project, c]))
+  const wideAvatars = cardsOf(geoSnaps['1536'])
+  const narrowAvatars = cardsOf(geoSnaps['390'])
+  const wideById = byProject(geoSnaps['1536'])
+  const narrowById = byProject(geoSnaps['390'])
+  const tonesOf = (snap) => Object.fromEntries(
+    snap.cards.map((c) => [c.project, c.avatar && c.avatar.mode === 'initial' ? c.avatar.tone : null])
+  )
+  const bothCards = [...wideAvatars.map((c) => ['1536', c]), ...narrowAvatars.map((c) => ['390', c])]
+
+  out.states['1536_avatar'] = {
+    rows: AVATAR_IMG_IDS.length,
+    imgCards: AVATAR_IMG_IDS.map((id) => (wideById[id] || {}).avatar || null),
+    initialCards: AVATAR_INITIAL_IDS.map((id) => ({ project: id, avatar: (wideById[id] || {}).avatar || null, head: (wideById[id] || {}).head || null })),
+  }
+  out.states['390_avatar'] = {
+    imgCards: AVATAR_IMG_IDS.map((id) => (narrowById[id] || {}).avatar || null),
+    initialCards: AVATAR_INITIAL_IDS.map((id) => ({ project: id, avatar: (narrowById[id] || {}).avatar || null, head: (narrowById[id] || {}).head || null })),
+    overflowPx: geoSnaps['390'].overflowPx,
+  }
+  out.assertions.avatar = {
+    // ① 每张卡都有头像（10/10，两档同判）
+    avatarOnEveryCard: bothCards.every(([, c]) => c.avatar && c.avatar.present === true) && wideAvatars.length === ROWS.length,
+    // ② 尺寸 = 40×40（两档同值，几何常量）
+    avatarSize40Both: bothCards.every(([, c]) => c.avatar.w === 40 && c.avatar.h === 40),
+    // ③ 圆形：圆角半径 = 短边一半（40px 圆形 ⇒ 半径 20px；百分比按短边折算后判，不拿 50 当 px 假过）
+    avatarCircleBoth: bothCards.every(([, c]) => (
+      c.avatar.radiusPx !== null && Math.abs(c.avatar.radiusPx * 2 - Math.min(c.avatar.w, c.avatar.h)) <= 0.5
+    )),
+    avatarClipBoth: bothCards.every(([, c]) => c.avatar.overflow === 'hidden'),
+    // ④ 两形态按夹具分流：有 url 的恰好 2 张 `<img>`、其余 8 张首字彩底
+    avatarTwoForms: wideAvatars.filter((c) => c.avatar.mode === 'img').map((c) => c.project).sort().join(',')
+      === AVATAR_IMG_IDS.slice().sort().join(',')
+      && wideAvatars.filter((c) => c.avatar.mode === 'initial').map((c) => c.project).sort().join(',')
+      === AVATAR_INITIAL_IDS.slice().sort().join(','),
+    // ⑤ `<img>` 臂：src = 行内 avatar_url、object-fit:cover、alt="" 装饰图、零首字/零档位
+    avatarImgArm: AVATAR_IMG_IDS.every((id) => {
+      const c = wideById[id]
+      return Boolean(
+        c && c.avatar.mode === 'img'
+          && c.avatar.imgSrc === AVATAR_URL[id]
+          && c.avatar.imgFit === 'cover'
+          && c.avatar.imgAlt === ''
+          && c.avatar.initial === null
+          && c.avatar.tone === null
+      )
+    }),
+    // ⑥ 首字臂：首字 = 项目名首字、档位 = avatarToneOf(名字) 且落在 1..10、零 `<img>`
+    avatarInitialArm: AVATAR_INITIAL_IDS.every((id) => {
+      const c = wideById[id]
+      const expectedInitial = Array.from(String(AVATAR_TITLE[id]).trim())[0] || '?'
+      return Boolean(
+        c && c.avatar.mode === 'initial'
+          && c.avatar.initial === expectedInitial
+          && c.avatar.imgSrc === null
+          && Number(c.avatar.tone) === avatarToneOf(AVATAR_TITLE[id])
+      )
+    }),
+    avatarToneInRange: bothCards
+      .filter(([, c]) => c.avatar.mode === 'initial')
+      .every(([, c]) => Number(c.avatar.tone) >= 1 && Number(c.avatar.tone) <= 10),
+    // ⑦ 档位由名字决定且**稳定**：两档（两次独立加载）逐项目同值
+    avatarToneStable: JSON.stringify(tonesOf(geoSnaps['1536'])) === JSON.stringify(tonesOf(geoSnaps['390'])),
+    // ⑧ 与标题同一行且垂直居中（40px 头像中心 = 标题行中心 ⇒ 卡头没被头像挤折行）
+    avatarSameRowBoth: bothCards.every(([, c]) => (
+      c.head.titleCenterY !== null && Math.abs(c.avatar.centerY - c.head.titleCenterY) <= 1.5
+    )),
+    // ⑨ 标题单行 ellipsis（min-width:0 + text-overflow）⇒ 长名/窄档不换行；行高不超过一行
+    avatarTitleEllipsisBoth: bothCards.every(([, c]) => c.head.titleEllipsis === true),
+    avatarTitleSingleLine: bothCards.every(([, c]) => c.head.titleH !== null && c.head.titleH <= 24),
+    // ⑩ 头像不出卡（左右都在卡内），两档零横向溢出
+    avatarInsideCardBoth: bothCards.every(([, c]) => c.avatar.left >= c.left - 0.5 && c.avatar.right <= c.right + 0.5),
+    avatarZeroOverflow390: geoSnaps['390'].overflowPx === 0,
+    avatarZeroOverflow1536: geoSnaps['1536'].overflowPx === 0,
+    avatarCardCountBoth: geoSnaps['390'].cards.length === ROWS.length && geoSnaps['1536'].cards.length === ROWS.length,
   }
 
   // ============================ ⑥ 项目卡【零编辑】（Kevin 2026-10-21②：编辑已移入项目页）=========
@@ -938,6 +1098,7 @@ async function main() {
   out.finishedAt = new Date().toISOString()
   // ★ 全部臂跑完再复核一次累计 pageerror（含新增的签到 / `/activities` 已删 / 客态臂）
   out.assertions.geometry.zeroPageErrors = pageErrors.length === 0
+  out.assertions.avatar.zeroPageErrors = pageErrors.length === 0
   const required = [
     'menu.fiveItems', 'menu.noFeedback', 'menu.firstIsWage', 'menu.orderMatches', 'menu.dividers4',
     'checkin.wrapperPresent', 'checkin.cardPresent', 'checkin.meterPresent', 'checkin.meterHasBattText',
@@ -990,6 +1151,14 @@ async function main() {
     'zeroEditFields.noMinDaysSelect', 'zeroEditFields.noOption365InPage', 'zeroEditFields.noMinDaysHint',
     'zeroEditFields.noEditFieldContainers', 'zeroEditFields.noSaveControl',
     'zeroEditFields.legacyRowsVisible', 'zeroEditFields.zeroPatches', 'zeroEditFields.zeroUserFetches',
+    // ⑦ 卡头头像（Kevin 2026-10-22）：40px 圆形 / 有 url 渲图、无则首字彩底 /
+    //   档位由名字决定且两档稳定 / 与标题同行居中 / 标题 ellipsis / 两档零溢出零 pageerror
+    'avatar.avatarOnEveryCard', 'avatar.avatarSize40Both', 'avatar.avatarCircleBoth', 'avatar.avatarClipBoth',
+    'avatar.avatarTwoForms', 'avatar.avatarImgArm', 'avatar.avatarInitialArm', 'avatar.avatarToneInRange',
+    'avatar.avatarToneStable', 'avatar.avatarSameRowBoth', 'avatar.avatarTitleEllipsisBoth',
+    'avatar.avatarTitleSingleLine', 'avatar.avatarInsideCardBoth',
+    'avatar.avatarZeroOverflow390', 'avatar.avatarZeroOverflow1536', 'avatar.avatarCardCountBoth',
+    'avatar.zeroPageErrors',
   ]
   const verdicts = required.map((key) => {
     const [group, field] = key.split('.')

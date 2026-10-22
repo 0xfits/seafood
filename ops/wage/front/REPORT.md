@@ -238,3 +238,49 @@
   `wage.css` 编辑表单 / 四语 +18 键）为本批已实现代码，本单做定性修复 + 判据订正 + 探针三臂 + 读数入库；
   23 文件一批提交（含计数前推的 14 个测试文件，逐文件核对均属本单键数链）。
 - `docs/**` 未改（本单口径 = 不碰后端/docs）⇒ `route-layer.spec` 未记 `owner_uid` 行键与编辑写口口径，需另立规范勘误单。
+
+## 增量（2026-10-22）：项目卡卡头头像（有 url 用图、无则首字彩底 · 抽共用一个纯函数）
+
+### 改动
+
+- **新增 `frontend/src/avatar-tone.js`（唯一真源 · 纯函数零 React/零网络）**：
+  `AVATAR_TONE_COUNT = 10` / `avatarToneOf(name)`（逐字符码点和 % 10 + 1 ⇒ `--sf-thumb-N`）/
+  `avatarInitialOf(name)`（首个**码点**，空名 ⇒ `'?'`）。三处共用同一实现，**不复制 hash**：
+  首页热门任务卡（tone）、项目页 `ProjectAvatar`（首字）、/wage 卡头（tone + 首字）。
+- `frontend/src/home-campaign.js`：删掉本地 `avatarToneOf` 定义 ⇒ 从 `avatar-tone.js` **re-export**
+  （`avatarToneOf` / `avatarInitialOf` / `AVATAR_TONE_COUNT`；`HOME_AVATAR_TONE_COUNT` 改为同一常量别名）——
+  既有 `from './home-campaign'` 的 import 面与行为逐字不变（`home-campaign.test.js` 19 例照绿）。
+- `frontend/src/pages/project/ProjectAvatar.jsx`：首字改取 `avatarInitialOf`（与改前 `Array.from(trim)[0] || '?'`
+  完全等价 ⇒ 项目页零视觉变化）。
+- `frontend/src/pages/wage/WagePage.jsx`：卡头左组首位加 40px 圆形头像
+  （`data-sf-m="wage-card-avatar"`、`data-sf-avatar="img|initial"`、无图时 `data-sf-tone`）——
+  行 `avatar_url` 为串且非空 ⇒ `<img src>`（`alt=""` / `loading="lazy"`）；否则首字（`aria-hidden`）+ 彩底。
+- `frontend/src/pages/wage/wage.css`：`sf-wage-card-avatar*`（40×40 / `border-radius:50%` / `overflow:hidden` /
+  `img{object-fit:cover}`）；十档背景 = `var(--sf-thumb-1..10)`（**零新色值**）；
+  `.sf-wage-card-head-main` 改 `flex-wrap:nowrap` + 标题 `min-width:0` + 单行 `ellipsis` ⇒ 卡头不因头像折行。
+  卡内其余布局（状态徽标 / 描述 / 工资行 / 动作按钮 / 倒计时 / 提示）零改动。
+
+### 验证读数（均已落盘 `readings/`）
+
+- `npm run build`：**exit 0**（`readings/build-wage-avatar.log`）。
+- `npm run test:unit`：**88 文件 / 929 例全绿**（改前 87 / 920 ⇒ **+1 文件 / +9 例，例数不减**；
+  `readings/unit-wage-avatar.log`）。新增 `wage-card-avatar.test.jsx` 9 例：有 url 渲 `img src` / 无 url 渲首字 /
+  首字与档位由名字决定且稳定（重挂载同档、不同名可不同档）/ 与 `home-campaign` 导出**同一函数实例** /
+  CSS 40px 圆形 + 零硬编码色值 / 卡内其余结构零变化。
+- 探针 `node ops/wage/front/probe-wage.mjs`：**verdict.pass = true，必过判据 124 → 141（+17）**、
+  pageErrors 0（`readings/probe-result-avatar.json`）。新 `assertions.avatar` 17 条：
+  - `avatarOnEveryCard` / `avatarSize40Both`（两档 `40x40`）/ `avatarCircleBoth`（半径折算后 **20px** = 短边一半；
+    `50%` 的 computed 值按短边折算，不拿 50 当 px 假过）/ `avatarClipBoth`；
+  - 两形态：`avatarTwoForms`（夹具 103/105 ⇒ img，其余 8 张 initial）/ `avatarImgArm`（`imgSrc` = 行内 `avatar_url`、
+    `object-fit:cover`、`alt=""`、零首字零档位）/ `avatarInitialArm`（首字 = 项目名首字、`tone === avatarToneOf(name)`）/
+    `avatarToneInRange` / `avatarToneStable`（1536 与 390 两次独立加载逐项目同档）；
+  - 几何：`avatarSameRowBoth`（头像中心 = 标题行中心，±1.5px）/ `avatarTitleEllipsisBoth` / `avatarTitleSingleLine` /
+    `avatarInsideCardBoth` / `avatarZeroOverflow390` / `avatarZeroOverflow1536` / `avatarCardCountBoth` / `zeroPageErrors`。
+  - 探针工程：夹具 103/105 加 `avatar_url`（`/api/media/9001|9002`），`/api/media/*` 在 `context.route` 直出
+    1×1 PNG（避免破图影响几何读数）；`avatarToneOf` **直接 import 前端源码**当判据真源（不复制 hash）。
+
+### 边界（如实披露）
+
+- 后端 `GET /api/project/all` 行既有 `avatar_url`（可 null）本单**未动**；`docs/**` 未改。
+- 首页热门任务卡的首字仍走它自己的 `slice(0,1).toUpperCase()`（拉丁名大写是既有视觉口径）⇒
+  仅 tone 与它共用；本单未改首页视觉。

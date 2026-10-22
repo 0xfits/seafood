@@ -6,6 +6,7 @@ import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import BattCheckinPanel from '../../components/BattCheckinPanel'
 import { applyToWageProject, claimWage, fetchWageCurrencies, fetchWageProjects } from './wage-api'
 import { projectHrefOf } from '../../project-slug'
+import { avatarInitialOf, avatarToneOf } from '../../avatar-tone'
 import './wage.css'
 
 // ============================================================================
@@ -348,10 +349,28 @@ const WagePage = () => {
     // 整卡链接（Kevin 2026-10-21）：行有合法 slug ⇒ 根元素 article→Link（页面规范形 `/<slug>`）；
     // 历史行无 slug ⇒ null ⇒ 保持原 `<article>` 不变链接。卡内按钮 stopPropagation 不触发跳转。
     const slugHref = projectHrefOf(row)
+    // ★ Kevin 2026-10-22：卡头左侧 40px 圆形头像 —— 行有 `avatar_url` ⇒ `<img>`（object-fit:cover）；
+    //   无（null / 空串 / 非串）⇒ 项目名首字 + `--sf-thumb-N` 彩底。档位与首字都取
+    //   `src/avatar-tone.js`（与首页热门任务卡 / 项目页头像**同一份**纯函数，不在本页复制 hash）。
+    const avatarUrl = typeof row?.avatar_url === 'string' ? row.avatar_url.trim() : ''
+    const avatarTone = avatarUrl ? 0 : avatarToneOf(row?.title)
+    const avatarBody = avatarUrl ? (
+      <img className="sf-wage-card-avatar-img" src={avatarUrl} alt="" loading="lazy" />
+    ) : (
+      <span className="sf-wage-card-avatar-initial" aria-hidden="true">{avatarInitialOf(row?.title)}</span>
+    )
     const cardBody = (
       <>
         <div className="sf-wage-card-head">
           <div className="sf-wage-card-head-main">
+            <span
+              className="sf-wage-card-avatar"
+              data-sf-m="wage-card-avatar"
+              data-sf-avatar={avatarUrl ? 'img' : 'initial'}
+              data-sf-tone={avatarUrl ? undefined : String(avatarTone)}
+            >
+              {avatarBody}
+            </span>
             <h2 className="sf-wage-card-title" data-sf-m="wage-card-title">{row?.title || ''}</h2>
             {joined ? (
               <span className="sf-wage-joined-badge" data-sf-m="wage-card-joined">{t('wage.joinedBadge')}</span>
