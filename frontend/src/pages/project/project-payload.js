@@ -220,7 +220,9 @@ export const buildSubtaskInput = (row) => {
  *   · 类型不在五类闭集 / 标题非法 / sort 非法；
  *   · payload 含键族之外的键（重发会把这些键**抹掉** ⇒ 宁可整行不动）；
  *   · prediction 已结算（payload 带 `correct_option`，settle 口独占写、PATCH 会拒收该键）；
+ *   · prediction 读口声明 `option_style='ab_legacy'`（存量四键行的两枚文案已被读口剥掉 ⇒ 口径不可复现）；
  *   · prediction payload 既不是新两键、也不是旧四键（形态不认识）；
+ *   · prediction 为两键形状但没声明 `option_style='yes_no'`（可能是被剥文案的存量行 ⇒ 宁可跳过）；
  *   · quiz 读回缺 `correct`（公开读口不吐答案）或缺 `reward_amount` ⇒ 重发会丢答案/丢奖励。
  * 注：后端「永不 DELETE」⇒ 跳过的行**保持库内原值**，这里只是不发它，不是丢数据。
  */
@@ -240,6 +242,15 @@ export const toExistingSubtaskInput = (row) => {
   let payload = {}
   if (typeCode === 'prediction') {
     if (Object.prototype.hasOwnProperty.call(raw, PREDICTION_CORRECT_KEY)) return null
+    // ★ 读口口径闸（Kevin 2026-10-22 · 发布子任务 409/400 根因）：
+    //   公开读口把存量四键行的 `option_a` / `option_b` **剥掉**（出参只剩两键 + 加性
+    //   `option_style='ab_legacy'`）。若按「键数」判形状，存量行长得跟新两键行**一模一样**，
+    //   一旦被当成 yes_no 原样重发，服务端见「库内 ab_legacy / 载荷 yes_no」⇒ 400
+    //   `PREDICTION_OPTION_STYLE_IMMUTABLE`（父 task 已发布则先撞 409 `prediction_locked_after_publish`）。
+    //   ⇒ 与「quiz 读口缺 `correct` ⇒ 跳过」同体例：**口径不可复现或未明确声明，就整行跳过**
+    //   （后端「永不 DELETE」，跳过的行保持库内原值，这里只是不发它）。
+    const declaredStyle = trimmed(row?.option_style)
+    if (declaredStyle === 'ab_legacy') return null
     const keys = Object.keys(raw)
     const isLegacy = keys.length === LEGACY_PREDICTION_KEYS.length
       && keys.every((k) => LEGACY_PREDICTION_KEYS.includes(k))
@@ -256,6 +267,9 @@ export const toExistingSubtaskInput = (row) => {
       if (!optionA || !optionB) return null
       payload = { option_a: optionA, option_b: optionB, prize_amount: prize, deadline }
     } else {
+      // 两键形状但**没声明** yes_no ⇒ 无法排除「存量四键行被读口剥了文案」⇒ 跳过；
+      // 只有明确 `option_style='yes_no'` 的新行才可安全原样重发。
+      if (declaredStyle !== 'yes_no') return null
       payload = { prize_amount: prize, deadline }
     }
   } else if (typeCode === 'quiz') {

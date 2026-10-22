@@ -360,6 +360,29 @@ describe('② 子任务整组追加：旧行一条不少 + 新行一条', () => 
     expect(grouped.resent + grouped.skipped.length).toBe(rows.length)
   })
 
+  it('★ 存量 prediction 行（读口剥文案 ⇒ option_style=ab_legacy）整组追加时**跳过**：组内只剩新行、载荷不含旧行', () => {
+    // 读口出参：存量四键行的 option_a/option_b 已被剥掉，只剩两键 + 加性 option_style
+    const legacyStripped = {
+      subtask_id: 903, task_id: 555, type_code: 'prediction', title: '谁会赢', content: null,
+      payload: { prize_amount: '10', deadline: '2026-12-01T00:00:00.000Z' },
+      sort: 3, required: false, prediction_state: 'open', option_style: 'ab_legacy',
+    }
+    // 新两键行（明确 yes_no）⇒ 可安全重发，仍在组内
+    const current = {
+      subtask_id: 904, task_id: 555, type_code: 'prediction', title: '新预测', content: null,
+      payload: { prize_amount: '20', deadline: '2026-12-01T00:00:00.000Z' },
+      sort: 4, required: false, prediction_state: 'open', option_style: 'yes_no',
+    }
+    const grouped = buildSubtaskAppendGroup([...subtasks(), legacyStripped, current], newInput)
+    expect(grouped.ok).toBe(true)
+    expect(grouped.skipped).toEqual(['903'])
+    expect(grouped.group.map((row) => row.subtask_id ?? 'new')).toEqual(['901', '902', '904', 'new'])
+    expect(grouped.group.at(-1)).toEqual(newInput)
+    // 载荷里**没有**存量行（否则服务端 400 换口径 / active task 先 409 发布后锁）
+    expect(JSON.stringify(grouped.group)).not.toContain('903')
+    expect(grouped.group.some((row) => 'option_a' in (row.payload || {}))).toBe(false)
+  })
+
   it('负控：新行缺失 / 非对象 ⇒ 组不成立，调用方不得发 PATCH', () => {
     expect(buildSubtaskAppendGroup(subtasks(), null)).toEqual({ ok: false, error: 'subtask' })
     expect(buildSubtaskAppendGroup(subtasks(), 'x')).toEqual({ ok: false, error: 'subtask' })
@@ -374,13 +397,27 @@ describe('② 子任务整组追加：旧行一条不少 + 新行一条', () => 
     expect(toExistingSubtaskInput({
       subtask_id: 906, type_code: 'prediction', title: '缺键', content: null, payload: { option_a: 'A' }, sort: 7, required: false,
     })).toBeNull()
-    // 旧四键 prediction 行仍可原样回送（兼容）——新两键行同样可回送
+    // 旧四键 prediction 行（payload 自带两枚文案）仍可原样回送（兼容）——口径可复现
     expect(toExistingSubtaskInput({
       subtask_id: 907, type_code: 'prediction', title: '旧四键', content: null, sort: 8, required: false,
       payload: { option_a: 'A', option_b: 'B', prize_amount: '10', deadline: '2026-12-01T00:00:00.000Z' },
     }).payload).toEqual({ option_a: 'A', option_b: 'B', prize_amount: '10', deadline: '2026-12-01T00:00:00.000Z' })
+    // ★ 存量四键行**被读口剥掉文案**（只剩两键 + 加性 option_style='ab_legacy'）⇒ 跳过：
+    //   重发两键会被服务端判「换口径」⇒ 400 PREDICTION_OPTION_STYLE_IMMUTABLE（active task 先撞 409）
     expect(toExistingSubtaskInput({
-      subtask_id: 908, type_code: 'prediction', title: '新两键', content: null, sort: 9, required: false,
+      subtask_id: 908, type_code: 'prediction', title: '存量剥文案', content: null, sort: 9, required: false,
+      option_style: 'ab_legacy',
+      payload: { prize_amount: '10', deadline: '2026-12-01T00:00:00.000Z' },
+    })).toBeNull()
+    // 两键形状但**未声明口径** ⇒ 无法排除「被剥文案的存量行」⇒ 同样跳过
+    expect(toExistingSubtaskInput({
+      subtask_id: 911, type_code: 'prediction', title: '未声明', content: null, sort: 12, required: false,
+      payload: { prize_amount: '10', deadline: '2026-12-01T00:00:00.000Z' },
+    })).toBeNull()
+    // 明确声明 yes_no 的新两键行 ⇒ 原样回送（重发值恒等 ⇒ 服务端不判「改」，不会 409）
+    expect(toExistingSubtaskInput({
+      subtask_id: 912, type_code: 'prediction', title: '新两键', content: null, sort: 13, required: false,
+      option_style: 'yes_no',
       payload: { prize_amount: '10', deadline: '2026-12-01T00:00:00.000Z' },
     }).payload).toEqual({ prize_amount: '10', deadline: '2026-12-01T00:00:00.000Z' })
     // quiz：公开读口不吐 correct ⇒ 缺正确项不可重发（否则会抹掉答案键）；带齐才回送 + reward_amount
@@ -709,6 +746,49 @@ describe('⑤ 表单：预选锁定（无选择器）＋ 提交载荷 / ref 对�
     })
     // 旧行主键全部保留（不丢旧行）
     expect(group.filter((row) => row.subtask_id).map((row) => row.subtask_id)).toEqual(['901', '902'])
+  })
+
+  it('★ 【发布子任务】任务下已有存量 prediction 行（读口剥文案）⇒ PATCH 载荷只剩新行（不重发旧行）', async () => {
+    // Kevin 现场：draft→active 的任务里挂着存量四键 prediction 行；读口只剩两键 + option_style=ab_legacy。
+    // 旧实现按「键数」判形状 ⇒ 当新两键行原样重发 ⇒ 服务端 400 换口径 / 409 发布后锁。
+    const base = viewOf().campaigns[0]
+    const legacyStripped = {
+      subtask_id: 903, task_id: 555, type_code: 'prediction', type_label: '预测',
+      title: '谁会赢', content: null,
+      payload: { prize_amount: '10', deadline: '2026-11-05T00:00:00.000Z' },
+      sort: 3, required: false, prediction_state: 'open', option_style: 'ab_legacy',
+    }
+    API.fetchProjectDetail.mockResolvedValue(viewOf({
+      campaigns: [{ ...base, tasks: [{ ...base.tasks[0], subtasks: [...subtasks(), legacyStripped] }] }],
+    }))
+    const { container } = renderAt('/sui')
+    await waitFor(() => expect(container.querySelector('[data-sf-m="project-task-entry-subtask"]')).not.toBeNull())
+    fireEvent.click(container.querySelector('[data-sf-m="project-task-entry-subtask"]'))
+    await waitFor(() => expect(container.querySelector('[data-sf-m="project-form-subtask"]')).not.toBeNull())
+
+    const form = '[data-sf-m="project-form-subtask"]'
+    fill(container, `${form} [data-sf-field="type"]`, 'survey')
+    fill(container, `${form} [data-sf-field="title"]`, '新问卷')
+    fill(container, `${form} [data-sf-field="content"]`, '填写')
+    fill(container, `${form} [data-sf-field="sort"]`, '4')
+    submit(container, form)
+
+    await waitFor(() => expect(API.appendProjectSubtasks).toHaveBeenCalledTimes(1))
+    const [taskRef, group] = API.appendProjectSubtasks.mock.calls[0]
+    expect(taskRef).toBe('555')
+    // 存量 prediction 行被跳过：组内只有可重发的两枚旧行 + 新行
+    expect(group.filter((row) => row.subtask_id).map((row) => row.subtask_id)).toEqual(['901', '902'])
+    expect(group.some((row) => row.subtask_id === '903')).toBe(false)
+    expect(group.at(-1)).toEqual({
+      type_code: 'survey',
+      title: '新问卷',
+      content: '填写',
+      payload: {},
+      sort: 4,
+      required: true,
+    })
+    // 整条载荷里没有存量行的两枚选项文案（口径不得被前端改写）
+    expect(JSON.stringify(group)).not.toContain('option_a')
   })
 
   it('【发布子任务】点第 2 张任务卡 ⇒ taskId 对拍到 556（不写第一张卡）', async () => {

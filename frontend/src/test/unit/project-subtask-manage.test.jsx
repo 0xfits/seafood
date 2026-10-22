@@ -301,7 +301,9 @@ describe('④ 409 两码就地内联（不谎报成功）', () => {
     await waitFor(() => {
       const err = rowOf(container, 5012).querySelector('[data-sf-m="project-subtask-err"]')
       expect(err).not.toBeNull()
-      expect(err.textContent).toBe('project.hasProofs')
+      // 删除失败带具体因由 + HTTP（原「只落 project.hasProofs」已退役）
+      expect(err.textContent).toBe('project.deleteFailDetail:{"detail":"project.hasProofs","status":409}')
+      expect(err.getAttribute('data-sf-err-code')).toBe('subtask_has_proofs')
       expect(err.getAttribute('role')).toBe('alert')
     })
     expect(onDone).not.toHaveBeenCalled()
@@ -326,7 +328,10 @@ describe('④ 409 两码就地内联（不谎报成功）', () => {
     await waitFor(() => {
       const notice = container.querySelector('[data-sf-m="project-form-notice"]')
       expect(notice).not.toBeNull()
-      expect(notice.textContent).toBe('project.predictionLocked')
+      // 编辑失败带具体因由 + HTTP（原「只落 project.predictionLocked」已退役）
+      expect(notice.textContent).toBe('project.failDetail:{"detail":"project.predictionLocked","status":409}')
+      expect(notice.getAttribute('data-sf-err-code')).toBe('prediction_locked_after_publish')
+      expect(notice.getAttribute('data-sf-err-reason')).toBe('')
     })
     expect(onDone).not.toHaveBeenCalled()
     // 表单不关（保留用户输入，可就地重试）

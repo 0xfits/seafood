@@ -1531,6 +1531,14 @@
     "confirmDelete": "確認刪除？",
     "predictionLocked": "發佈後不可編輯（預測已鎖定）。",
     "hasProofs": "已有使用者提交，不能刪除。",
-    "deleteFailed": "刪除失敗，請稍後再試。"
+    "deleteFailed": "刪除失敗，請稍後再試。",
+    "failDetail": "發佈失敗：{{detail}}（HTTP {{status}}）",
+    "deleteFailDetail": "刪除失敗：{{detail}}（HTTP {{status}}）",
+    "reasonOwnerRequired": "無權限（需項目負責人或任務管理員）",
+    "reasonQuizRewardRequired": "答題獎勵必填（需大於 0）",
+    "reasonQuizOptionsInvalid": "選項不完整（A–D 四項必填，正確項 1–4 個）",
+    "reasonSubtaskInputInvalid": "子任務欄位非法（類型、標題或載荷越界）",
+    "reasonSubtaskRemoveOverlap": "同一次提交裡刪除與新增衝突（請分兩次提交）",
+    "reasonSubtaskNotInTask": "該子任務不屬於此任務"
   }
 }

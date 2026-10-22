@@ -4,6 +4,7 @@ import { buildLocalizedPath } from '../../utils'
 import { refOf, statusKeyOf, taskRewardOf, timeWindowOf, typeKeyOf } from '../campaign/campaign-util'
 import { patchProjectTaskStatus, removeProjectSubtasks } from './project-api'
 import { buildSubtaskRemovePayload } from './project-payload'
+import { writeFailNotice } from './project-error'
 import ProjectForms from './ProjectForms'
 
 // ============================================================================
@@ -65,7 +66,7 @@ const SubtaskRow = ({
   editing = false,
   confirming = false,
   removing = false,
-  error = '',
+  errNotice = null,
   form = null,
   onEdit,
   onAskDelete,
@@ -145,9 +146,17 @@ const SubtaskRow = ({
       {subtask?.content ? (
         <p className="sf-project-subtask-content" data-sf-m="project-subtask-content">{subtask.content}</p>
       ) : null}
-      {/* 失败就地内联（409 subtask_has_proofs / prediction_locked_after_publish / 网络） */}
-      {error ? (
-        <p className="sf-project-notice is-err" data-sf-m="project-subtask-err" role="alert">{error}</p>
+      {/* 失败就地内联（409 subtask_has_proofs / prediction_locked_after_publish / 网络）
+          —— 文案带具体原因，`data-sf-err-*` 留机读取证（code / reason / HTTP 状态） */}
+      {errNotice?.text ? (
+        <p
+          className="sf-project-notice is-err"
+          data-sf-m="project-subtask-err"
+          data-sf-err-code={errNotice.code || ''}
+          data-sf-err-reason={errNotice.reason || ''}
+          data-sf-err-status={errNotice.status ?? ''}
+          role="alert"
+        >{errNotice.text}</p>
       ) : null}
       {editing && form ? (
         <div className="sf-project-card-form" data-sf-m="project-card-form">{form}</div>
@@ -167,17 +176,17 @@ const TaskBlock = ({ task, campaign, slug, t, lang, symbols, canManage, user, su
   // 上线 / 下线开关（Kevin 2026-10-21 · 步 3）：只有 draft / active 两态可切，ended 封板（服务端同口径）。
   const nextStatus = status === 'draft' ? 'active' : status === 'active' ? 'draft' : ''
   const [statusBusy, setStatusBusy] = useState(false)
-  const [statusErr, setStatusErr] = useState('')
+  const [statusErr, setStatusErr] = useState(null)
   // 行级操作（Kevin 2026-10-22）：编辑**就地**展开在行内（一次只开一行）；删除 = 行内二次确认（不弹窗）。
   const [editingId, setEditingId] = useState('')
   const [confirmingId, setConfirmingId] = useState('')
   const [removingId, setRemovingId] = useState('')
-  const [rowErr, setRowErr] = useState({ id: '', text: '' })
+  const [rowErr, setRowErr] = useState({ id: '', text: '', code: '', reason: '', status: null })
 
   const toggleStatus = async () => {
     if (!nextStatus || statusBusy) return
     setStatusBusy(true)
-    setStatusErr('')
+    setStatusErr(null)
     try {
       await patchProjectTaskStatus(taskRef, nextStatus, user)
       setStatusBusy(false)
@@ -185,9 +194,9 @@ const TaskBlock = ({ task, campaign, slug, t, lang, symbols, canManage, user, su
       onStatusChanged?.(nextStatus, task)
     } catch (err) {
       setStatusBusy(false)
-      // 失败（403 / 404 / 409 封板 / 网络）⇒ **就地内联**，不谎报状态已变
-      // 文案复用 `project.publishFailed`（本项目域「写口失败」唯一句，零新键 ⇒ 四语计数不动）
-      setStatusErr(t('project.publishFailed'))
+      // 失败（403 / 404 / 409 封板 / 网络）⇒ **就地内联**，不谎报状态已变；
+      // 文案带 code / details.reason / HTTP 状态（无错误体时才回落 `project.publishFailed`）
+      setStatusErr(writeFailNotice(err, t))
     }
   }
 
@@ -195,7 +204,7 @@ const TaskBlock = ({ task, campaign, slug, t, lang, symbols, canManage, user, su
   const toggleEdit = (subtask) => {
     const id = String(subtask?.subtask_id ?? '')
     if (!id) return
-    setRowErr({ id: '', text: '' })
+    setRowErr({ id: '', text: '', code: '', reason: '', status: null })
     setConfirmingId('')
     setEditingId((prev) => (prev === id ? '' : id))
   }
@@ -204,7 +213,7 @@ const TaskBlock = ({ task, campaign, slug, t, lang, symbols, canManage, user, su
   const askDelete = (subtask) => {
     const id = String(subtask?.subtask_id ?? '')
     if (!id || removingId) return
-    setRowErr({ id: '', text: '' })
+    setRowErr({ id: '', text: '', code: '', reason: '', status: null })
     setEditingId('')
     setConfirmingId(id)
   }
@@ -215,26 +224,20 @@ const TaskBlock = ({ task, campaign, slug, t, lang, symbols, canManage, user, su
     if (!id || removingId) return
     const built = buildSubtaskRemovePayload([id])
     if (!built.ok) {
-      setRowErr({ id, text: t('project.deleteFailed') })
+      // 本地构造失败（主键非法）⇒ 无错误体，保留原文案
+      setRowErr({ id, text: t('project.deleteFailed'), code: '', reason: '', status: null })
       return
     }
     setRemovingId(id)
-    setRowErr({ id: '', text: '' })
+    setRowErr({ id: '', text: '', code: '', reason: '', status: null })
     try {
       await removeProjectSubtasks(taskRef, built.payload.subtasks_remove, user)
       setConfirmingId('')
       // 成功 ⇒ 由页面层给结论 + 静默重读（行消失由读口事实决定，不在本地伪造）
       onDone?.({ kind: 'ok', text: t('project.subtaskDeleted') })
     } catch (error) {
-      const code = String(error?.code || '')
-      setRowErr({
-        id,
-        text: code === 'subtask_has_proofs'
-          ? t('project.hasProofs')
-          : code === 'prediction_locked_after_publish'
-            ? t('project.predictionLocked')
-            : t('project.deleteFailed'),
-      })
+      // 删除失败：reason 中文映射（subtask_has_proofs / subtask_not_in_task / …）+ 机读码 + HTTP
+      setRowErr({ id, ...writeFailNotice(error, t, 'project.deleteFailDetail') })
       setConfirmingId('')
     } finally {
       setRemovingId('')
@@ -295,13 +298,16 @@ const TaskBlock = ({ task, campaign, slug, t, lang, symbols, canManage, user, su
         <p className="sf-project-task-time" data-sf-m="project-task-time">{t(window.key, window.values)}</p>
       ) : null}
 
-      {statusErr ? (
+      {statusErr?.text ? (
         <p
           className="sf-project-notice is-err"
           data-sf-m="project-task-status-err"
           data-sf-task={taskRef}
+          data-sf-err-code={statusErr.code || ''}
+          data-sf-err-reason={statusErr.reason || ''}
+          data-sf-err-status={statusErr.status ?? ''}
           role="alert"
-        >{statusErr}</p>
+        >{statusErr.text}</p>
       ) : null}
 
       {subtaskOpen && subtaskForm ? (
@@ -323,7 +329,7 @@ const TaskBlock = ({ task, campaign, slug, t, lang, symbols, canManage, user, su
                 editing={editing}
                 confirming={manageable && confirmingId === id}
                 removing={manageable && removingId === id}
-                error={rowErr.id === id ? rowErr.text : ''}
+                errNotice={rowErr.id === id && rowErr.text ? rowErr : null}
                 form={editing ? (
                   <ProjectForms
                     panel="subtask"

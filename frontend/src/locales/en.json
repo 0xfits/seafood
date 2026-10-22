@@ -1531,6 +1531,14 @@
     "confirmDelete": "Delete this subtask?",
     "predictionLocked": "Locked after publishing (prediction is locked).",
     "hasProofs": "Users have already submitted, so it can’t be deleted.",
-    "deleteFailed": "Delete failed, please try again later."
+    "deleteFailed": "Delete failed, please try again later.",
+    "failDetail": "Publish failed: {{detail}} (HTTP {{status}})",
+    "deleteFailDetail": "Delete failed: {{detail}} (HTTP {{status}})",
+    "reasonOwnerRequired": "No permission (project owner or task manager required)",
+    "reasonQuizRewardRequired": "Quiz reward is required (must be greater than 0)",
+    "reasonQuizOptionsInvalid": "Incomplete options (all A–D options required, 1–4 correct answers)",
+    "reasonSubtaskInputInvalid": "Invalid subtask fields (type, title or payload out of range)",
+    "reasonSubtaskRemoveOverlap": "Removal and a new subtask conflict in one request (submit separately)",
+    "reasonSubtaskNotInTask": "That subtask does not belong to this task"
   }
 }

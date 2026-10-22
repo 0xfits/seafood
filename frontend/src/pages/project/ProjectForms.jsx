@@ -19,6 +19,7 @@ import {
   draftFromSubtask,
 } from './project-payload'
 import { refOf } from '../campaign/campaign-util'
+import { writeFailNotice } from './project-error'
 
 // ============================================================================
 // 项目页三表单（【发布活动】/【发布任务】/【发布子任务】）
@@ -83,17 +84,10 @@ const errorTextOf = (code, t) => {
 }
 
 /**
- * 子任务写口（编辑 / 删除）的失败码 → 文案键。
- *   · `prediction_locked_after_publish` = 父 task 已发布，prediction 不可再改（服务端闸）；
- *   · `subtask_has_proofs` = 已有用户提交，不能删（服务端闸）。
- * 其余（403 / 404 / 网络 / 换口径 400）一律落通用失败句 —— 不把机读码抛给用户。
+ * 子任务写口（编辑 / 删除）与三表单的失败呈现：统一走 `project-error.writeFailNotice`
+ * （code / `details.reason` / HTTP 状态三者都抬到文案与 `data-sf-err-*`，见该模块头注）。
+ * 原先「一律落通用失败句」的做法已退役 —— 正是它让 Kevin 的「发布子任务失败」无从定位。
  */
-const writeErrorText = (error, t) => {
-  const code = String(error?.code || '')
-  if (code === 'prediction_locked_after_publish') return t('project.predictionLocked')
-  if (code === 'subtask_has_proofs') return t('project.hasProofs')
-  return t('project.publishFailed')
-}
 
 const Field = ({ label, children }) => (
   <label className="sf-project-field">
@@ -259,6 +253,9 @@ const Notice = ({ notice }) => (
       className={`sf-project-notice is-${notice.kind || 'err'}`}
       data-sf-m="project-form-notice"
       data-sf-kind={notice.kind || 'err'}
+      data-sf-err-code={notice.code || ''}
+      data-sf-err-reason={notice.reason || ''}
+      data-sf-err-status={notice.status ?? ''}
       role="alert"
     >
       {notice.text}
@@ -317,7 +314,8 @@ const CampaignForm = ({ view, t, onDone, onClose }) => {
       setForm({ title: '', description: '', timeStart: '', timeEnd: '', launch: false })
       onClose?.()
     } catch (error) {
-      setErr({ kind: 'err', text: t('project.publishFailed') })
+      // 失败：把 code / details.reason / HTTP 状态一并内联（原先只落通用句 ⇒ 无从定位）
+      setErr({ kind: 'err', ...writeFailNotice(error, t) })
     } finally {
       setBusy(false)
     }
@@ -433,7 +431,7 @@ const TaskForm = ({ t, onDone, onClose, currencies, campaignLock }) => {
       onDone({ kind: 'ok', text: t('project.published') })
       onClose?.()
     } catch (error) {
-      setErr({ kind: 'err', text: t('project.publishFailed') })
+      setErr({ kind: 'err', ...writeFailNotice(error, t) })
     } finally {
       setBusy(false)
     }
@@ -613,8 +611,8 @@ const SubtaskForm = ({ slug, t, onDone, onClose, campaignLock, taskLock, subtask
         onDone?.({ kind: 'ok', text: t('project.subtaskSaved') })
         onClose?.()
       } catch (error) {
-        // 409（发布后锁 / 有凭证）就地内联，不谎报已存
-        setErr({ kind: 'err', text: writeErrorText(error, t) })
+        // 409（发布后锁 / 有凭证）/ 400（换口径、字段非法）就地内联，不谎报已存
+        setErr({ kind: 'err', ...writeFailNotice(error, t) })
       } finally {
         setBusy(false)
       }
@@ -650,7 +648,8 @@ const SubtaskForm = ({ slug, t, onDone, onClose, campaignLock, taskLock, subtask
       onDone({ kind: 'ok', text: t('project.published') })
       onClose?.()
     } catch (error) {
-      setErr({ kind: 'err', text: t('project.publishFailed') })
+      // 整组追加被拒（400 换口径 / 409 发布后锁 / 403 无权限）⇒ 就地吐 code + reason + HTTP
+      setErr({ kind: 'err', ...writeFailNotice(error, t) })
     } finally {
       setBusy(false)
     }

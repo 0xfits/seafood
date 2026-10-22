@@ -1531,6 +1531,14 @@
     "confirmDelete": "Xác nhận xóa?",
     "predictionLocked": "Không thể sửa sau khi công bố (dự đoán đã khóa).",
     "hasProofs": "Đã có người dùng gửi nên không thể xóa.",
-    "deleteFailed": "Xóa thất bại, vui lòng thử lại sau."
+    "deleteFailed": "Xóa thất bại, vui lòng thử lại sau.",
+    "failDetail": "Đăng thất bại: {{detail}} (HTTP {{status}})",
+    "deleteFailDetail": "Xóa thất bại: {{detail}} (HTTP {{status}})",
+    "reasonOwnerRequired": "Không có quyền (cần chủ dự án hoặc quản lý nhiệm vụ)",
+    "reasonQuizRewardRequired": "Phần thưởng câu đố là bắt buộc (phải lớn hơn 0)",
+    "reasonQuizOptionsInvalid": "Lựa chọn chưa đầy đủ (cần đủ A–D, 1–4 đáp án đúng)",
+    "reasonSubtaskInputInvalid": "Trường nhiệm vụ con không hợp lệ (loại, tiêu đề hoặc payload)",
+    "reasonSubtaskRemoveOverlap": "Xóa và thêm mới trùng trong cùng một yêu cầu (hãy gửi hai lần)",
+    "reasonSubtaskNotInTask": "Nhiệm vụ con này không thuộc nhiệm vụ đang chọn"
   }
 }

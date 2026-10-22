@@ -1531,6 +1531,14 @@
     "confirmDelete": "确认删除？",
     "predictionLocked": "发布后不可编辑（预测已锁定）。",
     "hasProofs": "已有用户提交，不能删除。",
-    "deleteFailed": "删除失败，请稍后重试。"
+    "deleteFailed": "删除失败，请稍后重试。",
+    "failDetail": "发布失败：{{detail}}（HTTP {{status}}）",
+    "deleteFailDetail": "删除失败：{{detail}}（HTTP {{status}}）",
+    "reasonOwnerRequired": "无权限（需项目负责人或任务管理员）",
+    "reasonQuizRewardRequired": "答题奖励必填（需大于 0）",
+    "reasonQuizOptionsInvalid": "选项不完整（A–D 四项必填，正确项 1–4 个）",
+    "reasonSubtaskInputInvalid": "子任务字段非法（类型、标题或载荷越界）",
+    "reasonSubtaskRemoveOverlap": "同一次提交里删除与新增冲突（请分两次提交）",
+    "reasonSubtaskNotInTask": "该子任务不属于此任务"
   }
 }
