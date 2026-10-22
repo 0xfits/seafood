@@ -126,9 +126,9 @@ const browser = await chromium.launch({ executablePath: EXE })
     }
   })
 
-  await page.click('[data-sf-m="campaign-vote"][data-sf-choice="a"]')
+  await page.click('[data-sf-m="campaign-vote"][data-sf-choice="yes"]')
   await page.waitForTimeout(120)
-  rec.picked = await page.evaluate(() => document.querySelector('[data-sf-m="campaign-vote"][data-sf-choice="a"]')?.getAttribute('data-sf-picked'))
+  rec.picked = await page.evaluate(() => document.querySelector('[data-sf-m="campaign-vote"][data-sf-choice="yes"]')?.getAttribute('data-sf-picked'))
   await page.click('[data-sf-m="campaign-prediction-submit"]')
   await page.waitForFunction(() => document.querySelector('[data-sf-m="campaign-prediction"]')?.getAttribute('data-sf-locked') === '1', { timeout: 8000 }).catch(() => {})
   await page.waitForTimeout(400)
@@ -181,7 +181,7 @@ const browser = await chromium.launch({ executablePath: EXE })
 
   rec.settled = await page.evaluate(() => {
     const votes = [...document.querySelectorAll('[data-sf-m="campaign-vote"]')]
-    const other = votes.find((v) => v.getAttribute('data-sf-choice') === 'b')
+    const other = votes.find((v) => v.getAttribute('data-sf-choice') === 'no')
     const result = document.querySelector('[data-sf-m="campaign-prediction-result"]')
     return {
       state: document.querySelector('[data-sf-m="campaign-prediction"]')?.getAttribute('data-sf-state'),
