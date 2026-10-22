@@ -67,6 +67,21 @@ dev 后端起法：`cd backend-ts && PORT=5788 ./node_modules/.bin/ts-node --tra
 
 ref 价格来源链：**最近成交价 → env → state → 无**（无来源 ⇒ 只撤不挂 + 告警）。
 
+## 常驻与开机自启（生产现状 · 2026-10-22）
+
+```bash
+pm2 start backend-ts/scripts/market-mm-bot.mjs --name seafood-mm -- --env ~/.config/seafood/mm-prod.env
+pm2 save                     # 固化进程表到 ~/.pm2/dump.pm2（已执行）
+# 登录级自启（已安装，无需密码）：~/Library/LaunchAgents/com.kevin.pm2-resurrect.plist
+launchctl load  ~/Library/LaunchAgents/com.kevin.pm2-resurrect.plist
+launchctl list | grep pm2    # 应见 com.kevin.pm2-resurrect
+# 开机未登录也要拉起（需管理员密码，二选一）：
+sudo env PATH=$PATH:/usr/local/bin /Users/kevin/.nvm/versions/node/v20.20.2/lib/node_modules/pm2/bin/pm2 startup launchd -u kevin --hp /Users/kevin
+```
+
+- 现状：`pm2 save` 已执行；**登录后自动 resurrect**（LaunchAgent）。机器重启但未登录 → 不启动（用户级限制）。
+- 停做市：`pm2 stop seafood-mm`；彻底移除：`pm2 delete seafood-mm && pm2 save`。
+
 ## 撮合与费用（平台现口径，勿凭直觉假设）
 
 - **挂单即撮合（2026-10-22 起）**：`POST /api/order` 建单后自动执行 taker 循环撮合
