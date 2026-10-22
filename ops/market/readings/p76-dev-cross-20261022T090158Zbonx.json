@@ -1,0 +1,55 @@
+{
+  "script": "ops/market/p76-dev-cross-probe.ts",
+  "api_base": "http://localhost:5788",
+  "price": "10000",
+  "currencies": {
+    "quote_cid": 1,
+    "base_cid": 399
+  },
+  "fixtures": {
+    "uids": {
+      "A": 971231,
+      "B": 971232
+    },
+    "addresses": {
+      "A": "0xa68e3c0008296a47a986276a7ff4c28b09db0493",
+      "B": "0x34b620ac42def47e7ce2b51262a2ba969436d946"
+    },
+    "private_keys": "[REDACTED]"
+  },
+  "health": {
+    "status": 200,
+    "body": {
+      "ok": true,
+      "db_version": "PostgreSQL 18.6 (fd34222) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit",
+      "schema_version": "0072",
+      "time": "2026-10-22T09:02:04.998Z"
+    }
+  },
+  "checks": [
+    {
+      "id": "C1",
+      "what": "★臂1 全额交叉（真 dev 5788 · 纯 HTTP 无 M3 直调）：A 卖 3（matches:[] · remaining=3 · open）⇒ B 买 3 ⇒ **路由自动撮合** · matches 恰 1（amount=3 · counterparty=A）· remaining=0 · `order_status=\"filled\"`（loop 收尾 DB 真值）· DB：双单 filled · 成交分录 trade×4 + trade_fee×2",
+      "pass": true,
+      "reading": "{\"sell\":{\"status\":200,\"matches\":[],\"remaining\":\"3\",\"order_status\":\"open\"},\"buy\":{\"status\":200,\"matches\":[{\"trade_id\":\"22\",\"price\":\"10000\",\"amount\":\"3\",\"counterparty_uid\":\"971231\"}],\"remaining\":\"0\",\"order_status\":\"filled\"},\"oA\":{\"st\":\"filled\",\"f\":\"3\",\"oid\":\"59\"},\"oB\":{\"st\":\"filled\",\"f\":\"3\",\"oid\":\"60\"},\"fee_oracle\":\"3000\",\"bp\":1000}"
+    },
+    {
+      "id": "C2",
+      "what": "★臂2 部分交叉（S5 修法 dev 实证）：A 卖 2 ⇒ B 买 5 ⇒ matches 恰 1（amount=2 · counterparty=A）· remaining=3 · `order_status=\"partial\"`（DB 真值，非创建快照 open）· DB：A filled×2 · B partial×2",
+      "pass": true,
+      "reading": "{\"sell\":{\"status\":200},\"buy\":{\"status\":200,\"matches\":[{\"trade_id\":\"23\",\"price\":\"10000\",\"amount\":\"2\",\"counterparty_uid\":\"971231\"}],\"remaining\":\"3\",\"order_status\":\"partial\"},\"oA\":{\"st\":\"filled\",\"f\":\"2\",\"oid\":\"61\"},\"oB\":{\"st\":\"partial\",\"f\":\"2\",\"oid\":\"62\"}}"
+    },
+    {
+      "id": "C3",
+      "what": "★零残留：A/B 夹具 open/partial 订单 = 0（臂2 的 partial 单已全撤）",
+      "pass": true,
+      "reading": "{\"fixture_open_orders\":0}"
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "passed": 3,
+    "failed": 0,
+    "red": []
+  }
+}
