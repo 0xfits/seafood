@@ -4372,7 +4372,7 @@ showEdit     = isAuthenticated && (isOwner || canEditAny) && statusEditable
 
 | 键 | zh | 用途 |
 |---|---|---|
-| `campaign.predictionYes` / `campaign.predictionNo` | 是 / 否 | prediction 选项标签（**发布芯片与参与按钮共用**） |
+| `campaign.predictionYes` / `campaign.predictionNo` | Yes / No | prediction 选项标签（**发布芯片与参与按钮共用**） |
 | `campaign.quiz.picks` | 选出正确答案（可多选） | 参与面多选区标签 |
 | `campaign.quiz.pickAtLeastOne` | 请至少选一个答案 | 空选零请求提示 |
 | `campaign.quiz.right` / `campaign.quiz.wrong` | 答对了 / 答错了 | 服务端判分结果 |
@@ -4398,6 +4398,12 @@ showEdit     = isAuthenticated && (isOwner || canEditAny) && statusEditable
 - **落点**：`campaign.css` ＋43 行 / `project.css` ＋32 行（页面级文件）；`data-sf-m` 探针钩子：`campaign-quiz-panel` / `campaign-quiz-option` / `campaign-quiz-reward` / `campaign-quiz-result` / `campaign-quiz-submit` / `project-prediction-choices` / `project-quiz-fields` / `project-quiz-correct`。
 - **门套现取（作者自报，转引）**：`build` 0 · `test:unit` **76 文件 / 808 例** · 24 处 i18n 计数断言前推；**判负 #87–#91 一条未跑**（无独立探针）。
 - **未测**：两档（H5 ≤767 / Web ≥768）真机几何未量；`vn` 译文待复核；quiz 结果块在「读口未带判定」时的空态无截图；`aria-pressed` 的无障碍实测未做。本笔只写 `docs/**`，零代码改动。
+
+**F. 变更注记（2026-10-22 · 值勘误 · 键集零变化）**
+
+- **缘由**：Kevin 裁定 prediction 选项**展示**统一 `Yes / No`（不分语种）。C 段该行值原写「是 / 否」= 落册时点（2026-10-22 前）的 zh 字面留痕，**已漂移**，本行改为 **`Yes / No`**（旧字面在本条留痕，表格行不再保留）。
+- **代码侧同期落地**（`35bc4ea`）：zh / hk 由「是 / 否」改 **Yes / No**、vn 由「Có / Không」改 **Yes / No**、en 原即 Yes / No 未动；**只改值、键集零变化**（无新增 / 无删除键 ⇒ i18n 计数不变），单元断言取 locale 值而非字面量 ⇒ 测试零改动。
+- **payload 与投票语义零变化**：新行仍只收 `{choice:'yes'|'no'}`；旧存量行（`option_style='ab_legacy'`，payload 带 `option_a` / `option_b`）**仍按 a / b 投票**、参与面副行只读显示原文案照旧（承本条上文与 data §40.14.10）——本勘误**只动展示文案，不动取值域、不动口径判别**。
 
 ## §26.20 【招工】→【任务】文案变更登记 ＋ 项目（打工/工资体系）页面骨架预留：`/project` ＋ `/project/create` ＋ `/project/:ref` ＋ `/project/mine`（H5/Web 两形态 · **零实现、零 token、零 i18n 键落地**）（2026-10-20 · **加性续登、不升版**（承 §26.12–§26.19 体例）· 纯追加）
 
