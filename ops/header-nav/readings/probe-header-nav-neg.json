@@ -1,6 +1,6 @@
 {
   "probe": "ops/header-nav/probe-header-nav.mjs",
-  "startedAt": "2026-10-22T03:01:05.319Z",
+  "startedAt": "2026-10-22T07:51:25.675Z",
   "dist": "/Users/kevin/bistro/seafood/frontend/dist",
   "fixtures": {
     "auth": "localStorage seed（EVM = 管理员合约地址）+ /api/admin/me 自截（零后端 / 零库写）",
@@ -19,7 +19,9 @@
     ],
     "ordersSrc": "/icons/nav/nav-orders.png",
     "pageTitleZh": "悬赏中心",
-    "oldLongCopy": "悬赏中心"
+    "oldLongCopy": "悬赏中心",
+    "siteSlogan": "攞人工，做條鹹魚，放閒嘢，搏佢翻身！",
+    "siteSloganUniform4Langs": true
   },
   "states": {
     "1536_home": {
@@ -109,8 +111,8 @@
             "y": 14
           },
           "style": {
-            "backgroundColor": "rgba(147, 51, 234, 0.643)",
-            "color": "rgb(190, 194, 199)",
+            "backgroundColor": "rgba(147, 51, 234, 0.77)",
+            "color": "rgb(213, 216, 219)",
             "paddingTop": "8px",
             "paddingRight": "12px",
             "paddingBottom": "8px",
@@ -122,6 +124,34 @@
         }
       ]
     },
+    "inline": [
+      {
+        "key": "nav-0",
+        "ok": false,
+        "why": "missing_img_or_span"
+      },
+      {
+        "key": "nav-1",
+        "leftOfText": true,
+        "vCenterDelta": 0,
+        "display": "flex",
+        "rowWithin": true
+      },
+      {
+        "key": "nav-2",
+        "leftOfText": true,
+        "vCenterDelta": 0,
+        "display": "flex",
+        "rowWithin": true
+      },
+      {
+        "key": "orders",
+        "leftOfText": true,
+        "vCenterDelta": 0,
+        "display": "flex",
+        "rowWithin": true
+      }
+    ],
     "1536_en": {
       "navLabels": [
         "悬赏中心",
@@ -188,11 +218,29 @@
       "altEmptyAriaHidden": true,
       "labelExact": true
     },
+    "iconInline": {
+      "rowCount": 4,
+      "everyLeftOfText": false,
+      "everyVCentered": false,
+      "ordersNotStacked": true,
+      "everySingleRowHeight": false,
+      "everyFlexDisplay": false
+    },
     "copy": {
       "labelsExact": false,
       "bountyIsShort": false,
       "navHasNoOldLongCopy": false,
       "pageTitleStillCenter": true
+    },
+    "brandSlogan": {
+      "localeUniform4Langs": true,
+      "present": false,
+      "flexColTwoLine": false,
+      "brandTextExact": true,
+      "sloganTextExact": false,
+      "slogan11px": false,
+      "sloganSingleLine": false,
+      "headerHeightWithin66": true
     },
     "adminNeutralStyle": {
       "adminPresent": true,
@@ -206,7 +254,7 @@
           "values": [
             "rgba(0, 0, 0, 0)",
             "rgba(0, 0, 0, 0)",
-            "rgba(147, 51, 234, 0.643)"
+            "rgba(147, 51, 234, 0.77)"
           ],
           "allEqual": false
         },
@@ -214,7 +262,7 @@
           "values": [
             "rgb(75, 85, 99)",
             "rgb(75, 85, 99)",
-            "rgb(190, 194, 199)"
+            "rgb(213, 216, 219)"
           ],
           "allEqual": false
         },
@@ -287,6 +335,8 @@
       "enHasImg": false,
       "enImgSrcsExact": false,
       "enOrdersSrcExact": true,
+      "enSloganPresent": false,
+      "enSloganTextExact": false,
       "zeroOverflow1536en": true
     },
     "dashboardPage": {
@@ -298,7 +348,10 @@
     "layout390": {
       "zeroOverflow390": true,
       "zeroPageError390": true,
-      "offendersNone": true
+      "offendersNone": true,
+      "brandSlogan390Present": false,
+      "brandSlogan390TextExact": false,
+      "headerHeight390Within66": true
     },
     "mobilePanelSync": {
       "panelOpen": true,
@@ -386,8 +439,8 @@
     }
   },
   "summary": {
-    "checks": 54,
-    "failed": 14,
+    "checks": 75,
+    "failed": 29,
     "failedNames": [
       "icons.everyHasImg",
       "icons.imgSrcsExact",
@@ -395,14 +448,29 @@
       "icons.everyImgPixelated",
       "icons.everyImgAltEmptyAriaHidden",
       "icons.everyImgDecoded",
+      "iconInline.everyLeftOfText",
+      "iconInline.everyVCentered",
+      "iconInline.everySingleRowHeight",
+      "iconInline.everyFlexDisplay",
       "copy.labelsExact",
       "copy.bountyIsShort",
       "copy.navHasNoOldLongCopy",
+      "brandSlogan.present",
+      "brandSlogan.flexColTwoLine",
+      "brandSlogan.sloganTextExact",
+      "brandSlogan.slogan11px",
+      "brandSlogan.sloganSingleLine",
       "i18n.enLabelsExact",
       "i18n.enHasImg",
       "i18n.enImgSrcsExact",
+      "i18n.enSloganPresent",
+      "i18n.enSloganTextExact",
+      "layout390.brandSlogan390Present",
+      "layout390.brandSlogan390TextExact",
       "sameBackground",
-      "sameForeground"
+      "sameForeground",
+      "brandSlogan390Present",
+      "brandSlogan390TextExact"
     ],
     "verdict": "FAIL"
   }

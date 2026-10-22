@@ -213,10 +213,20 @@ const Header = () => {
       <header id="header" className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
+          {/* Logo + 品牌口号（Kevin 2026-10-22：品牌名下加一行粤语口号小字 `siteSlogan`，四语同值。
+              容器改上下两行 flex-col；头部总高不变（h-16 = 64px 内容，探针冻结 65px 含边框）。 */}
           <div className="flex-shrink-0 flex items-center">
-            <Link to={buildPath('')} className="sf-tap-inline sf-topbar-brand text-xl font-bold">
-              {t('siteBrand')}
+            <Link
+              to={buildPath('')}
+              className="sf-tap-inline sf-topbar-brand flex flex-col justify-center leading-tight whitespace-nowrap"
+            >
+              <span className="text-xl font-bold">{t('siteBrand')}</span>
+              <span
+                className="text-[11px] font-normal text-gray-500 dark:text-gray-400 leading-tight"
+                data-sf-m="header-brand-slogan"
+              >
+                {t('siteSlogan')}
+              </span>
             </Link>
           </div>
           

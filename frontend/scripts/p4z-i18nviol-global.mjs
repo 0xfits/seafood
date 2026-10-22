@@ -58,6 +58,9 @@ const EXEMPT_LOCALE_KEYS = [
   ['footer.catSlogan2', '既有粵語口号（非本单写集，产品口径）'],
   ['footer.catSlogan3', '既有粵語口号（非本单写集，产品口径）'],
   ['footer.cloudSlogan', '既有粵語口号（非本单写集，产品口径）'],
+  // Kevin 2026-10-22：`siteSlogan` 统一为粤语品牌口号「攞人工，做條鹹魚，放閒嘢，搏佢翻身！」
+  //（四语逐字同值，顶栏品牌位品牌名下小字；theme-shell-isomorphism 有同值硬断言）
+  ['siteSlogan', '品牌粤语口号（四语同值裁定，en/vn 同串不属残留）'],
   // 管理员面：token 即 UI **输入字面**（删则功能不可用），非给用户看的说明口径
   ['adminPermissions.permissionsPlaceholder', '管理员输入语法示例（token 即要输入的值）'],
 ]

@@ -13,12 +13,17 @@
  *   ⑤ 390 / 1536 两档：`scrollWidth - clientWidth = 0`、零 pageerror / 零 console error；
  *      顶栏高度 65px 不变（h-16 64 + 1px 下边框；换图不得撑高头部）。
  *      390 档加开汉堡面板：面板内 `nav-*` img src 同步断言（移动面板同步的探针侧证据）。
+ *   ⑥ 品牌位上下两行（Kevin 2026-10-22 slogan 单）：品牌名（text-xl font-bold 不变）+ 粤语口号小字
+ *      `siteSlogan`（`data-sf-m="header-brand-slogan"`）：口号行在场、文案 = 当前语种键值（四语逐字同值）、
+ *      computed 字号 11px、口号行在品牌行下方、头部总高 ≤66（65 冻结不变由 layout 承压）；
+ *      390 / 1536 零溢出由 ⑤ 与 layout390 继续承压（口号 17 字形 ≈187px @11px，390 档有余量）。
  *
  * 手法（同 ops/profile-nav/probe-profile-nav.mjs 体例）：
  *   · 静态服务 = context.route 把 `http://sf.local/**` 映射到磁盘 `frontend/dist`（零 dev server）；
  *   · 登录态 = localStorage 种子（EVM = 合约管理员地址）+ `/api/admin/me` 自截 ⇒ 三项齐；
  *   · 负控臂 PROBE_NEG=1 ⇒ 四突变：① 管理项染回紫底；② 「悬赏」文案改回「悬赏中心」；
- *     ③ 悬赏项图标「改回 lucide」（img 摘除换 svg）；④ 市场项「换错图」（src 改指贝壳图）
+ *     ③ 悬赏项图标「改回 lucide」（img 摘除换 svg）；④ 市场项「换错图」（src 改指贝壳图）；
+ *     ⑤ 品牌口号行整行摘除（`header-brand-slogan` 节点 remove）⇒ ⑥ 的在场/文案判据必须全部转红。
  *     —— 对应判据必须全部转红。
  *
  * 用法：QA_DIST=<dist> [PROBE_NEG=1] node probe-header-nav.mjs <out.json>
@@ -132,6 +137,27 @@ const SNAP_FN = () => {
       img: oIr && oIcs ? { w: Math.round(oIr.width), h: Math.round(oIr.height), alt: oImg.getAttribute('alt'), ariaHidden: oImg.getAttribute('aria-hidden'), pixelated: oIcs.imageRendering, naturalOk: oImg.complete && oImg.naturalWidth > 0 } : null,
     }
   }
+  // 品牌位（2026-10-22 slogan 单）：Link 上下两行 = 品牌名 + 粤语口号小字（四语同值）
+  const brandLink = q('#header a.sf-topbar-brand')
+  const sloganEl = document.querySelector('[data-sf-m="header-brand-slogan"]')
+  let brand = null
+  if (brandLink) {
+    const spans = brandLink.querySelectorAll('span')
+    const top = spans[0] ? spans[0].getBoundingClientRect() : null
+    const bot = sloganEl ? sloganEl.getBoundingClientRect() : null
+    const scs = sloganEl ? getComputedStyle(sloganEl) : null
+    const r = brandLink.getBoundingClientRect()
+    brand = {
+      flexCol: getComputedStyle(brandLink).flexDirection === 'column',
+      brandText: spans[0] ? spans[0].textContent.trim() : null,
+      sloganPresent: !!sloganEl,
+      sloganText: sloganEl ? sloganEl.textContent.trim() : null,
+      sloganFontSize: scs ? scs.fontSize : null,
+      sloganNowrap: scs ? scs.whiteSpace === 'nowrap' : false,
+      sloganBelowBrand: !!(top && bot && bot.top >= top.bottom - 1),
+      box: { w: Math.round(r.width), h: Math.round(r.height) },
+    }
+  }
   const hr = header ? header.getBoundingClientRect() : null
   return {
     pathname: location.pathname,
@@ -147,6 +173,7 @@ const SNAP_FN = () => {
     navText: nav ? nav.textContent.replace(/\s+/g, ' ').trim() : '',
     items,
     orders,
+    brand,
   }
 }
 
@@ -213,6 +240,9 @@ const seedAuth = (ctx) => ctx.addInitScript((negArm) => {
     const second = links[1]
     const sim = second && second.querySelector('img')
     if (sim && sim.getAttribute('src') !== '/icons/nav/nav-bounty.png') sim.setAttribute('src', '/icons/nav/nav-bounty.png')
+    // ⑤ 品牌口号行整行摘除 ⇒ brandSlogan 在场/文案/两行判据必须转红（React 不重渲染 ⇒ 摘除持续生效）
+    const sloganEl = document.querySelector('[data-sf-m="header-brand-slogan"]')
+    if (sloganEl) sloganEl.remove()
   }
   setInterval(inject, 60)
 }, NEG)
@@ -268,7 +298,8 @@ async function main() {
     startedAt: new Date().toISOString(),
     dist: DIST,
     fixtures: { auth: 'localStorage seed（EVM = 管理员合约地址）+ /api/admin/me 自截（零后端 / 零库写）', negativeControl: NEG },
-    expected: { labelsZh: EXPECT_LABELS_ZH, imgSrcs: EXPECT_SRCS, ordersSrc: ORDERS_SRC, pageTitleZh: NEW.zh.taskPage.title, oldLongCopy: OLD_ZH_LONG },
+    expected: { labelsZh: EXPECT_LABELS_ZH, imgSrcs: EXPECT_SRCS, ordersSrc: ORDERS_SRC, pageTitleZh: NEW.zh.taskPage.title, oldLongCopy: OLD_ZH_LONG,
+      siteSlogan: NEW.zh.siteSlogan, siteSloganUniform4Langs: new Set([NEW.zh.siteSlogan, NEW.en.siteSlogan, NEW.hk.siteSlogan, NEW.vn.siteSlogan]).size === 1 },
     states: {}, assertions: {}, errors: {},
   }
 
@@ -363,6 +394,19 @@ async function main() {
     pageTitleStillCenter: NEW.zh.taskPage.title === OLD_ZH_LONG,
   }
 
+  // 品牌位上下两行（Kevin 2026-10-22）：口号行在场 + 文案逐字（四语同值）+ 11px 小字 + 单行不折行 + 头部 ≤66
+  const slogan4 = [NEW.zh.siteSlogan, NEW.en.siteSlogan, NEW.hk.siteSlogan, NEW.vn.siteSlogan]
+  out.assertions.brandSlogan = {
+    localeUniform4Langs: new Set(slogan4).size === 1,
+    present: !!deskSnap.brand && deskSnap.brand.sloganPresent === true,
+    flexColTwoLine: !!deskSnap.brand && deskSnap.brand.flexCol === true && deskSnap.brand.sloganBelowBrand === true,
+    brandTextExact: deskSnap.brand ? deskSnap.brand.brandText === NEW.zh.siteBrand : false,
+    sloganTextExact: deskSnap.brand ? deskSnap.brand.sloganText === NEW.zh.siteSlogan : false,
+    slogan11px: deskSnap.brand ? deskSnap.brand.sloganFontSize === '11px' : false,
+    sloganSingleLine: deskSnap.brand ? deskSnap.brand.sloganNowrap === true : false,
+    headerHeightWithin66: deskSnap.header ? deskSnap.header.h <= 66 : false,
+  }
+
   out.assertions.adminNeutralStyle = {
     adminPresent: !!adminItem,
     hrefIsDashboard: adminItem ? adminItem.href === '/dashboard' : false,
@@ -392,6 +436,8 @@ async function main() {
     enHasImg: enSnap2.items.length === 3 && enSnap2.items.every((i) => i.hasImg),
     enImgSrcsExact: sameArr(enSnap2.items.map((i) => i.imgSrc), EXPECT_SRCS),
     enOrdersSrcExact: enSnap2.orders ? enSnap2.orders.imgSrc === ORDERS_SRC : false,
+    enSloganPresent: enSnap2.brand ? enSnap2.brand.sloganPresent === true : false,
+    enSloganTextExact: enSnap2.brand ? enSnap2.brand.sloganText === NEW.en.siteSlogan : false,
     zeroOverflow1536en: enSnap2.overflowPx === 0,
   }
 
@@ -419,6 +465,10 @@ async function main() {
     zeroOverflow390: mob.overflowPx === 0,
     zeroPageError390: m.errors.pageErrors.length === 0 && m.errors.consoleErrors.length === 0,
     offendersNone: mob.offenders.length === 0,
+    // 品牌口号行 390 档：在场 + 文案逐字 + 不溢出（17 字形 ≈187px @11px，390 档有余量）
+    brandSlogan390Present: !!mob.brand && mob.brand.sloganPresent === true,
+    brandSlogan390TextExact: mob.brand ? mob.brand.sloganText === NEW.zh.siteSlogan : false,
+    headerHeight390Within66: mob.header ? mob.header.h <= 66 : false,
   }
 
   // 390 + 开汉堡面板：移动面板内像素图同步断言（面板 = menuItems − exchange ⇒ 任务项 + 订单项）

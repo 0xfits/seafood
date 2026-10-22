@@ -1,6 +1,6 @@
 {
   "probe": "ops/header-nav/probe-header-nav.mjs",
-  "startedAt": "2026-10-22T04:40:58.002Z",
+  "startedAt": "2026-10-22T07:50:31.198Z",
   "dist": "/Users/kevin/bistro/seafood/frontend/dist",
   "fixtures": {
     "auth": "localStorage seed（EVM = 管理员合约地址）+ /api/admin/me 自截（零后端 / 零库写）",
@@ -19,7 +19,9 @@
     ],
     "ordersSrc": "/icons/nav/nav-orders.png",
     "pageTitleZh": "悬赏中心",
-    "oldLongCopy": "悬赏中心"
+    "oldLongCopy": "悬赏中心",
+    "siteSlogan": "攞人工，做條鹹魚，放閒嘢，搏佢翻身！",
+    "siteSloganUniform4Langs": true
   },
   "states": {
     "1536_home": {
@@ -153,10 +155,10 @@
       },
       {
         "key": "orders",
-        "leftOfText": false,
-        "vCenterDelta": 19.5,
-        "display": "block",
-        "rowWithin": false
+        "leftOfText": true,
+        "vCenterDelta": 0,
+        "display": "flex",
+        "rowWithin": true
       }
     ],
     "1536_en": {
@@ -227,17 +229,27 @@
     },
     "iconInline": {
       "rowCount": 4,
-      "everyLeftOfText": false,
-      "everyVCentered": false,
-      "ordersNotStacked": false,
-      "everySingleRowHeight": false,
-      "everyFlexDisplay": false
+      "everyLeftOfText": true,
+      "everyVCentered": true,
+      "ordersNotStacked": true,
+      "everySingleRowHeight": true,
+      "everyFlexDisplay": true
     },
     "copy": {
       "labelsExact": true,
       "bountyIsShort": true,
       "navHasNoOldLongCopy": true,
       "pageTitleStillCenter": true
+    },
+    "brandSlogan": {
+      "localeUniform4Langs": true,
+      "present": true,
+      "flexColTwoLine": true,
+      "brandTextExact": true,
+      "sloganTextExact": true,
+      "slogan11px": true,
+      "sloganSingleLine": true,
+      "headerHeightWithin66": true
     },
     "adminNeutralStyle": {
       "adminPresent": true,
@@ -332,6 +344,8 @@
       "enHasImg": true,
       "enImgSrcsExact": true,
       "enOrdersSrcExact": true,
+      "enSloganPresent": true,
+      "enSloganTextExact": true,
       "zeroOverflow1536en": true
     },
     "dashboardPage": {
@@ -343,7 +357,10 @@
     "layout390": {
       "zeroOverflow390": true,
       "zeroPageError390": true,
-      "offendersNone": true
+      "offendersNone": true,
+      "brandSlogan390Present": true,
+      "brandSlogan390TextExact": true,
+      "headerHeight390Within66": true
     },
     "mobilePanelSync": {
       "panelOpen": true,
@@ -431,15 +448,9 @@
     }
   },
   "summary": {
-    "checks": 59,
-    "failed": 5,
-    "failedNames": [
-      "iconInline.everyLeftOfText",
-      "iconInline.everyVCentered",
-      "iconInline.ordersNotStacked",
-      "iconInline.everySingleRowHeight",
-      "iconInline.everyFlexDisplay"
-    ],
-    "verdict": "FAIL"
+    "checks": 75,
+    "failed": 0,
+    "failedNames": [],
+    "verdict": "PASS"
   }
 }

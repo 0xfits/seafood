@@ -271,8 +271,13 @@ describe('应用外壳 · 断点只能落在 CSS 里（结构级证据）', () =
       expect(typeof t.siteTitle).toBe('string')
       expect(t.siteTitle.startsWith('Seafood')).toBe(true)
     }
-    // P9①：标语键 `siteSlogan` 四语齐；`siteTitle`（品牌）与 `siteSlogan` 组合后 = 原复合串观感。
-    expect(tables[0].siteSlogan).toBe('加密人自己的「闲鱼」')
+    // P9①：标语键 `siteSlogan` 四语齐。Kevin 2026-10-22 裁定：`siteSlogan` 统一为粤语品牌口号
+    // （四语逐字同值「攞人工，做條鹹魚，放閒嘢，搏佢翻身！」），顶栏品牌位品牌名下加一行小字
+    // （Header.jsx `t('siteSlogan')`）；P9① 时代「按语种分值」（zh「加密人自己的「闲鱼」」等）口径退役。
+    // `document.title` 组合真源不变（品牌名｜标语 ⇒ 现组合为「品牌｜粤语口号」，四语同串）。
+    expect(tables[0].siteSlogan).toBe('攞人工，做條鹹魚，放閒嘢，搏佢翻身！')
+    // 四语逐字一致（新口径硬断言；键集相等另行断言，故此处只需断值同）
+    expect(new Set(tables.map((t) => t.siteSlogan)).size).toBe(1)
     for (const t of tables) expect(typeof t.siteSlogan).toBe('string')
     // 启动前回退标题（index.html）= **中性占位**；前台运行时真源（DocumentTitle）= 品牌名｜标语（覆盖值 > locale）。
     const html = read(path.join(SRC, '../index.html'))
