@@ -343,3 +343,195 @@
     min-height: 44px;
   }
 }
+
+/* ============================================================================
+ * 用户头像区（`/profile/settings` pane 顶部 · Kevin 2026-10-22）
+ * ----------------------------------------------------------------------------
+ * 视觉与项目页头像（`pages/project/project.css` 的 `.sf-project-avatar*`）同族：
+ * 圆形 + 相机钮压右下角 + 行内【恢复默认】二次确认 + 行内失败提示。
+ * 几何量落本文件 `--sf-l-prof-avatar-*`（两档同值 ⇒ 切主题几何逐值相等）；
+ * 颜色**一律既有主题 token**（`--sf-panel-*` / `--sf-title-fg` / `--sf-meta-fg` /
+ * `--sf-down-fg` / `--sf-btna-*` / 十档 `--sf-thumb-N`）⇒ **零新色值**。
+ * ========================================================================== */
+.sf-prof-avatar-block {
+  --sf-l-prof-avatar-size: 64px;
+  --sf-l-prof-avatar-btn: 28px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.sf-prof-avatar {
+  position: relative;
+  flex: none;
+  width: var(--sf-l-prof-avatar-size);
+  height: var(--sf-l-prof-avatar-size);
+  border-radius: 50%;
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  /* 不裁切容器：相机钮压在圆外右下角，`overflow:hidden` 会把它切掉一半 */
+  overflow: visible;
+  background: var(--sf-panel-bg);
+}
+
+/* 十档彩底（复用 `theme-tokens.css` 既有 `--sf-thumb-1 … -10`，日/夜两档各自成立） */
+.sf-prof-avatar[data-sf-tone="1"] { background: var(--sf-thumb-1); }
+.sf-prof-avatar[data-sf-tone="2"] { background: var(--sf-thumb-2); }
+.sf-prof-avatar[data-sf-tone="3"] { background: var(--sf-thumb-3); }
+.sf-prof-avatar[data-sf-tone="4"] { background: var(--sf-thumb-4); }
+.sf-prof-avatar[data-sf-tone="5"] { background: var(--sf-thumb-5); }
+.sf-prof-avatar[data-sf-tone="6"] { background: var(--sf-thumb-6); }
+.sf-prof-avatar[data-sf-tone="7"] { background: var(--sf-thumb-7); }
+.sf-prof-avatar[data-sf-tone="8"] { background: var(--sf-thumb-8); }
+.sf-prof-avatar[data-sf-tone="9"] { background: var(--sf-thumb-9); }
+.sf-prof-avatar[data-sf-tone="10"] { background: var(--sf-thumb-10); }
+
+.sf-prof-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 首字兜底：地址首字 + 彩底（`aria-hidden` ⇒ 读屏不念这个装饰字） */
+.sf-prof-avatar-initial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  color: var(--sf-title-fg);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* 换头像钮：28px 圆形（≥24px 触控下限），右下角压边；真 <button> ⇒ 键盘可达 */
+.sf-prof-avatar-change {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--sf-l-prof-avatar-btn);
+  height: var(--sf-l-prof-avatar-btn);
+  padding: 0;
+  border-radius: 50%;
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  background: var(--sf-panel-bg);
+  color: var(--sf-title-fg);
+  cursor: pointer;
+}
+.sf-prof-avatar-change:disabled { opacity: 0.55; cursor: not-allowed; }
+.sf-prof-avatar-change:focus-visible,
+.sf-prof-avatar-reset:focus-visible,
+.sf-prof-avatar-confirm-btn:focus-visible {
+  outline: 2px solid var(--sf-btna-bg);
+  outline-offset: 1px;
+}
+
+/* 隐藏的文件选择器：视觉不可见但仍可被按钮 click 触发，不占位、不可聚焦 */
+.sf-prof-avatar-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sf-prof-avatar-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+}
+
+.sf-prof-avatar-addr {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sf-meta-fg);
+  overflow-wrap: anywhere;
+}
+
+/* 【恢复默认】：低于地址的小号文字钮（不抢主操作） */
+.sf-prof-avatar-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-height: 24px;
+  padding: 0 2px;
+  border: 0;
+  background: none;
+  color: var(--sf-meta-fg);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.sf-prof-avatar-reset:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* 行内二次确认（提示 + 确认/取消）：自有白底小卡片，不与页面其它提示混淆 */
+.sf-prof-avatar-confirm {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  padding: 4px 6px;
+  border-radius: var(--sf-st-radius-ctl);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  background: var(--sf-panel-bg);
+  font-size: 12px;
+  color: var(--sf-title-fg);
+  max-width: 260px;
+}
+
+.sf-prof-avatar-confirm-text { font-weight: 600; overflow-wrap: anywhere; }
+
+.sf-prof-avatar-confirm-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-height: 24px;
+  padding: 0 6px;
+  border-radius: var(--sf-st-radius-ctl);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  background: var(--sf-panel-bg);
+  color: var(--sf-title-fg);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.sf-prof-avatar-confirm-btn.is-ok {
+  background: var(--sf-btna-bg);
+  border-color: transparent;
+  color: var(--sf-btna-fg);
+}
+.sf-prof-avatar-confirm-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* 头像写口失败/超限：行内提示（红字 + 机读三件单列），带 `data-sf-err-*` 取证字段 */
+.sf-prof-avatar-notice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 6px;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sf-down-fg);
+  overflow-wrap: anywhere;
+}
+.sf-prof-avatar-notice-detail { opacity: 0.85; }
+
+/* 手机档（≤767）：头像区允许换行（64px 圆 + 文案不互挤；触控钮仍 ≥24px） */
+@media (max-width: 767px) {
+  .sf-prof-avatar-block { align-items: flex-start; }
+  .sf-prof-avatar-change { width: 32px; height: 32px; }
+}

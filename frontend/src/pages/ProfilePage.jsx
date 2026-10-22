@@ -9,6 +9,9 @@ import { LoadingPage } from '../components/ui/Loading'
 import { FadeIn, SlideUp } from '../components/ui/Motion'
 import { ResponsiveContainer, ResponsiveGrid } from '../components/ui/Responsive'
 import { useTranslation } from 'react-i18next'
+// 用户头像编辑（Kevin 2026-10-22）：账户设置 pane 顶部 —— 64px 头像 + 换图/恢复默认；
+//   上传走 `image-compress` → `POST /api/media` → `POST /api/user/profile {avatar_url}`（写口本单新增）。
+import ProfileAvatarEditor from '../components/ProfileAvatarEditor'
 import { buildLocalizedPath, formatEvmAddress, getLanguageFromUrl } from '../utils'
 // ★ route §49.16：商品详情链接段统一取 `item_code`（缺失回落数字 id）。
 import { itemLinkId } from '../item-link'
@@ -1106,6 +1109,23 @@ const ProfilePage = () => {
 
           {view.kind === 'settings' && (
             <div data-sf-m="settings-view">
+              {/* 用户头像区（pane 顶部）：64px 圆形 + 换图 / 恢复默认（Kevin 2026-10-22） */}
+              <SlideUp delay={80}>
+                <Card variant="primary">
+                  <CardContent>
+                    <ProfileAvatarEditor
+                      user={user}
+                      t={t}
+                      onChanged={(next) => {
+                        // 写口回执与 `GET /api/user` 同源（`buildUserPayload`）⇒ 直接刷会话 + 本页态
+                        const merged = updateSession(next)
+                        setUser(merged)
+                      }}
+                    />
+                  </CardContent>
+                </Card>
+              </SlideUp>
+
               {/* 页面标题 */}
               <FadeIn>
                 <div className="text-center">

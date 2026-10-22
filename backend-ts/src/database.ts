@@ -1292,6 +1292,13 @@ export interface UserRecord {
   is_admin: boolean;
   time_reg: number;
   time_login_last: number;
+  /**
+   * ★ 2026-10-22 用户头像写口（列 = 迁移 `0052`，读侧 feed/详情早已在用）：
+   *   `users.avatar_url` ⇒ **站内媒体相对路径** `/api/media/<media_id>`；未设 ⇒ `null`。
+   *   出形态恒在场（`null` 不是缺键）：`normalizeUser` 逐行归一；`GET /api/user` /
+   *   `POST /api/user/profile` 回执经 `buildUserPayload` 的 `...user` **同源**透出。
+   */
+  avatar_url: string | null;
 }
 
 export interface BrandRecord {
@@ -1594,6 +1601,8 @@ const normalizeUser = (row: RawRow): UserRecord => ({
   is_admin: toBooleanValue(getValue(row, 'is_admin')),
   time_reg: toTimestamp(getValue(row, 'time_reg')),
   time_login_last: toTimestamp(getValue(row, 'time_login_last')),
+  // 头像 = 站内媒体相对路径；缺列/无值 ⇒ null（不是缺键，`|| null` 与 `seller.avatar` 同口径）
+  avatar_url: toStringValue(getValue(row, 'avatar_url')) || null,
 });
 
 /**
@@ -2714,17 +2723,54 @@ export class DatabaseService {
     return (await this.getUserById(user.uID)) || user;
   }
 
-  static async updateUserProfile(uID: number, fields: { bio?: string; is_admin?: boolean }): Promise<UserRecord | null> {
-    const sql = getSql();
-    const bio = fields.bio;
-    const isAdmin = fields.is_admin === undefined ? null : String(fields.is_admin);
-    const row = firstRow(await sql`
-      UPDATE "users" AS u
-      SET "bio" = COALESCE(${bio}, "bio"),
-          "is_admin" = COALESCE(${isAdmin}, "is_admin")
-      WHERE u.uid = ${uID}
-      RETURNING u.*
-    `);
+  /**
+   * 账户设置写口（`POST /api/user/profile` 的唯一落库点）。
+   *
+   * ★ 2026-10-22 头像写口（Kevin：`/profile/settings` 要能改头像）：
+   *   **三键全部按「是否给出」判增删**（has-flag），**不再用 `COALESCE($n, 列)`** ——
+   *   `avatar_url` 的 `null` 是**真语义**（清空头像），COALESCE 词法上无法区分
+   *   「未给 ⇒ 保留」与「给 null ⇒ 置空」。
+   *     · `undefined` ⇒ 该列**不进 SET**（保留库内现值）；
+   *     · `null`（仅 `avatar_url`）⇒ 显式 `= $n::text` 绑 NULL ⇒ 置空；
+   *     · 字符串 ⇒ 原样写入（形状校验在路由层，服务层不解析 URL）。
+   *   `bio` / `is_admin` 的旧行为逐字不变：`undefined` 不改、给了就写（`bio` 非空/超长等
+   *   业务闸仍在路由层）。
+   */
+  static async updateUserProfile(
+    uID: number,
+    fields: { bio?: string; is_admin?: boolean; avatar_url?: string | null },
+  ): Promise<UserRecord | null> {
+    const assignments: string[] = [];
+    const params: unknown[] = [];
+
+    if (fields.bio !== undefined) {
+      params.push(fields.bio);
+      assignments.push(`"bio" = $${params.length}`);
+    }
+    if (fields.is_admin !== undefined) {
+      params.push(String(fields.is_admin));
+      assignments.push(`"is_admin" = $${params.length}::boolean`);
+    }
+    if (fields.avatar_url !== undefined) {
+      // `null` ⇒ 绑定 NULL（清空头像）；未给 ⇒ 本分支不执行（保留现值）
+      params.push(fields.avatar_url);
+      assignments.push(`"avatar_url" = $${params.length}::text`);
+    }
+
+    // 零字段 = 纯回读（路由层已保证「bio 与 avatar_url 至少给一个」；本分支只防呆，不写库）
+    if (!assignments.length) {
+      return this.getUserById(uID);
+    }
+
+    params.push(uID);
+    const rows = await runSql(
+      `UPDATE "users" AS u
+          SET ${assignments.join(', ')}
+        WHERE u.uid = $${params.length}
+        RETURNING u.*`,
+      params,
+    );
+    const row = rows[0];
     return row ? normalizeUser(row) : null;
   }
 

@@ -848,25 +848,73 @@ app.get('/api/user', async (req, res) => {
   }
 });
 
+// ============================================================================
+// ★ 用户头像写口（Kevin 2026-10-22：`/profile/settings` 要能改头像）
+// ----------------------------------------------------------------------------
+// 值域口径与项目头像（`project-service.PROJECT_AVATAR_URL_PATTERN`）**逐字同形**：
+//   · 站内媒体相对路径 `/api/media/<media_id>`（1–12 位数字，0 不合法）；
+//   · 外链 / `data:` / 空串 / 相对路径自造（`/media/x`、`/api/media/`）一律 400；
+//   · `null` = 清空头像（唯一清空入口；`''` 不是清空，是非法值）；
+//   · **不自造路径**：媒体 id 只能来自既有 `POST /api/media` 的返回。
+// 注：`users.avatar_url`（迁移 0052）**无** DB 侧 format CHECK（不同于 0069 的 project）——
+//   本单按派单「不需要新迁移」不加约束；形状闸 = 本常量（服务层先拒，零脏写）。
+const USER_AVATAR_URL_PATTERN = /^\/api\/media\/[0-9]{1,12}$/;
+
 app.post('/api/user/profile', async (req, res) => {
   const actor = await requireActor(req, res);
   if (!actor) return;
 
-  const bio = String(req.body?.bio || '').trim();
-  if (!bio) {
+  // 键面判据一律「是否给出」（has-flag）⇒ `avatar_url: null` 是真语义（清空），不是缺键
+  const body = (req.body && typeof req.body === 'object' ? req.body : {}) as Record<string, unknown>;
+  const hasBio = Object.prototype.hasOwnProperty.call(body, 'bio');
+  const hasAvatar = Object.prototype.hasOwnProperty.call(body, 'avatar_url');
+
+  const bio = String(body.bio || '').trim();
+
+  // 两者都不传 ⇒ 400（逐字沿用既有文案与形状；`bio` 空/纯空白同旧 400）
+  if ((!hasBio && !hasAvatar) || (hasBio && !bio)) {
     return sendError(res, 400, 'bio is required');
   }
 
+  // 头像形状闸（只认站内媒体路径或 null）：非法 ⇒ 400 + 机读码 `AVATAR_URL_INVALID`
+  // （新码；details.reason 同值 ⇒ 前端 `errPartsOf` / `data-sf-err-*` 两路都能取证）
+  let avatarUrl: string | null | undefined;
+  if (hasAvatar) {
+    const rawAvatar = body.avatar_url;
+    if (rawAvatar === null) {
+      avatarUrl = null;
+    } else if (typeof rawAvatar === 'string' && USER_AVATAR_URL_PATTERN.test(rawAvatar)) {
+      avatarUrl = rawAvatar;
+    } else {
+      return sendVerbError(res, {
+        ok: false,
+        status: 400,
+        code: 'AVATAR_URL_INVALID',
+        message: 'avatar_url is invalid',
+        details: { field: 'avatar_url', reason: 'AVATAR_URL_INVALID' },
+      });
+    }
+  }
+
   try {
-    const updatedUser = await DatabaseService.updateUserProfile(actor.user.uID, { bio });
+    // 字段集按「给了才进」构造：`bio` 缺席 ⇒ 简介不动（只改头像的单腿写口）
+    const fields: { bio?: string; avatar_url?: string | null } = {};
+    if (hasBio) fields.bio = bio;
+    if (hasAvatar) fields.avatar_url = avatarUrl as string | null;
+
+    const updatedUser = await DatabaseService.updateUserProfile(actor.user.uID, fields);
     if (!updatedUser) {
       return sendRefNotFound(res, 'user', String(actor.user.uID), 'user_not_found');
     }
 
     // P6-TR-1c-A：bio 译文登记（前台 pending + 后台 waitUntil 翻译；失败不影响本响应）
-    await enqueueTranslation({ entityType: 'user', entityId: String(actor.user.uID), fields: { bio }, reset: true });
+    // ★ 只改头像时**零翻译动作**（无 bio 变更可译 ⇒ 不入队，避免无意义的 pending 标）
+    if (hasBio) {
+      await enqueueTranslation({ entityType: 'user', entityId: String(actor.user.uID), fields: { bio }, reset: true });
+    }
 
-    // ★ 0059：同上（profile 更新回执与 /api/user 载荷同源，admin 子对象一并加性带上）
+    // ★ 0059：同上（profile 更新回执与 /api/user 载荷同源，admin 子对象一并加性带上；
+    //   头像亦随 `...user` 同源透出 ⇒ 回执即回读，前端可直刷会话）
     const payload = await buildUserPayload(updatedUser, actor.adminAccess);
     sendSuccess(res, payload, 'Profile updated');
   } catch (error) {
