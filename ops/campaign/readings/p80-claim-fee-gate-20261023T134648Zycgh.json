@@ -1,0 +1,511 @@
+{
+  "run": "20261023T134648Zycgh",
+  "name": "p80-claim-fee-gate",
+  "at": "2026-10-23T13:48:16.323Z",
+  "gate": "p80-00-claim-fee-gate",
+  "db_project_id": "quiet-math-65207667",
+  "baseline": {
+    "users": 190,
+    "batt_account": 104,
+    "batt_entry": 117,
+    "proofs": 0,
+    "pending": 0,
+    "campaigns": 5,
+    "tasks": 5,
+    "subtasks": 0,
+    "ledger": 928,
+    "migrations": 73
+  },
+  "readings": {
+    "fund": {
+      "platform_usd": "248613",
+      "platform_cid2": "10",
+      "cid2": "399",
+      "decimals2": 0
+    },
+    "fixture": {
+      "campaign": "147",
+      "project": "208",
+      "T1": "195",
+      "T2": "196",
+      "T3": "197",
+      "T4": "198",
+      "X1": "291",
+      "Q1": "292",
+      "P1": "293",
+      "Q2": "294",
+      "Q3": "295",
+      "Q4": "296",
+      "Q5": "297",
+      "cid2": "399"
+    },
+    "A": {
+      "submit": {
+        "ok": true,
+        "status": 200
+      },
+      "batt": [
+        5,
+        4
+      ],
+      "platform_batt": [
+        0,
+        1
+      ],
+      "batt_after_field": 4,
+      "legs": {
+        "userLegs": 1,
+        "platformLegs": 1,
+        "sumDelta": 0
+      },
+      "ledger": 0,
+      "reward_paid": null,
+      "reward_pending": false
+    },
+    "B": {
+      "submit": {
+        "ok": false,
+        "status": 409,
+        "code": "LEDGER_INSUFFICIENT_BALANCE",
+        "reason": "batt_insufficient"
+      },
+      "batt": 0,
+      "proofs_before": 1,
+      "proofs_after": 0,
+      "platform_batt": [
+        1,
+        1
+      ],
+      "batt_entries": 0
+    },
+    "C": {
+      "submit": {
+        "ok": true,
+        "status": 200
+      },
+      "quiz_correct": true,
+      "reward_paid": null,
+      "reward_pending": true,
+      "proof": {
+        "due": "5",
+        "claimed_at": null
+      },
+      "ledger_quiz": 0,
+      "ledger_claim": 0,
+      "account": "0",
+      "pending_task": {
+        "items": [
+          {
+            "kind": "subtask",
+            "ref_id": "292",
+            "title": "答题 5$",
+            "cid": "1",
+            "amount": "5"
+          }
+        ],
+        "total_by_cid": {
+          "1": "5"
+        }
+      },
+      "pending_campaign": {
+        "items": [
+          {
+            "kind": "subtask",
+            "ref_id": "292",
+            "title": "答题 5$",
+            "cid": "1",
+            "amount": "5"
+          }
+        ],
+        "total_by_cid": {
+          "1": "5"
+        }
+      },
+      "pending_anon": {
+        "items": [],
+        "total_by_cid": {}
+      }
+    },
+    "D": {
+      "claim": {
+        "ok": true,
+        "status": 200,
+        "view": {
+          "subtask_id": "294",
+          "cid": "1",
+          "amount": "4",
+          "batt_after": 3
+        }
+      },
+      "batt": [
+        4,
+        3,
+        3
+      ],
+      "account": [
+        "0",
+        "4"
+      ],
+      "ledger_rows": 2,
+      "ledger_user": "4",
+      "ledger_platform": "-4",
+      "claimed_at": "2026-10-23T13:46:55.469Z",
+      "again": {
+        "ok": false,
+        "status": 409,
+        "code": "LEDGER_INSUFFICIENT_BALANCE",
+        "reason": "nothing_to_claim"
+      },
+      "again_ledger": 2,
+      "pending_after": {
+        "items": [],
+        "total_by_cid": {}
+      }
+    },
+    "E": {
+      "grant": {
+        "ok": true,
+        "view": {
+          "task_id": "198",
+          "uid": "985289",
+          "reward_amount_primary": "9",
+          "reward_amount_secondary": "3",
+          "reward_cid_secondary": "399",
+          "total_subtasks": 1,
+          "completed_subtasks": 1,
+          "idempotency_key": "biz:campaign:task-reward:198:985289",
+          "claim_status": "pending",
+          "granted_at": "2026-10-23T13:46:55.469Z",
+          "claimed_at": null
+        },
+        "replay": false
+      },
+      "pending_row": {
+        "amount": "9",
+        "cid": "1",
+        "sec": "3",
+        "sec_cid": "399",
+        "claimed_at": null
+      },
+      "legacy_ledger": 0,
+      "claim": {
+        "ok": true,
+        "status": 200,
+        "view": {
+          "task_id": "198",
+          "cid": "1",
+          "amount": "9",
+          "secondary_cid": "399",
+          "secondary_amount": "3",
+          "batt_after": 3
+        }
+      },
+      "ledger_primary": {
+        "rows": 2,
+        "user": "9",
+        "platform": "-9"
+      },
+      "ledger_secondary": {
+        "rows": 2,
+        "user": "3"
+      },
+      "account": {
+        "usd": "9",
+        "secondary": "3"
+      },
+      "again": {
+        "ok": false,
+        "status": 409,
+        "reason": "nothing_to_claim"
+      },
+      "batt": 3
+    },
+    "F": {
+      "pending_before": {
+        "items": [
+          {
+            "kind": "task",
+            "ref_id": "197",
+            "title": "p80 T3 20261023T134648Zycgh",
+            "cid": "1",
+            "amount": "7"
+          },
+          {
+            "kind": "subtask",
+            "ref_id": "295",
+            "title": "答题 6$",
+            "cid": "1",
+            "amount": "6"
+          },
+          {
+            "kind": "subtask",
+            "ref_id": "296",
+            "title": "答题 2$",
+            "cid": "1",
+            "amount": "2"
+          }
+        ],
+        "total_by_cid": {
+          "1": "15"
+        }
+      },
+      "claim": {
+        "ok": true,
+        "status": 200,
+        "view": {
+          "claimed": [
+            {
+              "kind": "subtask",
+              "ref_id": "295",
+              "cid": "1",
+              "amount": "6"
+            },
+            {
+              "kind": "subtask",
+              "ref_id": "296",
+              "cid": "1",
+              "amount": "2"
+            },
+            {
+              "kind": "task",
+              "ref_id": "197",
+              "cid": "1",
+              "amount": "7",
+              "secondary_cid": null,
+              "secondary_amount": null
+            }
+          ],
+          "total_primary": "15",
+          "batt_after": 2
+        }
+      },
+      "batt": [
+        3,
+        2
+      ],
+      "account": [
+        "0",
+        "15"
+      ],
+      "fee_legs": {
+        "userLegs": 1,
+        "platformLegs": 1,
+        "sumDelta": 0
+      },
+      "pending_after": {
+        "items": [],
+        "total_by_cid": {}
+      },
+      "again": {
+        "ok": false,
+        "status": 409,
+        "reason": "nothing_to_claim"
+      },
+      "again_batt": 2
+    },
+    "S": {
+      "vote": {
+        "ok": true,
+        "status": 200
+      },
+      "settle": {
+        "ok": true,
+        "view": {
+          "subtask_id": "293",
+          "type_code": "prediction",
+          "prediction_state": "settled",
+          "correct_option": "yes",
+          "prize_amount": "20",
+          "winner_count": 1,
+          "per_winner_amount": "20",
+          "distributed_total": "20",
+          "platform_retained": "0",
+          "ledger_entries": 0,
+          "idempotency_key": null
+        }
+      },
+      "proof": {
+        "due": "20",
+        "claimed_at": null
+      },
+      "settle_ledger": 0,
+      "claim": {
+        "ok": true,
+        "amount": "20"
+      },
+      "claim_ledger": 2,
+      "account": "20"
+    },
+    "G": {
+      "real": true,
+      "mutant": false
+    },
+    "committed_touch": "none (single rollback tx)"
+  },
+  "residue": {
+    "before": {
+      "users": 190,
+      "batt_account": 104,
+      "batt_entry": 117,
+      "proofs": 0,
+      "pending": 0,
+      "campaigns": 5,
+      "tasks": 5,
+      "subtasks": 0,
+      "ledger": 928,
+      "migrations": 73
+    },
+    "after": {
+      "users": 190,
+      "batt_account": 104,
+      "batt_entry": 117,
+      "proofs": 0,
+      "pending": 0,
+      "campaigns": 5,
+      "tasks": 5,
+      "subtasks": 0,
+      "ledger": 928,
+      "migrations": 73
+    }
+  },
+  "checks": [
+    {
+      "id": "A0",
+      "what": "注册点 111 → **114**（本单 +3 POST；get 50 / post 57 / patch 4 / delete 3 / put 0）—— 三领取口逐条在场",
+      "pass": true,
+      "reading": "{\"regs\":114,\"get\":50,\"post\":57,\"patch\":4,\"delete\":3}"
+    },
+    {
+      "id": "A1",
+      "what": "服务层三领取口 + 常量契约：`claimSubtaskRewardVerb` / `claimTaskRewardVerb` / `claimCampaignRewardsVerb` 均导出 · 费名目 `campaign_proof_fee` / `campaign_claim_fee` · 平台腿 uid = 0 · 0075 迁移文件在场（`reward_due_units` / `reward_claimed_at` / `campaign_task_reward_pending`）· 零新错误码（33）零新 kind（24）",
+      "pass": true,
+      "reading": "{\"codes\":33,\"kinds\":24}"
+    },
+    {
+      "id": "A2",
+      "what": "0075 已 apply（dev）：`subtask_proof` 两枚新列在场 · 待领表在场 · 平台电量账户行（uid 0）在场 · 版本行 0075 恰 1",
+      "pass": true,
+      "reading": "{\"cols\":2,\"pend\":\"campaign_task_reward_pending\",\"plat\":\"0\",\"applied\":1}"
+    },
+    {
+      "id": "S0",
+      "what": "夹具就位：活动 active + 四任务 active（T1 含 x_verify / quiz 5$ / prediction 20$；T4 带次币腿）· 用户 batt = 5（B = 0）· 平台 USD / 次币已垫高（发奖腿有余额）",
+      "pass": true,
+      "reading": "{\"campaign\":\"147\",\"project\":\"208\",\"T1\":\"195\",\"T2\":\"196\",\"T3\":\"197\",\"T4\":\"198\",\"X1\":\"291\",\"Q1\":\"292\",\"P1\":\"293\",\"Q2\":\"294\",\"Q3\":\"295\",\"Q4\":\"296\",\"Q5\":\"297\",\"cid2\":\"399\"}"
+    },
+    {
+      "id": "A3",
+      "what": "A 提交 x_verify ⇒ 200 · 本人电量 5 → 4 且 `batt_after=4` · 平台电量 +1 · `batt_entry` 恰两条（用户 −1 / 平台 +1，净额 0）· 台账零新增（费腿只在电量账户）· 无奖励 ⇒ `reward_pending=false`、`reward_paid=null`",
+      "pass": true,
+      "reading": "{\"submit\":{\"ok\":true,\"status\":200},\"batt\":[5,4],\"platform_batt\":[0,1],\"batt_after_field\":4,\"legs\":{\"userLegs\":1,\"platformLegs\":1,\"sumDelta\":0},\"ledger\":0,\"reward_paid\":null,\"reward_pending\":false}"
+    },
+    {
+      "id": "B1",
+      "what": "B 电量 0 提交 ⇒ 409 `LEDGER_INSUFFICIENT_BALANCE` + `details.reason=batt_insufficient`",
+      "pass": true,
+      "reading": "{\"submit\":{\"ok\":false,\"status\":409,\"code\":\"LEDGER_INSUFFICIENT_BALANCE\",\"reason\":\"batt_insufficient\"},\"batt\":0,\"proofs_before\":1,\"proofs_after\":0,\"platform_batt\":[1,1],\"batt_entries\":0}"
+    },
+    {
+      "id": "B2",
+      "what": "B 失败**零写入**：本人 proof 0 行、电量仍 0、平台电量不变、本人零 `batt_entry`（费腿在锁内即断，先于任何写入）",
+      "pass": true,
+      "reading": "{\"submit\":{\"ok\":false,\"status\":409,\"code\":\"LEDGER_INSUFFICIENT_BALANCE\",\"reason\":\"batt_insufficient\"},\"batt\":0,\"proofs_before\":1,\"proofs_after\":0,\"platform_batt\":[1,1],\"batt_entries\":0}"
+    },
+    {
+      "id": "C1",
+      "what": "quiz 答对（picks 顺序无关）⇒ 200、`quiz_correct=true`、`reward_paid=null`（兼容位）、`reward_pending=true`、proof.`reward_due_units=5` 且 `reward_claimed_at` 空",
+      "pass": true,
+      "reading": "{\"submit\":{\"ok\":true,\"status\":200},\"quiz_correct\":true,\"reward_paid\":null,\"reward_pending\":true,\"proof\":{\"due\":\"5\",\"claimed_at\":null},\"ledger_quiz\":0,\"ledger_claim\":0,\"account\":\"0\",\"pending_task\":{\"items\":[{\"kind\":\"subtask\",\"ref_id\":\"292\",\"title\":\"答题 5$\",\"cid\":\"1\",\"amount\":\"5\"}],\"total_by_cid\":{\"1\":\"5\"}},\"pending_campaign\":{\"items\":[{\"kind\":\"subtask\",\"ref_id\":\"292\",\"title\":\"答题 5$\",\"cid\":\"1\",\"amount\":\"5\"}],\"total_by_cid\":{\"1\":\"5\"}},\"pending_anon\":{\"items\":[],\"total_by_cid\":{}}}"
+    },
+    {
+      "id": "C2",
+      "what": "★不再即时发奖：quiz / claim 两个幂等键下台账**均 0 行**、C 账户余额不变（0）",
+      "pass": true,
+      "reading": "{\"quiz\":0,\"claim\":0,\"account\":\"0\"}"
+    },
+    {
+      "id": "C3",
+      "what": "读口加性 `pending_rewards`：任务详情（本人）含 `{kind:subtask, ref_id:Q1, amount:5, cid:1}`、活动详情（本人）同项 · `total_by_cid={\"1\":\"5\"}` · 匿名 ⇒ `items=[]`（键恒在）",
+      "pass": true,
+      "reading": "{\"task\":{\"items\":[{\"kind\":\"subtask\",\"ref_id\":\"292\",\"title\":\"答题 5$\",\"cid\":\"1\",\"amount\":\"5\"}],\"total_by_cid\":{\"1\":\"5\"}},\"campaign\":{\"items\":[{\"kind\":\"subtask\",\"ref_id\":\"292\",\"title\":\"答题 5$\",\"cid\":\"1\",\"amount\":\"5\"}],\"total_by_cid\":{\"1\":\"5\"}},\"anon\":{\"items\":[],\"total_by_cid\":{}}}"
+    },
+    {
+      "id": "D1",
+      "what": "D 领 subtask ⇒ 200 `{subtask_id, cid:\"1\", amount:\"4\", batt_after}` · 电量恰 −1 · 账户 +4",
+      "pass": true,
+      "reading": "{\"claim\":{\"ok\":true,\"status\":200,\"view\":{\"subtask_id\":\"294\",\"cid\":\"1\",\"amount\":\"4\",\"batt_after\":3}},\"batt\":[4,3,3],\"account\":[\"0\",\"4\"],\"ledger_rows\":2,\"ledger_user\":\"4\",\"ledger_platform\":\"-4\",\"claimed_at\":\"2026-10-23T13:46:55.469Z\",\"again\":{\"ok\":false,\"status\":409,\"code\":\"LEDGER_INSUFFICIENT_BALANCE\",\"reason\":\"nothing_to_claim\"},\"again_ledger\":2,\"pending_after\":{\"items\":[],\"total_by_cid\":{}}}"
+    },
+    {
+      "id": "D2",
+      "what": "发奖两腿：同幂等键 2 行台账（D +4 / 平台 −4）· `reward_claimed_at` 已回填 · 领后本人待领清单里 Q2 消失",
+      "pass": true,
+      "reading": "{\"claim\":{\"ok\":true,\"status\":200,\"view\":{\"subtask_id\":\"294\",\"cid\":\"1\",\"amount\":\"4\",\"batt_after\":3}},\"batt\":[4,3,3],\"account\":[\"0\",\"4\"],\"ledger_rows\":2,\"ledger_user\":\"4\",\"ledger_platform\":\"-4\",\"claimed_at\":\"2026-10-23T13:46:55.469Z\",\"again\":{\"ok\":false,\"status\":409,\"code\":\"LEDGER_INSUFFICIENT_BALANCE\",\"reason\":\"nothing_to_claim\"},\"again_ledger\":2,\"pending_after\":{\"items\":[],\"total_by_cid\":{}}}"
+    },
+    {
+      "id": "D3",
+      "what": "重复领取 ⇒ 409 `nothing_to_claim` · 电量不再扣（3 = 3）· 台账仍 2 行",
+      "pass": true,
+      "reading": "{\"again\":{\"ok\":false,\"status\":409,\"code\":\"LEDGER_INSUFFICIENT_BALANCE\",\"reason\":\"nothing_to_claim\"},\"batt\":3,\"ledger\":2}"
+    },
+    {
+      "id": "E1",
+      "what": "★grant 只落 pending、不动账：`claim_status=pending` · pending 行 1（主 9$ / 次币 3）· 旧「即时发奖」键 `biz:campaign:task-reward:*` 台账 **0 行** · 重复 grant 幂等（`replay=true`、行数仍 1）",
+      "pass": true,
+      "reading": "{\"grant\":{\"ok\":true,\"view\":{\"task_id\":\"198\",\"uid\":\"985289\",\"reward_amount_primary\":\"9\",\"reward_amount_secondary\":\"3\",\"reward_cid_secondary\":\"399\",\"total_subtasks\":1,\"completed_subtasks\":1,\"idempotency_key\":\"biz:campaign:task-reward:198:985289\",\"claim_status\":\"pending\",\"granted_at\":\"2026-10-23T13:46:55.469Z\",\"claimed_at\":null},\"replay\":false},\"pending_row\":{\"amount\":\"9\",\"cid\":\"1\",\"sec\":\"3\",\"sec_cid\":\"399\",\"claimed_at\":null},\"legacy_ledger\":0,\"claim\":{\"ok\":true,\"status\":200,\"view\":{\"task_id\":\"198\",\"cid\":\"1\",\"amount\":\"9\",\"secondary_cid\":\"399\",\"secondary_amount\":\"3\",\"batt_after\":3}},\"ledger_primary\":{\"rows\":2,\"user\":\"9\",\"platform\":\"-9\"},\"ledger_secondary\":{\"rows\":2,\"user\":\"3\"},\"account\":{\"usd\":\"9\",\"secondary\":\"3\"},\"again\":{\"ok\":false,\"status\":409,\"reason\":\"nothing_to_claim\"},\"batt\":3}"
+    },
+    {
+      "id": "E2",
+      "what": "task claim ⇒ 200 主 `9$` ＋ 次币 `3` 两腿实发（各 2 行台账、净额 0）· 账户 +9$ / +3 次币 · `claimed_at` 回填 · 重复领 ⇒ 409",
+      "pass": true,
+      "reading": "{\"grant\":{\"ok\":true,\"view\":{\"task_id\":\"198\",\"uid\":\"985289\",\"reward_amount_primary\":\"9\",\"reward_amount_secondary\":\"3\",\"reward_cid_secondary\":\"399\",\"total_subtasks\":1,\"completed_subtasks\":1,\"idempotency_key\":\"biz:campaign:task-reward:198:985289\",\"claim_status\":\"pending\",\"granted_at\":\"2026-10-23T13:46:55.469Z\",\"claimed_at\":null},\"replay\":false},\"pending_row\":{\"amount\":\"9\",\"cid\":\"1\",\"sec\":\"3\",\"sec_cid\":\"399\",\"claimed_at\":null},\"legacy_ledger\":0,\"claim\":{\"ok\":true,\"status\":200,\"view\":{\"task_id\":\"198\",\"cid\":\"1\",\"amount\":\"9\",\"secondary_cid\":\"399\",\"secondary_amount\":\"3\",\"batt_after\":3}},\"ledger_primary\":{\"rows\":2,\"user\":\"9\",\"platform\":\"-9\"},\"ledger_secondary\":{\"rows\":2,\"user\":\"3\"},\"account\":{\"usd\":\"9\",\"secondary\":\"3\"},\"again\":{\"ok\":false,\"status\":409,\"reason\":\"nothing_to_claim\"},\"batt\":3}"
+    },
+    {
+      "id": "F1",
+      "what": "F 三项待领（subtask 6$ + 2$ + task 7$）⇒ 一键领 200：`claimed` 3 项、`total_primary=\"15\"`、账户 +15$、`batt_after` = 2（提交两笔后 3 ⇒ 领后 2）",
+      "pass": true,
+      "reading": "{\"pending_before\":{\"items\":[{\"kind\":\"task\",\"ref_id\":\"197\",\"title\":\"p80 T3 20261023T134648Zycgh\",\"cid\":\"1\",\"amount\":\"7\"},{\"kind\":\"subtask\",\"ref_id\":\"295\",\"title\":\"答题 6$\",\"cid\":\"1\",\"amount\":\"6\"},{\"kind\":\"subtask\",\"ref_id\":\"296\",\"title\":\"答题 2$\",\"cid\":\"1\",\"amount\":\"2\"}],\"total_by_cid\":{\"1\":\"15\"}},\"claim\":{\"ok\":true,\"status\":200,\"view\":{\"claimed\":[{\"kind\":\"subtask\",\"ref_id\":\"295\",\"cid\":\"1\",\"amount\":\"6\"},{\"kind\":\"subtask\",\"ref_id\":\"296\",\"cid\":\"1\",\"amount\":\"2\"},{\"kind\":\"task\",\"ref_id\":\"197\",\"cid\":\"1\",\"amount\":\"7\",\"secondary_cid\":null,\"secondary_amount\":null}],\"total_primary\":\"15\",\"batt_after\":2}},\"batt\":[3,2],\"account\":[\"0\",\"15\"],\"fee_legs\":{\"userLegs\":1,\"platformLegs\":1,\"sumDelta\":0},\"pending_after\":{\"items\":[],\"total_by_cid\":{}},\"again\":{\"ok\":false,\"status\":409,\"reason\":\"nothing_to_claim\"},\"again_batt\":2}"
+    },
+    {
+      "id": "F2",
+      "what": "★一键领**总共只扣 1 电量**：费腿恰两条（用户 −1 / 平台 +1、净额 0），不是逐项 ×3 · 领后本人待领清单清空 · 重复一键领 ⇒ 409（零扣电）",
+      "pass": true,
+      "reading": "{\"pending_before\":{\"items\":[{\"kind\":\"task\",\"ref_id\":\"197\",\"title\":\"p80 T3 20261023T134648Zycgh\",\"cid\":\"1\",\"amount\":\"7\"},{\"kind\":\"subtask\",\"ref_id\":\"295\",\"title\":\"答题 6$\",\"cid\":\"1\",\"amount\":\"6\"},{\"kind\":\"subtask\",\"ref_id\":\"296\",\"title\":\"答题 2$\",\"cid\":\"1\",\"amount\":\"2\"}],\"total_by_cid\":{\"1\":\"15\"}},\"claim\":{\"ok\":true,\"status\":200,\"view\":{\"claimed\":[{\"kind\":\"subtask\",\"ref_id\":\"295\",\"cid\":\"1\",\"amount\":\"6\"},{\"kind\":\"subtask\",\"ref_id\":\"296\",\"cid\":\"1\",\"amount\":\"2\"},{\"kind\":\"task\",\"ref_id\":\"197\",\"cid\":\"1\",\"amount\":\"7\",\"secondary_cid\":null,\"secondary_amount\":null}],\"total_primary\":\"15\",\"batt_after\":2}},\"batt\":[3,2],\"account\":[\"0\",\"15\"],\"fee_legs\":{\"userLegs\":1,\"platformLegs\":1,\"sumDelta\":0},\"pending_after\":{\"items\":[],\"total_by_cid\":{}},\"again\":{\"ok\":false,\"status\":409,\"reason\":\"nothing_to_claim\"},\"again_batt\":2}"
+    },
+    {
+      "id": "S1",
+      "what": "prediction settle（只写胜方快照）：`per_winner_amount=20` · `ledger_entries=0` · `idempotency_key=null` · 胜方 proof.`reward_due_units=20` 且未领 · 结算台账 0 行（不再 `postEvent`）",
+      "pass": true,
+      "reading": "{\"vote\":{\"ok\":true,\"status\":200},\"settle\":{\"ok\":true,\"view\":{\"subtask_id\":\"293\",\"type_code\":\"prediction\",\"prediction_state\":\"settled\",\"correct_option\":\"yes\",\"prize_amount\":\"20\",\"winner_count\":1,\"per_winner_amount\":\"20\",\"distributed_total\":\"20\",\"platform_retained\":\"0\",\"ledger_entries\":0,\"idempotency_key\":null}},\"proof\":{\"due\":\"20\",\"claimed_at\":null},\"settle_ledger\":0,\"claim\":{\"ok\":true,\"amount\":\"20\"},\"claim_ledger\":2,\"account\":\"20\"}"
+    },
+    {
+      "id": "S2",
+      "what": "胜方领取 ⇒ 实发 20（claim 台账 2 行、账户 +20）—— 「结算不发、领取才发」两端闭合",
+      "pass": true,
+      "reading": "{\"vote\":{\"ok\":true,\"status\":200},\"settle\":{\"ok\":true,\"view\":{\"subtask_id\":\"293\",\"type_code\":\"prediction\",\"prediction_state\":\"settled\",\"correct_option\":\"yes\",\"prize_amount\":\"20\",\"winner_count\":1,\"per_winner_amount\":\"20\",\"distributed_total\":\"20\",\"platform_retained\":\"0\",\"ledger_entries\":0,\"idempotency_key\":null}},\"proof\":{\"due\":\"20\",\"claimed_at\":null},\"settle_ledger\":0,\"claim\":{\"ok\":true,\"amount\":\"20\"},\"claim_ledger\":2,\"account\":\"20\"}"
+    },
+    {
+      "id": "G1",
+      "what": "★负控（尺子有分辨力）：谓词 `feeLegsOk` 喂 A 的真实观测 ⇒ **true**；喂「短路扣费」（电量不变 + 零 `batt_entry`）伪观测 ⇒ **false** ⇒ A3 的判据可证伪，不是空转",
+      "pass": true,
+      "reading": "{\"real\":true,\"mutant\":false}"
+    },
+    {
+      "id": "Z1",
+      "what": "★零残留（单回滚事务）：users / batt_account / batt_entry / subtask_proof / campaign_task_reward_pending / campaign / task / subtask / ledger_entry / schema_migration 行数与事务前**逐键相等**（append-only 表也靠 ROLLBACK 零新增 ⇒ 无需登记审计残留）",
+      "pass": true,
+      "reading": "{\"before\":{\"users\":190,\"batt_account\":104,\"batt_entry\":117,\"proofs\":0,\"pending\":0,\"campaigns\":5,\"tasks\":5,\"subtasks\":0,\"ledger\":928,\"migrations\":73},\"after\":{\"users\":190,\"batt_account\":104,\"batt_entry\":117,\"proofs\":0,\"pending\":0,\"campaigns\":5,\"tasks\":5,\"subtasks\":0,\"ledger\":928,\"migrations\":73}}"
+    },
+    {
+      "id": "Z2",
+      "what": "平台电量账户行原样（扣费 +1 已随事务回滚）",
+      "pass": true,
+      "reading": "{\"before\":0,\"after\":0}"
+    }
+  ],
+  "summary": {
+    "total": 22,
+    "passed": 22,
+    "failed": 0,
+    "red": []
+  }
+}

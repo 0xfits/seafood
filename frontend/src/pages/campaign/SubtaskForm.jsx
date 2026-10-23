@@ -5,6 +5,7 @@ import { submitSubtaskProof, uploadProofImage } from './campaign-api'
 import {
   PREDICTION_CHOICES,
   formatDateTime,
+  isBattInsufficient,
   normalizePredictionChoice,
   predictionMetaOf,
   predictionOutcomeOf,
@@ -99,6 +100,25 @@ const Notice = ({ notice, t, lang, m, showLogin }) => {
 // ---------------------------------------------------------------- prediction
 const choiceLabelOf = (t, choice) => t(choice === 'no' ? 'campaign.predictionNo' : 'campaign.predictionYes')
 
+// ---------------------------------------------------- 提交成本小字 / 成功提示键
+/**
+ * 「提交需 1 电量」（2026-10-23）：**常驻**小字，摆在提交按钮旁，与登录态 / 是否可点无关
+ * （用户要在点之前就知道成本，事后告知 = 已扣电量）。三类面板各挂一枚，`m` 逐面板区分。
+ */
+const BattCostHint = ({ t, m }) => (
+  <span className="sf-campaign-cost-hint" data-sf-m={m}>{t('campaign.submit.battCost')}</span>
+)
+
+/**
+ * 提交成功提示键：服务端回执 `reward_pending === true` ⇒「奖励已入待领取」；
+ * 字段缺失 / 旧后端 ⇒ 沿用「已提交…」（加性字段，缺省不回退成主路径）。
+ */
+const submitOkKeyOf = (view) => (
+  view && typeof view === 'object' && view.reward_pending === true
+    ? 'campaign.submit.rewardPending'
+    : 'campaign.submit.ok'
+)
+
 const PredictionPanel = ({ subtask, t, lang, user, isAuthenticated, proof, onSaved, onRefresh }) => {
   const meta = predictionMetaOf(subtask)
   const outcome = predictionOutcomeOf(subtask, proof)
@@ -143,11 +163,20 @@ const PredictionPanel = ({ subtask, t, lang, user, isAuthenticated, proof, onSav
       writeProof(user?.uID ?? user?.uid, subtask?.subtask_id, payload)
       onSaved?.({ payload, time_created: typeof view?.time_created === 'string' ? view.time_created : null })
       setLocked(true)
-      setNotice({ kind: 'ok', key: 'campaign.prediction.voteLocked' })
+      // 保既有文案（「已投票，不可更改」）；仅服务端回执带 `reward_pending` 时改说「奖励已入待领取」
+      setNotice({
+        kind: 'ok',
+        key: view && typeof view === 'object' && view.reward_pending === true
+          ? 'campaign.submit.rewardPending'
+          : 'campaign.prediction.voteLocked',
+      })
       onRefresh?.()
     } catch (error) {
       const code = String(error?.code || '')
-      if (code === 'prediction_vote_locked') {
+      if (isBattInsufficient(error)) {
+        // 409 + `details.reason='batt_insufficient'`：票没投进去，**不锁**（充值后可再投）
+        setNotice({ kind: 'err', key: 'campaign.submit.battInsufficient' })
+      } else if (code === 'prediction_vote_locked') {
         setLocked(true)
         setNotice({ kind: 'err', key: 'campaign.prediction.voteLocked' })
         onRefresh?.()
@@ -218,6 +247,7 @@ const PredictionPanel = ({ subtask, t, lang, user, isAuthenticated, proof, onSav
           >
             {busy ? t('campaign.submit.sending') : t('campaign.prediction.cta')}
           </button>
+          <BattCostHint t={t} m="campaign-prediction-batt" />
         </div>
       ) : null}
 
@@ -418,10 +448,13 @@ const ProofPanel = ({ subtask, t, lang, user, isAuthenticated, proof, onSaved, o
       const view = await submitSubtaskProof(subtask?.subtask_id, payload, user)
       writeProof(user?.uID ?? user?.uid, subtask?.subtask_id, payload)
       onSaved?.({ payload, time_created: typeof view?.time_created === 'string' ? view.time_created : null })
-      setNotice({ kind: 'ok', key: 'campaign.submit.ok' })
+      setNotice({ kind: 'ok', key: submitOkKeyOf(view) })
       onRefresh?.()
     } catch (error) {
-      setNotice({ kind: 'err', key: 'campaign.submit.failed' })
+      setNotice({
+        kind: 'err',
+        key: isBattInsufficient(error) ? 'campaign.submit.battInsufficient' : 'campaign.submit.failed',
+      })
     } finally {
       setBusy(false)
     }
@@ -586,6 +619,7 @@ const ProofPanel = ({ subtask, t, lang, user, isAuthenticated, proof, onSaved, o
         >
           {busy || uploading ? t('campaign.submit.sending') : t('campaign.submit.cta')}
         </button>
+        <BattCostHint t={t} m="campaign-proof-batt" />
       </div>
 
       <Notice notice={notice} t={t} lang={lang} m="campaign-proof-notice" showLogin={!isAuthenticated} />
@@ -637,10 +671,13 @@ const QuizPanel = ({ subtask, t, lang, user, isAuthenticated, proof, onSaved, on
       writeProof(user?.uID ?? user?.uid, subtask?.subtask_id, payload)
       setLocalResult(view && typeof view === 'object' ? view : {})
       onSaved?.({ payload, time_created: typeof view?.time_created === 'string' ? view.time_created : null })
-      setNotice({ kind: 'ok', key: 'campaign.submit.ok' })
+      setNotice({ kind: 'ok', key: submitOkKeyOf(view) })
       onRefresh?.()
     } catch (error) {
-      setNotice({ kind: 'err', key: 'campaign.submit.failed' })
+      setNotice({
+        kind: 'err',
+        key: isBattInsufficient(error) ? 'campaign.submit.battInsufficient' : 'campaign.submit.failed',
+      })
     } finally {
       setBusy(false)
     }
@@ -696,6 +733,7 @@ const QuizPanel = ({ subtask, t, lang, user, isAuthenticated, proof, onSaved, on
         >
           {busy ? t('campaign.submit.sending') : t('campaign.submit.cta')}
         </button>
+        <BattCostHint t={t} m="campaign-quiz-batt" />
       </div>
 
       {outcome ? (

@@ -179,8 +179,8 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
   // ======================================================================== A · 静态面（零 DB）
   const regs = (INDEX_TS.match(/^app\.(get|post|put|delete|patch)\(/gm) ?? []).length;
   const countVerb = (v: string) => (INDEX_TS.match(new RegExp(`^app\\.${v}\\(`, 'gm')) ?? []).length;
-  ck.t('A1', '注册点 = 109（**job 体系下线后实测**；get 50 / post 54 / patch 4 / delete 3 / put 0）—— 本门九口与写口零改动（130 是 job 下线前的旧常量，属存量红，本单顺手改对）',
-    regs === 111 && countVerb('get') === 50 && countVerb('post') === 54
+  ck.t('A1', '注册点 = 114（**job 体系下线后实测**；get 50 / post 57 / patch 4 / delete 3 / put 0 —— 0075 增三领取口 +3 POST）—— 本门九口与写口零改动',
+    regs === 114 && countVerb('get') === 50 && countVerb('post') === 57
       && countVerb('patch') === 4 && countVerb('delete') === 3 && countVerb('put') === 0,
     `regs=${regs} get=${countVerb('get')} post=${countVerb('post')} patch=${countVerb('patch')} delete=${countVerb('delete')}`);
 
@@ -390,6 +390,14 @@ const viewOf = <T = Record<string, unknown>>(r: unknown): T => ((r as { view?: T
          RETURNING uid::text AS uid`,
         [base, `p65-gate fixture ${RUN}`]);
       uids.push(Number(row?.uid ?? 0));
+    }
+    // ★ 0075 起：每次提交/领取扣 1 电量 ⇒ 夹具用户必须有电量账户（否则一路 409 batt_insufficient）
+    for (const u of uids) {
+      await raw1(c,
+        `INSERT INTO public.batt_account (uid, batt) VALUES ($1::bigint, 10)
+         ON CONFLICT (uid) DO UPDATE SET batt = GREATEST(public.batt_account.batt, 10)
+         RETURNING uid::text AS uid`,
+        [u]);
     }
     const [U1, U2, U3, U4] = uids;
     R.fixture_users = uids;

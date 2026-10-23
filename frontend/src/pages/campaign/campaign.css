@@ -1127,3 +1127,59 @@ a.sf-task-campaign-name:hover {
   font-weight: 600;
   overflow-wrap: anywhere;
 }
+
+/* ---------------------------------------------------------------------------
+ * 领取面 + 提交成本小字（2026-10-23 · 电量子任务奖励 / 任务完成奖 / 活动一键领取）
+ * 颜色 = 主题 token 槽位（同 `.sf-campaign-btn` 体例，不引用已退役 `--sf-btn-*`）；
+ * 几何取结构常量 `--sf-st-*`；手机档触控 ≥44 由上方既有 767 块统一抬高（此处不重复）。
+ * ------------------------------------------------------------------------ */
+.sf-campaign-cost-hint {
+  color: var(--sf-meta-fg, #57606a);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.sf-campaign-claim {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+}
+
+.sf-campaign-claim-pending {
+  color: var(--sf-meta-fg, #57606a);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* 内联结论（成功到账金额 / 电量不足 / 暂无可领取）：不弹 toast，就落在按钮旁 */
+.sf-campaign-claim-notice {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.sf-campaign-claim-notice.is-ok {
+  color: var(--sf-up-fg, #1a7f37);
+}
+
+.sf-campaign-claim-notice.is-err {
+  color: var(--sf-down-fg, #cf222e);
+}
+
+.sf-campaign-claim-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  margin-top: 10px;
+}
+
+.sf-task-claim {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  margin-top: 8px;
+}

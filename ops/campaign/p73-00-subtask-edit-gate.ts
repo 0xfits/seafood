@@ -182,8 +182,8 @@ type Row = Record<string, unknown>;
     "app.post('/api/campaign/task/:taskId/reward'",
   ];
   const newCodes = ['SUBTASK_REMOVE_INVALID', 'SUBTASK_REMOVE_LIMIT', 'SUBTASK_REMOVE_OVERLAP', 'subtask_has_proofs', 'prediction_locked_after_publish'];
-  ck.t('A3', '★零新路由 / 零新码：注册点仍 **109**（get 50 / post 54 / patch 4 / delete 3 / put 0 —— 删除**没有**自己的路由）· 九口逐条在场 · 错误码闭集仍 **33**、ledger kind 仍 **24**：`SUBTASK_REMOVE_*` / `subtask_has_proofs` / `prediction_locked_after_publish` 全部只作 `details.reason`（不进闭集）',
-    regs === 111 && countVerb('get') === 50 && countVerb('post') === 54 && countVerb('patch') === 4
+  ck.t('A3', '★零新路由 / 零新码：注册点 **114**（get 50 / post 57 / patch 4 / delete 3 / put 0 —— 删除**没有**自己的路由；0075 增三领取口）· 九口逐条在场 · 错误码闭集仍 **33**、ledger kind 仍 **24**：`SUBTASK_REMOVE_*` / `subtask_has_proofs` / `prediction_locked_after_publish` 全部只作 `details.reason`（不进闭集）',
+    regs === 114 && countVerb('get') === 50 && countVerb('post') === 57 && countVerb('patch') === 4
       && countVerb('delete') === 3 && countVerb('put') === 0
       && nine.every((s) => INDEX_TS.indexOf(s) !== -1)
       && LEDGER_ERROR_CODES.length === 33 && LEDGER_KINDS.length === 24
@@ -245,6 +245,14 @@ type Row = Record<string, unknown>;
       uids.push(Number(row?.uid ?? 0));
     }
     const [U1, U2] = uids;
+    // ★ 0075 起：每次提交/领取扣 1 电量 ⇒ 夹具用户必须有电量账户（否则一路 409 batt_insufficient）
+    for (const u of uids) {
+      await raw1(c,
+        `INSERT INTO public.batt_account (uid, batt) VALUES ($1::bigint, 10)
+         ON CONFLICT (uid) DO UPDATE SET batt = GREATEST(public.batt_account.batt, 10)
+         RETURNING uid::text AS uid`,
+        [u]);
+    }
     R.fixture_users = uids;
     let FIXPROJ = String((await one<{ project_id: string }>(
       `SELECT project_id::text AS project_id FROM public.project WHERE title = 'Sui 生态推广' ORDER BY project_id LIMIT 1`))?.project_id ?? '');

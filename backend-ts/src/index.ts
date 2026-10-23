@@ -132,6 +132,9 @@ import {
 //     draft / ended 对公众 404，owner/admin 同形状 200）。注册点 129 → **130**（get 56 → 57）。
 import {
   authorizeProjectScopedCreate,
+  claimCampaignRewardsVerb,
+  claimSubtaskRewardVerb,
+  claimTaskRewardVerb,
   createCampaignVerb,
   createTaskVerb,
   getCampaignAuthzContext,
@@ -3790,27 +3793,31 @@ app.patch('/api/project/:projectId', async (req, res) => {
 });
 
 // ============================================================================
-// ★★ 活动任务体系 · 九口（data-layer.spec §40.14 · route-layer.spec §49.18）
+// ★★ 活动任务体系 · 十二口（data-layer.spec §40.14 · route-layer.spec §49.18；0075 增三领取口）
 // ----------------------------------------------------------------------------
 // R1 GET   /api/campaign/all                        公开 · active 活动（嵌套 active 任务 → 全量子任务）
-// R2 GET   /api/campaign/:ref                       公开 · 详情（draft 对公众 404 / 对管理员 200）
-// R3 POST  /api/campaign/subtask/:subtaskId/proof   用户 · 提凭证（提交即通过；prediction 一人一票）
+// R2 GET   /api/campaign/:ref                       公开 · 详情（draft 对公众 404 / 对管理员 200；加性 `pending_rewards`）
+// R2c POST /api/campaign/:campaignId/claim          用户 · **一键领**本人该活动下全部待领（总共只扣 1 电量）
+// R3 POST  /api/campaign/subtask/:subtaskId/proof   用户 · 提凭证（提交即通过；扣 1 电量；奖励入待领）
+// R3b POST /api/campaign/subtask/:subtaskId/claim   用户 · 领该子任务待领奖励（扣 1 电量）
 // R4 POST  /api/campaign                            管理员 manage_tasks · 建活动（status 恒 draft）
 // R5 PATCH /api/campaign/:campaignId                管理员 · 改活动（闭集 5 键 ＋ 状态机）
 // R6 POST  /api/campaign/:campaignId/task           管理员 · 加任务（可内联 subtasks[]）
 // R7 PATCH /api/campaign/task/:taskId               管理员 · 改任务（`subtasks[]` 按 id upsert ＋
 //                                                   闭集键 `subtasks_remove` 删；prediction 发布后冻结）
-// R8 POST  /api/campaign/subtask/:subtaskId/settle  管理员 · prediction 结算（回填 ＋ 分发同一事务）
-// R9 POST  /api/campaign/task/:taskId/reward        管理员 · task 完成奖手动发放（全部子任务完成后）
+// R8 POST  /api/campaign/subtask/:subtaskId/settle  管理员 · prediction 结算（回填 ＋ 胜方待领快照；不动账）
+// R9 POST  /api/campaign/task/:taskId/reward        管理员 · task 完成奖 grant（只落待领行，不动账）
+// R9b POST /api/campaign/task/:taskId/claim         用户 · 领该任务完成奖待领（扣 1 电量）
 // R10 GET  /api/campaign/task/:taskId               公开 · 任务详情页读口（draft / ended 对公众 404；
-//                                                   owner / 管理员同形状 200 —— 本单加性第十口）
+//                                                   owner / 管理员同形状 200；加性 `pending_rewards`）
 //
 // 注册顺序判据（route #55）：R1 必须先于 R2 —— 否则字面 `all` 被 `:ref` 吞成 404。
+// 三领取口（`/claim`）字面末段互不遮挡（`/task/:taskId/claim` 三段 ≠ `/:campaignId/claim` 两段）。
 // 错误码：零新码 —— 400 `LEDGER_AMOUNT_INVALID` / 404 `LEDGER_REF_NOT_FOUND` /
-//   409 `LEDGER_INSUFFICIENT_BALANCE` / 403 `AUTH_FORBIDDEN`，逐场景理由在 `details.reason`。
-// 注册点 118 → 127（get +2 / post +5 / patch +2；put 0 / delete 0 不动）。
-// ★ 现取 129（home-campaign-tasks +1）→ **130**（本单 R10 `GET /api/campaign/task/:taskId` +1；
-//   get 56 → 57 / post 66 / patch 4 / delete 3 / put 0）。
+//   409 `LEDGER_INSUFFICIENT_BALANCE` / 403 `AUTH_FORBIDDEN`，逐场景理由在 `details.reason`
+//   （本次新增理由：`batt_insufficient` / `nothing_to_claim` / `claim_reward_pool_insufficient`）。
+// 注册点实测 111（get 50 / post 54 / patch 4 / delete 3 / put 0）⇒ **114**（本单 +3 POST，
+//   post 54 → 57；get / patch / delete / put 不动）。
 // ============================================================================
 /**
  * 详情读口的**可选身份**（零新路由）：R2 的 draft 放宽与登录态附加共用这一次 `resolveActor`。
@@ -3896,6 +3903,23 @@ app.post('/api/campaign/subtask/:subtaskId/proof', async (req, res) => {
     return sendSuccess(res, result.view, 'Subtask proof submitted');
   } catch (error) {
     return sendInfraMapped(res, 'campaign.proof', error);
+  }
+});
+
+// R3b POST /api/campaign/subtask/:subtaskId/claim —— 领该子任务待领奖励（本人 · 扣 1 电量）。
+//   · 待领谓词（`reward_due_units > 0 ∧ reward_claimed_at IS NULL`）在服务层与读口**同一实现**；
+//   · 无待领 / 已领 ⇒ 409 `nothing_to_claim`（零扣电）；电量不足 ⇒ 409 `batt_insufficient`（整笔回滚）。
+app.post('/api/campaign/subtask/:subtaskId/claim', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  try {
+    const ref = String(req.params.subtaskId ?? '');
+    if (!isCampaignRef(ref)) return sendRefNotFound(res, 'subtask', ref, 'subtask_not_found');
+    const result = await claimSubtaskRewardVerb({ actorUid: Number(actor.user.uID), subtaskRef: ref });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, 'Subtask reward claimed');
+  } catch (error) {
+    return sendInfraMapped(res, 'campaign.claim.subtask', error);
   }
 });
 
@@ -4025,6 +4049,38 @@ app.post('/api/campaign/task/:taskId/reward', async (req, res) => {
     );
   } catch (error) {
     return sendInfraMapped(res, 'campaign.task.reward', error);
+  }
+});
+
+// R9b POST /api/campaign/task/:taskId/claim —— 领该任务完成奖待领（本人 · 扣 1 电量 · 主 $ ＋ 可选次币两腿）
+app.post('/api/campaign/task/:taskId/claim', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  try {
+    const ref = String(req.params.taskId ?? '');
+    if (!isCampaignRef(ref)) return sendRefNotFound(res, 'task', ref, 'task_not_found');
+    const result = await claimTaskRewardVerb({ actorUid: Number(actor.user.uID), taskRef: ref });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, 'Task reward claimed');
+  } catch (error) {
+    return sendInfraMapped(res, 'campaign.claim.task', error);
+  }
+});
+
+// R2c POST /api/campaign/:campaignId/claim —— 一键领本人在该活动下**全部**待领（subtask + task），
+//   **总共只扣 1 电量**；逐项 `postEvent` 两腿实发。注意：本口只认「两段 + 字面 claim」，
+//   不会遮住 `POST /api/campaign/:campaignId/task`（末段不同）与 `/task/:taskId/claim`（三段）。
+app.post('/api/campaign/:campaignId/claim', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  try {
+    const ref = String(req.params.campaignId ?? '');
+    if (!isCampaignRef(ref)) return sendRefNotFound(res, 'campaign', ref, 'campaign_not_found');
+    const result = await claimCampaignRewardsVerb({ actorUid: Number(actor.user.uID), campaignRef: ref });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, 'Campaign rewards claimed');
+  } catch (error) {
+    return sendInfraMapped(res, 'campaign.claim.campaign', error);
   }
 });
 

@@ -65,6 +65,10 @@ vi.mock('../../pages/campaign/campaign-api', () => ({
     subtasks: [],
   })),
   fetchCampaignCurrencies: vi.fn(async () => []),
+  // 0075/0076：任务页新增【领取】写口 ⇒ 模块 mock 必须补齐三枚导出（否则 import 期即炸）
+  claimSubtaskReward: vi.fn(async () => ({ subtask_id: '1', cid: '1', amount: '5', batt_after: 9 })),
+  claimTaskReward: vi.fn(async () => ({ task_id: '1', cid: '1', amount: '5', batt_after: 8 })),
+  claimCampaignAll: vi.fn(async () => ({ claimed: [], total_primary: '0', batt_after: 9 })),
 }))
 
 const P = vi.hoisted(() => ({

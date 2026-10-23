@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import { fetchCampaignCurrencies, fetchCampaignDetail } from './campaign-api'
-import { statusKeyOf, taskRewardOf, timeWindowOf } from './campaign-util'
+import { pendingRewardsOf, refOf, statusKeyOf, taskRewardOf, timeWindowOf } from './campaign-util'
+import ClaimButton from './ClaimButton'
 import { fetchProjectDetail } from '../project/project-api'
 import { isWageProjectEditAdmin, loadListingEditAdmin } from '../item/item-edit-access'
 import ProjectForms from '../project/ProjectForms'
@@ -288,6 +289,9 @@ const CampaignDetailPage = () => {
   const statusKey = statusKeyOf(status)
   const window = view ? timeWindowOf(view, lang) : null
   const tasks = Array.isArray(view?.tasks) ? view.tasks : []
+  // 活动级待领取池（读口加性 `pending_rewards`）：有行才出【一键领取】⇒ 匿名 / 无可领一律零按钮。
+  // ★ 一次点击共扣 1 电量 ⇒ 只发一个请求（组件内部单项循环在本仓是硬禁）。
+  const pending = pendingRewardsOf(view)
 
   // 管理闸（与项目页旧闸逐字同式）：owner ∨ `manage_tasks` 管理员，且项目未 ended。
   const uid = user?.uID ?? user?.uid
@@ -371,6 +375,30 @@ const CampaignDetailPage = () => {
                   )}
                   <span className="sf-campaign-project-title" data-sf-m="campaign-project-title">{project.title || ''}</span>
                 </Link>
+              ) : null}
+
+              {/* 活动级【一键领取】（`POST /api/campaign/:campaignId/claim` · **一次点击共扣 1 电量**）。
+                  只在读口 `pending_rewards.items` 非空且已登录时出现；成功/失败一律内联，成功后静默复读。 */}
+              {pending.items.length ? (
+                <div
+                  className="sf-campaign-claim-bar"
+                  data-sf-m="campaign-claim-bar"
+                  data-sf-count={pending.items.length}
+                  data-sf-ref={String(refOf(view) || ref)}
+                >
+                  <span className="sf-campaign-cost-hint" data-sf-m="campaign-claim-cost">
+                    {t('campaign.claim.allCost')}
+                  </span>
+                  <ClaimButton
+                    variant="campaign"
+                    refId={refOf(view) || ref}
+                    t={t}
+                    user={user}
+                    isAuthenticated={isAuthenticated}
+                    onClaimed={refresh}
+                    m="campaign-claim-all"
+                  />
+                </div>
               ) : null}
             </section>
 

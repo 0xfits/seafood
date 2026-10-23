@@ -62,6 +62,32 @@ export const submitSubtaskProof = (subtaskId, payload, user) =>
 /** 截图上传 = 复用既有媒体口（`POST /api/media`，仅 jpeg/png/webp、≤1MiB）。 */
 export const uploadProofImage = uploadMedia
 
+// ============================================================================
+// 领取面（2026-10-23 · 电量 + 待领取池）
+// ----------------------------------------------------------------------------
+// 契约（后端并行单冻结，加性）：
+//   POST /api/campaign/subtask/<id>/claim     ⇒ {subtask_id,cid,amount,batt_after}
+//                                                 409 `nothing_to_claim` / `batt_insufficient`
+//   POST /api/campaign/task/<taskId>/claim    ⇒ {task_id,cid,amount,secondary_cid,secondary_amount,batt_after}
+//   POST /api/campaign/<campaignId>/claim     ⇒ {claimed:[...],total_primary,batt_after}
+//                                                 ★ **一次点击共扣 1 电量**（前端只发一次，不逐项循环）
+// 读口加性 `pending_rewards:{items:[{kind,ref_id,title,cid,amount}],total_by_cid}`
+//   ⇒ 「有没有得领」一律以读口为准，前端不本地推算（余额态只在点击后由响应/复读体现）。
+// 请求体恒 `{}`：写口无入参，金额与电量全由服务端判。
+// ============================================================================
+
+/** 领取**子任务**奖励（电量口径；409 `nothing_to_claim` / `batt_insufficient`）。 */
+export const claimSubtaskReward = (subtaskId, user) =>
+  postJson(`/api/campaign/subtask/${encodeURIComponent(String(subtaskId))}/claim`, {}, user)
+
+/** 领取**任务完成奖**（主币 + 可选次币；响应带 `batt_after`）。 */
+export const claimTaskReward = (taskId, user) =>
+  postJson(`/api/campaign/task/${encodeURIComponent(String(taskId))}/claim`, {}, user)
+
+/** **活动级一键领取**（`claimed[]` + `total_primary`；一次点击共扣 1 电量 ⇒ 只发一个请求）。 */
+export const claimCampaignAll = (campaignId, user) =>
+  postJson(`/api/campaign/${encodeURIComponent(String(campaignId))}/claim`, {}, user)
+
 /**
  * 公开币种表（`GET /api/currencies` ⇒ `[{cid, symbol, name}]`，仅上市中）。
  * 只用于把任务完成奖里的次币 `reward_cid_secondary` 显示成符号 —— 各页面线**各自包装**同一个

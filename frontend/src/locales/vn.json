@@ -1397,7 +1397,10 @@
       "linkInvalid": "Liên kết phải bắt đầu bằng http:// hoặc https://",
       "needAddr": "Vui lòng nhập địa chỉ on-chain",
       "needAnswer": "Vui lòng nhập câu trả lời",
-      "chooseOption": "Hãy chọn một phương án"
+      "chooseOption": "Hãy chọn một phương án",
+      "battCost": "Mỗi lần gửi tốn 1 pin",
+      "battInsufficient": "Không đủ pin, không thể gửi",
+      "rewardPending": "Thưởng đã vào mục chờ nhận"
     },
     "prediction": {
       "deadline": "Hạn chót: {{time}}",
@@ -1422,6 +1425,18 @@
       "right": "Chính xác",
       "wrong": "Chưa đúng",
       "reward": "Thưởng khi trả lời đúng ${{amount}}"
+    },
+    "claim": {
+      "cta": "Nhận",
+      "claiming": "Đang nhận…",
+      "all": "Nhận tất cả",
+      "allCost": "Nhận tất cả tốn 1 pin",
+      "pending": "Chờ nhận ${{amount}}",
+      "ok": "Đã nhận ${{amount}}",
+      "allOk": "Đã nhận {{n}} mục, tổng ${{amount}}",
+      "battInsufficient": "Không đủ pin, không thể nhận",
+      "nothingToClaim": "Chưa có thưởng để nhận",
+      "failed": "Nhận thất bại, vui lòng thử lại sau"
     }
   },
   "itemType": {

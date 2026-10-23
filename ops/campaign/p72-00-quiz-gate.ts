@@ -248,19 +248,18 @@ const errOf = (x: unknown): unknown =>
       && /是子任务列，不写进 payload/.test(SVC),
     JSON.stringify({ insert_has_col: /reward_amount/.test(INSERT_SQL), insert_param: /\$7::numeric/.test(INSERT_SQL), update_has_col: /reward_amount = \$6::numeric/.test(UPDATE_SQL) }));
 
-  // quiz 发奖臂：两腿 · 同事务 · 幂等键形状（切片到「通用三类」之前 ⇒ 只审 quiz 分支）
+  // quiz 待领臂（0075）：只写快照、零 postEvent（切片到「通用三类」之前 ⇒ 只审 quiz 分支）
   const QUIZ_BLOCK = SVC.slice(SVC.indexOf('// ---- quiz：'), SVC.indexOf('// ---- 通用三类'));
-  ck.t('A6', '★quiz 发奖：**同一事务两腿**（平台 −N / 用户 +N）· kind 借 `PLATFORM_PAYOUT_KIND`（零新 kind）· 幂等键 `biz:campaign:quiz:<subtaskId>:<uid>` · 仅 `quizCorrect` 且 reward > 0 才发 · 答错分支零 `postEvent`（proof 落库即返回）',
-    /ex: tx as unknown/.test(QUIZ_BLOCK)
-      && /uid: String\(PLATFORM_UID\), cid: String\(USD_CID\), delta: \(-reward\)\.toString\(\)/.test(QUIZ_BLOCK)
-      && /uid, cid: String\(USD_CID\), delta: reward\.toString\(\)/.test(QUIZ_BLOCK)
-      && /kind: PLATFORM_PAYOUT_KIND/.test(QUIZ_BLOCK)
-      && /const key = `biz:campaign:quiz:\$\{subtaskId\}:\$\{uid\}`/.test(QUIZ_BLOCK)
-      && /if \(quizCorrect && reward > 0n\)/.test(QUIZ_BLOCK)
-      && (QUIZ_BLOCK.match(/postEvent\(/g) ?? []).length === 1,
+  ck.t('A6', '★quiz 答对 ⇒ **只写待领快照**（0075）：quiz 分支内**零 `postEvent`**（零台账）· `reward_due_units` 随 proof 行落 `$4::numeric` · 响应 `reward_paid: null`（兼容位）+ `reward_pending` + `batt_after` · 扣 1 电量走 `chargeProofFee()`（同事务）',
+    (QUIZ_BLOCK.match(/postEvent\(/g) ?? []).length === 0
+      && /reward_due_units/.test(QUIZ_BLOCK)
+      && /\$4::numeric/.test(QUIZ_BLOCK)
+      && /chargeProofFee\(\)/.test(QUIZ_BLOCK)
+      && /reward_pending: due !== '0'/.test(QUIZ_BLOCK)
+      && /reward_paid: null/.test(QUIZ_BLOCK),
     JSON.stringify({
-      bytes: QUIZ_BLOCK.length, same_tx: /ex: tx as unknown/.test(QUIZ_BLOCK),
-      legs: [(QUIZ_BLOCK.match(/PLATFORM_PAYOUT_KIND/g) ?? []).length, (QUIZ_BLOCK.match(/postEvent\(/g) ?? []).length],
+      bytes: QUIZ_BLOCK.length, post_events: (QUIZ_BLOCK.match(/postEvent\(/g) ?? []).length,
+      has_due_col: /reward_due_units/.test(QUIZ_BLOCK), has_fee: /chargeProofFee\(\)/.test(QUIZ_BLOCK),
     }));
 
   const correctReads = (SVC.match(/payload\[QUIZ_CORRECT_KEY\]/g) ?? []).length;
@@ -293,8 +292,8 @@ const errOf = (x: unknown): unknown =>
     "app.post('/api/campaign/task/:taskId/reward'",
   ];
   const migFiles72 = fs.readdirSync(path.resolve(REPO_ROOT, 'backend-ts/migrations')).filter((f) => f.startsWith('0072'));
-  ck.t('A9', '★零新路由 / 零新迁移号冲突：注册点仍 **109**（get 50 / post 54 / patch 4 / delete 3 / put 0，本单只改服务层内部）· 九口逐条在场 · 迁移目录里 0072 前缀**恰一个**文件 · `subtask_type` 仍 5 类（本单不加类型）',
-    regs === 111 && countVerb('get') === 50 && countVerb('post') === 54 && countVerb('patch') === 4
+  ck.t('A9', '★零新路由 / 零新迁移号冲突：注册点 **114**（get 50 / post 57 / patch 4 / delete 3 / put 0 —— 0075 增三领取口）· 九口逐条在场 · 迁移目录里 0072 前缀**恰一个**文件 · `subtask_type` 仍 5 类（本单不加类型）',
+    regs === 114 && countVerb('get') === 50 && countVerb('post') === 57 && countVerb('patch') === 4
       && countVerb('delete') === 3 && countVerb('put') === 0
       && nine.every((s) => INDEX_TS.indexOf(s) !== -1)
       && migFiles72.length === 1 && migFiles72[0] === '0072_subtask_reward_and_quiz.sql'
@@ -372,6 +371,10 @@ const errOf = (x: unknown): unknown =>
       String((await raw1<{ b: string }>(c,
         'SELECT COALESCE((SELECT balance FROM public.account WHERE uid = $1::bigint AND cid = $2::bigint), 0)::text AS b',
         [String(uid), String(cid)]))?.b ?? '0');
+    const batt = async (uid: number | string): Promise<number> =>
+      Number(String((await raw1<{ b: number }>(c,
+        'SELECT COALESCE((SELECT batt FROM public.batt_account WHERE uid = $1::bigint), 0)::int AS b',
+        [String(uid)]))?.b ?? 0));
 
     // ---- B1 · 0072 全量干跑（ALTER + 两个 DO 块 + 尾部自检）· 幂等（二次执行）
     for (const stmt of M72_STMTS) await c.query(stmt);
@@ -402,6 +405,12 @@ const errOf = (x: unknown): unknown =>
       uids.push(Number(row?.uid ?? 0));
     }
     const [FUNDER, U1, U2, U3] = uids;
+    // 0075：每次提交 / 领取各扣 1 电量 ⇒ 夹具用户先充 50（不足 1 会让所有提交臂 409 batt_insufficient）
+    await c.query(
+      `INSERT INTO public.batt_account (uid, batt)
+       SELECT u, 50 FROM unnest($1::bigint[]) AS u
+       ON CONFLICT (uid) DO UPDATE SET batt = 50`,
+      [uids]);
     R.fixture_users = uids;
     let FIXPROJ = String((await raw1<{ project_id: string }>(c,
       `SELECT project_id::text AS project_id FROM public.project
@@ -523,17 +532,21 @@ const errOf = (x: unknown): unknown =>
     const sv = viewOf<Record<string, unknown>>(settled);
     const settleKey = `biz:campaign:settle:${PRED}:yes`;
     const settleAgain = await settlePredictionVerb({ subtaskRef: PRED, body: { correct_option: 'no' }, ex });
-    ck.t('S2', '★新两键全链：`yes` / `no` 各 200 · **`choice:"a"` ⇒ 400 `PREDICTION_CHOICE_SHAPE`（口径交叉拒绝）** · deadline 前 settle ⇒ 409 `prediction_deadline_not_reached` · 到点后 `correct_option:"yes"` ⇒ 200（prize 101 / 选对 1 ⇒ per 101 · 台账 2 条 · U1 +101 · 平台 −101）· 重复 settle ⇒ 409（零二次分发）',
+    const settledDue = await raw1<{ due: string | null }>(c,
+      'SELECT reward_due_units::text AS due FROM public.subtask_proof WHERE subtask_id = $1::bigint AND uid = $2::bigint',
+      [PRED, String(U1)]);
+    ck.t('S2', '★新两键全链（0075 口径）：`yes` / `no` 各 200 · **`choice:"a"` ⇒ 400 `PREDICTION_CHOICE_SHAPE`（口径交叉拒绝）** · deadline 前 settle ⇒ 409 `prediction_deadline_not_reached` · 到点后 `correct_option:"yes"` ⇒ 200（prize 101 / 胜者 1 ⇒ per 101）· **结算不动账**（`ledger_entries=0`、`idempotency_key=null`、结算台账 0 行、U1 / 平台余额不变）· 胜方 `proof.reward_due_units=101`（待领取）· 重复 settle ⇒ 409',
       v1.ok === true && v2.ok === true
         && verbOf(vCross) === 400 && reasonOf(vCross) === 'PREDICTION_CHOICE_SHAPE'
         && verbOf(earlySettle) === 409 && reasonOf(earlySettle) === 'prediction_deadline_not_reached'
         && settled.ok === true && Number(sv.winner_count) === 1 && Number(sv.per_winner_amount) === 101
         && Number(sv.distributed_total) === 101 && Number(sv.platform_retained) === 0
-        && BigInt(await bal(U1, USD_CID)) - u1Before === 101n
-        && platBefore - BigInt(await bal(-1, USD_CID)) === 101n
-        && (await ledgerRows(settleKey)) === 2
-        && verbOf(settleAgain) === 409 && reasonOf(settleAgain) === 'prediction_already_settled'
-        && (await ledgerRows(settleKey)) === 2,
+        && Number(sv.ledger_entries) === 0 && sv.idempotency_key === null
+        && BigInt(await bal(U1, USD_CID)) === u1Before
+        && BigInt(await bal(-1, USD_CID)) === platBefore
+        && (await ledgerRows(settleKey)) === 0
+        && String(settledDue?.due ?? '') === '101'
+        && verbOf(settleAgain) === 409 && reasonOf(settleAgain) === 'prediction_already_settled',
       JSON.stringify({
         votes: [v1.ok, v2.ok], cross: [verbOf(vCross), reasonOf(vCross)], early: [verbOf(earlySettle), reasonOf(earlySettle)],
         settled: sv, again: [verbOf(settleAgain), reasonOf(settleAgain)],
@@ -647,52 +660,62 @@ const errOf = (x: unknown): unknown =>
         draft: { task: DRAFTT, ok: draftRepatch.ok, row: draftRow ?? null },
       }));
 
-    // ==================================================================== S5 · quiz 答对发奖（账实两腿）
+    // ==================================================================== S5 · quiz 答对 ⇒ 入待领（0075：不再即时发奖）
     const quizKey = `biz:campaign:quiz:${QUIZ}:${U1}`;
     const u1QuizBefore = BigInt(await bal(U1, USD_CID));
     const platQuizBefore = BigInt(await bal(-1, USD_CID));
+    const u1BattBefore = await batt(U1);
     // picks 顺序与 correct 相反（['c','a'] vs correct ['a','c']）⇒ 集合相等即答对
     const rightAns = await submitProofVerb({ actorUid: U1, subtaskRef: QUIZ, body: { answers: { picks: ['c', 'a'] } }, ex });
-    const rightView = viewOf<{ quiz_correct?: boolean; reward_paid?: string }>(rightAns);
+    const rightView = viewOf<{ quiz_correct?: boolean; reward_paid?: string | null; reward_pending?: boolean; batt_after?: number }>(rightAns);
     const u1QuizDelta = BigInt(await bal(U1, USD_CID)) - u1QuizBefore;
     const platQuizDelta = platQuizBefore - BigInt(await bal(-1, USD_CID));
-    ck.t('S5', '★quiz 答对即发奖（**账实两腿**）：picks `["c","a"]` 与 correct `["a","c"]` **顺序无关** ⇒ 200 且 `quiz_correct=true`、`reward_paid="7"` · **account**：U1 +7 / 平台 −7 · **ledger**：同幂等键 2 腿（U1 汇总 +7、平台 −7）',
-      rightAns.ok === true && rightView.quiz_correct === true && String(rightView.reward_paid) === '7'
-        && u1QuizDelta === 7n && platQuizDelta === 7n
-        && (await ledgerRows(quizKey)) === 2
-        && (await ledgerSum(U1, quizKey)) === '7' && (await ledgerSum(-1, quizKey)) === '-7',
+    const rightDue = await raw1<{ due: string | null }>(c,
+      'SELECT reward_due_units::text AS due FROM public.subtask_proof WHERE subtask_id = $1::bigint AND uid = $2::bigint',
+      [QUIZ, String(U1)]);
+    ck.t('S5', '★quiz 答对 ⇒ **入待领**（0075）：picks `["c","a"]` 与 correct `["a","c"]` **顺序无关** ⇒ 200 且 `quiz_correct=true`、`reward_paid=null`（兼容位）、`reward_pending=true` · 本次零发放（U1 / 平台余额不变、`biz:campaign:quiz:*` 台账 0 行）· `proof.reward_due_units=7`（待领取）· 扣 1 电量（`batt_after` = 49）',
+      rightAns.ok === true && rightView.quiz_correct === true && rightView.reward_paid === null
+        && rightView.reward_pending === true && rightView.batt_after === u1BattBefore - 1
+        && u1QuizDelta === 0n && platQuizDelta === 0n
+        && (await ledgerRows(quizKey)) === 0 && String(rightDue?.due ?? '') === '7',
       JSON.stringify({
         view: rightView, deltas: { u1: u1QuizDelta.toString(), platform: platQuizDelta.toString() },
+        batt: [u1BattBefore, await batt(U1)], due: rightDue?.due ?? null,
         ledger: { rows: await ledgerRows(quizKey), u1: await ledgerSum(U1, quizKey), platform: await ledgerSum(-1, quizKey) },
       }));
 
-    // ==================================================================== S6 · quiz 答错零发奖
+    // ==================================================================== S6 · quiz 答错 ⇒ 零待领
     const u2Before = BigInt(await bal(U2, USD_CID));
     const platBeforeWrong = BigInt(await bal(-1, USD_CID));
     // picks 用**真子集** `['a']`（correct = `['a','c']`）⇒ 集合相等判据下答错，而「子集即算对」的变体会在此臂转红（N1 对拍）
     const wrongAns = await submitProofVerb({ actorUid: U2, subtaskRef: QUIZ, body: { answers: { picks: ['a'] } }, ex });
-    const wrongView = viewOf<{ quiz_correct?: boolean; reward_paid?: string }>(wrongAns);
+    const wrongView = viewOf<{ quiz_correct?: boolean; reward_paid?: string | null; reward_pending?: boolean }>(wrongAns);
     const wrongKey = `biz:campaign:quiz:${QUIZ}:${U2}`;
     const wrongProofRows = Number((await raw1<{ n: number }>(c,
       'SELECT count(*)::int AS n FROM public.subtask_proof WHERE subtask_id = $1::bigint AND uid = $2::bigint', [QUIZ, String(U2)]))?.n ?? -1);
-    ck.t('S6', '★quiz 答错零发奖：`picks=["a"]` ⇏ `["a","c"]`（**真子集** —— 「子集即算对」的变体会在此臂转红）⇒ 200 且 `quiz_correct=false`、`reward_paid="0"` · **proof 仍落库**（提交即通过，1 行）· U2 余额**不变**、平台不变 · 该户零分录（0 条）',
-      wrongAns.ok === true && wrongView.quiz_correct === false && String(wrongView.reward_paid) === '0'
-        && wrongProofRows === 1
+    const wrongDue = await raw1<{ due: string | null }>(c,
+      'SELECT reward_due_units::text AS due FROM public.subtask_proof WHERE subtask_id = $1::bigint AND uid = $2::bigint',
+      [QUIZ, String(U2)]);
+    ck.t('S6', '★quiz 答错零待领：`picks=["a"]` ⇏ `["a","c"]`（**真子集** —— 「子集即算对」的变体会在此臂转红）⇒ 200 且 `quiz_correct=false`、`reward_paid=null`、`reward_pending=false` · **proof 仍落库**（提交即通过，1 行）且 `reward_due_units` 为空 · U2 余额**不变**、平台不变 · 该户零分录',
+      wrongAns.ok === true && wrongView.quiz_correct === false && wrongView.reward_paid === null
+        && wrongView.reward_pending === false && wrongProofRows === 1 && wrongDue?.due === null
         && BigInt(await bal(U2, USD_CID)) === u2Before
         && BigInt(await bal(-1, USD_CID)) === platBeforeWrong
         && (await ledgerRows(wrongKey)) === 0,
       JSON.stringify({
-        view: wrongView, proof_rows: wrongProofRows,
+        view: wrongView, proof_rows: wrongProofRows, due: wrongDue?.due ?? null,
         u2_delta: (BigInt(await bal(U2, USD_CID)) - u2Before).toString(), ledger: await ledgerRows(wrongKey),
       }));
 
-    // ==================================================================== S7 · quiz 重复提交 409（一人一次、零二次发奖）
+    // ==================================================================== S7 · quiz 重复提交 409（一人一次、零二次扣电）
+    const u1BattBeforeAgain = await batt(U1);
     const again = await submitProofVerb({ actorUid: U1, subtaskRef: QUIZ, body: { answers: { picks: ['a', 'c'] } }, ex });
     const proofRowsAfter = Number((await raw1<{ n: number }>(c,
       'SELECT count(*)::int AS n FROM public.subtask_proof WHERE subtask_id = $1::bigint', [QUIZ]))?.n ?? -1);
-    ck.t('S7', '★quiz 同一 uid 重提 ⇒ 409 `quiz_already_answered`（与 prediction 一人一票同族）· proof 仍 **2 行**（U1/U2 各一）· 发奖台账**仍 2 腿**（零二次发奖，即便第二次答案也正确）',
+    ck.t('S7', '★quiz 同一 uid 重提 ⇒ 409 `quiz_already_answered`（与 prediction 一人一票同族）· proof 仍 **2 行**（U1/U2 各一）· **零二次扣电**（预判先于扣费 ⇒ 电量不变）· 台账 0 行（零二次发放，即便第二次答案也正确）',
       verbOf(again) === 409 && reasonOf(again) === 'quiz_already_answered'
-        && proofRowsAfter === 2 && (await ledgerRows(quizKey)) === 2,
+        && proofRowsAfter === 2 && (await ledgerRows(quizKey)) === 0
+        && (await batt(U1)) === u1BattBeforeAgain,
       JSON.stringify({ again: [verbOf(again), reasonOf(again)], proof_rows: proofRowsAfter, ledger: await ledgerRows(quizKey) }));
 
     // ==================================================================== S8 · 公开读口 correct 零泄漏（三读口）
@@ -784,7 +807,7 @@ const errOf = (x: unknown): unknown =>
         && strictSubset(['b'], ['a', 'c']) === false && strictSubset(['a', 'c'], ['a', 'c']) === false
         && n1.sqlstate === null && n1v !== null && n1v.mutant_right === true
         && n1v.paid === '7' && n1v.delta === '7'
-        && String(wrongView.reward_paid) === '0',
+        && wrongView.reward_paid === null && (await ledgerRows(wrongKey)) === 0,
       JSON.stringify({
         real_same_set: samePickSet(['a'], ['a', 'c']),
         mutant_judge: { subset: strictSubset(['a'], ['a', 'c']), non_subset: strictSubset(['b'], ['a', 'c']), equal: strictSubset(['a', 'c'], ['a', 'c']) },

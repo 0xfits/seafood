@@ -1397,7 +1397,10 @@
       "linkInvalid": "連結需以 http:// 或 https:// 開頭",
       "needAddr": "請填寫鏈上地址",
       "needAnswer": "請填寫回答",
-      "chooseOption": "請選擇一個選項"
+      "chooseOption": "請選擇一個選項",
+      "battCost": "提交需 1 電量",
+      "battInsufficient": "電量不足，無法提交",
+      "rewardPending": "獎勵已入待領取"
     },
     "prediction": {
       "deadline": "截止時間：{{time}}",
@@ -1422,6 +1425,18 @@
       "right": "答對了",
       "wrong": "答錯了",
       "reward": "答對獎勵 ${{amount}}"
+    },
+    "claim": {
+      "cta": "領取",
+      "claiming": "領取中…",
+      "all": "一鍵領取",
+      "allCost": "一鍵領取共扣 1 電量",
+      "pending": "待領取 ${{amount}}",
+      "ok": "已領取 ${{amount}}",
+      "allOk": "已領取 {{n}} 項，共 ${{amount}}",
+      "battInsufficient": "電量不足，無法領取",
+      "nothingToClaim": "暫無可領取的獎勵",
+      "failed": "領取失敗，請稍後重試"
     }
   },
   "itemType": {

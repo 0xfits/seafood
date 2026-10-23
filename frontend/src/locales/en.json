@@ -1397,7 +1397,10 @@
       "linkInvalid": "Link must start with http:// or https://",
       "needAddr": "Enter an on-chain address",
       "needAnswer": "Write your answer",
-      "chooseOption": "Choose an option"
+      "chooseOption": "Choose an option",
+      "battCost": "Costs 1 battery to submit",
+      "battInsufficient": "Insufficient battery, cannot submit",
+      "rewardPending": "Reward added to pending claims"
     },
     "prediction": {
       "deadline": "Deadline: {{time}}",
@@ -1422,6 +1425,18 @@
       "right": "Correct",
       "wrong": "Not correct",
       "reward": "Correct-answer reward ${{amount}}"
+    },
+    "claim": {
+      "cta": "Claim",
+      "claiming": "Claiming…",
+      "all": "Claim all",
+      "allCost": "Claim all costs 1 battery in total",
+      "pending": "To claim ${{amount}}",
+      "ok": "Claimed ${{amount}}",
+      "allOk": "Claimed {{n}} items, ${{amount}} in total",
+      "battInsufficient": "Insufficient battery, cannot claim",
+      "nothingToClaim": "Nothing to claim",
+      "failed": "Claim failed, please try again"
     }
   },
   "itemType": {

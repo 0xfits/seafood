@@ -42,6 +42,17 @@
 //      · **有凭证不删**：目标子任务存在 `subtask_proof` 行（prediction 的票同表）⇒ 409 `subtask_has_proofs`；
 //      · upsert 与删除**同一事务**（一侧失败全回滚）；未知 / 跨 task id ⇒ 404 `LEDGER_REF_NOT_FOUND`。
 //
+//   ⑦ **奖励改「待领取」＋ 每次动作扣 1 电量**（Kevin 2026-10-23 裁定，迁移 0075）：
+//      · 提交凭证（`submitProofVerb`）**校验全过后、落 proof 行前**扣 1 电量（同事务两腿：
+//        用户 `batt_account` −1 / 平台 uid 0 +1 ＋ `batt_entry` 两条；不足 ⇒ 409 `batt_insufficient`，零写入）；
+//      · 奖励**不再即时发放**：quiz 答对 / 三类提交（`subtask.reward_amount > 0`）⇒ 只写
+//        `subtask_proof.reward_due_units` 快照；prediction `settle` 只写胜方 `reward_due_units`（零 `postEvent`）；
+//      · 三个领取口（各扣 1 电量、`postEvent` 两腿实发、回填 `reward_claimed_at` / `claimed_at`）：
+//        `claimSubtaskRewardVerb` / `claimTaskRewardVerb` / `claimCampaignRewardsVerb`（活动一键领，**总共只扣 1**）；
+//      · `grantTaskRewardVerb` 只落 `campaign_task_reward_pending` 行（幂等 `ON CONFLICT (task_id, uid)`），不动账；
+//      · 待领谓词唯一实现 `loadPendingRewards`（`reward_due_units > 0 ∧ reward_claimed_at IS NULL`），
+//        R2 / R2b 读口加性 `pending_rewards`（匿名 / 无待领 ⇒ 空数组）。
+//
 // 五条结构性纪律（超范围即缺陷）：
 //   · **零新错误码**（33 码闭集不动）：400 借 `LEDGER_AMOUNT_INVALID` / 404 借 `LEDGER_REF_NOT_FOUND` /
 //     409 借 `LEDGER_INSUFFICIENT_BALANCE` / 403 借 `AUTH_FORBIDDEN`；逐场景理由落 `details.reason`
@@ -412,6 +423,8 @@ export interface CampaignView {
   time_created: string | null;
   time_updated: string | null;
   tasks: TaskView[];
+  /** **加性（0075）· 登录态**：本人待领清单（匿名 / 无待领 ⇒ `{items:[], total_by_cid:{}}`） */
+  pending_rewards?: PendingRewardsView;
 }
 
 export interface ProofView {
@@ -425,8 +438,15 @@ export interface ProofView {
   time_updated: string | null;
   /** **加性 · 仅 quiz**：本次是否答对（答错亦落 proof，零发奖） */
   quiz_correct?: boolean;
-  /** **加性 · 仅 quiz**：本次实发奖励（`$`；答错 / 子任务无奖励 ⇒ `'0'`） */
-  reward_paid?: string;
+  /**
+   * **加性 · 兼容位（恒 `null`）**：0075 后奖励改「待领取」，提交时零发放。
+   * 键保留（形状不变）但值恒 `null` —— 前端据 `reward_pending` 判「已入待领」。
+   */
+  reward_paid?: string | null;
+  /** **加性**：本次提交后是否有待领奖励（`reward_due_units > 0`） */
+  reward_pending?: boolean;
+  /** **加性**：本次动作扣 1 电量后的本人电量（`batt_account.batt`） */
+  batt_after?: number;
 }
 
 /** prediction 生命周期派生（读时，零列零定时器）—— 两种口径共用：`correct_option` 落在该口径值域即 settled */
@@ -632,6 +652,124 @@ const postRewardEvent = async (
     ],
     ex: tx as unknown as EventTx,
   });
+};
+
+// ============================================================================
+// 待领奖励（0075 · Kevin 2026-10-23）：唯一谓词 + 三领取口的出参形状
+// ----------------------------------------------------------------------------
+// 待领谓词**只此一处**：`reward_due_units > 0 ∧ reward_claimed_at IS NULL`（subtask 级）
+// ＋ `campaign_task_reward_pending.claimed_at IS NULL`（task 级）。读口 / 三领取口共用，
+// 杜绝「读口说有、领取口说无」两套口径。
+// ============================================================================
+
+export interface PendingRewardItem {
+  kind: 'subtask' | 'task';
+  /** 待领对象的 id（subtask_id / task_id） */
+  ref_id: string;
+  title: string;
+  /** 主币种（subtask 奖励恒 `$`；task 完成奖 = 发放时锁定的 `cid`） */
+  cid: string;
+  amount: string;
+}
+
+export interface PendingRewardsView {
+  items: PendingRewardItem[];
+  /** 逐币种合计（键 = cid，值 = units 十进制串） */
+  total_by_cid: Record<string, string>;
+}
+
+export interface SubtaskClaimView {
+  subtask_id: string;
+  cid: string;
+  amount: string;
+  /** 扣 1 电量后的本人电量 */
+  batt_after: number;
+}
+
+export interface TaskClaimView {
+  task_id: string;
+  cid: string;
+  amount: string;
+  secondary_cid: string | null;
+  secondary_amount: string | null;
+  batt_after: number;
+}
+
+export interface CampaignClaimItem {
+  kind: 'subtask' | 'task';
+  ref_id: string;
+  cid: string;
+  amount: string;
+  /** 仅 task 级待领且带次币腿时非 null */
+  secondary_cid?: string | null;
+  secondary_amount?: string | null;
+}
+
+export interface CampaignClaimView {
+  claimed: CampaignClaimItem[];
+  /** 主币种（`$`）合计已发 */
+  total_primary: string;
+  batt_after: number;
+}
+
+const emptyPendingRewards = (): PendingRewardsView => ({ items: [], total_by_cid: {} });
+
+/**
+ * 本人待领清单（scope 二选一或全量）：
+ * · `taskId` ⇒ 该任务（subtask 级 + task 级）；`campaignId` ⇒ 该活动下全部任务；
+ * · 两者皆缺 ⇒ 本人全量（当前无调用点，留作读口复用）。
+ */
+const loadPendingRewards = async (
+  viewerUid: number,
+  scope: { taskId?: string | null; campaignId?: string | null },
+  ex?: TxClient,
+): Promise<PendingRewardsView> => {
+  const rows = await readRows<Row>(
+    `SELECT u.kind, u.ref_id, u.title, u.cid, u.amount
+       FROM (
+         SELECT 'subtask'::text AS kind,
+                p.subtask_id::text AS ref_id,
+                s.title::text      AS title,
+                $3::text           AS cid,
+                p.reward_due_units::text AS amount
+           FROM public.subtask_proof AS p
+           JOIN public.subtask AS s ON s.subtask_id = p.subtask_id
+           JOIN public.task    AS t ON t.task_id = s.task_id
+          WHERE p.uid = $1::bigint
+            AND p.reward_due_units > 0
+            AND p.reward_claimed_at IS NULL
+            AND ($2::bigint IS NULL OR t.task_id = $2::bigint)
+            AND ($4::bigint IS NULL OR t.campaign_id = $4::bigint)
+         UNION ALL
+         SELECT 'task'::text,
+                r.task_id::text,
+                t.title::text,
+                r.cid::text,
+                r.amount_units::text
+           FROM public.campaign_task_reward_pending AS r
+           JOIN public.task AS t ON t.task_id = r.task_id
+          WHERE r.uid = $1::bigint
+            AND r.claimed_at IS NULL
+            AND ($2::bigint IS NULL OR r.task_id = $2::bigint)
+            AND ($4::bigint IS NULL OR t.campaign_id = $4::bigint)
+       ) AS u
+      ORDER BY u.kind DESC, u.ref_id`,
+    [String(viewerUid), scope.taskId ?? null, String(USD_CID), scope.campaignId ?? null],
+    ex,
+  );
+
+  const items: PendingRewardItem[] = [];
+  const totals = new Map<string, bigint>();
+  for (const row of rows) {
+    const amount = str(row.amount);
+    if (!POSITIVE_INT_TEXT.test(amount) || BigInt(amount) <= 0n) continue;   // 防御：非法/零额不入清单
+    const cid = str(row.cid);
+    items.push({ kind: str(row.kind) === 'task' ? 'task' : 'subtask', ref_id: str(row.ref_id), title: str(row.title), cid, amount });
+    totals.set(cid, (totals.get(cid) ?? 0n) + BigInt(amount));
+  }
+  const total_by_cid: Record<string, string> = {};
+  for (const [cid, sum] of totals) total_by_cid[cid] = sum.toString();
+  return { items, total_by_cid };
 };
 
 // ============================================================================
@@ -1475,9 +1613,14 @@ export const getCampaignByRef = async (
   const view = normalizeCampaignRow(campaign, taskRows.map((t) => normalizeTaskRow(t, subtaskMap.get(str(t.task_id)) ?? [])));
   // 登录态附加（匿名 / 非法 uid ⇒ 完全不附加，两键缺省 —— 与「key 缺省 vs null」的口径一致）
   const viewerUid = opts.viewerUid;
-  if (typeof viewerUid === 'number' && Number.isSafeInteger(viewerUid) && viewerUid > 0) {
-    await attachViewerContext(view, viewerUid, ex);
+  const validViewer = typeof viewerUid === 'number' && Number.isSafeInteger(viewerUid) && viewerUid > 0;
+  if (validViewer) {
+    await attachViewerContext(view, viewerUid as number, ex);
   }
+  // 0075 加性：本人待领（匿名 / 无待领 ⇒ 空数组，键恒在 —— 前端无需判空分支）
+  view.pending_rewards = validViewer
+    ? await loadPendingRewards(viewerUid as number, { campaignId }, ex)
+    : emptyPendingRewards();
   return view;
 };
 
@@ -1532,6 +1675,8 @@ export interface TaskDetailView {
   campaign: { id: string; title: string; status: string };
   project: { id: string; title: string; slug: string; avatar_url: string | null; status: string };
   subtasks: TaskDetailSubtaskView[];
+  /** **加性（0075）· 登录态**：本人在该任务的待领（匿名 / 无待领 ⇒ `{items:[], total_by_cid:{}}`） */
+  pending_rewards: PendingRewardsView;
 }
 
 /**
@@ -1617,7 +1762,7 @@ export const getTaskDetailByRef = async (
     ? null
     : int(row.project_headcount);
 
-  return {
+  const view: TaskDetailView = {
     task_id: str(row.task_id),
     title: str(row.title),
     description: str(row.description),
@@ -1658,7 +1803,14 @@ export const getTaskDetailByRef = async (
         ...(style === null ? {} : { option_style: style }),
       };
     }),
+    pending_rewards: emptyPendingRewards(),
   };
+  // 0075 加性：本人待领（匿名 / 无待领 ⇒ 空数组，键恒在）
+  const claimUid = opts.actorUid;
+  if (typeof claimUid === 'number' && Number.isSafeInteger(claimUid) && claimUid > 0) {
+    view.pending_rewards = await loadPendingRewards(claimUid, { taskId: str(row.task_id) }, ex);
+  }
+  return view;
 };
 
 // ============================================================================
@@ -1835,6 +1987,17 @@ export const submitProofVerb = async (input: {
     const uid = String(input.actorUid);
     const nowMs = Date.now();
 
+    // ★ 每次动作扣 1 电量（0075）：同事务两腿；电量不足 ⇒ 409 `batt_insufficient`（零写入）。
+    //   调用点一律在**全部校验通过之后、写 proof 行之前**（请求形状错误 / 状态闸 / 重复提交都不扣电）。
+    const chargeProofFee = async () => chargeBattFee(q, {
+      uid,
+      base: `biz:campaign:proof:${subtaskId}:${uid}`,
+      reason: BATT_FEE_REASON_PROOF,
+      refType: 'subtask',
+      refId: subtaskId,
+      memo: `campaign_proof_fee:${subtaskId}:${uid}`,
+    });
+
     // ---- prediction：单键 {choice} + 一人一票（首票即定）----
     if (typeCode === 'prediction') {
       const payload = asObject(chain.payload);
@@ -1847,6 +2010,16 @@ export const submitProofVerb = async (input: {
       const parsed = parsePredictionChoice(input.body, style);
       if ('err' in parsed) return parsed.err;
 
+      // 一人一票预判（先于扣费 ⇒ 重复投票不扣电量）；真正的一次性由下面的 DO NOTHING 保证
+      const prior = await q(
+        `SELECT 1 AS hit FROM public.subtask_proof WHERE subtask_id = $1::bigint AND uid = $2::bigint LIMIT 1`,
+        [subtaskId, uid],
+      );
+      if (prior.length) return conflict('prediction_vote_locked', { subtask_id: subtaskId });
+
+      const fee = await chargeProofFee();
+      if (fee === 'batt_insufficient') return battInsufficientErr({ ref_type: 'subtask', ref_id: subtaskId });
+
       // ★ 单语句 + DO NOTHING：0 行 = 已有票 ⇒ 409（不覆盖、不新增行 —— CP-P4 / CP-PN4）
       const inserted = await q(
         `INSERT INTO public.subtask_proof (subtask_id, uid, payload, status)
@@ -1856,11 +2029,16 @@ export const submitProofVerb = async (input: {
         [subtaskId, uid, JSON.stringify({ choice: parsed.choice })],
       );
       if (!inserted.length) return conflict('prediction_vote_locked', { subtask_id: subtaskId });
-      return { ok: true, view: normalizeProofRow(inserted[0]), replay: false };
+      // 投票本身不产生待领（胜方待领由 settle 快照 `reward_due_units`）
+      return {
+        ok: true,
+        view: { ...normalizeProofRow(inserted[0]), reward_pending: false, reward_paid: null, batt_after: fee.user_batt_after },
+        replay: false,
+      };
     }
 
-    // ---- quiz：{answers:{picks}}（1–4 个 ∈a–d）⇒ 集合相等即答对 ⇒ **同一事务**发奖 ----
-    //   答错也落 proof（提交即通过体例）但零发奖；同一 uid 重提 ⇒ 409（与 prediction 一人一票同族）。
+    // ---- quiz：{answers:{picks}}（1–4 个 ∈a–d）⇒ 集合相等即答对 ⇒ **只写待领快照**（0075）----
+    //   答错也落 proof（提交即通过体例）但零待领；同一 uid 重提 ⇒ 409（与 prediction 一人一票同族）。
     if (typeCode === 'quiz') {
       const payload = asObject(chain.payload);
       const parsed = parseQuizProof(input.body);
@@ -1875,37 +2053,35 @@ export const submitProofVerb = async (input: {
       const quizCorrect = samePickSet(parsed.picks, correct);
       const rewardText = asPositiveIntText(chain.reward_amount) ?? '0';
       const reward = BigInt(rewardText);
+      const due = quizCorrect && reward > 0n ? rewardText : '0';
+
+      const prior = await q(
+        `SELECT 1 AS hit FROM public.subtask_proof WHERE subtask_id = $1::bigint AND uid = $2::bigint LIMIT 1`,
+        [subtaskId, uid],
+      );
+      if (prior.length) return conflict('quiz_already_answered', { subtask_id: subtaskId });
+
+      const fee = await chargeProofFee();
+      if (fee === 'batt_insufficient') return battInsufficientErr({ ref_type: 'subtask', ref_id: subtaskId });
 
       const inserted = await q(
-        `INSERT INTO public.subtask_proof (subtask_id, uid, payload, status)
-         VALUES ($1::bigint, $2::bigint, $3::jsonb, 'submitted')
+        `INSERT INTO public.subtask_proof (subtask_id, uid, payload, status, reward_due_units)
+         VALUES ($1::bigint, $2::bigint, $3::jsonb, 'submitted', $4::numeric)
          ON CONFLICT (subtask_id, uid) DO NOTHING
          RETURNING *`,
-        [subtaskId, uid, JSON.stringify({ answers: { picks: parsed.picks } })],
+        [subtaskId, uid, JSON.stringify({ answers: { picks: parsed.picks } }), due === '0' ? null : due],
       );
       if (!inserted.length) return conflict('quiz_already_answered', { subtask_id: subtaskId });
 
-      let rewardPaid = '0';
-      if (quizCorrect && reward > 0n) {
-        const key = `biz:campaign:quiz:${subtaskId}:${uid}`;
-        await postEvent({
-          op: 'entries',
-          idempotencyKey: key,
-          requestFingerprint: fingerprintOf(['campaign.quiz', subtaskId, uid, rewardText]),
-          refType: 'system',
-          refId: subtaskId,
-          memo: `campaign_quiz_reward:${subtaskId}:${uid}`,
-          entries: [
-            { uid: String(PLATFORM_UID), cid: String(USD_CID), delta: (-reward).toString(), kind: PLATFORM_PAYOUT_KIND },
-            { uid, cid: String(USD_CID), delta: reward.toString(), kind: PLATFORM_PAYOUT_KIND },
-          ],
-          ex: tx as unknown as { query: (t: string, p?: unknown[]) => Promise<{ rows: Array<Record<string, unknown>> }> },
-        });
-        rewardPaid = rewardText;
-      }
       return {
         ok: true,
-        view: { ...normalizeProofRow(inserted[0]), quiz_correct: quizCorrect, reward_paid: rewardPaid },
+        view: {
+          ...normalizeProofRow(inserted[0]),
+          quiz_correct: quizCorrect,
+          reward_paid: null,                  // 兼容位：0075 后提交时零发放
+          reward_pending: due !== '0',
+          batt_after: fee.user_batt_after,
+        },
         replay: false,
       };
     }
@@ -1913,15 +2089,31 @@ export const submitProofVerb = async (input: {
     // ---- 通用三类（x_verify / onchain_snapshot / survey）：闭集四键 + 重提覆盖（last-write-wins，200）----
     const parsed = parseTypedPayload(typeCode, input.body, 'proof');
     if ('err' in parsed) return parsed.err;
+    const rewardText = asPositiveIntText(chain.reward_amount) ?? '0';
+    const genericDue = BigInt(rewardText) > 0n ? rewardText : '0';
+
+    const fee = await chargeProofFee();
+    if (fee === 'batt_insufficient') return battInsufficientErr({ ref_type: 'subtask', ref_id: subtaskId });
+
     const upserted = await q(
-      `INSERT INTO public.subtask_proof (subtask_id, uid, payload, status)
-       VALUES ($1::bigint, $2::bigint, $3::jsonb, 'submitted')
+      `INSERT INTO public.subtask_proof (subtask_id, uid, payload, status, reward_due_units)
+       VALUES ($1::bigint, $2::bigint, $3::jsonb, 'submitted', $4::numeric)
        ON CONFLICT (subtask_id, uid)
-       DO UPDATE SET payload = EXCLUDED.payload, time_updated = now()
+       DO UPDATE SET payload = EXCLUDED.payload, time_updated = now(),
+                     reward_due_units = COALESCE(EXCLUDED.reward_due_units, subtask_proof.reward_due_units)
        RETURNING *`,
-      [subtaskId, uid, JSON.stringify(parsed.payload)],
+      [subtaskId, uid, JSON.stringify(parsed.payload), genericDue === '0' ? null : genericDue],
     );
-    return { ok: true, view: normalizeProofRow(upserted[0]), replay: false };
+    return {
+      ok: true,
+      view: {
+        ...normalizeProofRow(upserted[0]),
+        reward_paid: null,
+        reward_pending: genericDue !== '0',
+        batt_after: fee.user_batt_after,
+      },
+      replay: false,
+    };
     });
   } catch (e) {
     const normalized = normalizeLedgerError(e);
@@ -2020,25 +2212,19 @@ export const settlePredictionVerb = async (input: {
       const distributed = perWinner * BigInt(winnerCount);
       const retained = prize - distributed;
 
-      // ---- 分发（零预扣 ⇒ 平台收入账户出账；floor ＋ 余数留在平台 —— CP-P6）----
+      // ---- 只写胜方待领快照（0075：settle **不动账**；实发在领取口，逐人各扣 1 电量）----
+      //   幂等由「一次性封板」（上面 correct_option 已回填 ⇒ 409）保证 ⇒ 无需台账幂等键。
       let ledgerEntries = 0;
-      let key: string | null = null;
+      const key: string | null = null;
       if (winnerCount > 0 && perWinner > 0n) {
-        key = `biz:campaign:settle:${subtaskId}:${option}`;
-        const entries: Array<{ uid: string; cid: string; delta: string; kind: typeof PLATFORM_PAYOUT_KIND }> = winners
-          .map((w) => ({ uid: str(w.uid), cid: String(USD_CID), delta: perWinner.toString(), kind: PLATFORM_PAYOUT_KIND }));
-        entries.push({ uid: String(PLATFORM_UID), cid: String(USD_CID), delta: (-distributed).toString(), kind: PLATFORM_PAYOUT_KIND });
-        await postEvent({
-          op: 'entries',
-          idempotencyKey: key,
-          requestFingerprint: fingerprintOf(['campaign.settle', subtaskId, option, prizeText, winnerCount, perWinner.toString()]),
-          refType: 'system',
-          refId: subtaskId,
-          memo: `campaign_prediction_settle:${subtaskId}`,
-          entries,
-          ex: tx as unknown as { query: (t: string, p?: unknown[]) => Promise<{ rows: Array<Record<string, unknown>> }> },
-        });
-        ledgerEntries = entries.length;
+        await q(
+          `UPDATE public.subtask_proof
+              SET reward_due_units = $3::numeric
+            WHERE subtask_id = $1::bigint
+              AND payload->>'choice' = $2::text
+              AND reward_claimed_at IS NULL`,
+          [subtaskId, option, perWinner.toString()],
+        );
       }
 
       // ---- 回填 correct_option（payload 内键，零新列 —— CP-P2）----
@@ -2071,6 +2257,334 @@ export const settlePredictionVerb = async (input: {
     const normalized = normalizeLedgerError(e);
     if (normalized.code === 'LEDGER_INSUFFICIENT_BALANCE') {
       return conflict('prediction_prize_pool_insufficient', { ledger_code: normalized.code });
+    }
+    throw e;
+  }
+};
+
+// ============================================================================
+// 三领取口（0075 · Kevin 2026-10-23）：扣 1 电量 ⇒ `postEvent` 两腿实发 ⇒ 回填领取时间
+// ----------------------------------------------------------------------------
+// 共同体例（禁各写一套）：
+//   ① 行锁（`FOR UPDATE`）⇒ 并发双领串行化（第二笔读到已回填的 `claimed_at` ⇒ 409 `nothing_to_claim`）；
+//   ② 待领谓词 = `loadPendingRewards` 同一条件（`reward_due_units > 0 ∧ reward_claimed_at IS NULL`）；
+//   ③ 先校验「有得领」再扣电（无待领 ⇒ 409 **零扣电**）；
+//   ④ 费腿与发奖腿**同一事务**：任一侧失败全回滚；
+//   ⑤ 发奖幂等键按领取对象定型（`biz:campaign:claim:subtask|task:<id>:<uid>`），与「重复领取」互不干扰。
+// ============================================================================
+
+const claimPoolErr = (reason: string, extra: Record<string, unknown>) => conflict(reason, extra);
+
+/** 领取口 R3b · `POST /api/campaign/subtask/:subtaskId/claim`（subtask 级待领） */
+export const claimSubtaskRewardVerb = async (input: {
+  actorUid: number;
+  subtaskRef: string;
+  ex?: TxClient;
+}): Promise<VerbResult<SubtaskClaimView>> => {
+  if (!isCampaignRef(input.subtaskRef)) return notFound('subtask_not_found');
+
+  try {
+    return await runInTx<VerbResult<SubtaskClaimView>>(input.ex, async (tx) => {
+      const q = (text: string, params?: unknown[]) => txQuery<Row>(tx, text, params);
+      const chain = await loadSubtaskChain(q, input.subtaskRef, false);
+      if (!chain) return notFound('subtask_not_found');
+      const subtaskId = str(chain.subtask_id);
+      const uid = String(input.actorUid);
+
+      const rows = await q(
+        `SELECT reward_due_units::text AS due, reward_claimed_at
+           FROM public.subtask_proof
+          WHERE subtask_id = $1::bigint AND uid = $2::bigint
+          FOR UPDATE`,
+        [subtaskId, uid],
+      );
+      const due = rows.length ? asPositiveIntText(rows[0].due) ?? '0' : '0';
+      if (!rows.length || BigInt(due) <= 0n || rows[0].reward_claimed_at !== null) {
+        return conflict('nothing_to_claim', {
+          subtask_id: subtaskId,
+          reward_due_units: due,
+          claimed: rows.length ? rows[0].reward_claimed_at !== null : false,
+        });
+      }
+
+      const fee = await chargeBattFee(q, {
+        uid,
+        base: `biz:campaign:claim:subtask:${subtaskId}:${uid}`,
+        reason: BATT_FEE_REASON_CLAIM,
+        refType: 'subtask',
+        refId: subtaskId,
+        memo: `campaign_claim_fee:subtask:${subtaskId}:${uid}`,
+      });
+      if (fee === 'batt_insufficient') return battInsufficientErr({ ref_type: 'subtask', ref_id: subtaskId });
+
+      await postRewardEvent(tx, {
+        idempotencyKey: `biz:campaign:claim:subtask:${subtaskId}:${uid}`,
+        cid: String(USD_CID),
+        amount: due,
+        uid,
+        refId: subtaskId,
+        memo: `campaign_claim:subtask:${subtaskId}:${uid}`,
+        fingerprintParts: ['campaign.claim.subtask', subtaskId, uid, due],
+      });
+
+      await q(
+        `UPDATE public.subtask_proof SET reward_claimed_at = now()
+          WHERE subtask_id = $1::bigint AND uid = $2::bigint AND reward_claimed_at IS NULL`,
+        [subtaskId, uid],
+      );
+
+      return {
+        ok: true,
+        view: { subtask_id: subtaskId, cid: String(USD_CID), amount: due, batt_after: fee.user_batt_after },
+        replay: false,
+      };
+    });
+  } catch (e) {
+    const normalized = normalizeLedgerError(e);
+    if (normalized.code === 'LEDGER_INSUFFICIENT_BALANCE') {
+      return claimPoolErr('claim_reward_pool_insufficient', { ledger_code: normalized.code });
+    }
+    throw e;
+  }
+};
+
+/** 领取口 R9b · `POST /api/campaign/task/:taskId/claim`（task 完成奖待领，主 $ + 可选次币两腿） */
+export const claimTaskRewardVerb = async (input: {
+  actorUid: number;
+  taskRef: string;
+  ex?: TxClient;
+}): Promise<VerbResult<TaskClaimView>> => {
+  if (!isCampaignRef(input.taskRef)) return notFound('task_not_found');
+
+  try {
+    return await runInTx<VerbResult<TaskClaimView>>(input.ex, async (tx) => {
+      const q = (text: string, params?: unknown[]) => txQuery<Row>(tx, text, params);
+      const row = await loadTaskRow(q, input.taskRef, true);
+      if (!row) return notFound('task_not_found');
+      const taskId = str(row.task_id);
+      const uid = String(input.actorUid);
+
+      const pend = await q(
+        `SELECT cid::text AS cid, amount_units::text AS amount,
+                cid_secondary::text AS cid_secondary, amount_secondary_units::text AS amount_secondary,
+                claimed_at
+           FROM public.campaign_task_reward_pending
+          WHERE task_id = $1::bigint AND uid = $2::bigint
+          FOR UPDATE`,
+        [taskId, uid],
+      );
+      const amount = pend.length ? asPositiveIntText(pend[0].amount) ?? '0' : '0';
+      if (!pend.length || BigInt(amount) <= 0n || pend[0].claimed_at !== null) {
+        return conflict('nothing_to_claim', {
+          task_id: taskId,
+          amount_units: amount,
+          claimed: pend.length ? pend[0].claimed_at !== null : false,
+        });
+      }
+      const cid = str(pend[0].cid);
+      const secondaryCid = strOrNull(pend[0].cid_secondary);
+      const secondaryRaw = strOrNull(pend[0].amount_secondary);
+      const secondaryAmount = secondaryRaw !== null && POSITIVE_INT_TEXT.test(secondaryRaw) && BigInt(secondaryRaw) > 0n
+        ? secondaryRaw : null;
+
+      const fee = await chargeBattFee(q, {
+        uid,
+        base: `biz:campaign:claim:task:${taskId}:${uid}`,
+        reason: BATT_FEE_REASON_CLAIM,
+        refType: 'task',
+        refId: taskId,
+        memo: `campaign_claim_fee:task:${taskId}:${uid}`,
+      });
+      if (fee === 'batt_insufficient') return battInsufficientErr({ ref_type: 'task', ref_id: taskId });
+
+      const key = `biz:campaign:claim:task:${taskId}:${uid}`;
+      await postRewardEvent(tx, {
+        idempotencyKey: key,
+        cid,
+        amount,
+        uid,
+        refId: taskId,
+        memo: `campaign_claim:task:${taskId}:${uid}`,
+        fingerprintParts: ['campaign.claim.task', taskId, uid, cid, amount],
+      });
+      if (secondaryCid !== null && secondaryAmount !== null) {
+        await postRewardEvent(tx, {
+          idempotencyKey: `${key}:secondary`,
+          cid: secondaryCid,
+          amount: secondaryAmount,
+          uid,
+          refId: taskId,
+          memo: `campaign_claim:task:${taskId}:${uid}:secondary`,
+          fingerprintParts: ['campaign.claim.task.secondary', taskId, uid, secondaryCid, secondaryAmount],
+        });
+      }
+
+      await q(
+        `UPDATE public.campaign_task_reward_pending SET claimed_at = now()
+          WHERE task_id = $1::bigint AND uid = $2::bigint AND claimed_at IS NULL`,
+        [taskId, uid],
+      );
+
+      return {
+        ok: true,
+        view: { task_id: taskId, cid, amount, secondary_cid: secondaryCid, secondary_amount: secondaryAmount, batt_after: fee.user_batt_after },
+        replay: false,
+      };
+    });
+  } catch (e) {
+    const normalized = normalizeLedgerError(e);
+    if (normalized.code === 'LEDGER_INSUFFICIENT_BALANCE') {
+      return claimPoolErr('claim_reward_pool_insufficient', { ledger_code: normalized.code });
+    }
+    throw e;
+  }
+};
+
+/** 领取口 R2c · `POST /api/campaign/:campaignId/claim`（一键领本人在该活动下**全部**待领，**总共只扣 1 电量**） */
+export const claimCampaignRewardsVerb = async (input: {
+  actorUid: number;
+  campaignRef: string;
+  ex?: TxClient;
+}): Promise<VerbResult<CampaignClaimView>> => {
+  if (!isCampaignRef(input.campaignRef)) return notFound('campaign_not_found');
+
+  try {
+    return await runInTx<VerbResult<CampaignClaimView>>(input.ex, async (tx) => {
+      const q = (text: string, params?: unknown[]) => txQuery<Row>(tx, text, params);
+      const camp = await q(
+        `SELECT campaign_id::text AS campaign_id
+           FROM public.campaign
+          WHERE campaign_id = $1::bigint OR snowflake_id = $1::bigint
+          LIMIT 1
+          FOR UPDATE`,
+        [input.campaignRef],
+      );
+      if (!camp.length) return notFound('campaign_not_found');
+      const campaignId = str(camp[0].campaign_id);
+      const uid = String(input.actorUid);
+
+      // 行锁全部待领行（subtask 级 + task 级）⇒ 与单口并发时只可能一方成功
+      const subRows = await q(
+        `SELECT p.subtask_id::text AS ref_id, s.title::text AS title, p.reward_due_units::text AS amount
+           FROM public.subtask_proof AS p
+           JOIN public.subtask AS s ON s.subtask_id = p.subtask_id
+           JOIN public.task    AS t ON t.task_id = s.task_id
+          WHERE p.uid = $1::bigint
+            AND p.reward_due_units > 0
+            AND p.reward_claimed_at IS NULL
+            AND t.campaign_id = $2::bigint
+          ORDER BY p.subtask_id
+          FOR UPDATE OF p`,
+        [uid, campaignId],
+      );
+      const taskRows = await q(
+        `SELECT r.task_id::text AS ref_id, t.title::text AS title, r.cid::text AS cid,
+                r.amount_units::text AS amount, r.cid_secondary::text AS cid_secondary,
+                r.amount_secondary_units::text AS amount_secondary
+           FROM public.campaign_task_reward_pending AS r
+           JOIN public.task AS t ON t.task_id = r.task_id
+          WHERE r.uid = $1::bigint
+            AND r.claimed_at IS NULL
+            AND t.campaign_id = $2::bigint
+          ORDER BY r.task_id
+          FOR UPDATE OF r`,
+        [uid, campaignId],
+      );
+      if (!subRows.length && !taskRows.length) {
+        return conflict('nothing_to_claim', { campaign_id: campaignId });
+      }
+
+      // ★ 一键领**只扣 1 电量**（不逐项计费）
+      const fee = await chargeBattFee(q, {
+        uid,
+        base: `biz:campaign:claim:campaign:${campaignId}:${uid}`,
+        reason: BATT_FEE_REASON_CLAIM,
+        refType: 'campaign',
+        refId: campaignId,
+        memo: `campaign_claim_fee:campaign:${campaignId}:${uid}`,
+      });
+      if (fee === 'batt_insufficient') return battInsufficientErr({ ref_type: 'campaign', ref_id: campaignId });
+
+      const claimed: CampaignClaimItem[] = [];
+      let totalPrimary = 0n;
+
+      for (const row of subRows) {
+        const refId = str(row.ref_id);
+        const amount = asPositiveIntText(row.amount);
+        if (amount === null || BigInt(amount) <= 0n) continue;
+        const key = `biz:campaign:claim:subtask:${refId}:${uid}`;
+        await postRewardEvent(tx, {
+          idempotencyKey: key,
+          cid: String(USD_CID),
+          amount,
+          uid,
+          refId,
+          memo: `campaign_claim:subtask:${refId}:${uid}`,
+          fingerprintParts: ['campaign.claim.subtask', refId, uid, amount],
+        });
+        await q(
+          `UPDATE public.subtask_proof SET reward_claimed_at = now()
+            WHERE subtask_id = $1::bigint AND uid = $2::bigint AND reward_claimed_at IS NULL`,
+          [refId, uid],
+        );
+        totalPrimary += BigInt(amount);
+        claimed.push({ kind: 'subtask', ref_id: refId, cid: String(USD_CID), amount });
+      }
+
+      for (const row of taskRows) {
+        const refId = str(row.ref_id);
+        const cid = str(row.cid);
+        const amount = asPositiveIntText(row.amount);
+        if (amount === null || BigInt(amount) <= 0n) continue;
+        const secondaryRaw = strOrNull(row.amount_secondary);
+        const secondaryCid = strOrNull(row.cid_secondary);
+        const secondaryAmount = secondaryRaw !== null && POSITIVE_INT_TEXT.test(secondaryRaw) && BigInt(secondaryRaw) > 0n
+          ? secondaryRaw : null;
+        const key = `biz:campaign:claim:task:${refId}:${uid}`;
+        await postRewardEvent(tx, {
+          idempotencyKey: key,
+          cid,
+          amount,
+          uid,
+          refId,
+          memo: `campaign_claim:task:${refId}:${uid}`,
+          fingerprintParts: ['campaign.claim.task', refId, uid, cid, amount],
+        });
+        if (secondaryCid !== null && secondaryAmount !== null) {
+          await postRewardEvent(tx, {
+            idempotencyKey: `${key}:secondary`,
+            cid: secondaryCid,
+            amount: secondaryAmount,
+            uid,
+            refId,
+            memo: `campaign_claim:task:${refId}:${uid}:secondary`,
+            fingerprintParts: ['campaign.claim.task.secondary', refId, uid, secondaryCid, secondaryAmount],
+          });
+        }
+        await q(
+          `UPDATE public.campaign_task_reward_pending SET claimed_at = now()
+            WHERE task_id = $1::bigint AND uid = $2::bigint AND claimed_at IS NULL`,
+          [refId, uid],
+        );
+        if (cid === String(USD_CID)) totalPrimary += BigInt(amount);
+        claimed.push({
+          kind: 'task', ref_id: refId, cid, amount,
+          secondary_cid: secondaryCid, secondary_amount: secondaryAmount,
+        });
+      }
+
+      if (!claimed.length) return conflict('nothing_to_claim', { campaign_id: campaignId });
+
+      return {
+        ok: true,
+        view: { claimed, total_primary: totalPrimary.toString(), batt_after: fee.user_batt_after },
+        replay: false,
+      };
+    });
+  } catch (e) {
+    const normalized = normalizeLedgerError(e);
+    if (normalized.code === 'LEDGER_INSUFFICIENT_BALANCE') {
+      return claimPoolErr('claim_reward_pool_insufficient', { ledger_code: normalized.code });
     }
     throw e;
   }
@@ -2501,6 +3015,10 @@ export interface TaskRewardView {
   total_subtasks: number;
   completed_subtasks: number;
   idempotency_key: string;
+  /** **加性（0075）**：`pending` = 已落待领行（等用户领取）；`claimed` = 该行已领取 */
+  claim_status?: 'pending' | 'claimed';
+  granted_at?: string | null;
+  claimed_at?: string | null;
 }
 
 export const grantTaskRewardVerb = async (input: {
@@ -2550,58 +3068,49 @@ export const grantTaskRewardVerb = async (input: {
     const primary = asPositiveIntText(row.reward_amount_primary) ?? '0';
     const secondaryCid = strOrNull(row.reward_cid_secondary);
     const secondaryAmount = strOrNull(row.reward_amount_secondary);
+    if (BigInt(primary) <= 0n) {
+      return badRequest('TASK_REWARD_AMOUNT_INVALID', { field: 'reward_amount_primary', task_id: taskId });
+    }
+    const secondaryDue = secondaryCid !== null && secondaryAmount !== null
+      && POSITIVE_INT_TEXT.test(secondaryAmount) && BigInt(secondaryAmount) > 0n
+      ? secondaryAmount : null;
 
-    // ② 幂等重放：同键已有分录 ⇒ 回库内真值（不重复发放）
-    const prior = await q(
-      `SELECT count(*)::int AS n FROM public.ledger_entry
-        WHERE idempotency_key = $1::text OR idempotency_key LIKE $1::text || '#%'`,
-      [key],
+    // ③ 只落「待领取」行（0075：管理员 grant **不再动账**；实发在用户点领取时扣 1 电量后完成）
+    //    幂等：`ON CONFLICT (task_id, uid) DO NOTHING` ⇒ 重复 grant 零副作用（已领行原样，不重置 claimed_at）
+    const inserted = await q(
+      `INSERT INTO public.campaign_task_reward_pending
+         (task_id, uid, cid, amount_units, amount_secondary_units, cid_secondary)
+       VALUES ($1::bigint, $2::bigint, $3::bigint, $4::numeric, $5::numeric, $6::bigint)
+       ON CONFLICT (task_id, uid) DO NOTHING
+       RETURNING granted_at, claimed_at`,
+      [taskId, uid, String(USD_CID), primary, secondaryDue, secondaryDue === null ? null : secondaryCid],
     );
-    if (int(prior.length ? prior[0].n : 0) > 0) {
-      return {
-        ok: true,
-        view: {
-          task_id: taskId, uid, reward_amount_primary: primary,
-          reward_amount_secondary: secondaryAmount, reward_cid_secondary: secondaryCid,
-          total_subtasks: total, completed_subtasks: done, idempotency_key: key,
-        },
-        replay: true,
-      } as VerbResult<TaskRewardView>;
-    }
 
-    // ③ 平台收入账户支付（两币各一笔事件；每事件 = 平台 −amount ＋ 用户 +amount，净额 0）
-    const legs: Array<{ cid: string; amount: string; key: string }> = [];
-    legs.push({ cid: String(USD_CID), amount: primary, key });
-    if (secondaryCid !== null && secondaryAmount !== null) {
-      legs.push({ cid: secondaryCid, amount: secondaryAmount, key: `${key}:secondary` });
-    }
+    const state = inserted.length
+      ? { granted_at: iso(inserted[0].granted_at), claimed_at: iso(inserted[0].claimed_at) }
+      : await (async () => {
+        const priorRows = await q(
+          `SELECT granted_at, claimed_at FROM public.campaign_task_reward_pending
+            WHERE task_id = $1::bigint AND uid = $2::bigint`,
+          [taskId, uid],
+        );
+        return priorRows.length
+          ? { granted_at: iso(priorRows[0].granted_at), claimed_at: iso(priorRows[0].claimed_at) }
+          : { granted_at: null, claimed_at: null };
+      })();
 
-    for (const leg of legs) {
-      if (!POSITIVE_INT_TEXT.test(leg.amount) || BigInt(leg.amount) <= 0n) continue;
-      await postEvent({
-        op: 'entries',
-        idempotencyKey: leg.key,
-        requestFingerprint: fingerprintOf(['campaign.task-reward', taskId, uid, leg.cid, leg.amount]),
-        refType: 'system',
-        refId: taskId,
-        memo: `campaign_task_reward:${taskId}:${uid}`,
-        entries: [
-          { uid: String(PLATFORM_UID), cid: leg.cid, delta: (-BigInt(leg.amount)).toString(), kind: PLATFORM_PAYOUT_KIND },
-          { uid, cid: leg.cid, delta: BigInt(leg.amount).toString(), kind: PLATFORM_PAYOUT_KIND },
-        ],
-        ex: tx as unknown as { query: (t: string, p?: unknown[]) => Promise<{ rows: Array<Record<string, unknown>> }> },
-      });
-    }
-
-      return {
-        ok: true,
-        view: {
-          task_id: taskId, uid, reward_amount_primary: primary,
-          reward_amount_secondary: secondaryAmount, reward_cid_secondary: secondaryCid,
-          total_subtasks: total, completed_subtasks: done, idempotency_key: key,
-        },
-        replay: false,
-      } as VerbResult<TaskRewardView>;
+    return {
+      ok: true,
+      view: {
+        task_id: taskId, uid, reward_amount_primary: primary,
+        reward_amount_secondary: secondaryAmount, reward_cid_secondary: secondaryCid,
+        total_subtasks: total, completed_subtasks: done, idempotency_key: key,
+        claim_status: state.claimed_at === null ? 'pending' : 'claimed',
+        granted_at: state.granted_at,
+        claimed_at: state.claimed_at,
+      },
+      replay: inserted.length === 0,
+    } as VerbResult<TaskRewardView>;
     });
   } catch (e) {
     const normalized = normalizeLedgerError(e);

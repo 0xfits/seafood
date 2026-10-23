@@ -282,3 +282,73 @@ export const taskRewardOf = (task) => {
       : String(secondaryCid),
   }
 }
+
+// ============================================================================
+// 待领取池（`pending_rewards`，2026-10-23 加性读口）
+// ----------------------------------------------------------------------------
+// 读口契约（`GET /api/campaign/task/:taskId` 与 `GET /api/campaign/:campaignId` 同形）：
+//   `pending_rewards = { items: [{kind, ref_id, title, cid, amount}], total_by_cid: {cid: amount} }`
+// 硬口径：
+//   · **有没有得领只读服务端**（前端不按「已提交/已结算」本地推算，免与后端结算节奏分叉）；
+//   · `kind` 闭集 = `subtask` | `task`（未知 kind / 缺 `ref_id` / 金额不可读 ⇒ 该行丢弃，
+//     宁可少渲染一枚按钮，也不给一个点了必 409 的按钮）；
+//   · `total_by_cid` 只做展示兜底，不参与判据。
+// ============================================================================
+export const PENDING_KINDS = ['subtask', 'task']
+
+const amountTextOf = (value) => {
+  if (value === null || value === undefined || value === '') return null
+  const n = Number(value)
+  if (!Number.isFinite(n)) return null
+  return String(value)
+}
+
+/** 读口行 ⇒ `{items, totalByCid}`（无字段/坏形状一律空面，绝不抛）。 */
+export const pendingRewardsOf = (view) => {
+  const raw = view && typeof view === 'object' ? view.pending_rewards : null
+  const rows = Array.isArray(raw?.items) ? raw.items : []
+  const items = []
+  for (const row of rows) {
+    if (!row || typeof row !== 'object') continue
+    const kind = String(row.kind || '')
+    if (!PENDING_KINDS.includes(kind)) continue
+    const refId = row.ref_id === null || row.ref_id === undefined ? '' : String(row.ref_id).trim()
+    const amount = amountTextOf(row.amount)
+    if (!refId || amount === null) continue
+    items.push({
+      kind,
+      refId,
+      title: typeof row.title === 'string' ? row.title : '',
+      cid: row.cid === null || row.cid === undefined ? '' : String(row.cid),
+      amount,
+    })
+  }
+  const totalByCid = {}
+  const totals = raw?.total_by_cid
+  if (totals && typeof totals === 'object' && !Array.isArray(totals)) {
+    for (const [cid, amount] of Object.entries(totals)) {
+      const text = amountTextOf(amount)
+      if (text !== null) totalByCid[String(cid)] = text
+    }
+  }
+  return { items, totalByCid }
+}
+
+/** 取某个 `kind` + `ref_id` 的待领取行（子任务行 / 任务完成奖各自一枚按钮的判据）。 */
+export const pendingItemsOf = (pending, kind, refId) => {
+  const items = Array.isArray(pending?.items) ? pending.items : []
+  const want = refId === null || refId === undefined ? '' : String(refId).trim()
+  if (!want) return []
+  return items.filter((row) => row.kind === kind && row.refId === want)
+}
+
+/** 电量不足（409 `details.reason='batt_insufficient'`，或错误码同名）⇒ 走「电量不足」文案。 */
+export const isBattInsufficient = (error) => Boolean(
+  error && typeof error === 'object'
+  && (error?.details?.reason === 'batt_insufficient' || error?.code === 'batt_insufficient'),
+)
+
+/** 暂无可领取（409 `nothing_to_claim`）⇒ 走「暂无可领取」文案并复读（把过期按钮收掉）。 */
+export const isNothingToClaim = (error) => Boolean(
+  error && typeof error === 'object' && error?.code === 'nothing_to_claim',
+)

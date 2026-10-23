@@ -1,0 +1,54 @@
+{
+  "run": "20261023T134505Z523n",
+  "name": "p80-claim-fee-gate",
+  "at": "2026-10-23T13:45:12.083Z",
+  "gate": "p80-00-claim-fee-gate",
+  "db_project_id": "quiet-math-65207667",
+  "baseline": {
+    "users": 190,
+    "batt_account": 104,
+    "batt_entry": 117,
+    "proofs": 0,
+    "pending": 0,
+    "campaigns": 5,
+    "tasks": 5,
+    "subtasks": 0,
+    "ledger": 928,
+    "migrations": 73
+  },
+  "tx_error": "The target account is invalid",
+  "checks": [
+    {
+      "id": "A0",
+      "what": "注册点 111 → **114**（本单 +3 POST；get 50 / post 57 / patch 4 / delete 3 / put 0）—— 三领取口逐条在场",
+      "pass": true,
+      "reading": "{\"regs\":114,\"get\":50,\"post\":57,\"patch\":4,\"delete\":3}"
+    },
+    {
+      "id": "A1",
+      "what": "服务层三领取口 + 常量契约：`claimSubtaskRewardVerb` / `claimTaskRewardVerb` / `claimCampaignRewardsVerb` 均导出 · 费名目 `campaign_proof_fee` / `campaign_claim_fee` · 平台腿 uid = 0 · 0075 迁移文件在场（`reward_due_units` / `reward_claimed_at` / `campaign_task_reward_pending`）· 零新错误码（33）零新 kind（24）",
+      "pass": true,
+      "reading": "{\"codes\":33,\"kinds\":24}"
+    },
+    {
+      "id": "A2",
+      "what": "0075 已 apply（dev）：`subtask_proof` 两枚新列在场 · 待领表在场 · 平台电量账户行（uid 0）在场 · 版本行 0075 恰 1",
+      "pass": true,
+      "reading": "{\"cols\":2,\"pend\":\"campaign_task_reward_pending\",\"plat\":\"0\",\"applied\":1}"
+    },
+    {
+      "id": "X",
+      "what": "事务内全链执行未抛未预期异常",
+      "pass": false,
+      "reading": "error=The target account is invalid"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "passed": 3,
+    "failed": 1,
+    "red": [
+      "X"
+    ]
+  }
+}

@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import { fetchCampaignCurrencies, fetchCampaignTask } from './campaign-api'
-import { statusKeyOf, taskRewardOf, timeWindowOf, typeKeyOf } from './campaign-util'
+import { pendingItemsOf, pendingRewardsOf, statusKeyOf, taskRewardOf, timeWindowOf, typeKeyOf } from './campaign-util'
+import ClaimButton from './ClaimButton'
 import SubtaskForm from './SubtaskForm'
 import NotFoundPage from '../NotFoundPage'
 import './campaign.css'
@@ -127,6 +128,10 @@ const CampaignTaskPage = () => {
   const hasTarget = view?.joined_target !== null && view?.joined_target !== undefined && view?.joined_target !== ''
   const joinedCount = num(view?.joined_count)
   const subtasks = Array.isArray(view?.subtasks) ? view.subtasks : []
+  // 待领取池（读口加性 `pending_rewards`）：子任务行 / 任务完成奖各自按 `kind + ref_id` 取行。
+  // 「有没有得领」一律读服务端 ⇒ 前端不按「已提交 / 已结算」自算（免与后端结算节奏分叉）。
+  const pending = pendingRewardsOf(view)
+  const taskPending = pendingItemsOf(pending, 'task', view?.task_id)
   const projectInitial = project?.title ? String(project.title).slice(0, 1).toUpperCase() : '?'
 
   return (
@@ -206,6 +211,26 @@ const CampaignTaskPage = () => {
                 </div>
               ) : null}
 
+              {/* 任务完成奖【领取】（`POST /api/campaign/task/:taskId/claim`）：读口 `pending_rewards`
+                  里有 `kind='task'` 的行才出现 ⇒ 匿名 / 无待领取一律零按钮。 */}
+              {taskPending.length ? (
+                <div className="sf-task-claim" data-sf-m="task-reward-claim" data-sf-task={taskId}>
+                  <span className="sf-campaign-claim-pending" data-sf-m="task-reward-pending">
+                    {t('campaign.claim.pending', { amount: taskPending[0].amount })}
+                  </span>
+                  <ClaimButton
+                    variant="task"
+                    refId={view?.task_id}
+                    t={t}
+                    user={user}
+                    isAuthenticated={isAuthenticated}
+                    onClaimed={load}
+                    m="task-reward-claim-btn"
+                    className="sf-task-btn is-primary"
+                  />
+                </div>
+              ) : null}
+
               {view?.description ? (
                 <p className="sf-task-desc" data-sf-m="task-desc">{view.description}</p>
               ) : null}
@@ -218,6 +243,7 @@ const CampaignTaskPage = () => {
                   const typeKey = typeKeyOf(subtask?.type_code)
                   const badge = typeKey ? t(typeKey) : (subtask?.type_label || '')
                   const required = subtask?.required === true
+                  const subtaskPending = pendingItemsOf(pending, 'subtask', subtask?.subtask_id)
                   return (
                     <article
                       className="sf-task-subtask"
@@ -261,6 +287,29 @@ const CampaignTaskPage = () => {
                         isAuthenticated={isAuthenticated}
                         onRefresh={load}
                       />
+                      {/* 子任务【领取】（`POST /api/campaign/subtask/:id/claim`）：仅当读口 `pending_rewards`
+                          有该 subtask 的待领取行 ⇒ 匿名 / 未结算一律零按钮（不造「点了必 409」的入口）。 */}
+                      {subtaskPending.length ? (
+                        <div
+                          className="sf-task-claim"
+                          data-sf-m="task-subtask-claim"
+                          data-sf-subtask={String(subtask?.subtask_id ?? '')}
+                        >
+                          <span className="sf-campaign-claim-pending" data-sf-m="task-subtask-pending">
+                            {t('campaign.claim.pending', { amount: subtaskPending[0].amount })}
+                          </span>
+                          <ClaimButton
+                            variant="subtask"
+                            refId={subtask?.subtask_id}
+                            t={t}
+                            user={user}
+                            isAuthenticated={isAuthenticated}
+                            onClaimed={load}
+                            m="task-subtask-claim-btn"
+                            className="sf-task-btn is-primary"
+                          />
+                        </div>
+                      ) : null}
                     </article>
                   )
                 })}

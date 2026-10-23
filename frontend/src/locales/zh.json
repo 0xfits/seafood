@@ -1397,7 +1397,10 @@
       "linkInvalid": "链接需以 http:// 或 https:// 开头",
       "needAddr": "请填写链上地址",
       "needAnswer": "请填写回答",
-      "chooseOption": "请选择一个选项"
+      "chooseOption": "请选择一个选项",
+      "battCost": "提交需 1 电量",
+      "battInsufficient": "电量不足，无法提交",
+      "rewardPending": "奖励已入待领取"
     },
     "prediction": {
       "deadline": "截止时间：{{time}}",
@@ -1422,6 +1425,18 @@
       "right": "答对了",
       "wrong": "答错了",
       "reward": "答对奖励 ${{amount}}"
+    },
+    "claim": {
+      "cta": "领取",
+      "claiming": "领取中…",
+      "all": "一键领取",
+      "allCost": "一键领取共扣 1 电量",
+      "pending": "待领取 ${{amount}}",
+      "ok": "已领取 ${{amount}}",
+      "allOk": "已领取 {{n}} 项，共 ${{amount}}",
+      "battInsufficient": "电量不足，无法领取",
+      "nothingToClaim": "暂无可领取的奖励",
+      "failed": "领取失败，请稍后重试"
     }
   },
   "itemType": {
