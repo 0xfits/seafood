@@ -1568,6 +1568,18 @@
     "reasonAlreadyHired": "你已在其他项目在职，请先在该项目页切换",
     "reasonHeadcountFull": "该项目已招满",
     "reasonMinDaysUnmet": "账号注册天数不满足该项目的招工条件",
-    "reasonNotRecruiting": "该项目当前不在招募中"
+    "reasonNotRecruiting": "该项目当前不在招募中",
+    "vaultTitle": "项目金库",
+    "vaultLine": "{{symbol}} 余额 {{balance}}",
+    "vaultRechargeLabel": "充值金额",
+    "vaultRechargeBtn": "充值",
+    "vaultRecharging": "充值中…",
+    "vaultRechargeOk": "已充值 {{amount}} {{symbol}}，金库余额 {{balance}}",
+    "vaultFailDetail": "充值失败：{{detail}}（HTTP {{status}}）",
+    "vaultErrInsufficient": "你的可用余额不足，无法充值",
+    "vaultErrAmountInvalid": "充值金额须大于 0，且不超过该币种精度",
+    "vaultErrCidInvalid": "该币种不可用于项目金库",
+    "vaultErrGeneral": "充值失败，请稍后再试。",
+    "recruitZeroHint": "次币金额填 0 = 不发次币（该档只发电量）"
   }
 }

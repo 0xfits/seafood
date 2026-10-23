@@ -48,6 +48,7 @@ vi.mock('../../auth-context', () => ({ useAuth: () => AUTH }))
 const API = vi.hoisted(() => ({
   fetchProjectDetail: vi.fn(),
   fetchProjectCurrencies: vi.fn(),
+  rechargeProjectVault: vi.fn(),
   patchProject: vi.fn(),
   createProjectCampaign: vi.fn(),
   patchProjectCampaign: vi.fn(),
@@ -57,6 +58,7 @@ const API = vi.hoisted(() => ({
 vi.mock('../../pages/project/project-api', () => ({
   fetchProjectDetail: API.fetchProjectDetail,
   fetchProjectCurrencies: API.fetchProjectCurrencies,
+  rechargeProjectVault: API.rechargeProjectVault,
   patchProject: API.patchProject,
   createProjectCampaign: API.createProjectCampaign,
   patchProjectCampaign: API.patchProjectCampaign,

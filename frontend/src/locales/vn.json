@@ -1568,6 +1568,18 @@
     "reasonAlreadyHired": "Bạn đã làm ở dự án khác — hãy chuyển từ trang dự án đó",
     "reasonHeadcountFull": "Dự án này đã tuyển đủ người",
     "reasonMinDaysUnmet": "Tuổi tài khoản chưa đáp ứng điều kiện tuyển dụng của dự án",
-    "reasonNotRecruiting": "Dự án này hiện không tuyển dụng"
+    "reasonNotRecruiting": "Dự án này hiện không tuyển dụng",
+    "vaultTitle": "Kho dự án",
+    "vaultLine": "Số dư {{symbol}}: {{balance}}",
+    "vaultRechargeLabel": "Số tiền nạp",
+    "vaultRechargeBtn": "Nạp",
+    "vaultRecharging": "Đang nạp…",
+    "vaultRechargeOk": "Đã nạp {{amount}} {{symbol}}; số dư kho: {{balance}}",
+    "vaultFailDetail": "Nạp thất bại: {{detail}} (HTTP {{status}})",
+    "vaultErrInsufficient": "Số dư khả dụng của bạn không đủ để nạp",
+    "vaultErrAmountInvalid": "Số tiền nạp phải lớn hơn 0 và nằm trong độ chính xác của loại tiền",
+    "vaultErrCidInvalid": "Loại tiền này không dùng được cho kho dự án",
+    "vaultErrGeneral": "Nạp thất bại. Vui lòng thử lại sau.",
+    "recruitZeroHint": "Nhập 0 để không phát tiền tệ phụ (chỉ phát batt)"
   }
 }

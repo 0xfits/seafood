@@ -49,6 +49,7 @@ vi.mock('../../auth-context', () => ({ useAuth: vi.fn() }))
 vi.mock('../../pages/project/project-api', () => ({
   fetchProjectDetail: vi.fn(() => Promise.reject(Object.assign(new Error('project_not_found'), { status: 404 }))),
   fetchProjectCurrencies: vi.fn(() => Promise.resolve([])),
+  rechargeProjectVault: vi.fn(),
 }))
 
 import App from '../../App'

@@ -49,6 +49,7 @@ vi.mock('../../pages/campaign/campaign-api', () => PROOF_API)
 const PROJECT_API = vi.hoisted(() => ({
   fetchProjectDetail: vi.fn(),
   fetchProjectCurrencies: vi.fn(),
+  rechargeProjectVault: vi.fn(),
   createProjectCampaign: vi.fn(),
   patchProjectCampaign: vi.fn(),
   createProjectCampaignTask: vi.fn(),

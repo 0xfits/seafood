@@ -168,6 +168,9 @@ const ProjectRecruitModal = ({ view, currencies, t, onClose, onSaved }) => {
         </label>
       </div>
       <FieldError field="currency" text={errs.currency} />
+      {/* ★ Kevin 2026-10-23 ①：次币金额**允许 0** ⇒ 提示行明说「填 0 = 不发次币」
+          （新键 `project.recruitZeroHint`；四语齐备）。位于金额输入之下、错误行之上。 */}
+      <p className="sf-project-edit-hint" data-sf-edit-hint="amount">{t('project.recruitZeroHint')}</p>
 
       {errs.general ? (
         <p className="sf-project-edit-err" data-sf-edit-err="general" role="alert">{errs.general}</p>

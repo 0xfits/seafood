@@ -226,6 +226,14 @@ const SNAP_FN = `(() => {
       hasEmpty: !!q('[data-sf-m="wage-empty"]'),
       hasError: !!q('[data-sf-m="wage-error"]'),
     },
+    // ★ 2026-10-23「在职 ⇒ 本页零【加入】+ 无「同时只能在一个项目打工」」的两条全页读数
+    //   （不按卡取 —— 判据是「整页一个都不许有」，按卡取会漏掉别的卡漏网）。
+    wageGate: {
+      joinCount: qa('[data-sf-action="join"]').length,
+      claimCount: qa('[data-sf-action="claim"]').length,
+      oneAtATimePresent: !!q('[data-sf-m="wage-one-at-a-time"]'),
+      oneAtATimeText: (() => { const el = q('[data-sf-m="wage-one-at-a-time"]'); return el ? txt(el) : null })(),
+    },
     // 签到区（电量卡 + 签到；自 /activities 并入本页顶部）
     checkin: (() => {
       const card = document.getElementById('batt-checkin')
@@ -527,8 +535,13 @@ async function main() {
     wageText: byId['101'] && byId['101'].wage,
     currencyExtra: byId['103'] && byId['103'].wageExtra,
     hiredCardClaimEnabled: byId['101'] && byId['101'].action === 'claim' && byId['101'].actionDisabled === false,
-    otherJoinDisabled: ['102', '103', '104', '105', '106', '110'].every((id) => byId[id] && byId[id].action === 'join' && byId[id].actionDisabled === true),
-    otherHintOneAtATime: ['102', '103'].every((id) => byId[id] && byId[id].hint === ZH.wage.oneAtATime),
+    // ★ 2026-10-23 契约（在职 ⇒ 本页零【加入】）：此前是「别人的【加入】置灰」，现在是**整页一个都不渲染**。
+    //   判据按「整页计数」取（不逐卡取），杜绝某张卡漏网仍算绿。
+    otherNoJoinWhenHired: ['102', '103', '104', '105', '106', '110'].every((id) => byId[id] && byId[id].joinCount === 0 && byId[id].action !== 'join'),
+    pageWideZeroJoinWhenHired: listSnap.wageGate.joinCount === 0,
+    // ★ 「同时只能在一个项目打工」也不再随卡出现（在职时整页唯一的那句也不渲染）
+    noOneAtATimeWhenHired: ['102', '103'].every((id) => byId[id] && byId[id].hint !== ZH.wage.oneAtATime)
+      && listSnap.wageGate.oneAtATimePresent === false,
     // ★ 已招满臂在「无人在职」时单独取（有在职项目时 oneAtATime 是更强的理由、优先展示）⇒ 见下方 fullExtraArm
     fullCardDisabledWithHint: null,
     closedNoAction: ['108', '109'].every((id) => byId[id] && byId[id].action === null),
@@ -542,7 +555,8 @@ async function main() {
   out.assertions.joinedCard = {
     hiredOnlyClaim: Boolean(joinedCard && joinedCard.action === 'claim' && joinedCard.claimCount === 1 && joinedCard.joinCount === 0),
     noCardMixesJoinAndClaim: listSnap.cards.every((c) => !(c.joinCount > 0 && c.claimCount > 0)),
-    otherCardsJoinOnly: ['102', '103', '104', '105', '106', '110'].every((id) => byId[id] && byId[id].joinCount === 1 && byId[id].claimCount === 0),
+    // ★ 在职臂：**别处的卡也不再有【加入】**（新契约 —— 加入/切换入口只在项目页 `/:slug`）
+    noOtherJoinButtonsWhenHired: ['102', '103', '104', '105', '106', '110'].every((id) => byId[id] && byId[id].joinCount === 0 && byId[id].claimCount === 0),
     joinedFlag: Boolean(joinedCard && joinedCard.joined === '1'),
     plainFlag: Boolean(plainCard && plainCard.joined === '0'),
     joinedBadgeText: Boolean(joinedCard && joinedCard.joinedBadge === ZH.wage.joinedBadge),
@@ -567,10 +581,17 @@ async function main() {
   out.states['1536_full_arm'] = {
     c107: byIdFull['107'],
     c102: byIdFull['102'],
+    wageGate: fullSnap.wageGate,
   }
   out.assertions.list.fullCardDisabledWithHint = Boolean(
     byIdFull['107'] && byIdFull['107'].actionDisabled === true && byIdFull['107'].hint === ZH.wage.full
   )
+  // ★ 未在职臂（新契约的正向面）：无人在职 ⇒ 招募中的卡**全部**有【加入】+ 页头那句提示在场。
+  //   计数 = 8（101..107 + 110 全是 `status=recruiting`；107 已招满 ⇒ 钮在但 disabled 并挂「已招满」，
+  //   已截止的 108/109 零动作按钮）。判据取**整页计数**（不按卡白名单），漏一张即红。
+  out.assertions.list.joinCountWhenFree = fullSnap.wageGate.joinCount === 8
+  out.assertions.list.oneAtATimeWhenFree = fullSnap.wageGate.oneAtATimePresent === true
+    && fullSnap.wageGate.oneAtATimeText === ZH.wage.oneAtATime
   out.assertions.list.joinEnabledWhenFree = Boolean(
     byIdFull['102'] && byIdFull['102'].action === 'join' && byIdFull['102'].actionDisabled === false
       && byIdFull['102'].hint === null
@@ -1044,7 +1065,9 @@ async function main() {
     listRendered: guestSnap.page.hasList === true,
     bannerWithList: guestSnap.page.hasLogin === true && guestSnap.page.hasList === true,
     titleVisible: Boolean(gById['102'] && gById['102'].title === '冷库分拣'),
-    wageVisible: Boolean(gById['101'] && /batt\s*30/.test(gById['101'].wage || '')),
+    wageVisible: Boolean(gById['101'] && (gById['101'].wage || '').includes(
+      ZH.wage.wageLine.replace('{{hours}}', '4').replace('{{batt}}', '30')
+    )),
     currencyExtraVisible: Boolean(gById['103'] && /BTTC/.test(gById['103'].wageExtra || '')),
     // ★ 三键缺省 ⇒ 不得被读成 hired：无一张卡有【领工资】、无一张卡是【已加入】态，全部【加入】
     noClaimButtons: guestSnap.cards.every((c) => c.claimCount === 0 && c.action !== 'claim'),
@@ -1108,11 +1131,12 @@ async function main() {
     'hashDeepLink.cardPresent', 'hashDeepLink.cardInViewport', 'hashDeepLink.listStillBelow',
     'activitiesGone.pathnameIsActivities', 'activitiesGone.noActivitiesPageHook',
     'activitiesGone.catchAllNotFound', 'activitiesGone.notRedirectedToWage',
-    'list.tenCards', 'list.recruitingCards', 'list.closedCards', 'list.hiredCardClaimEnabled', 'list.otherJoinDisabled',
-    'list.joinEnabledWhenFree',
-    'list.otherHintOneAtATime', 'list.fullCardDisabledWithHint', 'list.closedNoAction',
-    // 已加入卡：只有【领工资】、不再有【加入】，且换一套配色（徽标 / 黄边 / 淡黄叠加）
-    'joinedCard.hiredOnlyClaim', 'joinedCard.noCardMixesJoinAndClaim', 'joinedCard.otherCardsJoinOnly',
+    'list.tenCards', 'list.recruitingCards', 'list.closedCards', 'list.hiredCardClaimEnabled', 'list.otherNoJoinWhenHired',
+    'list.pageWideZeroJoinWhenHired', 'list.noOneAtATimeWhenHired',
+    'list.joinCountWhenFree', 'list.oneAtATimeWhenFree', 'list.joinEnabledWhenFree',
+    'list.fullCardDisabledWithHint', 'list.closedNoAction',
+    // 已加入卡：只有【领工资】、不再有【加入】（在职 ⇒ 别处卡也不再有【加入】），且换一套配色（徽标 / 黄边 / 淡黄叠加）
+    'joinedCard.hiredOnlyClaim', 'joinedCard.noCardMixesJoinAndClaim', 'joinedCard.noOtherJoinButtonsWhenHired',
     'joinedCard.joinedFlag', 'joinedCard.plainFlag', 'joinedCard.joinedBadgeText', 'joinedCard.plainNoBadge',
     'joinedCard.badgeCount1', 'joinedCard.borderDiffers', 'joinedCard.borderIsAccent',
     'joinedCard.tintDiffers', 'joinedCard.plainTintNone',

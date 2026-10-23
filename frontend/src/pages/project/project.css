@@ -905,3 +905,65 @@ a.sf-project-task-row-title:hover {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
+
+/* ============================================================================
+ * 项目金库区（★ Kevin 2026-10-23 ② · 迁移 0073）
+ * ----------------------------------------------------------------------------
+ * 一币一行：【符号 余额】+（登录用户）金额输入 +【充值】。零新 token（只消费既有 `--sf-*`，
+ * fallback 仅防御）；`flex-wrap` + `min-width:0` ⇒ 390 档不横向溢出（余额与输入各自换行）。
+ * ==========================================================================*/
+.sf-project-page .sf-project-vault {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sf-project-vault-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sf-project-vault-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 6px 12px;
+  padding: 8px 10px;
+  border: var(--sf-st-stroke-w-thin, 1px) solid var(--sf-panel-border, #d0d7de);
+  border-radius: var(--sf-st-radius-btna, 6px);
+  background: var(--sf-panel-bg, #fff);
+  font-size: 13px;
+  min-width: 0;
+}
+
+.sf-project-vault-balance {
+  color: var(--sf-title-fg, #1f2328);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+/* 充值控件成组（输入 + 按钮）：窄档整组换到下一行，不挤压余额行 */
+.sf-project-vault-recharge {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 6px;
+  min-width: 0;
+}
+
+.sf-project-vault-field {
+  min-width: 0;
+}
+
+/* 金额输入：桌面 140px 够用，窄档跟随容器（`max-width` 防把按钮挤出行外） */
+.sf-project-vault-field .sf-project-input {
+  width: 140px;
+  max-width: 100%;
+}

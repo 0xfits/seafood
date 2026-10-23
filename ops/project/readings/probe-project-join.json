@@ -1,0 +1,820 @@
+{
+  "probe": "ops/project/probe-project-join.mjs",
+  "startedAt": "2026-10-23T05:19:16.482Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "fixtures": {
+    "project": "11/sui",
+    "viewer": 971001,
+    "owner": 970213,
+    "auth": "localStorage seed only",
+    "api": "context.route in-probe JSON（零后端 / 零库写）"
+  },
+  "states": {
+    "1536_join_state": {
+      "present": true,
+      "joinEntry": {
+        "present": true,
+        "text": "加入此项目",
+        "action": "join",
+        "disabled": false,
+        "h": 40,
+        "right": 135
+      },
+      "switchEntry": {
+        "present": false
+      },
+      "confirmEntry": {
+        "present": false
+      },
+      "cancelEntry": {
+        "present": false
+      },
+      "hiredEntry": {
+        "present": false
+      },
+      "confirmText": null,
+      "entryCount": 1,
+      "notice": null,
+      "right": 1420,
+      "left": 20
+    },
+    "1536_after_join": {
+      "join": {
+        "present": true,
+        "joinEntry": {
+          "present": false
+        },
+        "switchEntry": {
+          "present": false
+        },
+        "confirmEntry": {
+          "present": false
+        },
+        "cancelEntry": {
+          "present": false
+        },
+        "hiredEntry": {
+          "present": true,
+          "text": "已在职",
+          "action": "hired",
+          "disabled": true,
+          "h": 40,
+          "right": 107
+        },
+        "confirmText": null,
+        "entryCount": 1,
+        "notice": {
+          "kind": "ok",
+          "text": "已加入「海鲜打包」"
+        },
+        "right": 1420,
+        "left": 20
+      },
+      "writes": [
+        {
+          "method": "POST",
+          "path": "/api/project/11/apply"
+        }
+      ],
+      "body": {
+        "projectId": "11",
+        "body": {}
+      },
+      "reads": 1
+    },
+    "1536_hired_state": {
+      "present": true,
+      "joinEntry": {
+        "present": false
+      },
+      "switchEntry": {
+        "present": false
+      },
+      "confirmEntry": {
+        "present": false
+      },
+      "cancelEntry": {
+        "present": false
+      },
+      "hiredEntry": {
+        "present": true,
+        "text": "已在职",
+        "action": "hired",
+        "disabled": true,
+        "h": 40,
+        "right": 107
+      },
+      "confirmText": null,
+      "entryCount": 1,
+      "notice": null,
+      "right": 1420,
+      "left": 20
+    },
+    "1536_switch_state": {
+      "present": true,
+      "joinEntry": {
+        "present": false
+      },
+      "switchEntry": {
+        "present": true,
+        "text": "切换到此项目",
+        "action": "switch",
+        "disabled": false,
+        "h": 40,
+        "right": 149
+      },
+      "confirmEntry": {
+        "present": false
+      },
+      "cancelEntry": {
+        "present": false
+      },
+      "hiredEntry": {
+        "present": false
+      },
+      "confirmText": null,
+      "entryCount": 1,
+      "notice": null,
+      "right": 1420,
+      "left": 20
+    },
+    "1536_switch_confirm_open": {
+      "join": {
+        "present": true,
+        "joinEntry": {
+          "present": false
+        },
+        "switchEntry": {
+          "present": false
+        },
+        "confirmEntry": {
+          "present": true,
+          "text": "确认切换",
+          "action": "switch",
+          "disabled": false,
+          "h": 40,
+          "right": 633
+        },
+        "cancelEntry": {
+          "present": true,
+          "text": "取消",
+          "action": null,
+          "disabled": false,
+          "h": 40,
+          "right": 699
+        },
+        "hiredEntry": {
+          "present": false
+        },
+        "confirmText": "当前在职「冷库分拣」，切换后将离开该项目，领取间隔从此刻重新计算",
+        "entryCount": 2,
+        "notice": null,
+        "right": 1420,
+        "left": 20
+      },
+      "writes": []
+    },
+    "1536_switch_cancelled": {
+      "join": {
+        "present": true,
+        "joinEntry": {
+          "present": false
+        },
+        "switchEntry": {
+          "present": true,
+          "text": "切换到此项目",
+          "action": "switch",
+          "disabled": false,
+          "h": 40,
+          "right": 149
+        },
+        "confirmEntry": {
+          "present": false
+        },
+        "cancelEntry": {
+          "present": false
+        },
+        "hiredEntry": {
+          "present": false
+        },
+        "confirmText": null,
+        "entryCount": 1,
+        "notice": null,
+        "right": 1420,
+        "left": 20
+      },
+      "writes": []
+    },
+    "1536_after_switch": {
+      "join": {
+        "present": true,
+        "joinEntry": {
+          "present": false
+        },
+        "switchEntry": {
+          "present": false
+        },
+        "confirmEntry": {
+          "present": false
+        },
+        "cancelEntry": {
+          "present": false
+        },
+        "hiredEntry": {
+          "present": true,
+          "text": "已在职",
+          "action": "hired",
+          "disabled": true,
+          "h": 40,
+          "right": 107
+        },
+        "confirmText": null,
+        "entryCount": 1,
+        "notice": {
+          "kind": "ok",
+          "text": "已切换到「海鲜打包」，领取间隔从此刻重新计算"
+        },
+        "right": 1420,
+        "left": 20
+      },
+      "writes": [
+        {
+          "method": "POST",
+          "path": "/api/project/11/apply"
+        }
+      ],
+      "body": {
+        "projectId": "11",
+        "body": {
+          "switch": true
+        }
+      },
+      "reads": 1
+    },
+    "1536_apply_fail": {
+      "join": {
+        "present": true,
+        "joinEntry": {
+          "present": false
+        },
+        "switchEntry": {
+          "present": true,
+          "text": "切换到此项目",
+          "action": "switch",
+          "disabled": false,
+          "h": 40,
+          "right": 149
+        },
+        "confirmEntry": {
+          "present": false
+        },
+        "cancelEntry": {
+          "present": false
+        },
+        "hiredEntry": {
+          "present": false
+        },
+        "confirmText": null,
+        "entryCount": 1,
+        "notice": {
+          "kind": "err",
+          "text": "加入失败：该项目已招满（HTTP 409）"
+        },
+        "right": 1420,
+        "left": 20
+      },
+      "writes": [
+        {
+          "method": "POST",
+          "path": "/api/project/11/apply"
+        }
+      ],
+      "reads": {
+        "before": 1,
+        "after": 1
+      }
+    },
+    "1536_guest": {
+      "join": {
+        "present": false,
+        "joinEntry": {
+          "present": false
+        },
+        "switchEntry": {
+          "present": false
+        },
+        "confirmEntry": {
+          "present": false
+        },
+        "cancelEntry": {
+          "present": false
+        },
+        "hiredEntry": {
+          "present": false
+        },
+        "confirmText": null,
+        "entryCount": 0,
+        "notice": null,
+        "right": null,
+        "left": null
+      },
+      "pagePresent": true
+    },
+    "geometry": {
+      "390": {
+        "overflowPx": 0,
+        "joinRight": 353.5,
+        "joinLeft": 10,
+        "entryH": 40,
+        "confirmOverflowPx": 0,
+        "confirmRight": 111,
+        "confirmEntryCount": 2,
+        "entries": 2
+      },
+      "1536": {
+        "overflowPx": 0,
+        "joinRight": 1420,
+        "joinLeft": 20,
+        "entryH": 40,
+        "confirmOverflowPx": 0,
+        "confirmRight": 633,
+        "confirmEntryCount": 2,
+        "entries": 2
+      }
+    }
+  },
+  "assertions": {
+    "joinState": {
+      "sectionPresent": true,
+      "joinEntryPresent": true,
+      "joinEntryText": true,
+      "joinEntryAction": true,
+      "joinEntryEnabled": true,
+      "onlyOneEntry": true,
+      "noSwitchEntry": true,
+      "noHiredEntry": true,
+      "noConfirmRow": true,
+      "noNoticeYet": true,
+      "manageAbsent": true,
+      "zeroWritesOnLoad": true
+    },
+    "joinClick": {
+      "postOnce": true,
+      "pathIsApply": true,
+      "bodyEmpty": true,
+      "noSwitchKey": true,
+      "noticeOk": true,
+      "noticeText": true,
+      "flippedToHired": true,
+      "hiredEntryDisabled": true,
+      "relisted": true
+    },
+    "hiredState": {
+      "hiredEntryPresent": true,
+      "hiredEntryText": true,
+      "hiredEntryDisabled": true,
+      "onlyOneEntry": true,
+      "noJoinEntry": true,
+      "noSwitchEntry": true,
+      "zeroWrites": true
+    },
+    "switchState": {
+      "switchEntryPresent": true,
+      "switchEntryText": true,
+      "switchEntryAction": true,
+      "onlyOneEntry": true,
+      "noJoinEntry": true,
+      "zeroWritesOnLoad": true
+    },
+    "switchConfirm": {
+      "confirmRowOpens": true,
+      "confirmEntryAction": true,
+      "cancelPresent": true,
+      "confirmTextHasCurrentTitle": true,
+      "confirmTextIsLocale": true,
+      "zeroWritesBeforeConfirm": true,
+      "switchEntryReplaced": true,
+      "twoEntriesOnly": true
+    },
+    "switchCancel": {
+      "backToSwitch": true,
+      "zeroWritesAfterCancel": true,
+      "confirmTextGone": true
+    },
+    "switchConfirmSubmit": {
+      "postOnce": true,
+      "bodyExactlySwitch": true,
+      "pathIsApply": true,
+      "noticeOk": true,
+      "noticeText": true,
+      "flippedToHired": true,
+      "confirmRowGone": true,
+      "relisted": true
+    },
+    "applyFail": {
+      "inlineErr": true,
+      "reasonTranslated": true,
+      "notFlipped": true,
+      "noOkNotice": true,
+      "postOnce": true,
+      "noRelistAfterFail": true,
+      "confirmRowCollapsed": true
+    },
+    "guest": {
+      "pageRendered": true,
+      "noJoinSection": true,
+      "noEntries": true,
+      "zeroWrites": true
+    },
+    "geometry": {
+      "zeroOverflow390": true,
+      "zeroOverflow1536": true,
+      "zeroOverflowConfirm390": true,
+      "zeroOverflowConfirm1536": true,
+      "entryInsideViewport390": true,
+      "entryInsideViewport1536": true,
+      "confirmInsideViewport390": true,
+      "confirmRowRenders390": true,
+      "entryHeightStable": true,
+      "zeroPageErrors": true
+    }
+  },
+  "pageErrors": [],
+  "finishedAt": "2026-10-23T05:19:19.179Z",
+  "verdict": {
+    "required": [
+      {
+        "key": "joinState.sectionPresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinState.joinEntryPresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinState.joinEntryText",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinState.joinEntryAction",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinState.joinEntryEnabled",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinState.onlyOneEntry",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinState.noSwitchEntry",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinState.noHiredEntry",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinState.noConfirmRow",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinState.noNoticeYet",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinState.manageAbsent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinState.zeroWritesOnLoad",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinClick.postOnce",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinClick.pathIsApply",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinClick.bodyEmpty",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinClick.noSwitchKey",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinClick.noticeOk",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinClick.noticeText",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinClick.flippedToHired",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinClick.hiredEntryDisabled",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "joinClick.relisted",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "hiredState.hiredEntryPresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "hiredState.hiredEntryText",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "hiredState.hiredEntryDisabled",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "hiredState.onlyOneEntry",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "hiredState.noJoinEntry",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "hiredState.noSwitchEntry",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "hiredState.zeroWrites",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "switchState.switchEntryPresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "switchState.switchEntryText",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "switchState.switchEntryAction",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "switchState.onlyOneEntry",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "switchState.noJoinEntry",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "switchState.zeroWritesOnLoad",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "switchConfirm.confirmRowOpens",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "switchConfirm.confirmEntryAction",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "switchConfirm.cancelPresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "switchConfirm.confirmTextHasCurrentTitle",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "switchConfirm.confirmTextIsLocale",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "switchConfirm.zeroWritesBeforeConfirm",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "switchConfirm.switchEntryReplaced",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "switchConfirm.twoEntriesOnly",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "switchCancel.backToSwitch",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "switchCancel.zeroWritesAfterCancel",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "switchCancel.confirmTextGone",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "switchConfirmSubmit.postOnce",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "switchConfirmSubmit.bodyExactlySwitch",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "switchConfirmSubmit.pathIsApply",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "switchConfirmSubmit.noticeOk",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "switchConfirmSubmit.noticeText",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "switchConfirmSubmit.flippedToHired",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "switchConfirmSubmit.confirmRowGone",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "switchConfirmSubmit.relisted",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "applyFail.inlineErr",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "applyFail.reasonTranslated",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "applyFail.notFlipped",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "applyFail.noOkNotice",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "applyFail.postOnce",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "applyFail.noRelistAfterFail",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "applyFail.confirmRowCollapsed",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.pageRendered",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.noJoinSection",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.noEntries",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guest.zeroWrites",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.zeroOverflow390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.zeroOverflow1536",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.zeroOverflowConfirm390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.zeroOverflowConfirm1536",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.entryInsideViewport390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.entryInsideViewport1536",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.confirmInsideViewport390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.confirmRowRenders390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.entryHeightStable",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.zeroPageErrors",
+        "value": true,
+        "pass": true
+      }
+    ],
+    "failed": [],
+    "pass": true
+  }
+}

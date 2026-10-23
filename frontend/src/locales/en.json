@@ -1568,6 +1568,18 @@
     "reasonAlreadyHired": "You already work on another project — switch from that project page",
     "reasonHeadcountFull": "This project is already full",
     "reasonMinDaysUnmet": "Your account age does not meet this project's recruiting requirement",
-    "reasonNotRecruiting": "This project is not recruiting right now"
+    "reasonNotRecruiting": "This project is not recruiting right now",
+    "vaultTitle": "Project vault",
+    "vaultLine": "{{symbol}} balance {{balance}}",
+    "vaultRechargeLabel": "Top-up amount",
+    "vaultRechargeBtn": "Top up",
+    "vaultRecharging": "Topping up…",
+    "vaultRechargeOk": "Topped up {{amount}} {{symbol}}; vault balance {{balance}}",
+    "vaultFailDetail": "Top-up failed: {{detail}} (HTTP {{status}})",
+    "vaultErrInsufficient": "Your available balance is not enough for this top-up",
+    "vaultErrAmountInvalid": "Amount must be greater than 0 and within the currency precision",
+    "vaultErrCidInvalid": "This currency cannot be used for project vaults",
+    "vaultErrGeneral": "Top-up failed. Please try again later.",
+    "recruitZeroHint": "Enter 0 to pay no secondary currency (batt only)"
   }
 }

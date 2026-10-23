@@ -38,6 +38,12 @@ export const WRITE_REASON_TEXT_KEYS = Object.freeze({
   project_headcount_full: 'project.reasonHeadcountFull',
   project_min_days_unmet: 'project.reasonMinDaysUnmet',
   project_not_recruiting: 'project.reasonNotRecruiting',
+  // ★ Kevin 2026-10-23 ②：项目金库充值写口（`POST /api/project/:id/vault/recharge`）的三条闸
+  //   （前两条是 400 机读码，第三条是币种闸；服务端 `project_vault_currency_not_listed` 等 409
+  //   走未登记 ⇒ 机读码原文，不假翻译）
+  VAULT_RECHARGE_INSUFFICIENT: 'project.vaultErrInsufficient',
+  PROJECT_VAULT_AMOUNT_INVALID: 'project.vaultErrAmountInvalid',
+  PROJECT_VAULT_CID_INVALID: 'project.vaultErrCidInvalid',
 })
 
 const text = (value) => (value === null || value === undefined ? '' : String(value).trim())

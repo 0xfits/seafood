@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
 import { buildLangPath, getLanguageFromUrl } from '../../utils'
 import { isReservedProjectSlug } from '../../project-slug'
-import { applyToProject, fetchProjectCurrencies, fetchProjectDetail } from './project-api'
+import { applyToProject, fetchProjectCurrencies, fetchProjectDetail, rechargeProjectVault } from './project-api'
 import { writeFailNotice } from './project-error'
 import { isWageProjectEditAdmin, loadListingEditAdmin } from '../item/item-edit-access'
 import NotFoundPage from '../NotFoundPage'
@@ -93,6 +93,10 @@ const ProjectPage = () => {
   // ★ 2026-10-22：加入 / 切换（权限无关，所有登录用户可见）
   const [joinBusy, setJoinBusy] = useState(false)
   const [confirmSwitch, setConfirmSwitch] = useState(false) // 切换行内二次确认（不做 window.confirm）
+  // ★ Kevin 2026-10-23 ②：项目金库区（余额行人人可见；充值输入只给登录用户）
+  const [vaultAmounts, setVaultAmounts] = useState({}) // cid ⇒ 金额文本（每币种一行独立输入）
+  const [vaultBusy, setVaultBusy] = useState('') // 充值中的 cid（空 = 无在途请求）
+  const [vaultNotice, setVaultNotice] = useState(null) // { cid, kind, text, code, reason, status }
   const navigate = useNavigate()
 
   const userRef = useRef(user)
@@ -200,6 +204,25 @@ const ProjectPage = () => {
   const hours = num(view?.wage_interval_hours)
   const amount = num(view?.wage_currency_amount)
   const symbol = symbols[String(view?.wage_cid ?? '')] || ''
+
+  // ★ Kevin 2026-10-23 ②：金库区（读口加性 `vault[]` ⇒ 人人可读的余额面）
+  //   · 行形状 `{cid, symbol, balance}`；`balance` 是**后端已换算的人类可读十进制串** ⇒ 前端零换算；
+  //   · **空金库但有次币腿** ⇒ 合成一条 0 余额行（否则登录用户无处充钱：领取缺行即 409
+  //     `project_wage_pool_insufficient`，却看不到任何「给哪个币充值」的入口）；
+  //   · 空金库 ∧ 无次币腿（未设次币 / 金额 0）⇒ 整区不渲染（没有币种就没有余额可言）。
+  const vaultRowsFromApi = (Array.isArray(view?.vault) ? view.vault : [])
+    .filter((row) => row && row.cid != null)
+    .map((row) => ({
+      cid: String(row.cid),
+      symbol: String(row.symbol ?? symbols[String(row.cid)] ?? ''),
+      balance: String(row.balance ?? '0'),
+    }))
+  const wageCidKey = view?.wage_cid == null || view?.wage_cid === '' ? '' : String(view.wage_cid)
+  const hasSecondaryLeg = wageCidKey !== '' && amount > 0
+  const vaultRows = vaultRowsFromApi.length > 0
+    ? vaultRowsFromApi
+    : (hasSecondaryLeg ? [{ cid: wageCidKey, symbol: symbols[wageCidKey] || '', balance: '0' }] : [])
+  const showVault = Boolean(view) && vaultRows.length > 0
 
   // 入口统一闸：未登录 / 无权限 ⇒ 页内提示、零请求（按钮本就只对 owner ∨ 管理员渲染，
   // 这里是时序 / 状态漂移的双保险）。两个入口（【发布活动】/【编辑项目】）共用。
@@ -309,6 +332,59 @@ const ProjectPage = () => {
     }
   }
 
+  /**
+   * 金库充值（★ Kevin 2026-10-23 ②）：每币种一行独立输入 + 一个【充值】钮（`data-sf-action="vault-recharge"`）。
+   *   · 前置：未登录 ⇒ 只读（入口不渲染，这里是双保险）；金额须 > 0 十进制串 ⇒ 否则**零请求**内联；
+   *   · 成功 ⇒ 清空该行输入 + 内联 ok 提示（新余额用服务端回值）+ **静默重拉**（余额行即时更新）；
+   *   · 失败 ⇒ `writeFailNotice` 内联（`VAULT_RECHARGE_INSUFFICIENT` / `PROJECT_VAULT_AMOUNT_INVALID` /
+   *     `PROJECT_VAULT_CID_INVALID` 三条机读码已登记中文；未登记 ⇒ 机读码原文，不假翻译），
+   *     元素带 `data-sf-err-code / -reason / -status` 供探针取证；不谎报成功、不重拉。
+   */
+  const submitRecharge = async (cid) => {
+    const key = String(cid)
+    if (!isAuthenticated) {
+      setVaultNotice({ cid: key, kind: 'err', text: t('project.needLogin'), code: '', reason: '', status: null })
+      return
+    }
+    if (!view || vaultBusy) return
+    const amountText = String(vaultAmounts[key] ?? '').trim()
+    const amountNum = Number(amountText)
+    if (amountText === '' || !Number.isFinite(amountNum) || amountNum <= 0) {
+      setVaultNotice({
+        cid: key, kind: 'err', text: t('project.vaultErrAmountInvalid'),
+        code: 'PROJECT_VAULT_AMOUNT_INVALID', reason: '', status: null,
+      })
+      return
+    }
+    setVaultBusy(key)
+    setVaultNotice(null)
+    try {
+      const result = await rechargeProjectVault(
+        view.project_id,
+        { cid: Number(key), amount: amountText },
+        userRef.current,
+      )
+      const rowSymbol = vaultRows.find((row) => row.cid === key)?.symbol || String(result?.symbol ?? '')
+      setVaultAmounts((prev) => ({ ...prev, [key]: '' }))
+      setVaultNotice({
+        cid: key,
+        kind: 'ok',
+        text: t('project.vaultRechargeOk', {
+          amount: amountText,
+          symbol: rowSymbol,
+          balance: String(result?.balance ?? ''),
+        }),
+      })
+      await load({ silent: true })
+    } catch (error) {
+      const fail = writeFailNotice(error, t, 'project.vaultFailDetail')
+      const hasDetail = Boolean(fail.code || fail.reason) && fail.status !== null
+      setVaultNotice({ cid: key, kind: 'err', ...fail, text: hasDetail ? fail.text : t('project.vaultErrGeneral') })
+    } finally {
+      setVaultBusy('')
+    }
+  }
+
   /** 入口点击：切换态先展开行内确认（零请求），其余直接提交。 */
   const onJoinEntry = () => {
     if (!isAuthenticated) {
@@ -373,6 +449,65 @@ const ProjectPage = () => {
                 </span>
               </div>
             </section>
+
+            {/* 项目金库（★ Kevin 2026-10-23 ② · 迁移 0073）：紧跟项目头 ⇒ 余额是项目的公开招工信息，
+                放在「能不能招到人」的正下方。每个 `vault[]` 一行 = 币符号 + 余额（后端已换算十进制串）；
+                **登录用户**每行另有金额输入 + 【充值】（`data-sf-action="vault-recharge"`）⇒
+                `POST /api/project/:id/vault/recharge`；未登录只读余额（无 input、无按钮）。
+                空金库 ∧ 无次币腿 ⇒ 整区不渲染（没有币种就没有余额）。 */}
+            {showVault ? (
+              <section className="sf-panel sf-project-vault" data-sf-m="project-vault" data-sf-authed={isAuthenticated ? '1' : '0'}>
+                <h2 className="sf-project-section-title" data-sf-m="project-vault-title">{t('project.vaultTitle')}</h2>
+                <ul className="sf-project-vault-list">
+                  {vaultRows.map((row) => {
+                    const busy = vaultBusy === row.cid
+                    return (
+                      <li className="sf-project-vault-row" data-sf-m="project-vault-row" data-sf-cid={row.cid} key={row.cid}>
+                        <span className="sf-project-vault-balance" data-sf-m="project-vault-balance">
+                          {t('project.vaultLine', { symbol: row.symbol, balance: row.balance })}
+                        </span>
+                        {isAuthenticated ? (
+                          <span className="sf-project-vault-recharge">
+                            <label className="sf-project-field sf-project-vault-field">
+                              <span className="sf-project-field-label">{t('project.vaultRechargeLabel')}</span>
+                              <input
+                                className="sf-project-input"
+                                data-sf-m="project-vault-amount"
+                                data-sf-cid={row.cid}
+                                inputMode="decimal"
+                                value={vaultAmounts[row.cid] ?? ''}
+                                onChange={(event) => setVaultAmounts((prev) => ({ ...prev, [row.cid]: event.target.value }))}
+                              />
+                            </label>
+                            <button
+                              type="button"
+                              className="sf-project-btn"
+                              data-sf-m="project-vault-recharge"
+                              data-sf-action="vault-recharge"
+                              data-sf-cid={row.cid}
+                              disabled={busy}
+                              onClick={() => submitRecharge(row.cid)}
+                            >{busy ? t('project.vaultRecharging') : t('project.vaultRechargeBtn')}</button>
+                          </span>
+                        ) : null}
+                      </li>
+                    )
+                  })}
+                </ul>
+                {vaultNotice?.text ? (
+                  <p
+                    className={`sf-project-notice is-${vaultNotice.kind}`}
+                    data-sf-m="project-vault-notice"
+                    data-sf-kind={vaultNotice.kind}
+                    data-sf-cid={vaultNotice.cid}
+                    data-sf-err-code={vaultNotice.code || ''}
+                    data-sf-err-reason={vaultNotice.reason || ''}
+                    data-sf-err-status={vaultNotice.status == null ? '' : String(vaultNotice.status)}
+                    role="alert"
+                  >{vaultNotice.text}</p>
+                ) : null}
+              </section>
+            ) : null}
 
             <section className="sf-panel sf-project-desc" data-sf-m="project-desc">
               <h2 className="sf-project-section-title" data-sf-m="project-desc-title">{t('project.descriptionTitle')}</h2>

@@ -67,6 +67,20 @@ export const fetchProjectCurrencies = (user) => getJson('/api/currencies', user)
 export const applyToProject = (ref, body, user) => postJson(`/api/project/${enc(ref)}/apply`, body || {}, user)
 
 /**
+ * **项目金库充值**（R8 `POST /api/project/:id/vault/recharge` · 迁移 0073 · ★ Kevin 2026-10-23）。
+ *   · 任何登录用户可以充（服务端不设 owner / 管理员闸 —— 员工也能给项目加钱）；
+ *   · body 闭集 `{cid, amount}`（`cid ≠ 1` 且 `listed`；`amount > 0` 十进制串）；
+ *   · 两腿同事务：用户 `account` −N / 平台主体 uid 0 +N，**金库 +N** ⇒ 净额恒 0；
+ *   · 返回 `{project_id, cid, symbol, amount, balance, vault[]}`（`vault[]` 形状与详情读口同族，
+ *     `balance` 是**人类可读十进制串**，前端不换算）；
+ *   · 失败：400 `VAULT_RECHARGE_INSUFFICIENT`（`details.need / have`）/
+ *     `PROJECT_VAULT_AMOUNT_INVALID` / `PROJECT_VAULT_CID_INVALID` ⇒ 调用方内联（`writeFailNotice`）。
+ * 本层零拼装：`cid` 转数字、`amount` 原样字符串（后端按币种精度判，不静默四舍五入）。
+ */
+export const rechargeProjectVault = (ref, body, user) =>
+  postJson(`/api/project/${enc(ref)}/vault/recharge`, body || {}, user)
+
+/**
  * 改项目（route R7 `PATCH /api/project/:projectId`；闸 = `requireAdmin('manage_tasks')` ∨ project owner，
  * ended 由服务端封板）。body 只带**变化字段**（键闭集 = title / description / slug / headcount /
  * recruit_min_account_days / wage_batt_per_claim / wage_cid + wage_currency_amount（成对）/

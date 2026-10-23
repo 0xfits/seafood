@@ -1,0 +1,830 @@
+{
+  "probe": "ops/project/probe-project-vault.mjs",
+  "startedAt": "2026-10-23T05:19:21.364Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "fixtures": {
+    "project": "11/sui",
+    "vault": [
+      {
+        "cid": 4,
+        "symbol": "BTTC",
+        "balance": "1000"
+      },
+      {
+        "cid": 7,
+        "symbol": "USDT",
+        "balance": "25.5"
+      }
+    ],
+    "viewer": 971001,
+    "auth": "localStorage seed only",
+    "api": "context.route in-probe JSON（零后端 / 零库写）"
+  },
+  "states": {
+    "1536_authed": {
+      "present": true,
+      "authed": "1",
+      "title": "项目金库",
+      "rowCount": 2,
+      "rows": [
+        {
+          "cid": "4",
+          "balanceText": "BTTC 余额 1000",
+          "hasInput": true,
+          "inputValue": "",
+          "inputRight": 1330,
+          "hasButton": true,
+          "buttonText": "充值",
+          "buttonDisabled": false,
+          "right": 1405,
+          "left": 35,
+          "height": 78.8
+        },
+        {
+          "cid": "7",
+          "balanceText": "USDT 余额 25.5",
+          "hasInput": true,
+          "inputValue": "",
+          "inputRight": 1330,
+          "hasButton": true,
+          "buttonText": "充值",
+          "buttonDisabled": false,
+          "right": 1405,
+          "left": 35,
+          "height": 78.8
+        }
+      ],
+      "inputCount": 2,
+      "buttonCount": 2,
+      "notice": null,
+      "right": 1420,
+      "left": 20
+    },
+    "1536_recharge_ok": {
+      "vault": {
+        "present": true,
+        "authed": "1",
+        "title": "项目金库",
+        "rowCount": 2,
+        "rows": [
+          {
+            "cid": "4",
+            "balanceText": "BTTC 余额 1250",
+            "hasInput": true,
+            "inputValue": "",
+            "inputRight": 1330,
+            "hasButton": true,
+            "buttonText": "充值",
+            "buttonDisabled": false,
+            "right": 1405,
+            "left": 35,
+            "height": 78.8
+          },
+          {
+            "cid": "7",
+            "balanceText": "USDT 余额 25.5",
+            "hasInput": true,
+            "inputValue": "",
+            "inputRight": 1330,
+            "hasButton": true,
+            "buttonText": "充值",
+            "buttonDisabled": false,
+            "right": 1405,
+            "left": 35,
+            "height": 78.8
+          }
+        ],
+        "inputCount": 2,
+        "buttonCount": 2,
+        "notice": {
+          "kind": "ok",
+          "text": "已充值 250 BTTC，金库余额 1250",
+          "cid": "4",
+          "code": "",
+          "reason": "",
+          "status": ""
+        },
+        "right": 1420,
+        "left": 20
+      },
+      "writes": [
+        {
+          "method": "POST",
+          "path": "/api/project/11/vault/recharge"
+        }
+      ],
+      "body": {
+        "projectId": "11",
+        "body": {
+          "cid": 4,
+          "amount": "250"
+        }
+      },
+      "reads": 1
+    },
+    "1536_amount_empty": {
+      "vault": {
+        "present": true,
+        "authed": "1",
+        "title": "项目金库",
+        "rowCount": 2,
+        "rows": [
+          {
+            "cid": "4",
+            "balanceText": "BTTC 余额 1250",
+            "hasInput": true,
+            "inputValue": "",
+            "inputRight": 1330,
+            "hasButton": true,
+            "buttonText": "充值",
+            "buttonDisabled": false,
+            "right": 1405,
+            "left": 35,
+            "height": 78.8
+          },
+          {
+            "cid": "7",
+            "balanceText": "USDT 余额 25.5",
+            "hasInput": true,
+            "inputValue": "",
+            "inputRight": 1330,
+            "hasButton": true,
+            "buttonText": "充值",
+            "buttonDisabled": false,
+            "right": 1405,
+            "left": 35,
+            "height": 78.8
+          }
+        ],
+        "inputCount": 2,
+        "buttonCount": 2,
+        "notice": {
+          "kind": "err",
+          "text": "充值金额须大于 0，且不超过该币种精度",
+          "cid": "7",
+          "code": "PROJECT_VAULT_AMOUNT_INVALID",
+          "reason": "",
+          "status": ""
+        },
+        "right": 1420,
+        "left": 20
+      },
+      "writes": []
+    },
+    "1536_recharge_fail": {
+      "vault": {
+        "present": true,
+        "authed": "1",
+        "title": "项目金库",
+        "rowCount": 2,
+        "rows": [
+          {
+            "cid": "4",
+            "balanceText": "BTTC 余额 1000",
+            "hasInput": true,
+            "inputValue": "9999",
+            "inputRight": 1330,
+            "hasButton": true,
+            "buttonText": "充值",
+            "buttonDisabled": false,
+            "right": 1405,
+            "left": 35,
+            "height": 78.8
+          },
+          {
+            "cid": "7",
+            "balanceText": "USDT 余额 25.5",
+            "hasInput": true,
+            "inputValue": "",
+            "inputRight": 1330,
+            "hasButton": true,
+            "buttonText": "充值",
+            "buttonDisabled": false,
+            "right": 1405,
+            "left": 35,
+            "height": 78.8
+          }
+        ],
+        "inputCount": 2,
+        "buttonCount": 2,
+        "notice": {
+          "kind": "err",
+          "text": "充值失败：你的可用余额不足，无法充值（HTTP 400）",
+          "cid": "4",
+          "code": "VAULT_RECHARGE_INSUFFICIENT",
+          "reason": "VAULT_RECHARGE_INSUFFICIENT",
+          "status": "400"
+        },
+        "right": 1420,
+        "left": 20
+      },
+      "writes": [
+        {
+          "method": "POST",
+          "path": "/api/project/11/vault/recharge"
+        }
+      ],
+      "reads": {
+        "before": 1,
+        "after": 1
+      }
+    },
+    "1536_cid_fail": {
+      "vault": {
+        "present": true,
+        "authed": "1",
+        "title": "项目金库",
+        "rowCount": 2,
+        "rows": [
+          {
+            "cid": "4",
+            "balanceText": "BTTC 余额 1000",
+            "hasInput": true,
+            "inputValue": "",
+            "inputRight": 1330,
+            "hasButton": true,
+            "buttonText": "充值",
+            "buttonDisabled": false,
+            "right": 1405,
+            "left": 35,
+            "height": 78.8
+          },
+          {
+            "cid": "7",
+            "balanceText": "USDT 余额 25.5",
+            "hasInput": true,
+            "inputValue": "5",
+            "inputRight": 1330,
+            "hasButton": true,
+            "buttonText": "充值",
+            "buttonDisabled": false,
+            "right": 1405,
+            "left": 35,
+            "height": 78.8
+          }
+        ],
+        "inputCount": 2,
+        "buttonCount": 2,
+        "notice": {
+          "kind": "err",
+          "text": "充值失败：该币种不可用于项目金库（HTTP 400）",
+          "cid": "7",
+          "code": "PROJECT_VAULT_CID_INVALID",
+          "reason": "PROJECT_VAULT_CID_INVALID",
+          "status": "400"
+        },
+        "right": 1420,
+        "left": 20
+      },
+      "writes": [
+        {
+          "method": "POST",
+          "path": "/api/project/11/vault/recharge"
+        }
+      ]
+    },
+    "1536_synthetic_zero_row": {
+      "present": true,
+      "authed": "1",
+      "title": "项目金库",
+      "rowCount": 1,
+      "rows": [
+        {
+          "cid": "4",
+          "balanceText": "BTTC 余额 0",
+          "hasInput": true,
+          "inputValue": "",
+          "inputRight": 1330,
+          "hasButton": true,
+          "buttonText": "充值",
+          "buttonDisabled": false,
+          "right": 1405,
+          "left": 35,
+          "height": 78.8
+        }
+      ],
+      "inputCount": 1,
+      "buttonCount": 1,
+      "notice": null,
+      "right": 1420,
+      "left": 20
+    },
+    "1536_no_vault": {
+      "present": false,
+      "authed": null,
+      "title": null,
+      "rowCount": 0,
+      "rows": [],
+      "inputCount": 0,
+      "buttonCount": 0,
+      "notice": null,
+      "right": null,
+      "left": null
+    },
+    "1536_guest": {
+      "present": true,
+      "authed": "0",
+      "title": "项目金库",
+      "rowCount": 2,
+      "rows": [
+        {
+          "cid": "4",
+          "balanceText": "BTTC 余额 1000",
+          "hasInput": false,
+          "inputValue": null,
+          "inputRight": null,
+          "hasButton": false,
+          "buttonText": null,
+          "buttonDisabled": null,
+          "right": 1405,
+          "left": 35,
+          "height": 37.5
+        },
+        {
+          "cid": "7",
+          "balanceText": "USDT 余额 25.5",
+          "hasInput": false,
+          "inputValue": null,
+          "inputRight": null,
+          "hasButton": false,
+          "buttonText": null,
+          "buttonDisabled": null,
+          "right": 1405,
+          "left": 35,
+          "height": 37.5
+        }
+      ],
+      "inputCount": 0,
+      "buttonCount": 0,
+      "notice": null,
+      "right": 1420,
+      "left": 20
+    },
+    "geometry": {
+      "390": {
+        "overflowPx": 0,
+        "rowCount": 2,
+        "sectionLeft": 10,
+        "sectionRight": 376.9,
+        "rowRightMax": 361.9,
+        "inputRightMax": 286.9,
+        "rowHeights": [
+          78.8
+        ]
+      },
+      "1536": {
+        "overflowPx": 0,
+        "rowCount": 2,
+        "sectionLeft": 20,
+        "sectionRight": 1420,
+        "rowRightMax": 1405,
+        "inputRightMax": 1330,
+        "rowHeights": [
+          78.8
+        ]
+      }
+    }
+  },
+  "assertions": {
+    "authedRows": {
+      "sectionPresent": true,
+      "authedFlag": true,
+      "titleIsLocale": true,
+      "rowCountMatchesApi": true,
+      "cidsInOrder": true,
+      "balanceMatchesBttc": true,
+      "balanceMatchesUsdt": true,
+      "inputPerRow": true,
+      "buttonPerRow": true,
+      "noNoticeInitially": true,
+      "zeroWritesOnLoad": true
+    },
+    "rechargeOk": {
+      "postOnce": true,
+      "pathIsVaultRecharge": true,
+      "bodyExactlyPair": true,
+      "amountIsString": true,
+      "noticeOk": true,
+      "noticeText": true,
+      "noticeCid": true,
+      "balanceUpdated": true,
+      "otherRowUntouched": true,
+      "inputCleared": true,
+      "relisted": true,
+      "noErrHooks": true
+    },
+    "amountGuard": {
+      "zeroRequests": true,
+      "inlineErr": true,
+      "textIsLocale": true,
+      "codeHook": true,
+      "cidIsRow": true,
+      "balanceUnchanged": true
+    },
+    "rechargeFail": {
+      "postOnce": true,
+      "inlineErr": true,
+      "errCodeHook": true,
+      "errReasonHook": true,
+      "errStatusHook": true,
+      "textIsMapped": true,
+      "noOkNotice": true,
+      "noRelistAfterFail": true,
+      "balanceUnchanged": true
+    },
+    "rechargeCidFail": {
+      "inlineErr": true,
+      "errCodeHook": true,
+      "errStatusHook": true,
+      "textIsMapped": true
+    },
+    "syntheticRow": {
+      "sectionPresent": true,
+      "singleRow": true,
+      "cidIsWageCid": true,
+      "balanceZero": true,
+      "rechargeEntryPresent": true
+    },
+    "noVault": {
+      "sectionAbsent": true,
+      "zeroRows": true,
+      "zeroInputs": true,
+      "pageStillRendered": true
+    },
+    "guestReadOnly": {
+      "sectionPresent": true,
+      "authedFlag": true,
+      "rowsVisible": true,
+      "balancesVisible": true,
+      "noInputs": true,
+      "noButtons": true,
+      "zeroWrites": true
+    },
+    "geometry": {
+      "zeroOverflow390": true,
+      "zeroOverflow1536": true,
+      "rowsRenderedBoth": true,
+      "sectionInsideViewport390": true,
+      "sectionInsideViewport1536": true,
+      "rowsInsideViewport390": true,
+      "rowsInsideViewport1536": true,
+      "inputsInsideViewport390": true,
+      "inputsInsideViewport1536": true,
+      "rowHeightStable": true,
+      "zeroPageErrors": true
+    }
+  },
+  "pageErrors": [],
+  "finishedAt": "2026-10-23T05:19:23.768Z",
+  "verdict": {
+    "required": [
+      {
+        "key": "authedRows.sectionPresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "authedRows.authedFlag",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "authedRows.titleIsLocale",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "authedRows.rowCountMatchesApi",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "authedRows.cidsInOrder",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "authedRows.balanceMatchesBttc",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "authedRows.balanceMatchesUsdt",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "authedRows.inputPerRow",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "authedRows.buttonPerRow",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "authedRows.noNoticeInitially",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "authedRows.zeroWritesOnLoad",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "rechargeOk.postOnce",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "rechargeOk.pathIsVaultRecharge",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "rechargeOk.bodyExactlyPair",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "rechargeOk.amountIsString",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "rechargeOk.noticeOk",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "rechargeOk.noticeText",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "rechargeOk.noticeCid",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "rechargeOk.balanceUpdated",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "rechargeOk.otherRowUntouched",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "rechargeOk.inputCleared",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "rechargeOk.relisted",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "rechargeOk.noErrHooks",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "amountGuard.zeroRequests",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "amountGuard.inlineErr",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "amountGuard.textIsLocale",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "amountGuard.codeHook",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "amountGuard.cidIsRow",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "amountGuard.balanceUnchanged",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "rechargeFail.postOnce",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "rechargeFail.inlineErr",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "rechargeFail.errCodeHook",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "rechargeFail.errReasonHook",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "rechargeFail.errStatusHook",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "rechargeFail.textIsMapped",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "rechargeFail.noOkNotice",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "rechargeFail.noRelistAfterFail",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "rechargeFail.balanceUnchanged",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "rechargeCidFail.inlineErr",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "rechargeCidFail.errCodeHook",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "rechargeCidFail.errStatusHook",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "rechargeCidFail.textIsMapped",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "syntheticRow.sectionPresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "syntheticRow.singleRow",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "syntheticRow.cidIsWageCid",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "syntheticRow.balanceZero",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "syntheticRow.rechargeEntryPresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "noVault.sectionAbsent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "noVault.zeroRows",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "noVault.zeroInputs",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "noVault.pageStillRendered",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guestReadOnly.sectionPresent",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guestReadOnly.authedFlag",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guestReadOnly.rowsVisible",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guestReadOnly.balancesVisible",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guestReadOnly.noInputs",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guestReadOnly.noButtons",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "guestReadOnly.zeroWrites",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.zeroOverflow390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.zeroOverflow1536",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.rowsRenderedBoth",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.sectionInsideViewport390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.sectionInsideViewport1536",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.rowsInsideViewport390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.rowsInsideViewport1536",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.inputsInsideViewport390",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.inputsInsideViewport1536",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.rowHeightStable",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "geometry.zeroPageErrors",
+        "value": true,
+        "pass": true
+      }
+    ],
+    "failed": [],
+    "pass": true
+  }
+}

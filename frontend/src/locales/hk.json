@@ -1568,6 +1568,18 @@
     "reasonAlreadyHired": "你已在其他項目在職，請先在該項目頁切換",
     "reasonHeadcountFull": "該項目已招滿",
     "reasonMinDaysUnmet": "帳號註冊天數不滿足該項目的招工條件",
-    "reasonNotRecruiting": "該項目當前不在招募中"
+    "reasonNotRecruiting": "該項目當前不在招募中",
+    "vaultTitle": "項目金庫",
+    "vaultLine": "{{symbol}} 餘額 {{balance}}",
+    "vaultRechargeLabel": "充值金額",
+    "vaultRechargeBtn": "充值",
+    "vaultRecharging": "充值中…",
+    "vaultRechargeOk": "已充值 {{amount}} {{symbol}}，金庫餘額 {{balance}}",
+    "vaultFailDetail": "充值失敗：{{detail}}（HTTP {{status}}）",
+    "vaultErrInsufficient": "你的可用餘額不足，無法充值",
+    "vaultErrAmountInvalid": "充值金額須大於 0，且不超過該幣種精度",
+    "vaultErrCidInvalid": "該幣種不可用於項目金庫",
+    "vaultErrGeneral": "充值失敗，請稍後再試。",
+    "recruitZeroHint": "次幣金額填 0 = 不發次幣（該檔只發電量）"
   }
 }

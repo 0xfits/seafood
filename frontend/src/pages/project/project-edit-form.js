@@ -140,7 +140,9 @@ export const validateRecruitForm = (form, t) => {
     if (amount !== '') errs.currency = t('wage.errCurrencyPair')
   } else if (!isIntText(cid) || Number(cid) === 1) {
     errs.currency = t('wage.errCurrencyInvalid')
-  } else if (amount === '' || !Number.isFinite(Number(amount)) || Number(amount) <= 0) {
+  // ★ Kevin 2026-10-23 ①：次币金额**允许 0**（「只发 batt、不发次币」是合法招工口径；
+  //   后端 `asNonNegativeDecimal` 同宽，领薪时金额 0 ⇒ 整条次币腿跳过）。判据 ⇒ `< 0` 才非法。
+  } else if (amount === '' || !Number.isFinite(Number(amount)) || Number(amount) < 0) {
     errs.currency = t('wage.errCurrencyAmount')
   }
   return errs
