@@ -1609,6 +1609,8 @@
     "newSlotsLabel": "Slots to add",
     "newSlotsHint": "Enter 2 to add 2 slots on top of the current hires; leave blank to keep the quota unchanged.",
     "slotsReadout": "Hired {{hired}} · adding {{add}} ⇒ target {{target}}",
-    "wageStdSaved": "Pay standard saved (applies to new and existing members)"
+    "wageStdSaved": "Pay standard saved (applies to new and existing members)",
+    "wageRateAnchor": "Hourly equivalent pay ⚡1 (constant)",
+    "wageLegacyRate": "Legacy rate ⚡{{rate}}/h: the current wage is kept until you move the slider or change the interval, then it is recalculated at ⚡1/h."
   }
 }

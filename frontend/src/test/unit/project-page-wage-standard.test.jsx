@@ -5,13 +5,18 @@
  *   ① 入口与文案：操作区独立按钮【设定工资标准】（`project-entry-wage`）→ 模态框标题 = `wageStdTitle`，
  *      且**提示行明说「新老成员一视同仁」**（`wageStdHint`）——工资是全员口径，不藏在【招工】里；
  *      入口与另两框**同一权限闸**（owner ∨ manage_tasks ∧ 未 ended）；普通用户 / ended / 未登录零入口；
- *   ② 字段集：`[data-sf-edit]` **恰 4 个**（batt / interval / cid / amount），预填 = 行值；
- *      零项目面（title/description/slug/status）与零招工面（newSlots/minDays）；
- *   ③ 载荷**只带变化键**：改 batt ⇒ 恰 `{wage_batt_per_claim}`；改间隔 ⇒ 恰 `{wage_interval_hours}`；
- *      选次币 + 金额 0 ⇒ 恰两键（金额 0 = 不发次币，合法）；清空次币 ⇒ 两键 null；无变化 ⇒ 零请求关框；
+ *   ② 字段集：`[data-sf-edit]` 的**钩子集**固定 = 4 个载荷字段（batt / interval / cid / amount）
+ *      + 滑块卡三钩（interval-range / wage-rate-anchor / 条件渲染的 wage-legacy-rate），
+ *      预填 = 行值；零项目面（title/description/slug/status）与零招工面（newSlots/minDays）；
+ *      ★ 2026-10-24：batt 改**只读派生读数**（`readOnly`），间隔 = 滑块（吸附档位）+ 手输（不吸附）；
+ *   ③ 载荷**只带变化键**：拖滑块 ⇒ 恰 `{wage_batt_per_claim, wage_interval_hours}` 两键；
+ *      改间隔 ⇒ 同上两键；选次币 + 金额 0 ⇒ 恰两币键（金额 0 = 不发次币，合法）；
+ *      清空次币 ⇒ 两键 null；无变化 ⇒ 零请求关框；历史速率行**初值不改** ⇒ 零请求 / 只改次币 ⇒ 只带两币键；
  *      成功 ⇒ 关框 + `project.wageStdSaved` 提示 + `load({silent:true})` 重拉（工资行即时更新）；
- *   ④ 框内内联、框不关：batt ≤ 0 / 间隔越界 / 次币只选币不填额 ⇒ 客户端零 PATCH；
+ *   ④ 框内内联、框不关：间隔越界（0 / 101 / 空 / 非整数，含手输）/ 次币只选币不填额 ⇒ 客户端零 PATCH；
  *      服务端 `PROJECT_WAGE_CURRENCY_PAIR_REQUIRED` ⇒ currency 行；`project_ended_frozen` ⇒ 表单级。
+ *   ⑤ 单轨联动（★ 2026-10-24）：拖到档位 ⇒ 吸附；手输非档位 ⇒ 真值以手输为准、滑块停最近档；
+ *      历史速率提示只在「行速率 ≠ ⚡1/h 且用户尚未接管间隔」时出现。
  *
  * 注：几何（390/1536 零溢出）见 `ops/project/probe-project-recruit.mjs`。
  */
@@ -174,19 +179,37 @@ describe('① 入口与「新老成员统一标准」文案', () => {
 })
 
 // ---------------------------------------------------------------- ② 字段集
-describe('② 字段集恰 4（batt / interval / cid / amount），零项目面零招工面', () => {
-  it('恰 4 字段、预填 = 行值、次币「无」⇒ 金额禁用', async () => {
+describe('② 字段集：4 个载荷字段 + 滑块卡三钩；batt 只读派生', () => {
+  it('历史速率行（30 / 4h）：钩子集 = 滑块卡三钩 + 4 字段、预填 = 行值、次币「无」⇒ 金额禁用', async () => {
     const { container } = renderAt()
     await openWage(container)
-    expect(wageFieldNames()).toEqual(['batt', 'interval', 'cid', 'amount'])
-    expect(field('batt').value).toBe('30')
+    expect(wageFieldNames()).toEqual([
+      'interval-range', 'interval', 'batt', 'wage-legacy-rate', 'wage-rate-anchor', 'cid', 'amount',
+    ])
+    // 滑块与手输初值 = 行间隔 4（落档位 ⇒ 滑块原值）；手输框是真值入口
+    expect(field('interval-range').value).toBe('4')
+    expect(field('interval-range').type).toBe('range')
     expect(field('interval').value).toBe('4')
+    // 每次工资 = **只读派生读数**，初值 = 行原值 30（历史速率 7.5/h，不预派生 —— 否则一开框就成「有变化」）
+    expect(field('batt').value).toBe('30')
+    expect(field('batt').readOnly).toBe(true)
     expect(field('cid').value).toBe('')
     expect(field('amount').value).toBe('')
     expect(field('amount').disabled).toBe(true)
     for (const name of ['title', 'description', 'slug', 'status', 'newSlots', 'minDays']) {
       expect(field(name)).toBeNull()
     }
+  })
+
+  it('⚡1/h 行（4 / 4h）：无历史速率提示行（钩子集少一格），读数 = 间隔', async () => {
+    VIEW.current = viewOf({ wage_batt_per_claim: 4 })
+    const { container } = renderAt()
+    await openWage(container)
+    expect(wageFieldNames()).toEqual([
+      'interval-range', 'interval', 'batt', 'wage-rate-anchor', 'cid', 'amount',
+    ])
+    expect(field('batt').value).toBe('4')
+    expect(field('batt').readOnly).toBe(true)
   })
 
   it('已有次币行 ⇒ 预填 cid + 金额', async () => {
@@ -201,16 +224,19 @@ describe('② 字段集恰 4（batt / interval / cid / amount），零项目面�
 
 // ---------------------------------------------------------------- ③ 载荷
 describe('③ 载荷只带变化键 + 成功回写', () => {
-  it('改每次工资 ⇒ body 恰 {wage_batt_per_claim}；成功 ⇒ 关框 + wageStdSaved + 重拉（工资行更新）', async () => {
+  it('拖滑块到档位 12 ⇒ body 恰两键（batt 派生 + 间隔）；成功 ⇒ 关框 + wageStdSaved + 重拉（工资行更新）', async () => {
     const { container } = renderAt()
     await openWage(container)
     const reads = API.fetchProjectDetail.mock.calls.length
-    fireEvent.change(field('batt'), { target: { value: '35' } })
+    // 滑块拖到 12（档位）⇒ 每次工资按 ⚡1/h 派生 = 12
+    fireEvent.change(field('interval-range'), { target: { value: '12' } })
+    expect(field('batt').value).toBe('12')
+    expect(field('interval').value).toBe('12')
     await submit()
 
     await waitFor(() => expect(API.patchProject).toHaveBeenCalledTimes(1))
     expect(API.patchProject.mock.calls[0][0]).toBe('11')
-    expect(API.patchProject.mock.calls[0][1]).toEqual({ wage_batt_per_claim: '35' })
+    expect(API.patchProject.mock.calls[0][1]).toEqual({ wage_batt_per_claim: '12', wage_interval_hours: 12 })
     expect(API.patchProject.mock.calls[0][2]).toBe(AUTH.user)
 
     await waitFor(() => expect(wageModal()).toBeNull())
@@ -221,16 +247,17 @@ describe('③ 载荷只带变化键 + 成功回写', () => {
     // 重拉后页头工资行（`data-sf-m="project-wage"`，与模态框 `project-wage-std` 不同名）吃到新 batt
     await waitFor(() => expect(
       container.querySelector('[data-sf-m="project-wage"]').textContent,
-    ).toBe(zh.wage.wageLine.replace('{{batt}}', '35').replace('{{hours}}', '4')))
+    ).toBe(zh.wage.wageLine.replace('{{batt}}', '12').replace('{{hours}}', '12')))
   })
 
-  it('改间隔 ⇒ body 恰 {wage_interval_hours:6}', async () => {
+  it('手输间隔 6（档位）⇒ 派生 batt 6，body 恰两键', async () => {
     const { container } = renderAt()
     await openWage(container)
     fireEvent.change(field('interval'), { target: { value: '6' } })
+    expect(field('batt').value).toBe('6')
     await submit()
     await waitFor(() => expect(API.patchProject).toHaveBeenCalledTimes(1))
-    expect(API.patchProject.mock.calls[0][1]).toEqual({ wage_interval_hours: 6 })
+    expect(API.patchProject.mock.calls[0][1]).toEqual({ wage_batt_per_claim: '6', wage_interval_hours: 6 })
   })
 
   it('选次币 + 金额 0 ⇒ 恰两键成对上送（金额 0 = 不发次币）', async () => {
@@ -266,36 +293,74 @@ describe('③ 载荷只带变化键 + 成功回写', () => {
     expect(API.fetchProjectDetail.mock.calls.length).toBe(reads)
   })
 
-  it('只改工资 ⇒ 载荷零招工键 / 零项目键（三框键集互斥）', async () => {
+  it('只改工资口径 ⇒ 载荷零招工键 / 零项目键（三框键集互斥）', async () => {
     const { container } = renderAt()
     await openWage(container)
-    fireEvent.change(field('batt'), { target: { value: '40' } })
-    fireEvent.change(field('interval'), { target: { value: '8' } })
+    fireEvent.change(field('interval-range'), { target: { value: '24' } })
+    fireEvent.change(field('cid'), { target: { value: '4' } })
+    fireEvent.change(field('amount'), { target: { value: '2' } })
     await submit()
     await waitFor(() => expect(API.patchProject).toHaveBeenCalledTimes(1))
     const body = API.patchProject.mock.calls[0][1]
-    expect(body).toEqual({ wage_batt_per_claim: '40', wage_interval_hours: 8 })
+    expect(body).toEqual({
+      wage_batt_per_claim: '24',
+      wage_interval_hours: 24,
+      wage_cid: 4,
+      wage_currency_amount: '2',
+    })
     for (const key of ['headcount', 'recruit_min_account_days', 'title', 'slug', 'status']) {
       expect(body).not.toHaveProperty(key)
     }
+  })
+
+  it('历史速率行初值不改 ⇒ 零请求；只改次币 ⇒ 载荷只含两币键（工资两键不发）', async () => {
+    const { container } = renderAt()
+    await openWage(container)
+    // 开框即「历史速率 ⚡7.5/h」提示，batt 读数保持行原值 30
+    expect(document.querySelector('[data-sf-edit="wage-legacy-rate"]').textContent)
+      .toBe(zh.project.wageLegacyRate.replace('{{rate}}', '7.5'))
+    expect(field('batt').value).toBe('30')
+
+    // ① 初值不改 ⇒ 零请求直接关框
+    const reads = API.fetchProjectDetail.mock.calls.length
+    await submit()
+    await waitFor(() => expect(wageModal()).toBeNull())
+    expect(API.patchProject).not.toHaveBeenCalled()
+    expect(API.fetchProjectDetail.mock.calls.length).toBe(reads)
+
+    // ② 再开一次，只改次币 ⇒ 只发两币键（历史 batt 与间隔不被顺手带上）
+    const panel = await openWage(container)
+    expect(panel).not.toBeNull()
+    fireEvent.change(field('cid'), { target: { value: '4' } })
+    fireEvent.change(field('amount'), { target: { value: '3' } })
+    await submit()
+    await waitFor(() => expect(API.patchProject).toHaveBeenCalledTimes(1))
+    expect(API.patchProject.mock.calls[0][1]).toEqual({ wage_cid: 4, wage_currency_amount: '3' })
   })
 })
 
 // ---------------------------------------------------------------- ④ 内联
 describe('④ 客户端校验与服务端 400：框内内联、框不关', () => {
-  it('batt 清空 / 间隔 200 ⇒ 各自字段内联、零 PATCH', async () => {
+  it('手输越界（200 / 0 / 空）⇒ interval 字段内联、零 PATCH；batt 读数不被污染', async () => {
     const { container } = renderAt()
     await openWage(container)
-    fireEvent.change(field('batt'), { target: { value: '' } })
-    await submit()
-    await waitFor(() => expect(editErr('batt')).not.toBeNull())
-    expect(editErr('batt').textContent).toBe(zh.wage.errBatt)
-
-    fireEvent.change(field('batt'), { target: { value: '30' } })
     fireEvent.change(field('interval'), { target: { value: '200' } })
     await submit()
     await waitFor(() => expect(editErr('interval')).not.toBeNull())
     expect(editErr('interval').textContent).toBe(zh.bountyProject.intervalInvalid)
+
+    fireEvent.change(field('interval'), { target: { value: '0' } })
+    await submit()
+    await waitFor(() => expect(editErr('interval')).not.toBeNull())
+    expect(editErr('interval').textContent).toBe(zh.bountyProject.intervalInvalid)
+    // 越界值**不派生** batt：读数保持行原值 30（不出现「间隔 0 ⇒ 工资也 0」的二次改写）
+    expect(field('batt').value).toBe('30')
+    expect(editErr('batt')).toBeNull()
+
+    fireEvent.change(field('interval'), { target: { value: '' } })
+    await submit()
+    await waitFor(() => expect(editErr('interval')).not.toBeNull())
+    expect(editErr('batt')).toBeNull()
     expect(API.patchProject).not.toHaveBeenCalled()
   })
 
@@ -315,7 +380,7 @@ describe('④ 客户端校验与服务端 400：框内内联、框不关', () =>
     }))
     const { container } = renderAt()
     await openWage(container)
-    fireEvent.change(field('batt'), { target: { value: '31' } })
+    fireEvent.change(field('interval-range'), { target: { value: '6' } })
     await submit()
     await waitFor(() => expect(editErr('currency')).not.toBeNull())
     expect(editErr('currency').textContent).toBe(zh.wage.errCurrencyPair)
@@ -328,10 +393,64 @@ describe('④ 客户端校验与服务端 400：框内内联、框不关', () =>
     }))
     const { container } = renderAt()
     await openWage(container)
-    fireEvent.change(field('batt'), { target: { value: '32' } })
+    fireEvent.change(field('interval-range'), { target: { value: '6' } })
     await submit()
     await waitFor(() => expect(editErr('general')).not.toBeNull())
     expect(editErr('general').textContent).toBe(zh.wage.errFrozen)
     expect(wageModal()).not.toBeNull()
   })
 })
+
+// ---------------------------------------------------------------- ⑤ 单轨联动
+describe('⑤ 单轨联动：滑块吸附档位 / 手输优先 / 历史速率提示', () => {
+  it('滑块值域 1–100 且 9 档吸附（7⇒8 并列取上档、13⇒12、50⇒48、99⇒100）', async () => {
+    const { container } = renderAt()
+    await openWage(container)
+    expect(field('interval-range').getAttribute('min')).toBe('1')
+    expect(field('interval-range').getAttribute('max')).toBe('100')
+
+    for (const [raw, snapped] of [['7', '8'], ['13', '12'], ['50', '48'], ['99', '100'], ['2', '2']]) {
+      fireEvent.change(field('interval-range'), { target: { value: raw } })
+      expect(field('interval').value).toBe(snapped)
+      expect(field('interval-range').value).toBe(snapped)
+      expect(field('batt').value).toBe(snapped) // 每次工资 = 间隔 × ⚡1
+    }
+  })
+
+  it('手输非档位值 9 ⇒ 真值以手输为准（载荷两键 = 9），滑块视觉停最近档 8', async () => {
+    const { container } = renderAt()
+    await openWage(container)
+    fireEvent.change(field('interval'), { target: { value: '9' } })
+    expect(field('interval').value).toBe('9')
+    expect(field('batt').value).toBe('9')
+    expect(field('interval-range').value).toBe('8') // 8 与 12 中 9 更近 8
+
+    await submit()
+    await waitFor(() => expect(API.patchProject).toHaveBeenCalledTimes(1))
+    expect(API.patchProject.mock.calls[0][1]).toEqual({ wage_batt_per_claim: '9', wage_interval_hours: 9 })
+  })
+
+  it('卡内锚定说明恒在；历史速率提示在用户接管间隔后消失（读数转 ⚡1/h 口径）', async () => {
+    const { container } = renderAt()
+    await openWage(container)
+    expect(document.querySelector('[data-sf-edit="wage-rate-anchor"]').textContent).toBe(zh.project.wageRateAnchor)
+    expect(document.querySelector('[data-sf-edit="wage-legacy-rate"]')).not.toBeNull()
+
+    fireEvent.change(field('interval-range'), { target: { value: '2' } })
+    expect(document.querySelector('[data-sf-edit="wage-legacy-rate"]')).toBeNull()
+    expect(field('batt').value).toBe('2')
+    expect(document.querySelector('[data-sf-edit="wage-rate-anchor"]').textContent).toBe(zh.project.wageRateAnchor)
+  })
+
+  it('从 ⚡1/h 行（4 / 4h）拖到 2h ⇒ 载荷两键（batt 2 / interval 2）', async () => {
+    VIEW.current = viewOf({ wage_batt_per_claim: 4 })
+    const { container } = renderAt()
+    await openWage(container)
+    expect(document.querySelector('[data-sf-edit="wage-legacy-rate"]')).toBeNull()
+    fireEvent.change(field('interval-range'), { target: { value: '2' } })
+    await submit()
+    await waitFor(() => expect(API.patchProject).toHaveBeenCalledTimes(1))
+    expect(API.patchProject.mock.calls[0][1]).toEqual({ wage_batt_per_claim: '2', wage_interval_hours: 2 })
+  })
+})
+

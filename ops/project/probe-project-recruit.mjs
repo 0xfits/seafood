@@ -9,8 +9,10 @@
  *   ③ 【招工】框字段集**恰 2**（newSlots / minDays），名额**预填留空**，读数行给
  *      「当前已招 X · 新增 Y ⇒ 目标 X+Y」；已招 1 + 新增 2 ⇒ 提交载荷**恰 `{headcount: 3}`**（增量换算）；
  *      新增留空 ⇒ 载荷**零 `headcount` 键**（名额不变）；
- *   ④ 【设定工资标准】框字段集**恰 4**（batt / interval / cid / amount），标题 + 提示行声明
- *      「新老成员一视同仁」；改 batt ⇒ 载荷恰 `{wage_batt_per_claim}`；
+ *   ④ 【设定工资标准】框钩子集 = 4 个载荷字段（batt / interval / cid / amount）+ 滑块卡三钩
+ *      （interval-range / wage-rate-anchor / wage-legacy-rate），标题 + 提示行声明
+ *      「新老成员一视同仁」；拖间隔滑块到档位 12 ⇒ 载荷恰两键
+ *      `{wage_batt_per_claim:'12', wage_interval_hours:12}`（batt 只读派生 = 间隔 × ⚡1）；
  *   ⑤ 几何两档（390 / 1536）：页面与在场面板 `scrollWidth - clientWidth = 0`；零 pageerror。
  *
  * 手法（同 `ops/project/probe-project-avatar.mjs` 体例）：
@@ -47,7 +49,9 @@ const OTHER_UID = 555001
 /** 三框字段名（顺序 = DOM 顺序）。 */
 const PROJECT_FIELDS = ['title', 'description', 'slug']
 const RECRUIT_FIELDS = ['newSlots', 'minDays']
-const WAGE_FIELDS = ['batt', 'interval', 'cid', 'amount']
+const WAGE_FIELDS = ['interval-range', 'interval', 'batt', 'wage-legacy-rate', 'wage-rate-anchor', 'cid', 'amount']
+/** ★ 2026-10-24 单轨联动：档位吸附 + batt 只读派生（改判据用「拖滑块」而非改 batt 文本）。 */
+const WAGE_INTERVAL_GEAR = '12'
 
 const viewOf = (patch = {}) => ({
   project_id: 11,
@@ -186,6 +190,14 @@ const snap = (page) => page.evaluate(() => {
     value: {
       newSlots: document.querySelector('[data-sf-edit="newSlots"]') ? document.querySelector('[data-sf-edit="newSlots"]').value : null,
       batt: document.querySelector('[data-sf-edit="batt"]') ? document.querySelector('[data-sf-edit="batt"]').value : null,
+      interval: document.querySelector('[data-sf-edit="interval"]') ? document.querySelector('[data-sf-edit="interval"]').value : null,
+      range: document.querySelector('[data-sf-edit="interval-range"]') ? document.querySelector('[data-sf-edit="interval-range"]').value : null,
+    },
+    wageCard: {
+      battReadOnly: document.querySelector('[data-sf-edit="batt"]') ? document.querySelector('[data-sf-edit="batt"]').readOnly : null,
+      rangeType: document.querySelector('[data-sf-edit="interval-range"]') ? document.querySelector('[data-sf-edit="interval-range"]').type : null,
+      anchor: document.querySelector('[data-sf-edit="wage-rate-anchor"]') ? document.querySelector('[data-sf-edit="wage-rate-anchor"]').textContent : null,
+      legacy: document.querySelector('[data-sf-edit="wage-legacy-rate"]') ? document.querySelector('[data-sf-edit="wage-legacy-rate"]').textContent : null,
     },
     slots: slots ? {
       hired: slots.getAttribute('data-sf-hired'),
@@ -315,16 +327,39 @@ async function main() {
   out.assertions.wageForm = {
     modalOpen: wage.open.wage === true && wage.open.edit === false && wage.open.recruit === false,
     titleI18n: wage.titles.wage === ZH.project.wageStdTitle,
-    exactlyFourFields: JSON.stringify(wage.fieldNames.wage) === JSON.stringify(WAGE_FIELDS),
+    hooksExact: JSON.stringify(wage.fieldNames.wage) === JSON.stringify(WAGE_FIELDS),
     noProjectOrRecruitFields: ['title', 'description', 'slug', 'status', 'newSlots', 'minDays']
       .every((name) => !wage.fieldNames.wage.includes(name)),
+    battReadOnly: wage.wageCard.battReadOnly === true,
+    sliderPresent: wage.wageCard.rangeType === 'range',
+    // 夹具是历史速率行（30 / 4h ⇒ ⚡7.5/h）⇒ 开框即显提示行，X 保留精度（不是取整的 8）
+    legacyHintI18n: wage.wageCard.legacy === ZH.project.wageLegacyRate.replace('{{rate}}', '7.5'),
+    anchorI18n: wage.wageCard.anchor === ZH.project.wageRateAnchor,
     hintMentionsAllMembers: Boolean(wage.hints.wageStd) && wage.hints.wageStd === ZH.project.wageStdHint
       && wage.hints.wageStd.includes('新老成员') && wage.hints.wageStd.includes('一视同仁'),
     _wageFieldNames: wage.fieldNames.wage,
     noOverflow: wage.overflow.doc === 0 && wage.overflow.page === 0 && wage.overflow.panel === 0,
   }
 
-  await owner.page.fill('[data-sf-edit="batt"]', '35')
+  // 拖滑块到档位 12（原生 setter + input 事件，绕开 React 的 value tracker）⇒ batt 派生 12
+  await owner.page.evaluate((gear) => {
+    const el = document.querySelector('[data-sf-edit="interval-range"]')
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set
+    setter.call(el, gear)
+    el.dispatchEvent(new Event('input', { bubbles: true }))
+  }, WAGE_INTERVAL_GEAR)
+  await settle(owner.page)
+  const wageDragged = await snap(owner.page)
+  out.states.wage_dragged = { value: wageDragged.value, card: wageDragged.wageCard }
+  out.assertions.wageSlider = {
+    rangeIsRange: wageDragged.wageCard.rangeType === 'range',
+    battReadOnly: wageDragged.wageCard.battReadOnly === true,
+    intervalSnapped: wageDragged.value.interval === WAGE_INTERVAL_GEAR,
+    battDerived: wageDragged.value.batt === WAGE_INTERVAL_GEAR,
+    anchorI18n: wageDragged.wageCard.anchor === ZH.project.wageRateAnchor,
+    // 用户接管间隔后「历史速率」提示**退场**（读数已转 ⚡1/h 口径，留着会同屏自相矛盾）
+    legacyHintCleared: wageDragged.wageCard.legacy === null,
+  }
   await owner.page.click('[data-sf-m="project-wage-std-save"]')
   await settle(owner.page)
   const afterWage = await snap(owner.page)
@@ -332,7 +367,9 @@ async function main() {
   const wagePatch = owner.STATE.patch[owner.STATE.patch.length - 1] || null
   out.states.wage_patch_payload = wagePatch
   out.assertions.wageSubmit = {
-    payloadExactBatt: Boolean(wagePatch) && JSON.stringify(wagePatch) === JSON.stringify({ wage_batt_per_claim: '35' }),
+    payloadExactTwoKeys: Boolean(wagePatch) && JSON.stringify(wagePatch) === JSON.stringify({
+      wage_batt_per_claim: WAGE_INTERVAL_GEAR, wage_interval_hours: Number(WAGE_INTERVAL_GEAR),
+    }),
     modalClosed: afterWage.open.wage === false,
     okNotice: afterWage.noticeText === ZH.project.wageStdSaved,
     noOverflow: afterWage.overflow.doc === 0 && afterWage.overflow.page === 0,

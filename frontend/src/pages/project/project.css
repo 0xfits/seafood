@@ -846,6 +846,75 @@ textarea.sf-project-input {
   overflow-wrap: anywhere;
 }
 
+/* ---------------------------------------------------------------------------
+ * 【设定工资标准】单轨联动滑块卡（★ Kevin 2026-10-24）
+ * ---------------------------------------------------------------------------
+ * 领取间隔（滑块吸附档位 + 同卡手输）与每次工资（**只读派生读数** = 间隔 × ⚡1）
+ * 合成一张输入卡，卡底是一行恒定口径锚定说明。红线同 `.sf-project-*`：
+ * 零新主题 token（只吃既有 `--sf-*`，fallback 仅防御）、不复用 `sf-item*` 类名。
+ * 几何：卡与内部件全部 `box-sizing:border-box` + `min-width:0` + `max-width:100%`
+ * ⇒ 390 档滑块与 88px 手输框同行也不横向溢出（滑块 `flex:1 1 auto` 可收缩）。
+ * ------------------------------------------------------------------------ */
+.sf-project-wage-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding: 10px;
+  border: var(--sf-st-stroke-w-thin, 1px) solid var(--sf-panel-border, #d0d7de);
+  border-radius: var(--sf-st-radius-btna, 6px);
+  background: var(--sf-bg-soft, #f6f8fa);
+}
+
+/* 滑块 + 手输同行：滑块吃剩余宽度（`flex:1 1 auto` 可缩到 0），手输固定窄条 */
+.sf-project-wage-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.sf-project-range {
+  flex: 1 1 auto;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 24px; /* 轨道可拖高度（同商品档滑块口径） */
+  margin: 0;
+  accent-color: var(--sf-btna-bg, #f5c518);
+  cursor: pointer;
+}
+
+.sf-project-range:focus-visible {
+  outline: 2px solid var(--sf-btna-bg, #f5c518);
+  outline-offset: 2px;
+}
+
+/* 手输框：88px 窄条（覆盖 `.sf-project-input` 的 width:100%），数字居中便于对档位 */
+.sf-project-wage-num {
+  flex: 0 0 auto;
+  width: 88px;
+  min-height: 36px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 每次工资**只读读数**：软底 + 加粗数字，与可编辑输入拉开视觉差（`:read-only` 兜底同观感） */
+.sf-project-wage-readout {
+  background: var(--sf-bg-soft, #f6f8fa);
+  color: var(--sf-title-fg, #1f2328);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  cursor: default;
+}
+
+.sf-project-wage-readout:focus {
+  outline: none;
+}
+
 /* 手机档：框体贴边（10px）、关闭按钮触控 ≥44 */
 @media (max-width: 767px) {
   .sf-project-modal {

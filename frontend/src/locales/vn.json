@@ -1609,6 +1609,8 @@
     "newSlotsLabel": "Số suất thêm lần này",
     "newSlotsHint": "Nhập 2 để thêm 2 suất trên số người đã nhận hiện tại; để trống = giữ nguyên chỉ tiêu.",
     "slotsReadout": "Đã nhận {{hired}} · thêm {{add}} ⇒ mục tiêu {{target}}",
-    "wageStdSaved": "Đã lưu mức thù lao (áp dụng cho thành viên mới và cũ)"
+    "wageStdSaved": "Đã lưu mức thù lao (áp dụng cho thành viên mới và cũ)",
+    "wageRateAnchor": "Thù lao quy đổi mỗi giờ ⚡1 (cố định)",
+    "wageLegacyRate": "Tốc độ cũ ⚡{{rate}}/h: giữ nguyên thù lao hiện tại cho đến khi bạn kéo thanh trượt hoặc đổi giãn cách, sau đó tính lại theo ⚡1/h."
   }
 }

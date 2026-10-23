@@ -1609,6 +1609,8 @@
     "newSlotsLabel": "今次新增名額",
     "newSlotsHint": "填 2 = 喺現時已招人數上再加 2 個名額；留空 = 名額不變。",
     "slotsReadout": "現時已招 {{hired}} · 新增 {{add}} ⇒ 目標 {{target}}",
-    "wageStdSaved": "工資標準已儲存（新舊成員統一適用）"
+    "wageStdSaved": "工資標準已儲存（新舊成員統一適用）",
+    "wageRateAnchor": "每小時等效工資 ⚡1（恆定）",
+    "wageLegacyRate": "歷史速率 ⚡{{rate}}/h：間隔未改動前保留原工資；拖動滑桿或手改間隔後按 ⚡1/h 重算。"
   }
 }
