@@ -21,7 +21,13 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
+import { createRequire } from 'module';
 import { checker, mkPool, raw, raw1 } from '../../backend-ts/scripts/p7b-lib';
+
+const requireFromBackend = createRequire(path.resolve(__dirname, '../..', 'backend-ts/scripts/p7b-lib.ts'));
+const { Wallet } = requireFromBackend('ethers') as {
+  Wallet: { createRandom(): { address: string; privateKey: string; signMessage(m: string): Promise<string> } };
+};
 import type { Qx } from '../../backend-ts/scripts/p7b-lib';
 
 const REPO = path.resolve(__dirname, '..', '..');
@@ -71,10 +77,21 @@ const main = async (): Promise<void> => {
   const uid = 990000 + Math.floor(Math.random() * 9000);
   await q(`INSERT INTO public.users (uid, evm, bio) VALUES ($1::bigint, '0x' || lpad(to_hex($1::bigint), 40, '0'), 'p82') ON CONFLICT (uid) DO NOTHING`, [uid]);
 
-  const challenge = await fetch(`http://localhost:${PORT}/api/auth/challenge`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}),
-  }).then((r) => r.json()).catch(() => ({}));
-  const token = String((challenge as { data?: { token?: string } })?.data?.token ?? '');
+  // ★ 必须真登录：未带 token 时接口先回 401，410 分支永远验不到（首版即踩）
+  const wallet = Wallet.createRandom();
+  const jpost = async (p: string, body: unknown) => {
+    const r = await fetch(`http://localhost:${PORT}${p}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body ?? {}),
+    });
+    return (await r.json().catch(() => ({}))) as { data?: Record<string, unknown>; error?: Record<string, unknown> };
+  };
+  const ch = await jpost('/api/auth/challenge', { evm_address: wallet.address.toLowerCase() });
+  const message = String(ch?.data?.message ?? '');
+  const signature = await wallet.signMessage(message);
+  const vf = await jpost('/api/auth/verify', {
+    evm_address: wallet.address.toLowerCase(), signature, challenge_token: ch?.data?.challenge_token,
+  });
+  const token = String(vf?.data?.token ?? '');
 
   // 无 token 时至少验「路由不再返回 200」（401/410 都说明动作口已关；有 token 则强判 410）
   const post = async (p: string) => {
