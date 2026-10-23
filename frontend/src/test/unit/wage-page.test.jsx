@@ -171,12 +171,12 @@ describe('/wage ① 列表卡：状态 / 已招 X/Y / 工资行 / 按钮态', ()
     expect(cardOf(container, '11').querySelector('[data-sf-m="wage-card-status"]').textContent).toBe(zh.wage.statusRecruiting)
     expect(cardOf(container, '13').querySelector('[data-sf-m="wage-card-status"]').textContent).toBe(zh.wage.statusClosed)
 
-    // 已招 X/Y + 工资行（batt/次 + 间隔小时）
+    // 已招 X/Y + 工资行（Kevin 2026-10-22 新口径：每 M 小时 + N 电量）
     expect(cardOf(container, '11').querySelector('[data-sf-m="wage-card-headcount"]').textContent).toBe('已招 2/3')
     expect(cardOf(container, '11').querySelector('[data-sf-m="wage-card-wage"]').textContent)
-      .toContain('batt 30/次')
+      .toContain('每 4 小时 + 30 电量')
     expect(cardOf(container, '11').querySelector('[data-sf-m="wage-card-wage"]').textContent)
-      .toContain('间隔 4 小时')
+      .not.toContain('batt 30/次')
 
     // 可选次币：cid 4 ⇒ BTTC 固定额 50（cid 1 的 $ 也在符号表里，但该行金额为 0 ⇒ 不渲染额外段落）
     const extra = cardOf(container, '12').querySelector('[data-sf-m="wage-card-wage-extra"]')
@@ -378,7 +378,7 @@ describe('/wage ③ 未登录（公开浏览） / 空态', () => {
     expect(cardOf(container, '13').querySelector('[data-sf-m="wage-card-status"]').textContent)
       .toBe(zh.wage.statusClosed)
     expect(open.querySelector('[data-sf-m="wage-card-headcount"]').textContent).toBe('已招 1/5')
-    expect(open.querySelector('[data-sf-m="wage-card-wage"]').textContent).toContain('batt 20/次')
+    expect(open.querySelector('[data-sf-m="wage-card-wage"]').textContent).toContain('每 6 小时 + 20 电量')
     // 次币定额：客态也必须拿到币种符号（/api/currencies 是公开读口）
     expect(open.querySelector('[data-sf-m="wage-card-wage-extra"]').textContent).toContain('BTTC')
 
