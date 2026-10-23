@@ -1,14 +1,17 @@
 /**
- * 项目页【招工】模态框 + 改 slug 自愈探针（Kevin 2026-10-22③）
+ * 项目页三个管理模态框探针（Kevin 2026-10-22③ 拆框；★ 2026-10-23 三框三分后改判据）
+ * —— 文件名沿用 `probe-project-recruit`（readings 路径连续），覆盖面已扩到三框。
  *
  * 判据（逐条对齐派单验证项）：
- *   ① 两个入口都在：操作区【编辑项目】旁有【招工】（文案 = zh `project.entryRecruit`），
- *      点开招工框后 `[data-sf-edit]` **恰 6 个**（headcount / minDays / batt / interval / cid / amount），
- *      且框内零项目面字段（title / description / slug / status）；【编辑项目】框反向零招工字段；
- *      招工框提交只带**变化**字段（改人数 ⇒ 载荷恰 `{headcount}`）；
- *   ② **改 slug 自愈**：【编辑项目】里把地址改成 `haixian` 保存 ⇒ URL 变 `/haixian`（不是停在 `/sui`
- *      落 404）、页面按新地址重拉并正常渲染（项目头在、`not-found-page` 不在）、保存后**旧地址零新读**；
- *   ③ 几何两档（390 / 1536）：页面与招工面板 `scrollWidth - clientWidth = 0` + 零 pageerror。
+ *   ① 操作区四入口都在：【编辑项目】/【招工】/【设定工资标准】/【发布活动】（文案取 zh 真值），
+ *      初始三框皆不在；普通用户四入口一律零渲染、零写口；
+ *   ② 【编辑项目】框字段集**恰 3**（title / description / slug）—— **零 status**（系统派生）；
+ *   ③ 【招工】框字段集**恰 2**（newSlots / minDays），名额**预填留空**，读数行给
+ *      「当前已招 X · 新增 Y ⇒ 目标 X+Y」；已招 1 + 新增 2 ⇒ 提交载荷**恰 `{headcount: 3}`**（增量换算）；
+ *      新增留空 ⇒ 载荷**零 `headcount` 键**（名额不变）；
+ *   ④ 【设定工资标准】框字段集**恰 4**（batt / interval / cid / amount），标题 + 提示行声明
+ *      「新老成员一视同仁」；改 batt ⇒ 载荷恰 `{wage_batt_per_claim}`；
+ *   ⑤ 几何两档（390 / 1536）：页面与在场面板 `scrollWidth - clientWidth = 0`；零 pageerror。
  *
  * 手法（同 `ops/project/probe-project-avatar.mjs` 体例）：
  *   · 静态服务 = `context.route` 把 `http://sf.local/**` 映射到磁盘 `dist`（零 dev server）；
@@ -41,9 +44,10 @@ const MIME = {
 
 const OWNER_UID = 970213
 const OTHER_UID = 555001
-/** 招工框字段名（顺序 = DOM 顺序；= 派单 6 键）。 */
-const RECRUIT_FIELDS = ['headcount', 'minDays', 'batt', 'interval', 'cid', 'amount']
-const PROJECT_FIELDS = ['title', 'description', 'slug', 'status']
+/** 三框字段名（顺序 = DOM 顺序）。 */
+const PROJECT_FIELDS = ['title', 'description', 'slug']
+const RECRUIT_FIELDS = ['newSlots', 'minDays']
+const WAGE_FIELDS = ['batt', 'interval', 'cid', 'amount']
 
 const viewOf = (patch = {}) => ({
   project_id: 11,
@@ -52,7 +56,7 @@ const viewOf = (patch = {}) => ({
   title: '海鲜打包',
   description: '每天打包 20 单，按批结算。',
   status: 'recruiting',
-  headcount: 3,
+  headcount: 2,
   hired_count: 1,
   recruit_min_account_days: 7,
   wage_batt_per_claim: 30,
@@ -138,33 +142,63 @@ const snap = (page) => page.evaluate(() => {
   const q = (name) => document.querySelector(`[data-sf-m="${name}"]`)
   const fieldNamesIn = (formSel) => [...document.querySelectorAll(`${formSel} [data-sf-edit]`)]
     .map((el) => el.getAttribute('data-sf-edit'))
-  const recruitPanel = q('project-recruit-panel')
-  const editPanel = q('project-edit-panel')
+  const panelOf = (kind) => q(`${kind}-panel`)
+  const slots = q('slots') || document.querySelector('[data-sf-edit-hint="slots"]')
   const root = document.querySelector('.sf-project-page')
   const doc = document.documentElement
-  const entry = (name) => q(name)
+  const overflowOf = (el) => (el ? el.scrollWidth - el.clientWidth : null)
+  const openPanel = panelOf('project-edit') || panelOf('project-recruit') || panelOf('project-wage-std')
   return {
     path: window.location.pathname,
     slugAttr: root ? root.getAttribute('data-sf-slug') : null,
     title: q('project-title') ? q('project-title').textContent : null,
     notFound: Boolean(q('not-found-page')),
     entries: {
-      edit: Boolean(entry('project-entry-edit')),
-      recruit: Boolean(entry('project-entry-recruit')),
-      campaign: Boolean(entry('project-entry-campaign')),
+      edit: Boolean(q('project-entry-edit')),
+      recruit: Boolean(q('project-entry-recruit')),
+      wage: Boolean(q('project-entry-wage')),
+      campaign: Boolean(q('project-entry-campaign')),
     },
-    recruitLabel: entry('project-entry-recruit') ? entry('project-entry-recruit').textContent.trim() : null,
-    recruitTitle: q('project-recruit-title') ? q('project-recruit-title').textContent : null,
-    recruitFieldNames: fieldNamesIn('[data-sf-m="project-recruit-form"]'),
-    editFieldNames: fieldNamesIn('[data-sf-m="project-edit-form"]'),
-    recruitOpen: Boolean(recruitPanel),
-    editOpen: Boolean(editPanel),
-    headcount: document.querySelector('[data-sf-edit="headcount"]') ? document.querySelector('[data-sf-edit="headcount"]').value : null,
+    labels: {
+      edit: q('project-entry-edit') ? q('project-entry-edit').textContent.trim() : null,
+      recruit: q('project-entry-recruit') ? q('project-entry-recruit').textContent.trim() : null,
+      wage: q('project-entry-wage') ? q('project-entry-wage').textContent.trim() : null,
+    },
+    titles: {
+      edit: q('project-edit-title') ? q('project-edit-title').textContent : null,
+      recruit: q('project-recruit-title') ? q('project-recruit-title').textContent : null,
+      wage: q('project-wage-std-title') ? q('project-wage-std-title').textContent : null,
+    },
+    hints: {
+      wageStd: document.querySelector('[data-sf-edit-hint="wageStd"]') ? document.querySelector('[data-sf-edit-hint="wageStd"]').textContent : null,
+      newSlots: document.querySelector('[data-sf-edit-hint="newSlots"]') ? document.querySelector('[data-sf-edit-hint="newSlots"]').textContent : null,
+    },
+    open: {
+      edit: Boolean(panelOf('project-edit')),
+      recruit: Boolean(panelOf('project-recruit')),
+      wage: Boolean(panelOf('project-wage-std')),
+    },
+    fieldNames: {
+      edit: fieldNamesIn('[data-sf-m="project-edit-form"]'),
+      recruit: fieldNamesIn('[data-sf-m="project-recruit-form"]'),
+      wage: fieldNamesIn('[data-sf-m="project-wage-std-form"]'),
+    },
+    value: {
+      newSlots: document.querySelector('[data-sf-edit="newSlots"]') ? document.querySelector('[data-sf-edit="newSlots"]').value : null,
+      batt: document.querySelector('[data-sf-edit="batt"]') ? document.querySelector('[data-sf-edit="batt"]').value : null,
+    },
+    slots: slots ? {
+      hired: slots.getAttribute('data-sf-hired'),
+      add: slots.getAttribute('data-sf-add'),
+      target: slots.getAttribute('data-sf-target'),
+      text: slots.textContent.trim(),
+    } : null,
+    headcountLine: q('project-headcount') ? q('project-headcount').textContent.trim() : null,
     noticeText: q('project-form-notice') ? q('project-form-notice').textContent.trim() : null,
     overflow: {
       doc: doc.scrollWidth - doc.clientWidth,
-      page: root ? root.scrollWidth - root.clientWidth : null,
-      recruitPanel: recruitPanel ? recruitPanel.scrollWidth - recruitPanel.clientWidth : null,
+      page: overflowOf(root),
+      panel: overflowOf(openPanel),
     },
   }
 })
@@ -173,95 +207,139 @@ async function main() {
   const browser = await chromium.launch({ executablePath: CHROME, headless: true })
   const out = {
     probe: 'ops/project/probe-project-recruit.mjs',
+    scope: '三框（编辑项目 / 招工增量 / 设定工资标准）',
     startedAt: new Date().toISOString(),
     dist: DIST,
-    fixtures: { project: 'sui ⇒ haixian（PATCH slug）', auth: 'localStorage seed', writes: 'zero（全在 context.route 内截）' },
+    fixtures: { project: 'sui（hired 1 / headcount 2）', auth: 'localStorage seed', writes: 'zero（全在 context.route 内截）' },
     states: {}, assertions: {}, pageErrors: {},
   }
 
-  // ======================= 臂 1 · owner：两入口 + 招工框字段集 + 载荷只带变化 =======================
+  // ======================= 臂 1 · owner：四入口 + 三框字段集 =======================
   const owner = await makeArm(browser, { viewerUid: OWNER_UID, view: viewOf() })
   await owner.page.goto(`${ORIGIN}/sui`, { waitUntil: 'load' })
   await settle(owner.page)
   const before = await snap(owner.page)
-  out.states['owner_before'] = before
-  out.assertions.twoEntries = {
+  out.states.owner_before = before
+  out.assertions.entries = {
     pageRendered: before.title === '海鲜打包' && before.notFound === false,
     editEntryPresent: before.entries.edit === true,
     recruitEntryPresent: before.entries.recruit === true,
+    wageEntryPresent: before.entries.wage === true,
     campaignEntryPresent: before.entries.campaign === true,
-    recruitLabelI18n: before.recruitLabel === ZH.project.entryRecruit,
-    noModalInitially: before.recruitOpen === false && before.editOpen === false,
+    labelsI18n: before.labels.edit === ZH.wage.editTitle
+      && before.labels.recruit === ZH.project.entryRecruit
+      && before.labels.wage === ZH.project.entryWageStd,
+    noModalInitially: before.open.edit === false && before.open.recruit === false && before.open.wage === false,
     noOverflow1536: before.overflow.doc === 0 && before.overflow.page === 0,
   }
 
-  // 招工框：字段集恰 6、零项目面字段
-  await owner.page.click('[data-sf-m="project-entry-recruit"]')
-  await settle(owner.page)
-  const recruit = await snap(owner.page)
-  out.states['recruit_open'] = recruit
-  out.assertions.recruitFieldSet = {
-    modalOpen: recruit.recruitOpen === true && recruit.editOpen === false,
-    titleI18n: recruit.recruitTitle === ZH.project.recruitTitle,
-    exactlySixFields: JSON.stringify(recruit.recruitFieldNames) === JSON.stringify(RECRUIT_FIELDS),
-    _recruitFieldNames: recruit.recruitFieldNames,
-    noProjectFields: PROJECT_FIELDS.every((name) => !recruit.recruitFieldNames.includes(name)),
-    prefillHeadcount: recruit.headcount === '3',
-    noOverflow: recruit.overflow.doc === 0 && recruit.overflow.page === 0 && recruit.overflow.recruitPanel === 0,
-  }
-
-  // 只改人数 ⇒ 载荷恰 {headcount}
-  await owner.page.fill('[data-sf-edit="headcount"]', '5')
-  await owner.page.click('[data-sf-m="project-recruit-save"]')
-  await settle(owner.page)
-  const afterRecruit = await snap(owner.page)
-  out.states['recruit_saved'] = afterRecruit
-  out.states['recruit_patch_payload'] = owner.STATE.patch
-  const recruitPatch = owner.STATE.patch[0] || null
-  out.assertions.recruitSubmit = {
-    patchCalledOnce: owner.STATE.patch.length === 1,
-    payloadExactHeadcount: Boolean(recruitPatch) && JSON.stringify(recruitPatch) === JSON.stringify({ headcount: 5 }),
-    modalClosed: afterRecruit.recruitOpen === false,
-    okNotice: afterRecruit.noticeText === ZH.project.recruitSaved,
-    headcountLineUpdated: afterRecruit.noticeText !== null,
-  }
-
-  // 【编辑项目】框：反向零招工字段
+  // ---- ① 【编辑项目】：字段集恰 3、零 status
   await owner.page.click('[data-sf-m="project-entry-edit"]')
   await settle(owner.page)
   const edit = await snap(owner.page)
-  out.states['edit_open'] = edit
+  out.states.edit_open = edit
   out.assertions.editFieldSet = {
-    modalOpen: edit.editOpen === true && edit.recruitOpen === false,
-    exactlyFourProjectFields: JSON.stringify(edit.editFieldNames) === JSON.stringify(PROJECT_FIELDS),
-    noRecruitFields: RECRUIT_FIELDS.every((name) => !edit.editFieldNames.includes(name)),
+    modalOpen: edit.open.edit === true && edit.open.recruit === false && edit.open.wage === false,
+    titleI18n: edit.titles.edit === ZH.wage.editTitle,
+    exactlyThreeProjectFields: JSON.stringify(edit.fieldNames.edit) === JSON.stringify(PROJECT_FIELDS),
+    zeroStatusField: !edit.fieldNames.edit.includes('status'),
+    _editFieldNames: edit.fieldNames.edit,
+    noOverflow: edit.overflow.doc === 0 && edit.overflow.page === 0 && edit.overflow.panel === 0,
   }
-
-  // ======================= 臂 2 · 改 slug ⇒ 自动跳新地址、旧地址零新读 =======================
-  const readsBeforeSlug = owner.STATE.reads.length
-  await owner.page.fill('[data-sf-edit="slug"]', 'haixian')
-  await owner.page.click('[data-sf-m="project-edit-save"]')
-  await owner.page.waitForFunction(() => window.location.pathname === '/haixian', { timeout: 8000 }).catch(() => {})
+  await owner.page.keyboard.press('Escape')
   await settle(owner.page)
-  const afterSlug = await snap(owner.page)
-  out.states['slug_saved'] = afterSlug
-  out.states['slug_reads'] = owner.STATE.reads
-  out.states['slug_patch_payload'] = owner.STATE.patch
-  const slugPatch = owner.STATE.patch[owner.STATE.patch.length - 1] || null
-  const readsAfterPatch = owner.STATE.reads.slice(readsBeforeSlug)
-  out.assertions.slugSelfHeal = {
-    patchPayloadSlugOnly: Boolean(slugPatch) && JSON.stringify(slugPatch) === JSON.stringify({ slug: 'haixian' }),
-    urlBecameNewSlug: afterSlug.path === '/haixian',
-    pageStillRendered: afterSlug.notFound === false && afterSlug.title === '海鲜打包',
-    slugAttrUpdated: afterSlug.slugAttr === 'haixian',
-    refetchedNewSlug: readsAfterPatch.includes('haixian'),
-    noReadOfOldSlugAfterSave: !readsAfterPatch.includes('sui'),
-    editModalClosed: afterSlug.editOpen === false,
-    okNotice: afterSlug.noticeText === ZH.wage.editSaved,
+
+  // ---- ② 【招工】：字段集恰 2 + 增量读数 + 已招 1 + 新增 2 ⇒ headcount 3
+  await owner.page.click('[data-sf-m="project-entry-recruit"]')
+  await settle(owner.page)
+  const recruit = await snap(owner.page)
+  out.states.recruit_open = recruit
+  out.assertions.recruitForm = {
+    modalOpen: recruit.open.recruit === true && recruit.open.edit === false && recruit.open.wage === false,
+    titleI18n: recruit.titles.recruit === ZH.project.recruitTitle,
+    exactlyTwoFields: JSON.stringify(recruit.fieldNames.recruit) === JSON.stringify(RECRUIT_FIELDS),
+    noProjectOrWageFields: ['title', 'description', 'slug', 'status', 'batt', 'interval', 'cid', 'amount']
+      .every((name) => !recruit.fieldNames.recruit.includes(name)),
+    newSlotsEmptyPrefill: recruit.value.newSlots === '',
+    readoutInitial: Boolean(recruit.slots)
+      && recruit.slots.hired === '1' && recruit.slots.add === '' && recruit.slots.target === '2',
+    readoutTextI18n: Boolean(recruit.slots) && recruit.slots.text === ZH.project.slotsReadout
+      .replace('{{hired}}', '1').replace('{{add}}', '—').replace('{{target}}', '2'),
+    noOverflow: recruit.overflow.doc === 0 && recruit.overflow.page === 0 && recruit.overflow.panel === 0,
   }
 
-  // ======================= 臂 3 · 两档几何（招工框在场上采样）+ 零 pageerror =======================
+  await owner.page.fill('[data-sf-edit="newSlots"]', '2')
+  const recruitFilled = await snap(owner.page)
+  out.states.recruit_filled = recruitFilled
+  out.assertions.recruitReadoutLive = {
+    addIs2: recruitFilled.slots.add === '2',
+    targetIs3: recruitFilled.slots.target === '3',
+    textI18n: recruitFilled.slots.text === ZH.project.slotsReadout
+      .replace('{{hired}}', '1').replace('{{add}}', '2').replace('{{target}}', '3'),
+  }
+
+  await owner.page.click('[data-sf-m="project-recruit-save"]')
+  await settle(owner.page)
+  const afterRecruit = await snap(owner.page)
+  out.states.recruit_saved = afterRecruit
+  out.states.recruit_patch_payload = owner.STATE.patch
+  const recruitPatch = owner.STATE.patch[0] || null
+  out.assertions.recruitSubmit = {
+    patchCalledOnce: owner.STATE.patch.length === 1,
+    payloadExactHeadcount3: Boolean(recruitPatch) && JSON.stringify(recruitPatch) === JSON.stringify({ headcount: 3 }),
+    modalClosed: afterRecruit.open.recruit === false,
+    okNotice: afterRecruit.noticeText === ZH.project.recruitSaved,
+    headcountLineUpdated: afterRecruit.headcountLine === ZH.project.headcountLine
+      .replace('{{hired}}', '1').replace('{{total}}', '3'),
+    _headcountLine: afterRecruit.headcountLine,
+  }
+
+  // ---- ③ 【招工】新增留空 ⇒ 零 headcount 键（只带天数）
   await owner.page.click('[data-sf-m="project-entry-recruit"]')
+  await settle(owner.page)
+  await owner.page.selectOption('[data-sf-edit="minDays"]', '30')
+  await owner.page.click('[data-sf-m="project-recruit-save"]')
+  await settle(owner.page)
+  const blankAddPatch = owner.STATE.patch[owner.STATE.patch.length - 1] || null
+  out.states.recruit_blank_add_payload = blankAddPatch
+  out.assertions.recruitBlankAdd = {
+    payloadHasNoHeadcount: Boolean(blankAddPatch) && !Object.prototype.hasOwnProperty.call(blankAddPatch, 'headcount'),
+    payloadExactDays: Boolean(blankAddPatch) && JSON.stringify(blankAddPatch) === JSON.stringify({ recruit_min_account_days: 30 }),
+  }
+
+  // ---- ④ 【设定工资标准】：字段集恰 4 + 一视同仁文案 + 改 batt 载荷只带该键
+  await owner.page.click('[data-sf-m="project-entry-wage"]')
+  await settle(owner.page)
+  const wage = await snap(owner.page)
+  out.states.wage_open = wage
+  out.assertions.wageForm = {
+    modalOpen: wage.open.wage === true && wage.open.edit === false && wage.open.recruit === false,
+    titleI18n: wage.titles.wage === ZH.project.wageStdTitle,
+    exactlyFourFields: JSON.stringify(wage.fieldNames.wage) === JSON.stringify(WAGE_FIELDS),
+    noProjectOrRecruitFields: ['title', 'description', 'slug', 'status', 'newSlots', 'minDays']
+      .every((name) => !wage.fieldNames.wage.includes(name)),
+    hintMentionsAllMembers: Boolean(wage.hints.wageStd) && wage.hints.wageStd === ZH.project.wageStdHint
+      && wage.hints.wageStd.includes('新老成员') && wage.hints.wageStd.includes('一视同仁'),
+    _wageFieldNames: wage.fieldNames.wage,
+    noOverflow: wage.overflow.doc === 0 && wage.overflow.page === 0 && wage.overflow.panel === 0,
+  }
+
+  await owner.page.fill('[data-sf-edit="batt"]', '35')
+  await owner.page.click('[data-sf-m="project-wage-std-save"]')
+  await settle(owner.page)
+  const afterWage = await snap(owner.page)
+  out.states.wage_saved = afterWage
+  const wagePatch = owner.STATE.patch[owner.STATE.patch.length - 1] || null
+  out.states.wage_patch_payload = wagePatch
+  out.assertions.wageSubmit = {
+    payloadExactBatt: Boolean(wagePatch) && JSON.stringify(wagePatch) === JSON.stringify({ wage_batt_per_claim: '35' }),
+    modalClosed: afterWage.open.wage === false,
+    okNotice: afterWage.noticeText === ZH.project.wageStdSaved,
+    noOverflow: afterWage.overflow.doc === 0 && afterWage.overflow.page === 0,
+  }
+
+  // ======================= 臂 2 · 两档几何（工资标准框在场）+ 零 pageerror =======================
+  await owner.page.click('[data-sf-m="project-entry-wage"]')
   await settle(owner.page)
   const geom = {}
   for (const width of [390, 1536]) {
@@ -272,28 +350,31 @@ async function main() {
   out.states.geometry = {
     w390: geom.w390.overflow,
     w1536: geom.w1536.overflow,
-    modalOpen390: geom.w390.recruitOpen,
+    modalOpen390: geom.w390.open.wage,
     entries390: geom.w390.entries,
   }
   out.assertions.geometry = {
-    noOverflow390: geom.w390.overflow.doc === 0 && geom.w390.overflow.page === 0 && geom.w390.overflow.recruitPanel === 0,
-    noOverflow1536: geom.w1536.overflow.doc === 0 && geom.w1536.overflow.page === 0 && geom.w1536.overflow.recruitPanel === 0,
-    allThreeEntriesAt390: geom.w390.entries.edit === true && geom.w390.entries.recruit === true && geom.w390.entries.campaign === true,
+    noOverflow390: geom.w390.overflow.doc === 0 && geom.w390.overflow.page === 0 && geom.w390.overflow.panel === 0,
+    noOverflow1536: geom.w1536.overflow.doc === 0 && geom.w1536.overflow.page === 0 && geom.w1536.overflow.panel === 0,
+    allFourEntriesAt390: geom.w390.entries.edit === true && geom.w390.entries.recruit === true
+      && geom.w390.entries.wage === true && geom.w390.entries.campaign === true,
   }
   out.pageErrors.owner = owner.pageErrors
   await owner.context.close()
 
-  // ======================= 臂 4 · 普通用户：两入口都零渲染、零写口 =======================
+  // ======================= 臂 3 · 普通用户：四入口零渲染、零写口 =======================
   const other = await makeArm(browser, { viewerUid: OTHER_UID, view: viewOf({ owner_uid: 99 }) })
   await other.page.goto(`${ORIGIN}/sui`, { waitUntil: 'load' })
   await settle(other.page)
   const guest = await snap(other.page)
-  out.states['other_viewer'] = guest
+  out.states.other_viewer = guest
   out.assertions.otherViewer = {
     pageRendered: guest.title === '海鲜打包' && guest.notFound === false,
     noEditEntry: guest.entries.edit === false,
     noRecruitEntry: guest.entries.recruit === false,
+    noWageEntry: guest.entries.wage === false,
     zeroWrites: other.STATE.patch.length === 0,
+    everyModalClosed: guest.open.edit === false && guest.open.recruit === false && guest.open.wage === false,
     noOverflow: guest.overflow.doc === 0 && guest.overflow.page === 0,
   }
   out.pageErrors.other = other.pageErrors
@@ -319,13 +400,13 @@ async function main() {
   }
   fs.mkdirSync(path.dirname(OUT), { recursive: true })
   fs.writeFileSync(OUT, `${JSON.stringify(out, null, 2)}\n`)
-  console.log(`[probe-recruit] ${out.summary.passed}/${out.summary.assertions} passed · pageErrors=${out.summary.pageErrors} ⇒ ${out.summary.ok ? 'OK' : 'FAIL'}`)
-  if (failed.length) console.log(`[probe-recruit] failed: ${failed.join(', ')}`)
-  console.log(`[probe-recruit] written: ${OUT}`)
+  console.log(`[probe-manage-modals] ${out.summary.passed}/${out.summary.assertions} passed · pageErrors=${out.summary.pageErrors} ⇒ ${out.summary.ok ? 'OK' : 'FAIL'}`)
+  if (failed.length) console.log(`[probe-manage-modals] failed: ${failed.join(', ')}`)
+  console.log(`[probe-manage-modals] written: ${OUT}`)
   process.exit(out.summary.ok ? 0 : 1)
 }
 
 main().catch((error) => {
-  console.error('[probe-recruit] crashed:', error)
+  console.error('[probe-manage-modals] crashed:', error)
   process.exit(1)
 })

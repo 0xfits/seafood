@@ -1602,6 +1602,13 @@
     "vaultErrAmountInvalid": "Số tiền nạp phải lớn hơn 0 và nằm trong độ chính xác của loại tiền",
     "vaultErrCidInvalid": "Loại tiền này không dùng được cho kho dự án",
     "vaultErrGeneral": "Nạp thất bại. Vui lòng thử lại sau.",
-    "recruitZeroHint": "Nhập 0 để không phát tiền tệ phụ (chỉ phát batt)"
+    "recruitZeroHint": "Nhập 0 để không phát tiền tệ phụ (chỉ phát batt)",
+    "entryWageStd": "Đặt mức thù lao",
+    "wageStdTitle": "Đặt mức thù lao",
+    "wageStdHint": "Mức thù lao áp dụng như nhau cho thành viên mới và cũ: sau khi lưu, tất cả đều hưởng mức này — kể cả người đang làm, từ lần nhận kế tiếp.",
+    "newSlotsLabel": "Số suất thêm lần này",
+    "newSlotsHint": "Nhập 2 để thêm 2 suất trên số người đã nhận hiện tại; để trống = giữ nguyên chỉ tiêu.",
+    "slotsReadout": "Đã nhận {{hired}} · thêm {{add}} ⇒ mục tiêu {{target}}",
+    "wageStdSaved": "Đã lưu mức thù lao (áp dụng cho thành viên mới và cũ)"
   }
 }

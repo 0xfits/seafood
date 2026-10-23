@@ -12,6 +12,7 @@ import ProjectNestedList from './ProjectNestedList'
 import ProjectForms from './ProjectForms'
 import ProjectEditModal from './ProjectEditModal'
 import ProjectRecruitModal from './ProjectRecruitModal'
+import ProjectWageStandardModal from './ProjectWageStandardModal'
 import ProjectAvatar from './ProjectAvatar'
 import './project.css'
 
@@ -21,7 +22,7 @@ import './project.css'
 // 形态：项目头（标题 / 状态 / 已招 X/Y / 工资行）→ **详细介绍**（description pre-wrap）→
 //       「活动与任务」**概况层**（每条活动 = 活动名链 `/campaign/:ref` + 状态徽标；其下只列
 //       任务摘要行：标题链 `/task/:taskId` + 状态 + 完成奖 `$` —— **零操作钮、零子任务清单**）→
-//       操作区（**仅 owner 或管理员**可见：【编辑项目】/【发布活动】）。
+//       操作区（**仅 owner 或管理员**可见：【编辑项目】/【招工】/【设定工资标准】/【发布活动】）。
 //
 // ★ Kevin 2026-10-22②：**项目头像写口搬到本页头部**（`ProjectAvatar`）——头行最左 48px 圆形头像
 //   （有 `avatar_url` ⇒ img，无 ⇒ 项目名首字彩底）；owner ∨ 管理员在头像右下角见相机钮（
@@ -44,12 +45,21 @@ import './project.css'
 //   · 字段构建/校验/载荷/`EDIT_REASON_MAP` 的单一真源 = `project-edit-form.js`（自 WagePage 移出）。
 //
 // ★ Kevin 2026-10-22③：**招工面独立成框**（【编辑项目】旁的【招工】）——
-//   · 6 个招工字段（人数 / 注册天数四选一 / 每次工资 / 领取间隔 / 次币 + 金额）自【编辑项目】
-//     移入 `ProjectRecruitModal`；两框**互不嵌套、各自提交**，共用外壳 `ProjectModalShell`
-//     与 `project-edit-form.js`（载荷键集互斥：`PROJECT_PAYLOAD_KEYS` / `RECRUIT_PAYLOAD_KEYS`）；
-//   · 两入口同闸（同一个 `allowEntry`）、移动到 390 也不溢出（`.sf-project-actions` 本就换行）；
+//   · 招工字段自【编辑项目】移入 `ProjectRecruitModal`；三框**互不嵌套、各自提交**，共用外壳
+//     `ProjectModalShell` 与 `project-edit-form.js`（载荷键集三向互斥：
+//     `PROJECT_PAYLOAD_KEYS` / `RECRUIT_PAYLOAD_KEYS` / `WAGE_PAYLOAD_KEYS`）；
+//   · 入口同闸（同一个 `allowEntry`）、移动到 390 也不溢出（`.sf-project-actions` 本就换行）；
 //   · **改 slug 后自愈**：PATCH 成功且地址变化 ⇒ `navigate('/'+新 slug, {replace:true})`，
 //     由 slug 驱动的 effect 重拉新地址（旧 ref 不再请求），框关 + 成功提示 —— 旧地址不停留 404。
+//
+// ★ Kevin 2026-10-23（三框三分）：
+//   ① 【编辑项目】**删掉状态字段**（招募中/进行中由系统派生：满员自动 recruiting→working），
+//      前端零入口、载荷零 `status` 键；头部徽标仍按读口 `status` 展示（只读）。
+//   ② 【招工】人数改**增量**：填「本次新增名额」Y ⇒ 前端换算 `headcount = 已招 X + Y` 上送
+//      （后端 `headcount` 仍是绝对目标，判满 `hired >= headcount`）；读数行实时显示
+//      「当前已招 X · 新增 Y ⇒ 目标 X+Y」，Y 空 ⇒ 名额不变、零 `headcount` 键。
+//   ③ 新增独立按钮【设定工资标准】（`ProjectWageStandardModal`）：每次工资 / 领取间隔 /
+//      次币 + 金额，文案明说**新老成员一视同仁**（改后含在职者下一笔领取）。
 //
 // 硬口径：
 //   · `:slug` 路由注册在 App.jsx 内层 `<Routes>` **末位、catch-all 之前**；保留段
@@ -89,6 +99,7 @@ const ProjectPage = () => {
   const [openPanel, setOpenPanel] = useState(null)
   const [editOpen, setEditOpen] = useState(false) // 【编辑项目】模态框（挂载 = 打开）
   const [recruitOpen, setRecruitOpen] = useState(false) // 【招工】模态框（挂载 = 打开）
+  const [wageOpen, setWageOpen] = useState(false) // 【设定工资标准】模态框（挂载 = 打开）
   const [notice, setNotice] = useState(null) // { kind: 'ok' | 'err', text }
   // ★ 2026-10-22：加入 / 切换（权限无关，所有登录用户可见）
   const [joinBusy, setJoinBusy] = useState(false)
@@ -279,22 +290,41 @@ const ProjectPage = () => {
     load({ silent: true })
   }
 
+  /** 工资标准保存成功（★ Kevin 2026-10-23 ③）：关框 + 页内提示 + 静默重拉（工资行即时更新）。 */
+  const handleWageSaved = (result) => {
+    setWageOpen(false)
+    setNotice(result)
+    load({ silent: true })
+  }
+
   /** 打开编辑框：同一入口再点不切换（框是模态，打开期间不渲染入口自身状态）；无权限 ⇒ 页内提示零请求。 */
   const openEdit = () => {
     if (!allowEntry()) return
     setNotice(null)
     setOpenPanel(null)
     setRecruitOpen(false)
+    setWageOpen(false)
     setEditOpen(true)
   }
 
-  /** 打开招工框：闸同【编辑项目】（同一个 `allowEntry`）；两框互斥（开一框先关另一框，不嵌套）。 */
+  /** 打开招工框：闸同【编辑项目】（同一个 `allowEntry`）；三框互斥（开一框先关另两框，不嵌套）。 */
   const openRecruit = () => {
     if (!allowEntry()) return
     setNotice(null)
     setOpenPanel(null)
     setEditOpen(false)
+    setWageOpen(false)
     setRecruitOpen(true)
+  }
+
+  /** 打开工资标准框（★ Kevin 2026-10-23 ③）：同一 `allowEntry` 闸；三框互斥。 */
+  const openWage = () => {
+    if (!allowEntry()) return
+    setNotice(null)
+    setOpenPanel(null)
+    setEditOpen(false)
+    setRecruitOpen(false)
+    setWageOpen(true)
   }
 
   /**
@@ -586,9 +616,11 @@ const ProjectPage = () => {
             {canManage ? (
               <section className="sf-panel sf-project-manage" data-sf-m="project-manage">
                 <h2 className="sf-project-section-title" data-sf-m="project-manage-title">{t('project.manageTitle')}</h2>
-                {/* 操作区（项目级操作留本页）：【编辑项目】+【招工】（两个独立模态框）+【发布活动】；
-                    任务 / 子任务操作已迁 `/campaign/:ref`（概况层零写口）。三钮同闸、`:is-primary` 只在
-                    发布活动上 ⇒ 390 档换行也不抢主次（`.sf-project-actions` 本就 `flex-wrap`）。 */}
+                {/* 操作区（项目级操作留本页）：【编辑项目】+【招工】+【设定工资标准】（三个独立模态框）
+                    +【发布活动】；任务 / 子任务操作已迁 `/campaign/:ref`（概况层零写口）。四钮同闸、
+                    `:is-primary` 只在发布活动上 ⇒ 390 档换行也不抢主次（`.sf-project-actions` 本就
+                    `flex-wrap`）。★ Kevin 2026-10-23 ③：【设定工资标准】独立成钮 —— 工资是全员口径，
+                    不能藏在【招工】里（改名额时不该顺手改在职者的工资）。 */}
                 <div className="sf-project-actions">
                   <button
                     type="button"
@@ -602,6 +634,12 @@ const ProjectPage = () => {
                     data-sf-m="project-entry-recruit"
                     onClick={openRecruit}
                   >{t('project.entryRecruit')}</button>
+                  <button
+                    type="button"
+                    className="sf-project-btn"
+                    data-sf-m="project-entry-wage"
+                    onClick={openWage}
+                  >{t('project.entryWageStd')}</button>
                   <button
                     type="button"
                     className="sf-project-btn is-primary"
@@ -632,9 +670,9 @@ const ProjectPage = () => {
               </section>
             ) : null}
 
-            {/* 两个项目级模态框（Kevin 2026-10-22③ 拆框）：【编辑项目】= 项目面
-                （标题/说明/地址/状态）；【招工】= 招工面（6 键）。互不嵌套、各自提交；
-                均 portal 到 body，遮罩盖住悬浮菜单；挂载 = 打开、卸载 = 关闭。 */}
+            {/* 三个项目级模态框（Kevin 2026-10-23 三框三分）：【编辑项目】= 项目面（标题/说明/地址，
+                **无 status**）；【招工】= 名额增量 + 注册天数；【设定工资标准】= batt/间隔/次币。
+                互不嵌套、各自提交；均 portal 到 body，遮罩盖住悬浮菜单；挂载 = 打开、卸载 = 关闭。 */}
             {canManage && editOpen ? (
               <ProjectEditModal
                 view={view}
@@ -646,10 +684,18 @@ const ProjectPage = () => {
             {canManage && recruitOpen ? (
               <ProjectRecruitModal
                 view={view}
-                currencies={currencies}
                 t={t}
                 onClose={() => setRecruitOpen(false)}
                 onSaved={handleRecruitSaved}
+              />
+            ) : null}
+            {canManage && wageOpen ? (
+              <ProjectWageStandardModal
+                view={view}
+                currencies={currencies}
+                t={t}
+                onClose={() => setWageOpen(false)}
+                onSaved={handleWageSaved}
               />
             ) : null}
           </>

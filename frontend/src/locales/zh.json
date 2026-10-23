@@ -1602,6 +1602,13 @@
     "vaultErrAmountInvalid": "充值金额须大于 0，且不超过该币种精度",
     "vaultErrCidInvalid": "该币种不可用于项目金库",
     "vaultErrGeneral": "充值失败，请稍后再试。",
-    "recruitZeroHint": "次币金额填 0 = 不发次币（该档只发电量）"
+    "recruitZeroHint": "次币金额填 0 = 不发次币（该档只发电量）",
+    "entryWageStd": "设定工资标准",
+    "wageStdTitle": "设定工资标准",
+    "wageStdHint": "工资标准对新老成员一视同仁：保存后全员适用，包括已在职成员的下一笔领取。",
+    "newSlotsLabel": "本次新增名额",
+    "newSlotsHint": "填 2 = 在当前已招人数上再加 2 个名额；留空 = 名额不变。",
+    "slotsReadout": "当前已招 {{hired}} · 新增 {{add}} ⇒ 目标 {{target}}",
+    "wageStdSaved": "工资标准已保存（新老成员统一适用）"
   }
 }

@@ -4,15 +4,22 @@
 // 沿革：本模块逐条自 `pages/wage/WagePage.jsx` **移出**（Kevin 2026-10-21②）——
 //   编辑入口从 /wage 项目卡的行内展开**搬到项目自己的页面**（`/:slug` 的【编辑项目】），
 //   表单改为模态框。
-//   ★ Kevin 2026-10-22③：**拆成两个模态框** —— 【编辑项目】（项目面：标题 / 说明 / 地址 /
-//     状态）与【招工】（招工面：人数 / 注册天数 / 每次工资 / 间隔 / 次币 + 金额）**互不嵌套、
+//   ★ Kevin 2026-10-22③：**拆成两个模态框** —— 【编辑项目】（项目面：标题 / 说明 / 地址）
+//     与【招工】（招工面：人数 / 注册天数 / 每次工资 / 间隔 / 次币 + 金额）**互不嵌套、
 //     各自提交**。为避免两套字段/校验/载荷各自漂移，逻辑仍只留这一份，按**字段集合**切分：
-//   · `EDIT_REASON_MAP` —— 服务端 409/400 `details.reason` ⇒ { field, key }（字段级内联）；两框共用；
-//   · `editFormOf` —— 读口行 ⇒ 表单初值（两框共用同一份初值；各自只渲染自己的字段）；
-//   · `validateEditForm` / `validateRecruitForm` —— 提交前客户端校验，按集合切分；
+//   ★ Kevin 2026-10-23：**三框三分** ——
+//     ① 【编辑项目】去掉 `status`（状态由系统派生：满员自动 recruiting→working，前端零入口）；
+//     ② 【招工】人数改**增量**（填「本次新增名额」Y，提交 `headcount = 已招 X + Y`；后端
+//        `headcount` 仍是绝对目标 ⇒ 增量换算只在前端做）；次币 + 每次工资 / 间隔移出；
+//     ③ 新【设定工资标准】框（batt / 间隔 / 次币 + 金额），对新老成员一视同仁。
+//   切分后键集**三向互斥**（`PROJECT_PAYLOAD_KEYS` / `RECRUIT_PAYLOAD_KEYS` / `WAGE_PAYLOAD_KEYS`）。
+//   · `EDIT_REASON_MAP` —— 服务端 409/400 `details.reason` ⇒ { field, key }（字段级内联）；三框共用；
+//   · `editFormOf` —— 读口行 ⇒ 表单初值（三框共用同一份初值；各自只渲染自己的字段）；
+//   · `validateEditForm` / `validateRecruitForm` / `validateWageForm` —— 提交前客户端校验，按集合切分；
 //   · `slugSubmitErrorOf` —— 项目地址 slug 的提交前置校验（格式/保留字/清空已设地址）；
-//   · `buildEditPayload` / `buildRecruitPayload` —— **只带变化字段**的载荷，键集由
-//     `PROJECT_PAYLOAD_KEYS` / `RECRUIT_PAYLOAD_KEYS` 定死（两币成对；清空 ⇒ 两键 null）；
+//   · `slotsReadoutOf` —— 招工增量读数（已招 X · 新增 Y ⇒ 目标 X+Y）；
+//   · `buildEditPayload` / `buildRecruitPayload` / `buildWagePayload` —— **只带变化字段**的载荷，
+//     键集由三个 `*_PAYLOAD_KEYS` 定死（两币成对；清空 ⇒ 两键 null）；
 //   · `errsOfPatchFailure` —— 写口失败 ⇒ 框内内联 errs（字段级优先，未登记 reason ⇒ 表单级兜底）；
 //   · `currencyOptions` —— 次币下拉选项（排除平台 $ 的 cid 1，后端 `PROJECT_WAGE_CID_INVALID` 拒收）。
 // 本模块**不引 React**：可被模态框与单测直接调用。
@@ -29,7 +36,10 @@ import { slugFieldErrorOf } from '../../project-slug'
  */
 export const EDIT_REASON_MAP = {
   project_headcount_below_hired: { field: 'headcount', key: 'wage.errHeadcountBelowHired' },
-  project_invalid_transition: { field: 'status', key: 'wage.errTransition' },
+  // 状态类 reason（★ Kevin 2026-10-23 ①：前端**已无 status 入口**，本 UI 不再能触发；
+  // 仍保留登记以防旧客户端 / 服务端派生路径回吐）⇒ 落**表单级**（`field: null`），
+  // 因为三框里都没有 status 字段可内联，落字段级会变成静默丢弃文案。
+  project_invalid_transition: { field: null, key: 'wage.errTransition' },
   project_ended_frozen: { field: null, key: 'wage.errFrozen' },
   PROJECT_TITLE_INVALID: { field: 'title', key: 'wage.errTitle' },
   PROJECT_DESCRIPTION_INVALID: { field: 'description', key: 'wage.errDescription' },
@@ -42,7 +52,7 @@ export const EDIT_REASON_MAP = {
   PROJECT_WAGE_AMOUNT_INVALID: { field: 'currency', key: 'wage.errCurrencyAmount' },
   project_wage_currency_not_found: { field: 'currency', key: 'wage.errCurrencyInvalid' },
   project_wage_currency_not_listed: { field: 'currency', key: 'wage.errCurrencyInvalid' },
-  PROJECT_STATUS_INVALID: { field: 'status', key: 'wage.errStatus' },
+  PROJECT_STATUS_INVALID: { field: null, key: 'wage.errStatus' },
   // 项目地址 slug（Kevin 2026-10-21）：400 `SLUG_INVALID / SLUG_TAKEN` 借码 ⇒ 字段级内联
   //（服务端 reason 大小写两形都登记，承项目域 `project_*` 小写 reason 体例）。
   SLUG_INVALID: { field: 'slug', key: 'project.errSlugFormat' },
@@ -53,16 +63,16 @@ export const EDIT_REASON_MAP = {
 }
 
 /**
- * 两框的**载荷键集**（Kevin 2026-10-22③ 拆框）。
- *   · 项目面（【编辑项目】）= 标题 / 说明 / 项目地址 / 状态；
- *   · 招工面（【招工】）= 人数 / 注册天数条件 / 每次工资 / 领取间隔 / 次币 cid / 次币金额。
- * 集合互斥且并集 = `editFormOf` 的全部可写字段（`project-edit-form.test` 有对拍断言）：
- * 拆框后任一键只归一个模态框，不会出现「两框都发同一键」的漂移。
+ * 三框的**载荷键集**（Kevin 2026-10-23 三框三分）。
+ *   · 项目面（【编辑项目】）= 标题 / 说明 / 项目地址 —— ★ 无 `status`（系统派生，前端零入口）；
+ *   · 招工面（【招工】）= 招工名额（增量换算成绝对 `headcount`）/ 注册天数条件；
+ *   · 工资面（【设定工资标准】）= 每次工资 / 领取间隔 / 次币 cid / 次币金额。
+ * 三集合互斥且并集 = `editFormOf` 的全部可写字段（单测有对拍断言）：任一键只归一个模态框，
+ * 不会出现「两框都发同一键」的漂移。
  */
-export const PROJECT_PAYLOAD_KEYS = ['title', 'description', 'slug', 'status']
-export const RECRUIT_PAYLOAD_KEYS = [
-  'headcount',
-  'recruit_min_account_days',
+export const PROJECT_PAYLOAD_KEYS = ['title', 'description', 'slug']
+export const RECRUIT_PAYLOAD_KEYS = ['headcount', 'recruit_min_account_days']
+export const WAGE_PAYLOAD_KEYS = [
   'wage_batt_per_claim',
   'wage_interval_hours',
   'wage_cid',
@@ -100,14 +110,28 @@ export const editFormOf = (row) => ({
   description: String(row?.description ?? ''),
   // 项目地址 slug：行无 slug（历史行）⇒ 空串 ⇒ 留空保存 = 零载荷不误发
   slug: String(row?.slug ?? ''),
-  headcount: String(row?.headcount ?? ''),
+  // ★ 招工名额改**增量**（Kevin 2026-10-23 ②）：`newSlots` = 本次新增名额，**不预填**
+  //（增量无所谓「初值」，预填当前绝对值会被误读成「把目标改成 3」）；留空 = 不改名额。
+  newSlots: '',
   minDays: recruitMinDaysSelectValue(row?.recruit_min_account_days ?? 0),
   batt: String(row?.wage_batt_per_claim ?? ''),
   interval: String(row?.wage_interval_hours ?? ''),
   cid: row?.wage_cid == null || row?.wage_cid === '' ? '' : String(row.wage_cid),
   amount: row?.wage_currency_amount == null || row?.wage_currency_amount === '' ? '' : String(row.wage_currency_amount),
-  status: String(row?.status || '') === 'working' ? 'working' : 'recruiting',
 })
+
+/**
+ * 招工增量读数（★ Kevin 2026-10-23 ②）：填 Y ⇒ 目标 = 已招 X + Y；Y 空 ⇒ 目标 = 当前名额。
+ * 单一真源：模态框的读数行与载荷换算都走这里（不会出现「读数 5 / 提交 3」的漂移）。
+ * `add` 非正整数文本 ⇒ 视作**未填**（null），`target` 回落当前名额 —— 校验层另行报错。
+ */
+export const slotsReadoutOf = (row, addText) => {
+  const hired = num(row?.hired_count, 0)
+  const current = num(row?.headcount, 0)
+  const text = String(addText ?? '').trim()
+  const add = isIntText(text) && Number(text) > 0 ? Number(text) : null
+  return { hired, current, add, target: add == null ? current : hired + add }
+}
 
 /** 项目面校验（【编辑项目】：标题 / 说明）。`t` = i18n 取词。 */
 export const validateEditForm = (form, t) => {
@@ -118,14 +142,29 @@ export const validateEditForm = (form, t) => {
   return errs
 }
 
-/** 招工面校验（【招工】：人数 / 注册天数 / 每次工资 / 间隔 / 次币成对）。 */
+/**
+ * 招工面校验（【招工】：本次新增名额 / 注册天数条件）。
+ * ★ Kevin 2026-10-23 ②：名额是**增量** ⇒ 留空合法（= 不改名额）；填了就必须是 ≥1 的整数
+ * （填 0 无意义：增量 0 等于不动，容易误读成「把名额清零」，按非法报错）。
+ */
 export const validateRecruitForm = (form, t) => {
   const errs = {}
-  if (!isIntText(form?.headcount) || Number(String(form.headcount).trim()) < 1) {
-    errs.headcount = t('wage.errHeadcount')
+  const addText = String(form?.newSlots ?? '').trim()
+  if (addText !== '' && (!isIntText(addText) || Number(addText) < 1)) {
+    errs.newSlots = t('wage.errHeadcount')
   }
   const minDays = String(form?.minDays ?? '').trim()
   if (minDays !== '' && !isIntText(minDays)) errs.minDays = t('wage.errMinDays')
+  return errs
+}
+
+/**
+ * 工资标准校验（【设定工资标准】：每次工资 / 领取间隔 / 次币成对）。
+ * ★ Kevin 2026-10-23 ③：本框是**全员生效**的工资口径 ⇒ 三项都不允许「空着蒙混」，
+ * 与招工框拆开前的口径逐条一致（batt > 0、间隔 1–100、两币成对且金额允许 0）。
+ */
+export const validateWageForm = (form, t) => {
+  const errs = {}
   const battText = String(form?.batt ?? '').trim()
   const batt = Number(battText)
   if (battText === '' || !Number.isFinite(batt) || batt <= 0) errs.batt = t('wage.errBatt')
@@ -188,8 +227,11 @@ const payloadOfAll = (row, form) => {
     const n = Number(text)
     return n !== orig ? n : undefined
   }
-  const headcount = intField(form?.headcount, num(row?.headcount, -1))
-  if (headcount !== undefined) body.headcount = headcount
+  // ★ 招工名额 = **增量换算**（Kevin 2026-10-23 ②）：增量 Y > 0 ⇒ 上送绝对目标 `headcount`
+  //   = 已招 X + Y（后端判满仍是 `hired >= headcount`，绝对口径）；Y 空 / 0 ⇒ 不发本键，
+  //   名额保持原值（后端 `hired <= headcount` 不受影响）。
+  const slots = slotsReadoutOf(row, form?.newSlots)
+  if (slots.add != null) body.headcount = slots.target
   // 注册天数下限：value 恒为四档天数之一（select 无空值态）；与行原值不同才发
   //（含「原 0 / 90 等非四档值 ⇒ 预选一天 ⇒ 保存即归 1」的收敛载荷）。
   const minDaysText = String(form?.minDays ?? '').trim()
@@ -216,8 +258,6 @@ const payloadOfAll = (row, form) => {
     body.wage_currency_amount = nextCid === '' ? null : nextAmount
   }
 
-  const nextStatus = form?.status === 'working' ? 'working' : 'recruiting'
-  if (nextStatus !== String(row?.status || '')) body.status = nextStatus
   return body
 }
 
@@ -231,11 +271,17 @@ const payloadOf = (keys, row, form) => {
   return out
 }
 
-/** 【编辑项目】载荷：只带**项目面**的变化字段（标题 / 说明 / 地址 / 状态）。无变化 ⇒ `{}`。 */
+/** 【编辑项目】载荷：只带**项目面**的变化字段（标题 / 说明 / 地址）。无变化 ⇒ `{}`。 */
 export const buildEditPayload = (row, form) => payloadOf(PROJECT_PAYLOAD_KEYS, row, form)
 
-/** 【招工】载荷：只带**招工面**的变化字段（6 键）。无变化 ⇒ `{}`（调用方零请求关闭）。 */
+/**
+ * 【招工】载荷：只带**招工面**的变化字段（`headcount` = 增量换算后的绝对目标 /
+ * `recruit_min_account_days`）。增量留空且天数未变 ⇒ `{}`（调用方零请求关闭）。
+ */
 export const buildRecruitPayload = (row, form) => payloadOf(RECRUIT_PAYLOAD_KEYS, row, form)
+
+/** 【设定工资标准】载荷：只带**工资面**的变化字段（4 键；两币成对）。无变化 ⇒ `{}`。 */
+export const buildWagePayload = (row, form) => payloadOf(WAGE_PAYLOAD_KEYS, row, form)
 
 /**
  * 写口失败 ⇒ 框内内联 errs（两框共用）：

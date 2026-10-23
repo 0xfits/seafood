@@ -1602,6 +1602,13 @@
     "vaultErrAmountInvalid": "充值金額須大於 0，且不超過該幣種精度",
     "vaultErrCidInvalid": "該幣種不可用於項目金庫",
     "vaultErrGeneral": "充值失敗，請稍後再試。",
-    "recruitZeroHint": "次幣金額填 0 = 不發次幣（該檔只發電量）"
+    "recruitZeroHint": "次幣金額填 0 = 不發次幣（該檔只發電量）",
+    "entryWageStd": "設定工資標準",
+    "wageStdTitle": "設定工資標準",
+    "wageStdHint": "工資標準對新舊成員一視同仁：儲存後全員適用，包括在職成員嘅下一筆領取。",
+    "newSlotsLabel": "今次新增名額",
+    "newSlotsHint": "填 2 = 喺現時已招人數上再加 2 個名額；留空 = 名額不變。",
+    "slotsReadout": "現時已招 {{hired}} · 新增 {{add}} ⇒ 目標 {{target}}",
+    "wageStdSaved": "工資標準已儲存（新舊成員統一適用）"
   }
 }

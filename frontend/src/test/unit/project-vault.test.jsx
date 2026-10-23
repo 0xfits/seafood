@@ -2,8 +2,9 @@
  * 项目页 `/:slug` · 金库区 + 充值（★ Kevin 2026-10-23 ② · 迁移 0073）
  * ----------------------------------------------------------------------------
  * 被钉死的契约面：
- *   ① **次币金额允许 0**（`project-edit-form.validateRecruitForm`）：`0` 合法、负数非法、空串非法；
- *      载荷侧 0 是**真值**（`buildRecruitPayload` 会把它作为变化字段送出，不当「空」吞掉）。
+ *   ① **次币金额允许 0**（`project-edit-form.validateWageForm`，★ 2026-10-23 ③ 次币随【设定工资标准】
+ *      移出招工框）：`0` 合法、负数非法、空串非法；载荷侧 0 是**真值**（`buildWagePayload` 会把它
+ *      作为变化字段送出，不当「空」吞掉）。
  *   ② **金库区渲染**（`data-sf-m="project-vault"`，紧跟项目头）：
  *        · 每个 `vault[]` 行 = 币符号 + 余额（`balance` 是人可读十进制串，**原样上屏不换算**）；
  *        · **空金库 ∧ 有次币腿** ⇒ 合成一条 0 余额行（否则用户无处充钱）；
@@ -87,7 +88,7 @@ vi.mock('../../pages/item/item-edit-access', async () => {
 })
 
 import ProjectPage from '../../pages/project/ProjectPage'
-import { buildRecruitPayload, validateRecruitForm } from '../../pages/project/project-edit-form'
+import { buildWagePayload, validateWageForm } from '../../pages/project/project-edit-form'
 
 const renderAt = (entry = '/sui') => render(
   <MemoryRouter initialEntries={[entry]} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
@@ -147,10 +148,10 @@ beforeEach(before)
 afterEach(cleanup)
 
 // ============================================================================
-describe('① 招工表单 · 次币金额 0 合法（负数非法）', () => {
+describe('① 工资标准表单 · 次币金额 0 合法（负数非法）', () => {
   const form = (patch = {}) => ({
-    title: '海鲜打包', description: '', slug: '', headcount: '3', minDays: '1',
-    batt: '30', interval: '4', cid: '4', amount: '20', status: 'recruiting', ...patch,
+    title: '海鲜打包', description: '', slug: '', newSlots: '', minDays: '1',
+    batt: '30', interval: '4', cid: '4', amount: '20', ...patch,
   })
   const row = {
     project_id: 11, title: '海鲜打包', description: '', slug: '', headcount: 3,
@@ -159,18 +160,18 @@ describe('① 招工表单 · 次币金额 0 合法（负数非法）', () => {
   }
 
   it('amount = 0 ⇒ 校验零错（「只发 batt」合法态）', () => {
-    expect(validateRecruitForm(form({ amount: '0' }), zhT)).toEqual({})
+    expect(validateWageForm(form({ amount: '0' }), zhT)).toEqual({})
   })
 
   it('amount = 负数 / 空串 / 非数字 ⇒ currency 字段报错', () => {
     for (const bad of ['-1', '-0.01', '', 'abc']) {
-      const errs = validateRecruitForm(form({ amount: bad }), zhT)
+      const errs = validateWageForm(form({ amount: bad }), zhT)
       expect(errs.currency, `amount=${JSON.stringify(bad)}`).toBe(ZH.wage.errCurrencyAmount)
     }
   })
 
   it('载荷侧 0 是**真值**：原 20 ⇒ 改 0 时送出 `wage_currency_amount: "0"`（不是丢键）', () => {
-    const body = buildRecruitPayload(row, form({ amount: '0' }))
+    const body = buildWagePayload(row, form({ amount: '0' }))
     expect(body.wage_cid).toBe(4)
     expect(body.wage_currency_amount).toBe('0')
   })

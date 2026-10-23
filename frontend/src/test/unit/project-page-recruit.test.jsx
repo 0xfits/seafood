@@ -1,19 +1,21 @@
 /**
- * 项目页 `/:slug` · 【招工】模态框单测（Kevin 2026-10-22③：招工面自【编辑项目】拆出成独立框）
+ * 项目页 `/:slug` · 【招工】模态框单测（Kevin 2026-10-22③ 拆框；2026-10-23 ② **改增量名额**）
  *
  * 覆盖面（逐条对齐派单收尾项）：
- *   ① 入口与闸：操作区【编辑项目】旁有【招工】，**同一权限闸**三臂 —— owner / `manage_tasks` 管理员可见；
- *      普通用户、ended 项目、未登录一律零入口零 PATCH；
- *   ② 字段集：招工框 `[data-sf-edit]` **恰 6 个**（headcount / minDays / batt / interval / cid / amount），
- *      且**不含**项目面字段（title / description / slug / status）；两框互斥（开一框另一框不在）；
- *   ③ 载荷**只带变化字段**：改人数 ⇒ 恰 `{headcount}`；清空次币 ⇒ 恰两键 null；无变化 ⇒ 零请求关框；
+ *   ① 入口与闸：操作区【编辑项目】/【招工】/【设定工资标准】三入口，**同一权限闸** ——
+ *      owner / `manage_tasks` 管理员可见；普通用户、ended 项目、未登录一律零入口零 PATCH；
+ *   ② 字段集：招工框 `[data-sf-edit]` **恰 2 个**（newSlots / minDays）——「新增名额 + 注册天数条件」；
+ *      **零项目面**（title / description / slug / status）与**零工资面**（batt / interval / cid / amount）；
+ *      名额输入**预填留空**（增量无所谓初值）；读数行给出「当前已招 X · 新增 Y ⇒ 目标 X+Y」；
+ *   ③ 载荷**只带变化字段**：已招 3 + 新增 2 ⇒ body 恰 `{headcount: 5}`（**增量换算成绝对目标**）；
+ *      新增留空 ⇒ 零 `headcount` 键；无变化 ⇒ 零请求关框；
  *      成功 ⇒ 关框 + 页内 `project.recruitSaved` 提示 + `load({silent:true})` 重拉；
  *   ④ 注册天数四选一：7 ⇒ 选中「一周」无提示；90 / 0 ⇒ 预选「一天」+ 提示行；保存载荷 = 选中天数；
- *   ⑤ 框内内联、框不关：409 `project_headcount_below_hired` ⇒ headcount；客户端校验（间隔越界 /
- *      人数 0 / 次币缺金额）⇒ 零 PATCH + 字段内联。
+ *   ⑤ 框内内联、框不关：409 `project_headcount_below_hired` ⇒ 新增名额行（服务端字段名 `headcount`
+ *      在框内别名到 `newSlots`）；客户端校验（新增名额填 0 / 非整数）⇒ 零 PATCH + 字段内联。
  *
- * 注：几何（390/1536 零溢出）与改 slug 跳转由 `ops/project/probe-project-recruit.mjs` 与
- *     `project-page-edit.test.jsx` 覆盖，jsdom 不套用 media query，故此处不断言面板宽度。
+ * 注：几何（390/1536 零溢出）与真契约联调见 `ops/project/probe-project-recruit.mjs`；
+ *     工资三项的校验/载荷见 `project-page-wage-standard.test.jsx`。
  */
 import React from 'react'
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react'
@@ -102,10 +104,12 @@ const renderAt = (entry = '/sui') => render(
 
 const recruitModal = () => document.querySelector('[data-sf-m="project-recruit"]')
 const editModal = () => document.querySelector('[data-sf-m="project-edit"]')
+const wageModal = () => document.querySelector('[data-sf-m="project-wage-std"]')
 const field = (name) => document.querySelector(`[data-sf-edit="${name}"]`)
 const editErr = (name) => document.querySelector(`[data-sf-edit-err="${name}"]`)
 const recruitEntry = (container) => container.querySelector('[data-sf-m="project-entry-recruit"]')
 const editEntry = (container) => container.querySelector('[data-sf-m="project-entry-edit"]')
+const wageEntry = (container) => container.querySelector('[data-sf-m="project-entry-wage"]')
 const saveBtn = () => document.querySelector('[data-sf-m="project-recruit-save"]')
 const notice = (container) => container.querySelector('[data-sf-m="project-form-notice"]')
 /** 招工框内的字段名集（顺序 = DOM 顺序）。 */
@@ -114,6 +118,8 @@ const recruitFieldNames = () => [...document.querySelectorAll('[data-sf-m="proje
 /** 【编辑项目】框内的字段名集。 */
 const editFieldNames = () => [...document.querySelectorAll('[data-sf-m="project-edit-form"] [data-sf-edit]')]
   .map((el) => el.getAttribute('data-sf-edit'))
+/** 增量读数行（data-sf-hired / -add / -target 三值）。 */
+const slotsRow = () => document.querySelector('[data-sf-edit-hint="slots"]')
 
 const openRecruit = async (container) => {
   await waitFor(() => expect(recruitEntry(container)).not.toBeNull())
@@ -147,16 +153,19 @@ afterEach(() => {
 })
 
 // ---------------------------------------------------------------- ① 入口与闸
-describe('① 【招工】入口：与【编辑项目】同一权限闸', () => {
-  it('owner 臂：两入口都在操作区、文案 = project.entryRecruit，点开 = 招工框', async () => {
+describe('① 三入口同一权限闸（【编辑项目】/【招工】/【设定工资标准】）', () => {
+  it('owner 臂：三入口都在操作区、文案各自 i18n，点开 = 招工框', async () => {
     const { container } = renderAt()
     await waitFor(() => expect(recruitEntry(container)).not.toBeNull())
     expect(recruitEntry(container).textContent).toBe(zh.project.entryRecruit)
     expect(editEntry(container)).not.toBeNull()
+    expect(wageEntry(container)).not.toBeNull()
+    expect(wageEntry(container).textContent).toBe(zh.project.entryWageStd)
     expect(container.querySelector('[data-sf-m="project-manage"]').contains(recruitEntry(container))).toBe(true)
-    // 点开之前两个框都不在
+    // 点开之前三个框都不在
     expect(recruitModal()).toBeNull()
     expect(editModal()).toBeNull()
+    expect(wageModal()).toBeNull()
 
     const panel = await openRecruit(container)
     expect(panel.getAttribute('role')).toBe('dialog')
@@ -165,7 +174,7 @@ describe('① 【招工】入口：与【编辑项目】同一权限闸', () => 
     expect(recruitModal().getAttribute('data-sf-project')).toBe('11')
   })
 
-  it('管理员臂：非 owner 但 manage_tasks ⇒ 两入口都可见', async () => {
+  it('管理员臂：非 owner 但 manage_tasks ⇒ 三入口都可见', async () => {
     VIEW.current = viewOf({ owner_uid: 99 })
     ADMIN.loadListingEditAdmin.mockResolvedValue({
       can_access_admin: true, is_admin: false, permissions: ['manage_tasks'],
@@ -173,6 +182,7 @@ describe('① 【招工】入口：与【编辑项目】同一权限闸', () => 
     const { container } = renderAt()
     await waitFor(() => expect(recruitEntry(container)).not.toBeNull())
     expect(editEntry(container)).not.toBeNull()
+    expect(wageEntry(container)).not.toBeNull()
     expect(ADMIN.loadListingEditAdmin).toHaveBeenCalled()
   })
 
@@ -183,6 +193,7 @@ describe('① 【招工】入口：与【编辑项目】同一权限闸', () => 
     await waitFor(() => expect(ADMIN.loadListingEditAdmin).toHaveBeenCalled())
     expect(recruitEntry(container)).toBeNull()
     expect(editEntry(container)).toBeNull()
+    expect(wageEntry(container)).toBeNull()
     expect(recruitModal()).toBeNull()
     expect(API.patchProject).not.toHaveBeenCalled()
   })
@@ -192,6 +203,7 @@ describe('① 【招工】入口：与【编辑项目】同一权限闸', () => 
     const { container } = renderAt()
     await waitFor(() => expect(container.querySelector('[data-sf-m="project-head"]')).not.toBeNull())
     expect(recruitEntry(container)).toBeNull()
+    expect(wageEntry(container)).toBeNull()
   })
 
   it('未登录臂：无入口且零 `/api/user` 取数', async () => {
@@ -204,44 +216,62 @@ describe('① 【招工】入口：与【编辑项目】同一权限闸', () => 
   })
 })
 
-// ---------------------------------------------------------------- ② 字段集
-describe('② 字段集：招工框恰 6 个招工字段，项目框不含招工字段', () => {
-  it('招工框 [data-sf-edit] = 恰 6（人数/天数/工资/间隔/次币/金额），预填 = 行值', async () => {
+// ---------------------------------------------------------------- ② 字段集 + 读数
+describe('② 字段集：招工框恰 2 个字段（新增名额 + 注册天数），名额预填留空 + 实时读数', () => {
+  it('招工框 [data-sf-edit] = 恰 2；名额空（增量）、天数预填 7；读数行 = 已招 2 / 目标 3', async () => {
     const { container } = renderAt()
     await openRecruit(container)
-    expect(recruitFieldNames()).toEqual(['headcount', 'minDays', 'batt', 'interval', 'cid', 'amount'])
-    expect(field('headcount').value).toBe('3')
+    expect(recruitFieldNames()).toEqual(['newSlots', 'minDays'])
+    expect(field('newSlots').value).toBe('') // 增量 ⇒ 预填留空
     expect(field('minDays').value).toBe('7')
-    expect(field('batt').value).toBe('30')
-    expect(field('interval').value).toBe('4')
-    expect(field('cid').value).toBe('')
-    expect(field('amount').disabled).toBe(true) // 次币为「无」⇒ 金额禁用（成对口径）
+    // 读数行：Y 空 ⇒ 目标 = 当前名额（3），add 显示占位
+    expect(slotsRow()).not.toBeNull()
+    expect(slotsRow().getAttribute('data-sf-hired')).toBe('2')
+    expect(slotsRow().getAttribute('data-sf-add')).toBe('')
+    expect(slotsRow().getAttribute('data-sf-target')).toBe('3')
+    expect(slotsRow().textContent).toBe(
+      zh.project.slotsReadout.replace('{{hired}}', '2').replace('{{add}}', '—').replace('{{target}}', '3'),
+    )
     expect(document.body.style.overflow).toBe('hidden') // 背景滚动锁定（共用外壳）
   })
 
-  it('招工框不含项目面字段；编辑框不含招工字段（两框字段集互斥）', async () => {
+  it('填新增 2 ⇒ 读数行实时变 已招 2 / 新增 2 ⇒ 目标 4', async () => {
     const { container } = renderAt()
     await openRecruit(container)
-    for (const name of ['title', 'description', 'slug', 'status']) expect(field(name)).toBeNull()
+    fireEvent.change(field('newSlots'), { target: { value: '2' } })
+    expect(slotsRow().getAttribute('data-sf-add')).toBe('2')
+    expect(slotsRow().getAttribute('data-sf-target')).toBe('4')
+    expect(slotsRow().textContent).toBe(
+      zh.project.slotsReadout.replace('{{hired}}', '2').replace('{{add}}', '2').replace('{{target}}', '4'),
+    )
+  })
+
+  it('招工框不含项目面 / 工资面字段；编辑框不含招工字段（三框字段集互斥）', async () => {
+    const { container } = renderAt()
+    await openRecruit(container)
+    for (const name of ['title', 'description', 'slug', 'status', 'batt', 'interval', 'cid', 'amount']) {
+      expect(field(name)).toBeNull()
+    }
     fireEvent.keyDown(document, { key: 'Escape' })
     await waitFor(() => expect(recruitModal()).toBeNull())
 
     fireEvent.click(editEntry(container))
     await waitFor(() => expect(editModal()).not.toBeNull())
-    expect(editFieldNames()).toEqual(['title', 'description', 'slug', 'status'])
-    for (const name of ['headcount', 'minDays', 'batt', 'interval', 'cid', 'amount']) {
+    expect(editFieldNames()).toEqual(['title', 'description', 'slug'])
+    for (const name of ['newSlots', 'minDays', 'batt', 'interval', 'cid', 'amount']) {
       expect(field(name)).toBeNull()
     }
   })
 
-  it('两框互不嵌套：开一框时另一框不在（切换入口先关旧框）', async () => {
+  it('三框互不嵌套：开一框时另两框不在（切换入口先关旧框）', async () => {
     const { container } = renderAt()
     await openRecruit(container)
     fireEvent.keyDown(document, { key: 'Escape' })
     await waitFor(() => expect(recruitModal()).toBeNull())
-    fireEvent.click(editEntry(container))
-    await waitFor(() => expect(editModal()).not.toBeNull())
+    fireEvent.click(wageEntry(container))
+    await waitFor(() => expect(wageModal()).not.toBeNull())
     expect(recruitModal()).toBeNull()
+    expect(editModal()).toBeNull()
   })
 
   it('Esc 关框零请求（招工框走同一外壳：关框不误触写口）', async () => {
@@ -256,18 +286,21 @@ describe('② 字段集：招工框恰 6 个招工字段，项目框不含招工
   })
 })
 
-// ---------------------------------------------------------------- ③ 载荷
-describe('③ 招工载荷只带变化字段 + 成功回写', () => {
-  it('改人数 3⇒5 ⇒ PATCH 恰一次、body 恰 {headcount:5}；成功 ⇒ 关框 + recruitSaved + 重拉', async () => {
+// ---------------------------------------------------------------- ③ 增量载荷
+describe('③ 增量换算 + 载荷只带变化字段', () => {
+  it('已招 3 + 新增 2 ⇒ PATCH body 恰 {headcount: 5}；成功 ⇒ 关框 + recruitSaved + 重拉', async () => {
+    VIEW.current = viewOf({ hired_count: 3, headcount: 3 })
     const { container } = renderAt()
     await openRecruit(container)
     const reads = API.fetchProjectDetail.mock.calls.length
-    fireEvent.change(field('headcount'), { target: { value: '5' } })
+    expect(slotsRow().getAttribute('data-sf-target')).toBe('3')
+    fireEvent.change(field('newSlots'), { target: { value: '2' } })
+    expect(slotsRow().getAttribute('data-sf-target')).toBe('5')
     await submit()
 
     await waitFor(() => expect(API.patchProject).toHaveBeenCalledTimes(1))
     expect(API.patchProject.mock.calls[0][0]).toBe('11')
-    expect(API.patchProject.mock.calls[0][1]).toEqual({ headcount: 5 })
+    expect(API.patchProject.mock.calls[0][1]).toEqual({ headcount: 5 }) // 绝对目标 = 已招 + 新增
     expect(API.patchProject.mock.calls[0][2]).toBe(AUTH.user)
 
     await waitFor(() => expect(recruitModal()).toBeNull())
@@ -275,25 +308,25 @@ describe('③ 招工载荷只带变化字段 + 成功回写', () => {
     expect(n.getAttribute('data-sf-kind')).toBe('ok')
     expect(n.textContent).toBe(zh.project.recruitSaved)
     expect(API.fetchProjectDetail.mock.calls.length).toBeGreaterThan(reads)
+    // 重拉后头部读数吃到新名额（5）
+    await waitFor(() => expect(
+      container.querySelector('[data-sf-m="project-headcount"]').textContent,
+    ).toBe(zh.project.headcountLine.replace('{{hired}}', '3').replace('{{total}}', '5')))
   })
 
-  it('清空次币 ⇒ body 恰为两键 null（成对上送）', async () => {
-    VIEW.current = viewOf({ wage_cid: 4, wage_currency_amount: 50 })
+  it('新增名额留空 ⇒ 零 `headcount` 键（名额不变）；只改天数 ⇒ body 恰 {recruit_min_account_days}', async () => {
     const { container } = renderAt()
     await openRecruit(container)
-    expect(field('cid').value).toBe('4')
-    expect(field('amount').value).toBe('50')
-    fireEvent.change(field('cid'), { target: { value: '' } })
-    expect(field('amount').value).toBe('')
-    expect(field('amount').disabled).toBe(true)
+    fireEvent.change(field('minDays'), { target: { value: '30' } })
     await submit()
 
     await waitFor(() => expect(API.patchProject).toHaveBeenCalledTimes(1))
-    expect(API.patchProject.mock.calls[0][1]).toEqual({ wage_cid: null, wage_currency_amount: null })
-    await waitFor(() => expect(recruitModal()).toBeNull())
+    const body = API.patchProject.mock.calls[0][1]
+    expect(body).toEqual({ recruit_min_account_days: 30 })
+    expect(body).not.toHaveProperty('headcount')
   })
 
-  it('无变化保存 ⇒ 零 PATCH、零重拉，框直接关', async () => {
+  it('无变化保存（名额留空 + 天数未动）⇒ 零 PATCH、零重拉，框直接关', async () => {
     const { container } = renderAt()
     await openRecruit(container)
     const reads = API.fetchProjectDetail.mock.calls.length
@@ -303,14 +336,14 @@ describe('③ 招工载荷只带变化字段 + 成功回写', () => {
     expect(API.fetchProjectDetail.mock.calls.length).toBe(reads)
   })
 
-  it('只改招工 ⇒ 载荷零项目键（两框键集互斥，不重复上送标题/地址）', async () => {
+  it('新增名额 + 天数同时改 ⇒ 恰两键（零工资键，三框键集互斥）', async () => {
     const { container } = renderAt()
     await openRecruit(container)
-    fireEvent.change(field('batt'), { target: { value: '35' } })
-    fireEvent.change(field('interval'), { target: { value: '6' } })
+    fireEvent.change(field('newSlots'), { target: { value: '1' } })
+    fireEvent.change(field('minDays'), { target: { value: '1' } })
     await submit()
     await waitFor(() => expect(API.patchProject).toHaveBeenCalledTimes(1))
-    expect(API.patchProject.mock.calls[0][1]).toEqual({ wage_batt_per_claim: '35', wage_interval_hours: 6 })
+    expect(API.patchProject.mock.calls[0][1]).toEqual({ headcount: 3, recruit_min_account_days: 1 })
   })
 })
 
@@ -355,45 +388,46 @@ describe('④ 注册天数条件 = 四选一（1/7/30/365）', () => {
 
 // ---------------------------------------------------------------- ⑤ 内联
 describe('⑤ 服务端 409 与客户端校验：框内内联、框不关', () => {
-  it('409 project_headcount_below_hired ⇒ headcount 内联（含 hired 数值），框不关', async () => {
+  it('409 project_headcount_below_hired ⇒ 新增名额行内联（含 hired 数值），框不关', async () => {
     VIEW.current = viewOf({ hired_count: 3 })
     API.patchProject.mockRejectedValueOnce(Object.assign(new Error('below_hired'), {
       status: 409, details: { reason: 'project_headcount_below_hired', headcount: 1, hired_count: 3 },
     }))
     const { container } = renderAt()
     await openRecruit(container)
-    fireEvent.change(field('headcount'), { target: { value: '1' } })
+    fireEvent.change(field('newSlots'), { target: { value: '1' } })
     await submit()
 
-    await waitFor(() => expect(editErr('headcount')).not.toBeNull())
-    expect(editErr('headcount').textContent).toBe(zh.wage.errHeadcountBelowHired.replace('{{hired}}', '3'))
+    await waitFor(() => expect(editErr('newSlots')).not.toBeNull())
+    expect(editErr('newSlots').textContent).toBe(zh.wage.errHeadcountBelowHired.replace('{{hired}}', '3'))
     expect(recruitModal()).not.toBeNull()
   })
 
-  it('客户端校验：间隔 200 / 人数 0 ⇒ 零 PATCH + 字段内联', async () => {
+  it('客户端校验：新增名额 0 / 非整数 ⇒ 零 PATCH + 名额行内联', async () => {
     const { container } = renderAt()
     await openRecruit(container)
-    fireEvent.change(field('interval'), { target: { value: '200' } })
+    fireEvent.change(field('newSlots'), { target: { value: '0' } })
     await submit()
-    await waitFor(() => expect(editErr('interval')).not.toBeNull())
-    expect(editErr('interval').textContent).toBe(zh.bountyProject.intervalInvalid)
+    await waitFor(() => expect(editErr('newSlots')).not.toBeNull())
+    expect(editErr('newSlots').textContent).toBe(zh.wage.errHeadcount)
 
-    fireEvent.change(field('interval'), { target: { value: '4' } })
-    fireEvent.change(field('headcount'), { target: { value: '0' } })
+    fireEvent.change(field('newSlots'), { target: { value: '2.5' } })
     await submit()
-    await waitFor(() => expect(editErr('headcount')).not.toBeNull())
-    expect(editErr('headcount').textContent).toBe(zh.wage.errHeadcount)
+    await waitFor(() => expect(editErr('newSlots')).not.toBeNull())
+    expect(editErr('newSlots').textContent).toBe(zh.wage.errHeadcount)
     expect(API.patchProject).not.toHaveBeenCalled()
   })
 
-  it('次币只选币种不填金额 ⇒ 成对校验内联（零 PATCH）', async () => {
+  it('未登记 reason ⇒ 表单级兜底句（机读码不外泄），框不关', async () => {
+    API.patchProject.mockRejectedValueOnce(Object.assign(new Error('nope'), {
+      status: 500, details: { reason: 'SOMETHING_ELSE' },
+    }))
     const { container } = renderAt()
     await openRecruit(container)
-    fireEvent.change(field('cid'), { target: { value: '4' } })
-    expect(field('amount').disabled).toBe(false)
+    fireEvent.change(field('newSlots'), { target: { value: '1' } })
     await submit()
-    await waitFor(() => expect(editErr('currency')).not.toBeNull())
-    expect(editErr('currency').textContent).toBe(zh.wage.errCurrencyAmount)
-    expect(API.patchProject).not.toHaveBeenCalled()
+    await waitFor(() => expect(editErr('general')).not.toBeNull())
+    expect(editErr('general').textContent).toBe(zh.wage.editFailed)
+    expect(recruitModal()).not.toBeNull()
   })
 })

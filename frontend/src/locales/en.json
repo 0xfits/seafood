@@ -1602,6 +1602,13 @@
     "vaultErrAmountInvalid": "Amount must be greater than 0 and within the currency precision",
     "vaultErrCidInvalid": "This currency cannot be used for project vaults",
     "vaultErrGeneral": "Top-up failed. Please try again later.",
-    "recruitZeroHint": "Enter 0 to pay no secondary currency (batt only)"
+    "recruitZeroHint": "Enter 0 to pay no secondary currency (batt only)",
+    "entryWageStd": "Set pay standard",
+    "wageStdTitle": "Set pay standard",
+    "wageStdHint": "One standard for new and existing members: after saving, everyone is paid on it — including current hires from their next claim.",
+    "newSlotsLabel": "Slots to add",
+    "newSlotsHint": "Enter 2 to add 2 slots on top of the current hires; leave blank to keep the quota unchanged.",
+    "slotsReadout": "Hired {{hired}} · adding {{add}} ⇒ target {{target}}",
+    "wageStdSaved": "Pay standard saved (applies to new and existing members)"
   }
 }

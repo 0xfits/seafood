@@ -210,21 +210,22 @@ describe('① 【编辑项目】入口显隐（已登录 ∧ 未 ended ∧（own
 
 // ---------------------------------------------------------------- ② 开合
 describe('② 模态开合：挂载即打开，背板 / ✕ / Esc 三路零请求', () => {
-  it('点入口 ⇒ 挂载 dialog 面板、项目面字段预填（无招工字段）、背景滚动锁定', async () => {
+  it('点入口 ⇒ 挂载 dialog 面板、项目面字段预填（无状态、无招工字段）、背景滚动锁定', async () => {
     const { container } = renderAt()
     const p = await openModal(container)
     expect(p).not.toBeNull()
     expect(p.getAttribute('role')).toBe('dialog')
     expect(p.getAttribute('aria-modal')).toBe('true')
     expect(document.querySelector('[data-sf-m="project-edit-title"]').textContent).toBe(zh.wage.editTitle)
-    // 预填 = 行值（项目面 4 字段）
+    // 预填 = 行值（项目面 3 字段）
     expect(field('title').value).toBe('海鲜打包')
     expect(field('description').value).toBe('每天打包 20 单')
     expect(field('slug').value).toBe('sui')
-    expect(field('status').value).toBe('recruiting')
-    expect(editFieldNames()).toEqual(['title', 'description', 'slug', 'status'])
-    // 招工面（已拆出到【招工】框）在本框内零残留
-    for (const name of ['headcount', 'minDays', 'batt', 'interval', 'cid', 'amount']) {
+    // ★ Kevin 2026-10-23 ①：字段集恰 3，**零 status**（状态由系统派生，前端无入口）
+    expect(editFieldNames()).toEqual(['title', 'description', 'slug'])
+    expect(field('status')).toBeNull()
+    // 招工面（已拆出到【招工】/【设定工资标准】）在本框内零残留
+    for (const name of ['newSlots', 'minDays', 'batt', 'interval', 'cid', 'amount']) {
       expect(field(name)).toBeNull()
     }
     expect(document.body.style.overflow).toBe('hidden')
@@ -269,17 +270,18 @@ describe('② 模态开合：挂载即打开，背板 / ✕ / Esc 三路零请�
 
 // ---------------------------------------------------------------- ③ 载荷
 describe('③ 载荷只带变化字段 + 成功回写', () => {
-  it('改标题 + 状态 ⇒ PATCH 恰一次、body 恰 {title,status}；成功 ⇒ 关框 + 成功提示 + 重拉拿新值', async () => {
+  it('改标题 ⇒ PATCH 恰一次、body 恰 {title}（零 status 键）；成功 ⇒ 关框 + 成功提示 + 重拉拿新值', async () => {
     const { container } = renderAt()
     await openModal(container)
     const reads = API.fetchProjectDetail.mock.calls.length
     fireEvent.change(field('title'), { target: { value: '海鲜打包·周末班' } })
-    fireEvent.change(field('status'), { target: { value: 'working' } })
     await submit()
 
     await waitFor(() => expect(API.patchProject).toHaveBeenCalledTimes(1))
     expect(API.patchProject.mock.calls[0][0]).toBe('11') // project_id 主键
-    expect(API.patchProject.mock.calls[0][1]).toEqual({ title: '海鲜打包·周末班', status: 'working' })
+    expect(API.patchProject.mock.calls[0][1]).toEqual({ title: '海鲜打包·周末班' })
+    // ★ Kevin 2026-10-23 ①：载荷永不带 status（系统派生，前端零入口）
+    expect(API.patchProject.mock.calls[0][1]).not.toHaveProperty('status')
     expect(API.patchProject.mock.calls[0][2]).toBe(AUTH.user) // 鉴权走当前用户
 
     await waitFor(() => expect(modal()).toBeNull())
@@ -291,7 +293,8 @@ describe('③ 载荷只带变化字段 + 成功回写', () => {
     await waitFor(() => (
       expect(container.querySelector('[data-sf-m="project-title"]').textContent).toBe('海鲜打包·周末班')
     ))
-    expect(container.querySelector('[data-sf-m="project-status"]').getAttribute('data-sf-state')).toBe('working')
+    // 头部徽标只读展示读口 status，与编辑框无关（仍是 recruiting）
+    expect(container.querySelector('[data-sf-m="project-status"]').getAttribute('data-sf-state')).toBe('recruiting')
   })
 
   it('无变化保存 ⇒ 零 PATCH、零重拉，框直接关（「只带变化字段」下没有可发的键）', async () => {

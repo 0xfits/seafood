@@ -13,16 +13,17 @@ import ProjectModalShell, { FieldError, useProjectFormState } from './ProjectMod
 // ============================================================================
 // 项目编辑模态框（Kevin 2026-10-21② 搬迁 + 2026-10-22③ **拆出招工面**）
 // ----------------------------------------------------------------------------
-// 口径（拆框后）：
+// 口径（三框三分后）：
 //   · 入口在项目页操作区【编辑项目】（可见性由父组件判：已登录 ∧ 未 ended ∧ (owner ∨ manage_tasks)）；
 //     本组件只在该入口被点后挂载 ⇒ 挂载 = 打开、卸载 = 关闭。
-//   · **字段只剩项目面**：标题 / 说明 / 项目地址 slug（实时格式+保留字）/ 状态 recruiting⇄working。
-//     招工面 6 键（人数 / 注册天数 / 每次工资 / 间隔 / 次币 cid + 金额）已移入 `ProjectRecruitModal`
-//     —— 两框互不嵌套、各自提交（Kevin 2026-10-22③）。
+//   · **字段只剩项目面**：标题 / 说明 / 项目地址 slug（实时格式+保留字）。
+//     ★ Kevin 2026-10-23 ①：**状态字段彻底移除** —— 招募中/进行中不是人工设定的状态，
+//     由系统派生（满员时后端自动 recruiting→working），前端零入口、载荷零 `status` 键。
+//     招工面已移入 `ProjectRecruitModal`、工资/次币已移入 `ProjectWageStandardModal`。
 //   · 载荷**只带变化字段**（`project-edit-form.buildEditPayload`，键集 = `PROJECT_PAYLOAD_KEYS`）；
 //     无变化 ⇒ 零请求直接关闭；成功 ⇒ `onSaved({kind:'ok', text, slug})` —— `slug` = **地址改过时的新值**
 //     （父组件据此 `navigate` 到新地址，否则旧地址会落 404）；409/400 ⇒ `EDIT_REASON_MAP` 框内字段级内联。
-//   · 外壳（背板 / ✕ / Esc / 滚动锁 / 几何）与【招工】共用 `ProjectModalShell`（单一实现）。
+//   · 外壳（背板 / ✕ / Esc / 滚动锁 / 几何）与另两框共用 `ProjectModalShell`（单一实现）。
 // ============================================================================
 
 /** 项目写面标识：只认数字主键 `project_id`（缺失才回落 `snowflake_id`，与 /wage 同式）。 */
@@ -77,7 +78,6 @@ const ProjectEditModal = ({ view, t, onClose, onSaved }) => {
   }
 
   const slugLive = slugFieldErrorOf(form.slug)
-  const statusOptions = form.status === 'working' ? ['working', 'recruiting'] : ['recruiting', 'working']
 
   return (
     <ProjectModalShell
@@ -135,21 +135,6 @@ const ProjectEditModal = ({ view, t, onClose, onSaved }) => {
           </span>
         ) : null}
         <span className="sf-project-edit-hint" data-sf-edit-hint="slug">{t('project.slugHint')}</span>
-      </label>
-
-      <label className="sf-project-field">
-        <span className="sf-project-field-label">{t('wage.fieldStatus')}</span>
-        <select
-          className="sf-project-input"
-          data-sf-edit="status"
-          value={form.status}
-          onChange={(event) => setField('status', event.target.value)}
-        >
-          {statusOptions.map((s) => (
-            <option key={s} value={s}>{t(s === 'working' ? 'common.ongoing' : 'wage.statusRecruiting')}</option>
-          ))}
-        </select>
-        <FieldError field="status" text={errs.status} />
       </label>
 
       {errs.general ? (

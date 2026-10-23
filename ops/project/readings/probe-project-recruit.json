@@ -1,9 +1,10 @@
 {
   "probe": "ops/project/probe-project-recruit.mjs",
-  "startedAt": "2026-10-22T13:26:20.875Z",
+  "scope": "三框（编辑项目 / 招工增量 / 设定工资标准）",
+  "startedAt": "2026-10-23T14:08:24.635Z",
   "dist": "/Users/kevin/bistro/seafood/frontend/dist",
   "fixtures": {
-    "project": "sui ⇒ haixian（PATCH slug）",
+    "project": "sui（hired 1 / headcount 2）",
     "auth": "localStorage seed",
     "writes": "zero（全在 context.route 内截）"
   },
@@ -16,20 +17,96 @@
       "entries": {
         "edit": true,
         "recruit": true,
+        "wage": true,
         "campaign": true
       },
-      "recruitLabel": "招工",
-      "recruitTitle": null,
-      "recruitFieldNames": [],
-      "editFieldNames": [],
-      "recruitOpen": false,
-      "editOpen": false,
-      "headcount": null,
+      "labels": {
+        "edit": "编辑项目",
+        "recruit": "招工",
+        "wage": "设定工资标准"
+      },
+      "titles": {
+        "edit": null,
+        "recruit": null,
+        "wage": null
+      },
+      "hints": {
+        "wageStd": null,
+        "newSlots": null
+      },
+      "open": {
+        "edit": false,
+        "recruit": false,
+        "wage": false
+      },
+      "fieldNames": {
+        "edit": [],
+        "recruit": [],
+        "wage": []
+      },
+      "value": {
+        "newSlots": null,
+        "batt": null
+      },
+      "slots": null,
+      "headcountLine": "已招 1/2",
       "noticeText": null,
       "overflow": {
         "doc": 0,
         "page": 0,
-        "recruitPanel": null
+        "panel": null
+      }
+    },
+    "edit_open": {
+      "path": "/sui",
+      "slugAttr": "sui",
+      "title": "海鲜打包",
+      "notFound": false,
+      "entries": {
+        "edit": true,
+        "recruit": true,
+        "wage": true,
+        "campaign": true
+      },
+      "labels": {
+        "edit": "编辑项目",
+        "recruit": "招工",
+        "wage": "设定工资标准"
+      },
+      "titles": {
+        "edit": "编辑项目",
+        "recruit": null,
+        "wage": null
+      },
+      "hints": {
+        "wageStd": null,
+        "newSlots": null
+      },
+      "open": {
+        "edit": true,
+        "recruit": false,
+        "wage": false
+      },
+      "fieldNames": {
+        "edit": [
+          "title",
+          "description",
+          "slug"
+        ],
+        "recruit": [],
+        "wage": []
+      },
+      "value": {
+        "newSlots": null,
+        "batt": null
+      },
+      "slots": null,
+      "headcountLine": "已招 1/2",
+      "noticeText": null,
+      "overflow": {
+        "doc": 0,
+        "page": 0,
+        "panel": 0
       }
     },
     "recruit_open": {
@@ -40,27 +117,108 @@
       "entries": {
         "edit": true,
         "recruit": true,
+        "wage": true,
         "campaign": true
       },
-      "recruitLabel": "招工",
-      "recruitTitle": "招工设置",
-      "recruitFieldNames": [
-        "headcount",
-        "minDays",
-        "batt",
-        "interval",
-        "cid",
-        "amount"
-      ],
-      "editFieldNames": [],
-      "recruitOpen": true,
-      "editOpen": false,
-      "headcount": "3",
+      "labels": {
+        "edit": "编辑项目",
+        "recruit": "招工",
+        "wage": "设定工资标准"
+      },
+      "titles": {
+        "edit": null,
+        "recruit": "招工设置",
+        "wage": null
+      },
+      "hints": {
+        "wageStd": null,
+        "newSlots": "填 2 = 在当前已招人数上再加 2 个名额；留空 = 名额不变。"
+      },
+      "open": {
+        "edit": false,
+        "recruit": true,
+        "wage": false
+      },
+      "fieldNames": {
+        "edit": [],
+        "recruit": [
+          "newSlots",
+          "minDays"
+        ],
+        "wage": []
+      },
+      "value": {
+        "newSlots": "",
+        "batt": null
+      },
+      "slots": {
+        "hired": "1",
+        "add": "",
+        "target": "2",
+        "text": "当前已招 1 · 新增 — ⇒ 目标 2"
+      },
+      "headcountLine": "已招 1/2",
       "noticeText": null,
       "overflow": {
         "doc": 0,
         "page": 0,
-        "recruitPanel": 0
+        "panel": 0
+      }
+    },
+    "recruit_filled": {
+      "path": "/sui",
+      "slugAttr": "sui",
+      "title": "海鲜打包",
+      "notFound": false,
+      "entries": {
+        "edit": true,
+        "recruit": true,
+        "wage": true,
+        "campaign": true
+      },
+      "labels": {
+        "edit": "编辑项目",
+        "recruit": "招工",
+        "wage": "设定工资标准"
+      },
+      "titles": {
+        "edit": null,
+        "recruit": "招工设置",
+        "wage": null
+      },
+      "hints": {
+        "wageStd": null,
+        "newSlots": "填 2 = 在当前已招人数上再加 2 个名额；留空 = 名额不变。"
+      },
+      "open": {
+        "edit": false,
+        "recruit": true,
+        "wage": false
+      },
+      "fieldNames": {
+        "edit": [],
+        "recruit": [
+          "newSlots",
+          "minDays"
+        ],
+        "wage": []
+      },
+      "value": {
+        "newSlots": "2",
+        "batt": null
+      },
+      "slots": {
+        "hired": "1",
+        "add": "2",
+        "target": "3",
+        "text": "当前已招 1 · 新增 2 ⇒ 目标 3"
+      },
+      "headcountLine": "已招 1/2",
+      "noticeText": null,
+      "overflow": {
+        "doc": 0,
+        "page": 0,
+        "panel": 0
       }
     },
     "recruit_saved": {
@@ -71,31 +229,61 @@
       "entries": {
         "edit": true,
         "recruit": true,
+        "wage": true,
         "campaign": true
       },
-      "recruitLabel": "招工",
-      "recruitTitle": null,
-      "recruitFieldNames": [],
-      "editFieldNames": [],
-      "recruitOpen": false,
-      "editOpen": false,
-      "headcount": null,
+      "labels": {
+        "edit": "编辑项目",
+        "recruit": "招工",
+        "wage": "设定工资标准"
+      },
+      "titles": {
+        "edit": null,
+        "recruit": null,
+        "wage": null
+      },
+      "hints": {
+        "wageStd": null,
+        "newSlots": null
+      },
+      "open": {
+        "edit": false,
+        "recruit": false,
+        "wage": false
+      },
+      "fieldNames": {
+        "edit": [],
+        "recruit": [],
+        "wage": []
+      },
+      "value": {
+        "newSlots": null,
+        "batt": null
+      },
+      "slots": null,
+      "headcountLine": "已招 1/3",
       "noticeText": "招工设置已保存",
       "overflow": {
         "doc": 0,
         "page": 0,
-        "recruitPanel": null
+        "panel": null
       }
     },
     "recruit_patch_payload": [
       {
-        "headcount": 5
+        "headcount": 3
       },
       {
-        "slug": "haixian"
+        "recruit_min_account_days": 30
+      },
+      {
+        "wage_batt_per_claim": "35"
       }
     ],
-    "edit_open": {
+    "recruit_blank_add_payload": {
+      "recruit_min_account_days": 30
+    },
+    "wage_open": {
       "path": "/sui",
       "slugAttr": "sui",
       "title": "海鲜打包",
@@ -103,79 +291,118 @@
       "entries": {
         "edit": true,
         "recruit": true,
+        "wage": true,
         "campaign": true
       },
-      "recruitLabel": "招工",
-      "recruitTitle": null,
-      "recruitFieldNames": [],
-      "editFieldNames": [
-        "title",
-        "description",
-        "slug",
-        "status"
-      ],
-      "recruitOpen": false,
-      "editOpen": true,
-      "headcount": null,
+      "labels": {
+        "edit": "编辑项目",
+        "recruit": "招工",
+        "wage": "设定工资标准"
+      },
+      "titles": {
+        "edit": null,
+        "recruit": null,
+        "wage": "设定工资标准"
+      },
+      "hints": {
+        "wageStd": "工资标准对新老成员一视同仁：保存后全员适用，包括已在职成员的下一笔领取。",
+        "newSlots": null
+      },
+      "open": {
+        "edit": false,
+        "recruit": false,
+        "wage": true
+      },
+      "fieldNames": {
+        "edit": [],
+        "recruit": [],
+        "wage": [
+          "batt",
+          "interval",
+          "cid",
+          "amount"
+        ]
+      },
+      "value": {
+        "newSlots": null,
+        "batt": "30"
+      },
+      "slots": null,
+      "headcountLine": "已招 1/3",
       "noticeText": null,
       "overflow": {
         "doc": 0,
         "page": 0,
-        "recruitPanel": null
+        "panel": 0
       }
     },
-    "slug_saved": {
-      "path": "/haixian",
-      "slugAttr": "haixian",
+    "wage_saved": {
+      "path": "/sui",
+      "slugAttr": "sui",
       "title": "海鲜打包",
       "notFound": false,
       "entries": {
         "edit": true,
         "recruit": true,
+        "wage": true,
         "campaign": true
       },
-      "recruitLabel": "招工",
-      "recruitTitle": null,
-      "recruitFieldNames": [],
-      "editFieldNames": [],
-      "recruitOpen": false,
-      "editOpen": false,
-      "headcount": null,
-      "noticeText": "已保存",
+      "labels": {
+        "edit": "编辑项目",
+        "recruit": "招工",
+        "wage": "设定工资标准"
+      },
+      "titles": {
+        "edit": null,
+        "recruit": null,
+        "wage": null
+      },
+      "hints": {
+        "wageStd": null,
+        "newSlots": null
+      },
+      "open": {
+        "edit": false,
+        "recruit": false,
+        "wage": false
+      },
+      "fieldNames": {
+        "edit": [],
+        "recruit": [],
+        "wage": []
+      },
+      "value": {
+        "newSlots": null,
+        "batt": null
+      },
+      "slots": null,
+      "headcountLine": "已招 1/3",
+      "noticeText": "工资标准已保存（新老成员统一适用）",
       "overflow": {
         "doc": 0,
         "page": 0,
-        "recruitPanel": null
+        "panel": null
       }
     },
-    "slug_reads": [
-      "sui",
-      "sui",
-      "haixian"
-    ],
-    "slug_patch_payload": [
-      {
-        "headcount": 5
-      },
-      {
-        "slug": "haixian"
-      }
-    ],
+    "wage_patch_payload": {
+      "wage_batt_per_claim": "35"
+    },
     "geometry": {
       "w390": {
         "doc": 0,
         "page": 0,
-        "recruitPanel": 0
+        "panel": 0
       },
       "w1536": {
         "doc": 0,
         "page": 0,
-        "recruitPanel": 0
+        "panel": 0
       },
       "modalOpen390": true,
       "entries390": {
         "edit": true,
         "recruit": true,
+        "wage": true,
         "campaign": true
       }
     },
@@ -187,81 +414,129 @@
       "entries": {
         "edit": false,
         "recruit": false,
+        "wage": false,
         "campaign": false
       },
-      "recruitLabel": null,
-      "recruitTitle": null,
-      "recruitFieldNames": [],
-      "editFieldNames": [],
-      "recruitOpen": false,
-      "editOpen": false,
-      "headcount": null,
+      "labels": {
+        "edit": null,
+        "recruit": null,
+        "wage": null
+      },
+      "titles": {
+        "edit": null,
+        "recruit": null,
+        "wage": null
+      },
+      "hints": {
+        "wageStd": null,
+        "newSlots": null
+      },
+      "open": {
+        "edit": false,
+        "recruit": false,
+        "wage": false
+      },
+      "fieldNames": {
+        "edit": [],
+        "recruit": [],
+        "wage": []
+      },
+      "value": {
+        "newSlots": null,
+        "batt": null
+      },
+      "slots": null,
+      "headcountLine": "已招 1/2",
       "noticeText": null,
       "overflow": {
         "doc": 0,
         "page": 0,
-        "recruitPanel": null
+        "panel": null
       }
     }
   },
   "assertions": {
-    "twoEntries": {
+    "entries": {
       "pageRendered": true,
       "editEntryPresent": true,
       "recruitEntryPresent": true,
+      "wageEntryPresent": true,
       "campaignEntryPresent": true,
-      "recruitLabelI18n": true,
+      "labelsI18n": true,
       "noModalInitially": true,
       "noOverflow1536": true
     },
-    "recruitFieldSet": {
+    "editFieldSet": {
       "modalOpen": true,
       "titleI18n": true,
-      "exactlySixFields": true,
-      "_recruitFieldNames": [
-        "headcount",
-        "minDays",
+      "exactlyThreeProjectFields": true,
+      "zeroStatusField": true,
+      "_editFieldNames": [
+        "title",
+        "description",
+        "slug"
+      ],
+      "noOverflow": true
+    },
+    "recruitForm": {
+      "modalOpen": true,
+      "titleI18n": true,
+      "exactlyTwoFields": true,
+      "noProjectOrWageFields": true,
+      "newSlotsEmptyPrefill": true,
+      "readoutInitial": true,
+      "readoutTextI18n": true,
+      "noOverflow": true
+    },
+    "recruitReadoutLive": {
+      "addIs2": true,
+      "targetIs3": true,
+      "textI18n": true
+    },
+    "recruitSubmit": {
+      "patchCalledOnce": true,
+      "payloadExactHeadcount3": true,
+      "modalClosed": true,
+      "okNotice": true,
+      "headcountLineUpdated": true,
+      "_headcountLine": "已招 1/3"
+    },
+    "recruitBlankAdd": {
+      "payloadHasNoHeadcount": true,
+      "payloadExactDays": true
+    },
+    "wageForm": {
+      "modalOpen": true,
+      "titleI18n": true,
+      "exactlyFourFields": true,
+      "noProjectOrRecruitFields": true,
+      "hintMentionsAllMembers": true,
+      "_wageFieldNames": [
         "batt",
         "interval",
         "cid",
         "amount"
       ],
-      "noProjectFields": true,
-      "prefillHeadcount": true,
       "noOverflow": true
     },
-    "recruitSubmit": {
-      "patchCalledOnce": true,
-      "payloadExactHeadcount": true,
+    "wageSubmit": {
+      "payloadExactBatt": true,
       "modalClosed": true,
       "okNotice": true,
-      "headcountLineUpdated": true
-    },
-    "editFieldSet": {
-      "modalOpen": true,
-      "exactlyFourProjectFields": true,
-      "noRecruitFields": true
-    },
-    "slugSelfHeal": {
-      "patchPayloadSlugOnly": true,
-      "urlBecameNewSlug": true,
-      "pageStillRendered": true,
-      "slugAttrUpdated": true,
-      "refetchedNewSlug": true,
-      "noReadOfOldSlugAfterSave": true,
-      "editModalClosed": true,
-      "okNotice": true
+      "noOverflow": true
     },
     "geometry": {
       "noOverflow390": true,
       "noOverflow1536": true,
-      "allThreeEntriesAt390": true
+      "allFourEntriesAt390": true
     },
     "otherViewer": {
       "pageRendered": true,
       "noEditEntry": true,
       "noRecruitEntry": true,
+      "noWageEntry": true,
       "zeroWrites": true,
+      "everyModalClosed": true,
       "noOverflow": true
     }
   },
@@ -270,8 +545,8 @@
     "other": []
   },
   "summary": {
-    "assertions": 37,
-    "passed": 37,
+    "assertions": 51,
+    "passed": 51,
     "failed": [],
     "pageErrors": 0,
     "ok": true
