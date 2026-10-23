@@ -296,7 +296,14 @@
     "price": "Giá",
     "amount": "Khối lượng",
     "refresh": "Tải lại",
-    "quoteNote": "Đơn vị định giá: $"
+    "quoteNote": "Đơn vị định giá: $",
+    "holdersTitle": "Người nắm giữ toàn mạng",
+    "holdersTotal": "{{n}} người nắm giữ (top 100)",
+    "holdersEmpty": "Chưa có người nắm giữ",
+    "holdersFail": "Tải danh sách thất bại, vui lòng thử lại",
+    "pickNote": "Chọn một loại tiền để xem giá, sổ lệnh và giao dịch.",
+    "pickTitle": "Chọn loại tiền",
+    "pickCta": "Xem thị trường"
   },
   "orders": {
     "statusLabel": {

@@ -101,6 +101,7 @@ import {
   openConversation,
   sendMessage,
   totalUnread,
+  maskWalletAddress,
 } from './messages-service';
 // ★ 项目（打工/工资）域（data-layer.spec §40.15 · route-layer.spec §49.19 · 迁移 0063/0064/0068）
 //   七口：R1/R2 公开读、R3–R6 用户写（登录闸）、R7 管理员（manage_tasks）。
@@ -2353,6 +2354,42 @@ app.post('/api/admin/points/adjust', async (req, res) => {
 //   · 失败 ⇒ `sendInfraMapped`（R107 既有分类器；**零新增错误码**）；
 //   · 注册点 **107 → 108**（逐 verb 分解 get 47 → 48、post 56、delete 3、patch 1）。
 // ============================================================================
+// ============================================================================
+// 0076（Kevin 2026-10-23 ②）：全网持币人读口（公开只读）
+//   · `GET /api/currency/:cid/holders`：只列 `balance > 0`，数量倒序，前 100；
+//     evm 用 `maskWalletAddress` 打码（与卖家地址单源共用，**不在响应里出现明文**）；
+//     cid = 1（`$` 本位币）也允许查询（列表通常为空 ⇒ 前端不展示该面板）；
+//   · 响应 `{ cid, symbol, total_holders, holders:[{rank, evm_masked, balance}] }`；
+//   · 注册点 **110 → 111**（get 49 → 50）。
+// ============================================================================
+app.get('/api/currency/:cid/holders', async (req, res) => {
+  const cidNum = Number(String(req.params?.cid ?? '').trim());
+  if (!Number.isInteger(cidNum) || cidNum <= 0) {
+    return sendError(res, 400, 'currency id must be a positive integer');
+  }
+  try {
+    const cur = await DatabaseService.listListedCurrencies();
+    const row = cur.find((r) => Number(r.cid) === cidNum);
+    if (!row) {
+      return sendRefNotFound(res, 'currency', String(cidNum), 'currency_not_found');
+    }
+    const raw = await DatabaseService.listCurrencyHolders(cidNum, 100);
+    const holders = raw.map((r, i) => ({
+      rank: i + 1,
+      evm_masked: maskWalletAddress(String(r.evm ?? '')),
+      balance: String(r.balance ?? '0'),
+    }));
+    return sendSuccess(res, {
+      cid: cidNum,
+      symbol: String(row.symbol ?? ''),
+      total_holders: holders.length,
+      holders,
+    }, 'Currency holders (public)');
+  } catch (error) {
+    return sendInfraMapped(res, 'currency.holders', error);
+  }
+});
+
 app.get('/api/currencies', async (_req, res) => {
   try {
     const rows = await DatabaseService.listListedCurrencies();

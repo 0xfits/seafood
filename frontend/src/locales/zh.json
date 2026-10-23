@@ -296,7 +296,14 @@
     "price": "价格",
     "amount": "数量",
     "refresh": "刷新",
-    "quoteNote": "计价单位：$"
+    "quoteNote": "计价单位：$",
+    "holdersTitle": "全网持币",
+    "holdersTotal": "共 {{n}} 名持币用户（前 100 名）",
+    "holdersEmpty": "暂无持币用户",
+    "holdersFail": "持币列表加载失败，请稍后重试",
+    "pickNote": "选择一个币种进入行情、盘口与成交流水。",
+    "pickTitle": "选择币种",
+    "pickCta": "查看行情"
   },
   "orders": {
     "statusLabel": {

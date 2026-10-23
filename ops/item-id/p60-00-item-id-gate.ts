@@ -130,7 +130,7 @@ const tx = async <T>(
   // ====================================================================== A · 静态面（零 DB）
   const regs = (INDEX_TS.match(/^app\.(get|post|put|delete|patch)\(/gm) ?? []).length;
   ck.t('A1', '**零新路由**：注册点 = 109（job 域下线 −21 后现取 —— `:ref` 只扩既有 `GET /api/prize/:bID` 的参数取值域，不新增注册点）',
-    regs === 110, `registration_points=${regs}`);
+    regs === 111, `registration_points=${regs}`);
 
   const detailBlock = sliceBetween(INDEX_TS, "app.get('/api/prize/:", "app.get('/api/user'");
   const dual = {

@@ -293,8 +293,8 @@ const errOf = (x: unknown): unknown =>
     "app.post('/api/campaign/task/:taskId/reward'",
   ];
   const migFiles72 = fs.readdirSync(path.resolve(REPO_ROOT, 'backend-ts/migrations')).filter((f) => f.startsWith('0072'));
-  ck.t('A9', '★零新路由 / 零新迁移号冲突：注册点仍 **109**（get 49 / post 54 / patch 4 / delete 3 / put 0，本单只改服务层内部）· 九口逐条在场 · 迁移目录里 0072 前缀**恰一个**文件 · `subtask_type` 仍 5 类（本单不加类型）',
-    regs === 110 && countVerb('get') === 49 && countVerb('post') === 54 && countVerb('patch') === 4
+  ck.t('A9', '★零新路由 / 零新迁移号冲突：注册点仍 **109**（get 50 / post 54 / patch 4 / delete 3 / put 0，本单只改服务层内部）· 九口逐条在场 · 迁移目录里 0072 前缀**恰一个**文件 · `subtask_type` 仍 5 类（本单不加类型）',
+    regs === 111 && countVerb('get') === 50 && countVerb('post') === 54 && countVerb('patch') === 4
       && countVerb('delete') === 3 && countVerb('put') === 0
       && nine.every((s) => INDEX_TS.indexOf(s) !== -1)
       && migFiles72.length === 1 && migFiles72[0] === '0072_subtask_reward_and_quiz.sql'

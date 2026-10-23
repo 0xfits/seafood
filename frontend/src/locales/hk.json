@@ -296,7 +296,14 @@
     "price": "價格",
     "amount": "數量",
     "refresh": "重新整理",
-    "quoteNote": "計價單位：$"
+    "quoteNote": "計價單位：$",
+    "holdersTitle": "全網持幣",
+    "holdersTotal": "共 {{n}} 名持幣用戶（前 100 名）",
+    "holdersEmpty": "暫無持幣用戶",
+    "holdersFail": "持幣列表載入失敗，請稍後重試",
+    "pickNote": "選擇一個幣種進入行情、盤口與成交流水。",
+    "pickTitle": "選擇幣種",
+    "pickCta": "查看行情"
   },
   "orders": {
     "statusLabel": {

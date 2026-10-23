@@ -69,7 +69,7 @@ describe('P6-BTN-IMPL-2 · `.sf-btn` 家族纳入 A 体系', () => {
   //   （返回首页入口挂 `.sf-btn`）⇒ 家族清单 10 ⇒ 11 文件（`≥22 处用法` 不变）。冻结清单随裁定前移。
   // ★ 2026-10-21（Kevin 裁定 · job 体系弃用）：`pages/jobs/JobDetailPage.jsx` + `pages/jobs/PublishJobPage.jsx`
   //   随页删除 ⇒ 家族 11 ⇒ **9 文件**；用法 33 ⇒ **27 处**（删 3 + 3）。
-  it('家族清单现取：9 个 JSX 文件、27 处用法，且每处都挂基类 .sf-btn', () => {
+  it('家族清单现取：9 个 JSX 文件、28 处用法（0076 /exchange 选择页 Link +1），且每处都挂基类 .sf-btn', () => {
     expect(inventory.map((e) => e.file).sort()).toEqual([
       'components/RatingTimelinessPanel.jsx',
       'pages/NotFoundPage.jsx',
@@ -81,7 +81,7 @@ describe('P6-BTN-IMPL-2 · `.sf-btn` 家族纳入 A 体系', () => {
       'pages/jobs/JobReviewPage.jsx',
       'pages/market/MarketPage.jsx',
     ])
-    expect(totalUses).toBe(27)
+    expect(totalUses).toBe(28)
     for (const entry of inventory) {
       for (const hit of entry.hits) expect(hit.text).toMatch(/\bsf-btn\b/)
     }

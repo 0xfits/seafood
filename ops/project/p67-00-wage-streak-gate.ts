@@ -190,8 +190,8 @@ const reasonOf = (r: unknown) => String(((r as { details?: { reason?: unknown } 
     INDEX_TS.indexOf("app.post('/api/project/:id/claim'"),
     INDEX_TS.indexOf("app.post('/api/project/:id/leave'"),
   );
-  ck.t('A5', 'claim 响应**加性**：路由仍 `sendSuccess(res, result.view, …)`（整份 view 原样透出，零字段裁剪）· 注册点现取 110（get 49 / post 54 / patch 4 / delete 3 · 2026-10-23 现取，含 vault-recharge +1）',
-    regs === 110 && countVerb('get') === 49 && countVerb('post') === 54 && countVerb('patch') === 4 && countVerb('delete') === 3
+  ck.t('A5', 'claim 响应**加性**：路由仍 `sendSuccess(res, result.view, …)`（整份 view 原样透出，零字段裁剪）· 注册点现取 111（get 50 / post 54 / patch 4 / delete 3 · 2026-10-23 现取，含 vault-recharge +1）',
+    regs === 111 && countVerb('get') === 50 && countVerb('post') === 54 && countVerb('patch') === 4 && countVerb('delete') === 3
       && /sendSuccess\(res, result\.view/.test(claimRoute)
       && /claimProjectWageVerb\(\{ actorUid: Number\(actor\.user\.uID\), ref \}\)/.test(claimRoute),
     JSON.stringify({ regs, get: countVerb('get'), post: countVerb('post'), patch: countVerb('patch'), delete: countVerb('delete'), passthrough: /sendSuccess\(res, result\.view/.test(claimRoute) }));

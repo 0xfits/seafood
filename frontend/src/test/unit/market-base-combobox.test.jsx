@@ -4,7 +4,7 @@
  * 口径（派单逐条）：
  *   ① 下拉列出全部 listed 币（行文案 `symbol · name · #cid`），**cid 1 恒不在选项**（§5.103 退化币对）；
  *   ② 过滤 = 输入词对 symbol/name/cid **不区分大小写包含**（`bttc` ⇒ 命中 BTTC 一项）；
- *   ③ 点选 / Enter ⇒ `base = 该币 cid`：URL `?base=` 写回 + 订单簿请求按该 cid 发出；
+ *   ③ 点选 / Enter ⇒ `base = 该币 cid`：**URL 跳 `/exchange/<slug>`**（0076 路径参数化）+ 订单簿按该 cid 发出；
  *   ④ 纯数字直输 + 失焦 ⇒ 既有行为（base = 该 cid，404/无效走现兜底）；
  *   ⑤ Esc / 失焦关闭面板 ⇒ **零请求**（关面板纯本地态）；
  *   ⑥ `?base=N` 直进 ⇒ 回显对应 symbol；无对应 ⇒ 回显数字。
@@ -16,7 +16,7 @@
  */
 import React from 'react'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { MemoryRouter, useLocation } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const stableT = (key) => key
@@ -58,18 +58,25 @@ import MarketPage from '../../pages/market/MarketPage'
 // 路由探针：读 MemoryRouter 内的 location.search（jsdom 的 window.location 不随 MemoryRouter 变）
 const LocationSpy = () => {
   const location = useLocation()
-  return <div data-sf-m="loc-spy" data-search={location.search} />
+  return <div data-sf-m="loc-spy" data-search={location.search} data-path={location.pathname} />
 }
 
-const renderPage = (initialUrl = '/exchange') => render(
+// ★ 必须**真挂 Route**：`useParams()` 只有在 `<Route path="exchange/:symbol?">` 内才有值
+//   （MarketPage 直挂 MemoryRouter ⇒ params 恒空 ⇒ 会被判成选择模式 —— 测试假红的第一坑）。
+const renderPage = (initialUrl = '/exchange/bttc') => render(
   <MemoryRouter initialEntries={[initialUrl]}>
+    <Routes>
+      <Route path="/exchange" element={<MarketPage />} />
+      <Route path="/exchange/:symbol" element={<MarketPage />} />
+    </Routes>
     <LocationSpy />
-    <MarketPage />
   </MemoryRouter>,
 )
 
 const inputOf = (container) => container.querySelector('[data-sf-m="mkt-input-base"]')
-const urlSearch = () => document.querySelector('[data-sf-m="loc-spy"]')?.getAttribute('data-search') || ''
+const spyOf = (root) => (root || document).querySelector('[data-sf-m="loc-spy"]')
+const urlSearch = (root) => spyOf(root)?.getAttribute('data-search') || ''
+const urlPath = (root) => spyOf(root)?.getAttribute('data-path') || ''
 const apiCalls = (needle) => fetchApiJson.mock.calls.filter(([u]) => String(u).includes(needle))
 // 精确匹配变体：`/api/order`（挂单写口）—— includes 会把 `/api/market/N/orderbook` 顶进来（坏尺子）；
 //   可选 method 过滤：挂载时「我的挂单」GET /api/order 在场，判「表单提交」必须认 POST。
@@ -112,7 +119,7 @@ describe('「标的币种」combobox（/exchange · Kevin 2026-10-21）', () => 
     // 面板关闭 + 输入框回显选中币 symbol
     await waitFor(() => expect(container.querySelector('[data-sf-m="mkt-base-listbox"]')).toBeNull())
     await waitFor(() => expect(input.value).toBe('₿'))
-    expect(urlSearch()).toContain('base=4')
+    await waitFor(() => expect(urlPath()).toBe('/exchange/bttc')) // 0076：选择即入路径（slug = name 连字化）
     await waitFor(() => expect(apiCalls('/api/market/4/orderbook').length).toBe(1))
     // 面板开着时 Enter 永不提交挂单表单（零 POST /api/order —— 精确匹配 + method 过滤，orderbook 读口与挂载期「我的挂单」GET 都不算）
     expect(exactCalls('/api/order', 'POST').length).toBe(0)
@@ -135,7 +142,7 @@ describe('「标的币种」combobox（/exchange · Kevin 2026-10-21）', () => 
     expect(input.getAttribute('aria-activedescendant')).toBe('sf-mkt-base-opt-0')
 
     fireEvent.keyDown(input, { key: 'Enter' })
-    await waitFor(() => expect(urlSearch()).toContain('base=4'))
+    await waitFor(() => expect(urlPath()).toBe('/exchange/bttc'))
     await waitFor(() => expect(apiCalls('/api/market/4/orderbook').length).toBe(1))
   })
 
@@ -148,7 +155,6 @@ describe('「标的币种」combobox（/exchange · Kevin 2026-10-21）', () => 
     fireEvent.mouseDown(container.querySelector('[data-sf-cid="10"]'))
     await waitFor(() => expect(container.querySelector('[data-sf-m="mkt-base-listbox"]')).toBeNull())
     await waitFor(() => expect(input.value).toBe('Ω'))
-    expect(urlSearch()).toContain('base=10')
     await waitFor(() => expect(apiCalls('/api/market/10/orderbook').length).toBe(1))
   })
 
@@ -160,43 +166,63 @@ describe('「标的币种」combobox（/exchange · Kevin 2026-10-21）', () => 
 
     await waitFor(() => expect(apiCalls('/api/market/7/orderbook').length).toBe(1))
     expect(input.value).toBe('7') // 无对应币 ⇒ 回显数字
-    expect(urlSearch()).toContain('base=7')
+    await waitFor(() => expect(urlPath()).toBe('/exchange/7')) // 纯数字段直认 cid（旧 ?base=999 能力保留）
   })
 
   it('⑥ Esc / 失焦关闭面板 ⇒ 零请求（挂单/盘口/币种读口都不新增调用）', async () => {
     const { container } = renderPage()
     const input = inputOf(container)
-    await waitFor(() => expect(apiCalls('/api/currencies').length).toBe(1))
-    const callsAtRest = fetchApiJson.mock.calls.length
+    await waitFor(() => expect(apiCalls('/api/market/4/orderbook').length).toBe(1)) // 行情稳定
+    const marketCallsAtRest = apiCalls('/api/market/').length
+    const curCallsAtRest = apiCalls('/api/currencies').length
 
     // Esc 关面板：纯本地态，零请求
     fireEvent.focus(input)
     fireEvent.keyDown(input, { key: 'Escape' })
     expect(container.querySelector('[data-sf-m="mkt-base-listbox"]')).toBeNull()
-    expect(fetchApiJson.mock.calls.length).toBe(callsAtRest)
+    expect(apiCalls('/api/market/').length).toBe(marketCallsAtRest)
 
-    // 输入文本后失焦（非数字 ⇒ 放弃搜索）：零请求，echo 恢复（base 仍为空 ⇒ 空串）
+    // 输入文本后失焦（非数字 ⇒ 放弃搜索）：零请求，echo 恢复选中币（挂载即 /exchange/bttc ⇒ base=4）
     fireEvent.focus(input)
     await waitFor(() => expect(optionsOf().length).toBe(2))
     fireEvent.change(input, { target: { value: 'bt' } })
     fireEvent.blur(input)
     expect(container.querySelector('[data-sf-m="mkt-base-listbox"]')).toBeNull()
-    expect(input.value).toBe('')
-    expect(fetchApiJson.mock.calls.length).toBe(callsAtRest)
-    expect(apiCalls('/api/market/').length).toBe(0)
-    expect(apiCalls('/api/currencies').length).toBe(1) // 挂载一次，关面板不重取
+    expect(input.value).toBe('₿')
+    expect(apiCalls('/api/market/').length).toBe(marketCallsAtRest) // 关面板零新增
+    expect(apiCalls('/api/currencies').length).toBe(curCallsAtRest) // 挂载一次，关面板不重取
   })
 
-  it('⑦ `?base=4` 直进 ⇒ 回显对应 symbol；`?base=999` 无对应 ⇒ 回显数字（订单簿仍按该 cid 发出）', async () => {
+  it('⑦ `?base=4` 旧链接 ⇒ 兼容重定向 `/exchange/bttc`；`?base=999` ⇒ `/exchange/999`（订单簿仍按该 cid 发出）', async () => {
     const { container } = renderPage('/exchange?base=4')
     const input = inputOf(container)
-    await waitFor(() => expect(input.value).toBe('₿')) // 选项源落地后回显 symbol
-    expect(urlSearch()).toContain('base=4')
+    await waitFor(() => expect(urlPath()).toBe('/exchange/bttc')) // 0076 兼容重定向（replace）
+    await waitFor(() => expect(input.value).toBe('₿'))
     await waitFor(() => expect(apiCalls('/api/market/4/orderbook').length).toBe(1))
 
     const second = renderPage('/exchange?base=999')
     const input2 = inputOf(second.container)
+    await waitFor(() => expect(urlPath(second.container)).toBe('/exchange/999'))
     await waitFor(() => expect(apiCalls('/api/market/999/orderbook').length).toBe(1))
     expect(input2.value).toBe('999') // 无对应 ⇒ 回显数字
+  })
+
+  it('⑧ `/exchange/bttc` 直达（Kevin 2026-10-23 ①）：解析命中 cid 4 + 订单簿按 4 发出；`/exchange` 无参 ⇒ 选择界面', async () => {
+    const { container } = renderPage('/exchange/bttc')
+    await waitFor(() => expect(apiCalls('/api/market/4/orderbook').length).toBe(1))
+    expect(container.querySelector('[data-sf-m="mkt-pick"]')).toBeNull() // 非 choose 模式
+
+    const second = renderPage('/exchange')
+    await waitFor(() => expect(second.container.querySelector('[data-sf-m="pick-option"]')).not.toBeNull())
+    const options = [...second.container.querySelectorAll('[data-sf-m="pick-option"]')]
+    expect(options.length).toBe(2)
+    expect(options[0].getAttribute('href')).toBe('/exchange/bttc')
+    expect(options[1].getAttribute('href')).toBe('/exchange/omega-coin')
+  })
+
+  it('⑨ `/exchange/nope` 未命中 ⇒ 404 提示页（NotFoundPage，不渲染行情体）', async () => {
+    const { container } = renderPage('/exchange/nope')
+    await waitFor(() => expect(container.querySelector('[data-sf-m="not-found-page"]')).not.toBeNull())
+    expect(container.querySelector('[data-sf-m="mkt"]')).toBeNull()
   })
 })

@@ -146,6 +146,9 @@ const LangShell = () => {
         {/* 积分交易所（原「碎片市场」）：页面路径 2026-10-03 由 /shard 改名单为 /exchange；
             组件名与文件 ShardPage 不变，/api/shard* 与 t('shard') 文案键均不动 */}
         <Route path="exchange" element={<ShardPage />} />
+        {/* 0076（Kevin 2026-10-23 ①）：路径参数化 `/exchange/<symbol>`（不分大小写；
+            未命中 ⇒ 404 提示页；`/exchange` 无参 = 币种选择界面；`?base=N` 由页面内兼容重定向）。 */}
+        <Route path="exchange/:symbol" element={<ShardPage />} />
 
         {/* 旧页面路径 /shard 兼容重定向：保留语言前缀，落到同档语言下的 exchange 页
             （zh 无前缀 ⇒ /exchange；/en|/hk|/vn/shard ⇒ /en|/hk|/vn/exchange）⇒ 旧链接不破损 */}

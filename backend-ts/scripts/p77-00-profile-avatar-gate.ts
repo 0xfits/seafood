@@ -133,8 +133,8 @@ const NON_STRING_FORMS: Array<{ id: string; why: string; value: unknown }> = [
   const countVerb = (v: string) => (INDEX_TS.match(new RegExp(`^app\\.${v}\\(`, 'gm')) ?? []).length;
   const verbCounts = { regs, get: countVerb('get'), post: countVerb('post'), patch: countVerb('patch'), delete: countVerb('delete'), put: countVerb('put') };
   ck.t('A1',
-    '★路由面：注册点仍 **109**（49/54/4/3/0 · 零新路由：`POST /api/user/profile` 是既有口，本单只加键）',
-    regs === 110 && verbCounts.get === 49 && verbCounts.post === 53 && verbCounts.patch === 4 && verbCounts.delete === 3 && verbCounts.put === 0,
+    '★路由面：注册点仍 **109**（50/54/4/3/0 · 零新路由：`POST /api/user/profile` 是既有口，本单只加键）',
+    regs === 111 && verbCounts.get === 49 && verbCounts.post === 53 && verbCounts.patch === 4 && verbCounts.delete === 3 && verbCounts.put === 0,
     JSON.stringify(verbCounts));
 
   const routeSlice = (verb: string, tail: string): string => {

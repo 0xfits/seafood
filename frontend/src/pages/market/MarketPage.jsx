@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link, useLocation, useSearchParams } from 'react-router-dom'
+import NotFoundPage from '../NotFoundPage'
+import { Link, navigate as rrNavigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
@@ -11,6 +12,7 @@ import {
   cancelOrder,
   createOrderPlaceTracker,
   fetchCurrencies,
+  fetchCurrencyHolders,
   fetchMarketTrades,
   fetchMyOrders,
   fetchOrderBook,
@@ -80,11 +82,35 @@ const baseOptionText = (row) => {
 //   纯数字同时命中 cid 数字串，如 `39` 命中 #399）。
 const normNeedle = (v) => String(v ?? '').trim().toLowerCase()
 
+/** cid → symbol（查已加载的币种表；未加载/未命中 ⇒ 原样返回数字串，调用方兜底） */
+const slugOf = (row) => {
+  if (!row) return ''
+  const sym = String(row.symbol ?? '').trim().toLowerCase()
+  if (/^[a-z0-9-]{1,16}$/.test(sym)) return sym
+  return String(row.name ?? '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+}
+
+const cidSymbol = (cid, list = []) => {
+  const hit = list.find((row) => String(row.cid) === String(cid))
+  return hit ? String(hit.symbol ?? '') : String(cid)
+}
+
 const MarketPage = () => {
   const { t } = useTranslation()
   const location = useLocation()
   const { isAuthenticated, user } = useAuth()
   const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
+  // ★ 0076（Kevin 2026-10-23 ①③）：路径参数化 + 无参 = 币种选择页
+  //   · `/exchange/<symbol>`（不分大小写）⇒ 命中 listed 币 ⇒ base = cid；
+  //   · `/exchange?base=N` 旧链接 ⇒ 兼容重定向 `/exchange/<symbol>`（replace，保语言前缀）；
+  //   · `/exchange`（无 symbol 无 base）⇒ **选择模式**：渲染币种选择界面，不渲染行情体；
+  //   · symbol 未命中 ⇒ 404 提示页（NotFoundPage，零请求）。
+  const params = useParams()
+  const routeSymbol = typeof params?.symbol === 'string' ? String(params.symbol).trim() : ''
+  const langPrefix = /^\/(en|hk|vn)(\/|$)/.test(location.pathname) ? location.pathname.slice(0, 3) : ''
+  // 解析态：'resolving'（等 currencies）· 'ok' · 'unknown'（symbol 未命中 ⇒ 404）
+  const [resolveState, setResolveState] = useState(routeSymbol ? 'resolving' : 'pending')
 
   // 「标的币种」combobox（Kevin 2026-10-21）：
   //   · `base` 仍是**已提交**的币种编号（挂单/盘口的唯一真源，语义与旧手填一致）；
@@ -107,6 +133,8 @@ const MarketPage = () => {
   //   `next` = `next_before_txid` 游标（`null` = 到底）；真·零流水 ⇒ 空态。
   const [ledger, setLedger] = useState({ rows: [], next: null, message: '' })
   const [act, setAct] = useState({ phase: 'idle', message: '' })
+  // 0076（Kevin 2026-10-23 ②）：全网持币人（公开只读；`GET /api/currency/:cid/holders`）
+  const [holders, setHolders] = useState({ phase: 'idle', total: 0, rows: [], message: '' })
   const tracker = useMemo(() => createOrderPlaceTracker(), [])
 
   const baseCid = Number(base)
@@ -206,6 +234,41 @@ const MarketPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // ---- 0076：symbol 解析 / `?base=` 兼容重定向 / 选择模式判定 ----------------
+  useEffect(() => {
+    if (!currencies.length) return // 列表未到位，等下一轮
+    const pick = (cid) => {
+      navigate(`${langPrefix}/exchange/${slugOf(currencies.find((row) => String(row.cid) === String(cid)) || { name: String(cid) })}`, { replace: true })
+    }
+    if (routeSymbol) {
+      const seg = normNeedle(routeSymbol)
+      // 解析口径：slug（symbol ASCII 直用 / name 连字化）· symbol · name · 纯数字直认 cid
+      // （末位兜底保留旧 `?base=999` 直进数字的能力）
+      const hit = currencies.find((row) => slugOf(row) === seg)
+        || currencies.find((row) => normNeedle(row.symbol) === seg)
+        || currencies.find((row) => normNeedle(row.name) === seg)
+      if (hit) {
+        setResolveState('ok')
+        setBase((prev) => (prev === String(hit.cid) ? prev : String(hit.cid)))
+      } else if (/^\d+$/.test(seg) && Number(seg) > 0) {
+        setResolveState('ok')
+        setBase((prev) => (prev === String(Number(seg)) ? prev : String(Number(seg))))
+      } else {
+        setResolveState('unknown')
+      }
+      return
+    }
+    const qsBase = String(searchParams.get('base') ?? '').trim()
+    if (/^\d+$/.test(qsBase) && Number(qsBase) > 0) {
+      const hit = currencies.find((row) => String(row.cid) === String(Number(qsBase)))
+      if (hit) { navigate(`${langPrefix}/exchange/${slugOf(hit)}`, { replace: true }) }
+      else if (/^\d+$/.test(qsBase)) { navigate(`${langPrefix}/exchange/${Number(qsBase)}`, { replace: true }) }
+      else { navigate(`${langPrefix}/exchange`, { replace: true }) }
+      return
+    }
+    setResolveState('pending') // 选择模式
+  }, [currencies, routeSymbol, searchParams, langPrefix])
+
   // ---- combobox 派生态与提交动作 ---------------------------------------------
   //   · 选项池 = listed 币**排除 cid 1**（§5.103：`$` 对自身 = 退化币对，不可作 base 选中）；
   //   · 回显 = 已提交 base 对应行的 `symbol`（查**全量**表，cid 1 也能回显 `$`）；无对应 ⇒ 回显数字；
@@ -237,10 +300,9 @@ const MarketPage = () => {
 
   const commitBase = useCallback((cid) => {
     setBase(cid)
-    const next = new URLSearchParams(searchParams)
-    next.set('base', String(cid))
-    setSearchParams(next, { replace: true })
-  }, [searchParams, setSearchParams])
+    // 0076：选择即入路径（`/exchange/<symbol>`，replace 不刷历史栈）；旧 `?base=` 不再写回
+    navigate(`${langPrefix}/exchange/${slugOf(currencies.find((row) => String(row.cid) === String(cid)) || { name: String(cid) })}`, { replace: true })
+  }, [langPrefix, currencies])
 
   const selectBaseOption = useCallback((row) => {
     commitBase(String(row.cid))
@@ -289,8 +351,28 @@ const MarketPage = () => {
     }
   }
 
+  const loadHolders = useCallback(async () => {
+    if (!baseValid) {
+      setHolders({ phase: 'idle', total: 0, rows: [], message: '' })
+      return
+    }
+    setHolders((prev) => ({ ...prev, phase: 'loading' }))
+    try {
+      const body = await fetchCurrencyHolders(baseCid, user)
+      const data = body?.data ?? {}
+      setHolders({ phase: 'done', total: Number(data.total_holders ?? 0), rows: Array.isArray(data.holders) ? data.holders : [], message: '' })
+    } catch (error) {
+      setHolders((prev) => ({ ...prev, phase: 'error', message: String(error?.message ?? 'holders failed') }))
+    }
+  }, [baseCid, baseValid])
+
+  useEffect(() => {
+    loadHolders()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [baseCid, baseValid])
+
   const refresh = async () => {
-    await Promise.all([loadMarket(), loadMine(), loadLedger(null)])
+    await Promise.all([loadMarket(), loadMine(), loadLedger(null), loadHolders()])
   }
 
   const onPlace = async (event) => {
@@ -375,9 +457,67 @@ const MarketPage = () => {
   const lang = getLanguageFromUrl(location.pathname)
   const mineRows = activeMineRows.map((row) => localizeFields(row, ['name', 'title'], lang))
 
+  // ---- 0076 渲染分支：symbol 未命中 ⇒ 404；选择模式 ⇒ 币种选择界面（不渲染行情体） ----
+  if (resolveState === 'unknown') {
+    return <NotFoundPage />
+  }
+  const pickerMode = resolveState === 'pending' && !base
+
+  // ---- 持币人面板（0076 ②）：baseValid 才渲染；空态 / 失败态内联，不打断其它区块 ----
+  const holdersPanel = baseValid ? (
+    <section className="sf-panel sf-mkt-holders" data-sf-m="holders">
+      <h2 className="sf-mkt-sec-title" data-sf-m="holders-title">{t('market.holdersTitle')}</h2>
+      {holders.phase === 'error' ? (
+        <p className="sf-foot-note" data-sf-m="holders-error" role="alert">{t('market.holdersFail')}</p>
+      ) : holders.rows.length === 0 ? (
+        <p className="sf-foot-note" data-sf-m="holders-empty">{t('market.holdersEmpty')}</p>
+      ) : (
+        <>
+          <p className="sf-foot-note" data-sf-m="holders-total">{t('market.holdersTotal', { n: holders.total })}</p>
+          <ol className="sf-mkt-holders-list" data-sf-m="holders-list">
+            {holders.rows.map((row) => (
+              <li className="sf-mkt-holder" data-sf-m="holder-row" data-sf-rank={String(row.rank ?? '')} key={String(row.rank)}>
+                <span className="sf-mkt-holder-rank">{`#${String(row.rank ?? '-')}`}</span>
+                <span className="sf-mkt-holder-addr" data-sf-addr={row.evm_masked || undefined}>{String(row.evm_masked ?? '-')}</span>
+                <span className="sf-mkt-holder-bal" data-sf-balance={String(row.balance ?? '')}>{String(row.balance ?? '-')}</span>
+              </li>
+            ))}
+          </ol>
+        </>
+      )}
+    </section>
+  ) : null
+
   return (
     <div className="sf-layout" data-sf-m="mkt-layout">
       <div className="sf-layout-main">
+        {pickerMode ? (
+          <div className="sf-mkt" data-sf-m="mkt-pick">
+            <div className="sf-mkt-head" data-sf-m="mkt-pick-hero">
+              <h1 className="sf-mkt-title">{t('market.title')}</h1>
+              <p className="sf-mkt-note">{t('market.pickNote')}</p>
+            </div>
+            <section className="sf-panel" data-sf-m="pick-panel">
+              <h2 className="sf-mkt-sec-title" data-sf-m="pick-title">{t('market.pickTitle')}</h2>
+              <ul className="sf-mkt-pick-list" data-sf-m="pick-list">
+                {optionPool.map((row) => (
+                  <li className="sf-mkt-pick-item" key={String(row.cid)}>
+                    <Link
+                      className="sf-btn sf-mkt-btn"
+                      data-sf-m="pick-option"
+                      data-sf-symbol={String(row.symbol ?? '')}
+                      to={`${langPrefix}/exchange/${slugOf(row)}`}
+                    >
+                      <span className="sf-mkt-pick-sym">{String(row.symbol ?? '')}</span>
+                      <span className="sf-mkt-pick-name">{String(row.name ?? '')}</span>
+                      <span className="sf-mkt-pick-cta">{t('market.pickCta')}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </div>
+        ) : (
         <div className="sf-mkt" data-sf-m="mkt">
           <div className="sf-mkt-head" data-sf-m="mkt-hero">
             <h1 className="sf-mkt-title">{t('market.title')}</h1>
@@ -579,9 +719,11 @@ const MarketPage = () => {
             </div>
           </div>
         </div>
+        )}
       </div>
 
       <div className="sf-layout-side">
+{holdersPanel}
         <div className="sf-mkt-panel" data-sf-m="mkt-mine">
           <h2 className="sf-mkt-title">{t('market.mine')}</h2>
           <div className="sf-mkt-row">

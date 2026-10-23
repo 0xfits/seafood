@@ -162,6 +162,17 @@ export const PLATFORM_UID = -1;
  * 语义窄化债已登记（报告 §借码）；扩容新 kind ⇒ 另单（DB CHECK 重建 ＋ LEDGER_KINDS 同步）。
  */
 export const PLATFORM_PAYOUT_KIND = 'invite_first_task_reward' as const;
+/**
+ * 电量费率（Kevin 2026-10-23 裁定）：**每次提交 / 每次领取扣 1 电量**（fail-closed，不足 ⇒ 409
+ * `batt_insufficient`）。扣的电量**进平台**（`CAMPAIGN_PLATFORM_BATT_UID = 0`，非 ledger 的 −1），
+ * 两腿台账 = `batt_account` 两行（用户 + 平台）＋ `batt_entry` 两条（用户 −1 / 平台 +1）。
+ */
+export const CAMPAIGN_BATT_FEE = 1;
+/** 平台电量账户 uid（`batt_account` / `batt_entry` 面；0075 放行 uid = 0 平台豁免） */
+export const CAMPAIGN_PLATFORM_BATT_UID = 0;
+/** `batt_entry.reason` 机读常量：提交费腿 / 领取费腿（`reason` 无 CHECK，取机读常量体例同 project_wage） */
+export const BATT_FEE_REASON_PROOF = 'campaign_proof_fee' as const;
+export const BATT_FEE_REASON_CLAIM = 'campaign_claim_fee' as const;
 
 const KEY_PREFIXES = ['biz:', 'cm:', 'cli:', 'ops:'];
 const CONTROL_CHARS = /[\u0000-\u001f\u007f]/;
@@ -524,6 +535,104 @@ const runInTx = async <T>(ex: TxClient | undefined, fn: (tx: TxClient) => Promis
 
 const readRows = async <R = Row>(text: string, params: unknown[], ex?: TxClient): Promise<R[]> =>
   (ex ? txQuery<R>(ex, text, params) : readQuery<R>(text, params));
+
+// ============================================================================
+// 电量费腿（Kevin 2026-10-23：每次提交 / 每次领取扣 1 电量，扣的进平台）
+// ----------------------------------------------------------------------------
+// · **同事务两腿**：调用方事务回滚 ⇒ 费腿一起回滚（409 / 冲突路径零残留）；
+// · `batt_account` 两行（用户 −1 / 平台 +1）＋ `batt_entry` 两条（append-only）；
+// · 行锁前置：`batt_account` 行 `FOR UPDATE` ⇒ 并发提交在同一用户上串行，
+//   attempt 计数（同 uid × reason × ref）在锁内单调 ⇒ 幂等键恒单值；
+// · 电量 < 1 ⇒ `'batt_insufficient'`（fail-closed：锁内即断，零写入）。
+// ============================================================================
+
+export interface CampaignBattFeeOutcome {
+  user_batt_after: number;
+  platform_batt_after: number;
+  /** 同 (uid × reason × ref) 既有费腿条数 —— 幂等键 `<base>:<attempt>:fee` 的判别子 */
+  fee_attempt: number;
+  idempotency_key: string;
+}
+
+type FeeQuery = (text: string, params?: unknown[]) => Promise<Row[]>;
+
+const chargeBattFee = async (
+  q: FeeQuery,
+  input: { uid: string; base: string; reason: string; refType: string; refId: string; memo: string },
+): Promise<CampaignBattFeeOutcome | 'batt_insufficient'> => {
+  const cur = await q(
+    `SELECT COALESCE((SELECT b.batt FROM public.batt_account AS b WHERE b.uid = $1::bigint FOR UPDATE), 0)::int AS batt`,
+    [input.uid],
+  );
+  const before = cur.length ? int(cur[0].batt) : 0;
+  if (before < CAMPAIGN_BATT_FEE) return 'batt_insufficient';
+  const after = before - CAMPAIGN_BATT_FEE;
+
+  const attemptRows = await q(
+    `SELECT count(*)::int AS n FROM public.batt_entry
+      WHERE uid = $1::bigint AND reason = $2::text AND ref_type = $3::text AND ref_id = $4::bigint`,
+    [input.uid, input.reason, input.refType, input.refId],
+  );
+  const attempt = attemptRows.length ? int(attemptRows[0].n) : 0;
+  const userKey = `${input.base}:${attempt}:fee`;
+  const platformKey = `${userKey}:p`;
+
+  // 用户腿：−1（行已锁 ⇒ 直接写判定值）
+  await q(
+    `INSERT INTO public.batt_account (uid, batt) VALUES ($1::bigint, $2::int)
+       ON CONFLICT (uid) DO UPDATE SET batt = EXCLUDED.batt`,
+    [input.uid, after],
+  );
+  await q(
+    `INSERT INTO public.batt_entry (uid, delta, batt_after, reason, idempotency_key, ref_type, ref_id, memo)
+     VALUES ($1::bigint, $2::int, $3::int, $4::text, $5::text, $6::text, $7::bigint, $8::text)
+     ON CONFLICT (idempotency_key) DO NOTHING`,
+    [input.uid, -CAMPAIGN_BATT_FEE, after, input.reason, userKey, input.refType, input.refId, input.memo],
+  );
+
+  // 平台腿：+1（行可能尚不存在 ⇒ ON CONFLICT 原子自增，RETURNING 取真值；uid 0 无上限 = 0075 豁免臂）
+  const platRows = await q(
+    `INSERT INTO public.batt_account (uid, batt) VALUES ($1::bigint, $2::int)
+       ON CONFLICT (uid) DO UPDATE SET batt = batt_account.batt + $2::int
+     RETURNING batt`,
+    [String(CAMPAIGN_PLATFORM_BATT_UID), CAMPAIGN_BATT_FEE],
+  );
+  const platAfter = platRows.length ? int(platRows[0].batt) : CAMPAIGN_BATT_FEE;
+  await q(
+    `INSERT INTO public.batt_entry (uid, delta, batt_after, reason, idempotency_key, ref_type, ref_id, memo)
+     VALUES ($1::bigint, $2::int, $3::int, $4::text, $5::text, $6::text, $7::bigint, $8::text)
+     ON CONFLICT (idempotency_key) DO NOTHING`,
+    [String(CAMPAIGN_PLATFORM_BATT_UID), CAMPAIGN_BATT_FEE, platAfter, input.reason, platformKey, input.refType, input.refId, input.memo],
+  );
+
+  return { user_batt_after: after, platform_batt_after: platAfter, fee_attempt: attempt, idempotency_key: userKey };
+};
+
+/** 电量不足 ⇒ 409（借码闭集不动；`details.reason = 'batt_insufficient'` 同值） */
+const battInsufficientErr = (extra: Record<string, unknown> = {}): VerbErr =>
+  conflict('batt_insufficient', { required: CAMPAIGN_BATT_FEE, ...extra });
+
+/** 发奖腿（claim 写口共用）：平台收入账户出账、用户入账，同事务单事件（kind 借码体例不变） */
+type EventTx = { query: (t: string, p?: unknown[]) => Promise<{ rows: Array<Record<string, unknown>> }> };
+const postRewardEvent = async (
+  tx: TxClient,
+  input: { idempotencyKey: string; cid: string; amount: string; uid: string; refId: string; memo: string; fingerprintParts: unknown[] },
+): Promise<void> => {
+  const amount = BigInt(input.amount);
+  await postEvent({
+    op: 'entries',
+    idempotencyKey: input.idempotencyKey,
+    requestFingerprint: fingerprintOf(input.fingerprintParts),
+    refType: 'system',
+    refId: input.refId,
+    memo: input.memo,
+    entries: [
+      { uid: String(PLATFORM_UID), cid: input.cid, delta: (-amount).toString(), kind: PLATFORM_PAYOUT_KIND },
+      { uid: input.uid, cid: input.cid, delta: amount.toString(), kind: PLATFORM_PAYOUT_KIND },
+    ],
+    ex: tx as unknown as EventTx,
+  });
+};
 
 // ============================================================================
 // 幂等键（§4.5 前缀闭集；调用方未给 ⇒ 推导确定性键）

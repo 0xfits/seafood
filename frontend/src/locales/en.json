@@ -296,7 +296,14 @@
     "price": "Price",
     "amount": "Amount",
     "refresh": "Refresh",
-    "quoteNote": "Pricing unit: $"
+    "quoteNote": "Pricing unit: $",
+    "holdersTitle": "Top holders",
+    "holdersTotal": "{{n}} holders (top 100)",
+    "holdersEmpty": "No holders yet",
+    "holdersFail": "Failed to load holders, please retry",
+    "pickNote": "Pick a currency to view quotes, order book and trades.",
+    "pickTitle": "Choose a currency",
+    "pickCta": "View market"
   },
   "orders": {
     "statusLabel": {

@@ -3807,6 +3807,23 @@ export class DatabaseService {
   //   deposit_amount 一类后台字段，与 §23.2 的后台读口区分开）。
   //   ★ 只读（只 `SELECT`）；零写、零 DDL；**不得**借读口补写（`DL23` 同向）。
   // ==========================================================================================
+  /** 0076（Kevin 2026-10-23 ②）：全网持币人（公开只读）——
+   *  只列 `balance > 0`，按数量倒序，前 100 名；地址在路由层用 `maskWalletAddress` 打码（单源）。
+   *  返回原始行（evm 明文 + balance text），**打码与 rank 编号在调用层做**，本查询不做字符串加工。 */
+  static async listCurrencyHolders(cid: number, limit = 100): Promise<RawRow[]> {
+    return runSql(
+      `SELECT u.evm AS evm,
+              a.balance::text AS balance
+         FROM public.account AS a
+         JOIN public.users AS u ON u.uid = a.uid
+        WHERE a.cid = $1::bigint
+          AND a.balance > 0
+        ORDER BY a.balance DESC, a.uid ASC
+        LIMIT $2::int`,
+      [cid, limit],
+    );
+  }
+
   static async listListedCurrencies(): Promise<RawRow[]> {
     const rows = await runSql(
       `SELECT c.cid AS cid,

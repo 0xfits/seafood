@@ -65,6 +65,9 @@ export const fetchMarketTrades = (baseCid, user, limit = 50) =>
  */
 export const fetchCurrencies = (user) => getJson('/api/currencies', user)
 
+/** 0076（Kevin 2026-10-23 ②）：全网持币人（公开只读；balance > 0，数量倒序，前 100） */
+export const fetchCurrencyHolders = (cid, user) => getJson(`/api/currency/${Number(cid)}/holders`, user)
+
 // ---- 写面 -------------------------------------------------------------------
 /**
  * M1 挂单。`side` ∈ {buy, sell}；买单冻结 `amount × price` 的 `$`（cid=1），卖单冻结 base 币 `amount`。

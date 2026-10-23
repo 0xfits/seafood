@@ -270,7 +270,8 @@ describe('交易所线 · 接线契约', () => {
 
   // ---- P4-B4c-ii-c ②（§5.103 裁定）：退化币对（base_cid=1）不发请求 + 空态**可区分** -------------
   it('§5.103 ①：base_cid=1（`$` 对自身）= 退化币对 ⇒ 页面**不发** orderbook / trades 请求', async () => {
-    const { container } = renderPage(<MarketPage />, '/shard')
+    // 0076：`?base=` 直进保留兼容路径（currencies 空列表 ⇒ 不重定向，直接以 base=1 渲染全页面）
+    const { container } = renderPage(<MarketPage />, '/exchange?base=1')
     await waitFor(() => expect(screen.getByText('market.mineEmpty')).toBeTruthy())
 
     const input = container.querySelector('[data-sf-m="mkt-input-base"]')
@@ -285,7 +286,7 @@ describe('交易所线 · 接线契约', () => {
   })
 
   it('§5.103 ②：真无挂单（base_cid=7、回包 = 空数组）⇒ 请求确实发出，空态 = `market.bookEmpty`（与退化区分）', async () => {
-    const { container } = renderPage(<MarketPage />, '/shard')
+    const { container } = renderPage(<MarketPage />, '/exchange?base=7')
     const input = container.querySelector('[data-sf-m="mkt-input-base"]')
     // 2026-10-21 combobox 化：change 只进 query ⇒ 补 blur 提交（纯数字直输保持旧行为）
     fireEvent.change(input, { target: { value: '7' } })
