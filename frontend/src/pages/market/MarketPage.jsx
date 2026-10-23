@@ -358,8 +358,9 @@ const MarketPage = () => {
     }
     setHolders((prev) => ({ ...prev, phase: 'loading' }))
     try {
-      const body = await fetchCurrencyHolders(baseCid, user)
-      const data = body?.data ?? {}
+      // ★ `fetchApiJson` 已 unwrap 到 `payload.data`（`auth.js:631`）⇒ 这里直接就是数据体，
+      //   再取 `.data` 会恒 undefined（首版即踩：接口 200 但面板恒「暂无持币用户」）。
+      const data = (await fetchCurrencyHolders(baseCid, user)) ?? {}
       setHolders({ phase: 'done', total: Number(data.total_holders ?? 0), rows: Array.isArray(data.holders) ? data.holders : [], message: '' })
     } catch (error) {
       setHolders((prev) => ({ ...prev, phase: 'error', message: String(error?.message ?? 'holders failed') }))
