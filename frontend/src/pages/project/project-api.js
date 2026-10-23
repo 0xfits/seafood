@@ -58,6 +58,15 @@ export const fetchProjectDetail = (ref, user) =>
 export const fetchProjectCurrencies = (user) => getJson('/api/currencies', user)
 
 /**
+ * 加入 / **切换**项目（R4 `POST /api/project/:id/apply`）。
+ *   · `body = {}` ⇒ 旧语义：已在其他项目在职 ⇒ 409 `worker_already_hired`（服务端兜底，不 silent 切换）；
+ *   · `body = { switch: true }` ⇒ **切换**：同事务离开旧项目 + 加入本项目，响应加性 `switched_from`
+ *     （旧 project_id）；新行 `hired_at = now()` ⇒ 领取间隔从此刻重新计算。
+ *   · 三闸（招募期 / 满员 / 注册天数）恒先于切换判定 ⇒ 切换不会绕过任何闸。
+ */
+export const applyToProject = (ref, body, user) => postJson(`/api/project/${enc(ref)}/apply`, body || {}, user)
+
+/**
  * 改项目（route R7 `PATCH /api/project/:projectId`；闸 = `requireAdmin('manage_tasks')` ∨ project owner，
  * ended 由服务端封板）。body 只带**变化字段**（键闭集 = title / description / slug / headcount /
  * recruit_min_account_days / wage_batt_per_claim / wage_cid + wage_currency_amount（成对）/

@@ -33,6 +33,11 @@ export const WRITE_REASON_TEXT_KEYS = Object.freeze({
   SUBTASK_INPUT_INVALID: 'project.reasonSubtaskInputInvalid',
   SUBTASK_REMOVE_OVERLAP: 'project.reasonSubtaskRemoveOverlap',
   subtask_not_in_task: 'project.reasonSubtaskNotInTask',
+  // ★ 2026-10-22：项目页【加入 / 切换】写口（`POST /api/project/:id/apply`）的四条闸
+  worker_already_hired: 'project.reasonAlreadyHired',
+  project_headcount_full: 'project.reasonHeadcountFull',
+  project_min_days_unmet: 'project.reasonMinDaysUnmet',
+  project_not_recruiting: 'project.reasonNotRecruiting',
 })
 
 const text = (value) => (value === null || value === undefined ? '' : String(value).trim())

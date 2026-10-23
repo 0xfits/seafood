@@ -17,15 +17,19 @@ import './wage.css'
 //       主按钮 = 招募中且未入职 ⇒【加入】；已入职该项目 ⇒【领工资】。
 //
 // 硬口径：
-//   · 「同时只能在一个项目打工」—— 已在其他项目在职 ⇒ **本卡【加入】置灰**并给提示；
-//     真正的闸在服务端（部分唯一索引），前端只做提示，不替服务端做判定。
+//   · 「同时只能在一个项目打工」—— ★ Kevin 2026-10-22：本人**已在任一项目在职**（任一行 `my_role==='hired'`）
+//     ⇒ ① 全页所有卡**不再渲染【加入】**（不是置灰）；② 页顶「同时只能在一个项目打工」文案**不显示**；
+//     ③ 在职那张卡仍只有【领工资】。加入 / 切换入口统一搬到项目页 `/:slug`（`ProjectPage` 的
+//     【加入此项目】/【切换到此项目】/【已在职】三态）。未在职时行为逐字不变；
+//     真正的闸仍在服务端（部分唯一索引 + `apply` 三闸），前端只做显隐，不替服务端判定。
 //   · 领取间隔：以行内 `next_claim_at` 为准（键在场且为未来时刻 ⇒ 置灰 + 1s 倒计时，到点自动可点）；
 //     键在场且已过 / 为 null ⇒ 立即可领；**键缺席**（匿名 / 后端未透出）⇒ 可点，由服务端 400 兜底
 //     （`details.reason` 映射成提示，并把 `details` 里的下次可领时间/剩余秒数接成倒计时）；不猜、不本地自算间隔。
 //   · 成功 ⇒ 卡内成功提示（含到账 batt/次币数值）+ 重拉列表（取服务端新的 `next_claim_at` 重新置灰倒计时）
 //     + 卡内内联提示，失败不白屏、不清列表。
 //   · 卡片按钮态**只认 `my_role`**：`hired` ⇒ 卡内只有【领工资】（**不再渲染【加入】**）；
-//     `none` ⇒ 【加入】；键缺席（匿名）⇒ 照常渲染【加入】、点击只给登录提示。
+//     `none` ∧ 本人未在任一处在职 ⇒ 【加入】；`none` ∧ 已在别处在职 ⇒ **无动作钮**（切换入口在项目页）；
+//     键缺席（匿名）⇒ 照常渲染【加入】、点击只给登录提示。
 //   · 已加入的卡换一套配色（`is-joined` + `data-sf-joined="1"`：淡黄叠加 + 左侧 4px 强调边 +
 //     标题行【已加入】徽标），与其他卡一眼可辨；未加入卡片的配色一字不动、零新主题 token。
 //   · 成功 ⇒ 卡内成功提示（含到账 batt/次币数值）+ 重拉列表刷新该项目卡；失败 ⇒ 卡内内联提示，
@@ -116,6 +120,12 @@ const REASON_TEXT_KEYS = {
   wage_interval_not_reached: 'claimTooSoon',
   worker_not_hired: 'notHired',
   project_ended_frozen: 'statusClosed',
+  // ★ 2026-10-22：领薪三闸此前一律落 `claimFailed`（「这次没有领到」）⇒ 用户看不出是项目方没钱还是币种下线。
+  //   `project_wage_pool_insufficient` = 项目方次币奖池不足（owner 腿转不出）⇒ 要联系项目管理员；
+  //   `project_wage_currency_not_found` / `_not_listed` = 该次币不存在 / 已下架 ⇒ 同族文案（同一处置动作）。
+  project_wage_pool_insufficient: 'poolInsufficient',
+  project_wage_currency_not_found: 'currencyUnavailable',
+  project_wage_currency_not_listed: 'currencyUnavailable',
   WAGE_INTERVAL_NOT_REACHED: 'claimTooSoon',
   WAGE_CLAIM_TOO_SOON: 'claimTooSoon',
   CLAIM_TOO_SOON: 'claimTooSoon',
@@ -354,7 +364,10 @@ const WagePage = () => {
     const claimable = !nextAt || remainingMs <= 0
     const busyAction = busy[key]
     const notice = notices[key]
-    const joinedElsewhere = Boolean(hiredKey) && hiredKey !== key
+    // ★ Kevin 2026-10-22：**在职于任一项目 ⇒ 本页所有卡都不再有【加入】**
+    //   （此前只把别处的【加入】置灰 + 挂「同时只能在一个项目打工」）—— 加入/切换入口统一搬到项目页 `/:slug`，
+    //   本页只保留【领工资】。`hiredKey` 非空 = 本人已在某个项目在职（`my_role==='hired'`）。
+    const hiredAnywhere = Boolean(hiredKey)
     const isFull = headcount > 0 && hiredCount >= headcount
     // 整卡链接（Kevin 2026-10-21）：行有合法 slug ⇒ 根元素 article→Link（页面规范形 `/<slug>`）；
     // 历史行无 slug ⇒ null ⇒ 保持原 `<article>` 不变链接。卡内按钮 stopPropagation 不触发跳转。
@@ -440,7 +453,7 @@ const WagePage = () => {
                 </span>
               ) : null}
             </>
-          ) : recruiting ? (
+          ) : recruiting && !hiredAnywhere ? (
             <>
               <button
                 type="button"
@@ -448,7 +461,7 @@ const WagePage = () => {
                 data-sf-m="wage-card-action"
                 data-sf-action="join"
                 data-sf-need-login={isAuthenticated ? '0' : '1'}
-                disabled={joinedElsewhere || isFull || busyAction === 'join'}
+                disabled={isFull || busyAction === 'join'}
                 onClick={(event) => {
                   event.preventDefault()
                   event.stopPropagation()
@@ -457,9 +470,7 @@ const WagePage = () => {
               >
                 {busyAction === 'join' ? t('wage.joining') : t('wage.join')}
               </button>
-              {joinedElsewhere ? (
-                <span className="sf-wage-hint is-warn" data-sf-m="wage-card-hint">{t('wage.oneAtATime')}</span>
-              ) : isFull ? (
+              {isFull ? (
                 <span className="sf-wage-hint" data-sf-m="wage-card-hint">{t('wage.full')}</span>
               ) : null}
             </>
@@ -529,7 +540,11 @@ const WagePage = () => {
       <div className="sf-layout-main">
         <header className="sf-wage-head">
           <h1 className="sf-panel-title">{t('wage.title')}</h1>
-          <p className="sf-foot-note">{t('wage.oneAtATime')}</p>
+          {/* ★ Kevin 2026-10-22：**只在未在职时**显示「同时只能在一个项目打工」——
+              已在职的用户看到这句话只会以为本页还能再投一次（实际入口已搬到项目页）。 */}
+          {hiredKey ? null : (
+            <p className="sf-foot-note" data-sf-m="wage-one-at-a-time">{t('wage.oneAtATime')}</p>
+          )}
         </header>
 
         {/* 电量卡（Kevin 2026-10-20：自 /activities 并入本页顶部，位于项目列表之上）。

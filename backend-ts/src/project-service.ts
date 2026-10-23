@@ -169,6 +169,22 @@ export interface ProjectListRow extends ProjectView {
   next_claim_at?: string | null;
 }
 
+export interface ProjectDetailView extends ProjectView {
+  campaigns: CampaignView[];
+  /**
+   * 详情读口的**登录态加性个人面**（零新路由 · 与 R1 列表三键同族）：
+   * · `my_role`                  —— 本人**对本项目**的在职关系（`hired` / `none`）；
+   * · `my_hired_at`              —— 本项目在职行的 `hired_at`（不在职 ⇒ null）；
+   * · `my_current_project_id`    —— 本人**当前唯一在职项目**的主键（不在职 ⇒ null；「同时只在一个项目打工」由部分唯一索引兜底）；
+   * · `my_current_project_title` —— 同上项目的标题（项目页切换确认文案要显示「当前在职 X」）；
+   * 匿名 ⇒ **四键缺省**（前端按 `hasOwn` 判「未登录」，不把缺键读成「不在职」）。
+   */
+  my_role?: 'hired' | 'none';
+  my_hired_at?: string | null;
+  my_current_project_id?: string | null;
+  my_current_project_title?: string | null;
+}
+
 export interface ProjectWorkerView {
   worker_id: string;
   project_id: string;
@@ -634,14 +650,41 @@ export const getProjectDetailByRef = async (
   ref: string,
   opts: { viewerUid?: number | null; adminActor?: boolean },
   ex?: TxClient,
-): Promise<(ProjectView & { campaigns: CampaignView[] }) | null> => {
+): Promise<ProjectDetailView | null> => {
   const project = await getProjectByRef(ref, ex);
   if (!project) return null;
   const includeDraft = opts.adminActor === true
     || (typeof opts.viewerUid === 'number' && Number.isSafeInteger(opts.viewerUid)
       && opts.viewerUid! > 0 && String(opts.viewerUid) === project.owner_uid);
   const campaigns = await listCampaignsByProject(project.project_id, { includeDraft }, ex);
-  return { ...project, campaigns };
+  const base: ProjectDetailView = { ...project, campaigns };
+  // ★ 登录态加性四键（匿名 ⇒ 四键缺省）：项目页【加入 / 切换 / 已在职】三态与「当前在职 X」确认文案
+  //   都只认这里 —— 一次详情读口拿全，前端不再额外打 `/api/project/all`（也应覆盖已 ended 项目的在职行：
+  //   列表读口只含 recruiting/working，漏掉就会把「已在职」误画成「可加入」）。
+  if (typeof opts.viewerUid !== 'number' || !Number.isSafeInteger(opts.viewerUid) || opts.viewerUid <= 0) {
+    return base;
+  }
+  const mine = await readRows<Row>(
+    `SELECT w.project_id::text AS project_id, w.hired_at, p.title
+       FROM public.project_worker AS w
+       JOIN public.project AS p ON p.project_id = w.project_id
+      WHERE w.uid = $1::bigint AND w.status = 'hired'
+      LIMIT 1`,
+    [String(opts.viewerUid)],
+    ex,
+  );
+  if (!mine.length) {
+    return { ...base, my_role: 'none', my_hired_at: null, my_current_project_id: null, my_current_project_title: null };
+  }
+  const hiredProjectId = str(mine[0].project_id);
+  const onThisProject = hiredProjectId === project.project_id;
+  return {
+    ...base,
+    my_role: onThisProject ? 'hired' : 'none',
+    my_hired_at: onThisProject ? iso(mine[0].hired_at) : null,
+    my_current_project_id: hiredProjectId,
+    my_current_project_title: str(mine[0].title),
+  };
 };
 
 // ============================================================================
@@ -1113,11 +1156,17 @@ const hiredCountOf = async (tx: TxClient, projectId: string): Promise<number> =>
 export const applyProjectVerb = async (input: {
   actorUid: number;
   ref: string;
+  /** ★ 切换语义（2026-10-22）：true ⇒ 若本人在**其他项目**在职，同事务先离职旧项目再入职本项目；
+   *  缺省 / false ⇒ 仍回 409 `worker_already_hired`（旧前端零感知）。**三闸（招募期 / 满员 / 注册天数）
+   *  先于**切换判定 ⇒ 切换不得成为绕过闸的后门。 */
+  switch?: boolean;
   ex?: TxClient;
-}): Promise<VerbResult<{ worker: ProjectWorkerView; project: ProjectView }>> => {
+}): Promise<VerbResult<{ worker: ProjectWorkerView; project: ProjectView; switched_from: string | null }>> => {
   if (!isProjectRef(input.ref)) return notFound();
 
-  return runInTx<VerbResult<{ worker: ProjectWorkerView; project: ProjectView }>>(input.ex, async (tx) => {
+  type ApplyView = { worker: ProjectWorkerView; project: ProjectView; switched_from: string | null };
+
+  return runInTx<VerbResult<ApplyView>>(input.ex, async (tx) => {
     const project = await lockProjectByRef(tx, input.ref);
     if (!project) return notFound();
     const projectId = str(project.project_id);
@@ -1132,9 +1181,13 @@ export const applyProjectVerb = async (input: {
     if (mine.length) {
       return {
         ok: true,
-        view: { worker: normalizeWorkerView(mine[0]), project: normalizeProjectRow({ ...project, hired_count: await hiredCountOf(tx, projectId) }) },
+        view: {
+          worker: normalizeWorkerView(mine[0]),
+          project: normalizeProjectRow({ ...project, hired_count: await hiredCountOf(tx, projectId) }),
+          switched_from: null,
+        },
         replay: true,
-      } as VerbResult<{ worker: ProjectWorkerView; project: ProjectView }>;
+      } as VerbResult<ApplyView>;
     }
 
     // ② 招募期
@@ -1163,13 +1216,44 @@ export const applyProjectVerb = async (input: {
       }
     }
     // ⑤ 他项目在职（DB 部分唯一索引兜底同码）
+    //    · 不带 `switch` ⇒ 409（兼容旧前端 / 旧探针）；
+    //    · 带 `switch:true` ⇒ **同事务**先把旧在职行置 left（`left_at = now()`），再插新行 —— 切换 = 离开 + 加入，
+    //      新行 `hired_at` 默认 now() ⇒ 领取窗口起点前移 ⇒ **间隔从此刻重新计算**（不是继承旧 hired_at）。
+    //    · 旧项目若因离职而回落名额：`working` 且在职数 < 名额 ⇒ 回到 `recruiting`（与 `leaveProjectVerb` 同式），
+    //      用单条条件 UPDATE 完成（不先 SELECT … FOR UPDATE ⇒ 与反向切换不构成两把锁的相反顺序）。
     const other = await txQuery<Row>(
       tx,
       `SELECT project_id::text AS project_id FROM public.project_worker WHERE uid = $1::bigint AND status = 'hired' LIMIT 1`,
       [uid],
     );
+    let switchedFrom: string | null = null;
     if (other.length) {
-      return conflict('worker_already_hired', { project_id: str(other[0].project_id) });
+      if (input.switch !== true) {
+        return conflict('worker_already_hired', { project_id: str(other[0].project_id) });
+      }
+      const oldProjectId = str(other[0].project_id);
+      const leftRows = await txQuery<Row>(
+        tx,
+        `UPDATE public.project_worker SET status = 'left', left_at = now()
+          WHERE uid = $1::bigint AND status = 'hired' AND project_id = $2::bigint
+          RETURNING worker_id`,
+        [uid, oldProjectId],
+      );
+      if (!leftRows.length) {
+        // 并发已把旧行置 left（或已切走）⇒ 按「已不在职」继续插新行，不谎报切换来源
+        switchedFrom = null;
+      } else {
+        switchedFrom = oldProjectId;
+        await txQuery<Row>(
+          tx,
+          `UPDATE public.project AS p SET status = 'recruiting'
+            WHERE p.project_id = $1::bigint AND p.status = 'working'
+              AND (SELECT count(*) FROM public.project_worker AS w
+                    WHERE w.project_id = p.project_id AND w.status = 'hired') < p.headcount
+            RETURNING project_id`,
+          [oldProjectId],
+        );
+      }
     }
 
     let inserted: Row[];
@@ -1196,17 +1280,25 @@ export const applyProjectVerb = async (input: {
       if (flipped.length) {
         return {
           ok: true,
-          view: { worker: normalizeWorkerView(inserted[0]), project: normalizeProjectRow({ ...flipped[0], hired_count: after }) },
+          view: {
+            worker: normalizeWorkerView(inserted[0]),
+            project: normalizeProjectRow({ ...flipped[0], hired_count: after }),
+            switched_from: switchedFrom,
+          },
           replay: false,
-        } as VerbResult<{ worker: ProjectWorkerView; project: ProjectView }>;
+        } as VerbResult<ApplyView>;
       }
     }
 
     return {
       ok: true,
-      view: { worker: normalizeWorkerView(inserted[0]), project: normalizeProjectRow({ ...project, hired_count: after }) },
+      view: {
+        worker: normalizeWorkerView(inserted[0]),
+        project: normalizeProjectRow({ ...project, hired_count: after }),
+        switched_from: switchedFrom,
+      },
       replay: false,
-    } as VerbResult<{ worker: ProjectWorkerView; project: ProjectView }>;
+    } as VerbResult<ApplyView>;
   });
 };
 

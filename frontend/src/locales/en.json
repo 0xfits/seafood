@@ -59,7 +59,9 @@
     "errCurrencyAmount": "Extra currency amount must be a positive number",
     "errStatus": "Invalid status value",
     "errTransition": "This status change is not allowed",
-    "errFrozen": "This project has ended and can no longer be edited"
+    "errFrozen": "This project has ended and can no longer be edited",
+    "poolInsufficient": "The project's secondary-currency pool is insufficient, so the payout cannot be issued right now. Please contact the project admin.",
+    "currencyUnavailable": "The project's wage currency is currently unavailable, so the payout cannot be issued. Please contact the project admin."
   },
   "login": "Login",
   "register": "Register",
@@ -1555,6 +1557,17 @@
     "reasonQuizOptionsInvalid": "Incomplete options (all A–D options required, 1–4 correct answers)",
     "reasonSubtaskInputInvalid": "Invalid subtask fields (type, title or payload out of range)",
     "reasonSubtaskRemoveOverlap": "Removal and a new subtask conflict in one request (submit separately)",
-    "reasonSubtaskNotInTask": "That subtask does not belong to this task"
+    "reasonSubtaskNotInTask": "That subtask does not belong to this task",
+    "joinEntry": "Join this project",
+    "switchEntry": "Switch to this project",
+    "alreadyHired": "Already working here",
+    "switchConfirm": "You are currently working on \"{{title}}\". Switching will leave that project and restart your claim interval from now.",
+    "switchConfirmOk": "Confirm switch",
+    "switchedOk": "Switched to \"{{title}}\". Your claim interval restarts from now.",
+    "joinFailDetail": "Join failed: {{detail}} (HTTP {{status}})",
+    "reasonAlreadyHired": "You already work on another project — switch from that project page",
+    "reasonHeadcountFull": "This project is already full",
+    "reasonMinDaysUnmet": "Your account age does not meet this project's recruiting requirement",
+    "reasonNotRecruiting": "This project is not recruiting right now"
   }
 }

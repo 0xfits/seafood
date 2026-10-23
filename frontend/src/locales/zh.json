@@ -59,7 +59,9 @@
     "errCurrencyAmount": "次币金额必须是正数",
     "errStatus": "项目状态值无效",
     "errTransition": "该状态切换不被允许",
-    "errFrozen": "项目已结束，不能再修改"
+    "errFrozen": "项目已结束，不能再修改",
+    "poolInsufficient": "项目方次币奖池不足，暂时无法发放，请联系项目管理员",
+    "currencyUnavailable": "项目工资币种暂不可用，无法发放，请联系项目管理员"
   },
   "login": "登录",
   "register": "注册",
@@ -1555,6 +1557,17 @@
     "reasonQuizOptionsInvalid": "选项不完整（A–D 四项必填，正确项 1–4 个）",
     "reasonSubtaskInputInvalid": "子任务字段非法（类型、标题或载荷越界）",
     "reasonSubtaskRemoveOverlap": "同一次提交里删除与新增冲突（请分两次提交）",
-    "reasonSubtaskNotInTask": "该子任务不属于此任务"
+    "reasonSubtaskNotInTask": "该子任务不属于此任务",
+    "joinEntry": "加入此项目",
+    "switchEntry": "切换到此项目",
+    "alreadyHired": "已在职",
+    "switchConfirm": "当前在职「{{title}}」，切换后将离开该项目，领取间隔从此刻重新计算",
+    "switchConfirmOk": "确认切换",
+    "switchedOk": "已切换到「{{title}}」，领取间隔从此刻重新计算",
+    "joinFailDetail": "加入失败：{{detail}}（HTTP {{status}}）",
+    "reasonAlreadyHired": "你已在其他项目在职，请先在该项目页切换",
+    "reasonHeadcountFull": "该项目已招满",
+    "reasonMinDaysUnmet": "账号注册天数不满足该项目的招工条件",
+    "reasonNotRecruiting": "该项目当前不在招募中"
   }
 }

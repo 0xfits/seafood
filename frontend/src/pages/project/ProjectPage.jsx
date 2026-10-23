@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
 import { buildLangPath, getLanguageFromUrl } from '../../utils'
 import { isReservedProjectSlug } from '../../project-slug'
-import { fetchProjectCurrencies, fetchProjectDetail } from './project-api'
+import { applyToProject, fetchProjectCurrencies, fetchProjectDetail } from './project-api'
+import { writeFailNotice } from './project-error'
 import { isWageProjectEditAdmin, loadListingEditAdmin } from '../item/item-edit-access'
 import NotFoundPage from '../NotFoundPage'
 import ProjectNestedList from './ProjectNestedList'
@@ -89,6 +90,9 @@ const ProjectPage = () => {
   const [editOpen, setEditOpen] = useState(false) // 【编辑项目】模态框（挂载 = 打开）
   const [recruitOpen, setRecruitOpen] = useState(false) // 【招工】模态框（挂载 = 打开）
   const [notice, setNotice] = useState(null) // { kind: 'ok' | 'err', text }
+  // ★ 2026-10-22：加入 / 切换（权限无关，所有登录用户可见）
+  const [joinBusy, setJoinBusy] = useState(false)
+  const [confirmSwitch, setConfirmSwitch] = useState(false) // 切换行内二次确认（不做 window.confirm）
   const navigate = useNavigate()
 
   const userRef = useRef(user)
@@ -181,6 +185,17 @@ const ProjectPage = () => {
   //   已结束项目也该能换图 / 恢复默认（服务端 PATCH 未对 ended 封 `avatar_url`）。
   const canEditAvatar = Boolean(view) && (isOwner || isAdmin)
 
+  // ★ 2026-10-22：在职三态（只认详情读口 `GET /api/project/:ref` 的登录态加性四键）：
+  //   `my_role==='hired'` ⇒ 【已在职】置灰；`my_current_project_id` 有值且非本项目 ⇒ 【切换到此项目】；
+  //   四键在场且都不在职 ⇒ 【加入此项目】；键缺省（匿名）⇒ 不渲染入口（登录后才见）。
+  const myRole = typeof view?.my_role === 'string' ? view.my_role : null
+  const hiredHere = myRole === 'hired'
+  const currentProjectId = typeof view?.my_current_project_id === 'string' ? view.my_current_project_id.trim() : ''
+  const hiredElsewhere = Boolean(currentProjectId) && !hiredHere
+  // 确认文案里「当前在职 X」的 X：标题缺失时退到 `#主键`（不硬编「未知」，也不显空引号）
+  const elsewhereTitle = String(view?.my_current_project_title || '').trim() || `#${currentProjectId}`
+  const showJoinEntry = isAuthenticated && Boolean(view)
+
   const batt = num(view?.wage_batt_per_claim)
   const hours = num(view?.wage_interval_hours)
   const amount = num(view?.wage_currency_amount)
@@ -259,6 +274,56 @@ const ProjectPage = () => {
     setRecruitOpen(true)
   }
 
+  /**
+   * 加入 / 切换（★ 2026-10-22）：
+   *   · 未在职 ⇒ `POST /api/project/:id/apply`（body `{}`）；
+   *   · 在职于其它项目 ⇒ 先**行内二次确认**（文案 = 当前在职 X + 领取间隔从此刻重算），确认后带 `{switch:true}`；
+   *   · 已在职于本项目 ⇒ 入口置灰，不触发请求。
+   * 成功 ⇒ 页内成功提示 + 静默重拉（三态即时翻转；切换后本项目 `my_hired_at` = now ⇒ 间隔重算由服务端给）；
+   * 失败 ⇒ `writeFailNotice` 内联（reason 四闸已映射为中文；其余吐机读码，不谎报成功）。
+   */
+  const submitApply = async ({ switching }) => {
+    if (!isAuthenticated) {
+      setNotice({ kind: 'err', text: t('project.needLogin') })
+      return
+    }
+    if (!view) return
+    setJoinBusy(true)
+    setNotice(null)
+    try {
+      const result = await applyToProject(view.project_id, switching ? { switch: true } : {}, userRef.current)
+      setConfirmSwitch(false)
+      const title = String(result?.project?.title || view.title || '').trim()
+      setNotice({
+        kind: 'ok',
+        text: switching
+          ? t('project.switchedOk', { title })
+          : t('wage.joinedToast', { title }),
+      })
+      await load({ silent: true })
+    } catch (error) {
+      setConfirmSwitch(false)
+      setNotice({ ...writeFailNotice(error, t, 'project.joinFailDetail'), kind: 'err' })
+    } finally {
+      setJoinBusy(false)
+    }
+  }
+
+  /** 入口点击：切换态先展开行内确认（零请求），其余直接提交。 */
+  const onJoinEntry = () => {
+    if (!isAuthenticated) {
+      setNotice({ kind: 'err', text: t('project.needLogin') })
+      return
+    }
+    if (hiredHere) return
+    if (hiredElsewhere) {
+      setNotice(null)
+      setConfirmSwitch(true)
+      return
+    }
+    submitApply({ switching: false })
+  }
+
   return (
     <div className="sf-layout sf-project-page" data-sf-m="project-page" data-sf-slug={slug}>
       <div className="sf-layout-main">
@@ -326,6 +391,62 @@ const ProjectPage = () => {
               t={t}
               lang={lang}
             />
+
+            {/* 加入 / 切换 / 已在职（Kevin 2026-10-23）：与项目级管理入口分开渲染 ——
+                对**所有登录用户**可见（管理区只给 owner/admin）。三态只认详情读口的登录态加性键；
+                切换态先展开行内二次确认（零请求），确认后才带 `{switch:true}` 提交。 */}
+            {showJoinEntry ? (
+              <section className="sf-panel sf-project-join" data-sf-m="project-join">
+                <div className="sf-project-actions">
+                  {hiredHere ? (
+                    <button
+                      type="button"
+                      className="sf-project-btn"
+                      data-sf-m="project-entry-hired"
+                      data-sf-action="hired"
+                      disabled
+                    >{t('project.alreadyHired')}</button>
+                  ) : confirmSwitch ? (
+                    <>
+                      <span className="sf-foot-note" data-sf-m="project-switch-confirm-text">
+                        {t('project.switchConfirm', { title: elsewhereTitle })}
+                      </span>
+                      <button
+                        type="button"
+                        className="sf-project-btn is-primary"
+                        data-sf-m="project-entry-switch-confirm"
+                        data-sf-action="switch"
+                        disabled={joinBusy}
+                        onClick={() => submitApply({ switching: true })}
+                      >{t('project.switchConfirmOk')}</button>
+                      <button
+                        type="button"
+                        className="sf-project-btn"
+                        data-sf-m="project-entry-switch-cancel"
+                        onClick={() => setConfirmSwitch(false)}
+                      >{t('wage.cancel')}</button>
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      className="sf-project-btn is-primary"
+                      data-sf-m={hiredElsewhere ? 'project-entry-switch' : 'project-entry-join'}
+                      data-sf-action={hiredElsewhere ? 'switch' : 'join'}
+                      disabled={joinBusy}
+                      onClick={onJoinEntry}
+                    >{t(hiredElsewhere ? 'project.switchEntry' : 'project.joinEntry')}</button>
+                  )}
+                </div>
+                {!canManage && notice?.text ? (
+                  <p
+                    className={`sf-project-notice is-${notice.kind}`}
+                    data-sf-m="project-form-notice"
+                    data-sf-kind={notice.kind}
+                    role="alert"
+                  >{notice.text}</p>
+                ) : null}
+              </section>
+            ) : null}
 
             {canManage ? (
               <section className="sf-panel sf-project-manage" data-sf-m="project-manage">

@@ -3660,9 +3660,23 @@ app.post('/api/project/:id/apply', async (req, res) => {
   try {
     const ref = String(req.params.id ?? '');
     if (!isProjectRef(ref)) return sendRefNotFound(res, 'project', ref, 'project_not_found');
-    const result = await applyProjectVerb({ actorUid: Number(actor.user.uID), ref });
+    // ★ 切换语义（2026-10-22）：body `{ switch: true }` ⇒ 在职于其他项目时同事务「离开旧项目 + 加入本项目」，
+    //   响应加性 `switched_from`（旧 project_id；非切换 ⇒ null）。**缺省 = 旧行为**（409 worker_already_hired）。
+    const body = (req.body ?? {}) as { switch?: unknown };
+    const result = await applyProjectVerb({
+      actorUid: Number(actor.user.uID),
+      ref,
+      switch: body.switch === true,
+    });
     if (!result.ok) return sendVerbError(res, result);
-    return sendSuccess(res, result.view, result.replay ? 'Project application (already hired)' : 'Project application accepted');
+    const switched = result.view?.switched_from ?? null;
+    return sendSuccess(
+      res,
+      result.view,
+      result.replay ? 'Project application (already hired)'
+        : switched ? 'Project switched (left previous project)'
+          : 'Project application accepted',
+    );
   } catch (error) {
     return sendInfraMapped(res, 'project.apply', error);
   }

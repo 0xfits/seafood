@@ -133,16 +133,21 @@ describe('① writeFailNotice：code / details.reason / HTTP 状态 → 文案 +
     })
   })
 
-  it('常见 reason 全部登记了中文映射键（八枚；四语由 s8 键集门把关）', () => {
+  it('常见 reason 全部登记了中文映射键（十一枚；四语由 s8 键集门把关）', () => {
     expect(Object.keys(WRITE_REASON_TEXT_KEYS).sort()).toEqual([
       'QUIZ_OPTIONS_INVALID',
       'QUIZ_REWARD_REQUIRED',
       'SUBTASK_INPUT_INVALID',
       'SUBTASK_REMOVE_OVERLAP',
       'prediction_locked_after_publish',
+      // Kevin 2026-10-23：项目页加入/切换入口的四个闸（切换不得绕过满员/注册天数/未招募/已在职）
+      'project_headcount_full',
+      'project_min_days_unmet',
+      'project_not_recruiting',
       'project_owner_required',
       'subtask_has_proofs',
       'subtask_not_in_task',
+      'worker_already_hired',
     ])
     expect(reasonTextOf('unknown_reason', t)).toBe('')
   })

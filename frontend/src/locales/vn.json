@@ -59,7 +59,9 @@
     "errCurrencyAmount": "Số tiền tệ phụ phải là số dương",
     "errStatus": "Giá trị trạng thái không hợp lệ",
     "errTransition": "Không cho phép chuyển đổi trạng thái này",
-    "errFrozen": "Dự án đã kết thúc, không thể chỉnh sửa nữa"
+    "errFrozen": "Dự án đã kết thúc, không thể chỉnh sửa nữa",
+    "poolInsufficient": "Quỹ tiền tệ phụ của dự án không đủ nên tạm thời chưa thể chi trả, vui lòng liên hệ quản trị dự án",
+    "currencyUnavailable": "Đơn vị tiền lương của dự án tạm thời không khả dụng nên chưa thể chi trả, vui lòng liên hệ quản trị dự án"
   },
   "login": "Đăng nhập",
   "logout": "Đăng xuất",
@@ -1555,6 +1557,17 @@
     "reasonQuizOptionsInvalid": "Lựa chọn chưa đầy đủ (cần đủ A–D, 1–4 đáp án đúng)",
     "reasonSubtaskInputInvalid": "Trường nhiệm vụ con không hợp lệ (loại, tiêu đề hoặc payload)",
     "reasonSubtaskRemoveOverlap": "Xóa và thêm mới trùng trong cùng một yêu cầu (hãy gửi hai lần)",
-    "reasonSubtaskNotInTask": "Nhiệm vụ con này không thuộc nhiệm vụ đang chọn"
+    "reasonSubtaskNotInTask": "Nhiệm vụ con này không thuộc nhiệm vụ đang chọn",
+    "joinEntry": "Tham gia dự án này",
+    "switchEntry": "Chuyển sang dự án này",
+    "alreadyHired": "Đang làm việc tại đây",
+    "switchConfirm": "Bạn đang làm ở \"{{title}}\". Khi chuyển sang, bạn sẽ rời dự án đó và chu kỳ nhận lương được tính lại từ bây giờ.",
+    "switchConfirmOk": "Xác nhận chuyển",
+    "switchedOk": "Đã chuyển sang \"{{title}}\". Chu kỳ nhận lương được tính lại từ bây giờ.",
+    "joinFailDetail": "Tham gia thất bại: {{detail}} (HTTP {{status}})",
+    "reasonAlreadyHired": "Bạn đã làm ở dự án khác — hãy chuyển từ trang dự án đó",
+    "reasonHeadcountFull": "Dự án này đã tuyển đủ người",
+    "reasonMinDaysUnmet": "Tuổi tài khoản chưa đáp ứng điều kiện tuyển dụng của dự án",
+    "reasonNotRecruiting": "Dự án này hiện không tuyển dụng"
   }
 }

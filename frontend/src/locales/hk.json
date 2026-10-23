@@ -59,7 +59,9 @@
     "errCurrencyAmount": "次幣金額必須是正數",
     "errStatus": "項目狀態值無效",
     "errTransition": "該狀態切換不被允許",
-    "errFrozen": "項目已結束，不能再修改"
+    "errFrozen": "項目已結束，不能再修改",
+    "poolInsufficient": "項目方次幣獎池不足，暫時無法發放，請聯繫項目管理員",
+    "currencyUnavailable": "項目工資幣種暫不可用，無法發放，請聯繫項目管理員"
   },
   "login": "登錄",
   "logout": "登出",
@@ -1555,6 +1557,17 @@
     "reasonQuizOptionsInvalid": "選項不完整（A–D 四項必填，正確項 1–4 個）",
     "reasonSubtaskInputInvalid": "子任務欄位非法（類型、標題或載荷越界）",
     "reasonSubtaskRemoveOverlap": "同一次提交裡刪除與新增衝突（請分兩次提交）",
-    "reasonSubtaskNotInTask": "該子任務不屬於此任務"
+    "reasonSubtaskNotInTask": "該子任務不屬於此任務",
+    "joinEntry": "加入此項目",
+    "switchEntry": "切換到此項目",
+    "alreadyHired": "已在職",
+    "switchConfirm": "當前在職「{{title}}」，切換後將離開該項目，領取間隔從此刻重新計算",
+    "switchConfirmOk": "確認切換",
+    "switchedOk": "已切換到「{{title}}」，領取間隔從此刻重新計算",
+    "joinFailDetail": "加入失敗：{{detail}}（HTTP {{status}}）",
+    "reasonAlreadyHired": "你已在其他項目在職，請先在該項目頁切換",
+    "reasonHeadcountFull": "該項目已招滿",
+    "reasonMinDaysUnmet": "帳號註冊天數不滿足該項目的招工條件",
+    "reasonNotRecruiting": "該項目當前不在招募中"
   }
 }
