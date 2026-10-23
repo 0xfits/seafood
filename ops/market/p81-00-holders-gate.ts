@@ -25,7 +25,7 @@ import { checker, mkPool, raw, raw1 } from '../../backend-ts/scripts/p7b-lib';
 import type { Qx } from '../../backend-ts/scripts/p7b-lib';
 
 const EXPECT_PID = 'quiet-math-65207667';
-const PORT = Number(process.env.P81_PORT || 5797);
+const PORT = Number(process.env.P81_PORT || (5800 + Math.floor(Math.random() * 150)));
 const BASE = `http://localhost:${PORT}`;
 
 const RUN = new Date().toISOString().replace(/[-:]/g, '').replace(/\..+/, '') + Math.random().toString(36).slice(2, 6);
@@ -92,9 +92,13 @@ const main = async (): Promise<void> => {
   // ② 起被测服务（复用 index.ts 的 app；port 0 随机口）
   process.env.PORT = String(PORT);
   const { default: app } = await import('../../backend-ts/src/index');
-  const server = app.listen(0); // 随机口（固定口会撞泄漏的半开连接 ⇒ EADDRINUSE）
-  await new Promise<void>((resolve) => server.once('listening', resolve));
-  const realPort = (server.address() as { port: number }).port;
+  // ★ index.ts 被 import 时**自己就 listen**（`index.ts:4036`）⇒ 这里不再重复 listen，
+  //   只等健康口就绪（随机口避免撞历史泄漏连接）。
+  let ready = false;
+  for (let i = 0; i < 40 && !ready; i += 1) {
+    try { const r = await fetch(`http://localhost:${PORT}/api/health`); ready = r.status < 500; } catch { await new Promise((r) => setTimeout(r, 150)); }
+  }
+  const realPort = PORT;
 
   const get = async (p: string): Promise<{ status: number; body: any }> => {
     const res = await fetch(`http://localhost:${realPort}${p}`);
@@ -167,7 +171,7 @@ const bals: number[] = rows.map(balsOf);
     leftUsers.every((r) => users.includes(Number(r.uid))),
     { users: leftUsers.map((r) => r.uid) });
 
-  server.close();
+  // 强制退出：index.ts 被 import 后可能挂内部定时器/连接 ⇒ close 后进程不自动退出（首跑即卡这）
   await pool.end();
 
   const summary = ck.summary();
@@ -176,7 +180,7 @@ const bals: number[] = rows.map(balsOf);
   const file = path.join(OUT_DIR, `p81-holders-gate-${RUN}.json`);
   fs.writeFileSync(file, JSON.stringify(out, null, 2));
   console.log(JSON.stringify({ saved: file, summary: out.summary }, null, 2));
-  if (summary.failed > 0) process.exit(1);
+  process.exit(summary.failed > 0 ? 1 : 0);
 };
 
 main().catch(async (error) => {
