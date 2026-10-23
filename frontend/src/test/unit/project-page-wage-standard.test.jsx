@@ -364,6 +364,66 @@ describe('④ 客户端校验与服务端 400：框内内联、框不关', () =>
     expect(API.patchProject).not.toHaveBeenCalled()
   })
 
+  // ★ 直证（2026-10-24）：越界值必须落在 **interval 字段行**，且 batt 只读读数**不被派生**
+  //   —— 反例 = 「间隔 101 ⇒ 每次工资也写 101」「间隔 1.5 ⇒ 派生 1.5」的二次改写。
+  it('手输 101 ⇒ interval 行 intervalInvalid、零 PATCH；batt 读数不被派生（停在上一合法值 6）', async () => {
+    const { container } = renderAt()
+    await openWage(container)
+    // 先落到合法档位（batt 随之派生 = 6），再手输越界 ⇒ 读数必须停在 6，不许被 101 覆盖
+    fireEvent.change(field('interval-range'), { target: { value: '6' } })
+    expect(field('batt').value).toBe('6')
+
+    const reads = API.fetchProjectDetail.mock.calls.length
+    fireEvent.change(field('interval'), { target: { value: '101' } })
+    // 真值以手输为准（不吸附、不夹到 100）
+    expect(field('interval').value).toBe('101')
+    expect(field('batt').value).toBe('6')
+
+    await submit()
+    await waitFor(() => expect(editErr('interval')).not.toBeNull())
+    expect(editErr('interval').textContent).toBe(zh.bountyProject.intervalInvalid)
+    // 错误只落 interval 一列：batt / currency / 表单级都不得冒出来
+    expect(editErr('batt')).toBeNull()
+    expect(editErr('currency')).toBeNull()
+    expect(editErr('general')).toBeNull()
+    // 零 PATCH、零重拉、框不关（内联拦下，不静默丢弃）
+    expect(API.patchProject).not.toHaveBeenCalled()
+    expect(API.fetchProjectDetail.mock.calls.length).toBe(reads)
+    expect(wageModal()).not.toBeNull()
+  })
+
+  it('手输 1.5 ⇒ interval 行 intervalInvalid、零 PATCH；batt 读数保持行原值 30', async () => {
+    const { container } = renderAt()
+    await openWage(container)
+    expect(field('batt').value).toBe('30')
+
+    fireEvent.change(field('interval'), { target: { value: '1.5' } })
+    expect(field('interval').value).toBe('1.5')
+    // 非整数不派生（否则「1.5 小时」会被写成每次工资 1.5）
+    expect(field('batt').value).toBe('30')
+
+    await submit()
+    await waitFor(() => expect(editErr('interval')).not.toBeNull())
+    expect(editErr('interval').textContent).toBe(zh.bountyProject.intervalInvalid)
+    expect(editErr('batt')).toBeNull()
+    expect(API.patchProject).not.toHaveBeenCalled()
+    expect(wageModal()).not.toBeNull()
+  })
+
+  it('手输字母串 abc ⇒ interval 行 intervalInvalid、零 PATCH；batt 读数保持行原值 30', async () => {
+    const { container } = renderAt()
+    await openWage(container)
+    fireEvent.change(field('interval'), { target: { value: 'abc' } })
+    expect(field('batt').value).toBe('30')
+
+    await submit()
+    await waitFor(() => expect(editErr('interval')).not.toBeNull())
+    expect(editErr('interval').textContent).toBe(zh.bountyProject.intervalInvalid)
+    expect(editErr('batt')).toBeNull()
+    expect(API.patchProject).not.toHaveBeenCalled()
+    expect(wageModal()).not.toBeNull()
+  })
+
   it('只选次币不填金额 ⇒ currency 行内联（成对校验），零 PATCH', async () => {
     const { container } = renderAt()
     await openWage(container)
