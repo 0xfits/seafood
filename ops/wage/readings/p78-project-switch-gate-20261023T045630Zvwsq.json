@@ -1,0 +1,219 @@
+{
+  "run": "20261023T045630Zvwsq",
+  "name": "p78-project-switch-gate",
+  "at": "2026-10-23T04:57:45.198Z",
+  "script": "ops/wage/p78-00-project-switch-gate.ts",
+  "db_identity": {
+    "pid": "quiet-math-65207667",
+    "db": "neondb"
+  },
+  "baseline": {
+    "non_fixture_projects": {
+      "n": "15",
+      "maxid": "136"
+    },
+    "non_fixture_workers": {
+      "n": "0",
+      "maxw": "0"
+    }
+  },
+  "http_base": "http://127.0.0.1:57245",
+  "fixtures": {
+    "P_OLD": "156",
+    "P_NEW": "157",
+    "P_FULL": "158",
+    "old_worker_id": "77",
+    "full_worker_id": "78",
+    "uids": {
+      "A": 971238,
+      "B": 971239
+    },
+    "interval_hours": 4,
+    "old_hired_hours": 5
+  },
+  "arms": {
+    "B": {
+      "response": {
+        "status": 200,
+        "message": "Project switched (left previous project)",
+        "data": {
+          "worker": {
+            "worker_id": "79",
+            "project_id": "157",
+            "uid": "971238",
+            "status": "hired",
+            "hired_at": "2026-10-23T04:56:57.590Z",
+            "left_at": null
+          },
+          "project": {
+            "project_id": "157",
+            "snowflake_id": "1792731399795590262",
+            "owner_uid": "971238",
+            "title": "p78 gate new 20261023T045630Zvwsq",
+            "description": "p78 gate",
+            "headcount": 3,
+            "hired_count": 1,
+            "recruit_min_account_days": 0,
+            "wage_batt_per_claim": "10",
+            "wage_cid": null,
+            "wage_currency_amount": null,
+            "wage_interval_hours": 4,
+            "status": "recruiting",
+            "slug": "p7820261023t0new",
+            "avatar_url": null,
+            "time_created": "2026-10-23T04:56:42.219Z",
+            "time_updated": "2026-10-23T04:56:42.219Z"
+          },
+          "switched_from": "156"
+        }
+      },
+      "old_row": {
+        "worker_id": "77",
+        "status": "left",
+        "hired_at": "2026-10-22 23:56:43.517063+00",
+        "left_at": "2026-10-23 04:56:57.590561+00"
+      },
+      "new_row": {
+        "worker_id": "79",
+        "status": "hired",
+        "hired_at": "2026-10-23 04:56:57.590561+00",
+        "left_at": null
+      }
+    }
+  },
+  "mutant_run_ok": true,
+  "checks": [
+    {
+      "id": "A1",
+      "what": "★路由面：注册点仍 **109**（49/53/4/3/0 · 零新路由：`POST /api/project/:id/apply` 是既有口，本单只加 switch 语义）",
+      "pass": true,
+      "reading": "{\"regs\":109,\"get\":49,\"post\":53,\"patch\":4,\"delete\":3,\"put\":0}"
+    },
+    {
+      "id": "A2",
+      "what": "★apply 路由接线：`switch: body.switch === true`（**has-value 收窄**：只有真 true 才切，字符串 \"true\" 不算）· 调用后 `result.view?.switched_from` 进 message 三分支（replay / switched / accepted）· `sendSuccess(res, result.view)` 原样透出 ⇒ 响应加性键",
+      "pass": true,
+      "reading": "{\"narrowed\":true,\"switched_var\":true,\"passthrough\":true}"
+    },
+    {
+      "id": "A3",
+      "what": "★服务层形状：`switch?: boolean` 入参 · 旧行左移 `SET status = 'left', left_at = now()`（同事务）· 新行 `INSERT … (project_id, uid, status) VALUES (…, 'hired')`（**不带 hired_at** ⇒ DB 默认 now() ⇒ 间隔重算）· `input.switch !== true` ⇒ 409 `worker_already_hired` · `switched_from` 两分支（null / 旧 id）",
+      "pass": true,
+      "reading": "{\"switch_param\":true,\"left_update\":true,\"insert_no_hired_at\":true}"
+    },
+    {
+      "id": "A4",
+      "what": "★三闸位序（切换不是后门）：幂等回放 ① → 招募期 ② → 名额 ③ → 注册天数 ④ → 他项目在职 / 切换 ⑤（按源码 index 单调递增判；⑤ 里的 left UPDATE 必在 `worker_already_hired` 之后）",
+      "pass": true,
+      "reading": "[{\"k\":\"mine\",\"at\":1012},{\"k\":\"recruiting\",\"at\":1445},{\"k\":\"headcount\",\"at\":1642},{\"k\":\"min_days\",\"at\":2185},{\"k\":\"already_hired\",\"at\":181},{\"k\":\"left_update\",\"at\":-1}]"
+    },
+    {
+      "id": "A5",
+      "what": "★详情读口加性四键：在职分支 `my_role: onThisProject ? 'hired' : 'none'` ＋ `my_hired_at` / `my_current_project_id` / `my_current_project_title`；不在职分支四键**齐在场且 null**（匿名整键缺省在 service 外层守）",
+      "pass": true,
+      "reading": "ok"
+    },
+    {
+      "id": "A6",
+      "what": "★前端钩子（探针 / 单测靠它定位）：项目页 `project-entry-join` / `project-entry-switch` / `project-entry-hired` / `project-entry-switch-confirm` 四钩在场 · 切换确认前提 = `confirmSwitch` 早退（零请求）· /wage 加入按钮受 `hiredAnywhere` 支配、`wage-one-at-a-time` 受 `hiredKey` 支配 · apply 载荷 `{switch:true}` 由 api 层透传",
+      "pass": true,
+      "reading": "{\"join\":true,\"switch\":true,\"hired\":true,\"confirm\":true,\"wage_join_gate\":true,\"wage_note_gate\":true}"
+    },
+    {
+      "id": "A7",
+      "what": "★真 HTTP 读口四键（切换前基线）：P_old ⇒ `my_role=hired` + `my_hired_at` 非空 + `my_current_project_id=P_old`；P_new ⇒ `my_role=none` 且 `my_current_project_id` 仍 = **P_old**（「当前唯一在职项目」不是本项目）",
+      "pass": true,
+      "reading": "{\"old\":{\"role\":\"hired\",\"at\":\"2026-10-22T23:56:43.517Z\",\"cur\":\"156\"},\"new\":{\"role\":\"none\",\"cur\":\"156\",\"title\":\"p78 gate old 20261023T045630Zvwsq\"}}"
+    },
+    {
+      "id": "A8",
+      "what": "★A（真 HTTP）不带 switch 而本人已在他项目在职 ⇒ **409 `worker_already_hired`**（`details.project_id` = 旧项目）· 旧行仍 `hired`（零副作用）· 目标项目对 A **零行** ⇒ 「缺省 = 旧行为」未被 silent 切换破坏",
+      "pass": true,
+      "reading": "{\"status\":409,\"reason\":\"worker_already_hired\",\"old\":{\"worker_id\":\"77\",\"status\":\"hired\",\"hired_at\":\"2026-10-22 23:56:43.517063+00\",\"left_at\":null},\"new_row\":null,\"hired_before\":[{\"project_id\":\"156\",\"worker_id\":\"77\",\"hired_at\":\"2026-10-22 23:56:43.517063+00\"}]}"
+    },
+    {
+      "id": "B1",
+      "what": "★B（真 HTTP）带 `{switch:true}` ⇒ 200 · `switched_from` = 旧 project_id · `data.worker.project_id` = 新项目· 旧行 `status=left` 且 `left_at` 非空 · 新行 `status=hired` 且 `hired_at ∈ [请求前 1s, 请求后 1s]`（旧行 hired_at = 5h 前 ⇒ 新行时间戳**前移**是可观测事实，不是回填）",
+      "pass": true,
+      "reading": "{\"status\":200,\"switchedFrom\":\"156\",\"oldStatus\":\"left\",\"oldLeftAt\":\"2026-10-23 04:56:57.590561+00\",\"newStatus\":\"hired\",\"newHiredAt\":\"2026-10-23 04:56:57.590561+00\",\"fromIso\":\"2026-10-23T04:56:52.354Z\",\"toIso\":\"2026-10-23T04:57:06.191Z\"}"
+    },
+    {
+      "id": "B2",
+      "what": "★B 不变量：A 的在职行**恰 1 条**且落在 P_new（旧行 left 后不残留双在职 —— 部分唯一索引可满足、无 23505 报错）；旧 worker_id 未变（左移是 UPDATE 不是删行 → 历史保留）",
+      "pass": true,
+      "reading": "{\"hired_now\":[{\"project_id\":\"157\",\"worker_id\":\"79\",\"hired_at\":\"2026-10-23 04:56:57.590561+00\"}],\"old_worker_id\":\"77\"}"
+    },
+    {
+      "id": "C1",
+      "what": "★C（真 HTTP）切换后**紧接**领薪 ⇒ **400 `wage_interval_not_reached`**（`wage_interval_hours`=4 · `hours_since_window_start`=0）⇒ 间隔从**新** hired_at 重算（若沿用旧行 5h 前的 hired_at，5h ≥ 4h 就会放行 ⇒ 200）",
+      "pass": true,
+      "reading": "{\"status\":400,\"reason\":\"wage_interval_not_reached\",\"details\":{\"reason\":\"wage_interval_not_reached\",\"wage_interval_hours\":4,\"hours_since_window_start\":0,\"window_start\":\"2026-10-23T04:56:57.590Z\"}}"
+    },
+    {
+      "id": "C2",
+      "what": "★C 窗口起点对拍：`details.window_start` ≥ 本次切换请求前 1s（= 新行 hired_at），**严格晚于**旧行 hired_at + interval（旧行 hired_at 距今 5h，若窗口起点仍是旧值会被这里抓住）",
+      "pass": true,
+      "reading": "{\"window_start\":\"2026-10-23T04:56:57.590Z\",\"old_hired_at\":\"2026-10-22 23:56:43.517063+00\",\"request_floor\":\"2026-10-23T04:56:52.354Z\"}"
+    },
+    {
+      "id": "D1",
+      "what": "★D（真 HTTP）**满员**项目带 `{switch:true}` ⇒ **409 `project_headcount_full`**（`headcount`=1 / `hired_count`=1）⇒ 名额闸先于切换判定，切换不是绕过后门",
+      "pass": true,
+      "reading": "{\"status\":409,\"reason\":\"project_headcount_full\",\"details\":{\"reason\":\"project_headcount_full\",\"headcount\":1,\"hired_count\":1}}"
+    },
+    {
+      "id": "D2",
+      "what": "★D 无半切：闸失败后 A **仍在 P_new 在职**（旧行未被 left）· 满员项目对 A 零行 · 满员项目在职数仍 1（B）⇒ 「三闸先于切换 + 同事务」两个承诺同时成立（不是先切后拒）",
+      "pass": true,
+      "reading": "{\"at_new\":{\"worker_id\":\"79\",\"status\":\"hired\",\"hired_at\":\"2026-10-23 04:56:57.590561+00\",\"left_at\":null},\"at_full\":null,\"full_hired\":{\"n\":\"1\"}}"
+    },
+    {
+      "id": "E1",
+      "what": "★E（真 HTTP）已在目标项目再申请（即便也带 switch）⇒ **200 幂等** · `switched_from = null`· `data.worker.worker_id` = B 段建的那条（不新插行）· A 在职行仍恰 1 条",
+      "pass": true,
+      "reading": "{\"status\":200,\"message\":\"Project application (already hired)\",\"switched_from\":null,\"worker_id\":\"79\",\"hired\":[{\"project_id\":\"157\",\"worker_id\":\"79\",\"hired_at\":\"2026-10-23 04:56:57.590561+00\"}]}"
+    },
+    {
+      "id": "F2",
+      "what": "★负控②（谓词可证伪）：同一 `bSwitchPredicate` 喂 B 的真实观测 ⇒ **true**；喂「旧行仍 hired / 未切」⇒ **false**；喂「新行 hired_at = 5h 前（回填旧时间）」⇒ **false** ⇒ 判据对「没真切换」与「时间未前移」都敏感",
+      "pass": true,
+      "reading": "{\"real\":true,\"mutant_no_left\":false,\"stale_hired_at\":false}"
+    },
+    {
+      "id": "F1",
+      "what": "★负控①（**真 mutant** · 子进程 5799 真 HTTP · 只短路旧行 `status='left'` 这一条 UPDATE）：同 B 流（A 于 P_new 在职 → 切 P_old 带 switch）⇒ B 谓词**必红** —— 旧行仍 `hired`、新行插不进（部分唯一索引 `project_worker_single_hired_uniq` 报 23505 ⇒ 409 `worker_already_hired`）⇒ 证明 B 绿是真由那条 left UPDATE + 新行 INSERT 驱动，不是「响应里写了 switched_from」就成立",
+      "pass": true,
+      "reading": "{\"status\":409,\"reason\":\"worker_already_hired\",\"obs\":{\"status\":409,\"oldStatus\":\"hired\",\"oldLeftAt\":null,\"newStatus\":null,\"newHiredAt\":null,\"fromIso\":\"2026-10-23T04:57:33.784Z\",\"toIso\":\"2026-10-23T04:57:42.331Z\"},\"data_keys\":[]}"
+    },
+    {
+      "id": "F3",
+      "what": "★mutant 零残留：A 仍在 P_new 在职（恰 1 条 hired）· P_old 对 A **无在职行**（失败事务整体回滚，不留半切）",
+      "pass": true,
+      "reading": "{\"hired\":[{\"project_id\":\"157\",\"worker_id\":\"79\",\"hired_at\":\"2026-10-23 04:56:57.590561+00\"}]}"
+    },
+    {
+      "id": "Z0",
+      "what": "★清尾（夹具自删六表逐条独立）：零错误（`batt_entry` append-only 不碰 —— 本门零成功领薪 ⇒ 无行）",
+      "pass": true,
+      "reading": "{\"errors\":[]}"
+    },
+    {
+      "id": "Z1",
+      "what": "★零残留：夹具 project / project_worker / users 计数全 **0**（自建自删；未 apply 任何迁移）",
+      "pass": true,
+      "reading": "{\"projects\":{\"n\":\"0\"},\"workers\":{\"n\":\"0\"},\"users\":{\"n\":\"0\"}}"
+    },
+    {
+      "id": "Z2",
+      "what": "★非夹具面零外溢：project / project_worker 的 (count, max_id) 指纹与开跑前**逐字相等**（本轮只碰夹具行）",
+      "pass": true,
+      "reading": "{\"before\":{\"project\":{\"n\":\"15\",\"maxid\":\"136\"},\"worker\":{\"n\":\"0\",\"maxw\":\"0\"}},\"after\":{\"project\":{\"n\":\"15\",\"maxid\":\"136\"},\"worker\":{\"n\":\"0\",\"maxw\":\"0\"}}}"
+    }
+  ],
+  "summary": {
+    "total": 21,
+    "passed": 21,
+    "failed": 0,
+    "red": []
+  }
+}

@@ -244,6 +244,32 @@ describe('/wage ① 列表卡：状态 / 已招 X/Y / 工资行 / 按钮态', ()
     expect(fullCard.querySelector('[data-sf-action="join"]').disabled).toBe(true)
     expect(fullCard.querySelector('[data-sf-m="wage-card-hint"]').textContent).toBe(zh.wage.full)
   })
+
+  // ★ 防倒退（Kevin 2026-10-23 的反向判据）：在职 ⇒ 全卡零【加入】+ 无 one-at-a-time 提示；
+  //   反过来「**谁都不在职**」时，本页必须仍然给【加入】并且仍然展示「同时只能在一个项目打工」
+  //   —— 否则「入职后一律隐藏」的实现会顺手把这句本页说明也永久删掉。
+  it('【防倒退】谁都不在职 ⇒ 招募中卡仍有【加入】且页头仍显示「同时只能在一个项目打工」', async () => {
+    const { calls } = installFetch({ rows: [ROW_OPEN, { ...ROW_CLOSED, status: 'recruiting', headcount: 5, hired_count: 1 }] })
+    const { container } = mount()
+    await waitFor(() => expect(cards(container)).toHaveLength(2))
+
+    // 两张招募中卡都带【加入】（未满 ⇒ 可点）
+    expect(container.querySelectorAll('[data-sf-action="join"]')).toHaveLength(2)
+    expect(cardOf(container, '12').querySelector('[data-sf-action="join"]').disabled).toBe(false)
+    expect(cardOf(container, '13').querySelector('[data-sf-action="join"]').disabled).toBe(false)
+
+    // 页头说明行在场，文案 = 既有键（不是被硬删 / 被换成空串）
+    const note = container.querySelector('[data-sf-m="wage-one-at-a-time"]')
+    expect(note).not.toBeNull()
+    expect(note.textContent).toBe(zh.wage.oneAtATime)
+
+    // 点【加入】仍打 apply（本页加入入口在「未在职」态没有被一起搬走）
+    fireEvent.click(cardOf(container, '12').querySelector('[data-sf-action="join"]'))
+    await waitFor(() => expect(calls.filter((c) => /\/apply$/.test(c.url))).toHaveLength(1))
+    expect(calls.filter((c) => /\/apply$/.test(c.url))[0].url).toBe('/api/project/12/apply')
+    // 本页加入走**空载荷**（切换属于项目页，`/wage` 不得偷偷送 switch:true）
+    expect(calls.filter((c) => /\/apply$/.test(c.url))[0].body).toEqual({})
+  })
 })
 
 describe('/wage ② 加入 / 领工资行为', () => {
