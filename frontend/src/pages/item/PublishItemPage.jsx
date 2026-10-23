@@ -105,21 +105,39 @@ const CONDITION_OPTIONS = [
   { value: 'HeavyWear', hook: 'heavyWear', labelKey: 'itemCondition.heavyWear' },
 ]
 
-// ---- 多件购买授权（design §26.18 / route §49.17 / data §40.13 · 迁移 0061） ------
-// 载荷唯一字段 = `allow_multi_buy`（**真布尔**，默认 `false`）：
-//   · 开关**仅 `Number(stock) > 1` 时渲染**（★ 禁字符串比较：`'10' > '9'` 为 false）；
-//     `stock ≤ 1` / 空 / 非法 ⇒ 整块不渲染 + state 强制 `false` + 载荷不带该键。
-//   · 默认**关**（库存填 >1 不自动勾选 = 不替卖家做决定）。
-//   · **单向自动关**：库存改 ≤1 ⇒ `false`；改回 ≥2 **不自动恢复**（回涨恢复 = 替卖家决定，
-//     且与后端 `W5`（PATCH 未传 ∧ stock ≤1 ⇒ 归一 false）的库值分叉）。
-//   · 编辑页预填 = 读口行键 `allow_multi_buy === true`；行内 `true ∧ stock = 1`（正常终态：买到只剩 1 件）
-//     ⇒ 不渲染 + state `false` ⇒ 保存**不带**该键（不把 `true` 又抄回去）。
-// 文案三键（四语同补）：`item.multiBuyLabel` / `item.buyQtyTitle` / `item.buyQtyHint`（后两键详情页消费）。
-/** 库存输入 ⇒ 是否满足「多件购买」可见性（**数值比较**；空 / 小数 / 非数字均不满足）。 */
-const stockAllowsMultiBuy = (raw) => {
+// ---- 多件 / 库存（design §26.18 / route §49.17 / data §40.13 · 迁移 0061） ------
+// 载荷唯一授权字段 = `allow_multi_buy`（**真布尔**，默认 `false`）：
+//   · 订单侧上限：`allow_multi_buy = false` ⇒ 一次只能买 1 件（无论库存多少）；`true ∧ stock > 1` ⇒ 可多件。
+//   · 后端不变式（`listing-service.ts` W3/W7）：显式 `true` ∧ 生效 `stock ≤ 1` ⇒ 400 `MULTI_BUY_NOT_APPLICABLE`；
+//     未传 ⇒ 归一 false。`stock` 在创建场景**必填且为非负整数**（缺省 ⇒ 400 `listing.stock NOT_AN_INTEGER`）。
+//
+// ★ Kevin 2026-10-23 需求D：**库存数字输入 ⇒ 单个【多件】勾选框 + 数量控件**
+//   · 未勾选 = **单件**语义：库存恒 `1`（载荷仍带 `stock: '1'` —— 创建口 stock 必填，
+//     缺省会被后端判 400；且**不带** `allow_multi_buy`，由服务端落 DEFAULT false）；
+//   · 勾选 = 多件：① `<input type="range" min=1 max=100>` 滑块 ② 一个「超过 100」的手动数字框；
+//     两者**同一份值**（滑块 = 值钳在 1..100，手输 >100 ⇒ 滑块停在 100，手输为准）；
+//   · 生效授权 = 勾选 ∧ 数量 > 1（勾选但数量 1 时按单件发，不送 `allow_multi_buy`，不撞后端 W3）；
+//   · 单向：取消勾选 ⇒ 数量回 1（不回涨、不记忆上一次的多件数量 = 不替卖家做决定）。
+//   · 编辑页预填：`checked = stock > 1`（库内有几件就是几件，不外推）；数量 = 库值；
+//     保存仍按「只传变化字段」，未动库存/授权 ⇒ 不进 PATCH。
+// 文案复用既有键（`item.multiBuyLabel` / `item.quantity` / `item.draftStockLocked`），**零新增键**。
+/** 库存文本 ⇒ 数值（空 / 小数 / 非数字 ⇒ null，**禁字符串比较**：`'10' > '9'` 为 false）。 */
+const stockNumber = (raw) => {
   const text = String(raw ?? '').trim()
-  if (!/^\d+$/.test(text)) return false
-  return Number(text) > 1
+  return /^\d+$/.test(text) ? Number(text) : null
+}
+
+/** 库存 ⇒ 是否「多件」（整数 > 1）。预填与生效判定同一把尺。 */
+const stockAllowsMultiBuy = (raw) => (stockNumber(raw) ?? 0) > 1
+
+/** 多件数量输入 ⇒ 纯数字文本（粘贴 `12a` ⇒ `12`；空串保留 = 让用户继续输入，提交闸兜底）。 */
+const digitsOnly = (raw) => String(raw ?? '').replace(/[^\d]/g, '')
+
+/** 滑块读数 = 数量钳在 1..100（>100 的手输值 ⇒ 滑块停在右端 100）。 */
+const sliderValueOf = (raw) => {
+  const n = stockNumber(raw)
+  if (n == null) return 1
+  return Math.min(100, Math.max(1, n))
 }
 
 /** 成色四值闭集（`/api/listing/mine` 行键 `condition` 预填时的合法性判定）。 */
@@ -195,9 +213,13 @@ const PublishItemPage = ({ mode = 'publish' }) => {
   const [shipSel, setShipSel] = useState('')
   // 商品成色（仅实物分支渲染；'' = 未选。发布模式实物下必选，编辑模式可空 —— 存量行可能为 NULL）
   const [conditionSel, setConditionSel] = useState('')
-  // 多件购买授权（**卖方显式**开关；默认关）。可见性 = 库存数值 > 1（见 `stockAllowsMultiBuy`）；
-  // 不可见时 state 恒 false（降量 ⇒ 单向自动关；此后回涨不自动恢复）。
+  // 多件（**卖方显式**勾选；默认关）。★ 2026-10-23 需求D：勾选框 = 库存 > 1 的唯一入口；
+  // 未勾选 ⇒ 数量恒 `'1'`（单件语义）。数量与滑块共用 `form.stock` 这一份值。
   const [multiBuy, setMultiBuy] = useState(false)
+  // ★ 2026-10-23 需求D：卖家**是否动过**【多件】勾选（编辑页「只传变化字段」用）。
+  //   未动过 ⇒ PATCH 既不写 `stock` 也不写 `allow_multi_buy`（价格/描述这类无关编辑
+  //   不得顺手把别人的多件授权翻掉）；动过 ⇒ 两个键都按新值进 patch。
+  const [multiTouched, setMultiTouched] = useState(false)
   const [miss, setMiss] = useState({ type: false, deliver: false, ship: false, condition: false })
   const [images, setImages] = useState([])
   const [imageNotice, setImageNotice] = useState('')
@@ -220,9 +242,8 @@ const PublishItemPage = ({ mode = 'publish' }) => {
   /** 草稿 ⇒ 库存锁定（DL60）。发布模式恒 `false`。 */
   const stockLocked = isEdit && String(source?.status ?? '') === 'draft'
 
-  // 多件购买授权：**仅库存数值 > 1 时**渲染开关；不可见 ⇒ 生效值恒 `false`（载荷不带该键）。
-  const multiBuyVisible = stockAllowsMultiBuy(form.stock)
-  const multiBuyEffective = multiBuyVisible && multiBuy
+  // 多件生效 = 勾选 ∧ 数量 > 1（勾选但数量 1 ⇒ 按单件发，不送授权键，不撞后端 W3）。
+  const multiBuyEffective = multiBuy && stockAllowsMultiBuy(form.stock)
 
   /** 只读币种显示文本：`symbol · name`（与下拉同源）；列表里没有 ⇒ 原样显示 cid（已退市币种不猜补）。 */
   const cidLabel = useMemo(() => {
@@ -293,6 +314,8 @@ const PublishItemPage = ({ mode = 'publish' }) => {
           stock: String(row.stock ?? ''),
           description: String(row.description ?? ''),
         })
+        setMultiTouched(false) // 预填基线不算「用户动过」
+        setMultiTouched(false) // 预填基线不算「用户动过」
         setItemTypeSel(cascade.type)
         setDeliverSel(cascade.deliver)
         setShipSel(cascade.ship)
@@ -300,9 +323,9 @@ const PublishItemPage = ({ mode = 'publish' }) => {
         //   ★ 闭集外 / 缺键 ⇒ ''（未选），**不猜补**；实物行的 NULL 也保持未选（编辑不强制补选）。
         const rawCondition = String(row.condition ?? '')
         setConditionSel(ITEM_CONDITIONS.includes(rawCondition) ? rawCondition : '')
-        // 多件购买授权预填（读口 14 键之 `allow_multi_buy`，真布尔）：**仅 true 且库存 > 1 时勾上**；
-        //   行内 `true ∧ stock = 1`（正常终态）= 开关不渲染 ⇒ state 保持 false ⇒ 保存不带该键。
-        setMultiBuy(row.allow_multi_buy === true && stockAllowsMultiBuy(row.stock))
+        // 多件预填（★ 2026-10-23 需求D）：**只认库存**——`stock > 1` ⇒ 勾上并把数量填成库值；
+        //   `stock ≤ 1`（含买到只剩 1 件的正常终态）⇒ 不勾、数量保留库值（0 也原样保留，不替卖家改成 1）。
+        setMultiBuy(stockAllowsMultiBuy(row.stock))
         setExistingMedia(Array.isArray(row.media_urls) ? row.media_urls.map((u) => String(u)) : [])
         setSource({ ...row, item_type: row.item_type ?? null, condition: row.condition ?? null })
         setMiss({ type: false, deliver: false, ship: false, condition: false })
@@ -340,16 +363,27 @@ const PublishItemPage = ({ mode = 'publish' }) => {
 
   const setField = (key) => (event) => setForm((prev) => ({ ...prev, [key]: event.target.value }))
 
-  /** 库存输入（专治「单向自动关」）：库存落到 ≤1 / 空 / 非法 ⇒ 多件购买授权**立即清零**；
-   *  ★ 回涨到 ≥2 **不自动恢复**（不是双向联动）。 */
-  const setStock = (event) => {
-    const value = event.target.value
-    setForm((prev) => ({ ...prev, stock: value }))
-    if (!stockAllowsMultiBuy(value)) setMultiBuy(false)
+  /** 多件数量（滑块 / 手输**同一份值**）：只收数字；滑块已把范围钳在 1..100，
+   *  手输可 >100（以手输为准）。空串保留，提交闸兜底。 */
+  const setStockQty = (raw) => {
+    const text = digitsOnly(raw)
+    setForm((prev) => ({ ...prev, stock: text }))
   }
 
-  /** 多件购买开关：只存**布尔**（不可见时恒 false，不因点击变 true）。 */
-  const toggleMultiBuy = (event) => setMultiBuy(multiBuyVisible ? event.target.checked : false)
+  /** 滑块：`1..100` ⇒ 直接落到同一份值（>100 的手输值被滑块拖回 100 即视为用户主动改小）。 */
+  const setStockSlider = (event) => { setStockQty(event.target.value); setMultiTouched(true) }
+
+  /** 【多件】勾选框：勾上 ⇒ 数量默认 2（原值已 >1 则沿用）；取消 ⇒ 回到单件 `1`（单向，不回涨）。 */
+  const toggleMultiBuy = (event) => {
+    if (stockLocked) return
+    const checked = Boolean(event.target.checked)
+    setMultiBuy(checked)
+    setMultiTouched(true) // ★ 只有用户真动过开关，`allow_multi_buy` 才允许进 PATCH
+    setForm((prev) => ({
+      ...prev,
+      stock: checked ? (stockAllowsMultiBuy(prev.stock) ? String(prev.stock) : '2') : '1',
+    }))
+  }
 
   /** 一级「商品分类」：切换即**清空三个二级值**（分支切换 ⇒ stale 值不得进载荷）。
    *  ★ 成色同批清空：数字 / 未分类带 `item_condition` 会被后端判 400 `ITEM_CONDITION_NOT_APPLICABLE`。 */
@@ -416,6 +450,11 @@ const PublishItemPage = ({ mode = 'publish' }) => {
     const priceText = String(form.price).trim()
     const stockText = String(form.stock).trim()
     const description = String(form.description)
+    // 库存闸（★ 2026-10-23 需求D）：多件 ⇒ 必须是 ≥1 的整数（滑块/手输都该给出合法值）；
+    //   单件 ⇒ 仍允许 `0`（「库存 0」是上架后的合法终态，编辑不应被强改成 1）。
+    const stockInvalid = stockLocked
+      ? false
+      : (stockNumber(stockText) === null || Number(stockText) < (multiBuy ? 1 : 0))
     // ⓪ 本地闸（**零网络调用**）：描述必填 / 价格整数 ≥1 / 库存整数 ≥0 / 分类二级「半选」拦截。
     //   ★ 分类**未选不清空**：编辑模式允许「原本未分类 ⇒ 本次不动」，不强制补选（不猜补）；
     //     但一级已选而二级未选 = 半成品 ⇒ 拦（后端把二级缺项映射成 `null` 会静默丢分类）。
@@ -424,7 +463,7 @@ const PublishItemPage = ({ mode = 'publish' }) => {
     if (
       !description.trim()
       || !/^\d+$/.test(priceText) || Number(priceText) < 1
-      || (!stockLocked && (!/^\d+$/.test(stockText) || Number(stockText) < 0))
+      || stockInvalid
       || deliverMiss || shipMiss
     ) {
       setMiss({ type: false, deliver: deliverMiss, ship: shipMiss, condition: false })
@@ -465,7 +504,8 @@ const PublishItemPage = ({ mode = 'publish' }) => {
     //   基线也取「库值的**生效**形」（`true ∧ stock = 1` 视为生效 false）—— 该行是「买到只剩 1 件」的
     //   正常终态，开关不渲染、保存**不带该键**（不把库里的 true 抄回去，也不写一条无意义的 false）。
     const sourceMultiBuy = source.allow_multi_buy === true && stockAllowsMultiBuy(source.stock)
-    if (multiBuyEffective !== sourceMultiBuy) patch.allow_multi_buy = multiBuyEffective
+    // ★ 未动过开关/数量 ⇒ 不写该键（无关编辑不得把库里的 true 抄回去或补一条无意义 false）
+    if (multiTouched && multiBuyEffective !== sourceMultiBuy) patch.allow_multi_buy = multiBuyEffective
 
     // ③ 无变化 ⇒ 不往返（不打扰、也不产生空 patch 的 400 `NO_EDITABLE_FIELD`）
     if (!Object.keys(patch).length) {
@@ -519,6 +559,13 @@ const PublishItemPage = ({ mode = 'publish' }) => {
     // ⓪b 描述必填（route §49.13.2：缺省 / `''` / 全空白 ⇒ 后端 400 `listing.description REQUIRED`）
     //     ⇒ 前端先拦（零网络调用）；提示复用既有键，不新增文案。
     if (!String(form.description).trim()) {
+      setState({ phase: 'error', message: t('uiError.badRequest') })
+      return
+    }
+
+    // ⓪c 数量闸（★ 2026-10-23 需求D）：单件 ⇒ 恒 `'1'`；多件 ⇒ `1..∞` 的整数（滑块 1–100、
+    //    手输可更大）。空 / 脏值 ⇒ 拦（`stock` 是创建口必填键，不发非法值）。
+    if (stockNumber(String(form.stock).trim()) === null || Number(form.stock) < 1) {
       setState({ phase: 'error', message: t('uiError.badRequest') })
       return
     }
@@ -662,40 +709,63 @@ const PublishItemPage = ({ mode = 'publish' }) => {
                 <span className="sf-item-label">{t('item.price')}</span>
                 <input className="sf-item-input" data-sf-m="item-input-price" value={form.price} onChange={setField('price')} inputMode="numeric" required />
               </label>
-              <label className="sf-item-field">
-                <span className="sf-item-label">{t('item.stock')}</span>
-                <input
-                  className="sf-item-input"
-                  data-sf-m="item-input-stock"
-                  value={form.stock}
-                  onChange={setStock}
-                  inputMode="numeric"
-                  required
-                  disabled={stockLocked}
-                />
-                {/* ★ 草稿库存锁（DL60）：`stock` 仅 `listed` 可改 ⇒ 草稿下输入禁用 + 常驻提示。 */}
+              {/* ★ 2026-10-23 需求D：库存数字输入 ⇒ **单个【多件】勾选框**。
+                  未勾选 = 单件（数量钉成 1，不渲染任何数量控件）；勾选 ⇒ ① 1–100 滑块 ② 超过 100 的手输框，
+                  两者同一份值（手输 >100 ⇒ 滑块停在 100，以手输为准）。
+                  钩子：组 `item-multi-buy` / 勾选框 `item-input-multi-buy(-box)` /
+                  滑块 `item-input-stock-slider` / 手输 `item-input-stock`（沿用旧钩子，命中「当前库存值」）。 */}
+              <div
+                className="sf-item-field sf-item-field-wide sf-item-multibuy"
+                data-sf-m="item-multi-buy"
+                data-sf-multi={multiBuyEffective ? '1' : '0'}
+              >
+                <label className="sf-item-check" data-sf-m="item-input-multi-buy">
+                  <input
+                    className="sf-item-check-box"
+                    type="checkbox"
+                    checked={multiBuy}
+                    onChange={toggleMultiBuy}
+                    disabled={stockLocked}
+                    data-sf-m="item-input-multi-buy-box"
+                  />
+                  <span className="sf-item-check-text">{t('item.multiBuyLabel')}</span>
+                </label>
+                {multiBuy ? (
+                  <div className="sf-item-multi-qty" data-sf-m="item-multi-qty">
+                    <span className="sf-item-label">{t('item.quantity')}</span>
+                    <div className="sf-item-multi-row">
+                      <input
+                        className="sf-item-range"
+                        type="range"
+                        min="1"
+                        max="100"
+                        step="1"
+                        value={sliderValueOf(form.stock)}
+                        onChange={setStockSlider}
+                        disabled={stockLocked}
+                        aria-label={t('item.quantity')}
+                        data-sf-m="item-input-stock-slider"
+                      />
+                      <input
+                        className="sf-item-input sf-item-qty-num"
+                        type="number"
+                        min="1"
+                        step="1"
+                        inputMode="numeric"
+                        value={form.stock}
+                        onChange={(event) => setStockQty(event.target.value)}
+                        disabled={stockLocked}
+                        aria-label={t('item.quantity')}
+                        data-sf-m="item-input-stock"
+                      />
+                    </div>
+                  </div>
+                ) : null}
+                {/* ★ 草稿库存锁（DL60）：`stock` 仅 `listed` 可改 ⇒ 草稿下勾选框与数量禁用 + 常驻提示。 */}
                 {stockLocked ? (
                   <p className="sf-item-hint" data-sf-m="item-stock-locked">{t('item.draftStockLocked')}</p>
                 ) : null}
-              </label>
-              {/* ★ 多件购买授权（design §26.18 · route §49.17）：**仅 `stock > 1` 时渲染**
-                  （不可见 = 整块不渲染，非 display:none；state 同时被强制 false）。
-                  形态 = 原生 `checkbox` + `<label>`（不新造 switch 组件）；触控 ≥44 / 字号 ≥12 落 CSS。
-                  默认**关**；库存降回 ≤1 ⇒ 单向自动关，回涨不自动恢复。 */}
-              {multiBuyVisible ? (
-                <div className="sf-item-field sf-item-field-wide sf-item-multibuy" data-sf-m="item-multi-buy">
-                  <label className="sf-item-check" data-sf-m="item-input-multi-buy">
-                    <input
-                      className="sf-item-check-box"
-                      type="checkbox"
-                      checked={multiBuyEffective}
-                      onChange={toggleMultiBuy}
-                      data-sf-m="item-input-multi-buy-box"
-                    />
-                    <span className="sf-item-check-text">{t('item.multiBuyLabel')}</span>
-                  </label>
-                </div>
-              ) : null}
+              </div>
               {/* 币种：发布 = 下拉（可改）；编辑 = **只读展示**（后端字段模式不收 `cid` ⇒ 不可改，
                   已退市币种也原样显示 `cid` 数字，不猜补）。 */}
               {isEdit ? (

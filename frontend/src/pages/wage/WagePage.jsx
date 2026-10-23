@@ -7,6 +7,7 @@ import BattCheckinPanel from '../../components/BattCheckinPanel'
 import { applyToWageProject, claimWage, fetchWageCurrencies, fetchWageProjects } from './wage-api'
 import { projectHrefOf } from '../../project-slug'
 import { avatarInitialOf, avatarToneOf } from '../../avatar-tone'
+import WageClaimModal from './WageClaimModal'
 import './wage.css'
 
 // ============================================================================
@@ -54,6 +55,15 @@ import './wage.css'
 //   · 后端加性字段 `streak`（第几次连续领取）/ `bonus_amount`（本次额外随机 $ 奖励）；
 //   · 两键都在且为正 ⇒ 追加一行「已连续 N 次领工资，额外奖励 $X」（`wage.streakReward`）；
 //   · 键缺席 / 非正（旧后端）⇒ 静默降级为原提示，**不猜、不补 0**。
+//
+// ★ Kevin 2026-10-23 需求A：领工资成功 ⇒ **模态框**（`WageClaimModal`），卡内**不再**出现成功文案：
+//   · 框体 = 三路零请求关闭（✕ / 背板 / Esc）+ 滚动锁定，文案 = 到账电量（⚡️）+ 可选次币 + 连续奖励；
+//   · 卡内 `wage-card-notice` 只留**失败 / 登录 / 加入成功**三态 —— 领取成功不再写进卡；
+//   · 关闭后卡面靠重拉列表拿到的 `next_claim_at` 自行置灰倒计时（与关闭动作无关，不因关框丢状态）。
+// ★ Kevin 2026-10-23 需求B：卡内【已招 X/Y】文案 ⇒ 前文案「招工名额」+ 270×3 进度条
+//   （填充 = hired/headcount；`headcount = 0` ⇒ 恒 0%；超员钳到 100%）；钩子 `wage-card-headcount`
+//   保留，读数改由 `data-hired` / `data-total` 承载。
+// ★ Kevin 2026-10-23 需求C：工资行改 emoji 计数口径【💰：每 M 小时 + ⚡️ N + ₿ X】（值改、键不动）。
 //
 // ★ Kevin 2026-10-21 指令：最高管理员可以修改任何项目的信息。
 // ★ Kevin 2026-10-21②（本版）：**【编辑】从本页**（项目卡卡头 / 卡内行内展开表单）**整体移出**，
@@ -152,7 +162,10 @@ const WagePage = () => {
 
   const [list, setList] = useState({ phase: 'loading', rows: [] })
   const [busy, setBusy] = useState({}) // projectKey ⇒ 'join' | 'claim'
-  const [notices, setNotices] = useState({}) // projectKey ⇒ { kind:'ok'|'err', text }
+  const [notices, setNotices] = useState({}) // projectKey ⇒ { kind:'ok'|'err'|'login', text }
+  // ★ Kevin 2026-10-23 需求A：领取成功的**模态框**载荷（`{ text, streak }`）；null = 框关闭。
+  //   卡内不再承载成功文案 ⇒ 成功结果只有这一个出口。
+  const [claimModal, setClaimModal] = useState(null)
   const [claimAt, setClaimAt] = useState({}) // projectKey ⇒ 下次可领时间戳
   const [symbols, setSymbols] = useState({}) // cid ⇒ 币种符号
   const [clock, setClock] = useState(() => Date.now())
@@ -320,7 +333,10 @@ const WagePage = () => {
       const streakText = streak > 0 && bonus > 0
         ? tRef.current('wage.streakReward', { n: streak, bonus })
         : ''
-      setNotice(key, { kind: 'ok', text, streak: streakText })
+      // ★ Kevin 2026-10-23 需求A：成功 ⇒ **弹模态框**，卡内**不写**成功文案
+      //   ⇒ 先清掉该卡旧提示（上一轮失败 / 登录提示不得留在框背后像一次失败的余影）。
+      setNotice(key, null)
+      setClaimModal({ text, streak: streakText })
       // 刷新列表拿服务端**新的** `next_claim_at`（下次可领时间的真源）。
       const refreshed = await load({ silent: true })
       const fresh = Array.isArray(refreshed) ? refreshed.find((item) => projectKey(item) === key) : null
@@ -355,6 +371,11 @@ const WagePage = () => {
     const joined = role === 'hired'
     const headcount = num(row?.headcount)
     const hiredCount = num(row?.hired_count)
+    // ★ Kevin 2026-10-23 需求B：进度条填充比例 = hired/headcount；**0 头恒 0%**、超员钳到 100%
+    //   （两种都在前端钳位 —— 服务端可能出现 hired > headcount 的历史行，不得画出 >100% 的条）。
+    const hiredPct = headcount > 0
+      ? Math.min(100, Math.max(0, Math.round((hiredCount / headcount) * 10000) / 100))
+      : 0
     const batt = num(row?.wage_batt_per_claim)
     const hours = num(row?.wage_interval_hours)
     const amount = num(row?.wage_currency_amount)
@@ -413,7 +434,32 @@ const WagePage = () => {
         ) : null}
 
         <div className="sf-wage-card-meta">
-          <span data-sf-m="wage-card-headcount">{t('wage.headcount', { hired: hiredCount, total: headcount })}</span>
+          {/* ★ Kevin 2026-10-23 需求B：旧【已招 X/Y】文案退场，改为「招工名额」+ 270×3 进度条。
+              钩子 `wage-card-headcount` 保留（探针/单测的抓手），读数改由 `data-hired` / `data-total`。 */}
+          <span
+            className="sf-wage-headcount"
+            data-sf-m="wage-card-headcount"
+            data-hired={String(hiredCount)}
+            data-total={String(headcount)}
+          >
+            <span className="sf-wage-headcount-label" data-sf-m="wage-card-headcount-label">{t('wage.headcount')}</span>
+            <span
+              className="sf-wage-progress"
+              data-sf-m="wage-card-headcount-bar"
+              data-sf-percent={String(hiredPct)}
+              role="progressbar"
+              aria-label={t('wage.headcount')}
+              aria-valuemin={0}
+              aria-valuemax={Math.max(0, headcount)}
+              aria-valuenow={Math.max(0, Math.min(hiredCount, headcount))}
+            >
+              <span
+                className="sf-wage-progress-fill"
+                data-sf-m="wage-card-headcount-fill"
+                style={{ width: `${hiredPct}%` }}
+              />
+            </span>
+          </span>
           <span className="sf-wage-pay" data-sf-m="wage-card-wage">
             {t('wage.wageLine', { batt, hours })}
             {amount > 0 && symbol ? (
@@ -485,9 +531,6 @@ const WagePage = () => {
             role={notice.kind === 'err' ? 'alert' : 'status'}
           >
             {notice.text}
-            {notice.streak ? (
-              <span className="sf-wage-notice-streak" data-sf-m="wage-card-streak">{notice.streak}</span>
-            ) : null}
             {notice.kind === 'login' ? (
               <Link
                 className="sf-wage-notice-link"
@@ -581,6 +624,18 @@ const WagePage = () => {
           </div>
         )}
       </div>
+
+      {/* ★ Kevin 2026-10-23 需求A：领工资成功 ⇒ 独立模态框（卡内零成功文案）。
+          框体 portal 到 body；卸载 = 关闭（✕ / 背板 / Esc 三路零请求）。 */}
+      {claimModal ? (
+        <WageClaimModal
+          title={t('success')}
+          text={claimModal.text}
+          streak={claimModal.streak}
+          closeLabel={t('confirm')}
+          onClose={() => setClaimModal(null)}
+        />
+      ) : null}
     </div>
   )
 }

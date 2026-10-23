@@ -1039,9 +1039,45 @@
         触控 ≥44 / 字号 ≥12；弹层不写 `data-sf-region`、不吃 body 滚动条宽度、不触点底栏几何。
    --------------------------------------------------------------------------- */
 
-/* ① 开关行（落点 = 库存框之后、分类级联之前；整块由 JS 按 `stock > 1` 条件渲染） */
+/* ① 【多件】勾选行 + 数量控件（★ 2026-10-23 需求D：库存数字输入 ⇒ 勾选框 + 滑块/手输）
+ *   纪律同本段：零新 token（颜色 / 圆角 / 描边全取既有 --sf-*）；触控 ≥44 / 字号 ≥12；
+ *   几何 = 弹性行（滑块吃剩余宽度、手输固定 96px）⇒ 390 / 1536 两档都零横向溢出。 */
 .sf-item-multibuy {
-  justify-content: center;
+  justify-content: flex-start;
+}
+
+.sf-item-multi-qty {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.sf-item-multi-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.sf-item-range {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 24px;
+  margin: 0;
+  accent-color: var(--sf-btna-bg);
+  cursor: pointer;
+}
+
+.sf-item-range[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sf-item-qty-num {
+  flex: 0 0 96px;
+  width: 96px;
+  text-align: center;
 }
 
 .sf-item-check {

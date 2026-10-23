@@ -267,11 +267,145 @@
   color: var(--sf-down-fg);
 }
 
-/* 连续领取奖励行（2026-10-20 需求④）：与到账提示同一块内**另起一行**，不挤压既有提示排版 */
-.sf-wage-notice-streak {
+/* 连续领取奖励行（2026-10-20 需求④）：原先挂在卡内提示里；★ 2026-10-23 需求A 起
+ * 成功文案整体搬进模态框（`.sf-wage-modal-streak`），此处不再有卡内版本。 */
+
+/* ---------------------------------------------------------------------------
+ * 招工名额 + 进度条（Kevin 2026-10-23 需求B）
+ *   · 前文案 = 既有键 `wage.headcount`（值改「招工名额」，键不动）；
+ *   · 条体 = **270×3**（几何常量，两档同值）；填充 = hired/headcount（组件已钳 0–100%）；
+ *   · `flex-wrap: wrap` + 条 `flex:none`：390 档文案与 270px 条放不进一行时**条换行**，
+ *     条自身宽度仍逐值 270 ⇒ 两档零横向溢出；
+ *   · 颜色只取既有 token（轨道 = tag 底、填充 = 主按钮底）。
+ * ------------------------------------------------------------------------ */
+.sf-wage-headcount {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.sf-wage-headcount-label {
+  color: var(--sf-meta-fg);
+}
+
+.sf-wage-progress {
   display: block;
-  margin-top: 2px;
+  flex: none;
+  width: 270px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--sf-tag-bg);
+  overflow: hidden;
+}
+
+.sf-wage-progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--sf-btna-bg);
+}
+
+/* ---------------------------------------------------------------------------
+ * 领工资成功模态框（Kevin 2026-10-23 需求A）
+ *   体例对齐项目页模态框：遮罩 fixed inset:0、`z-index` 60（高于 `.sf-fm` 6）、
+ *   面板宽 ≤420 居中、390 档左右各 10px 贴边；视觉只消费既有 `--sf-*` token。
+ *   滚动锁定由组件写 `body.style.overflow`（关闭即还原），此处只管视觉。
+ * ------------------------------------------------------------------------ */
+.sf-wage-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.sf-wage-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.42);
+}
+
+.sf-wage-modal-panel {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 420px;
+  min-width: 0;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-btna);
+  background: var(--sf-panel-bg);
+  color: var(--sf-title-fg);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+}
+
+.sf-wage-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.sf-wage-modal-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--sf-title-fg);
+}
+
+.sf-wage-modal-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-btna);
+  background: var(--sf-panel-bg);
+  color: var(--sf-meta-fg);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* 到账 + 连续奖励：两行（含次币时段落更长），`overflow-wrap` 保证 390 档不横向撑破 */
+.sf-wage-modal-text {
+  margin: 0;
+  font-size: 14px;
   font-weight: 600;
+  line-height: 1.45;
+  color: var(--sf-up-fg);
+  overflow-wrap: anywhere;
+}
+
+.sf-wage-modal-streak {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--sf-title-fg);
+  overflow-wrap: anywhere;
+}
+
+.sf-wage-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 /* 客态轻提示条：横排一行（提示 + 登录入口），与列表并置 ⇒ 列表照常公开浏览 */
@@ -322,6 +456,21 @@
 @media (max-width: 767px) {
   .sf-wage-btn {
     min-height: 44px;
+  }
+
+  /* 成功模态框：贴边 10px、面板全宽、关闭钮触控 ≥44（与项目页模态框同口径） */
+  .sf-wage-modal {
+    padding: 10px;
+  }
+
+  .sf-wage-modal-panel {
+    max-width: 100%;
+    padding: 12px;
+  }
+
+  .sf-wage-modal-close {
+    width: 44px;
+    height: 44px;
   }
 }
 
