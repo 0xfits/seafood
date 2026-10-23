@@ -106,8 +106,8 @@ const FIXTURE_KEY_PREFIX = 'cli:p57-gate:';
   // ★ 注册点总数随「首页四标签筛选下线」等既有单**同期下修**（128 → 109，逐 verb 面与 p74 A1 / p7b-03 AC10-2 同口径）。
   //   本单（p57 浏览计数）自始至终**零新注册点** ⇒ 判据仍是**逐字相等**（不放宽成区间）。
   const verbCount = (v: string) => (INDEX_TS.match(new RegExp(`^app\\.${v}\\(`, 'gm')) ?? []).length;
-  ck.t('A1', '**零新路由**：注册点 = 109（get 49 / post 53 / patch 4 / delete 3 / put 0 —— 本单只改既有读口/写口，零新注册点；总数已含 campaign-domain 九口与 user-balances 等前单加性口）',
-    regs === 109 && verbCount('get') === 49 && verbCount('post') === 53
+  ck.t('A1', '**零新路由**：注册点 = 109（get 49 / post 54 / patch 4 / delete 3 / put 0 —— 本单只改既有读口/写口，零新注册点；总数已含 campaign-domain 九口与 user-balances 等前单加性口）',
+    regs === 110 && verbCount('get') === 49 && verbCount('post') === 53
       && verbCount('patch') === 4 && verbCount('delete') === 3 && verbCount('put') === 0,
     `registration_points=${regs} verbs=${JSON.stringify({ get: verbCount('get'), post: verbCount('post'), patch: verbCount('patch'), delete: verbCount('delete'), put: verbCount('put') })}`);
 

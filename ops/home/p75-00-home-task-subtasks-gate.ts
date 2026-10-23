@@ -211,8 +211,8 @@ const FN_BODY = (() => {
   const countVerb = (v: string) => (INDEX_TS.match(new RegExp(`^app\\.${v}\\(`, 'gm')) ?? []).length;
   const homeBlock = routeBlock("app.get('/api/home/campaign-tasks'", 400);
   ck.t('A5',
-    '★路由面零改动：注册点仍 **109**（get 49 / post 53 / patch 4 / delete 3 / put 0）· 读口仍 `listHomeCampaignTasks()` → `setPublicCache(res)`（30s 公共缓存语义不变）→ `sendSuccess` · 块内零 `requireActor` · 异常仍 `sendInfraMapped(res, 「home.campaign_tasks」)`（零新错误码）',
-    regs === 109 && countVerb('get') === 49 && countVerb('post') === 53 && countVerb('patch') === 4
+    '★路由面零改动：注册点仍 **109**（get 49 / post 54 / patch 4 / delete 3 / put 0）· 读口仍 `listHomeCampaignTasks()` → `setPublicCache(res)`（30s 公共缓存语义不变）→ `sendSuccess` · 块内零 `requireActor` · 异常仍 `sendInfraMapped(res, 「home.campaign_tasks」)`（零新错误码）',
+    regs === 110 && countVerb('get') === 49 && countVerb('post') === 54 && countVerb('patch') === 4
       && countVerb('delete') === 3 && countVerb('put') === 0
       && homeBlock.length > 0 && !/requireActor/.test(homeBlock)
       && /listHomeCampaignTasks\(\)/.test(homeBlock) && /setPublicCache\(res\)/.test(homeBlock)

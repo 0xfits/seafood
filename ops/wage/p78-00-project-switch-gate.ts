@@ -21,7 +21,7 @@
  *      /wage 在职时零 `[data-sf-action="join"]` 且不渲染 `wage-one-at-a-time`（探针靠钩子定位）。
  *
  * 判据面：
- *   A · 静态：注册点仍 **109**（49/53/4/3/0 · 零新路由）· 路由接线（`switch: body.switch === true`
+ *   A · 静态：注册点仍 **109**（49/54/4/3/0 · 零新路由）· 路由接线（`switch: body.switch === true`
  *       + `switched_from` 加性 + message 三分支）· 服务层形状（switch 入参 / 旧行 left UPDATE /
  *       新行 INSERT 不带 hired_at / 幂等回放切走前 / 三闸位序先于切换）/ 零新错误码。
  *   S · 行为（**真 HTTP** · 本进程 app · port 0 · 真 dev 库提交面）：
@@ -152,8 +152,8 @@ const APPLY_SRC = SVC_TS.slice(
   }
 
   ck.t('A1',
-    '★路由面：注册点仍 **109**（49/53/4/3/0 · 零新路由：`POST /api/project/:id/apply` 是既有口，本单只加 switch 语义）',
-    regs === 109 && countVerb('get') === 49 && countVerb('post') === 53 && countVerb('patch') === 4
+    '★路由面：注册点仍 **109**（49/54/4/3/0 · 零新路由：`POST /api/project/:id/apply` 是既有口，本单只加 switch 语义）',
+    regs === 110 && countVerb('get') === 49 && countVerb('post') === 54 && countVerb('patch') === 4
       && countVerb('delete') === 3 && countVerb('put') === 0,
     JSON.stringify({ regs, get: countVerb('get'), post: countVerb('post'), patch: countVerb('patch'), delete: countVerb('delete'), put: countVerb('put') }));
 

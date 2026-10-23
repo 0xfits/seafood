@@ -15,7 +15,7 @@
  *     （`details.reason='task_not_public'`，借码零新码）；owner（`project.owner_uid`=本人）∨
  *     `manage_tasks` 管理员 ⇒ **同一形状** 200（同一读口按身份放宽）；
  *   · `joined_count = count(DISTINCT subtask_proof.uid)`（同一人在 2 个子任务各有凭证 ⇒ 仍算 1 人）；
- *   · 注册点 **109**（get 49 / post 53 / patch 4 / delete 3 / put 0；job 体系下线后实测）；零新错误码；写口一字不动。
+ *   · 注册点 **109**（get 49 / post 54 / patch 4 / delete 3 / put 0；job 体系下线后实测）；零新错误码；写口一字不动。
  *
  * 判据面：
  *   A · 静态（零 DB）：注册点 130 逐 verb · 新口接线（公开 / 缓存分流 / 404 reason / 基建映射）·
@@ -188,8 +188,8 @@ const sameKeys = (a: string[], b: string[]) => JSON.stringify(a) === JSON.string
   // ======================================================================== A · 静态面（零 DB）
   const block = routeBlock("app.get('/api/campaign/task/:taskId'");
   ck.t('A1',
-    '★路由面：注册点 **109**（get 49 / post 53 / patch 4 / delete 3 / put 0；job 下线后实测 —— 130 是旧常量，属存量红）· 新口 `GET /api/campaign/task/:taskId` 在场且**公开**（块内零 `requireActor`）· 身份只经 `resolveOptionalCampaignViewer`（与 R2 同源）· 非数字 ref ⇒ 404 `task_not_found` · view=null ⇒ 404 `task_not_public` · 公开面 `setPublicCache(res)` / 非公开面 `setPrivateNoStore(res)` **分流**（draft 绝不进 CDN）· `sendSuccess(res, view, …)` · 异常走 `sendInfraMapped(res, \'campaign.task.detail\')`',
-    regs === 109 && countVerb('get') === 49 && countVerb('post') === 53 && countVerb('patch') === 4
+    '★路由面：注册点 **109**（get 49 / post 54 / patch 4 / delete 3 / put 0；job 下线后实测 —— 130 是旧常量，属存量红）· 新口 `GET /api/campaign/task/:taskId` 在场且**公开**（块内零 `requireActor`）· 身份只经 `resolveOptionalCampaignViewer`（与 R2 同源）· 非数字 ref ⇒ 404 `task_not_found` · view=null ⇒ 404 `task_not_public` · 公开面 `setPublicCache(res)` / 非公开面 `setPrivateNoStore(res)` **分流**（draft 绝不进 CDN）· `sendSuccess(res, view, …)` · 异常走 `sendInfraMapped(res, \'campaign.task.detail\')`',
+    regs === 110 && countVerb('get') === 49 && countVerb('post') === 54 && countVerb('patch') === 4
       && countVerb('delete') === 3 && countVerb('put') === 0
       && block.length > 0
       && !/requireActor\(/.test(block) && !/requireAdmin\(/.test(block)

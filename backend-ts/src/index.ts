@@ -118,6 +118,7 @@ import {
   listHomeCampaignTasks,
   listProjects,
   patchProjectVerb,
+  rechargeProjectVaultVerb,
   recordUserActivityHour,
 } from './project-service';
 // ★ 活动任务体系（data-layer.spec §40.14 · route-layer.spec §49.18 · 迁移 0065/0068）
@@ -3551,11 +3552,12 @@ app.get('/api/media/:id', async (req, res) => {
 // R5 POST /api/project/:id/claim        用户 · 领工资（逐小时桶 batt + 币种定额，两腿同事务）
 // R6 POST /api/project/:id/leave        用户 · 离职（幂等）
 // R7 PATCH /api/project/:projectId      管理员 `manage_tasks` · 状态机 / 名额扩缩 / 工资与间隔
+// R8 POST /api/project/:id/vault/recharge 用户 · 项目金库充值（0073 · 用户 −N / 平台主体 uid 0 +N / 金库 +N）
 //
 // 注册顺序判据（route #62）：R1 必须在 R2 **之前**（否则 `all` 被 `:ref` 吞成 404）。
 // 错误码：零新码 —— 400 `LEDGER_AMOUNT_INVALID` / 404 `LEDGER_REF_NOT_FOUND` /
 //   409 `LEDGER_INSUFFICIENT_BALANCE` / 403 `AUTH_FORBIDDEN`，逐场景理由在 `details.reason`。
-// 注册点 111 → 118（get 50→52 / post 57→61 / patch 1→2 / delete 3）。
+// 注册点 111 → 118（get 50→52 / post 57→61 / patch 1→2 / delete 3）；0073 金库充值口 +1 ⇒ get 49 / post 54。
 // ============================================================================
 /**
  * R1 列表的**可选身份**（零新路由 · 承 §49.18 campaign 详情同族体例）：
@@ -3693,6 +3695,31 @@ app.post('/api/project/:id/claim', async (req, res) => {
     return sendSuccess(res, result.view, 'Project wage claimed');
   } catch (error) {
     return sendInfraMapped(res, 'project.claim', error);
+  }
+});
+
+// R8 POST /api/project/:id/vault/recharge —— 项目金库充值（★ Kevin 2026-10-23 ② · 迁移 0073）
+//   · **任何登录用户**可充（不设 owner / 管理员闸 —— 员工也能给项目加钱）；
+//   · body 闭集 `{cid, amount, create_key?}`：`cid ≠ 1` 且 `listed`；`amount > 0`；
+//   · 两腿同事务（用户 −N / 平台主体 uid 0 +N）+ 金库 +N ⇒ 净额恒 0；余额不足 ⇒ 400
+//     `VAULT_RECHARGE_INSUFFICIENT`（台账零写入）；
+//   · 响应 = 该币种金库**新余额** + 完整 `vault[]`（形状与详情读口同族，前端整块替换）。
+app.post('/api/project/:id/vault/recharge', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  try {
+    const ref = String(req.params.id ?? '');
+    if (!isProjectRef(ref)) return sendRefNotFound(res, 'project', ref, 'project_not_found');
+    const result = await rechargeProjectVaultVerb({
+      actorUid: Number(actor.user.uID),
+      ref,
+      body: req.body,
+      headerKey: req.header('idempotency-key'),
+    });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, result.replay ? 'Project vault recharged (replay)' : 'Project vault recharged');
+  } catch (error) {
+    return sendInfraMapped(res, 'project.vault.recharge', error);
   }
 });
 

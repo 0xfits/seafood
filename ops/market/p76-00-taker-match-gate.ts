@@ -120,8 +120,8 @@ const s1MatchesPredicate = (resp: OrderResp): boolean => {
 
   // ---------------------------------------------------------------- A · 静态
   ck.t('A1',
-    '★路由面：注册点仍 **109**（get 49 / post 53 / patch 4 / delete 3 / put 0 · 零新路由）',
-    regs === 109 && countVerb('get') === 49 && countVerb('post') === 53 && countVerb('patch') === 4 && countVerb('delete') === 3,
+    '★路由面：注册点仍 **109**（get 49 / post 54 / patch 4 / delete 3 / put 0 · 零新路由）',
+    regs === 110 && countVerb('get') === 49 && countVerb('post') === 54 && countVerb('patch') === 4 && countVerb('delete') === 3,
     JSON.stringify({ regs, get: countVerb('get'), post: countVerb('post'), patch: countVerb('patch'), delete: countVerb('delete') }));
 
   const SEND_FROM = ORDER_POST.indexOf('sendSuccess(');

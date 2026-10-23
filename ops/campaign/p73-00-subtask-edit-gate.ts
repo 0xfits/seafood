@@ -182,8 +182,8 @@ type Row = Record<string, unknown>;
     "app.post('/api/campaign/task/:taskId/reward'",
   ];
   const newCodes = ['SUBTASK_REMOVE_INVALID', 'SUBTASK_REMOVE_LIMIT', 'SUBTASK_REMOVE_OVERLAP', 'subtask_has_proofs', 'prediction_locked_after_publish'];
-  ck.t('A3', '★零新路由 / 零新码：注册点仍 **109**（get 49 / post 53 / patch 4 / delete 3 / put 0 —— 删除**没有**自己的路由）· 九口逐条在场 · 错误码闭集仍 **33**、ledger kind 仍 **24**：`SUBTASK_REMOVE_*` / `subtask_has_proofs` / `prediction_locked_after_publish` 全部只作 `details.reason`（不进闭集）',
-    regs === 109 && countVerb('get') === 49 && countVerb('post') === 53 && countVerb('patch') === 4
+  ck.t('A3', '★零新路由 / 零新码：注册点仍 **109**（get 49 / post 54 / patch 4 / delete 3 / put 0 —— 删除**没有**自己的路由）· 九口逐条在场 · 错误码闭集仍 **33**、ledger kind 仍 **24**：`SUBTASK_REMOVE_*` / `subtask_has_proofs` / `prediction_locked_after_publish` 全部只作 `details.reason`（不进闭集）',
+    regs === 110 && countVerb('get') === 49 && countVerb('post') === 54 && countVerb('patch') === 4
       && countVerb('delete') === 3 && countVerb('put') === 0
       && nine.every((s) => INDEX_TS.indexOf(s) !== -1)
       && LEDGER_ERROR_CODES.length === 33 && LEDGER_KINDS.length === 24

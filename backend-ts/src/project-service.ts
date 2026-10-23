@@ -91,6 +91,8 @@ export const WAGE_STREAK_BONUS_KIND = 'wage_streak' as const;
 export const WAGE_STREAK_BONUS_LEDGER_KIND = 'invite_first_task_reward' as const;
 /** 平台收入账户 uid（不真 burn · §31.5） */
 const PLATFORM_UID = -1;
+/** 平台主体账户 uid（= `PLATFORM_UID.PLATFORM`；金库托管对手方 —— 见下方 VAULT 段注释） */
+const PLATFORM_MAIN_UID = 0;
 /** `$`（平台内部积分）cid */
 const USD_CID = 1;
 
@@ -183,6 +185,20 @@ export interface ProjectDetailView extends ProjectView {
   my_hired_at?: string | null;
   my_current_project_id?: string | null;
   my_current_project_title?: string | null;
+  /**
+   * ★ 加性（Kevin 2026-10-23 ② · 迁移 0073）：项目金库余额（**公开**，与币种符号一起下发）。
+   *   · 只列**有行**的 cid（无行 = 该币种金库为空，不凭空造 `0` 行）；
+   *   · `balance` = 用户输入十进制串（服务层按 `currency.decimals` 由最小单位换算）；
+   *   · 排序 `cid ASC` ⇒ 前端渲染顺序稳定（不受插入顺序影响）。
+   */
+  vault: ProjectVaultRow[];
+}
+
+/** 项目金库单币种行（读口形状 · 恰三键） */
+export interface ProjectVaultRow {
+  cid: string;
+  symbol: string;
+  balance: string;
 }
 
 export interface ProjectWorkerView {
@@ -215,6 +231,11 @@ export interface WageClaimView {
   bonus_amount: string;
   /** ★ 加性：奖励**语义标签**（`wage_streak`，非 ledger kind） */
   bonus_kind: string;
+  /**
+   * ★ 加性（Kevin 2026-10-23 ②）：本次领取**后**的项目金库余额（该币种 · 用户输入十进制串）。
+   *   `null` = 本次没走金库（金额 0 ⇒ 整段跳过 / 未设次币）。
+   */
+  vault_balance: string | null;
 }
 
 type Row = Record<string, unknown>;
@@ -365,6 +386,40 @@ const asPositiveDecimal = (v: unknown): string | null => {
 };
 
 /**
+ * **非负**十进制（Kevin 2026-10-23 ①：招工里的「次币金额」允许填 0）。
+ * `0` 合法 —— 语义 = 「cid 选定但**不再发次币**」：领取时整段跳过次币腿（不写台账、不查金库）。
+ * 其余形状纪律与 `asPositiveDecimal` 一字不差（`^\d+(\.\d{1,2})?$`）。
+ */
+const asNonNegativeDecimal = (v: unknown): string | null => {
+  const text = typeof v === 'number' ? String(v) : typeof v === 'string' ? v.trim() : '';
+  if (!DECIMAL_TEXT.test(text)) return null;
+  return Number(text) >= 0 ? text : null;
+};
+
+/**
+ * 用户输入十进制 → **最小单位**整数串（`currency.decimals` 为准；与 DB 侧
+ * `ledger_parse_user_amount` 同规则：小数位超 decimals ⇒ 返回 null（**不静默四舍五入**））。
+ * 例：decimals=2，`1.5` ⇒ `150`；`1000` ⇒ `100000`。
+ */
+export const decimalToUnits = (text: string, decimals: number): string | null => {
+  const raw = String(text ?? '').trim();
+  if (!DECIMAL_TEXT.test(raw)) return null;
+  const [intPart, fracRaw = ''] = raw.split('.');
+  if (!Number.isInteger(decimals) || decimals < 0 || decimals > 18) return null;
+  if (fracRaw.length > decimals) return null;
+  return BigInt(`${intPart}${fracRaw.padEnd(decimals, '0')}`).toString();
+};
+
+/** 最小单位整数串 → 用户输入十进制串（例：decimals=2，`150` ⇒ `1.5`；整数部分零省略）。 */
+export const unitsToDecimal = (units: string, decimals: number): string => {
+  const neg = units.startsWith('-');
+  const digits = (neg ? units.slice(1) : units).padStart(decimals + 1, '0');
+  const intPart = digits.slice(0, digits.length - decimals) || '0';
+  const frac = decimals > 0 ? digits.slice(digits.length - decimals).replace(/0+$/, '') : '';
+  return `${neg ? '-' : ''}${intPart}${frac ? `.${frac}` : ''}`;
+};
+
+/**
  * slug 入参解析（创建与 PATCH 共用 · 纯函数，门可直接调）：
  *   · 格式 `^[a-z0-9][a-z0-9-]{0,31}$`（小写字母数字连字符，1–32，首字符非连字符）⇒ 否则 SLUG_INVALID；
  *   · 保留字（`PROJECT_SLUG_RESERVED`，与前端同表）⇒ SLUG_INVALID（details.reserved=true）；
@@ -483,12 +538,13 @@ export const parseProjectPayload = (
       out.wage_currency_amount = null;
     } else {
       const cid = asPositiveInt(input.wage_cid);
-      const amount = asPositiveDecimal(input.wage_currency_amount);
+      const amount = asNonNegativeDecimal(input.wage_currency_amount);
       if (cid === null || cid === USD_CID) {
         return { err: badRequest('PROJECT_WAGE_CID_INVALID', { field: 'wage_cid', expected: 'positive_integer_not_1' }) };
       }
       if (amount === null) {
-        return { err: badRequest('PROJECT_WAGE_AMOUNT_INVALID', { field: 'wage_currency_amount', expected: 'positive_number' }) };
+        // Kevin 2026-10-23 ①：`0` 合法（= 不发次币）；只拒负数 / 非法形状
+        return { err: badRequest('PROJECT_WAGE_AMOUNT_INVALID', { field: 'wage_currency_amount', expected: 'non_negative_number' }) };
       }
       out.wage_cid = String(cid);
       out.wage_currency_amount = amount;
@@ -657,7 +713,23 @@ export const getProjectDetailByRef = async (
     || (typeof opts.viewerUid === 'number' && Number.isSafeInteger(opts.viewerUid)
       && opts.viewerUid! > 0 && String(opts.viewerUid) === project.owner_uid);
   const campaigns = await listCampaignsByProject(project.project_id, { includeDraft }, ex);
-  const base: ProjectDetailView = { ...project, campaigns };
+  // ★ 加性 vault[]（Kevin 2026-10-23 ② · 0073）：**公开**面 —— 金库余额是项目对外的招工信息
+  //   （「这项目发不发得出次币」），与 campaigns[] 同批一次查完，不做 N+1。
+  const vaultRows = await readRows<Row>(
+    `SELECT v.cid::text AS cid, c.symbol, c.decimals, v.balance::text AS balance
+       FROM public.project_vault AS v
+       JOIN public.currency AS c ON c.cid = v.cid
+      WHERE v.project_id = $1::bigint
+      ORDER BY v.cid`,
+    [project.project_id],
+    ex,
+  );
+  const vault: ProjectVaultRow[] = vaultRows.map((row) => ({
+    cid: str(row.cid),
+    symbol: str(row.symbol),
+    balance: unitsToDecimal(str(row.balance), int(row.decimals)),
+  }));
+  const base: ProjectDetailView = { ...project, campaigns, vault };
   // ★ 登录态加性四键（匿名 ⇒ 四键缺省）：项目页【加入 / 切换 / 已在职】三态与「当前在职 X」确认文案
   //   都只认这里 —— 一次详情读口拿全，前端不再额外打 `/api/project/all`（也应覆盖已 ended 项目的在职行：
   //   列表读口只含 recruiting/working，漏掉就会把「已在职」误画成「可加入」）。
@@ -1424,42 +1496,89 @@ export const claimProjectWageVerb = async (input: {
       }
     }
 
-    // ⑦ 币种腿（每次固定额 · 项目方 → 工作者 · 零新 kind）
+    // ⑦ 币种腿（★ Kevin 2026-10-23 ②：改走**项目金库**，不再扣 owner 个人 account）
+    //    · 金额 = 0（Kevin 2026-10-23 ① 允许填 0）或未设次币 ⇒ **整段跳过**：
+    //      零金库读写、零台账腿、连币种状态都不查（不发次币就没有「币不可用」的问题）；
+    //    · 金额 > 0 ⇒ 先锁金库行（主键 `(project_id, cid)` · `FOR UPDATE`），缺行 / 余额不足 ⇒
+    //      409 `project_wage_pool_insufficient` + `details.source='vault'` ⇒ **整笔回滚**
+    //      （claim 行、batt 腿、奖励腿全不落 —— 与旧「两腿同事务」纪律一字不差）；
+    //    · 足够 ⇒ 金库 −N、用户 +N，**两腿同事件**。金库本体不在 `account` 表，台账侧以平台主体
+    //      uid 0 作**托管对手方**（充值 = 用户 −N / uid 0 +N；领薪 = uid 0 −N / 用户 +N）⇒
+    //      事件净额恒 0、kind 仍取现取闭集内的 `transfer`（**零新 kind**，s9 四语键集不动）。
+    //    · 旧实现「owner 同时是工作者 ⇒ 左右互抵跳过」不再适用：金库是**项目财产**而非 owner 个人的钱
+    //      ⇒ 本人领自己的项目工资照发（否则等于金库只进不出）。
     const wageCid = project.wage_cid === null || project.wage_cid === undefined ? null : str(project.wage_cid);
-    if (wageCid !== null) {
+    const wageAmountText = project.wage_currency_amount === null || project.wage_currency_amount === undefined
+      ? null : str(project.wage_currency_amount);
+    const wageAmountNum = wageAmountText === null ? 0 : Number(wageAmountText);
+    let vaultBalance: string | null = null;
+    if (wageCid !== null && Number.isFinite(wageAmountNum) && wageAmountNum > 0 && wageAmountText !== null) {
       const cur = await txQuery<Row>(
         tx,
-        `SELECT status FROM public.currency WHERE cid = $1::bigint LIMIT 1`,
+        `SELECT status, decimals FROM public.currency WHERE cid = $1::bigint LIMIT 1`,
         [wageCid],
       );
       if (!cur.length) return conflict('project_wage_currency_not_found', { wage_cid: wageCid });
       if (str(cur[0].status) !== 'listed') {
         return conflict('project_wage_currency_not_listed', { wage_cid: wageCid, status: str(cur[0].status) });
       }
-      // 同一人既是项目方又是工作者 ⇒ 左右互抵，跳过账本腿（claim 行仍留名义额）
-      if (str(project.owner_uid) !== uid) {
-        try {
-          await postEvent({
-            op: 'transfer',
-            idempotencyKey: `${claimKey}:wage`,
-            requestFingerprint: fingerprintOf(['project.claim', projectId, claimId]),
-            refType: 'system',
-            refId: projectId,
-            memo: `project_wage:${projectId}:${claimId}`,
-            fromUid: str(project.owner_uid),
-            toUid: uid,
-            cid: wageCid,
-            amount: str(project.wage_currency_amount),
-            ex: tx as unknown as { query: (t: string, p?: unknown[]) => Promise<{ rows: Array<Record<string, unknown>> }> },
-          });
-        } catch (e) {
-          const normalized = normalizeLedgerError(e);
-          if (normalized.code === 'LEDGER_INSUFFICIENT_BALANCE') {
-            return conflict('project_wage_pool_insufficient', { wage_cid: wageCid, owner_uid: str(project.owner_uid) });
-          }
-          throw e;
-        }
+      const decimals = int(cur[0].decimals);
+      const units = decimalToUnits(wageAmountText, decimals);
+      if (units === null) {
+        // 存量行金额精度超过该币种最小单位（历史脏数据）⇒ 400 明说，不静默四舍五入
+        return badRequest('PROJECT_WAGE_AMOUNT_INVALID', {
+          field: 'wage_currency_amount', expected: 'precision_within_currency_decimals',
+          wage_cid: wageCid, decimals,
+        });
       }
+      // 锁金库行：缺行 ⇒ have = 0（**不插行** —— 领取是读改写，建库只在充值时发生）
+      const vaultRows = await txQuery<Row>(
+        tx,
+        `SELECT balance::text AS balance, (balance >= $3::numeric) AS enough
+           FROM public.project_vault
+          WHERE project_id = $1::bigint AND cid = $2::bigint
+          FOR UPDATE`,
+        [projectId, wageCid, units],
+      );
+      const haveUnits = vaultRows.length ? str(vaultRows[0].balance) : '0';
+      if (!vaultRows.length || vaultRows[0].enough !== true) {
+        return conflict('project_wage_pool_insufficient', {
+          source: 'vault',
+          project_id: projectId,
+          cid: wageCid,
+          need: wageAmountText,
+          have: unitsToDecimal(haveUnits, decimals),
+        });
+      }
+      const vaultAfterRows = await txQuery<Row>(
+        tx,
+        `UPDATE public.project_vault
+            SET balance = balance - $3::numeric
+          WHERE project_id = $1::bigint AND cid = $2::bigint AND balance >= $3::numeric
+          RETURNING balance::text AS balance`,
+        [projectId, wageCid, units],
+      );
+      if (!vaultAfterRows.length) {
+        // 行级守卫兜底（同事务内余额被别路改走）：按不足处理，整笔回滚
+        return conflict('project_wage_pool_insufficient', {
+          source: 'vault', project_id: projectId, cid: wageCid,
+          need: wageAmountText, have: unitsToDecimal(haveUnits, decimals),
+        });
+      }
+      await postEvent({
+        op: 'entries',
+        idempotencyKey: `${claimKey}:wage`,
+        requestFingerprint: fingerprintOf(['project.claim.vault', projectId, claimId]),
+        refType: 'system',
+        refId: projectId,
+        memo: `project_wage_vault:${projectId}:${claimId}`,
+        entries: [
+          { uid: String(PLATFORM_MAIN_UID), cid: wageCid, delta: `-${units}`, kind: 'transfer' },
+          { uid, cid: wageCid, delta: units, kind: 'transfer' },
+        ],
+        ex: tx as unknown as { query: (t: string, p?: unknown[]) => Promise<{ rows: Array<Record<string, unknown>> }> },
+      });
+      vaultBalance = unitsToDecimal(str(vaultAfterRows[0].balance), decimals);
     }
 
     // ⑧ 连续领工资：次数 = **本项目累计**领取行数（含本次 —— 行已在 ⑤ 落盘）
@@ -1527,6 +1646,7 @@ export const claimProjectWageVerb = async (input: {
       streak,
       bonus_amount: String(bonusAmount),
       bonus_kind: WAGE_STREAK_BONUS_KIND,
+      vault_balance: vaultBalance,
     };
     return { ok: true, view, replay: false, idempotency_key: claimKey } as VerbResult<WageClaimView>;
   });
@@ -1577,6 +1697,189 @@ export const leaveProjectVerb = async (input: {
       view: { project_id: projectId, left: true, worker: normalizeWorkerView(rows[0]) },
       replay: false,
     } as VerbResult<{ project_id: string; left: boolean; worker: ProjectWorkerView | null }>;
+  });
+};
+
+// ============================================================================
+// 项目金库充值（★ Kevin 2026-10-23 ② · 迁移 0073 · 新口 R8）
+// ----------------------------------------------------------------------------
+// `POST /api/project/:id/vault/recharge { cid, amount, create_key? }`
+//   · **任何登录用户可充**（Kevin：充值是用户自愿行为，不设 owner / 管理员闸 —— 员工也能给项目加钱）；
+//   · 币种闸：`cid` 必须 ∈ `currency(cid).status = 'listed'` ∧ `cid ≠ 1`（`$` 不是项目次币）；
+//   · 金额闸：`amount > 0`（十进制串，≤2 位小数）且小数位不得超该币种 `decimals`（不静默四舍五入）；
+//   · 两腿同事务：用户 `account` **−N** / 金库 **+N**。金库本体不在 `account` 表 ⇒ 台账侧以平台主体
+//     uid 0 作**托管对手方**（用户 −N / uid 0 +N），净额恒 0、kind 取闭集内 `transfer`（零新 kind）；
+//   · 用户可用余额不足 ⇒ **400 `VAULT_RECHARGE_INSUFFICIENT`**（`details.need / have`），台账零写入；
+//     预检 = 非加锁读（与 `createProjectVerb` 建费同体例）；并发窗口的真闸是台账 R80 余额闸
+//     （那一步失败 ⇒ 整事务回滚，金库不多钱）；
+//   · 幂等：`create_key` 可选（缺省 ⇒ `cli:<uuid>` 每次新键）；同键重放 ⇒ 台账 `idempotent_replay`
+//     ⇒ **金库不再加一次**，返回库内当前真值（`replay: true`）。
+//
+// 锁序（与领薪 `claimProjectWageVerb` **同序**，避免金库行与账户行反序死锁）：
+//   ① `project`（`lockProjectByRef`）→ ② `project_vault(project_id, cid)` `FOR UPDATE`
+//   → ③ 台账内部按 uid 升序锁账户（uid 0 → 用户）。
+// ============================================================================
+export interface ProjectVaultRechargeView {
+  project_id: string;
+  cid: string;
+  symbol: string;
+  /** 本次充入额（用户输入十进制串，与请求逐字一致） */
+  amount: string;
+  /** 该币种金库**新**余额（用户输入十进制串；重放 ⇒ 库内现值） */
+  balance: string;
+  /** 充值后的完整金库面（形状 = 详情读口的 `vault[]`，前端可整块替换） */
+  vault: ProjectVaultRow[];
+}
+
+const VAULT_RECHARGE_KEYS = ['cid', 'amount', 'create_key'];
+
+export const rechargeProjectVaultVerb = async (input: {
+  actorUid: number;
+  ref: string;
+  body: unknown;
+  /** 请求头 `Idempotency-Key`（优先于 body.create_key，与建项目同序） */
+  headerKey?: unknown;
+  ex?: TxClient;
+}): Promise<VerbResult<ProjectVaultRechargeView>> => {
+  if (!isProjectRef(input.ref)) return notFound();
+  const body = (input.body && typeof input.body === 'object' && !Array.isArray(input.body))
+    ? (input.body as Record<string, unknown>)
+    : {};
+  const unknownKey = Object.keys(body).find((k) => !VAULT_RECHARGE_KEYS.includes(k));
+  if (unknownKey !== undefined) {
+    return badRequest('NOT_SUPPORTED', { field: unknownKey, allowed_keys: VAULT_RECHARGE_KEYS });
+  }
+  const cidNum = asPositiveInt(body.cid);
+  if (cidNum === null || cidNum === USD_CID) {
+    return badRequest('PROJECT_VAULT_CID_INVALID', { field: 'cid', expected: 'positive_integer_not_1' });
+  }
+  const amount = asPositiveDecimal(body.amount);
+  if (amount === null) {
+    return badRequest('PROJECT_VAULT_AMOUNT_INVALID', { field: 'amount', expected: 'positive_number' });
+  }
+  const keyed = resolveProjectIdempotencyKey(input.headerKey ?? body.create_key);
+  if (keyed === null) {
+    return badRequest('IDEMPOTENCY_KEY_INVALID', { field: 'idempotency-key', expected: 'cli:|biz:|cm:|ops: prefix' });
+  }
+
+  const uid = String(input.actorUid);
+  const cid = String(cidNum);
+
+  return runInTx<VerbResult<ProjectVaultRechargeView>>(input.ex, async (tx) => {
+    const project = await lockProjectByRef(tx, input.ref);
+    if (!project) return notFound();
+    const projectId = str(project.project_id);
+
+    // 币种闸（存在 + listed + decimals）——拿币种符号同时供响应面用
+    const curRows = await txQuery<Row>(
+      tx,
+      `SELECT symbol, status, decimals FROM public.currency WHERE cid = $1::bigint LIMIT 1`,
+      [cid],
+    );
+    if (!curRows.length) return conflict('project_vault_currency_not_found', { cid });
+    if (str(curRows[0].status) !== 'listed') {
+      return conflict('project_vault_currency_not_listed', { cid, status: str(curRows[0].status) });
+    }
+    const symbol = str(curRows[0].symbol);
+    const decimals = int(curRows[0].decimals);
+    const units = decimalToUnits(amount, decimals);
+    if (units === null) {
+      return badRequest('PROJECT_VAULT_AMOUNT_INVALID', {
+        field: 'amount', expected: 'precision_within_currency_decimals', cid, decimals,
+      });
+    }
+
+    // ② 金库行（缺 ⇒ 建零行）：先锁金库再动账户 —— 与领薪同序
+    await txQuery<Row>(
+      tx,
+      `INSERT INTO public.project_vault (project_id, cid, balance)
+       VALUES ($1::bigint, $2::bigint, 0)
+       ON CONFLICT (project_id, cid) DO NOTHING`,
+      [projectId, cid],
+    );
+    const vaultRows = await txQuery<Row>(
+      tx,
+      `SELECT balance::text AS balance FROM public.project_vault
+        WHERE project_id = $1::bigint AND cid = $2::bigint FOR UPDATE`,
+      [projectId, cid],
+    );
+    if (!vaultRows.length) {
+      // 不变量断言：INSERT 后必有一行（并发 DELETE 不在任何写口里）
+      return conflict('project_vault_row_missing', { project_id: projectId, cid });
+    }
+    const before = str(vaultRows[0].balance);
+
+    // 用户余额预检（非加锁读 · 同建项目费体例）：不足 ⇒ 400 早退，台账零写入
+    const balRows = await txQuery<Row>(
+      tx,
+      `SELECT COALESCE((SELECT a.balance FROM public.account AS a
+                         WHERE a.uid = $1::bigint AND a.cid = $2::bigint), 0)::text AS balance`,
+      [uid, cid],
+    );
+    const haveUnits = str(balRows.length ? balRows[0].balance : '0') || '0';
+    if (BigInt(haveUnits) < BigInt(units)) {
+      return badRequest('VAULT_RECHARGE_INSUFFICIENT', {
+        cid,
+        need: amount,
+        have: unitsToDecimal(haveUnits, decimals),
+      });
+    }
+
+    // ③ 两腿台账（用户 −N / 平台主体 uid 0 +N ⇒ 净额 0）
+    const ledger = await postEvent({
+      op: 'entries',
+      idempotencyKey: keyed.key,
+      requestFingerprint: fingerprintOf(['project.vault.recharge', projectId, uid, cid, units]),
+      refType: 'system',
+      refId: projectId,
+      memo: `project_vault_recharge:${projectId}:${uid}:${cid}`,
+      entries: [
+        { uid, cid, delta: `-${units}`, kind: 'transfer' },
+        { uid: String(PLATFORM_MAIN_UID), cid, delta: units, kind: 'transfer' },
+      ],
+      ex: tx as unknown as { query: (t: string, p?: unknown[]) => Promise<{ rows: Array<Record<string, unknown>> }> },
+    });
+
+    // 金库 +N（重放 ⇒ 上一笔已加过，不再加第二次）
+    let balance = before;
+    if (ledger.idempotent_replay !== true) {
+      const afterRows = await txQuery<Row>(
+        tx,
+        `UPDATE public.project_vault SET balance = balance + $3::numeric
+          WHERE project_id = $1::bigint AND cid = $2::bigint
+          RETURNING balance::text AS balance`,
+        [projectId, cid, units],
+      );
+      balance = str(afterRows[0]?.balance ?? before) || before;
+    }
+
+    const vaultRows2 = await txQuery<Row>(
+      tx,
+      `SELECT v.cid::text AS cid, c.symbol, c.decimals, v.balance::text AS balance
+         FROM public.project_vault AS v
+         JOIN public.currency AS c ON c.cid = v.cid
+        WHERE v.project_id = $1::bigint
+        ORDER BY v.cid`,
+      [projectId],
+    );
+    const vault: ProjectVaultRow[] = vaultRows2.map((row) => ({
+      cid: str(row.cid),
+      symbol: str(row.symbol),
+      balance: unitsToDecimal(str(row.balance), int(row.decimals)),
+    }));
+
+    return {
+      ok: true,
+      view: {
+        project_id: projectId,
+        cid,
+        symbol,
+        amount,
+        balance: unitsToDecimal(balance, decimals),
+        vault,
+      },
+      replay: ledger.idempotent_replay === true,
+    };
   });
 };
 

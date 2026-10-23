@@ -280,11 +280,11 @@ const s9Passes = (
 
   // ======================================================================== A · 静态面（零 DB）
   ck.t('A1',
-    '★路由面：注册点仍 **109**（get 49 / post 53 / patch 4 / delete 3 / put 0 · 零新路由）· '
+    '★路由面：注册点仍 **109**（get 49 / post 54 / patch 4 / delete 3 / put 0 · 零新路由）· '
     + '`/api/prize/all` 经 `resolveFeedSortQuery` 解析 `?sort=` · 非法值 ⇒ 400 `LEDGER_AMOUNT_INVALID` + '
     + "`details.reason='sort_invalid'` + `allowed=[...FEED_SORT_MODES]` · 合法值经第 3 参透传 "
     + '`listPrizes(skip, limit, sort)` · 成功面仍 `setPublicCache` + `sendSuccess` · 异常仍 `sendInfraMapped`',
-    regs === 109 && countVerb('get') === 49 && countVerb('post') === 53 && countVerb('patch') === 4
+    regs === 110 && countVerb('get') === 49 && countVerb('post') === 54 && countVerb('patch') === 4
       && countVerb('delete') === 3 && countVerb('put') === 0
       && FEED_BLOCK.length > 0
       && /resolveFeedSortQuery\(req\)/.test(FEED_BLOCK)
