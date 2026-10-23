@@ -1449,6 +1449,55 @@ export const claimProjectWageVerb = async (input: {
     const windowEnd = new Date().toISOString();
     const claimKey = `biz:project:claim:${projectId}:${uid}:${Date.parse(windowEnd)}`;
 
+    // ⑦' 次币腿**预检**（★ 必须在 ⑤ 落盘之前：`withTransaction` 对「返回错误结果」不会回滚，
+    //     若先插 claim 行再返回 409，会留下「有领取行、没发次币」的脏账 —— p79 B 臂实测踩到）。
+    //     · 金额 0 / 未设次币 ⇒ 整段跳过（连币种状态都不查）；
+    //     · 金额 > 0 ⇒ 查币种 + **锁金库行**并判足额；任何不满足在此 return，此时**零写入**。
+    const wageCid = project.wage_cid === null || project.wage_cid === undefined ? null : str(project.wage_cid);
+    const wageAmountText = project.wage_currency_amount === null || project.wage_currency_amount === undefined
+      ? null : str(project.wage_currency_amount);
+    const wageAmountNum = wageAmountText === null ? 0 : Number(wageAmountText);
+    let vaultBalance: string | null = null;
+    let vaultLeg: { cid: string; units: string; decimals: number; have: string; amountText: string } | null = null;
+    if (wageCid !== null && Number.isFinite(wageAmountNum) && wageAmountNum > 0 && wageAmountText !== null) {
+      const cur = await txQuery<Row>(
+        tx,
+        `SELECT status, decimals FROM public.currency WHERE cid = $1::bigint LIMIT 1`,
+        [wageCid],
+      );
+      if (!cur.length) return conflict('project_wage_currency_not_found', { wage_cid: wageCid });
+      if (str(cur[0].status) !== 'listed') {
+        return conflict('project_wage_currency_not_listed', { wage_cid: wageCid, status: str(cur[0].status) });
+      }
+      const decimals = int(cur[0].decimals);
+      const units = decimalToUnits(wageAmountText, decimals);
+      if (units === null) {
+        return badRequest('PROJECT_WAGE_AMOUNT_INVALID', {
+          field: 'wage_currency_amount', expected: 'precision_within_currency_decimals',
+          wage_cid: wageCid, decimals,
+        });
+      }
+      const vaultRows = await txQuery<Row>(
+        tx,
+        `SELECT balance::text AS balance, (balance >= $3::numeric) AS enough
+           FROM public.project_vault
+          WHERE project_id = $1::bigint AND cid = $2::bigint
+          FOR UPDATE`,
+        [projectId, wageCid, units],
+      );
+      const haveUnits = vaultRows.length ? str(vaultRows[0].balance) : '0';
+      if (!vaultRows.length || vaultRows[0].enough !== true) {
+        return conflict('project_wage_pool_insufficient', {
+          source: 'vault',
+          project_id: projectId,
+          cid: wageCid,
+          need: wageAmountText,
+          have: unitsToDecimal(haveUnits, decimals),
+        });
+      }
+      vaultLeg = { cid: wageCid, units, decimals, have: haveUnits, amountText: wageAmountText };
+    }
+
     // ⑤ claim 行（先落行 → 拿到 claim_id 作 batt 幂等键的引用）
     const claimRows = await txQuery<Row>(
       tx,
@@ -1496,74 +1545,21 @@ export const claimProjectWageVerb = async (input: {
       }
     }
 
-    // ⑦ 币种腿（★ Kevin 2026-10-23 ②：改走**项目金库**，不再扣 owner 个人 account）
-    //    · 金额 = 0（Kevin 2026-10-23 ① 允许填 0）或未设次币 ⇒ **整段跳过**：
-    //      零金库读写、零台账腿、连币种状态都不查（不发次币就没有「币不可用」的问题）；
-    //    · 金额 > 0 ⇒ 先锁金库行（主键 `(project_id, cid)` · `FOR UPDATE`），缺行 / 余额不足 ⇒
-    //      409 `project_wage_pool_insufficient` + `details.source='vault'` ⇒ **整笔回滚**
-    //      （claim 行、batt 腿、奖励腿全不落 —— 与旧「两腿同事务」纪律一字不差）；
-    //    · 足够 ⇒ 金库 −N、用户 +N，**两腿同事件**。金库本体不在 `account` 表，台账侧以平台主体
-    //      uid 0 作**托管对手方**（充值 = 用户 −N / uid 0 +N；领薪 = uid 0 −N / 用户 +N）⇒
-    //      事件净额恒 0、kind 仍取现取闭集内的 `transfer`（**零新 kind**，s9 四语键集不动）。
-    //    · 旧实现「owner 同时是工作者 ⇒ 左右互抵跳过」不再适用：金库是**项目财产**而非 owner 个人的钱
-    //      ⇒ 本人领自己的项目工资照发（否则等于金库只进不出）。
-    const wageCid = project.wage_cid === null || project.wage_cid === undefined ? null : str(project.wage_cid);
-    const wageAmountText = project.wage_currency_amount === null || project.wage_currency_amount === undefined
-      ? null : str(project.wage_currency_amount);
-    const wageAmountNum = wageAmountText === null ? 0 : Number(wageAmountText);
-    let vaultBalance: string | null = null;
-    if (wageCid !== null && Number.isFinite(wageAmountNum) && wageAmountNum > 0 && wageAmountText !== null) {
-      const cur = await txQuery<Row>(
-        tx,
-        `SELECT status, decimals FROM public.currency WHERE cid = $1::bigint LIMIT 1`,
-        [wageCid],
-      );
-      if (!cur.length) return conflict('project_wage_currency_not_found', { wage_cid: wageCid });
-      if (str(cur[0].status) !== 'listed') {
-        return conflict('project_wage_currency_not_listed', { wage_cid: wageCid, status: str(cur[0].status) });
-      }
-      const decimals = int(cur[0].decimals);
-      const units = decimalToUnits(wageAmountText, decimals);
-      if (units === null) {
-        // 存量行金额精度超过该币种最小单位（历史脏数据）⇒ 400 明说，不静默四舍五入
-        return badRequest('PROJECT_WAGE_AMOUNT_INVALID', {
-          field: 'wage_currency_amount', expected: 'precision_within_currency_decimals',
-          wage_cid: wageCid, decimals,
-        });
-      }
-      // 锁金库行：缺行 ⇒ have = 0（**不插行** —— 领取是读改写，建库只在充值时发生）
-      const vaultRows = await txQuery<Row>(
-        tx,
-        `SELECT balance::text AS balance, (balance >= $3::numeric) AS enough
-           FROM public.project_vault
-          WHERE project_id = $1::bigint AND cid = $2::bigint
-          FOR UPDATE`,
-        [projectId, wageCid, units],
-      );
-      const haveUnits = vaultRows.length ? str(vaultRows[0].balance) : '0';
-      if (!vaultRows.length || vaultRows[0].enough !== true) {
-        return conflict('project_wage_pool_insufficient', {
-          source: 'vault',
-          project_id: projectId,
-          cid: wageCid,
-          need: wageAmountText,
-          have: unitsToDecimal(haveUnits, decimals),
-        });
-      }
+
+    // ⑦ 次币腿执行（预检已在 ⑦' 完成）：金库 −N + 两腿台账（托管对手方 = 平台 uid 0）
+    if (vaultLeg) {
+      const { cid: wageCid2, units: units2, decimals: decimals2 } = vaultLeg;
       const vaultAfterRows = await txQuery<Row>(
         tx,
         `UPDATE public.project_vault
             SET balance = balance - $3::numeric
           WHERE project_id = $1::bigint AND cid = $2::bigint AND balance >= $3::numeric
           RETURNING balance::text AS balance`,
-        [projectId, wageCid, units],
+        [projectId, wageCid2, units2],
       );
+      // 行级守卫兜底（同事务内余额被别路改走）：抛错让事务**真正回滚**（返回错误结果不会回滚）
       if (!vaultAfterRows.length) {
-        // 行级守卫兜底（同事务内余额被别路改走）：按不足处理，整笔回滚
-        return conflict('project_wage_pool_insufficient', {
-          source: 'vault', project_id: projectId, cid: wageCid,
-          need: wageAmountText, have: unitsToDecimal(haveUnits, decimals),
-        });
+        throw new Error('PROJECT_WAGE_POOL_INSUFFICIENT_RACE');
       }
       await postEvent({
         op: 'entries',
@@ -1573,12 +1569,12 @@ export const claimProjectWageVerb = async (input: {
         refId: projectId,
         memo: `project_wage_vault:${projectId}:${claimId}`,
         entries: [
-          { uid: String(PLATFORM_MAIN_UID), cid: wageCid, delta: `-${units}`, kind: 'transfer' },
-          { uid, cid: wageCid, delta: units, kind: 'transfer' },
+          { uid: String(PLATFORM_MAIN_UID), cid: wageCid2, delta: `-${units2}`, kind: 'transfer' },
+          { uid, cid: wageCid2, delta: units2, kind: 'transfer' },
         ],
         ex: tx as unknown as { query: (t: string, p?: unknown[]) => Promise<{ rows: Array<Record<string, unknown>> }> },
       });
-      vaultBalance = unitsToDecimal(str(vaultAfterRows[0].balance), decimals);
+      vaultBalance = unitsToDecimal(str(vaultAfterRows[0].balance), decimals2);
     }
 
     // ⑧ 连续领工资：次数 = **本项目累计**领取行数（含本次 —— 行已在 ⑤ 落盘）

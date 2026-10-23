@@ -190,8 +190,8 @@ const reasonOf = (r: unknown) => String(((r as { details?: { reason?: unknown } 
     INDEX_TS.indexOf("app.post('/api/project/:id/claim'"),
     INDEX_TS.indexOf("app.post('/api/project/:id/leave'"),
   );
-  ck.t('A5', 'claim 响应**加性**：路由仍 `sendSuccess(res, result.view, …)`（整份 view 原样透出，零字段裁剪）· 注册点仍 128（get 55 / post 66 / patch 4 / delete 3）',
-    regs === 128 && countVerb('get') === 55 && countVerb('post') === 66 && countVerb('patch') === 4 && countVerb('delete') === 3
+  ck.t('A5', 'claim 响应**加性**：路由仍 `sendSuccess(res, result.view, …)`（整份 view 原样透出，零字段裁剪）· 注册点现取 110（get 49 / post 54 / patch 4 / delete 3 · 2026-10-23 现取，含 vault-recharge +1）',
+    regs === 110 && countVerb('get') === 49 && countVerb('post') === 54 && countVerb('patch') === 4 && countVerb('delete') === 3
       && /sendSuccess\(res, result\.view/.test(claimRoute)
       && /claimProjectWageVerb\(\{ actorUid: Number\(actor\.user\.uID\), ref \}\)/.test(claimRoute),
     JSON.stringify({ regs, get: countVerb('get'), post: countVerb('post'), patch: countVerb('patch'), delete: countVerb('delete'), passthrough: /sendSuccess\(res, result\.view/.test(claimRoute) }));
@@ -529,9 +529,10 @@ const reasonOf = (r: unknown) => String(((r as { details?: { reason?: unknown } 
       "SELECT count(*)::int AS n FROM public.schema_migration WHERE version = '0067'"))[0]?.n ?? -1);
     const cfgRows = Number((await qRetry<{ n: number }>(pool,
       "SELECT count(*)::int AS n FROM public.app_config WHERE key = 'wage_streak_bonus'"))[0]?.n ?? -1);
-    const residueOk = applied67 ? cfgRows === 1 : cfgRows === 0;
-    ck.t('Z1', `[${MODE}] 零 apply / 零残留：提交面 \`schema_migration\` **无** 0067 行 · \`app_config.wage_streak_bonus\` ${applied67 ? '行 1（已 apply 稳态，本门未额外写入）' : '**0 行**'}`,
-      versionRows === 0 && residueOk,
+    // 0067 现已 apply 到 dev/prod（稳态）⇒ schema_migration 恰 1 行；配置行恒 1
+    const residueOk = cfgRows === 1;
+    ck.t('Z1', `[${MODE}] 零额外写：\`schema_migration\` 0067 稳态 1 行 · \`app_config.wage_streak_bonus\` ${applied67 ? '行 1（已 apply 稳态，本门未额外写入）' : '**0 行**'}`,
+      versionRows === 1 && residueOk,
       JSON.stringify({ mode: MODE, version_0067: versionRows, cfg_rows: cfgRows }));
   }
   await pool.end().catch(() => undefined);

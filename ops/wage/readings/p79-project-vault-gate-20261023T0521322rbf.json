@@ -1,0 +1,85 @@
+{
+  "run": "20261023T0521322rbf",
+  "gate": "p79-00-project-vault",
+  "db_project_id": "quiet-math-65207667",
+  "currency": {
+    "cid": "399",
+    "decimals": 0
+  },
+  "results": {
+    "A": {
+      "claimA": {
+        "ok": true,
+        "code": null,
+        "reason": null
+      },
+      "vaultBefore": "50",
+      "vaultAfter": "40",
+      "userBefore": "0",
+      "userAfter": "10",
+      "claims": 1
+    },
+    "B": {
+      "claimB": {
+        "ok": false,
+        "status": 409,
+        "code": "LEDGER_INSUFFICIENT_BALANCE",
+        "reason": "project_wage_pool_insufficient"
+      },
+      "vaultBefore": "0",
+      "vaultAfter": "0",
+      "claims": 0
+    },
+    "C": {
+      "claimC": {
+        "ok": true,
+        "code": null
+      },
+      "vaultBefore": "50",
+      "vaultAfter": "50"
+    },
+    "D": {
+      "rc1": true,
+      "rc2": true,
+      "vault": [
+        "0",
+        "10",
+        "10"
+      ],
+      "user": [
+        "30",
+        "20"
+      ]
+    }
+  },
+  "summary": {
+    "total": 14,
+    "passed": 14,
+    "failed": 0,
+    "red": []
+  },
+  "residue": {
+    "ledger_rows": [
+      {
+        "k": "biz:project:claim:199:926033:1792732898344:bonus"
+      },
+      {
+        "k": "biz:project:claim:199:926033:1792732898344:bonus#2"
+      },
+      {
+        "k": "biz:project:claim:199:926033:1792732898344:wage"
+      },
+      {
+        "k": "biz:project:claim:199:926033:1792732898344:wage#2"
+      },
+      {
+        "k": "biz:project:claim:201:926036:1792732913646:bonus"
+      },
+      {
+        "k": "biz:project:claim:201:926036:1792732913646:bonus#2"
+      }
+    ],
+    "batt_entry_append_only": 2,
+    "note": "batt_entry 为 append-only（trigger 禁 DELETE）⇒ 成功领取产生的行不可删，此处仅登记"
+  }
+}
