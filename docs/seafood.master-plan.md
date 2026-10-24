@@ -1416,6 +1416,55 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 **D. 我裁的口径（一句话可改）**：① **批 7 =「用户可见读口」线**，首单只做 `/api/user/ledger`；② **`/api/user/points` 暂不注册** —— 前端现无消费方（现走 `/api/user/asset/:uID`），不造**无人消费的空路径**（本册 §1.2 补强的同一理由）；③ **装饰性切角与 legacy 硬阴影不并入本批**（审美面，需 Kevin 口径）；④ **本批不 `commit`/`push`**，由我验收后入库 —— **注意本仓推送即上线**。
 
 
+### 5.466 ★★ 后台侧栏**七项定序 + 六项文案改名**（批次 B）—— 总览 → 用户 → 积分 → 电量 → 交易所 → 审计 → 设置 · 六项改名只改 i18n 值（零键漂移）· 2026-10-24 · **v0.385** · 纯追加
+
+**裁定来源** = Kevin 2026-10-24 批次 B。**本单只做两件事**：① 调侧栏菜单数组顺序；② 改六个 i18n **值**。路由 / 闸 / 图标 / 后端 / 键集**一律不动**（前序批次 A 已把「电量」项落位，本批只前移其位次）。
+
+**A. 定序（实现 = `frontend/src/components/layout/AdminLayout.jsx` 的 `menuItems` 数组元素顺序）**
+
+| # | 标题键 | zh | `path` | `requiredPermission` |
+|---|---|---|---|---|
+| 1 | `adminNav.dashboard` | 总览 | `/dashboard` | —（仅 `adminOnly`） |
+| 2 | `adminNav.users` | 用户 | `/dashboard/users` | `read_users` |
+| 3 | `adminNav.points` | 积分 | `/dashboard/points` | `manage_points` |
+| 4 | `battCard.title` | 电量 | `/dashboard/power` | `manage_settings` |
+| 5 | `adminNav.feeRate` | 交易所 | `/dashboard/exchange` | `['manage_settings','review_tasks']` |
+| 6 | `adminNav.auditConsole` | 审计 | `/dashboard/audit-console` | `manage_audit` |
+| 7 | `adminNav.settings` | 设置 | `/dashboard/settings` | `manage_settings` |
+
+**改前顺序**（HEAD `41b1689`）= 总览 → 用户 → 积分 → **设置** → 交易所 → **电量** → 审计 ⇒ 本批把**电量前移到第 4**、**设置后移到末位**，其余相对次序不变。图标（`LayoutDashboard` / `Users` / `BarChart3` / `Zap` / `Percent` / `ScrollText` / `Settings`）**零改动**，实测与语义无冲突。
+
+**B. 六项改名（四语逐字 · 键名不动 ⇒ 零键漂移）**
+
+| 键名 | 改前 zh | 改后 zh | hk | en | vn |
+|---|---|---|---|---|---|
+| `adminNav.dashboard` | 仪表板 | 总览 | 總覽 | Overview | Tổng quan |
+| `adminNav.users` | 用户管理 | 用户 | 用戶 | Users | Người dùng |
+| `adminNav.points` | 积分管理 | 积分 | 積分 | Points | Điểm |
+| `adminNav.settings` | 基本设置 | 设置 | 設定 | Settings | Cài đặt |
+| `adminNav.feeRate` | 交易所管理 | 交易所 | 交易所 | Exchange | Sàn |
+| `adminNav.auditConsole` | 审计台 | 审计 | 審計 | Audit | Kiểm toán |
+
+- 六条 `*Desc` 描述键、以及【电量】项的 `battCard.title` **一字未动**。
+- 键集实测：`adminNav` **30 键 × 4 语**、四语 `flat 1453 × 4` / `top 135` 逐文件相等 ⇒ **零漂移**（只改 6 个值）。
+
+**C. 测试面（改锚 4 文件 + 新增 1 文件 9 例 · 判据不降强度）**
+
+- **新增** `frontend/src/test/unit/admin-sidebar-order-batch-b.test.jsx`（9 例）：运行时 zh 真表七项**逐字逐序** = `['总览','用户','积分','电量','交易所','审计','设置']`；静态 `title:` 取键序列 = 新序；七项 `path` 逐项仅一次且顺序一致（`/dashboard/settings` 索引 6 / `/dashboard/power` 索引 3）；六项四语逐字 + `adminNav` 30 键 + 旧值零残留 + `*Desc` 未动；en / hk / vn 三档渲染同序同值。
+- **改锚**：`i18n-batch-b4a`（en 清单改新序 + 旧值反证保留：`仪表板` / 新增 `总览` 反证 + hk `儀表板 ⇒ 總覽`）· `i18n-batch-b4b`（`User Management ⇒ Users`、`Basic settings ≥2` **拆两条**：页头 `Settings` + 卡片 `Basic settings`，因两键**不再同值**）· `admin-basic-settings`（同上拆条 + `adminNav.settings` 四语新值）· `admin-exchange-rename`（`feeRate` 四语新值）。`admin-exchange-module` / `exchange-label-and-sidebar-gate` / `admin-site-text-split` **零改动且仍绿**（断言取 `zh.adminNav.*` 动态真值）。
+- **本批首跑即踩的坑（登记）**：新测试里 `LANGS = [zh,en,hk,vn]` 与自造 `EXPECT` 的列序 `[zh,hk,en,vn]` 不一致 ⇒ 首跑 1 红（`en.adminNav.dashboard: expected 'Overview' to be '總覽'`）；修法 = 显式列序常量，**不是**改期望值。
+
+**D. 门读数（本笔现取）**
+
+- unit **103 files / 1152 tests / 0 failed**（改前基线 **102 / 1143**；本批 +1 文件 / +9 用例）· a11y **1 / 16** · components **2 / 14** · `npm run build` **exit 0** ⇒ `index-r_IjLpLA.js` **636,831 B** / `index-N4cMn6Lr.css` **190,954 B**（CSS 名与字节**未变**）。
+- 产物 grep：`总览` 5 · `电量` 17 · `交易所` 11 · `交易所管理` **0** · `仪表板` **0** · `基本设置` **1**（= `adminSettings.cardBasic` 卡片标题）· `审计台` **1**（= `auditConsole.pageTitle`）。
+
+**E. 诚实登记（范围外 / 待裁）**
+
+- **`基本设置` 产物仍 1 命中**（`adminSettings.cardBasic`）与 **`审计台` 仍 1 命中**（`auditConsole.pageTitle`）—— 两者都是**其它键**的合法文案，不属本批六项；若要求产物内**绝对零命中**，需另裁「是否连这两个键一并改名」（本单**不自选**）。
+- `积分管理` 仍 2 命中（`adminPoints.title` / `adminUsers.tipGoPoints`）—— 同上，登记不改。
+- **编号现取**：节号 **§5.466**（现盘最大 §5.465）· 版本行 **v0.385**（现盘最大 v0.384）。**规范面**：`design-system.spec` **v1.36 → v1.37**（版本头 1 行 + §12 表 1 行 + 尾 §38（`T137`/`T137-a`~`c`），`numstat` = **66 / 0**）；`route-layer.spec` **不需改**（七项 `path` 未变、零 `<Route` 增删）；**未动** `ledger.spec` / `data-layer.spec`。
+
 ### 5.465 ★★ 后台「站点文案」页**拆解到位**（四块搬家 + 新页【电量】+ 两组删除 + `/dashboard/site-text` 下线并 redirect + 品牌行 `Seafood Admin`）＋ **修「积分页邀请奖励卡保存必 403」真缺陷**（控件闸 `manage_points` ⇒ 写口同键 `manage_settings`）· 2026-10-24 · **v0.384** · 纯追加
 
 **A. 依据与范围（Kevin 2026-10-24 批次 A）**：后台「站点文案」页拆解到位 —— 一页内容按**归属**落到各自页；**导航改名与侧栏重排属批次 B、本轮不做**（侧栏项只做**原位替换**，位序不动）。范围 = `frontend/src/{App.jsx, components/layout/AdminLayout.jsx, pages/admin/*}` + 单测 + 四册文档。**不动面** = `backend-ts/**` **零改动**（写口仍是既有 `POST /api/admin/settings`，后端闸 `manage_settings`）、**零新权限码**（12 键闭集不动）、**零 i18n 键增删**（侧栏标题 / 描述 / 只读提示 / 品牌行 a11y 名**全复用既有键**）、真源 `docs/design/style-preview.html` 零改动。
@@ -9991,6 +10040,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.385 | 2026-10-24 | **★★ 后台侧栏七项定序 + 六项文案改名（批次 B · §5.466）**：**① 定序** = 总览 → 用户 → 积分 → **电量** → 交易所 → 审计 → 设置（实现 = `AdminLayout.jsx` 菜单数组元素顺序；电量由第 6 位前移第 4、设置由第 4 位后移末位）；**② 六项改名（只改 i18n 值 · 键名不动 ⇒ 零键漂移）** = `adminNav.dashboard` 总览 / `users` 用户 / `points` 积分 / `settings` 设置 / `feeRate` 交易所 / `auditConsole` 审计（四语 zh/hk/en/vn 逐字）；`*Desc` 与【电量】`battCard.title` 未动；键集 `adminNav` 30 × 4、四语 `flat 1453 × 4` / `top 135` **零漂移**；**③ 不变量** = 七项 `path` / `requiredPermission` / `icon` 一字不动 ⇒ **路由层零改动**（`route-layer.spec` 不需改）、后端零改动；**④ 测试** = 新增 `admin-sidebar-order-batch-b.test.jsx` **9 例**（运行时七项逐字逐序 + 静态键序列 + path 顺序 + 四语取值 + 三语档同序）+ 改锚 4 文件（`i18n-batch-b4a` / `i18n-batch-b4b` / `admin-basic-settings` / `admin-exchange-rename`；其中「页头与卡片同值 ≥2」因两键不再同值而**拆两条**，判据不降强度）；**⑤ 门** = unit **103 files / 1152 tests / 0 failed**（基线 **102 / 1143**）· a11y **1 / 16** · components **2 / 14** · build exit 0 ⇒ `index-r_IjLpLA.js` **636,831 B** / `index-N4cMn6Lr.css` **190,954 B**（CSS 未变）；**⑥ 诚实登记** = 产物 `基本设置` 1 命中（`adminSettings.cardBasic`）、`审计台` 1 命中（`auditConsole.pageTitle`）、`积分管理` 2 命中（其它键），`交易所管理` / `仪表板` / `用户管理` 均 0 ⇒ 前两项若要求零命中需另裁；**⑦ 规范** = design **v1.37 §38（`T137`/`T137-a`~`c`，66/0）** + 本节（§5.466 / v0.385）。 |
 | v0.384 | 2026-10-24 | **★★ 后台「站点文案」页拆解到位（四块搬家 + 新页【电量】+ 两组装删除 + 旧页下线 redirect + 品牌行）+ 修「积分页邀请奖励卡保存必 403」真缺陷（§5.465）**：**① 四块搬家**（`invite_reward_policy` ⇒ `/dashboard/points` 页闸 `manage_points` · `rating_policy` ⇒ `/dashboard/users` · `mint_burn_policy` ⇒ **新页** `/dashboard/power`〔标题复用 `battCard.title`、侧栏项**原位替换**、不重排〕· `role_names` + `site_text_overrides` ⇒ `/dashboard/settings`），写口一律沿用 `POST /api/admin/settings` 形态 B `{key,value,create_key}`（**零新端点 / 零后端改动 / 零新权限码 / 零新 i18n 键**）；**② 两组装删除**（`batt_policy` / `checkin_policy` · UI + 默认值，管理面 11 个字段名零命中；5 个公开读口字段名白名单登记）；四语键**保留为孤儿** ⇒ 键集 `top 135 / flat 1453` × 4 零漂移；**③ 页面下线**：`SiteTextPage.jsx` 删除（322 行）+ `App.jsx` 旧段改 `<Navigate replace>` ⇒ `/dashboard/settings`（位于内层 catch-all 之前）+ 侧栏同位换【电量】⇒ 页面 / 路由 / 侧栏 / 字面**四处零残留**；`site-text` 仍在 `RESERVED_PROJECT_SEGMENTS`（37 段冻结·刻意保留）；**④ 品牌行**：`Jinli Admin` ⇒ **`Seafood Admin`**，整段一个 `<Link>` → 首页**带语言前缀**（zh `/`、en/hk/vn `/<lang>`）、`aria-label` = 品牌名 + 返回首页、hover = `T130` 第③类只变色；**⑤ A 项缺陷修正（本单唯一代码修正）**：积分页「邀请奖励」卡控件闸由页面闸 `manage_points` ⇒ **写口同键 `manage_settings`**（`canManageSettings`），无该权限 ⇒ 输入 / 保存 `disabled` + **恰一行** `adminCommon.readOnlyNotice` 只读提示（钩子 `admin-policy-invite_reward_policy-readonly`）+ **卡片不隐藏**，页面可见性与页内「加减积分」闸原样 ⇒ 不再「可编辑但保存必 403」；新增 F 组 **4 条**断言（单持 `manage_points` / 双持 / 仅 `manage_settings` / 源码面）；**⑥ 门** = unit **102 files / 1143 tests / 0 failed**（基线 **101 / 1124**；中途 `102 / 1139` 留痕）· a11y `1 / 16` · components `2 / 14` · build exit 0 ⇒ `index-DDfED5f2.js` **636,988 B** / `index-N4cMn6Lr.css` **190,954 B** · 产物 `dashboard/power` 1 / `Seafood Admin` 2 / `dashboard/site-text` 0 / `Jinli Admin` 0；**⑦ 计数**：前端 `<Route` `46 / 38 / 26` ⇒ **`47 / 39 / 26`**、后端注册点 `105` 不变；**⑧ 规范** = route **v2.53 §49.26** + design **v1.36 §37（`T136`/`T136-a`~`c`，74/0）** + 本节（§5.465 / v0.384）。 |
 | v0.383 | 2026-10-24 | **★★ 交易所管理第④面「币种上架 / 下架」契约落册（**只出契约、零代码** · 实现待 Kong 下一轮）**：新动作口 **`POST /api/admin/currency/:cid/status`**（body `{ status, memo?, create_key }` · `status ∈ {listed, frozen, delisted}`）· 闸 = **`manage_settings`**（**不新增第 13 键** ⇒ 12 键闭集与三处同集编码一字不动；标「一句话可改」）· 状态机 = **R27 白名单的「非资金子集」**（`draft→listed` **不在本口** ⇒ `409 LISTING_REQUIRES_FEE_PATH`；`$` cid=1 由 `assertSystemCurrencyImmutable` 先拦；`delisted` 终态）· **顺序写死 = Phase A 先撤单解冻（逐单独立事务、根键 `biz:market:cancel:<order_id>` 既有）→ Phase B 改状态 + 写 `currency_status_log` 恰 1 行（单事务、`apply` 门控）** · 幂等 = 键形 `ops:<admin_uid>:currency_status:<cid>:<to_status>`（**早在册**：data-layer §8.3 / `DL157②`）+ 状态机自然幂等（`from==to` ⇒ 200 `idempotent_replay`）+ 同键异指纹 **`NOT_APPLICABLE`**（键已含 `to_status`，构造不出）· **错误码零新增（33 码不动）** · **零迁移 / 零 DDL**（`currency_status_log` 已存在）· **撤单可复用面（grep 现取）：`cancelOne`→`marketPostEvent(op='cancel')` 资金腿已在 / 幂等根键已在 / 「按 cid 枚举活跃挂单」的 DB 读函数不存在（只有按 `owner_uid` 的 `listOpenMarketOrderIds`）⇒ Kong 必写 1 只读函数 + 1 薄包装** · 规范 = route **v2.52 §49.25**（179 增 / 0 删）+ ledger **v0.18 §19.20**（57 / 0）+ design **v1.35 §36（`T135`/`T135-a`~`c`）**（84 / 0）+ data-layer **§40.16 无 schema 变更** · 注册点 `114 → 115`（现取 114）· 前端 `<Route` 三计数本笔不动（`46/38/26`；实现轮预计 `47/39/26`，内层逐段仍 `26`）。 |
 | v0.382 | 2026-10-24 | **★★ `/wage` 项目卡两笔收口：网格卡 `.sf-wage-card-actions` 按需渲染（无操作整块不渲染）＋ 有 actions 描述压 1 行 / 无 actions 回 2 行（`:has` 联动）＋ 右上「当前项目」标题行撤场、两卡等高等顶（§5.463）**：`WagePage.jsx` 前置 `hasActions = joined || (recruiting && !hiredAnywhere)`，为假**不渲染容器**（不留空 `<div>`、不用 `:empty` 兜、不靠 `visibility` 占位），为真才渲染且三支分支与 `wage-card-action` / `wage-current-claim` / `wage-card-in-service` / `wage-card-hint` 逐字保留 · `wage.css`：`.sf-wage-card-desc` 默认回 `-webkit-line-clamp: 2` + `height: calc(2 * 1.4em)`（桌面 2 行），新增 `.sf-wage-card:has(.sf-wage-card-actions) .sf-wage-card-desc { -webkit-line-clamp: 1; height: calc(1 * 1.4em) }`（有 actions 才压 1 行，**clamp 与固定行高同改**），提示行让位 `.sf-wage-card:has([data-sf-m="wage-card-notice"]) .sf-wage-card-desc { display: none }` **原样保留且优先**，`≤767` 档仍 1 行（不倒退）· 卡高常量 `--sf-wage-card-h` **仍 `180px`、两档同值、未动**，零新主题 token · 删 `.sf-wage-current-title` 的 `<h2>`（有卡态 + 灰态占位**两处**）与 `wage.css` 内该规则，两态 `section` 补 `aria-label={t('wage.currentTitle')}`（**i18n 键保留为孤儿**，四语 flat 仍 `1453 × 4`、零键增删）· `.sf-wage-top` `align-items: start → stretch`，`.sf-wage-current` 与 `.sf-wage-current .sf-wage-current-card` `height: auto → 100%`（跟随左列电量卡，**不回落 `180`**）· 探针 **182 → 192**（exit 0、`failed = []`、`pageErrors = 0`；新增 `actionsGating.*` 4 条 + `topAlign.*` 6 条，两档 `clipMax = 0`）· 单测 **105 files / 1159 tests / 0 failed**（基线 `105 / 1151`，+8 条三态与等高锚）· 几何 1536 登录态：网格 9 张全 `180`（`desc = 2` / `nodes = 0`），右上 `wage-current` 与左 `wage-checkin` **`top` 均 106 / `height` 均 190**（改前 current `h = 270.4`、顶边低 `19 + 6px`）· `npm run build` exit 0 ⇒ `index-CYWoXwKm.js` 635,774 B / `index-CdZr9uUt.css` 190,449 B · 规范 = `design-system.spec` **`§30` 追加 `T127`·补2 / 补3 两条 + `§30.4` 读数**（只追加、删除列 **0**）。 |
