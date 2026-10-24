@@ -6007,3 +6007,46 @@ CONSTRAINT listing_item_code_shape_ck CHECK (
 5. **PR-N5 埋点阻断业务**：活动桶 upsert 失败导致业务请求 5xx / 回滚 / 延迟劣化可见 ⇒ 判负（必须旁路吞错）。
 6. **PR-N6 台账腿断裂**：建费/工资货币腿绕过 `ledger_post_event`（两步写 / 无幂等键 / Σ 破坏），或 batt 入账越 [0,100]（越界报错而非封顶丢弃）⇒ 判负。
 - **未做（`NOT_MEASURED` · 本册不预填）**：`0063` 未落盘 / 两库未 apply / 七路由未注册 / **batt 到账公式 A/B 未裁（PENDING_KEVIN）** / apply 直录 vs 申请池未终裁 / 埋点保留期未定（滚动清理 = 挂账另单，需 Kevin 口径）/ 判负 PR-N1…N6 与 route #61–#67、design #77–#83 一条未跑；**零代码 / 零迁移文件 / 零库写 / 零 HTTP 实测 / 不 push**。
+
+---
+
+## §40.16 ★★ **币种上架 / 下架动作口：无 schema 变更确认** —— `POST /api/admin/currency/:cid/status` 的**数据面结论 = 零 DDL / 零迁移**（2026-10-24 · **本节只追加 · §1–§40.15 一字未动** · 依据 = `route-layer.spec` **v2.52 §49.25** + `ledger.spec` **v0.18 §19.20**；**本笔零代码 / 零迁移文件 / 零库写 / 零 HTTP**）
+
+### 40.16.1 结论（**写死**）
+
+- **本动作口不需要任何 schema 变更**：**零 `ALTER` / 零 `CREATE` / 零新列 / 零新表 / 零新约束 / 零新索引 / 零新触发器 / 零新迁移文件**。实现轮**不得**为它建迁移（**例外只有一种**：若实现方决定新增**错误码**，那属 `ledger` 侧闭集变更而与数据面无关 —— 且本笔已判负，见 §40.16.4）。
+
+### 40.16.2 复用的既有对象（**逐项给现取位置 · 全部已 apply**）
+
+| # | 对象 | 现取位置 | 本口用途 | 是否需要变更 |
+|--:|---|---|---|---|
+| ① | `currency.status`（四态 CHECK `currency_status_enum`） | `0001_ledger_core.sql:35`；TS 侧 `ledger.ts:170-171` | 被写字段（`UPDATE currency SET status, time_updated`） | **否**（四态闭集不动；`ledger.spec` R10/R27） |
+| ② | `currency.listed_at` | `0001`（`R10`：**首次**进入 `listed` 时写入，之后不再清空） | **不写**（`frozen → listed` 不刷新） | **否** |
+| ③ | `currency.time_updated` | `0001` | `R27` 要求「转移必须落 `currency.status` + `time_updated`」 | **否** |
+| ④ | **`currency_status_log`**（7 列：`log_id` / `cid` / `from_status` / `to_status` / `actor_uid` / `memo` / `time_created`） | `0017_platform_config.sql:139-152`；列契约 = **`DL73`**；append-only 触发器 `trg_currency_status_log_append_only`（`:236-239`） | 审计行**恰 1 行**（同事务） | **否** —— **表已存在且列足够**（`from_status` / `to_status` / `actor_uid` / `memo` 四项俱全） |
+| ⑤ | `market_order`（`order_id` / `owner_uid` / `side` / `base_cid` / `quote_cid` / `price` / `amount` / `amount_filled` / `status` / `create_key` / `ledger_event_keys` / 时间列） | `0016_market.sql:112-137`（`quote_cid = 1` CHECK 在 `:132`） | Phase A 枚举活跃挂单 + 逐单撤单 | **否**（只 `SELECT` + 既有 `market_post_event` 写） |
+| ⑥ | `account`（`balance` / `frozen`） | `0001` | 撤单解冻（`hold_release` ×2，同账户） | **否** |
+| ⑦ | 索引（按 `cid` 找活跃挂单） | **现盘无 `(base_cid, status)` 复合索引** | Phase A 的枚举查询 | **否（登记为性能边界）** —— 见 §40.16.3 |
+
+### 40.16.3 两条必须登记的边界（**登记，不在本笔修**）
+
+1. **本动作口「早在册」，`DL157②` 就是它的既有落点**：`DL157②`（`:503`）原文已逐字写明「**落实形态**：`POST /api/admin/currency/:cid/status`（键 `ops:<admin_uid>:currency_status:<cid>:<to_status>`，§8.3）的服务层**必须**把『`currency.status` 更新』与『`currency_status_log` 插入』写在**同一事务**里（**禁止**两次独立提交；**禁止**『先改状态、日志异步补』）」；§8.3（`:619`）亦已登记该键形与「运维写（无分录）」的语义 ⇒ **本节只是确认「不需要为它加任何列/表」**，`DL157` 与 §8.3 的**条文一字未改**。**`DL157③` 的判负义务照旧生效**：该路由单**必须**带「状态改动而日志行缺失 ⇒ 事务整体回滚 / 库内不存在该中间态」的判负用例（run-tagged、永不写固定文件名）。
+2. **`(base_cid, status)` 复合索引不存在（性能边界 · `NOT_MEASURED`）**：`0016` 的索引清单里没有按 `base_cid` 的前缀索引 ⇒ Phase A 的枚举查询在 `market_order` 大表上是**顺序扫**（现盘表行数 **`NOT_MEASURED`**，本笔不连库）。**本笔不提案新增索引**（① `DL7`：已 apply 迁移的字节不动；② 加索引须走新迁移 + Zang apply，与本口「零 DDL」结论冲突；③ 现阶段挂单量级未知，**先量后建**）。**登记为实现轮的观察项**：若探针实测该查询 > 50ms，**另立单**评估索引（届时须新开 `DL` 条，**不得**就地改 `0016`）。
+
+### 40.16.4 判负（**数据面 · 逐条可判**）
+
+| # | 判负形态 |
+|--:|---|
+| 1 | 为本章动作口新增**迁移文件** / 新列 / 新表 / 新 CHECK / 新触发器 ⇒ 判负（**本笔结论 = 零 DDL**） |
+| 2 | 给 `currency_status_log` **补列**（`create_key` / `ledger_event_keys` / `time_updated` / `idempotency_key`）⇒ 判负（**`DL156` 明列它为三件套豁免表**，补列 = 结构级缺陷） |
+| 3 | 改 `currency_status_log.from_status` / `to_status` 加 CHECK / enum ⇒ 判负（**`DL157①`**：值域权威在 `currency.status` 侧，日志只记事实） |
+| 4 | 在 `currency` 上新增「状态守卫触发器」以替代 `R27` 断言 ⇒ 判负（**`DL73` v0.6 加注 / `DL157②`**：强制点在**路由层**，DB 层不兜底；且 `currency` 表现触发器数 = 0 是既有事实） |
+| 5 | 绕过 `market_post_event` 自写 `ledger_entry` / 直改 `account` ⇒ 判负（**`DL99`**：无分录的写不得造账本事件占位；资金腿只能走编排函数） |
+| 6 | 把 `currency.status` 更新与 `currency_status_log` 插入写成两个事务 / 日志异步补 ⇒ 判负（**`DL157②`** 原文禁止项） |
+| 7 | 新增 `LD` 条 / 改 `DL1..DL157` 编号 ⇒ 判负（本笔**零 `DL` 新增**） |
+
+### 40.16.5 本节自证
+
+- **零删行**：`git diff --numstat docs/data-layer.spec.md` 删除列 = **0**（本笔 = 尾部追加 §40.16）。
+- **`DL` 编号域零改动**：仍 **`DL1..DL157`**，**不新增 `DL` 条**（本节以 **`§40.16`** 承载）。
+- **未动面**：`§1`–`§40.15` 一字未动；`DL73` / `DL156` / `DL157` / §8.3 **条文与状态列一字未改**；`backend-ts/**` / `migrations/**` **零改动**；**未连库、未跑迁移、未起服务**。
