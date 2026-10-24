@@ -34,6 +34,7 @@
 > **★ 现行版 = v1.28（2026-10-24 · Kevin「资金余额变动类操作的成功反馈统一用 Toast」裁定落册 · **状态改写式 · 只追加零删行** · 新增 §29 + 规则 `T126` · 本单只写 `docs/**`）**：**① 范围＝仅两类** —— 【**领工资**】与【**任务 / 子任务 / 活动一键领奖**】的成功反馈**统一用 Toast**（顶部轻提示，一句话说清到账金额/次币），**不得**再用模态框、**不得**在卡内/行内再写成功文案；**② 明确不在范围** —— **充值 · 购买 · 订单退款 · 发货 · 收货**一律**仍内联**（逐字照旧，不因本条改形态）；**③ 失败一律仍内联** —— `batt_insufficient` / `nothing_to_claim` / 其他错误、以及登录提示与「加入成功」提示**均不得改 Toast**；**④ 依据** = **Kevin 2026-10-24 裁定**（§29.0 逐条转写）；**⑤ 零新 token / 零新 `STRUCT` / 零新 `PROV` / 零新 i18n 键**（成功文案复用现役键）；实现已在 HEAD 落地（master §5.454 / commit `77da63c`），**本单零代码**。
 > **★ 现行版 = v1.29（2026-10-24 · Kevin「/wage 顶部两列 + 当前项目卡 + 卡等高 + 铸造入口」四条裁定落册 · **状态改写式 · 只追加零删行** · 新增 §30 + 规则 `T127`/`T128` · 本单只写 `docs/**`）**：**① `T127`（工资页顶部两列 + 等高等长口径）** —— `/wage` 页顶＝**两列同一行**：左**电量卡**（容器 `wage-checkin`；卡 `id=batt-checkin` 与 `/wage#batt-checkin` 深链**逐字保留**）、右**当前项目卡**（`wage-current`，**固定 `320px`**，承载工资标准 / 名额 / 下次可领倒计时 / 【领工资】；`≤767` **上下堆叠且当前项目卡在前**）；**无已加入项目 ⇒ 灰态占位 `wage-current-empty`**（文案 `wage.currentEmpty`），**不渲染动作卡**；**已加入项目从下方 `wage-list` 网格移出**（网格 = 其余项目，卡形态与排序不变）；`.sf-wage-card` **同行等高**（`align-items: stretch`，同行高度极差 ≤ `1px`）＋ 描述**固定 3 行截断**（`-webkit-line-clamp: 3` + `overflow: hidden`，实测高度 = 3 行高）。**② `T128`（铸造入口门槛与置灰口径）** —— 电量卡内**只**回归一个【铸造】入口（钩子 `wage-mint`，**不是**整块资产面板；面板仍在 `/profile/assets`），**复用该卡同一份 `GET /api/batt`**（`bttc` 子对象；零新读口）；**可点判定唯一依据 = 服务端 `bttc.canMint`**（= `batt ≥ policy.mintBattCost` ∧ `$ ≥ policy.mintFeeUsd`，现盘 `100` / `1`）——**客户端不得自行判门槛或算代价**（承 `R-8-5`）；**不可点 ⇒ 可见但置灰**（`disabled` + `aria-disabled="true"`）＋ **缺口提示**（`wage-mint-shortfall`，含 `-batt` / `-usd`，「还差 X 电量 / $Y」，缺口走 `mintShortfallOf` **同源减法**，不写第二份）；**成功 ⇒ Toast（`duration: 5000`，承 `T126`）** ＋ 重拉读数，**卡内零成功文案**；**失败 ⇒ 卡内内联**（`wage-mint-err` + `role="alert"`）；读数未到 / 代币口不可用 ⇒ **入口整块不渲染**（不给永远置灰的死钮）。**改动 = 版本头（本行）+ §12 表 v1.29 行 + §30（新）**；**本册 v1.29 只写 `docs/**`**（实现已入库 `ddf8e39`，探针读数 `a3579bd`）；未动 `frontend/**` / `backend-ts/**` / `ctrl/**`；未启停任何服务；未 `git add -A`。**现取基线 = HEAD `a3579bd`（2026-10-24 · 已 push · 生产同版）。**
 > **★ 现行版 = v1.30（2026-10-24 · Kevin「首页【热门任务】入口改弱 + 换文案」裁定落册 · **状态改写式 · 只追加零删行** · 新增 §31 + 规则 `T129` · 本单 = 1 处 JSX + 4 个 locale 值 + 单测/探针改锚，代码已入库 `832730b`）**：**① 形态** —— 首页【热门任务】右上入口变体 `proceed`（蓝底）⇒ **`ghost`**（半透明白底 / 灰字 / 无阴影 / hover 轻微加深），**不再蓝底**；**位置与 `size="md"` 不变**。**② 文案** —— `common.viewAll` **只改值**（zh「全部悬赏」/ hk「全部懸賞」/ en「All bounties」/ vn「Tất cả treo thưởng」），**键不动 ⇒ 四语 flat 1453 × 4 不变**。**③ 红线** —— **不动共享 `.btn-proceed` CSS**（`WalletAuthPanel` 仍在用）、不动 i18n 键集合、不动其它页面。**④ 钩子** —— 按钮加 `data-sf-m="home-viewall"`。**本册 v1.30 只写 `docs/**`**；未动 `frontend/**` / `backend-ts/**` / `ctrl/**`；未启停任何服务；未 `git add -A`。**现取基线 = HEAD `832730b`（2026-10-24 · 已 push · 生产同版：`index-j52InuN9.js` 664,112 B / `index-B6ogFHmV.css` 189,909 B，名与字节与本地 build 逐字同）。**
+> **★ 现行版 = v1.31（2026-10-24 · Kevin「可点击组件 hover 分级 + 公共 chip 类 `.sf-chip`」裁定落册 · **纯追加零删行** · 新增 §32 + 规则 `T130` · 本单 = 1 个新 CSS 类 + 首页 2 处改用它 + 单测/探针改锚，代码已入库）**：**① 新类 `.sf-chip`** —— 落 `frontend/src/styles.css` **顶层**（不入 `@media`、**零新主题 token**：颜色只引用既有 `--border-color` / `--text-secondary`）；几何 = `inline-flex/center/gap4/px-3 py-1.5/14px/1.4/6px`；透明底 + **1px 细边框** + 次要文字色；**hover 与 `.btn:hover` 逐字一致 = `translateY(-1px)`，不变色/不变边/不加阴影**，`:active` 归零，`prefers-reduced-motion` 只在本类内禁用位移（不新增全局策略）。**② 选中态** `.sf-chip.is-active` = 现有黄底白字黄边（`#eab308` / `#fff`），整站统一。**③ 首页两处改用它** —— 【推荐】/【新发】两 tab（`role=tab` / `aria-selected` / `data-sf-sort` / `data-sf-m` **全部保留**，切档逻辑零变动）＋【全部悬赏】入口（**不再用 `Button`**，改 `<Link className="sf-chip" data-sf-m="home-viewall">`，文案键与四语值不变）。**④ `T130` = 可点击组件 hover 分级规范**（① 按钮/标签/chip 抬升 1px；② 可点卡片 = 容器反馈不上移；③ 文本链接只变色；④ 图标按钮浮现底色块；`.btn.btn-a` 家族为**冻结例外**、不追溯）。**⑤ 全站四类可点击组件盘点入册（§32.4，本单未改码）** 作为分批改依据。**⑥ 红线** = 不动 `.btn` / `.btn-proceed` / 不改其它页；i18n 零键增删（**1453 × 4 不变**）。**改动 = 版本头（本行）+ §12 表 v1.31 行 + §32（新）**；本册只写 `docs/**`。
 
 > **★ v1.10 姊妹册（同批交付）** = `docs/route-layer.spec.md` **v2.28 §38**（`/item` 家族 + 旧路由硬删 + 「前端概念名 ⇄ 后端路径名」映射表）；本册只承载 **形态 / 入口集合 / 可达性 AC / 合并页口径 / i18n 删改留表**，**不重抄**。
 > **v1.5 口径来源（逐字）**：Kevin 2026-10-11 定档 ①方案 A·UI 先行（不动后端）②右悬浮菜单仅桌面档显示、H5 隐藏 ③消息模块占位（后续接驳 X/推特私信）④客服/反馈做弹窗模板位；**＋ Kevin 当日两条连锁更正**（`Zang` 转达）：**(A)** 底栏第二项 = **「市场」→ `/exchange`**（key `shard`，图标 `Store`；**不再新建 `/nearby` 占位页、`nearby` 键不新增**）**(B)** `T76` 去重按新底栏集合重算（**`exchange` 继续排除、`reward`/`task` 恢复**）。
@@ -853,6 +854,7 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 | **v1.27** | 2026-10-24 | **Kevin「首页取闲鱼的视觉、不取它的语义欠债」裁定落册（状态改写式 · 只追加零删行 · 本单只写 `docs/**`）**：**① 闲鱼实测（换正常 UA 后真 DOM）** = 首页 `h1` **0** / `h1`–`h6` **0** / 地标 `header` + **`main`×2**（**无 `nav`**）/ 元素 `2648` / 正文 `2581` 字；详情 `/item?id=765416638957` `h1` **0** / `h1`–`h6` **0**。**② 裁定** = 视觉无页面标题 + 保留 **`1×1`** 视觉隐藏 `h1`（容器首子 · 复用 `siteBrand` · `.sf-visually-hidden` 落 `styles.css` 顶层）+ **不得**改【热门任务】`h2` 为 `h1`。**③ 三条理由** = APP 镜像 / 洪布流无主题可做标题 / `<title>` 接管。**④ 差异** = 我站另有 `h1`×1（隐藏）与 `h2`×2 与 `nav`，**有意不同**。**⑤ 新规则 `T125` + 教训 `N55` + 判负 6 条**；**零 token / 零 `STRUCT` / 零 i18n 键 / 零真源改动**。**改前快照** = `docs/versions/design-system.spec.v1.26.md`（`cmp=0`；md5 `f410b532d6ed86b8c17f6c48079ccb1b`）；**本版镜像** = `v1.27.md`（`cmp=0`）。**删行 0**。现取基线 = HEAD `4169140`。 |
 | **v1.29** | 2026-10-24 | **Kevin「/wage 顶部两列 + 当前项目卡 + 卡等高 + 铸造入口」四条裁定落册（状态改写式 · 只追加零删行 · 本单只写 `docs/**`）**：**① `T127`** = 顶部两列（左电量卡 `wage-checkin` 锚点不动 / 右当前项目卡 `wage-current` 固定 `320px`）· 无加入 ⇒ 灰态占位 `wage-current-empty` · `≤767` 堆叠且当前项目卡在前 · 已加入项目移出 `wage-list` 网格 · `.sf-wage-card` 同行等高（极差 ≤1px）＋ 描述 3 行截断（`-webkit-line-clamp:3`）。**② `T128`** = 电量卡内唯一【铸造】入口 `wage-mint`（复用同一份 `GET /api/batt`、零新读口）；可点只认服务端 `bttc.canMint`（`batt ≥ 100 ∧ $ ≥ 1`，客户端零数值计算）；不可点 ⇒ 可见置灰（`disabled` + `aria-disabled`）+ 缺口（`wage-mint-shortfall`，走 `mintShortfallOf` 同源减法）；成功 ⇒ Toast 5000ms（承 `T126`）+ 重拉；失败 ⇒ 卡内内联。**③ 读数** = 探针 **exit 0 · 173/173**（146 → 173，前推不放松）· 四语 flat **1453 × 4** · 生产 assets 名/字节/`sha256` 与本地 build 逐字同。见 §30。 |
 | **v1.30** | 2026-10-24 | **Kevin「首页【热门任务】入口改弱（`proceed` 蓝底 ⇒ `ghost` 半透明白底灰字）+ 文案改值」裁定落册（状态改写式 · 只追加零删行 · 本单只写 `docs/**`）**：**① `T129`** = 首页【热门任务】右上入口取**弱化 `ghost`** 形态（`background rgba(255,255,255,0.55)` / `color var(--text-secondary)` / `box-shadow none` / 无宝石伪元素 / hover 轻微加深），**不再 `proceed` 蓝底**；**位置与 `size="md"` 不变**（渲染类名 `btn btn-proceed btn-md px-4 py-2 text-base` ⇒ `btn btn-ghost btn-md px-4 py-2 text-base`）。**② 文案** = `common.viewAll` **只改值**（zh 查看全部⇒全部悬赏 / hk 查看全部⇒全部懸賞 / en View all⇒All bounties / vn Xem tất cả⇒Tất cả treo thưởng），**键不动 ⇒ 四语 flat 1453 × 4**；`dashPage.viewAll`（`/dashboard` 孤儿键）逐字未动。**③ 红线** = **不动共享 `.btn-proceed` CSS**（`WalletAuthPanel` 仍在用）⇒ build 的 CSS **同字节 189,909 B** 即为该红线的机读证据；不动 i18n 键集合、不动其它页面。**④ 钩子** = `data-sf-m="home-viewall"`。**⑤ 断言** = `i18n-batch-b1` 的 `getAllByText('View all')` 改锚 `'All bounties'` **并加 ghost / 非 proceed 两判据**（强度上升）；`home-page.test` 新增「文案 ∧ ghost ∧ 非 proceed ∧ href `/campaign`」一条；`fix-nav-langshell` 零改动（mock `t` 返键名，文案/变体皆不影响其判据）。**⑥ 探针** = `probe-home-campaign.mjs` 新增 `viewall` 读数 + 7 条判据，重跑 **exit 0 · all_pass true**（现取 `bg rgba(255, 255, 255, 0.55)` / `color rgb(75, 85, 99)` / `box_shadow none`）。**⑦ 门读数** = unit **96 files / 1061 tests** · a11y **1/16** · components **2/14** · build **exit 0**（js 664,112 B = +40 B）。**⑧ 生产** = `832730b` push，生产 assets 名/字节/sha256 逐字同，`home-viewall` 命中 1。见 §31（`T129`）。 |
+| **v1.31** | 2026-10-24 | **Kevin「可点击组件 hover 分级 + 公共 chip 类」裁定落册（纯追加零删行）**：新增 §32 + 规则 `T130`（① 按钮/标签/chip = `translateY(-1px)` 与既有 `.btn:hover` 逐字一致、不改色；② 可点卡片 = 容器反馈不上移；③ 文本链接只变色；④ 图标按钮浮现底色块；`.btn.btn-a`/`.btn-a-alt` 为冻结例外不追溯）+ 公共类 `.sf-chip` 定义（透明底 + 1px 中性细边框 + 次要字色；`is-active` = 黄底白字黄边；hover 抬升 1px；`prefers-reduced-motion` 仅本类禁用位移；**零新 token**）+ 首页两 tab 与【全部悬赏】入口改用它（后者由 `Button variant=ghost` 改 `<Link className="sf-chip">`，钩子 `home-viewall` 与 `href=/campaign` 不变）+ **全站四类可点击组件 hover 盘点附录**（§32.4：23 行 / 覆盖 ①按钮 7 行 ②卡片 7 行 ③链接 3 行 ④图标钮 6 行，逐项给 `文件:行`＋现 hover＋缺口）。i18n 零键增删（1453 × 4）。单测改锚 2 处 + 新增 1 例；探针新增 `chip` 臂 16 条判据、`rowcount` 2 条旧 ghost 判据改锚。 |
 
 
 ### 与上游文件的关系（只读，本册未改一字）
@@ -4796,3 +4798,137 @@ showEdit     = isAuthenticated && (isOwner || canEditAny) && statusEditable
 - **未改写面**：`§1–§30` 一字未动；`docs/design/style-preview.html`（真源）**零改动**（**零新 token / 零新 `STRUCT` / 零 `PROV` 变更**）；`frontend/src/styles.css` **零改动**（`.btn-ghost` 是既有类、`.btn-proceed` 一字未动）；`backend-ts/**` 本单**零改动**。
 - **编号现取**：节号 **`§31`**（现盘最大 `§30`）；规则 **`T129`**（现盘最大**已定义** `T128`）；教训**不新增**（本单无新教训）；版本行 **`v1.30`**（现盘最大 `v1.29`）。
 - **实现与读数（不在本册写面）**：实现 commit `832730b`（9 件：1 JSX + 4 locale + 2 单测 + 探针 + 读数）· push `4cea358..832730b` · 生产 `index-j52InuN9.js` 664,112 B / `index-B6ogFHmV.css` 189,909 B（名与字节与本地 build 逐字同，`sha256` 同）· 生产 JS 内 `home-viewall` 命中 1。
+
+## §32 ★★ v1.31 · **可点击组件 hover 分级规范（`T130`）+ 公共 chip 类 `.sf-chip`** —— 规则 **`T130`**（2026-10-24 · Kevin 一条裁定 ＋ 全站四类可点击组件 hover 盘点附录 · **纯追加零删行**）
+
+> **本节读法（纯追加）**：本节只新增条文，`§1–§31` 一行未改；凡旧条文与本节口径冲突，**以本节为准**，旧字面逐字保留（受「只追加 / `git diff --numstat` 删除列 = 0」硬口径约束）。依据 = **Kevin 2026-10-24 裁定**（口径已定死，见 §32.0），实现 commit 见 §32.3。
+
+### 32.0 裁定口径（Kevin 2026-10-24，逐条转写）
+
+| # | 项 | 口径 |
+|---|---|---|
+| 1 | 新类 | **新增一个公共 chip 类 `.sf-chip`**，落 `frontend/src/styles.css` **顶层**（**不入 `@media`、零新主题 token**） |
+| 2 | 几何 | `inline-flex / align-items:center / gap:4px / padding:.375rem .75rem（px-3 py-1.5）/ font-size:14px / line-height:1.4 / border-radius:6px（rounded-md）` |
+| 3 | 颜色 | `background: transparent` ＋ `border: 1px solid <中性边框，日/夜两档各取既有 token 或既有 gray 值>` ＋ `color:<次要文字>` |
+| 4 | hover | **与 `.btn:hover` 逐字一致**：`transform: translateY(-1px)`，**不变色 / 不变边 / 不加阴影**；`:active { transform: translateY(0) }`；`prefers-reduced-motion` 时禁用位移（本类只做安全缺省，不新增全局策略） |
+| 5 | 选中态 | 修饰类 `.sf-chip.is-active` = 现有**黄底白字黄边**（`bg-yellow-500 / text-white / border-yellow-500` 等价），**整站统一** |
+| 6 | 首页两处 | 【推荐】/【新发】两 tab ⇒ `className={`sf-chip${active ? ' is-active' : ''}`}`（`role=tab` / `aria-selected` / `data-sf-sort` / `data-sf-m` **全部保留**，逻辑零变动）；【全部悬赏】入口 ⇒ **不再用 `Button` 组件**，改 `<Link className="sf-chip" data-sf-m="home-viewall">`，文案键与四语值不变 |
+| 7 | 区分 | 两 tab 的**选中态仍黄底**，与【全部悬赏】的透明 chip 区分 |
+| 8 | 盘点 | **全站可点击组件盘点（四类）为本单必交产物，不改代码** —— 作为后续分批改的依据（§32.4） |
+| 9 | 红线 | **不动 `.btn` / `.btn-proceed` / 不改其它页**；只改首页这两处 + 新增 `.sf-chip` |
+
+### 32.1 新规则 `T130`（可点击组件 hover 分级）
+
+| 编号 | 口径 | 落点 / 既有先例 | 判据 / 连带 |
+|---|---|---|---|
+| **T130** | 【本册裁定 · v1.31】**全站可点击组件的 hover 反馈分四级，不得混用**：**① 按钮 / 标签 / chip** = `transform: translateY(-1px)`（与既有 `.btn:hover` 逐字一致，**不改色、不改边、不加阴影**），`:active` 归零；**② 可点卡片** = **容器反馈**（底色 / 描边 / 阴影 / 内部标题变色之一，**不上移**）；**③ 文本链接** = **只变色**（不改几何、不加位移）；**④ 图标按钮** = **浮现底色块**（`background` 变化，必要时并变色）。**例外条款（现存，冻结）**：`.btn.btn-a` / `.btn.btn-a-alt`（A 体系主次钮）在 `styles.css:357-358` 显式 `transform:none; filter:none; box-shadow:none`，且属 `p6-btn-impl2` 的桌面几何 / 规则体冻结面 ⇒ **本规则不追溯该家族**，改它须另立单并同批前推该门。 | `frontend/src/styles.css`（`.btn:hover` `:302` 先例）；分级判据由本册本节冻结 | 判 hover **只认真实 `page.hover()` 后的 computed `transform` / `background-color` / `color`**（`CSS.forcePseudoState` 在本机不生效，见本册既有读数纪律）；卡片**不得**出现 `translateY(-Npx)`；链接**不得**出现位移；图标钮**不得**只改透明度 |
+
+### 32.2 `.sf-chip` 定义（几何 / 颜色 / 选中态 / hover）
+
+**落点**：`frontend/src/styles.css` **顶层**（文件尾 `:1451`–`:1500`，最后一条规则之后；上方 `@media` 均已闭合）—— 不入 `@media`、**不碰 `shell.css`**、不动 `.btn` 家族。**零新主题 token**：颜色只引用**既有** `--border-color`（日 `#e5e7eb` / 夜 `#4b5563`）与 `--text-secondary`（日 `#4b5563` / 夜 `#d1d5db`），两档值见 `styles.css` 的 `:root` 与 `[data-theme="dark"]` 两块。
+
+```css
+.sf-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.375rem 0.75rem;   /* px-3 py-1.5 */
+  font-size: 14px;             /* text-sm */
+  line-height: 1.4;
+  border-radius: 6px;          /* rounded-md */
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform .15s ease; /* 与 `.btn` 的 transform 时序同档（只为位移，不涉颜色） */
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sf-chip:hover { transform: translateY(-1px); }
+.sf-chip:active { transform: translateY(0); }
+
+.sf-chip.is-active {
+  background: #eab308;   /* = bg-yellow-500 既有落点（tailwind-compat.css:372） */
+  border-color: #eab308; /* = border-yellow-500（:337） */
+  color: #ffffff;        /* = text-white（:468） */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sf-chip { transition: none; }
+  .sf-chip:hover,
+  .sf-chip:active { transform: none; }
+}
+```
+
+| 项 | 口径 | 备注 |
+|---|---|---|
+| `display` | 源码 `inline-flex`；**作为 flex 子项时浏览器 blockify 成 `flex`** | 探针判据须接受两者（本单首跑即踩：读得 `flex` 而判据写死 `inline-flex` ⇒ 假红） |
+| 底色 / 边框 | 透明 ＋ `1px` 中性细边框（**不是** ghost 的半透明白底） | 日 `rgb(229,231,235)` / 夜 `rgb(75,85,99)`（现取） |
+| 选中态 | `.is-active`（**新修饰词**，与主题预览页既有的 `.is-on` **不同名不冲突**） | 计算值现取 = `rgb(234,179,8)` 底/边 + `rgb(255,255,255)` 字 |
+| hover | 只位移：computed `matrix(1, 0, 0, 1, 0, -1)`；底色 / 字色 / 边色 / `box-shadow` **逐值不变** | 真 `page.hover()` 实测 |
+| 同名类 | `shell/shell.css:330` **既有** `.sf-chip`（主题预览页用，带 `.is-on`）与本类**同名** | 本文件规则在 `@import` 之后 ⇒ 同具体性下本类胜出；预览页形态由 `pages/theme-preview.css:62` 的 `.sf-preview-chips .sf-chip`（(0,2,0)）显式接住，**视觉零变化** |
+
+### 32.3 落地读数（本单现取 · 2026-10-24）
+
+- **首页两 tab**：改前 `px-3 py-1.5 rounded-md text-sm border` ＋ 选中 `bg-yellow-500 text-white border-yellow-500` / 未选 `bg-white text-gray-600 border-gray-300 dark:bg-gray-800 …` ⇒ 改后 **`sf-chip`** / **`sf-chip is-active`**（`role=tab` / `aria-selected` / `data-sf-sort` / `data-sf-m="feed-tab-<key>"` 全部保留，切档逻辑零变动 ⇒ 零网络请求不变）。
+- **【全部悬赏】**：改前 `<Button variant="ghost" data-sf-m="home-viewall">`（渲染 `btn btn-ghost btn-md px-4 py-2 text-base`）⇒ 改后 **`<Link className="sf-chip" …>`**（`tagName = A`、`href = /campaign`、文案 `全部悬赏` = `t('common.viewAll')`）。
+- **computed（真浏览器 · `probe-home-campaign.mjs` 的 `chip` 臂 · `reducedMotion: no-preference`）**：入口 `padding 6px 12px` / `font-size 14px` / `line-height 19.6px` / `border-radius 6px` / `bg rgba(0,0,0,0)` / `border-width 1px` / `color rgb(75,85,99)`；hover ⇒ `transform matrix(1, 0, 0, 1, 0, -1)`，`bg`/`color`/`border-color`/`box-shadow` 与静态逐值相同。两 tab 同形（选中档 `bg/border = rgb(234,179,8)`、字 `rgb(255,255,255)`；未选档透明 ＋ 1px 边），hover 均抬升 1px。
+- **单测**：`home-page.test.jsx` 改锚（`sf-chip` ∧ **不含** `btn-ghost`/`btn-md` ∧ `tagName=A` ∧ `href=/campaign` ∧ 文案 = `t('common.viewAll')`）；`i18n-batch-b1.test.jsx` 改锚（`'All bounties'` ∧ 含 `sf-chip` ∧ 不含 `btn-proceed`/`btn-ghost`）；新增 `home-feed-sort.test.jsx` ①b（两 tab 均 `sf-chip`、选中档含 `is-active`、未选档不含、切档后互换）。**门读数 = unit 97 files / 1069 tests / 0 failed**（基线 97 / 1068，**+1 用例**）· a11y 1 / 16 · components 2 / 14。
+- **探针**：`probe-home-campaign.mjs` 新增 **`chip` 臂（16 条判据）** + `rowcount` 臂 2 条旧 ghost 判据**改锚**为 chip 口径（`viewall_wears_chip` / `viewall_not_ghost` / `viewall_bg_transparent` / `viewall_border_1px`）；重跑 **5 臂 / 55 判据全 true · `all_pass = true` · 三类错误全 0**；`probe-home-no-fadein.mjs`（六档几何）**ALL PASS**。
+
+### 32.4 全站四类可点击组件盘点（附录 · **本单未改码**，后续分批改的依据）
+
+> 口径：`hover 状态` 列只写**现盘 CSS 事实**（`grep ':hover'` 全量 = `styles.css` 21 · `tailwind-compat.css` 33 · `campaign.css` 7 · `animations.css` 6 · `HoverMenu.css` 4 · `project.css` 2 · `market.css` 2 · `profile.css` 1 · **`shell.css` 0** · `item.css` 0 · `wage.css` 0）；「缺口」= 与 `T130` 分级不一致或零反馈。行号按本单现取。
+
+**① 按钮 / 标签 / 胶囊**
+
+| # | 控件 | 文件:行 | 现 hover | 缺口 |
+|---|---|---|---|---|
+| 1 | `.btn` 旧语义钮基类 | `styles.css:171`（本体）/ `:302`（hover） | 位移 `translateY(-1px)`；变体另加 `filter: brightness(.95–.98)`（`:226/:239/:248/:257/:268/:292`） | 符合 ①；`.btn-ghost` 另变色（`:280`，弱化钮例外，登记不追改） |
+| 2 | `.btn.btn-a` / `.btn-a-alt`（A 体系主次钮） | `styles.css:311` 起 / `:357-358` | **显式 `transform:none; filter:none; box-shadow:none`** | **与 ① 不一致**（冻结面 `p6-btn-impl2`：桌面 34px 几何 + 规则体）⇒ 待裁定，本单不动 |
+| 3 | `.sf-btn` 微类家族（详情页 CTA / 项目页 / 工资页按钮） | `shell/shell.css:352` 起 | **`:hover` 0 条** | **最大缺口**：全站「主按钮」无任何 hover 反馈 |
+| 4 | 首页两 tab【推荐】【新发】 | `HomePage.jsx:532-543` | 本单起 `.sf-chip` ＋ `.is-active` ⇒ 抬升 1px | 已符合 |
+| 5 | 首页【全部悬赏】入口 | `HomePage.jsx:487-493` | 本单起 透明 `.sf-chip` ⇒ 抬升 1px | 已符合 |
+| 6 | 裸 `<button>`（顶栏 19 处） | `Header.jsx:265,276,283,290,297,307,322,376,387,394,409,459,468,487,497,507,517,536,562` | 混合：`.nav-link` 只变色（`HoverMenu.css:11` / 顶栏日档覆盖 `:43`）；汉堡/主题钮走 Tailwind `hover:bg-gray-100` | 无统一语法（同一顶栏三种反馈） ⇒ 待分批统一 |
+| 7 | 裸 `<button>`（页级：项目 10 / 详情 9 / 子任务表单 7 / 个人页 6 / 弹窗 6 / 市场 5 / 发布 5 / 我的订单 5 / 头像编辑 5 / 消息面板 4 / 浮菜单 3 / 工资 3） | `pages/project/ProjectPage.jsx`、`ProjectForms.jsx`、`pages/item/ItemDetailPage.jsx`、`pages/campaign/SubtaskForm.jsx`、`ProfilePage.jsx`、`components/ui/ErrorHandling.jsx`、`pages/market/MarketPage.jsx`、`PublishItemPage.jsx`、`MyOrdersPanel.jsx`、`components/ProfileAvatarEditor.jsx`、`shell/MessagesPanel.jsx`、`shell/FloatingMenu.jsx`、`pages/wage/WagePage.jsx` | `.sf-project-btn` **零 hover**；其余多为 Tailwind `hover:bg-*` / `hover:text-*` 混用 | 缺口：`.sf-project-btn` 无反馈；`hover:bg-*` 家族无位移（与 ① 不一致，需按 ①/④ 分类归位） |
+
+**② 可点卡片**
+
+| # | 卡片 | 文件:行 | 现 hover | 缺口 |
+|---|---|---|---|---|
+| 8 | 商品卡 `.sf-reward-card`（整卡 `<a>`） | `components/reward/RewardCard.jsx:75`；`hover:shadow-lg`（`reward-card.css:91` 注） | 仅阴影加深（无位移） | 符合 ② |
+| 9 | 首页任务卡 `.sf-home-camp-card`（整卡 `<Link>`） | `components/campaign/HomeCampaignCard.jsx:172/188` | **零 hover** | **缺口**：整卡可点却无任何反馈 |
+| 10 | 活动卡 `.sf-campaign-card` | `pages/campaign/CampaignCard.jsx:40`；`campaign.css:43` | 标题变色（`.sf-campaign-card:hover .sf-campaign-card-title`） | 符合 ② |
+| 11 | 活动内任务行 `a.sf-campaign-card-task` | `CampaignCard.jsx:95/102`；`campaign.css:150` | 任务标题变色 | 符合 ② |
+| 12 | 活动内项目行 / 项目页任务行 | `campaign.css:1100`；`project.css:968` | 标题变色（`.…-row:hover .…-title`） | 符合 ② |
+| 13 | 市场行情行 `.sf-mkt-row` | `pages/market/MarketPage.jsx:672/730`；`market.css:36` | **零 hover** | **缺口**（同行 `.sf-mkt-base-opt:hover` `:403` 有反馈 ⇒ 同页两套） |
+| 14 | 工资页项目卡 `.sf-wage-card` | `pages/wage/wage.css:118` | 卡本体零 hover（仅卡内按钮有） | 缺口（卡本体可点性另一单核） |
+
+**③ 文本链接**
+
+| # | 链接 | 文件:行 | 现 hover | 缺口 |
+|---|---|---|---|---|
+| 15 | 顶栏 `.nav-link`（桌面左 nav / 主题钮 / 语言钮） | `components/ui/HoverMenu.css:11`（`#d97706`）/ `:24`（夜档 `#fbbf24`）/ `:43`（顶栏日档覆盖 `--sf-brand-fg`） | **只变色** | 符合 ③ |
+| 16 | 页脚链接 | `components/Footer.jsx:80`；`styles.css:162-168` | 仅夜档前景 `!important`，**无 :hover** | **缺口**：页脚链接零反馈 |
+| 17 | 正文内链（活动返回 / 任务→项目名 / 任务→活动名 / 项目页活动标题 / 个人侧栏） | `campaign.css:248,816,828`；`project.css:421,968`；`profile.css:62` | 变色（`campaign-back` / `a.sf-task-*` / `a.sf-project-task-row-title`）；`profile.css:62` 是 `background: var(--sf-search-bg)` | 基本符合 ③；`.sf-prof-link` 属「浮现底色块」＝④ 语义混入（分类待统一） |
+
+**④ 图标按钮**
+
+| # | 控件 | 文件:行 | 现 hover | 缺口 |
+|---|---|---|---|---|
+| 18 | 顶栏主题切换（桌面 / 移动面板） | `Header.jsx:307`（`.nav-link`）/ `:536`（`.sf-tap` + `hover:bg-gray-100`） | 变色 / 浮现底色块 | 符合 ④ |
+| 19 | 顶栏汉堡 | `Header.jsx:409` | `hover:text-gray-900 + hover:bg-gray-100` | 符合 ④ |
+| 20 | 顶栏用户菜单钮 | `Header.jsx:322`（`header-user-menu`，HoverMenu 承载） | 有（HoverMenu 底色/变色） | 符合 ④ |
+| 21 | 弹窗关闭 / 重试图标钮 | `components/ui/ErrorHandling.jsx`（6 处）、`ProjectAvatar.jsx`（4）、`ProfileAvatarEditor.jsx`（5）、`SubtaskForm.jsx`（7）、`MyOrdersPanel.jsx`（5）、`MessagesPanel.jsx`（4）、`FloatingMenu.jsx`（3） | 多为 Tailwind `hover:text-*` 或**零** `:hover`；`.sf-project-avatar-*` 只有 `:focus-visible`（`project.css:105-111`） | **缺口**：无统一「浮现底色块」 |
+| 22 | 活动缩略图删除 `.sf-campaign-thumb-del` | `campaign.css:708` | 有（`:hover` 已定义） | 形态待现读确认（未在本单逐值取证） |
+| 23 | 市场基准选项 `.sf-mkt-base-opt` | `market.css:403` | 有 | 符合 ④ |
+
+**分批改建议（不构成裁定）**：第一批 = ③ 页脚链接 + ② 首页任务卡 / 市场行（零反馈且高频可见）；第二批 = ④ 弹窗/头像图标钮统一「浮现底色块」；第三批 = ① `.sf-btn` 家族（面最大，须先裁「是否引入抬升」再落）；`.btn.btn-a` 与 `hover:bg-*` 家族按 `T130` 例外条款单独立单。
+
+### 32.5 边界与编号现取
+
+- **本节零删行**：`git diff --numstat docs/design/design-system.spec.md` 删除列 = **0**（本版 = **尾追加 §32** + 版本头追加 1 行 + §12 变更记录表追加 1 行）。
+- **未改写面**：`§1–§31` 一字未动；`docs/design/style-preview.html`（真源）**零改动**（**零新 token / 零新 `STRUCT` / 零 `PROV` 变更**）；`.btn` / `.btn-proceed` 一字未动；`backend-ts/**` 零改动；其它页面零改动（`theme-preview.css` 仅**接住**同名类的既有视觉，属保形改动，见 §32.2 末行）。
+- **编号现取**：节号 **`§32`**（现盘最大 `§31`）；规则 **`T130`**（现盘最大**已定义** `T129`）；版本行 **`v1.31`**（现盘最大 `v1.30`）。
+- **i18n**：**零键增删**（四语 flat **1453 × 4** 不变；文案全复用现役键 `common.viewAll`）。
