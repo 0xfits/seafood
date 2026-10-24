@@ -451,26 +451,13 @@ const HomePage = () => {
   return (
     <ResponsiveContainer>
       <div className="space-y-8" data-sf-m="home-item-list">
-        {/* ★ 2026-10-21（Kevin）：首页**去除动画容器** —— hero 直接落 `<section>`，
-            不再套 `FadeIn`（`animate-fade-in` 的 `<div>`）。`Motion.jsx` / `animations.css` 的
-            `.animate-fade-in` 保留（其它页仍用），此处只是首页零容器。 */}
-        <section className="bg-gradient-to-r from-yellow-50 to-blue-50 rounded-2xl p-8 text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('homePage.welcome')}</h1>
-          <p className="text-xl text-gray-600 mb-6">
-            {t('homePage.heroLead')}<span className="text-sm font-bold text-yellow-600 dark:text-yellow-400">$</span>{t('homePage.heroTail')}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to={isAuthenticated ? '/task' : '/register'}>
-              <Button variant="primary" size="lg">
-                {isAuthenticated ? t('homePage.continueTask') : t('homePage.registerNow')}
-              </Button>
-            </Link>
-            {/* 发布入口（Kevin 裁定④）：原「查看奖励」→ 首页唯一列表的发布入口 `/item/new` */}
-            <Link to={buildLocalizedPath(lang, '/item/new')} data-sf-m="home-publish-link">
-              <Button variant="secondary" size="lg">{t('item.publish')}</Button>
-            </Link>
-          </div>
-        </section>
+        {/* ★ 2026-10-24（Kevin）：首页 hero 版块**整块删除** —— 标题（`homePage.welcome`）、
+            辅文（`heroLead` / `heroTail`）、两个 CTA（继续任务/立即注册 + 发布入口 `/item/new`）
+            一并下线；发布入口**不从 UI 给出**（裁定：暂不给，也不留隐藏链接）。
+            连带：首页现**零 `<h1>`**、零 `home-publish-link` 钩子。
+            渐变背景（`bg-gradient-to-r from-yellow-50 to-blue-50` + `rounded-2xl` + `p-8`）
+            **只移不改**，落到下方【热门任务】容器（`data-sf-m="home-camp"`，钩子名不变）。
+            注：首页仍**零 `animate-fade-in`** 容器（`Motion.jsx` / `animations.css` 保留，其它页在用）。 */}
 
         {/* 「我的积分」卡已于 2026-10-21（Kevin 裁定）**整体迁出**首页 ⇒ `/profile/assets`
             （钩子 `assets-my-points`，数据面 = 同页 `GET /api/user/balances` 的 `$`（cid 1）值）。
@@ -481,8 +468,12 @@ const HomePage = () => {
               ★ 卡 = 读口行的一一映射（最多 5 张），**零 mock / 零补位**：无可见行 ⇒ 空态
               （复用既有键 `taskPage.emptyAvailable/Hint`，零新增 i18n），版块不造假卡 ——
               与 `/campaign` 同一谓词、同一批任务。
-              「查看全部」指向活动列表 `/campaign`（旧 jobs 悬赏拉取已删 ⇒ 不再指 `/task`）。 */}
-          <section data-sf-m="home-camp">
+              「查看全部」指向活动列表 `/campaign`（旧 jobs 悬赏拉取已删 ⇒ 不再指 `/task`）。
+              ★ 2026-10-24（Kevin）：hero 整块删除后，其渐变背景（`bg-gradient-to-r
+              from-yellow-50 to-blue-50` + `rounded-2xl` + `p-8`）**只移到此容器** —— 零新类、
+              零新 token（类名均已在 `styles/tailwind-compat.css`），且**不加** `text-center`、
+              不加边框/阴影；钩子名 `home-camp` 不变（探针依赖）。 */}
+          <section data-sf-m="home-camp" className="bg-gradient-to-r from-yellow-50 to-blue-50 rounded-2xl p-8">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">{t('homePage.hotTasks')}</h2>

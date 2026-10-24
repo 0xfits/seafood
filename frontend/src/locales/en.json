@@ -424,19 +424,14 @@
     "listSeparator": ", "
   },
   "homePage": {
-    "welcome": "Welcome to Jinli Club",
     "loading": "Loading highlights...",
     "hotTasks": "Hot tasks",
     "hotTasksLead": "Complete tasks to earn",
     "featuredRewards": "Featured rewards",
     "featuredLead": "Redeem",
     "featuredTail": "for great gifts",
-    "heroLead": "Complete tasks, earn",
-    "heroTail": "and redeem great rewards",
     "noTasks": "No tasks available",
     "browseRewards": "Browse rewards",
-    "continueTask": "Continue tasks",
-    "registerNow": "Sign up now",
     "notEnoughPoints": "Not enough points",
     "redeemComingSoon": "The redemption portal is coming soon; check the Reward Center for details",
     "loadFailed": "Failed to load the home page: {{message}}"

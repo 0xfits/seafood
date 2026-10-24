@@ -424,19 +424,14 @@
     "listSeparator": ", "
   },
   "homePage": {
-    "welcome": "Chào mừng đến Jinli Club",
     "loading": "Đang tải nội dung...",
     "hotTasks": "Nhiệm vụ nổi bật",
     "hotTasksLead": "Tham gia nhiệm vụ để kiếm",
     "featuredRewards": "Phần thưởng nổi bật",
     "featuredLead": "Dùng",
     "featuredTail": "để đổi quà hấp dẫn",
-    "heroLead": "Tham gia nhiệm vụ, kiếm",
-    "heroTail": "và đổi phần thưởng hấp dẫn",
     "noTasks": "Chưa có nhiệm vụ",
     "browseRewards": "Xem phần thưởng",
-    "continueTask": "Tiếp tục nhiệm vụ",
-    "registerNow": "Đăng ký ngay",
     "notEnoughPoints": "Không đủ điểm",
     "redeemComingSoon": "Cổng đổi thưởng sắp ra mắt, vui lòng xem Trung tâm phần thưởng để biết chi tiết",
     "loadFailed": "Tải trang chủ thất bại: {{message}}"

@@ -54,11 +54,14 @@ describe('P6-I18N-LIT-B1 · en 档渲染英文文案', () => {
       </MemoryRouter>,
     )
 
-    expect(await screen.findByRole('heading', { name: 'Welcome to Jinli Club' })).toBeInTheDocument()
+    // ★ 2026-10-24（Kevin）：首页 hero 整块删除（标题 `homePage.welcome` + 两个 CTA 一并下线）
+    //   ⇒ 「Welcome to Jinli Club」与「Publish item」改为**零命中**；标题层级从 h2 起（首页零 h1）。
+    expect(screen.queryByRole('heading', { name: 'Welcome to Jinli Club' })).toBeNull()
     expect(await screen.findByRole('heading', { name: 'Hot tasks' })).toBeInTheDocument()
     expect(await screen.findByRole('heading', { name: 'Featured rewards' })).toBeInTheDocument()
     expect(screen.getAllByText('View all')).toHaveLength(1)
-    expect(screen.getByText('Publish item')).toBeInTheDocument()
+    expect(screen.queryByText('Publish item')).toBeNull()
+    expect(document.querySelector('h1')).toBeNull()
     // ★ HOME-CAMP-v1 去 mock：读口空（mock 恒 []）⇒ 热门任务版块走空态，**零假卡**
     //   （不再补 5 张 mock 卡）；空态文案取既有 `taskPage.emptyAvailable/Hint`。
     expect(document.querySelectorAll('[data-sf-m="home-camp-card"]')).toHaveLength(0)
@@ -99,7 +102,6 @@ describe('P6-I18N-LIT-B1 · 四语 locale 键集相等', () => {
       'common.communityPoints',
       'common.verifyingPermission',
       'common.ongoing',
-      'homePage.welcome',
       'homePage.loadFailed',
       'footer.websiteLanguages',
       'footer.contact',

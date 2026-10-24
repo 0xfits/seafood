@@ -424,19 +424,14 @@
     "listSeparator": "、"
   },
   "homePage": {
-    "welcome": "欢迎来到 Jinli Club",
     "loading": "正在加载精彩内容...",
     "hotTasks": "热门任务",
     "hotTasksLead": "参与任务赚取",
     "featuredRewards": "精选奖励",
     "featuredLead": "用",
     "featuredTail": "兑换精彩礼品",
-    "heroLead": "参与任务，赚取",
-    "heroTail": "，兑换精彩奖励",
     "noTasks": "暂无可用任务",
     "browseRewards": "查看奖励",
-    "continueTask": "继续任务",
-    "registerNow": "立即注册",
     "notEnoughPoints": "积分不足",
     "redeemComingSoon": "奖品兑换入口即将上线，请先前往奖励中心查看详情",
     "loadFailed": "加载首页失败: {{message}}"

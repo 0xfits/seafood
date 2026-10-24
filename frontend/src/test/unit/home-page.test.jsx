@@ -296,7 +296,7 @@ describe('HomePage · 去 animate-fade-in 容器（无包裹层）', () => {
 
   afterEach(() => { consoleWarnSpy.mockRestore() })
 
-  it('首页零 `animate-fade-in` 命中（hero 与商品卡均无容器）', async () => {
+  it('首页零 `animate-fade-in` 命中（版块与商品卡均无容器）', async () => {
     const { container } = renderHomePage()
     const grid = await waitFor(() => {
       const el = container.querySelector('[data-sf-m="feed-grid"]')
@@ -309,12 +309,26 @@ describe('HomePage · 去 animate-fade-in 容器（无包裹层）', () => {
     expect(container.querySelectorAll('[class*="animate-fade-in"]')).toHaveLength(0)
     expect(document.querySelectorAll('[class*="animate-fade-in"]')).toHaveLength(0)
 
-    // ② hero 直接是列表容器的首个元素子节点（原 `<FadeIn><section>` 的 wrapper 已去）
+    // ② 首页首块 = 【热门任务】（hero 已于 2026-10-24 整块删除）：首个子节点是 SlideUp 容器，
+    //   其内**直接**就是版块 `<section>`（原 `<FadeIn>` wrapper 不复存在 ⇒ 无中间动画层），
+    //   且 hero 的渐变背景**只迁移到这里**（`bg-gradient-to-r … rounded-2xl`，钩子名不变）。
     const list = container.querySelector('[data-sf-m="home-item-list"]')
     const firstEl = list.children[0]
-    expect(firstEl.tagName).toBe('SECTION')
-    expect(firstEl.className).toContain('rounded-2xl')
-    expect(firstEl.querySelector('h1')).not.toBeNull()
+    expect(firstEl.querySelectorAll('[class*="animate-fade-in"]')).toHaveLength(0)
+    const campSection = firstEl.querySelector('[data-sf-m="home-camp"]')
+    expect(campSection).not.toBeNull()
+    expect(firstEl.firstElementChild).toBe(campSection)
+    expect(campSection.className).toContain('rounded-2xl')
+    expect(campSection.className).toContain('bg-gradient-to-r')
+    expect(campSection.className).toContain('from-yellow-50')
+    expect(campSection.className).toContain('to-blue-50')
+    expect(campSection.className).toContain('p-8')
+    // 渐变只移「背景 + 圆角 + 内边距」：不带 text-center、不加边框/阴影
+    expect(campSection.className).not.toContain('text-center')
+    expect(campSection.className).not.toContain('shadow')
+    // 首页现**零 `<h1>`**（hero 标题已删；【热门任务】仍为 h2，钩子选择器依赖 h2）
+    expect(container.querySelector('h1')).toBeNull()
+    expect(campSection.querySelector('h2')).not.toBeNull()
   })
 
   it('商品卡根直落网格子项（无中间 wrapper）· 卡结构完整', async () => {

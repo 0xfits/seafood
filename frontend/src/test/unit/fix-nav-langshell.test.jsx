@@ -121,45 +121,66 @@ describe('F2 · buildLocalizedPath 站内链接构造器契约', () => {
   })
 })
 
-// ② F2 页面接线：首页发布入口链接形态（真渲染 HomePage；列表已并入首页）
+// ② F2 页面接线：首页站内链接语言前缀形态（真渲染 HomePage；列表已并入首页）
+//    ★ 2026-10-24（Kevin）：首页 hero 版块整块删除 ⇒ 发布入口 `/item/new` **不再从 UI 给出**
+//      （`home-publish-link` 钩子随之消失）。断言覆盖面不削弱、只换锚：
+//      ① 首页**零** `home-publish-link`（入口确已下线，不留隐藏链接 / 不留 `/item/new` 链接）；
+//      ② 语言前缀改由仍在页内的「查看全部 → `/campaign`」继续验（四档逐条）。
 // ============================================================================
-describe('F2 · 首页发布入口链接（真渲染 HomePage）', () => {
-  const publishHref = () => document.querySelector('[data-sf-m="home-publish-link"]')?.getAttribute('href')
+describe('F2 · 首页站内链接语言前缀（真渲染 HomePage）', () => {
+  const viewAllHref = () => [...document.querySelectorAll('a')]
+    .find((a) => (a.textContent || '').trim() === 'common.viewAll')?.getAttribute('href')
   const renderHome = (entry) => render(<MemoryRouter initialEntries={[entry]} future={EMPTY}><HomePage /></MemoryRouter>)
 
   beforeEach(() => { cleanup() })
 
-  it('en 档：发布入口 href = `/en/item/new`（无 undefined、无重复段）', async () => {
+  //   ★ 口径：本 describe **只渲染 HomePage**（Header / Footer / 壳层均已 mock）⇒ 断的是「首页自身」
+  //     不再给发布入口；壳层（底栏「卖闲置」/ 浮层菜单）的既有 `/item/new` 属全局导航，不在本单范围、未动。
+  it('首页零发布入口：`home-publish-link` 不存在，且本页无 `/item/new` 链接', async () => {
     renderHome('/en')
-    await screen.findByText('item.publish')
-    expect(publishHref()).toBe('/en/item/new')
-    expect(publishHref()).not.toContain('undefined')
-    expect(publishHref().match(/\/item\//g).length).toBe(1)
+    await screen.findByText('common.viewAll')
+    expect(document.querySelector('[data-sf-m="home-publish-link"]')).toBeNull()
+    expect(screen.queryByText('item.publish')).toBeNull()
+    const hrefs = [...document.querySelectorAll('a')].map((a) => a.getAttribute('href') || '')
+    expect(hrefs.some((href) => href.includes('/item/new'))).toBe(false)
   })
 
-  it('zh 档（无前缀）⇒ `/item/new`；hk/vn 档各带自身前缀', async () => {
+  it('en 档：查看全部 href = `/en/campaign`（无 undefined、无重复段）', async () => {
+    renderHome('/en')
+    await screen.findByText('common.viewAll')
+    expect(viewAllHref()).toBe('/en/campaign')
+    expect(viewAllHref()).not.toContain('undefined')
+    expect(viewAllHref().match(/\/campaign/g).length).toBe(1)
+  })
+
+  it('zh 档（无前缀）⇒ `/campaign`；hk/vn 档各带自身前缀', async () => {
     renderHome('/')
-    await screen.findByText('item.publish')
-    expect(publishHref()).toBe('/item/new')
+    await screen.findByText('common.viewAll')
+    expect(viewAllHref()).toBe('/campaign')
     cleanup()
 
     renderHome('/hk')
-    await screen.findByText('item.publish')
-    expect(publishHref()).toBe('/hk/item/new')
+    await screen.findByText('common.viewAll')
+    expect(viewAllHref()).toBe('/hk/campaign')
     cleanup()
 
     renderHome('/vn')
-    await screen.findByText('item.publish')
-    expect(publishHref()).toBe('/vn/item/new')
+    await screen.findByText('common.viewAll')
+    expect(viewAllHref()).toBe('/vn/campaign')
   })
 
-  it('同族链接一并纠正：发布入口不再 `/undefined/...`，且无重复段', async () => {
+  it('同族链接一并纠正：前缀位不含 `undefined`，且无重复路径段', async () => {
     renderHome('/en')
-    await screen.findByText('item.publish')
-    const href = publishHref()
+    await screen.findByText('common.viewAll')
+    const href = viewAllHref()
     expect(href).not.toContain('undefined')
     expect(href).not.toContain('//')
-    expect(href.match(/\/item\//g).length).toBe(1)
+    expect(href.match(/\/campaign/g).length).toBe(1)
+    // 全页站内链接同口径（不再只验单条）
+    for (const a of [...document.querySelectorAll('a')]) {
+      const h = a.getAttribute('href') || ''
+      expect(h, h).not.toContain('undefined')
+    }
   })
 })
 
