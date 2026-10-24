@@ -6235,7 +6235,7 @@ UPDATE public.users u SET uid = m.new_uid FROM ur_map m WHERE u.uid = m.old_uid 
 
 | 触发器 | 定义（文件:行） | 触发时机 | 本迁移是否受影响 | 结论 |
 |---|---|---|---|---|
-| `trg_ledger_entry_no_truncate` | `0043_truncate_guard.sql:63`（`ledger_entry_no_truncate()`）+ 同迁移的 `CREATE TRIGGER` | **`BEFORE TRUNCATE` · `FOR EACH STATEMENT`** | **不触发** —— 本迁移**零 `TRUNCATE`** | **无需动**（保持 `tgenabled='O'`） |
+| `trg_ledger_entry_no_truncate` | `0043_truncate_guard.sql:63-67`（`ledger_entry_no_truncate()`）＋ `:159-161`（`CREATE TRIGGER … BEFORE TRUNCATE … FOR EACH STATEMENT`） | **`BEFORE TRUNCATE` · `FOR EACH STATEMENT`** | **不触发** —— 本迁移**零 `TRUNCATE`** | **无需动**（保持 `tgenabled='O'`） |
 | `trg_ledger_entry_append_only` | `0001:119-127`（`ledger_entry_append_only()`：`RAISE EXCEPTION 'ledger_entry is append-only: % forbidden'`）+ `BEFORE UPDATE OR DELETE · FOR EACH ROW` | **`BEFORE UPDATE OR DELETE`** | **★ 直接拦死** `UPDATE ledger_entry SET uid=…` | **必须 `DISABLE`（Kevin `K4` 已授权）**，**提交前 `ENABLE`** |
 | `trg_ledger_entry_commission_conservation` | `0007:317-360`（函数体 `0007:318-350`，`0011:81` 重写）+ `CREATE CONSTRAINT TRIGGER … AFTER INSERT … DEFERRABLE INITIALLY DEFERRED` | **`AFTER INSERT` only**（`FOR EACH ROW`，**可延迟**） | **不触发** —— 本迁移对 `ledger_entry` **只发 `UPDATE`**，从不 `INSERT` | **无需动** |
 
