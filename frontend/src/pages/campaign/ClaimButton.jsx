@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import toast from 'react-hot-toast'
+import { toastCredit } from '../../toast-credit'
 import { claimCampaignAll, claimSubtaskReward, claimTaskReward } from './campaign-api'
 import { isBattInsufficient, isNothingToClaim } from './campaign-util'
 
@@ -63,12 +63,11 @@ const ClaimButton = ({
       const result = await claim(String(refId).trim(), user)
       if (variant === 'campaign') {
         const claimed = Array.isArray(result?.claimed) ? result.claimed : []
-        toast.success(
-          t('campaign.claim.allOk', { n: claimed.length, amount: result?.total_primary ?? 0 }),
-          { duration: 5000 }
-        )
+        // ★ 2026-10-24 Toast 双轨：一键全领 = 余额增加类 ⇒ `toastCredit`（页面正中 / 18px / 5s）
+        toastCredit(t('campaign.claim.allOk', { n: claimed.length, amount: result?.total_primary ?? 0 }))
       } else {
-        toast.success(t('campaign.claim.ok', { amount: result?.amount ?? 0 }), { duration: 5000 })
+        // ★ 2026-10-24 Toast 双轨：单笔领奖 = 余额增加类 ⇒ `toastCredit`
+        toastCredit(t('campaign.claim.ok', { amount: result?.amount ?? 0 }))
       }
       // ★ 2026-10-24：成功改 Toast（挂在 `main.jsx` 顶层，跨路由/卸载存活）⇒ 原先
       //   「先让用户看见内联金额、再延时 900ms 重拉」的理由已不存在，直接复读。

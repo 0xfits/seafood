@@ -348,7 +348,8 @@ describe('⑤ 子任务行【领取】', () => {
     await waitFor(() => expect(TOAST.success).toHaveBeenCalledTimes(1))
     const [msg, opts] = TOAST.success.mock.calls[0]
     expect(msg).toBe('已领取 $5')
-    expect(opts).toEqual({ duration: 5000 })
+    // ★ 2026-10-24 Toast 双轨：余额增加类 ⇒ `toastCredit`（正中 / 18px / 5s）
+    expect(opts).toEqual(expect.objectContaining({ duration: 5000, position: 'top-center', className: 'sf-toast-credit' }))
     expect(TOAST.error).not.toHaveBeenCalled()
     expect(q('task-subtask-claim-btn-notice')).toBeNull()
     const call = callsTo(fetchMock, '/api/campaign/subtask/9001/claim')[0]
@@ -384,7 +385,8 @@ describe('⑤ 任务完成奖【领取】', () => {
     await waitFor(() => expect(TOAST.success).toHaveBeenCalledTimes(1))
     const [msg, opts] = TOAST.success.mock.calls[0]
     expect(msg).toBe('已领取 $15')
-    expect(opts).toEqual({ duration: 5000 })
+    // ★ 2026-10-24 Toast 双轨：余额增加类 ⇒ `toastCredit`（正中 / 18px / 5s）
+    expect(opts).toEqual(expect.objectContaining({ duration: 5000, position: 'top-center', className: 'sf-toast-credit' }))
     expect(q('task-reward-claim-btn-notice')).toBeNull()
     const call = callsTo(fetchMock, '/api/campaign/task/1/claim')[0]
     expect(call[1].method).toBe('POST')
@@ -409,7 +411,8 @@ describe('⑤⑥ 活动级【一键领取】', () => {
     await waitFor(() => expect(TOAST.success).toHaveBeenCalledTimes(1))
     const [msg, opts] = TOAST.success.mock.calls[0]
     expect(msg).toBe('已领取 2 项，共 $15')
-    expect(opts).toEqual({ duration: 5000 })
+    // ★ 2026-10-24 Toast 双轨：余额增加类 ⇒ `toastCredit`（正中 / 18px / 5s）
+    expect(opts).toEqual(expect.objectContaining({ duration: 5000, position: 'top-center', className: 'sf-toast-credit' }))
     expect(q('campaign-claim-all-notice')).toBeNull()
     // ★ 一次点击共扣 1 电量 ⇒ 请求恰 1 条，且没有任何 per-item 的 claim 子路径
     expect(callsTo(fetchMock, '/claim')).toHaveLength(1)

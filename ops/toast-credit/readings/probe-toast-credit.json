@@ -1,0 +1,317 @@
+{
+  "meta": {
+    "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+    "origin": "http://sf.local",
+    "startedAt": "2026-10-24T06:17:59.833Z",
+    "fixture": "in-page route interception (zero backend / zero db write)"
+  },
+  "states": {
+    "creditDesktop": {
+      "vw": 1536,
+      "vh": 960,
+      "host": {
+        "zIndex": "50",
+        "position": "fixed",
+        "top": "16px",
+        "left": "16px",
+        "right": "16px"
+      },
+      "credit": {
+        "text": "已领到 ⚡️ 3 与 10 $",
+        "className": "go2072408551 sf-toast-credit",
+        "rect": {
+          "left": 640.1,
+          "top": 323.2,
+          "right": 895.8,
+          "bottom": 387.5,
+          "width": 255.7,
+          "height": 64.3,
+          "cx": 768,
+          "cy": 355.3
+        },
+        "wrapRect": {
+          "left": 16,
+          "top": 16,
+          "right": 1520,
+          "bottom": 387.5,
+          "width": 1504,
+          "height": 371.5,
+          "cx": 768,
+          "cy": 201.7
+        },
+        "fontSize": "18px",
+        "fontWeight": "700",
+        "color": "rgb(10, 10, 10)",
+        "background": "rgb(255, 255, 255)",
+        "borderTopWidth": "2px",
+        "borderTopColor": "rgb(10, 10, 10)",
+        "boxShadow": "rgba(0, 0, 0, 0.32) 0px 0px 26px 0px",
+        "animationName": "none",
+        "hCenterDev": 0,
+        "vCenterRatio": 0.37
+      },
+      "ordinary": [
+        {
+          "text": "已领到 ⚡️ 3 与 10 $",
+          "className": "go3958317564",
+          "rect": {
+            "left": 694.1,
+            "top": 343.2,
+            "right": 861.8,
+            "bottom": 367.5,
+            "width": 167.7,
+            "height": 24.3,
+            "cx": 778,
+            "cy": 355.3
+          },
+          "fontSize": "18px",
+          "rightGap": 674.2
+        }
+      ],
+      "ordinaryFontSize": "18px",
+      "theme": "light",
+      "tokenProbe": {
+        "pageFg": "#0a0a0a",
+        "surfaceBg": "#fff"
+      }
+    },
+    "creditMobile": {
+      "vw": 390,
+      "vh": 844,
+      "host": {
+        "zIndex": "50",
+        "position": "fixed",
+        "top": "16px",
+        "left": "16px",
+        "right": "16px"
+      },
+      "credit": {
+        "text": "已领到 ⚡️ 3 与 10 $",
+        "className": "go2072408551 sf-toast-credit",
+        "rect": {
+          "left": 67.1,
+          "top": 286.1,
+          "right": 322.8,
+          "bottom": 350.4,
+          "width": 255.7,
+          "height": 64.3,
+          "cx": 195,
+          "cy": 318.2
+        },
+        "wrapRect": {
+          "left": 16,
+          "top": 16,
+          "right": 374,
+          "bottom": 350.4,
+          "width": 358,
+          "height": 334.4,
+          "cx": 195,
+          "cy": 183.2
+        },
+        "fontSize": "18px",
+        "fontWeight": "700",
+        "color": "rgb(10, 10, 10)",
+        "background": "rgb(255, 255, 255)",
+        "borderTopWidth": "2px",
+        "borderTopColor": "rgb(10, 10, 10)",
+        "boxShadow": "rgba(0, 0, 0, 0.32) 0px 0px 26px 0px",
+        "animationName": "none",
+        "hCenterDev": 0,
+        "vCenterRatio": 0.377
+      },
+      "ordinary": [
+        {
+          "text": "已领到 ⚡️ 3 与 10 $",
+          "className": "go3958317564",
+          "rect": {
+            "left": 121.1,
+            "top": 306.1,
+            "right": 288.8,
+            "bottom": 330.4,
+            "width": 167.7,
+            "height": 24.3,
+            "cx": 205,
+            "cy": 318.2
+          },
+          "fontSize": "18px",
+          "rightGap": 101.2
+        }
+      ],
+      "ordinaryFontSize": "18px",
+      "theme": "light",
+      "tokenProbe": {
+        "pageFg": "#0a0a0a",
+        "surfaceBg": "#fff"
+      }
+    },
+    "ordinary": {
+      "vw": 1536,
+      "vh": 960,
+      "host": {
+        "zIndex": "9999",
+        "position": "fixed",
+        "top": "16px",
+        "left": "16px",
+        "right": "16px"
+      },
+      "credit": null,
+      "ordinary": [
+        {
+          "text": "邀请人绑定成功",
+          "className": "go3958317564",
+          "rect": {
+            "left": 1388,
+            "top": 28,
+            "right": 1500,
+            "bottom": 48.8,
+            "width": 112,
+            "height": 20.8,
+            "cx": 1444,
+            "cy": 38.4
+          },
+          "fontSize": "16px",
+          "rightGap": 36
+        }
+      ],
+      "ordinaryFontSize": "16px",
+      "theme": "light",
+      "tokenProbe": {
+        "pageFg": "#0a0a0a",
+        "surfaceBg": "#fff"
+      }
+    },
+    "creditDark": {
+      "vw": 1536,
+      "vh": 960,
+      "host": {
+        "zIndex": "50",
+        "position": "fixed",
+        "top": "16px",
+        "left": "16px",
+        "right": "16px"
+      },
+      "credit": {
+        "text": "已领到 ⚡️ 3 与 10 $",
+        "className": "go2072408551 sf-toast-credit",
+        "rect": {
+          "left": 640.1,
+          "top": 323.2,
+          "right": 895.8,
+          "bottom": 387.5,
+          "width": 255.7,
+          "height": 64.3,
+          "cx": 768,
+          "cy": 355.3
+        },
+        "wrapRect": {
+          "left": 16,
+          "top": 16,
+          "right": 1520,
+          "bottom": 387.5,
+          "width": 1504,
+          "height": 371.5,
+          "cx": 768,
+          "cy": 201.7
+        },
+        "fontSize": "18px",
+        "fontWeight": "700",
+        "color": "rgb(232, 234, 237)",
+        "background": "rgb(16, 17, 20)",
+        "borderTopWidth": "2px",
+        "borderTopColor": "rgb(232, 234, 237)",
+        "boxShadow": "rgba(0, 0, 0, 0.32) 0px 0px 26px 0px",
+        "animationName": "none",
+        "hCenterDev": 0,
+        "vCenterRatio": 0.37
+      },
+      "ordinary": [
+        {
+          "text": "已领到 ⚡️ 3 与 10 $",
+          "className": "go3958317564",
+          "rect": {
+            "left": 694.1,
+            "top": 343.2,
+            "right": 861.8,
+            "bottom": 367.5,
+            "width": 167.7,
+            "height": 24.3,
+            "cx": 778,
+            "cy": 355.3
+          },
+          "fontSize": "18px",
+          "rightGap": 674.2
+        }
+      ],
+      "ordinaryFontSize": "18px",
+      "theme": "dark",
+      "tokenProbe": {
+        "pageFg": "#e8eaed",
+        "surfaceBg": "#101114"
+      }
+    }
+  },
+  "assertions": {
+    "credit.desktop.present": true,
+    "credit.desktop.class": true,
+    "credit.desktop.hasText": true,
+    "credit.desktop.hCenterDevLe2px": true,
+    "credit.desktop.vCenterIn25to55": true,
+    "credit.mobile.hCenterDevLe2px": true,
+    "credit.mobile.vCenterIn25to55": true,
+    "credit.desktop.fontSizeGe18": true,
+    "credit.mobile.fontSizeGe18": true,
+    "credit.dark.fontSizeGe18": true,
+    "credit.desktop.hostZ50": true,
+    "credit.desktop.hostBelowModal60": true,
+    "ordinary.present": true,
+    "ordinary.topLt120": true,
+    "ordinary.rightHalf": true,
+    "ordinary.fontSizeUnchanged16": true,
+    "ordinary.hostZ9999": true,
+    "ordinary.notCreditClass": true,
+    "dark.themeApplied": true,
+    "dark.colorIsPageFg": true,
+    "dark.bgIsSurface": true,
+    "dark.hCenterDevLe2px": true,
+    "pageerror.zero": true
+  },
+  "counts": {
+    "checks": 23,
+    "passed": 23,
+    "failed": 0,
+    "pageerror": 0,
+    "consoleErrors": 0
+  },
+  "readings": {
+    "desktop": {
+      "hCenterDev": 0,
+      "vCenterRatio": 0.37,
+      "fontSize": "18px",
+      "hostZ": "50",
+      "text": "已领到 ⚡️ 3 与 10 $"
+    },
+    "mobile": {
+      "hCenterDev": 0,
+      "vCenterRatio": 0.377,
+      "fontSize": "18px"
+    },
+    "dark": {
+      "color": "rgb(232, 234, 237)",
+      "background": "rgb(16, 17, 20)",
+      "fontSize": "18px",
+      "hCenterDev": 0,
+      "vCenterRatio": 0.37,
+      "theme": "dark"
+    },
+    "ordinary": {
+      "top": 28,
+      "rightGap": 36,
+      "fontSize": "16px",
+      "hostZ": "9999"
+    }
+  },
+  "errors": {
+    "pageerror": [],
+    "console": []
+  }
+}

@@ -19,7 +19,7 @@
 // ============================================================================
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import toast from 'react-hot-toast'
+import { toastCredit } from '../../toast-credit'
 import { useAuth } from '../../auth-context'
 import { postBttcMint } from '../../bttc-api'
 import { mintShortfallOf } from '../../components/BttcAssetPanel'
@@ -50,7 +50,8 @@ const WageMintEntry = ({ batt, reload }) => {
     try {
       await postBttcMint({ user })
       // ★ T126：资金余额变动类成功反馈 = Toast（一条，5s）；卡内不写成功文案。
-      toast.success(t('bttcPanel.mintOk'), { duration: 5000 })
+      // ★ 2026-10-24 Toast 双轨：铸造到账（BTTC +1）= 余额增加类 ⇒ 单一出口 `toastCredit`。
+      toastCredit(t('bttcPanel.mintOk'))
       // 重拉同一读口 ⇒ 电量点阵、BTTC 余额与缺口一起刷新（不本地减算）。
       if (typeof reload === 'function') await reload()
     } catch (err) {

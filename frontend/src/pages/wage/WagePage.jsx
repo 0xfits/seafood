@@ -8,7 +8,7 @@ import WageMintEntry from './WageMintEntry'
 import { applyToWageProject, claimWage, fetchWageCurrencies, fetchWageProjects } from './wage-api'
 import { projectHrefOf } from '../../project-slug'
 import { avatarInitialOf, avatarToneOf } from '../../avatar-tone'
-import toast from 'react-hot-toast'
+import { toastCredit } from '../../toast-credit'
 import './wage.css'
 
 // ============================================================================
@@ -361,7 +361,8 @@ const WagePage = () => {
       //   · `<Toaster/>` 挂在 `main.jsx` 顶层 ⇒ 重拉列表不会把它带走，无需等待即可刷新；
       //   · 先清掉该卡旧提示（上一轮失败 / 登录提示不得留在成功背后像一次失败的余影）。
       setNotice(key, null)
-      toast.success([text, streakText].filter(Boolean).join(' '), { duration: 5000 })
+      // ★ 2026-10-24 Toast 双轨：领工资 = **余额增加类** ⇒ 走单一出口 `toastCredit`（页面正中 / 18px / 5s）。
+      toastCredit([text, streakText].filter(Boolean).join(' '))
       // 刷新列表拿服务端**新的** `next_claim_at`（下次可领时间的真源）。
       const refreshed = await load({ silent: true })
       const fresh = Array.isArray(refreshed) ? refreshed.find((item) => projectKey(item) === key) : null

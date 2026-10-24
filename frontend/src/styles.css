@@ -34,6 +34,47 @@
    具体性 (0,2,0) ＞ shell.css 767 块内 .sf-tabbar 的 (0,1,0) ⇒ 竖屏档亦被隐藏，无需第二处规则。 */
 .sf-tabbar.is-detail{display:none}
 
+/* ===== §40 / T139（design-system.spec v1.39）· **余额增加类 Toast 双轨的强化档**
+   Kevin 2026-10-24 裁定：余额增加类成功提示 = **页面正中 + 字号放大 + 更醒目**（普通提示类与
+   余额减少类保持右上角 14px 一字不改）。唯一出口 = `frontend/src/toast-credit.js` 的 `toastCredit`
+   （位置 / 时长 / 类名 / 内联几何都在那里，本 .sf-toast-credit 只管**视觉**）。
+   落点 = 本文件**顶层**（@import 段之后、`@theme` 之外；不入 @layer）——与 §25 `T121` / §19 `T95` 同法。
+   · **零新主题 token**：颜色只取既有 `--sf-page-fg` / `--sf-surface-bg`，描边宽只取 `--sf-st-stroke-w-strong`；
+     日档 = 白底黑字黑硬阴影，夜档随 token 自动翻成深底亮字亮描边（同一份规则，无 `[data-theme]` 分支）；
+   · 字号 18px 承派单硬口径（≥18px），`!important` 是为压过 react-hot-toast 写在内联 style 上的默认值；
+   · 入场 = 轻微缩放（0.92 → 1）＋淡入；`prefers-reduced-motion: reduce` 下**整段禁用**（不动位移）；
+   · 层级：模态框实测 `.sf-project-modal` / `.sf-wage-modal` = **z-index 60**，故强化 toast 容器取 **50**
+     （高于底栏 4 / `.sf-fm` 6 / 数量弹层 20 / 市场下拉 30，**低于模态框 60**）。react-hot-toast 2.6.0 把
+     `zIndex: 9999` 写成容器内联值、且容器本身即叠加上下文 ⇒ 单条 toast 的 z-index 无法越出容器，
+     **只能**把容器压下来；而 `:has()` 让这一压**只在该强化 toast 在场时生效** ——
+     普通 toast 单独在场时容器仍是 9999，**零变化**（这是「双轨互不借道」的物理保证）。 */
+.sf-toast-credit {
+  font-size: 18px !important;
+  line-height: 1.35 !important;
+  font-weight: 700 !important;
+  color: var(--sf-page-fg) !important;
+  background: var(--sf-surface-bg) !important;
+  border: var(--sf-st-stroke-w-strong) solid var(--sf-page-fg) !important;
+  /* 阴影只许**零偏移**：本仓 `s22-decor-cleanup` ④ 把「非 inset 且 x/y ≠ 0 的层」判负（命中须为 0），
+     且零偏移环 `0 0 0 Npx` 的**出现次数**也被冻结 ⇒ 用柔光投影（无位移、无 spread）＋ 外描边圈。 */
+  box-shadow: 0 0 26px rgba(0, 0, 0, 0.32) !important;
+  outline: var(--sf-st-stroke-w-strong) solid var(--sf-page-fg);
+  outline-offset: 3px;
+  text-align: center;
+  animation: sf-toast-credit-in 220ms cubic-bezier(.21,1.02,.73,1) both;
+}
+
+@keyframes sf-toast-credit-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sf-toast-credit { animation: none !important; }
+}
+
+[data-rht-toaster]:has(.sf-toast-credit) { z-index: 50 !important; }
+
 /* 原 index.html 运行期 `tailwind.config` 的 theme.extend.colors 六项 → v4 CSS-first `@theme`。
    运行期 config 没有 fonts / screens / borderRadius / darkMode 等其它键，故迁移项 = 6 项（无遗漏）。 */
 @theme {

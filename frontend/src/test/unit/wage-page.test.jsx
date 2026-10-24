@@ -373,7 +373,8 @@ describe('/wage ② 加入 / 领工资行为', () => {
     await waitFor(() => expect(TOAST.success).toHaveBeenCalledTimes(1))
     const [msg, opts] = TOAST.success.mock.calls[0]
     expect(msg).toBe(zh.wage.claimed.replace('{{batt}}', '30'))
-    expect(opts).toEqual({ duration: 5000 })
+    // ★ 2026-10-24 Toast 双轨：余额增加类 ⇒ `toastCredit`（正中 / 18px / 5s）
+    expect(opts).toEqual(expect.objectContaining({ duration: 5000, position: 'top-center', className: 'sf-toast-credit' }))
     expect(TOAST.error).not.toHaveBeenCalled()
     // 模态框整体撤掉：DOM 里不得再出现该钩子（portal 到 body，故在 document 上取）
     expect(document.querySelector('[data-sf-m="wage-claim"]')).toBeNull()
@@ -406,7 +407,8 @@ describe('/wage ② 加入 / 领工资行为', () => {
     expect(msg).toBe(`${main} ${streak}`)
     expect(msg).toContain('已连续 3 次')
     expect(msg).toContain('$5')
-    expect(opts).toEqual({ duration: 5000 })
+    // ★ 2026-10-24 Toast 双轨：余额增加类 ⇒ `toastCredit`（正中 / 18px / 5s）
+    expect(opts).toEqual(expect.objectContaining({ duration: 5000, position: 'top-center', className: 'sf-toast-credit' }))
     expect(TOAST.success).toHaveBeenCalledTimes(1)
   })
 
@@ -810,7 +812,9 @@ describe('/wage ⑦ 页顶两列 / 当前项目卡 / 铸造入口', () => {
     // 成功 ⇒ 一条 Toast（T126 · duration 5000）；卡内零成功文案
     await waitFor(() => expect(TOAST.success).toHaveBeenCalledTimes(1))
     expect(TOAST.success.mock.calls[0][0]).toBe(zh.bttcPanel.mintOk)
-    expect(TOAST.success.mock.calls[0][1]).toEqual({ duration: 5000 })
+    expect(TOAST.success.mock.calls[0][1]).toEqual(
+      expect.objectContaining({ duration: 5000, position: 'top-center', className: 'sf-toast-credit' })
+    )
     expect(TOAST.error).not.toHaveBeenCalled()
     expect(container.querySelector('[data-sf-m="wage-mint-err"]')).toBeNull()
     // 成功后重拉同一读口（电量点阵 / 余额 / 缺口同源刷新）

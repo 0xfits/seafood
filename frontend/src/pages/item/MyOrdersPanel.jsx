@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
 import { getLanguageFromUrl } from '../../utils'
 import { fetchMyListingOrders, refundListingOrder, shipListingOrder, receiveListingOrder } from './item-api'
+import { toastCredit } from '../../toast-credit'
 import './item.css'
 
 // ============================================================================
@@ -65,7 +66,10 @@ const MyOrdersPanel = ({ listHook = 'item-orders', emptyHook = 'item-orders-empt
     setRefund({ phase: 'loading', message: t('jobs.submitting') })
     try {
       await refundListingOrder(id, user) // 键 = 服务端派生 ⇒ 不传
-      setRefund({ phase: 'ok', message: t('item.refundOk') })
+      // ★ 2026-10-24 Toast 双轨（承 T126 / T139）：退款到账 = **余额增加类** ⇒ 成功只走
+      //   `toastCredit`（页面正中 / 18px / 5s），卡内**不写**成功文案；失败仍内联（下方 catch）。
+      toastCredit(t('item.refundOk'))
+      setRefund({ phase: 'ok', message: '' })
       await loadOrders()
     } catch (error) {
       setRefund({ phase: 'error', message: String(error?.message || t('error')) })
@@ -85,7 +89,16 @@ const MyOrdersPanel = ({ listHook = 'item-orders', emptyHook = 'item-orders-empt
       const statusRaw = String(data?.status ?? '')
       const statusKey = ORDER_STATUS_KEYS.includes(statusRaw) ? statusRaw : 'unknown'
       const base = action === 'ship' ? t('listingOrders.shipOk') : t('listingOrders.receiveOk')
-      setOrderAction({ phase: 'ok', message: `${base} · ${t(`listingOrders.statusLabel.${statusKey}`)}` })
+      const okText = `${base} · ${t(`listingOrders.statusLabel.${statusKey}`)}`
+      if (action === 'ship') {
+        // 发货**不在**「余额增加类」名单（T139 逐条清单）⇒ 内联照旧，一字不改
+        setOrderAction({ phase: 'ok', message: okText })
+      } else {
+        // ★ 2026-10-24 Toast 双轨（T139）：确认收货 = **卖方货款入账** = 余额增加类
+        //   ⇒ 成功只走 `toastCredit`（页面正中 / 18px / 5s），卡内零成功文案；失败仍内联。
+        toastCredit(okText)
+        setOrderAction({ phase: 'ok', message: '' })
+      }
     } catch (error) {
       setOrderAction({ phase: 'error', message: String(error?.message || t('listingOrders.actionFail')) })
     }
