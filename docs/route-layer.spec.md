@@ -432,9 +432,12 @@
 > **状态：v2.43（契约冻结 · **首页商品分页（`FEED-PAGING-v1`）+「列表只出 `listed`」行为变更**：★★ 商品统一走 `GET /api/prize/all?skip=<n>&limit=36`（**`PAGE_SIZE = 36`** · 首屏 `skip=0`）· 滑到底续拉 **36/页**、命中 **`< 36` 或空**即终止 · **`bID` 去重** · 失败可重试（保留已加载行、不自动重试）· **`/api/home` 只再用 `tasks` / `user_points` / `claimed_prize_ids`（响应形状不动）** · ★ **后端 `listBrands` 加 `WHERE l.status='listed'`**（`draft` / `delisted` 不再进任何列表读口 = **行为变更**；详情口 `getBrandById` **不过滤、不动**）· 排序仍 **§49 综合排序**（`score DESC, time_created DESC, listing_id DESC`）· **零新路由（注册点 110）· 零迁移 · 零响应键变化 · 位置分页语义不变** · 正文 = **§49.8**）（**只追加 · §1–§49.7 一字未动** · 本笔零代码（只写 `docs/**` + `ops/feed-paging/SPEC-NOTE.md`））** · 作者角色 = **Jing（Specifier · 制度员）** · 单号 = **JING-SPEC-FEED-PAGING**
 > **v2.43 修订入口**：逐条 delta → 依据锚点 → 改动点 = **本册 §49.8**（**不建独立 delta 件**，承 v2.29 / v2.30 / v2.32 / v2.35–v2.42 先例）；姊妹册 = `master-plan` **§5.426** + `OPEN-ITEMS`（**`B37`**）+ 交付件 `ops/feed-paging/SPEC-NOTE.md`。**实现面状态 = 在改未提交（必须披露）**：编制时点 `backend-ts/src/database.ts` / `frontend/src/pages/HomePage.jsx` 均为 `M`（Kong 同单在跑）⇒ 本册只登记**契约**；行号一律标「编制时点现取」，漂移时以**符号名 `listBrands` / 常量名 `FEED_PAGE_SIZE`** 为锚。
 > **★★ v2.43 本单要点（先说结论，不含糊）**：① **契约 = 单一分页读口**（36/页 · `skip` 递增 · 终止 = 某页 `< 36` 或空）⇒ **不再存在「首页 8 条聚合口」与「36 条分页口」两份实现**（`/api/home` 的 `prize_limit` 参数保留、首页不再消费其 `prizes`）；② **`/api/home` 形状不动** —— 首页只再用 `tasks` / `user_points` / `claimed_prize_ids` 三面（**判负 #5**）；③ **「只列 `listed`」是行为变更、不是纯前端改动**：`listBrands` 同时服务 `/api/home` 与 `/api/prize/all` ⇒ 两读口**同批生效**，`draft` / `delisted` 从两个列表读口一并消失；④ **去重按 `bID`**（位置分页 + 综合分漂移 ⇒ 相邻页可能重叠，v1 用客户端首见去重兜住、**不承诺「无重复」以外的更强保证**）；⑤ **分页与排序的稳定性**：`score` 随 `now()` 与评分变化 ⇒ 跨页可能出现**微量漂移（重 / 漏）**，**v1 明确接受**，彻底解 = keyset / 快照 ⇒ 挂 `OPEN-ITEMS` **`B37`**（另立单）；⑥ **判负 5 条**（首个响应非 36 条且库内 `listed ≥ 36` / 滑动后卡数不增 / 重复 `bID` / `draft` 出现在列表 / `/api/home` 形状变更）。
-> **状态：v2.47（契约变更 · **`/task` 页【审核入口】与 `/task/review` 路由链整条下线 —— 入口 / 路由 / 页面 / 仅它用的 API 层**四处全删**；**后端口逐字保留**（`GET /api/tasklist/pending-verification`〔+ `/count`〕/ `POST /api/job/:jobId/review`），**审核动作仍由 `/dashboard` 审核面板承担**；**零新路由 ⇒ 注册点不变 · 零新错误码 · 零迁移 · 零 i18n 键增删（1451 × 4）** · 正文 = **§49.20**）（**v2.44–v2.46 承各自条文「头注不改写」故无头注块；本块按「升序接放」落在 v2.43 块之后** · 本笔只写 `docs/**`）** · 作者角色 = **Zang（Specifier · 制度员）**
+> **状态：v2.47（契约变更 · **`/task` 页【审核入口】与 `/task/review` 路由链整条下线 —— 入口 / 路由 / 页面 / 仅它用的 API 层**四处全删**；**后端口逐字保留**（`GET /api/tasklist/pending-verification`〔+ `/count`〕/ `POST /api/job/:jobId/review`），**审核动作仍由 `/dashboard` 审核面板承担** · ★★ **行内勘误（v2.48 · 2026-10-24）：后端注册点现已不存在：于 `43ea14a`（2026-10-21，job 领域下线）随 21 条路由一并删除；生产三 URL 实测 404（`LEDGER_REF_NOT_FOUND` / `ref_type=endpoint`），对照 `/api/currencies` `/api/home` 均 200**（旧句逐字保留、删除列 = 0）；**零新路由 ⇒ 注册点不变 · 零新错误码 · 零迁移 · 零 i18n 键增删（1451 × 4）** · 正文 = **§49.20**）（**v2.44–v2.46 承各自条文「头注不改写」故无头注块；本块按「升序接放」落在 v2.43 块之后** · 本笔只写 `docs/**`）** · 作者角色 = **Zang（Specifier · 制度员）**
 > **v2.47 修订入口**：逐条 delta → 依据锚点 → 改动点 = **本册 §49.20**（**不建独立 delta 件**，承 v2.29 / v2.30 / v2.32 / v2.35–v2.43 先例）；姊妹册 = `master-plan` **§5.453 / 版本行 v0.372**。**实现面 = 同一工作区 19 路径（18 M/D + 1 新增测试）** ⇒ 本笔**不重跑门、不改代码**、只做登记性回写。
 > **★★ v2.47 本单要点（先说结论，不含糊）**：① **四处全删**（入口 `TaskPage` 页头条 / 路由 `<Route path="task/review">` / 页面 `JobReviewPage.jsx` / 仅它用的 `job-api.js`）；② **四处不动**（后端两口 / `/dashboard` 消费方 / `jobs.css` / `jobs.review`·`jobs.reviewNote` 四语键）；③ **可达性写死** = `/task/review` 落 `task/:taskId` 纯数字闸 ⇒ `NotFoundPage`、**零请求**；④ **计数前推 `42/34/20` ⇒ `44/36/26`**（本笔 −1、三相各减一；旧值留痕）；⑤ **零残留测试 6 条**（静态读盘，含「i18n 键保留不删」与「后端口仍被 `/dashboard` 消费」两条正向钉死）；⑥ **门读数（Kong 现取，本笔不重跑）** = unit **96 files / 1052 tests / 0 failed** · a11y **1/16** · components **2/14** · build **exit 0** ⇒ `index-MDbv434L.js` **669,122 B** / `index-DiYi9BAn.css` **188,986 B**。
+> **状态：v2.48（行为变更 · **`/dashboard` 审核面板整块下线 —— 前后端两侧已无「Task Progress 审批」面**：读口（tasklist pending 队列 + 其 `/count`）· 写口（`handleVerifyTask` → 单条提交的 verify 子路径）· 面板 UI（搜索框 / 通过驳回钮 / 队列摘要 / 空态）· 队列 state 与派生函数（`resolvePendingVerificationCount` / `filteredPendingTasks` / `visiblePendingTasks` / `pendingVerificationTasks` / `reviewQuery` / `showAllPending` / `processingTaskId` / `refreshing`）**四类一并拆除**；仪表盘其余面板（用户 / 管理员 / 积分 / 奖品 四卡 + 管理入口 + 角色徽标）**一字未动**；**零新路由 ⇒ 注册点不变 · 零新错误码 · 零迁移 · 零 i18n 键增删（1451 × 4）** · 正文 = **§49.21**）（**插于 v2.47 块之后（升序接放）** · 本笔只写 `docs/**`）** · 作者角色 = **Zang（Specifier · 制度员）**
+> **v2.48 修订入口**：逐条 delta → 依据锚点 → 改动点 = **本册 §49.21**（**不建独立 delta 件**，承 v2.29–v2.47 先例）；姊妹册 = `master-plan` **§5.455 / 版本行 v0.374**。**实现面 = 同一工作区 7 路径**（1 M 页面 + 3 M 单测 + 1 M 探针 + 2 M 文档）；门读数由本笔同轮现取（§49.21.5）。
+> **★★ v2.48 本单要点（先说结论，不含糊）**：① **假前提就地订正**：v2.47 写的「后端口逐字保留 / 审核动作仍由 `/dashboard` 承担」**两层皆假** —— 后端口已于 `43ea14a`（2026-10-21）删除（生产三 URL 404），面板早已只显示「加载失败」；② **前端不留死面板** ⇒ 读口 / 写口 / UI / state **四类全删**；③ **i18n 键保留不删**（`dashPage.*` 审核相关键四语俱在，flat **1451 × 4** 不动；新成孤儿的键**逐键登记、不删**）；④ **单测改锚 + 反转**（`task-review-removed` 第⑥条反转为「前端零残留」+ 新增第⑦条「后端注册点现取不存在」；`dashboard-page` 面板在场三例改锚 / 删除，逐条列因）；⑤ **探针补 `/task/review` 落 404 臂**（含 `en` / `hk` / `vn` 三前缀档）；⑥ **门读数（本笔现取）** = unit **96 files / 1054 tests / 0 failed** · a11y **1 file / 16 tests** · components **2 files / 14 tests** · build **exit 0** ⇒ `index-BbdcISCd.js` **661,246 B** / `index-CsvmqOIr.css` **188,773 B**。
 
 
 > **v2.19 修订入口**：逐条 delta → 依据锚点 → 改动点 = `docs/audit/route-layer-v2.19-delta.md`（**同批姊妹册** = `docs/audit/data-layer-v0.26-delta.md` + `docs/audit/commission-v0.4-delta.md`）。**凡与 Zang 裁定冲突处，一律以 Zang 裁定为准**（本单为 P9⑤ 契约冻结；**未改写任何裁定、未发明任何路径 / 数值 / 权限键 / 文案值**）。**★ 姊妹册（同批）**：`docs/commission.spec.md` **v0.4 §19** + `docs/data-layer.spec.md` **v0.26 §34**，**本册不重抄其条文、只指路**。
@@ -10284,7 +10287,7 @@ ORDER BY score DESC, l.time_created DESC, l.listing_id DESC
 #### 49.20.1 作用面（四处删除 ＋ 四处保留 · 逐件登记）
 
 - **删（四处 · 全链路）**：① **入口** = `frontend/src/pages/TaskPage.jsx` 页头条 `div.sf-jobs[data-sf-m="jobs-nav"]` **整块**（含唯一 `Link` 到 `/task/review`、钩子 `data-sf-m="jobs-nav-review"`、文案 `t('jobs.review')`）⇒ 页头只剩标题；② **路由** = `frontend/src/App.jsx` 的**单行** `<Route path="task/review" element={<JobReviewPage />} />` ＋ 其 `import JobReviewPage`；③ **页面** = `frontend/src/pages/jobs/JobReviewPage.jsx`（153 行）；④ **仅它用的 API 接线层** = `frontend/src/pages/jobs/job-api.js`（44 行）。
-- **保留（四处 · 一个不动）**：① **后端注册点** = `GET /api/tasklist/pending-verification`（+ `/count`）与 `POST /api/job/:jobId/review` **逐字保留**（§4.2 J5/J6 口径不变；本单未碰 `backend-ts/`）；② **消费方** = `frontend/src/pages/DashboardPage.jsx` 的**审核面板**（同一读口仍被它消费 ⇒ 删后端口会砸掉 `/dashboard` 的审核能力 ⇒ **不删**）；③ **样式** = `pages/jobs/jobs.css` **保留**（`sf-jobs*` 仍有它处消费者，仅订正其中一处注释）；④ **i18n 键** = `jobs.review` / `jobs.reviewNote` **四语保留不删**（见 §49.20.4 ⑤）。
+- **保留（四处 · 一个不动）**：① **后端注册点** = `GET /api/tasklist/pending-verification`（+ `/count`）与 `POST /api/job/:jobId/review` **逐字保留**（§4.2 J5/J6 口径不变；本单未碰 `backend-ts/`） —— **★★ **行内勘误（v2.48 · 2026-10-24）：后端注册点现已不存在：于 `43ea14a`（2026-10-21，job 领域下线）随 21 条路由一并删除；生产三 URL 实测 404（`LEDGER_REF_NOT_FOUND` / `ref_type=endpoint`），对照 `/api/currencies` `/api/home` 均 200**（旧句逐字保留、删除列 = 0）**；② **消费方** = `frontend/src/pages/DashboardPage.jsx` 的**审核面板**（同一读口仍被它消费 ⇒ 删后端口会砸掉 `/dashboard` 的审核能力 ⇒ **不删**）；③ **样式** = `pages/jobs/jobs.css` **保留**（`sf-jobs*` 仍有它处消费者，仅订正其中一处注释）；④ **i18n 键** = `jobs.review` / `jobs.reviewNote` **四语保留不删**（见 §49.20.4 ⑤）。
 - **红线（判负）**：**不得**因「页面已删」顺手删**后端口** / **i18n 键** / **`jobs.css`** —— 三者各有其它消费者或计数口径 ⇒ 删任一即落入「审核能力消失」或「四语键集漂移」两类判负。
 
 #### 49.20.2 下线后的可达性（URL 语义写死）
@@ -10308,7 +10311,7 @@ ORDER BY score DESC, l.time_created DESC, l.listing_id DESC
 - **③ `TaskPage.jsx` 无残留**：无入口链接、无 `jobs-nav-review` 钩子、无 `buildLocalizedPath` **死导入**（导入随用法同删）。
 - **④ 全 `src/**`（除 test 自身）零命中**：`task/review` / `jobs-nav-review` / `JobReviewPage` 三类字面各 **0**。
 - **⑤ i18n 键保留不删**：`jobs.review` / `jobs.reviewNote` **四语俱在**（键计数 **1451 × 4** 不受影响 —— 沿 `dashboard-pages-removed` 的「**键保留不删**」口径；删键会连带触发四语键集计数漂移）。
-- **⑥ 后端口仍被 `/dashboard` 消费**：`DashboardPage.jsx` 仍引用 `pending-verification` ⇒ 「**只删前端**」这一事实被钉死（本单不动审核面板逻辑，只订正两行注释）。
+- **⑥ 后端口仍被 `/dashboard` 消费**：`DashboardPage.jsx` 仍引用 `pending-verification` ⇒ 「**只删前端**」这一事实被钉死（本单不动审核面板逻辑，只订正两行注释）。 **★ 行内勘误（v2.48）：该条前提已不成立 —— 后端口本就不存在（`43ea14a` 已删），`/dashboard` 审核面板于 v2.48 整块下线；本文件第⑥条已反转为「`DashboardPage.jsx` 不得出现审核读口 / 写口 / 面板锚点」并新增第⑦条「后端注册点现取确不存在」（旧句逐字保留、删除列 = 0）。**
 - **判负**：任一条转红即视为「**下线不彻底**」或「**过度删除**」—— 两条都属本仓最高级别缺陷类（承 §37 起的可达性纪律）。
 
 #### 49.20.5 门读数（Kong 同轮现取 · 本笔**不重跑**）与边界
@@ -10323,3 +10326,63 @@ ORDER BY score DESC, l.time_created DESC, l.listing_id DESC
 - `/task/review` 的 **404 提示页真浏览器外观读数**（四语 × 移动/桌面两档）**未取** —— 行为判据已由单测覆盖（`NotFoundPage` 在场、零请求），但截图 / 几何未测。
 - `/dashboard` 审核面板的**端到端**通过 / 驳回动作**本笔未跑**（后端口与消费方均未改动 ⇒ 残余风险面 = 「入口消失后审核路径是否仍够可发现」，属 UX 判断、交 Kevin 一句话）。
 - **生产同版核验**归 `master-plan` §5.453（本笔不含生产读数）。
+
+---
+
+### 49.21 `/dashboard` 审核面板**整块下线**（前端不留死面板 · **假前提就地订正** · 后端口于 `43ea14a` 早删 · 四语键集 `1451 × 4` 不动）· 2026-10-24 · **v2.48**（行为变更 ⇒ 升版；头注**追加** v2.48 状态块，按升序接放于 v2.47 块之后）· 本笔**只追加 + 3 处行内勘误**（§49.20.1 ① · §49.20.4 ⑥ · 头注 v2.47 块；旧句**逐字保留**、删除列 = 0）
+
+> **依据**：Kevin 2026-10-24 裁定 —— 「**连 `/dashboard` 的审核面板一起下线（前端不留死面板）+ 订正两份文档里的假前提**」，并批准顺手修 Neng 报的四条小缺陷（§49.21.6）。**★ 前置事实（现取，本册写死）**：审核两条后端接口 `GET /api/tasklist/pending-verification`（+ `/count`）与 `POST /api/job/:jobId/review` **已于 `43ea14a`（2026-10-21，job 领域下线）从 `backend-ts/src` 删除**；**生产实测三 URL 全 404**（`LEDGER_REF_NOT_FOUND`、`ref_type=endpoint`；对照 `/api/currencies` `/api/home` 均 **200**）⇒ `/dashboard` 审核面板**实际早已不能工作**（只显示加载失败）。**姊妹册** = `seafood.master-plan` **§5.455 / 版本行 v0.374**（§5.453 C 段就地追加同口径勘误）。**零后端改动**（`backend-ts/**` 本笔**只读**，仅用于新测试的现取断言）。
+
+#### 49.21.1 作用面（`frontend/src/pages/DashboardPage.jsx` · 四类全删 · 其余一字未动）
+
+- **删（读口）**：`fetchApiJson('/api/tasklist/pending-verification/count')` 与 `fetchApiJson('/api/tasklist/pending-verification?limit=50')` 两路请求（原以 `...(canReviewTasks ? [...] : [])` 展开进 `Promise.allSettled`）；连带 `canReviewTasks` 门变量与 `errors` 中 `errPendingCount` / `errPendingList` 两条入列。
+- **删（写口）**：`handleVerifyTask(jID, approved)`（`window.confirm` → `POST` 单条提交的 `verify` 子路径 → toast → 重取数据）与其 `processingTaskId` 状态；`navigate` / `useNavigate` 随之成死导入并删除。
+- **删（面板 UI）**：`SlideUp delay={300}` 整张卡（标题 `dashPage.pendingTitle` / 搜索框 `reviewQuery` / 刷新钮 / 队列摘要 `dashPage.queueSummary` / 通过钮 `dashPage.approve` / 驳回钮 `dashPage.reject` / 空态 `noPending` · `noResults`）。
+- **删（state / 派生）**：`pendingVerificationTasks` / `reviewQuery` / `showAllPending` / `processingTaskId` / `refreshing`；`resolvePendingVerificationCount()` / `filteredPendingTasks` / `visiblePendingTasks` / `normalizedQuery`；`EMPTY_DASHBOARD_STATS.pendingVerifications` 字段；`formatTimestamp()`（仅面板用）。**另删**「待审核提交」统计卡（其数值来源即被删读口 ⇒ 留着就是假读数）。
+- **删（import）**：`Clock` / `Eye` / `CheckCircle` / `XCircle` / `RefreshCw` / `Search`（lucide）· `StaggerContainer`（Motion）· `useNavigate`（router）。
+- **保留（不动）**：用户 / 管理员 / 积分 / 奖品 **四张统计卡** · **管理入口**面板（`managementLinks` 五项 + `hasAdminPermission` 过滤）· **角色徽标**（`dashPage.roleAdmin` / `roleReviewer` / `roleStaff` —— 角色名语义，只读 `access.is_admin` 与 `review_tasks` 权限键，**与已下线的审核队列无关** ⇒ 不在删除范围）· 无权限卡 · 加载态 · `dashPage.partialLoadFailed` 部分失败提示（现仅覆盖 `user/stats` 与 `prize/all` 两口）。
+- **判负**：拆面板顺手删了上面「保留」任一项、或让 `/api/user/stats` / `/api/prize/all` 两路读口失效。
+
+#### 49.21.2 下线后的可达性与「无审核面」判据（写死）
+
+- `/dashboard`（`adminOnly`）**页面仍在**、仍渲染四卡 + 管理入口 + 角色徽标；**站内已无任何「Task Progress 审批」面**（`/task/review` 已于 v2.47 删除，本版再拆 `/dashboard` 面板）。
+- **现役审核面**（供读者找路）= `/dashboard/currency-review`（币种审核，动作口 `POST /api/admin/currency/:cid/review`，闸 `review_tasks`）—— **与本单无关、未动**。
+- **静态判据（前端）**：`DashboardPage.jsx` 内 `pending-verification` / `tasklist/` / `handleVerifyTask` / `/verify` / `job/` / `/review` / `task/review` 七类字面**各 0**；队列锚点 `reviewQuery` / `queueSummary` / `resolvePendingVerificationCount` / `filteredPendingTasks` / `pendingVerificationTasks` **各 0**（判据 = `task-review-removed.test.jsx` 第⑥条，反向钉死）。
+- **静态判据（后端现取事实）**：`backend-ts/src/index.ts` 内 `pending-verification` / `/api/job/` / `job/:jobId/review` **各 0**（同文件第⑦条；**正对照** = 同文件必含 `app.get('/api/currencies'` 且字节数 > 100,000 ⇒ 反向断言不是对空串求假）。**该条的用途**：把「后端注册点已不存在」钉成回归项，防后来者再按旧文档写出「口还在、只是前端换了消费方」这类假前提。
+
+#### 49.21.3 i18n 键**保留不删**（沿 `dashboard-pages-removed` 先例）· 新成孤儿键逐条登记
+
+- **键集不动**：四语 **flat `1451 × 4`**（`zh` / `en` / `hk` / `vn` 四份键集全等），**零增删**。本单**只删引用、不删键**（删键会连带触发四语键集计数漂移）。
+- **★ 本单新成「生产面零引用」的键 = 29 枚**（全部在 `dashPage` 命名空间；**只登记、不删**）：`actionFailed` / `approve` / `approveLabel` / `collapse` / `confirmApprove` / `confirmReject` / `errPendingCount` / `errPendingList` / `noPending` / `noPendingHint` / `noResults` / `noResultsHint` / `none` / `pendingTitle` / `queueSummary` / `refreshFailed` / `refreshSuccess` / `reject` / `rejectLabel` / `searchPlaceholder` / `statPending` / `submittedAt` / `submittedBy` / `submittedContent` / `taskFallback` / `unknown` / `verifyApproved` / `verifyRejected` / `viewAll`（均以 `dashPage.` 为前缀）。
+- **本单之前就已是孤儿（5 枚，历史留痕）=** `dashPage.errTaskStats` / `dashPage.linkRewardsDesc` / `dashPage.noReviewPermission` / `dashPage.noReviewPermissionBody` / `dashPage.statTasks`。
+- **仍在役的跨面键（未因本单成孤儿，逐个现取核对）=** `adminCommon.refresh` / `adminCommon.refreshing` / `adminCommon.sessionExpired` / `adminCommon.pointsValue`（八~九个 admin 页仍各自消费）· `common.listSeparator`（`dashPage.partialLoadFailed` 仍用）。
+
+#### 49.21.4 单测改锚（**禁改判据底 · 禁降强度**；删除项逐条列因）
+
+- **`task-review-removed.test.jsx`（6 条 ⇒ 7 条）**：**第⑥条反转** —— 原文「`DashboardPage` 仍含 `pending-verification` 与 `handleVerifyTask`」⇒ 现为「`DashboardPage.jsx` **不得**出现审核读口 / 写口 / 面板锚点」（含**正对照**：`dashPage.statUsers` / `linksTitle` / `roleReviewer` 仍在，防「整页被删」蒙对）；**新增第⑦条** = 后端注册点现取不存在（见 §49.21.2）。文件头注里的「后端口保留」段一并改写为现取事实（旧前提整段替换为勘误块）。
+- **`dashboard-page.test.jsx`（4 条 ⇒ 4 条）**：① 原「reloads pending review endpoints after approving a submission」⇒ **改锚为反向用例**（零 `/api/tasklist/` 请求 · 无通过/驳回钮 · 无搜索框 · 无待审核卡；mock 只挂 `user/stats` + `prize/all` ⇒ 一旦回退拉审核口即抛 `Unexpected URL` 转红）；② 原「falls back to the pending list length when the count endpoint fails」⇒ **删**（被测函数 `resolvePendingVerificationCount` 已随面板删除，判据底不存在）；③ 原「S18：队列面板按登录态放开」⇒ **删**（队列门本身已删）；④ 「job 下线收尾：零 `/api/task/all`」⇒ **保留并加强**（移走两条审核口 mock 分支 ⇒ 任何审核读口请求都会转红）；**新增** ②「角色徽标三档（审核员 / 后台成员 / 管理员）照旧」与 ④「无后台权限 ⇒ 权限不足卡 + 零读口」。
+- **`p6-btn-impl2.test.js`**：**只改注释算术**（旧注释写「用法 27 → 24」，实际上一版断言是 **28** ⇒ 改「**28 → 24**」；`expect(totalUses).toBe(24)` **不动**）。
+- **`task-route-split.test.jsx`**：「三处都不得命中任务列表页 / 任务页」的 loop 列表补 **`'/task/review'`**（原列表漏项；判据强度只增不减）。
+
+#### 49.21.5 门读数（本笔现取 · 2026-10-24）与探针
+
+- `npx vitest run src/test/unit` = **96 files / 1054 tests / 0 failed**（改前基线 **96 files / 1053 tests**；净 **+1** = `task-review-removed` 新增第⑦条，`dashboard-page` 4 条换 4 条）。
+- `npx vitest run src/test/accessibility` = **1 file / 16 tests / 0 failed**；`src/test/components` = **2 files / 14 tests / 0 failed**。
+- `npm run build` = **exit 0** ⇒ **`index-BbdcISCd.js` 661,246 B** ＋ **`index-CsvmqOIr.css` 188,773 B**（js 较 v2.47 记的 669,122 B **减 7,876 B** = 拆面板；css 188,986 B ⇒ 188,773 B **减 213 B**）。
+- 四语键集 **`1451 × 4`**（零增删；见 §49.21.3）。
+- **探针 `ops/task-page/probe-task-page.mjs`**：③ 路由臂**新增 `/task/review` + `en` / `hk` / `vn` 三前缀档**（`own = notFound`，`others` = `taskPage` / `taskList` / `jobsNav` / `jobsFormWrap` / `jobsDetail` **一律不得命中**）；两档（1536 / 390）实测 **8 条路由臂逐条 true**（原 4 条 ⇒ 8 条），`routeSeparation` **pass = true**。
+- **★ 探针两条预存在红（与本单无因果，如实登记）**：`homeCardHref` = **red**（首页真卡 href 实测 `/task/1`、`/task/2` **正确**，但判据取 `data-sf-camp-mock === '0'` 而该属性现不再下发 ⇒ `realCards = 0`，属**锚点过期**）；`taskOnlineAppears` = **red**（`[data-sf-m="project-task-status-toggle"]` 钩子在前端已不存在 ⇒ `toggleRenderedBefore = false`）。二者在本单改动前即为红，**本单不修根因**（`homeCardHref` / `taskOnlineAppears` 的修复需另立单改锚 / 改 UI）。其余臂 = `taskPageRendered` true · `routeSeparation` true · `noOverflowNoPageError` true（两档）。
+
+#### 49.21.6 顺手修的四条小缺陷（Neng 报 · 不扩面）
+
+1. `p6-btn-impl2.test.js` 注释算术错（**27 → 28**，见 §49.21.4）。
+2. `task-route-split.test.jsx` loop 列表漏 `'/task/review'`（见 §49.21.4）。
+3. `probe-task-page.mjs` ③ 缺 `/task/review` 落 404 臂（见 §49.21.5）。
+4. 两份文档的「后端口逐字保留 / 审核动作仍在 `/dashboard`」假前提（本册 §49.20.1 ① · §49.20.4 ⑥ · 头注 v2.47 块 **三处行内勘误** + 本节；`master-plan` §5.455 + §5.453 C 段）。
+
+#### 49.21.7 未做（`NOT_MEASURED` · 本册不预填）
+
+- **探针 `homeCardHref` / `taskOnlineAppears` 的根因修复**（锚点过期 / 钩子已删）**未做** —— 见 §49.21.5 末段，须另立单。
+- `dashPage.subtitle`（中文「优先处理待审核事项，再进入各个管理模块。」）**文案未改** —— 它属 i18n 内容面（四语同改 + 键值校验），本笔只拆面板、不改文案 ⇒ 该句现已与页面实际内容不完全对应，**登记为待 Kevin 一句话**（改文案会动四语值、不动键集）。
+- 审核动作的**新归属**（`currency-review` 之外是否还需「Task Progress 审批」面）**本单不裁**——现役审核面只有币种审核；若需重建，须**先建后端口**、再谈前端。
+- 生产同版核验**不在本节**（归 `master-plan` §5.455 与本笔报告；本册只记文档面）。
