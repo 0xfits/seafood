@@ -84,11 +84,12 @@ describe('① 路由与侧栏改锚：fee-rate ⇒ exchange（2026-10-24 第①�
     expect(layout).toContain("description: t('adminNav.feeRateDesc')")
   })
 
-  it('四语文案值（键集不动）：交易所管理 / 交易所费率与参数', () => {
-    expect(zh.adminNav.feeRate).toBe('交易所管理')
-    expect(hk.adminNav.feeRate).toBe('交易所管理')
+  it('四语文案值（键集不动）：交易所 / 交易所费率与参数', () => {
+    // ★ 2026-10-24 批次 B：`adminNav.feeRate` 改值为 交易所 / 交易所 / Exchange / Sàn（键名不变）
+    expect(zh.adminNav.feeRate).toBe('交易所')
+    expect(hk.adminNav.feeRate).toBe('交易所')
     expect(en.adminNav.feeRate).toBe('Exchange')
-    expect(vn.adminNav.feeRate).toBe('Quản lý sàn')
+    expect(vn.adminNav.feeRate).toBe('Sàn')
     expect(zh.adminNav.feeRateDesc).toBe('交易所费率与参数')
     expect(hk.adminNav.feeRateDesc).toBe('交易所費率與參數')
     expect(en.adminNav.feeRateDesc).toBe('Exchange fee rate and parameters')

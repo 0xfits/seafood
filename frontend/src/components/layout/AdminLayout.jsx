@@ -29,6 +29,10 @@ const AdminLayout = () => {
     can_access_admin: true,
   })
 
+  // ★ Kevin 2026-10-24 批次 B（改名 + 重排）：侧栏**七项定序** =
+  //   总览 → 用户 → 积分 → 电量 → 交易所 → 审计 → 设置。
+  //   实现方式 = 只调本数组的**元素顺序**；各项 `path` / 闸 / icon 一字不动，
+  //   文案侧只改 i18n 值（`adminNav.dashboard/users/points/settings/feeRate/auditConsole`，键名不变 ⇒ 零键漂移）。
   const menuItems = [
     // ★ Kevin 2026-10-24（三轮中的第②轮）：侧栏再减两项 ——「任务管理」与「碎片管理」两页下线
     //   （页面 / 路由 / 侧栏项三处零残留；旧地址落后台内层 catch-all 提示页）。
@@ -55,10 +59,14 @@ const AdminLayout = () => {
       requiredPermission: 'manage_points',
     },
     {
-      title: t('adminNav.settings'),
-      icon: Settings,
-      path: '/dashboard/settings',
-      description: t('adminNav.settingsDesc'),
+      // ★ Kevin 2026-10-24 批次 A：「站点文案」页下线 ⇒ 侧栏该项**原位**换成【电量】(`/dashboard/power`)：
+      //   铸造与销毁数值组（`mint_burn_policy`）新家；闸 = `manage_settings`。
+      //   批次 B（本批）按新定序把【电量】前移到第 4 位（用户 / 积分之后、交易所之前）。
+      //   i18n 零新增键：标题复用 `battCard.title`（电量），描述复用 `adminSiteText.policyMintBurn`（铸造与销毁）。
+      title: t('battCard.title'),
+      icon: Zap,
+      path: '/dashboard/power',
+      description: t('adminSiteText.policyMintBurn'),
       requiredPermission: 'manage_settings',
     },
     {
@@ -71,22 +79,19 @@ const AdminLayout = () => {
       requiredPermission: ['manage_settings', 'review_tasks'],
     },
     {
-      // ★ Kevin 2026-10-24 批次 A：「站点文案」页下线 ⇒ 侧栏该项**原位**换成【电量】(`/dashboard/power`)：
-      //   铸造与销毁数值组（`mint_burn_policy`）新家；闸 = `manage_settings`。本轮**不做**侧栏重排
-      //   （改名与重排属批次 B），故位置与顺序保持不动。i18n 零新增键：标题复用 `battCard.title`（电量），
-      //   描述复用 `adminSiteText.policyMintBurn`（铸造与销毁）。
-      title: t('battCard.title'),
-      icon: Zap,
-      path: '/dashboard/power',
-      description: t('adminSiteText.policyMintBurn'),
-      requiredPermission: 'manage_settings',
-    },
-    {
       title: t('adminNav.auditConsole'),
       icon: ScrollText,
       path: '/dashboard/audit-console',
       description: t('adminNav.auditConsoleDesc'),
       requiredPermission: 'manage_audit',
+    },
+    {
+      // ★ 批次 B：设置项按新定序移到**末位**（原第 4 位）。path / 闸 / icon 不动。
+      title: t('adminNav.settings'),
+      icon: Settings,
+      path: '/dashboard/settings',
+      description: t('adminNav.settingsDesc'),
+      requiredPermission: 'manage_settings',
     }
   ]
 

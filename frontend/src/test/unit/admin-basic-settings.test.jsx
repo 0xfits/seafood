@@ -104,8 +104,11 @@ describe('A · 基本设置 = 单字段面板（siteName）', () => {
     const basicCard = container.querySelector('[data-sf-m="admin-basic-card"]')
     expect(basicCard).not.toBeNull()
     expect(basicCard.querySelectorAll('input, textarea, select').length).toBe(1)
-    // 页头 / 卡片 / 字段标签 / 保存按钮（zh 档）；页头 h2 与卡片标题同值（`adminNav.settings` = `cardBasic`）
-    expect(screen.getAllByText(zh.adminNav.settings).length).toBeGreaterThanOrEqual(2)
+    // 页头 / 卡片 / 字段标签 / 保存按钮（zh 档）
+    // ★ 2026-10-24 批次 B：`adminNav.settings` 改值「设置」⇒ 页头 h2（`adminNav.settings`）与卡片标题
+    //   （`adminSettings.cardBasic` = 「基本设置」）**不再同值**，拆成两条各自承重（原「≥2 处同值」判据不适用）。
+    expect(screen.getByText(zh.adminNav.settings)).toBeInTheDocument()
+    expect(screen.getByText(zh.adminSettings.cardBasic)).toBeInTheDocument()
     // 「站点名称」标签现出现 2 处（基本设置卡的 siteName + 站点文案卡的 siteTitle 行）⇒ 计数断言
     expect(screen.getAllByText(zh.adminSiteText.labelSiteTitle).length).toBeGreaterThanOrEqual(2)
     expect(screen.getByRole('button', { name: new RegExp(zh.adminSettings.saveButton) })).toBeInTheDocument()
@@ -234,11 +237,11 @@ describe('C · 反向对照：删过头即判负', () => {
     expect(layout).toContain("t('adminNav.settings')")
   })
 
-  it('③ 页名改值不改键：四语 `adminNav.settings` 新值 + 描述同步', () => {
-    expect(TABLES.zh.adminNav.settings).toBe('基本设置')
-    expect(TABLES.hk.adminNav.settings).toBe('基本設定')
-    expect(TABLES.en.adminNav.settings).toBe('Basic settings')
-    expect(TABLES.vn.adminNav.settings).toBe('Cài đặt cơ bản')
+  it('③ 页名改值不改键：四语 `adminNav.settings` 新值 + 描述同步（批次 B 改名：设置 / 設定 / Settings / Cài đặt）', () => {
+    expect(TABLES.zh.adminNav.settings).toBe('设置')
+    expect(TABLES.hk.adminNav.settings).toBe('設定')
+    expect(TABLES.en.adminNav.settings).toBe('Settings')
+    expect(TABLES.vn.adminNav.settings).toBe('Cài đặt')
     expect(TABLES.zh.adminNav.settingsDesc).toBe('站点名称等基础信息')
     for (const lang of ['zh', 'hk', 'en', 'vn']) {
       expect(TABLES[lang].adminNav.settingsDesc.length).toBeGreaterThan(0)

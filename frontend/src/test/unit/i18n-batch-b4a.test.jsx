@@ -53,12 +53,14 @@ describe('P6-I18N-LIT-B4a · en 档渲染英文（后台面两个页面；reward
 
     // 侧边栏导航（`adminNav.*`；2026-10-24：`permissions` / `weight-matrix` / `currency-review` / `arbitration-review`
     //  四项已随「交易所管理 Tab 模块」与两页下架从侧栏移除；**同日第②轮**再减「任务管理」「碎片管理」两项
-    //  ⇒ 本清单同步改锚（`Exchange` = `adminNav.feeRate` 的 en 值；`Basic settings` = `adminNav.settings` 的新 en 值））
+    //  ⇒ 本清单同步改锚（`Exchange` = `adminNav.feeRate` 的 en 值；`Settings` = `adminNav.settings` 的 en 值））
+    //  ★ 2026-10-24 批次 B（改名 + 重排）：七项定序 = 总览 → 用户 → 积分 → 电量 → 交易所 → 审计 → 设置，
+    //    六项文案改值 ⇒ 本清单按**新顺序 + 新 en 值**逐项改锚（`Overview` / `Users` / `Points` / `Energy` / `Exchange` / `Audit` / `Settings`）。
     for (const label of [
-      'Dashboard',
-      // ★ 2026-10-24 批次 A：「站点文案」项下线 ⇒ 侧栏该项原位换成【电量】(`/dashboard/power`)，
+      'Overview',
+      // ★ 2026-10-24 批次 A：「站点文案」项下线 ⇒ 侧栏该项换成【电量】(`/dashboard/power`)，
       //   en 标签 = `battCard.title` 的 en 值 `Energy`（键名不动、键集不变）。
-      'User Management', 'Exchange', 'Points Management', 'Basic settings', 'Energy', 'Audit console',
+      'Users', 'Points', 'Energy', 'Exchange', 'Audit', 'Settings',
     ]) {
       expect(await screen.findByText(label)).toBeInTheDocument()
     }
@@ -68,8 +70,9 @@ describe('P6-I18N-LIT-B4a · en 档渲染英文（后台面两个页面；reward
     expect(screen.getByText('Administrator')).toBeInTheDocument()
     expect(screen.getByText('Online')).toBeInTheDocument()
     expect(screen.getByText('Log out')).toBeInTheDocument()
-    // 反证：简体原文不出现
+    // 反证：简体原文不出现（批次 B 后 zh「总览」= 新值，旧值「仪表板」一并零残留）
     expect(screen.queryByText('管理面板')).toBeNull()
+    expect(screen.queryByText('总览')).toBeNull()
     expect(screen.queryByText('仪表板')).toBeNull()
     expect(screen.queryByText('在线')).toBeNull()
   })
@@ -150,8 +153,8 @@ describe('P6-I18N-LIT-B4a · 四语 locale 键集（6 命名空间 144 键 + 逐
       for (const [k, v] of Object.entries(tables.en[ns])) expect(CJK.test(v), `en.${ns}.${k}`).toBe(false)
       for (const [k, v] of Object.entries(tables.vn[ns])) expect(CJK.test(v), `vn.${ns}.${k}`).toBe(false)
     }
-    // hk 必须是繁体（不得是简体原文）：抽查 3 条简体/繁体异形
-    expect(tables.hk.adminNav.dashboard).toBe('儀表板')
+    // hk 必须是繁体（不得是简体原文）：抽查 3 条简体/繁体异形（批次 B 后 `儀表板` ⇒ `總覽`）
+    expect(tables.hk.adminNav.dashboard).toBe('總覽')
     expect(tables.hk.adminLayout.systemAdmin).toBe('系統管理')
     expect(tables.hk.adminRewards.expired).toBe('已過期')
   })

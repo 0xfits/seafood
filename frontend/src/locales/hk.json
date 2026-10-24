@@ -588,7 +588,7 @@
     "verifying": "簽名驗證中……"
   },
   "adminNav": {
-    "dashboard": "儀表板",
+    "dashboard": "總覽",
     "dashboardDesc": "系統概覽與統計",
     "tasks": "任務管理",
     "tasksDesc": "建立及管理任務",
@@ -596,15 +596,15 @@
     "rewardsDesc": "建立及管理獎品",
     "shards": "碎片管理",
     "shardsDesc": "碎片持倉、掛單與成交",
-    "users": "用戶管理",
+    "users": "用戶",
     "usersDesc": "管理用戶帳戶",
     "permissions": "權限管理",
     "permissionsDesc": "管理用戶權限",
-    "points": "積分管理",
+    "points": "積分",
     "pointsDesc": "調整用戶積分",
-    "settings": "基本設定",
+    "settings": "設定",
     "settingsDesc": "站點名稱等基礎資訊",
-    "feeRate": "交易所管理",
+    "feeRate": "交易所",
     "feeRateDesc": "交易所費率與參數",
     "weightMatrix": "權重矩陣",
     "weightMatrixDesc": "返佣各層權重",
@@ -616,7 +616,7 @@
     "arbitrationReviewDesc": "處理招工爭議仲裁",
     "siteText": "站點文案",
     "siteTextDesc": "角色名稱與站點標語設定",
-    "auditConsole": "審計台",
+    "auditConsole": "審計",
     "auditConsoleDesc": "唯讀檢索各表留痕記錄"
   },
   "adminLayout": {

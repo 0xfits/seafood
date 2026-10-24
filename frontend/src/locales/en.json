@@ -588,7 +588,7 @@
     "verifying": "Verifying signature..."
   },
   "adminNav": {
-    "dashboard": "Dashboard",
+    "dashboard": "Overview",
     "dashboardDesc": "System overview and statistics",
     "tasks": "Task Management",
     "tasksDesc": "Create and manage tasks",
@@ -596,13 +596,13 @@
     "rewardsDesc": "Create and manage prizes",
     "shards": "Shard Management",
     "shardsDesc": "Shard holdings, orders and trades",
-    "users": "User Management",
+    "users": "Users",
     "usersDesc": "Manage user accounts",
     "permissions": "Permission Management",
     "permissionsDesc": "Manage user permissions",
-    "points": "Points Management",
+    "points": "Points",
     "pointsDesc": "Adjust user points",
-    "settings": "Basic settings",
+    "settings": "Settings",
     "settingsDesc": "Basic site information",
     "feeRate": "Exchange",
     "feeRateDesc": "Exchange fee rate and parameters",
@@ -616,7 +616,7 @@
     "arbitrationReviewDesc": "Resolve job disputes",
     "siteText": "Site Copy",
     "siteTextDesc": "Role names and site copy",
-    "auditConsole": "Audit console",
+    "auditConsole": "Audit",
     "auditConsoleDesc": "Search audit trails across tables"
   },
   "adminLayout": {

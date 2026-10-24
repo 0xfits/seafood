@@ -588,7 +588,7 @@
     "verifying": "Đang xác minh chữ ký..."
   },
   "adminNav": {
-    "dashboard": "Bảng điều khiển",
+    "dashboard": "Tổng quan",
     "dashboardDesc": "Tổng quan và thống kê hệ thống",
     "tasks": "Quản lý nhiệm vụ",
     "tasksDesc": "Tạo và quản lý nhiệm vụ",
@@ -596,15 +596,15 @@
     "rewardsDesc": "Tạo và quản lý giải thưởng",
     "shards": "Quản lý mảnh",
     "shardsDesc": "Nắm giữ mảnh, đặt lệnh và khớp lệnh",
-    "users": "Quản lý người dùng",
+    "users": "Người dùng",
     "usersDesc": "Quản lý tài khoản người dùng",
     "permissions": "Quản lý quyền hạn",
     "permissionsDesc": "Quản lý quyền người dùng",
-    "points": "Quản lý điểm",
+    "points": "Điểm",
     "pointsDesc": "Điều chỉnh điểm người dùng",
-    "settings": "Cài đặt cơ bản",
+    "settings": "Cài đặt",
     "settingsDesc": "Thông tin cơ bản của site",
-    "feeRate": "Quản lý sàn",
+    "feeRate": "Sàn",
     "feeRateDesc": "Tỷ lệ phí và tham số sàn",
     "weightMatrix": "Ma trận trọng số",
     "weightMatrixDesc": "Trọng số hoa hồng theo cấp",
@@ -616,7 +616,7 @@
     "arbitrationReviewDesc": "Xử lý tranh chấp việc làm",
     "siteText": "Nội dung trang",
     "siteTextDesc": "Tên vai trò và nội dung trang",
-    "auditConsole": "Bảng kiểm toán",
+    "auditConsole": "Kiểm toán",
     "auditConsoleDesc": "Tra cứu lưu vết các bảng"
   },
   "adminLayout": {
