@@ -13,9 +13,13 @@
 .sf-wage-page {
   --sf-w-ctl-h: 34px;
   /* 网格卡固定高（页内几何常量 · 两档同值 · 不进主题层）：
-   * 内边距 26 + 卡头 40 + 描述 3 行 ≈57 + 名额/工资区 ≈40 + 操作区（钮 34 或 44 + 换行倒计时）+ 内联提示 1 行；
-   * 390 / 1536 两档由 probe 的 scrollHeight ≤ clientHeight 判据守住「不裁内容」。 */
-  --sf-wage-card-h: 288px;
+   * 内边距 16（8×2）+ 卡头 40（头像，不动）+ 描述 2 行 ≈34 + 名额/工资两行 ≈40
+   * + 操作区（钮 34 桌面 / 44 移动）+ 三段 gap 12 ⇒ 桌面 ≈175、移动 ≈168，都在 180 以内；
+   * 390 / 1536 两档由 probe 的「恰 180px」+「每卡 scrollHeight ≤ clientHeight」判据守住「不裁内容」。
+   * ★ Kevin 2026-10-24：288 → 180（描述 3 行 → 2 行；腾空间靠内间距 13/10 → 8/4、字号 16/13 → 15/12、
+   *   行高 1.45 → 1.4、名额块内部 gap 6 → 2 与按钮内距 8 → 5；**信息块一个不少**）；
+   *   **右上当前项目卡仍 `height:auto` 自适应**（见 `.sf-wage-current-card`）。 */
+  --sf-wage-card-h: 180px;
 }
 
 .sf-wage-head {
@@ -108,16 +112,17 @@
 
 /* 卡：固定高度 + 纵向 flex ⇒ 操作区贴底对齐（同排卡片逐值等高）
  *   `--sf-wage-card-h` 是页内几何常量（非主题 token，两档同值）；
- *   高度按「卡头 40 + 描述 3 行 + 名额/工资 + 操作区（含换行的倒计时）+ 内联提示」一次算足，
- *   高度不足时内容会溢出（probe 有 scrollHeight ≤ clientHeight 的判据兜底）。 */
+ *   ★ 2026-10-24：高 288 → **180**，内边距 13/10 → 8/4、gap 10 → 4（腾空间的主来源）；
+ *   高度按「卡头 40 + 描述 2 行 + 名额/工资 2 行 + 操作区（钮 34 / 44）」一次算足，
+ *   probe 有「恰 180」与逐卡 scrollHeight ≤ clientHeight 两条判据兜底。 */
 .sf-wage-card {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
   height: var(--sf-wage-card-h);
   min-width: 0;
-  padding: 13px 14px;
-  gap: 10px;
+  padding: 8px 12px;
+  gap: 4px;
 }
 
 .sf-wage-card-head {
@@ -125,6 +130,7 @@
   align-items: flex-start;
   gap: 8px;
   justify-content: space-between;
+  flex: none;
 }
 
 /* 标题行左组：头像 + 标题 + 【已加入】徽标（徽标与详情页标签同族：12px/700/圆角 2px/黄底黑字）。
@@ -218,9 +224,9 @@
  * （头像 40px 固定 ⇒ 标题吃掉剩余宽度；DOM 文本仍是全名，探针/测试读 textContent 不受影响）。*/
 .sf-wage-card-title {
   color: var(--sf-title-fg);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
-  line-height: 1.3;
+  line-height: 1.2;
   margin: 0;
   min-width: 0;
   flex: 1 1 auto;
@@ -259,25 +265,38 @@
 .sf-wage-card-desc {
   margin: 0;
   color: var(--sf-meta-fg);
-  font-size: 13px;
-  line-height: 1.45;
+  font-size: 12px;
+  line-height: 1.4;
   overflow-wrap: anywhere;
-  /* ★ Kevin 2026-10-24 需求C：描述**固定 3 行**（现卡高矮不齐的根因 = 描述行数随文案变）。
-   *   `-webkit-line-clamp` + ellipsis + 固定 3 行占位（min-height）⇒ 有/无描述、长短文案都占同样高度。
-   *   文本框仍是全文本（探针/测试读 textContent 不受影响），只是视觉裁到 3 行。 */
+  /* ★ Kevin 2026-10-24：描述**固定行数**——桌面 2 行、移动 1 行（见文件尾 767 档）。
+   *   `-webkit-line-clamp` + ellipsis + 固定行高占位（height）⇒ 有/无描述、长短文案都占同样高度。
+   *   文本框仍是全文本（探针/测试读 textContent 不受影响），只是视觉裁到 N 行。
+   *   `flex: 0 1 auto` + `min-height: 0`：卡高固定 180 后，**唯一**允许被压缩的块是描述 ——
+   *   卡内出现内联提示行（登录提示 / 失败原因）时由它吸收，卡根永不溢出（probe 逐卡 scrollHeight 判据）。 */
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   overflow: hidden;
-  min-height: calc(3 * 1.45em);
+  flex: 0 1 auto;
+  min-height: 0;
+  height: calc(2 * 1.4em);
 }
 
 .sf-wage-card-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 12px;
+  gap: 2px 10px;
   color: var(--sf-meta-fg);
-  font-size: 13px;
+  font-size: 12px;
+  line-height: 1.35;
+  flex: none;
+}
+
+/* 卡内出现内联提示行（登录提示 / 失败原因，第 5 个子块）时，描述整块让位：
+ *   固定 180 后一行提示 ≈18px 无处安放，压到半行（≈4px）比整块退场更难看；
+ *   :has 只做可见性让位、不改任何 token；窄档两行提示仍由描述的 flex-shrink 兜底（卡根永不溢出）。 */
+.sf-wage-card:has([data-sf-m="wage-card-notice"]) .sf-wage-card-desc {
+  display: none;
 }
 
 .sf-wage-pay {
@@ -294,14 +313,16 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   /* ★ Kevin 2026-10-24 需求C：操作区贴底 —— 与固定高卡配合，同排卡片的按钮落在同一条基线上 */
   margin-top: auto;
+  /* 固定高卡里操作区不许被压（触控目标 44 的下限不许破） */
+  flex: none;
 }
 
 .sf-wage-in-service {
   color: var(--sf-meta-fg);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
 }
 
@@ -311,12 +332,12 @@
   align-items: center;
   justify-content: center;
   min-height: var(--sf-w-ctl-h, 34px);
-  padding: 8px var(--sf-st-padx-btna);
+  padding: 5px var(--sf-st-padx-btna);
   border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
   border-radius: var(--sf-st-radius-btna);
   background: var(--sf-panel-bg);
   color: var(--sf-title-fg);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
@@ -335,7 +356,7 @@
 
 .sf-wage-hint {
   color: var(--sf-meta-fg);
-  font-size: 12px;
+  font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -373,7 +394,7 @@
   display: inline-flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  gap: 2px;
   min-width: 0;
 }
 
@@ -556,6 +577,15 @@
 
   .sf-wage-btn {
     min-height: 44px;
+  }
+
+  /* ★ Kevin 2026-10-24：移动档 180px 内「44px 触控钮 + 全信息块」与描述 2 行**放不下**
+   *   （40 卡头 + 44 操作区 + 34 名额/工资 + 两行描述 + 内距/gap 33 ≈ 185 > 180）⇒
+   *   按裁定优先级「① 保 180 与零裁切 → ② 保 44 触控 → ③ 描述行数最后才让」：
+   *   **仅 ≤767 档把描述降为 1 行**，桌面档仍 2 行；按钮 44 不动。 */
+  .sf-wage-card-desc {
+    -webkit-line-clamp: 1;
+    height: calc(1 * 1.4em);
   }
 
   /* 成功模态框：贴边 10px、面板全宽、关闭钮触控 ≥44（与项目页模态框同口径） */

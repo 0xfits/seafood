@@ -25,6 +25,9 @@
  *      `wage-current-empty`（文案 = `wage.currentEmpty`）；≤767 上下堆叠且**当前项目卡在前**。
  *      已加入项目**从下方 `wage-list` 网格移出**（网格 9 张、页面卡总数仍 10）。
  *      `.sf-wage-card` 同行等高（组内极差 ≤1px）+ 描述固定 3 行截断（`-webkit-line-clamp:3`）。
+ *      ★ 2026-10-24（Kevin）：网格卡改**固定 180px**（`--sf-wage-card-h` 288 → 180，两档同值）＋
+ *      描述**桌面 2 行 / 移动 1 行**；判据 = 逐卡恰 180px + 逐卡 `scrollHeight ≤ clientHeight`（卡内零裁切）
+ *      + 当前项目卡仍自适应（高 > 180）。
  *      铸造入口 `wage-mint`：canMint=false ⇒ 可见置灰（`disabled` + `aria-disabled=true`）+ 缺口
  *      `wage-mint-shortfall`（「还差 30 电量」）；canMint=true ⇒ 可点，点 ⇒ 1 笔 POST + Toast「铸造成功」
  *      （3s 后仍在场）+ 卡内零成功文案；写口失败 ⇒ 卡内内联 `wage-mint-err`、无成功 Toast。
@@ -455,10 +458,41 @@ const SNAP_FN = `(() => {
         borderLeftColor: cs.borderLeftColor,
         tintBg: tint.backgroundColor,
         tintOpacity: tint.opacity,
-        // ★ 2026-10-24：卡所在容器（顶部当前项目卡 / 下方网格）+ 卡高 + 描述 3 行截断读数
+        // ★ 2026-10-24：卡所在容器（顶部当前项目卡 / 下方网格）+ 卡高 + 描述行数截断读数
         scope: c.closest('[data-sf-m="wage-current"]') ? 'current' : 'list',
         top: Math.round(r.top * 10) / 10,
         h: Math.round(r.height * 10) / 10,
+        // ★ 2026-10-24：卡内零裁切判据的原始读数（固定 180px 后必须 scrollH ≤ clientH）
+        clientH: c.clientHeight,
+        scrollH: c.scrollHeight,
+        clientW: c.clientWidth,
+        scrollW: c.scrollWidth,
+        // 卡内各块实测高（诊断用：哪一块吃掉了 180 的预算）
+        blocks: (() => {
+          const hh = (el) => (el ? Math.round(el.getBoundingClientRect().height * 10) / 10 : null)
+          const metaEl = c.querySelector('.sf-wage-card-meta')
+          const mCs = metaEl ? getComputedStyle(metaEl) : null
+          return {
+            head: hh(c.querySelector('.sf-wage-card-head')),
+            desc: dR ? Math.round(dR.height * 10) / 10 : null,
+            meta: hh(metaEl),
+            metaLines: (metaEl && mCs && parseFloat(mCs.lineHeight) > 0)
+              ? Math.round((metaEl.getBoundingClientRect().height / parseFloat(mCs.lineHeight)) * 100) / 100
+              : null,
+            actions: hh(c.querySelector('.sf-wage-card-actions')),
+            notice: hh(c.querySelector('[data-sf-m="wage-card-notice"]')),
+            // 名额/工资行的逐子块高 + 相对 meta 的 top（诊断「2 行怎么占出 43px」）
+            metaKids: (() => {
+              if (!metaEl) return null
+              const mTop = metaEl.getBoundingClientRect().top
+              return [...metaEl.children].map((el) => ({
+                cls: String(el.className),
+                h: hh(el),
+                top: Math.round((el.getBoundingClientRect().top - mTop) * 10) / 10,
+              }))
+            })(),
+          }
+        })(),
         desc: {
           h: dR ? Math.round(dR.height * 10) / 10 : null,
           lineClamp: dCs ? String(dCs.webkitLineClamp || '') : null,
@@ -882,6 +916,24 @@ async function main() {
     return groups.length >= 2 && groups.every((hs) => Math.max(...hs) - Math.min(...hs) <= 1)
   }
   const descCard = topSnap.cards.find((c) => c.scope === 'list' && c.desc && c.desc.h > 0)
+  // ★ Kevin 2026-10-24：网格卡**固定 180px**（--sf-wage-card-h 288 → 180）+ 卡内零裁切 + 描述 2 行
+  const gridCards1536 = topSnap.cards.filter((c) => c.scope === 'list')
+  const is180 = (c) => Math.abs(c.h - 180) <= 1
+  const noClip = (c) => c.scrollH <= c.clientH + 1
+  out.assertions.equalHeight = {
+    gridRowsEqual1536: rowsEqual(topSnap),
+    gridCardsExactly180: gridCards1536.length >= 2 && gridCards1536.every(is180),
+    cardHeightUniform: new Set(gridCards1536.map((c) => c.h)).size === 1,
+    noInnerClipping: topSnap.cards.length >= 2 && topSnap.cards.every(noClip),
+    descClamp2: Boolean(descCard && descCard.desc.lineClamp === '2' && descCard.desc.overflow === 'hidden'),
+    descExactly2Lines: Boolean(descCard && descCard.desc.lineHeight > 0
+      && Math.abs(descCard.desc.h - 2 * descCard.desc.lineHeight) <= 2),
+    // 当前项目卡自适应（不被网格卡的固定高钳住）：高 ≠ 180 且自撑得下（零裁切）
+    currentCardAutoHeight: (() => {
+      const cur = topSnap.cards.find((c) => c.scope === 'current')
+      return Boolean(cur) && Math.abs(cur.h - 180) > 1 && noClip(cur)
+    })(),
+  }
   out.assertions.topLayout = {
     twoColumnsSameRow: topSnap.top.present === true && topSnap.top.sameRow === true
       && topSnap.top.currentRightOfCheckin === true,
@@ -892,13 +944,6 @@ async function main() {
     pageCardCount10: topSnap.cards.length === 10,
     zeroOverflowTop: topSnap.top.boxOverflow === 0,
     ...out.assertions.topLayout,
-  }
-  out.assertions.equalHeight = {
-    gridRowsEqual1536: rowsEqual(topSnap),
-    descClamp3: Boolean(descCard && descCard.desc.lineClamp === '3' && descCard.desc.overflow === 'hidden'),
-    descExactly3Lines: Boolean(descCard && descCard.desc.lineHeight > 0
-      && Math.abs(descCard.desc.h - 3 * descCard.desc.lineHeight) <= 2),
-    cardHeightUniform: new Set(topSnap.cards.filter((c) => c.scope === 'list').map((c) => c.h)).size === 1,
   }
   // —— 铸造·不可点臂（默认夹具 batt 70 < mintBattCost 100、$5 ≥ fee $1 ⇒ 只缺电量 30）——
   const mint0 = topSnap.mint
@@ -985,6 +1030,13 @@ async function main() {
       top: snap.top,
       mint: snap.mint,
       scopes: snap.cards.map((c) => `${c.project}:${c.scope}`),
+      // ★ 2026-10-24：逐卡高度 / 卡内零裁切原始读数（scrollH − clientH 的最大值）
+      heights: snap.cards.map((c) => `${c.project}:${c.scope}:${c.h}`),
+      clipMax: Math.max(...snap.cards.map((c) => c.scrollH - c.clientH)),
+      descLines: (() => {
+        const c = snap.cards.filter((x) => x.scope === 'list').find((x) => x.desc && x.desc.lineHeight > 0)
+        return c ? Math.round((c.desc.h / c.desc.lineHeight) * 100) / 100 : null
+      })(),
       // ★ 2026-10-22 卡头头像（两档读数留证）：形态 / 尺寸 / 档位
       avatarModes: snap.cards.map((c) => `${c.project}:${c.avatar.mode}`),
       avatarSizes: [...new Set(snap.cards.map((c) => `${c.avatar.w}x${c.avatar.h}`))],
@@ -997,6 +1049,11 @@ async function main() {
       plainBorder: (snap.cards.find((c) => c.joined === '0') || {}).borderLeftWidth,
       plainTint: (snap.cards.find((c) => c.joined === '0') || {}).tintOpacity,
     }
+  }
+  const gridOf = (s) => s.cards.filter((c) => c.scope === 'list')
+  const descLinesOf = (s) => {
+    const c = gridOf(s).find((x) => x.desc && x.desc.lineHeight > 0)
+    return c ? Math.round((c.desc.h / c.desc.lineHeight) * 100) / 100 : null
   }
   out.assertions.geometry = {
     zeroOverflow390: out.states['390_geometry'].overflowPx === 0,
@@ -1019,6 +1076,14 @@ async function main() {
       && out.states['390_geometry'].top.current.right <= 390,
     mintTouch390: out.states['390_geometry'].mint.present === true
       && out.states['390_geometry'].mint.h >= 44,
+    // ★ 2026-10-24：网格卡**恰 180px**（两档）/ 卡内零裁切（两档）/ 描述桌面 2 行、移动 1 行
+    cardExactly180Both: ['390', '1536'].every((k) => gridOf(geoSnaps[k]).length >= 2
+      && gridOf(geoSnaps[k]).every(is180)),
+    noInnerClippingBoth: ['390', '1536'].every((k) => geoSnaps[k].cards.length >= 2
+      && geoSnaps[k].cards.every(noClip)),
+    descExactly2Lines1536: descLinesOf(geoSnaps['1536']) === 2,
+    descExactly1Line390: descLinesOf(geoSnaps['390']) === 1,
+    mobileTouch44On180: out.states['390_geometry'].actionHeights.every((h) => h >= 44),
     zeroPageErrors: pageErrors.length === 0,
     // ★ 已加入卡两档都可辨（底色/描边与普通卡 computed 值不同）
     joinedDistinct390: out.states['390_geometry'].joinedCards === 1
@@ -1338,6 +1403,12 @@ async function main() {
     ),
     zeroWriteRequests: writeCalls.length === 0,
     writeCallPaths: writeCalls.map((c) => c.path),
+    // ★ 2026-10-24：卡内出现登录提示行（第 5 个子块）后，180px 卡仍不得溢出
+    //   （描述是唯一允许被压缩的块 ⇒ 卡根 scrollHeight ≤ clientHeight）
+    noInnerClippingAfterNotice: guestAfterJoin101.cards.length >= 2
+      && guestAfterJoin101.cards.every((c) => c.scrollH <= c.clientH + 1),
+    noticeStateDescLines101: g101guest && g101guest.desc && g101guest.desc.lineHeight > 0
+      ? Math.round((g101guest.desc.h / g101guest.desc.lineHeight) * 100) / 100 : null,
     cardsStableAfterClicks: guestAfterJoin101.cards.length === ROWS.length,
     zeroOverflowGuest: guestSnap.overflowPx === 0,
   }
@@ -1407,6 +1478,7 @@ async function main() {
     'guest.wageVisible', 'guest.currencyExtraVisible', 'guest.joinEnabled',
     'guest.noClaimButtons', 'guest.allCardsJoinOnly', 'guest.noJoinedFlag', 'guest.rolesAnonymous',
     'guest.joinClickLoginPrompt', 'guest.joinClickLoginPrompt101', 'guest.zeroWriteRequests',
+    'guest.noInnerClippingAfterNotice',
     'guest.cardsStableAfterClicks', 'guest.zeroOverflowGuest',
     'guest.zeroOverflow390', 'guest.cards390', 'guest.touchTarget44On390', 'guest.bannerAndList390',
     // ⑥ 项目卡【零编辑】（Kevin 2026-10-21②：编辑移入项目页 ⇒ 本页零钮 / 零 PATCH / 零 /api/user；
@@ -1438,14 +1510,17 @@ async function main() {
     'topLayout.twoColumnsSameRow', 'topLayout.currentWidth320', 'topLayout.currentHostsHired',
     'topLayout.hiredMovedOutOfGrid', 'topLayout.pageCardCount10', 'topLayout.zeroOverflowTop',
     'topLayout.emptyPlaceholderWhenNoHired',
-    'equalHeight.gridRowsEqual1536', 'equalHeight.descClamp3', 'equalHeight.descExactly3Lines',
-    'equalHeight.cardHeightUniform',
+    'equalHeight.gridRowsEqual1536', 'equalHeight.gridCardsExactly180', 'equalHeight.cardHeightUniform',
+    'equalHeight.noInnerClipping', 'equalHeight.descClamp2', 'equalHeight.descExactly2Lines',
+    'equalHeight.currentCardAutoHeight',
     'mintEntry.visibleDisabled', 'mintEntry.shortfallShown', 'mintEntry.shortfallUsdNone',
     'mintEntry.zeroPostWhenDisabled', 'mintEntry.enabledWhenCanMint', 'mintEntry.tapHeightDesktop',
     'mintEntry.successPostCount1', 'mintEntry.successToast', 'mintEntry.toastPersists3s',
     'mintEntry.noInlineOkInCard', 'mintEntry.failureInline',
     'geometry.topSameRow1536', 'geometry.topStackedCurrentFirst390', 'geometry.topZeroOverflow390',
     'geometry.topCurrentWithinViewport390', 'geometry.mintTouch390',
+    'geometry.cardExactly180Both', 'geometry.noInnerClippingBoth', 'geometry.descExactly2Lines1536',
+    'geometry.descExactly1Line390', 'geometry.mobileTouch44On180',
   ]
   const verdicts = required.map((key) => {
     const [group, field] = key.split('.')
