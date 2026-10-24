@@ -336,6 +336,11 @@ const SNAP_FN = `(() => {
         currentRightOfCheckin: !!(ciR && curR) && curR.left >= ciR.right - 1,
         stackedCurrentFirst: !!(ciR && curR) && curR.top <= ciR.top + 1 && curR.bottom <= ciR.top + 2,
         currentWidth: curR ? curR.w : null,
+        // ★ 2026-10-24（追加）：标题行撤场后的几何与语义读数
+        currentAria: (cur || emp) ? (cur || emp).getAttribute('aria-label') : null,
+        titleNodes: qa('.sf-wage-current-title').length,
+        sameTopStrict: !!(ciR && curR) && Math.abs(ciR.top - curR.top) <= 1,
+        sameHeight: !!(ciR && curR) && Math.abs(ciR.h - curR.h) <= 1,
         boxOverflow: box ? box.scrollWidth - box.clientWidth : null,
       }
     })(),
@@ -430,6 +435,9 @@ const SNAP_FN = `(() => {
         wage: txt(c.querySelector('[data-sf-m="wage-card-wage"]')),
         wageExtra: txt(extra),
         action: act ? act.getAttribute('data-sf-action') : null,
+        // ★ 2026-10-24（追加）：操作区按需渲染的读数（无内容 ⇒ 0 个节点）
+        actionsPresent: !!c.querySelector('.sf-wage-card-actions'),
+        actionsNodes: c.querySelectorAll('.sf-wage-card-actions').length,
         actionText: txt(act),
         actionDisabled: act ? !!act.disabled : null,
         needLogin: act ? act.getAttribute('data-sf-need-login') : null,
@@ -475,6 +483,9 @@ const SNAP_FN = `(() => {
           return {
             head: hh(c.querySelector('.sf-wage-card-head')),
             desc: dR ? Math.round(dR.height * 10) / 10 : null,
+            actionsPresent: !!c.querySelector('.sf-wage-card-actions'),
+            actionsNodes: c.querySelectorAll('.sf-wage-card-actions').length,
+            cardChildren: c.children.length,
             meta: hh(metaEl),
             metaLines: (metaEl && mCs && parseFloat(mCs.lineHeight) > 0)
               ? Math.round((metaEl.getBoundingClientRect().height / parseFloat(mCs.lineHeight)) * 100) / 100
@@ -1438,6 +1449,45 @@ async function main() {
   out.assertions.guest.bannerAndList390 = guestMobile.page.hasLogin && guestMobile.page.hasList
   await guestMobileCtx.close()
 
+  // ========== ⑨'' 卡内 actions 按需渲染 + 右上卡与电量卡等高（Kevin 2026-10-24 追加）==========
+  // 口径：
+  //   a) 无 actions（已截止 / 已在别处打工）⇒ 卡内**零个** `.sf-wage-card-actions` 节点（不是空壳），
+  //      网格卡仍恰 180px；
+  //   b) 无 actions ⇒ 描述实测 **2 行**（桌面 1536）；有 actions ⇒ 描述实测 **1 行**；
+  //   c) 有 notice 时描述整块不渲染（既有 `guest.noInnerClippingAfterNotice` 仍在，本条只加不裁）；
+  //   d) 右上「当前项目」标题行已撤 ⇒ 零 `.sf-wage-current-title` 节点、`aria-label` 在场、
+  //      与左电量卡 `top` 相等（±1px）且 `height` 相等（±1px）；卡内零裁切仍成立。
+  const linesOf = (c) => (c.desc && c.desc.lineHeight > 0
+    ? Math.round((c.desc.h / c.desc.lineHeight) * 100) / 100 : null)
+  const grid1536 = topSnap.cards.filter((c) => c.scope === 'list')
+  const noActionGrid = grid1536.filter((c) => c.action === null)
+  const guestWithActions = guestSnap.cards.filter((c) => c.actionsPresent)
+  const guestNoActions = guestSnap.cards.filter((c) => !c.actionsPresent)
+  out.states['actions_gating'] = {
+    grid1536: grid1536.map((c) => `${c.project}:action=${c.action}:nodes=${c.actionsNodes}:h=${c.h}:desc=${linesOf(c)}`),
+    guest1536: guestSnap.cards.map((c) => `${c.project}:action=${c.action}:nodes=${c.actionsNodes}:h=${c.h}:desc=${linesOf(c)}`),
+    topHired: topSnap.top,
+    topGuest: guestSnap.top,
+  }
+  out.assertions.actionsGating = {
+    actionsAbsentWhenNoAction: noActionGrid.length >= 2
+      && noActionGrid.every((c) => c.actionsNodes === 0 && is180(c)),
+    desc2LinesNoActions: guestNoActions.length >= 2
+      && guestNoActions.every((c) => c.actionsNodes === 0 && linesOf(c) === 2),
+    desc1LineWithActions: guestWithActions.length >= 8
+      && guestWithActions.every((c) => c.actionsNodes === 1 && linesOf(c) === 1),
+    noInnerClippingStillTrue: ['390', '1536'].every((k) => geoSnaps[k].cards.length >= 2
+      && geoSnaps[k].cards.every(noClip)) && guestSnap.cards.every(noClip),
+  }
+  out.assertions.topAlign = {
+    currentCardSameTop1536: topSnap.top.sameTopStrict === true,
+    currentCardSameHeight1536: topSnap.top.sameHeight === true,
+    emptyPlaceholderSameBox1536: guestSnap.top.sameTopStrict === true && guestSnap.top.sameHeight === true,
+    noCurrentTitleNode: topSnap.top.titleNodes === 0 && guestSnap.top.titleNodes === 0,
+    currentAriaLabel: topSnap.top.currentAria === ZH.wage.currentTitle,
+    emptyPlaceholderAriaLabel: guestSnap.top.currentAria === ZH.wage.currentTitle,
+  }
+
   await browser.close()
   out.finishedAt = new Date().toISOString()
   // ★ 全部臂跑完再复核一次累计 pageerror（含新增的签到 / `/activities` 已删 / 客态臂）
@@ -1521,6 +1571,12 @@ async function main() {
     'geometry.topCurrentWithinViewport390', 'geometry.mintTouch390',
     'geometry.cardExactly180Both', 'geometry.noInnerClippingBoth', 'geometry.descExactly2Lines1536',
     'geometry.descExactly1Line390', 'geometry.mobileTouch44On180',
+    // ⑨'' 卡内 actions 按需渲染 + 右上卡与电量卡等高（Kevin 2026-10-24 追加）
+    'actionsGating.actionsAbsentWhenNoAction', 'actionsGating.desc2LinesNoActions',
+    'actionsGating.desc1LineWithActions', 'actionsGating.noInnerClippingStillTrue',
+    'topAlign.currentCardSameTop1536', 'topAlign.currentCardSameHeight1536',
+    'topAlign.emptyPlaceholderSameBox1536', 'topAlign.noCurrentTitleNode',
+    'topAlign.currentAriaLabel', 'topAlign.emptyPlaceholderAriaLabel',
   ]
   const verdicts = required.map((key) => {
     const [group, field] = key.split('.')

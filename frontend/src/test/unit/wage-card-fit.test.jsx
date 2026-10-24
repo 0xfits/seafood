@@ -20,7 +20,7 @@ import React from 'react'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { render, cleanup, waitFor } from '@testing-library/react'
+import { render, cleanup, fireEvent, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -78,8 +78,30 @@ const ROW_OPEN = {
   avatar_url: null,
 }
 
-const okBody = (data) => ({ ok: true, status: 200, json: async () => ({ success: true, data }) })
+// 在职（右上当前项目卡）：有【领工资】⇒ 操作区在场
+const ROW_HIRED = {
+  ...ROW_OPEN,
+  project_id: 22,
+  snowflake_id: '70022',
+  title: '冷库分拣',
+  description: '早班分拣冻品 · 4℃ 冷库 · 计件结算（这段也超过一行，用于验证有操作区时 desc 压 1 行）',
+  status: 'recruiting',
+  my_role: 'hired',
+  my_hired_at: '2026-10-18T02:00:00.000Z',
+}
 
+// 已截止且非在职 ⇒ 三支分支都不命中 ⇒ 操作区**整块不渲染**（本单主旨）
+const ROW_CLOSED = {
+  ...ROW_OPEN,
+  project_id: 23,
+  snowflake_id: '70023',
+  title: '旧仓搬迁',
+  description: '已截止的搬迁项目 · 名额已满 · 不再招募（无操作区时 desc 应回 2 行并吃掉腾出来的空间）',
+  status: 'closed',
+  my_role: 'none',
+}
+
+const okBody = (data) => ({ ok: true, status: 200, json: async () => ({ success: true, data }) })
 const installFetch = (rows) => {
   const fn = vi.fn(async (url) => {
     const target = String(url)
@@ -159,11 +181,149 @@ describe('/wage 网格卡 · 描述行数', () => {
   })
 })
 
-describe('/wage 右上当前项目卡 · 仍自适应', () => {
-  it('.sf-wage-current-card 仍 height:auto，且权重压过 .sf-wage-card 的固定高', () => {
-    expect(CURRENT_CARD).toContain('height: auto;')
-    // 权重：(0,2,0) > (0,1,0) ⇒ 不靠书写顺序取胜
-    expect(WAGE_CSS).toContain('.sf-wage-current .sf-wage-current-card {')
+describe('/wage 右上当前项目卡 · 与左电量卡等高（标题容器已删）', () => {
+  it('页内再无 .sf-wage-current-title：JSX 零节点 / CSS 零规则；语义由 aria-label 承载', async () => {
+    const jsx = fs.readFileSync(path.join(SRC, 'pages/wage/WagePage.jsx'), 'utf8')
+    expect(jsx).not.toContain('sf-wage-current-title')
+    expect(WAGE_CSS).not.toContain('sf-wage-current-title')
+    installFetch([ROW_HIRED, ROW_OPEN])
+    const { container } = mount()
+    await waitFor(() => expect(container.querySelectorAll('[data-sf-m="wage-card"]')).toHaveLength(2))
+    expect(container.querySelector('.sf-wage-current-title')).toBeNull()
+    const cur = container.querySelector('[data-sf-m="wage-current"]')
+    expect(cur).not.toBeNull()
+    expect(cur.getAttribute('aria-label')).toBe(zh.wage.currentTitle)
+  })
+
+  it('灰态占位卡同样靠 aria-label 承载「当前项目」语义（不再有标题行）', async () => {
+    installFetch([ROW_OPEN])
+    const { container } = mount()
+    await waitFor(() => expect(container.querySelectorAll('[data-sf-m="wage-card"]')).toHaveLength(1))
+    const empty = container.querySelector('[data-sf-m="wage-current-empty"]')
+    expect(empty).not.toBeNull()
+    expect(empty.getAttribute('aria-label')).toBe(zh.wage.currentTitle)
+    expect(empty.querySelector('.sf-wage-current-title')).toBeNull()
+  })
+
+  it('.sf-wage-top 改 stretch；右列与卡 height:100%（不再 auto、也不回落到网格卡的 180）', () => {
+    const TOP = block('.sf-wage-top {', '.sf-wage-current {')
+    expect(TOP).toContain('align-items: stretch;')
+    expect(TOP).not.toContain('align-items: start;')
+    // 右列自身吃 100%（列内不再有标题行，卡直接对齐列顶）
+    expect(block('.sf-wage-current {', '.sf-wage-current.is-empty {')).toContain('height: 100%;')
+    // 卡跟随左列（0,2,0 压过 .sf-wage-card 的固定高），且 auto 已退场
+    expect(CURRENT_CARD).toContain('height: 100%;')
+    expect(CURRENT_CARD).not.toContain('height: auto;')
+    // 180px 常量与网格卡吃法一个字不动
+    expect(PAGE_VARS).toContain('--sf-wage-card-h: 180px;')
+    expect(CARD).toContain('height: var(--sf-wage-card-h);')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// /wage 网格卡 · 操作区**按需渲染**（Kevin 2026-10-24）
+//   三态：有 actions（在职可领 / 招募中可加入）⇒ 容器在场、desc 压 1 行；
+//        无 actions（已截止 / 已在别处打工）⇒ 容器**整个不存在**、desc 回 2 行；
+//        有 notice ⇒ desc 整块不渲染（提示优先，让位规则不回退）。
+//   行数判据：把 wage.css 注入 jsdom，读 `getComputedStyle(desc).webkitLineClamp`（真级联，
+//   含 `:has` 判定）+ `card.matches(':has(.sf-wage-card-actions)')` 双重取证；
+//   真实像素行数（getBoundingClientRect / scrollHeight）由 ops/wage/front/probe-wage.mjs 取证。
+// ---------------------------------------------------------------------------
+const CSS_STYLE_ID = 'sf-wage-css-for-clamp'
+
+describe('/wage 网格卡 · 操作区按需渲染', () => {
+  const injectWageCss = () => {
+    if (document.getElementById(CSS_STYLE_ID)) return
+    const style = document.createElement('style')
+    style.id = CSS_STYLE_ID
+    style.textContent = WAGE_CSS
+    document.head.appendChild(style)
+  }
+  const descOf = (card) => card.querySelector('[data-sf-m="wage-card-desc"]')
+  const clampOf = (card) => getComputedStyle(descOf(card)).webkitLineClamp
+
+  beforeEach(injectWageCss)
+  afterEach(() => {
+    const style = document.getElementById(CSS_STYLE_ID)
+    if (style) style.remove()
+  })
+
+  it('CSS 口径：desc 默认 2 行，有 actions 才压 1 行（clamp 与固定行高同步）；提示让位仍在；移动档不倒退', () => {
+    const hasRule = block('.sf-wage-card:has(.sf-wage-card-actions) .sf-wage-card-desc {', '.sf-wage-pay {')
+    expect(DESC).toContain('-webkit-line-clamp: 2;')
+    expect(DESC).toContain('height: calc(2 * 1.4em);')
+    expect(hasRule).toContain('-webkit-line-clamp: 1;')
+    // 只 clamp 不改 height ⇒ 视觉少一行、空间仍占着；两者必须同步
+    expect(hasRule).toContain('height: calc(1 * 1.4em);')
+    // 提示行让位（display:none）与本案共存
+    expect(WAGE_CSS).toContain('.sf-wage-card:has([data-sf-m="wage-card-notice"]) .sf-wage-card-desc {')
+    const mobileDesc = MOBILE.slice(MOBILE.indexOf('.sf-wage-card-desc {'), MOBILE.indexOf('.sf-wage-modal {'))
+    expect(mobileDesc).toContain('-webkit-line-clamp: 1;')
+    expect(mobileDesc).toContain('height: calc(1 * 1.4em);')
+  })
+
+  it('有 actions（招募中可加入）：容器在场、取到 1 行（:has 命中）', async () => {
+    installFetch([ROW_OPEN])
+    const { container } = mount()
+    await waitFor(() => expect(container.querySelectorAll('[data-sf-m="wage-card"]')).toHaveLength(1))
+    const card = container.querySelector('[data-sf-m="wage-card"]')
+    expect(card.querySelector('.sf-wage-card-actions')).not.toBeNull()
+    expect(card.querySelector('[data-sf-m="wage-card-action"]').getAttribute('data-sf-action')).toBe('join')
+    expect(card.matches(':has(.sf-wage-card-actions)')).toBe(true)
+    expect(clampOf(card)).toBe('1')
+  })
+
+  it('有 actions（在职可领）：容器在场、取到 1 行，领工资/在职钩子全保留', async () => {
+    installFetch([ROW_HIRED])
+    const { container } = mount()
+    await waitFor(() => expect(container.querySelectorAll('[data-sf-m="wage-card"]')).toHaveLength(1))
+    const card = container.querySelector('[data-sf-m="wage-current"] [data-sf-m="wage-card"]')
+    expect(card.querySelector('.sf-wage-card-actions')).not.toBeNull()
+    expect(card.querySelector('[data-sf-m="wage-card-in-service"]')).not.toBeNull()
+    expect(card.querySelector('[data-sf-m="wage-current-claim"]').getAttribute('data-sf-action')).toBe('claim')
+    expect(card.matches(':has(.sf-wage-card-actions)')).toBe(true)
+    expect(clampOf(card)).toBe('1')
+  })
+
+  it('无 actions（已截止且非在职）：整块不渲染（不是空壳）、取到 2 行', async () => {
+    installFetch([ROW_CLOSED])
+    const { container } = mount()
+    await waitFor(() => expect(container.querySelectorAll('[data-sf-m="wage-card"]')).toHaveLength(1))
+    const card = container.querySelector('[data-sf-m="wage-card"]')
+    expect(card.querySelector('.sf-wage-card-actions')).toBeNull()
+    expect(card.querySelector('[data-sf-m="wage-card-action"]')).toBeNull()
+    expect(card.matches(':has(.sf-wage-card-actions)')).toBe(false)
+    expect(clampOf(card)).toBe('2')
+    // 卡内子块：头 / 描述 / 名额工资（操作区整块缺席，不留空 div）
+    expect(card.children.length).toBe(3)
+    expect(descOf(card).textContent).toBe(ROW_CLOSED.description)
+  })
+
+  it('无 actions（已在别处打工的他项目卡）：无空壳、取到 2 行；当前项目卡仍有 actions 且 1 行', async () => {
+    installFetch([ROW_HIRED, ROW_OPEN])
+    const { container } = mount()
+    await waitFor(() => expect(container.querySelectorAll('[data-sf-m="wage-card"]')).toHaveLength(2))
+    const other = container.querySelector(`[data-sf-m="wage-card"][data-sf-project="${ROW_OPEN.project_id}"]`)
+    expect(other).not.toBeNull()
+    expect(other.querySelector('.sf-wage-card-actions')).toBeNull()
+    expect(other.querySelector('[data-sf-m="wage-card-action"]')).toBeNull()
+    expect(clampOf(other)).toBe('2')
+    const cur = container.querySelector('[data-sf-m="wage-current"] [data-sf-m="wage-card"]')
+    expect(cur.querySelector('.sf-wage-card-actions')).not.toBeNull()
+    expect(clampOf(cur)).toBe('1')
+  })
+
+  it('有 notice：提示行优先，描述整块不渲染（:has 让位不因本条回退）', async () => {
+    AUTH.isAuthenticated = false
+    installFetch([ROW_OPEN])
+    const { container } = mount()
+    await waitFor(() => expect(container.querySelectorAll('[data-sf-m="wage-card"]')).toHaveLength(1))
+    const card = container.querySelector('[data-sf-m="wage-card"]')
+    fireEvent.click(card.querySelector('[data-sf-action="join"]'))
+    await waitFor(() => expect(card.querySelector('[data-sf-m="wage-card-notice"]')).not.toBeNull())
+    // 描述节点仍在 DOM（文本不丢），但级联后 display:none ⇒ 视觉不占位
+    expect(descOf(card)).not.toBeNull()
+    expect(getComputedStyle(descOf(card)).display).toBe('none')
   })
 })
 

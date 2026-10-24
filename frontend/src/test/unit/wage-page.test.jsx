@@ -738,7 +738,7 @@ describe('/wage ⑦ 页顶两列 / 当前项目卡 / 铸造入口', () => {
     const current = top.querySelector('[data-sf-m="wage-current"]')
     expect(current).not.toBeNull()
     expect(current.getAttribute('data-sf-project')).toBe('11')
-    expect(current.querySelector('[data-sf-m="wage-current-title"]').textContent).toBe(zh.wage.currentTitle)
+    expect(current.getAttribute('aria-label')).toBe(zh.wage.currentTitle)
     // 项目名 / 头像 / 工资标准 / 名额 / 倒计时 / 领工资
     expect(current.querySelector('[data-sf-m="wage-card-title"]').textContent).toBe('海鲜打包')
     expect(current.querySelector('[data-sf-m="wage-card-avatar"]')).not.toBeNull()
@@ -781,7 +781,7 @@ describe('/wage ⑦ 页顶两列 / 当前项目卡 / 铸造入口', () => {
     const empty = container.querySelector('[data-sf-m="wage-current-empty"]')
     expect(empty).not.toBeNull()
     expect(empty.textContent).toContain(zh.wage.currentEmpty)
-    expect(empty.textContent).toContain(zh.wage.currentTitle)
+    expect(empty.getAttribute('aria-label')).toBe(zh.wage.currentTitle)
     expect(container.querySelector('[data-sf-m="wage-current"]')).toBeNull()
     // 占位卡不抢网格：无已加入 ⇒ 网格仍是全部行
     const inList = Array.from(container.querySelectorAll('[data-sf-m="wage-list"] [data-sf-m="wage-card"]'))

@@ -415,6 +415,11 @@ const WagePage = () => {
     //   本页只保留【领工资】。`hiredKey` 非空 = 本人已在某个项目在职（`my_role==='hired'`）。
     const hiredAnywhere = Boolean(hiredKey)
     const isFull = headcount > 0 && hiredCount >= headcount
+    // ★ Kevin 2026-10-24：操作区**按需渲染**——下面三支分支里只有「在职可领」与「招募中可加入」
+    //   会产出内容；其余（已截止 / 已在别处打工 / 招募已满且非在职…）此前仍渲染一个空壳 div，
+    //   带 `margin-top:auto` + `flex:none` ⇒ 在 180px 固定高卡里白占一条按钮高。
+    //   无内容 ⇒ **整块不渲染**（不用 `:empty`、不留空 div），空间交给描述（CSS `:has` 回 2 行）。
+    const hasActions = joined || (recruiting && !hiredAnywhere)
     // 整卡链接（Kevin 2026-10-21）：行有合法 slug ⇒ 根元素 article→Link（页面规范形 `/<slug>`）；
     // 历史行无 slug ⇒ null ⇒ 保持原 `<article>` 不变链接。卡内按钮 stopPropagation 不触发跳转。
     const slugHref = projectHrefOf(row)
@@ -495,6 +500,7 @@ const WagePage = () => {
           </span>
         </div>
 
+        {hasActions ? (
         <div className="sf-wage-card-actions">
           {joined ? (
             <>
@@ -547,6 +553,7 @@ const WagePage = () => {
             </>
           ) : null}
         </div>
+        ) : null}
 
         {notice?.text ? (
           <p
@@ -634,13 +641,16 @@ const WagePage = () => {
               className="sf-wage-current"
               data-sf-m="wage-current"
               data-sf-project={projectKey(currentRow)}
+              aria-label={t('wage.currentTitle')}
             >
-              <h2 className="sf-wage-current-title" data-sf-m="wage-current-title">{t('wage.currentTitle')}</h2>
               {renderCard(currentRow, { current: true })}
             </section>
           ) : (
-            <section className="sf-wage-current is-empty" data-sf-m="wage-current-empty">
-              <h2 className="sf-wage-current-title" data-sf-m="wage-current-title">{t('wage.currentTitle')}</h2>
+            <section
+              className="sf-wage-current is-empty"
+              data-sf-m="wage-current-empty"
+              aria-label={t('wage.currentTitle')}
+            >
               <p className="sf-wage-current-empty-text" data-sf-m="wage-current-empty-text">
                 {t('wage.currentEmpty')}
               </p>

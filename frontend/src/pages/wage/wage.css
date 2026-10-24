@@ -47,28 +47,26 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) 320px;
   gap: var(--sf-st-feed-gap-m);
-  align-items: start;
+  /* ★ Kevin 2026-10-24：start → **stretch** —— 两列同一行时右列跟随左列等高（卡顶严格对齐）；
+   *   ≤767 单列堆叠时 stretch 对跨行的两个 item 不生效 ⇒ 各自自适应，口径不倒退。 */
+  align-items: stretch;
   margin-bottom: var(--sf-st-feed-gap-m);
 }
 
+/* 当前项目卡：内容跟左列电量卡**严格等高**（Kevin 2026-10-24：卡顶对齐 + 同高）
+ *   · `.sf-wage-top` 的 `align-items` 已从 start 改为 stretch ⇒ 右列撑满行高；
+ *   · 右列与卡都吃 `height: 100%` ⇒ 卡顶与电量卡平齐、高度逐值相等（原先多了「当前项目」标题行 19+6px）；
+ *   · 卡的 `height` 由 auto 改 100% 是**跟随左卡**，不是回落到网格卡的 180px —— 180 仍是 `.sf-wage-card` 的
+ *     默认值，这里被更高权重的本规则覆盖（0,2,0 > 0,1,0），且 `min-height` 语义由 `.is-empty` 保留。 */
 .sf-wage-current {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  height: 100%;
   min-width: 0;
 }
 
-.sf-wage-current-title {
-  margin: 0;
-  color: var(--sf-title-fg);
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1.35;
-}
-
-/* 当前项目卡：内容比网格卡少一行工资排布，高度自适应（不被网格卡的固定高钳住） */
 .sf-wage-current .sf-wage-current-card {
-  height: auto;
+  height: 100%;
 }
 
 /* 未加入占位（灰态）：虚线边 + 面板底色，不引入任何新色值 */
@@ -268,7 +266,8 @@
   font-size: 12px;
   line-height: 1.4;
   overflow-wrap: anywhere;
-  /* ★ Kevin 2026-10-24：描述**固定行数**——桌面 2 行、移动 1 行（见文件尾 767 档）。
+  /* ★ Kevin 2026-10-24：描述**固定行数**——桌面默认 2 行（有操作区时压到 1 行，见下方 `:has` 规则）、
+   *   移动 1 行（见文件尾 767 档）。
    *   `-webkit-line-clamp` + ellipsis + 固定行高占位（height）⇒ 有/无描述、长短文案都占同样高度。
    *   文本框仍是全文本（探针/测试读 textContent 不受影响），只是视觉裁到 N 行。
    *   `flex: 0 1 auto` + `min-height: 0`：卡高固定 180 后，**唯一**允许被压缩的块是描述 ——
@@ -297,6 +296,16 @@
  *   :has 只做可见性让位、不改任何 token；窄档两行提示仍由描述的 flex-shrink 兜底（卡根永不溢出）。 */
 .sf-wage-card:has([data-sf-m="wage-card-notice"]) .sf-wage-card-desc {
   display: none;
+}
+
+/* 操作区**按需渲染**（Kevin 2026-10-24）：有 actions（在职可领 / 招募中可加入）时，
+ *   描述由默认 2 行压到 **1 行**，把一条按钮的高度让给操作区——卡总高仍恒 180px；
+ *   无 actions 时该容器整个不渲染（JSX 侧 `hasActions`），描述自然回到 2 行、上方空间不白发。
+ *   `height` 必须与 clamp 同步改，否则固定 2 行高仍占着位置（clamp 只裁视觉）。
+ *   提示行让位规则（上一条）优先：有 notice 时仍整块 `display:none`，与本案共存。 */
+.sf-wage-card:has(.sf-wage-card-actions) .sf-wage-card-desc {
+  -webkit-line-clamp: 1;
+  height: calc(1 * 1.4em);
 }
 
 .sf-wage-pay {

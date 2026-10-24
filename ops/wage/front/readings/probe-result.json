@@ -1,6 +1,6 @@
 {
   "probe": "ops/wage/front/probe-wage.mjs",
-  "startedAt": "2026-10-24T02:45:13.339Z",
+  "startedAt": "2026-10-24T03:30:20.523Z",
   "dist": "/Users/kevin/bistro/seafood/frontend/dist",
   "fixtures": {
     "rows": 10,
@@ -52,7 +52,7 @@
         ],
         "cardTop": 106,
         "cardBottom": 296,
-        "listTop": 316.9,
+        "listTop": 305,
         "listPresent": true,
         "cardRight": 1187,
         "cardInViewport": true,
@@ -84,13 +84,13 @@
       "buttonTexts": [
         "铸造"
       ],
-      "cardTop": 49,
-      "cardBottom": 239,
-      "listTop": 259.9,
+      "cardTop": 61,
+      "cardBottom": 251,
+      "listTop": 260,
       "listPresent": true,
       "cardRight": 1187,
       "cardInViewport": true,
-      "scrollY": 57,
+      "scrollY": 45,
       "activitiesPageHooks": 0,
       "notFoundHooks": 0,
       "pathname": "/wage"
@@ -140,13 +140,13 @@
             "bgImage": "linear-gradient(140deg, rgb(240, 227, 200), rgb(217, 188, 134))",
             "left": 1212,
             "right": 1252,
-            "top": 139.9,
-            "bottom": 179.9,
-            "centerY": 159.9
+            "top": 115,
+            "bottom": 155,
+            "centerY": 135
           },
           "head": {
-            "titleCenterY": 159.9,
-            "titleTop": 150.9,
+            "titleCenterY": 135,
+            "titleTop": 126,
             "titleLeft": 1258,
             "titleH": 18,
             "titleTextOverflow": "ellipsis",
@@ -161,6 +161,8 @@
           "wage": "💰：每 4 小时 + ⚡️ 30＋BTTC 20",
           "wageExtra": "＋BTTC 20",
           "action": "claim",
+          "actionsPresent": true,
+          "actionsNodes": 1,
           "actionText": "领工资",
           "actionDisabled": false,
           "needLogin": "0",
@@ -187,15 +189,18 @@
           "tintBg": "rgb(255, 230, 15)",
           "tintOpacity": "0.12",
           "scope": "current",
-          "top": 130.9,
-          "h": 177,
-          "clientH": 175,
-          "scrollH": 175,
+          "top": 106,
+          "h": 190,
+          "clientH": 188,
+          "scrollH": 188,
           "clientW": 315,
           "scrollW": 315,
           "blocks": {
             "head": 40,
-            "desc": 33.6,
+            "desc": 16.8,
+            "actionsPresent": true,
+            "actionsNodes": 1,
+            "cardChildren": 4,
             "meta": 39.4,
             "metaLines": 2.43,
             "actions": 34,
@@ -214,8 +219,8 @@
             ]
           },
           "desc": {
-            "h": 33.6,
-            "lineClamp": "2",
+            "h": 16.8,
+            "lineClamp": "1",
             "lineHeight": 16.8,
             "overflow": "hidden",
             "boxOrient": "vertical"
@@ -239,13 +244,13 @@
             "bgImage": "linear-gradient(140deg, rgb(201, 244, 228), rgb(91, 215, 180))",
             "left": 33,
             "right": 73,
-            "top": 325.9,
-            "bottom": 365.9,
-            "centerY": 345.9
+            "top": 314,
+            "bottom": 354,
+            "centerY": 334
           },
           "head": {
-            "titleCenterY": 345.9,
-            "titleTop": 336.9,
+            "titleCenterY": 334,
+            "titleTop": 325,
             "titleLeft": 79,
             "titleH": 18,
             "titleTextOverflow": "ellipsis",
@@ -260,6 +265,8 @@
           "wage": "💰：每 6 小时 + ⚡️ 25",
           "wageExtra": null,
           "action": null,
+          "actionsPresent": false,
+          "actionsNodes": 0,
           "actionText": null,
           "actionDisabled": null,
           "needLogin": null,
@@ -286,7 +293,7 @@
           "tintBg": "rgba(0, 0, 0, 0)",
           "tintOpacity": "1",
           "scope": "list",
-          "top": 316.9,
+          "top": 305,
           "h": 180,
           "clientH": 178,
           "scrollH": 178,
@@ -295,9 +302,12 @@
           "blocks": {
             "head": 40,
             "desc": 33.6,
+            "actionsPresent": false,
+            "actionsNodes": 0,
+            "cardChildren": 3,
             "meta": 39.4,
             "metaLines": 2.43,
-            "actions": 0,
+            "actions": null,
             "notice": null,
             "metaKids": [
               {
@@ -338,13 +348,13 @@
             "bgImage": "linear-gradient(140deg, rgb(255, 232, 163), rgb(255, 196, 77))",
             "left": 334,
             "right": 374,
-            "top": 325.9,
-            "bottom": 365.9,
-            "centerY": 345.9
+            "top": 314,
+            "bottom": 354,
+            "centerY": 334
           },
           "head": {
-            "titleCenterY": 345.9,
-            "titleTop": 336.9,
+            "titleCenterY": 334,
+            "titleTop": 325,
             "titleLeft": 380,
             "titleH": 18,
             "titleTextOverflow": "ellipsis",
@@ -359,6 +369,8 @@
           "wage": "💰：每 8 小时 + ⚡️ 20＋BTTC 50",
           "wageExtra": "＋BTTC 50",
           "action": null,
+          "actionsPresent": false,
+          "actionsNodes": 0,
           "actionText": null,
           "actionDisabled": null,
           "needLogin": null,
@@ -385,7 +397,7 @@
           "tintBg": "rgba(0, 0, 0, 0)",
           "tintOpacity": "1",
           "scope": "list",
-          "top": 316.9,
+          "top": 305,
           "h": 180,
           "clientH": 178,
           "scrollH": 178,
@@ -394,9 +406,12 @@
           "blocks": {
             "head": 40,
             "desc": 33.6,
+            "actionsPresent": false,
+            "actionsNodes": 0,
+            "cardChildren": 3,
             "meta": 39.4,
             "metaLines": 2.43,
-            "actions": 0,
+            "actions": null,
             "notice": null,
             "metaKids": [
               {
@@ -437,13 +452,13 @@
             "bgImage": "linear-gradient(140deg, rgb(255, 211, 165), rgb(253, 158, 91))",
             "left": 635,
             "right": 675,
-            "top": 325.9,
-            "bottom": 365.9,
-            "centerY": 345.9
+            "top": 314,
+            "bottom": 354,
+            "centerY": 334
           },
           "head": {
-            "titleCenterY": 345.9,
-            "titleTop": 336.9,
+            "titleCenterY": 334,
+            "titleTop": 325,
             "titleLeft": 681,
             "titleH": 18,
             "titleTextOverflow": "ellipsis",
@@ -458,6 +473,8 @@
           "wage": "💰：每 12 小时 + ⚡️ 18",
           "wageExtra": null,
           "action": null,
+          "actionsPresent": false,
+          "actionsNodes": 0,
           "actionText": null,
           "actionDisabled": null,
           "needLogin": null,
@@ -484,7 +501,7 @@
           "tintBg": "rgba(0, 0, 0, 0)",
           "tintOpacity": "1",
           "scope": "list",
-          "top": 316.9,
+          "top": 305,
           "h": 180,
           "clientH": 178,
           "scrollH": 178,
@@ -493,9 +510,12 @@
           "blocks": {
             "head": 40,
             "desc": 33.6,
+            "actionsPresent": false,
+            "actionsNodes": 0,
+            "cardChildren": 3,
             "meta": 39.4,
             "metaLines": 2.43,
-            "actions": 0,
+            "actions": null,
             "notice": null,
             "metaKids": [
               {
@@ -536,13 +556,13 @@
             "bgImage": "linear-gradient(140deg, rgb(255, 232, 163), rgb(255, 196, 77))",
             "left": 936,
             "right": 976,
-            "top": 325.9,
-            "bottom": 365.9,
-            "centerY": 345.9
+            "top": 314,
+            "bottom": 354,
+            "centerY": 334
           },
           "head": {
-            "titleCenterY": 345.9,
-            "titleTop": 336.9,
+            "titleCenterY": 334,
+            "titleTop": 325,
             "titleLeft": 982,
             "titleH": 18,
             "titleTextOverflow": "ellipsis",
@@ -557,6 +577,8 @@
           "wage": "💰：每 6 小时 + ⚡️ 22",
           "wageExtra": null,
           "action": null,
+          "actionsPresent": false,
+          "actionsNodes": 0,
           "actionText": null,
           "actionDisabled": null,
           "needLogin": null,
@@ -583,7 +605,7 @@
           "tintBg": "rgba(0, 0, 0, 0)",
           "tintOpacity": "1",
           "scope": "list",
-          "top": 316.9,
+          "top": 305,
           "h": 180,
           "clientH": 178,
           "scrollH": 178,
@@ -592,9 +614,12 @@
           "blocks": {
             "head": 40,
             "desc": 33.6,
+            "actionsPresent": false,
+            "actionsNodes": 0,
+            "cardChildren": 3,
             "meta": 39.4,
             "metaLines": 2.43,
-            "actions": 0,
+            "actions": null,
             "notice": null,
             "metaKids": [
               {
@@ -635,13 +660,13 @@
             "bgImage": "linear-gradient(140deg, rgb(255, 232, 163), rgb(255, 196, 77))",
             "left": 1237,
             "right": 1277,
-            "top": 325.9,
-            "bottom": 365.9,
-            "centerY": 345.9
+            "top": 314,
+            "bottom": 354,
+            "centerY": 334
           },
           "head": {
-            "titleCenterY": 345.9,
-            "titleTop": 336.9,
+            "titleCenterY": 334,
+            "titleTop": 325,
             "titleLeft": 1283,
             "titleH": 18,
             "titleTextOverflow": "ellipsis",
@@ -656,6 +681,8 @@
           "wage": "💰：每 10 小时 + ⚡️ 15",
           "wageExtra": null,
           "action": null,
+          "actionsPresent": false,
+          "actionsNodes": 0,
           "actionText": null,
           "actionDisabled": null,
           "needLogin": null,
@@ -682,7 +709,7 @@
           "tintBg": "rgba(0, 0, 0, 0)",
           "tintOpacity": "1",
           "scope": "list",
-          "top": 316.9,
+          "top": 305,
           "h": 180,
           "clientH": 178,
           "scrollH": 178,
@@ -691,9 +718,12 @@
           "blocks": {
             "head": 40,
             "desc": 33.6,
+            "actionsPresent": false,
+            "actionsNodes": 0,
+            "cardChildren": 3,
             "meta": 39.4,
             "metaLines": 2.43,
-            "actions": 0,
+            "actions": null,
             "notice": null,
             "metaKids": [
               {
@@ -734,13 +764,13 @@
             "bgImage": "linear-gradient(140deg, rgb(191, 233, 255), rgb(111, 195, 247))",
             "left": 33,
             "right": 73,
-            "top": 514.9,
-            "bottom": 554.9,
-            "centerY": 534.9
+            "top": 503,
+            "bottom": 543,
+            "centerY": 523
           },
           "head": {
-            "titleCenterY": 534.9,
-            "titleTop": 525.9,
+            "titleCenterY": 523,
+            "titleTop": 514,
             "titleLeft": 79,
             "titleH": 18,
             "titleTextOverflow": "ellipsis",
@@ -755,6 +785,8 @@
           "wage": "💰：每 12 小时 + ⚡️ 28",
           "wageExtra": null,
           "action": null,
+          "actionsPresent": false,
+          "actionsNodes": 0,
           "actionText": null,
           "actionDisabled": null,
           "needLogin": null,
@@ -781,7 +813,7 @@
           "tintBg": "rgba(0, 0, 0, 0)",
           "tintOpacity": "1",
           "scope": "list",
-          "top": 505.9,
+          "top": 494,
           "h": 180,
           "clientH": 178,
           "scrollH": 178,
@@ -790,9 +822,12 @@
           "blocks": {
             "head": 40,
             "desc": 33.6,
+            "actionsPresent": false,
+            "actionsNodes": 0,
+            "cardChildren": 3,
             "meta": 39.4,
             "metaLines": 2.43,
-            "actions": 0,
+            "actions": null,
             "notice": null,
             "metaKids": [
               {
@@ -833,13 +868,13 @@
             "bgImage": "linear-gradient(140deg, rgb(255, 211, 165), rgb(253, 158, 91))",
             "left": 334,
             "right": 374,
-            "top": 514.9,
-            "bottom": 554.9,
-            "centerY": 534.9
+            "top": 503,
+            "bottom": 543,
+            "centerY": 523
           },
           "head": {
-            "titleCenterY": 534.9,
-            "titleTop": 525.9,
+            "titleCenterY": 523,
+            "titleTop": 514,
             "titleLeft": 380,
             "titleH": 18,
             "titleTextOverflow": "ellipsis",
@@ -854,6 +889,8 @@
           "wage": "💰：每 24 小时 + ⚡️ 12",
           "wageExtra": null,
           "action": null,
+          "actionsPresent": false,
+          "actionsNodes": 0,
           "actionText": null,
           "actionDisabled": null,
           "needLogin": null,
@@ -880,7 +917,7 @@
           "tintBg": "rgba(0, 0, 0, 0)",
           "tintOpacity": "1",
           "scope": "list",
-          "top": 505.9,
+          "top": 494,
           "h": 180,
           "clientH": 178,
           "scrollH": 178,
@@ -889,9 +926,12 @@
           "blocks": {
             "head": 40,
             "desc": 33.6,
+            "actionsPresent": false,
+            "actionsNodes": 0,
+            "cardChildren": 3,
             "meta": 39.4,
             "metaLines": 2.43,
-            "actions": 0,
+            "actions": null,
             "notice": null,
             "metaKids": [
               {
@@ -932,13 +972,13 @@
             "bgImage": "linear-gradient(140deg, rgb(255, 211, 165), rgb(253, 158, 91))",
             "left": 635,
             "right": 675,
-            "top": 514.9,
-            "bottom": 554.9,
-            "centerY": 534.9
+            "top": 503,
+            "bottom": 543,
+            "centerY": 523
           },
           "head": {
-            "titleCenterY": 534.9,
-            "titleTop": 525.9,
+            "titleCenterY": 523,
+            "titleTop": 514,
             "titleLeft": 681,
             "titleH": 18,
             "titleTextOverflow": "ellipsis",
@@ -953,6 +993,8 @@
           "wage": "💰：每 24 小时 + ⚡️ 10",
           "wageExtra": null,
           "action": null,
+          "actionsPresent": false,
+          "actionsNodes": 0,
           "actionText": null,
           "actionDisabled": null,
           "needLogin": null,
@@ -979,7 +1021,7 @@
           "tintBg": "rgba(0, 0, 0, 0)",
           "tintOpacity": "1",
           "scope": "list",
-          "top": 505.9,
+          "top": 494,
           "h": 180,
           "clientH": 178,
           "scrollH": 178,
@@ -988,9 +1030,12 @@
           "blocks": {
             "head": 40,
             "desc": 33.6,
+            "actionsPresent": false,
+            "actionsNodes": 0,
+            "cardChildren": 3,
             "meta": 39.4,
             "metaLines": 2.43,
-            "actions": 0,
+            "actions": null,
             "notice": null,
             "metaKids": [
               {
@@ -1031,13 +1076,13 @@
             "bgImage": "linear-gradient(140deg, rgb(255, 233, 196), rgb(255, 184, 92))",
             "left": 936,
             "right": 976,
-            "top": 514.9,
-            "bottom": 554.9,
-            "centerY": 534.9
+            "top": 503,
+            "bottom": 543,
+            "centerY": 523
           },
           "head": {
-            "titleCenterY": 534.9,
-            "titleTop": 525.9,
+            "titleCenterY": 523,
+            "titleTop": 514,
             "titleLeft": 982,
             "titleH": 18,
             "titleTextOverflow": "ellipsis",
@@ -1052,6 +1097,8 @@
           "wage": "💰：每 8 小时 + ⚡️ 35＋BTTC 80",
           "wageExtra": "＋BTTC 80",
           "action": null,
+          "actionsPresent": false,
+          "actionsNodes": 0,
           "actionText": null,
           "actionDisabled": null,
           "needLogin": null,
@@ -1078,7 +1125,7 @@
           "tintBg": "rgba(0, 0, 0, 0)",
           "tintOpacity": "1",
           "scope": "list",
-          "top": 505.9,
+          "top": 494,
           "h": 180,
           "clientH": 178,
           "scrollH": 178,
@@ -1087,9 +1134,12 @@
           "blocks": {
             "head": 40,
             "desc": 33.6,
+            "actionsPresent": false,
+            "actionsNodes": 0,
+            "cardChildren": 3,
             "meta": 39.4,
             "metaLines": 2.43,
-            "actions": 0,
+            "actions": null,
             "notice": null,
             "metaKids": [
               {
@@ -1134,13 +1184,13 @@
           "bgImage": "linear-gradient(140deg, rgb(240, 227, 200), rgb(217, 188, 134))",
           "left": 1212,
           "right": 1252,
-          "top": 139.9,
-          "bottom": 179.9,
-          "centerY": 159.9
+          "top": 115,
+          "bottom": 155,
+          "centerY": 135
         },
         "head": {
-          "titleCenterY": 159.9,
-          "titleTop": 150.9,
+          "titleCenterY": 135,
+          "titleTop": 126,
           "titleLeft": 1258,
           "titleH": 18,
           "titleTextOverflow": "ellipsis",
@@ -1155,6 +1205,8 @@
         "wage": "💰：每 4 小时 + ⚡️ 30＋BTTC 20",
         "wageExtra": "＋BTTC 20",
         "action": "claim",
+        "actionsPresent": true,
+        "actionsNodes": 1,
         "actionText": "领工资",
         "actionDisabled": false,
         "needLogin": "0",
@@ -1181,15 +1233,18 @@
         "tintBg": "rgb(255, 230, 15)",
         "tintOpacity": "0.12",
         "scope": "current",
-        "top": 130.9,
-        "h": 177,
-        "clientH": 175,
-        "scrollH": 175,
+        "top": 106,
+        "h": 190,
+        "clientH": 188,
+        "scrollH": 188,
         "clientW": 315,
         "scrollW": 315,
         "blocks": {
           "head": 40,
-          "desc": 33.6,
+          "desc": 16.8,
+          "actionsPresent": true,
+          "actionsNodes": 1,
+          "cardChildren": 4,
           "meta": 39.4,
           "metaLines": 2.43,
           "actions": 34,
@@ -1208,8 +1263,8 @@
           ]
         },
         "desc": {
-          "h": 33.6,
-          "lineClamp": "2",
+          "h": 16.8,
+          "lineClamp": "1",
           "lineHeight": 16.8,
           "overflow": "hidden",
           "boxOrient": "vertical"
@@ -1233,13 +1288,13 @@
           "bgImage": "linear-gradient(140deg, rgb(201, 244, 228), rgb(91, 215, 180))",
           "left": 33,
           "right": 73,
-          "top": 325.9,
-          "bottom": 365.9,
-          "centerY": 345.9
+          "top": 314,
+          "bottom": 354,
+          "centerY": 334
         },
         "head": {
-          "titleCenterY": 345.9,
-          "titleTop": 336.9,
+          "titleCenterY": 334,
+          "titleTop": 325,
           "titleLeft": 79,
           "titleH": 18,
           "titleTextOverflow": "ellipsis",
@@ -1254,6 +1309,8 @@
         "wage": "💰：每 6 小时 + ⚡️ 25",
         "wageExtra": null,
         "action": null,
+        "actionsPresent": false,
+        "actionsNodes": 0,
         "actionText": null,
         "actionDisabled": null,
         "needLogin": null,
@@ -1280,7 +1337,7 @@
         "tintBg": "rgba(0, 0, 0, 0)",
         "tintOpacity": "1",
         "scope": "list",
-        "top": 316.9,
+        "top": 305,
         "h": 180,
         "clientH": 178,
         "scrollH": 178,
@@ -1289,9 +1346,12 @@
         "blocks": {
           "head": 40,
           "desc": 33.6,
+          "actionsPresent": false,
+          "actionsNodes": 0,
+          "cardChildren": 3,
           "meta": 39.4,
           "metaLines": 2.43,
-          "actions": 0,
+          "actions": null,
           "notice": null,
           "metaKids": [
             {
@@ -1355,6 +1415,8 @@
         "wage": "💰：每 12 小时 + ⚡️ 28",
         "wageExtra": null,
         "action": "join",
+        "actionsPresent": true,
+        "actionsNodes": 1,
         "actionText": "加入",
         "actionDisabled": true,
         "needLogin": "0",
@@ -1389,7 +1451,10 @@
         "scrollW": 290,
         "blocks": {
           "head": 40,
-          "desc": 33.6,
+          "desc": 16.8,
+          "actionsPresent": true,
+          "actionsNodes": 1,
+          "cardChildren": 4,
           "meta": 39.4,
           "metaLines": 2.43,
           "actions": 34,
@@ -1408,8 +1473,8 @@
           ]
         },
         "desc": {
-          "h": 33.6,
-          "lineClamp": "2",
+          "h": 16.8,
+          "lineClamp": "1",
           "lineHeight": 16.8,
           "overflow": "hidden",
           "boxOrient": "vertical"
@@ -1454,6 +1519,8 @@
         "wage": "💰：每 6 小时 + ⚡️ 25",
         "wageExtra": null,
         "action": "join",
+        "actionsPresent": true,
+        "actionsNodes": 1,
         "actionText": "加入",
         "actionDisabled": false,
         "needLogin": "0",
@@ -1488,7 +1555,10 @@
         "scrollW": 290,
         "blocks": {
           "head": 40,
-          "desc": 33.6,
+          "desc": 16.8,
+          "actionsPresent": true,
+          "actionsNodes": 1,
+          "cardChildren": 4,
           "meta": 39.4,
           "metaLines": 2.43,
           "actions": 34,
@@ -1507,8 +1577,8 @@
           ]
         },
         "desc": {
-          "h": 33.6,
-          "lineClamp": "2",
+          "h": 16.8,
+          "lineClamp": "1",
           "lineHeight": 16.8,
           "overflow": "hidden",
           "boxOrient": "vertical"
@@ -1533,11 +1603,11 @@
       },
       "current": {
         "top": 136,
-        "bottom": 268,
+        "bottom": 326,
         "left": 1196,
         "right": 1516,
         "w": 320,
-        "h": 132
+        "h": 190
       },
       "currentEmpty": true,
       "currentEmptyText": "还没有加入任何项目，从下方挑一个开始打工吧",
@@ -1546,6 +1616,10 @@
       "currentRightOfCheckin": true,
       "stackedCurrentFirst": false,
       "currentWidth": 320,
+      "currentAria": "当前项目",
+      "titleNodes": 0,
+      "sameTopStrict": true,
+      "sameHeight": true,
       "boxOverflow": 0
     },
     "1536_countdown_before": {
@@ -1566,13 +1640,13 @@
         "bgImage": "linear-gradient(140deg, rgb(240, 227, 200), rgb(217, 188, 134))",
         "left": 1212,
         "right": 1252,
-        "top": 139.9,
-        "bottom": 179.9,
-        "centerY": 159.9
+        "top": 115,
+        "bottom": 155,
+        "centerY": 135
       },
       "head": {
-        "titleCenterY": 159.9,
-        "titleTop": 150.9,
+        "titleCenterY": 135,
+        "titleTop": 126,
         "titleLeft": 1258,
         "titleH": 18,
         "titleTextOverflow": "ellipsis",
@@ -1587,6 +1661,8 @@
       "wage": "💰：每 4 小时 + ⚡️ 30＋BTTC 20",
       "wageExtra": "＋BTTC 20",
       "action": "claim",
+      "actionsPresent": true,
+      "actionsNodes": 1,
       "actionText": "领工资",
       "actionDisabled": true,
       "needLogin": "0",
@@ -1613,15 +1689,18 @@
       "tintBg": "rgb(255, 230, 15)",
       "tintOpacity": "0.12",
       "scope": "current",
-      "top": 130.9,
-      "h": 177,
-      "clientH": 175,
-      "scrollH": 175,
+      "top": 106,
+      "h": 190,
+      "clientH": 188,
+      "scrollH": 188,
       "clientW": 315,
       "scrollW": 315,
       "blocks": {
         "head": 40,
-        "desc": 33.6,
+        "desc": 16.8,
+        "actionsPresent": true,
+        "actionsNodes": 1,
+        "cardChildren": 4,
         "meta": 39.4,
         "metaLines": 2.43,
         "actions": 34,
@@ -1640,8 +1719,8 @@
         ]
       },
       "desc": {
-        "h": 33.6,
-        "lineClamp": "2",
+        "h": 16.8,
+        "lineClamp": "1",
         "lineHeight": 16.8,
         "overflow": "hidden",
         "boxOrient": "vertical"
@@ -1667,13 +1746,13 @@
           "bgImage": "linear-gradient(140deg, rgb(240, 227, 200), rgb(217, 188, 134))",
           "left": 1212,
           "right": 1252,
-          "top": 139.9,
-          "bottom": 179.9,
-          "centerY": 159.9
+          "top": 115,
+          "bottom": 155,
+          "centerY": 135
         },
         "head": {
-          "titleCenterY": 159.9,
-          "titleTop": 150.9,
+          "titleCenterY": 135,
+          "titleTop": 126,
           "titleLeft": 1258,
           "titleH": 18,
           "titleTextOverflow": "ellipsis",
@@ -1688,6 +1767,8 @@
         "wage": "💰：每 4 小时 + ⚡️ 30＋BTTC 20",
         "wageExtra": "＋BTTC 20",
         "action": "claim",
+        "actionsPresent": true,
+        "actionsNodes": 1,
         "actionText": "领工资",
         "actionDisabled": false,
         "needLogin": "0",
@@ -1714,15 +1795,18 @@
         "tintBg": "rgb(255, 230, 15)",
         "tintOpacity": "0.12",
         "scope": "current",
-        "top": 130.9,
-        "h": 177,
-        "clientH": 175,
-        "scrollH": 175,
+        "top": 106,
+        "h": 190,
+        "clientH": 188,
+        "scrollH": 188,
         "clientW": 315,
         "scrollW": 315,
         "blocks": {
           "head": 40,
-          "desc": 33.6,
+          "desc": 16.8,
+          "actionsPresent": true,
+          "actionsNodes": 1,
+          "cardChildren": 4,
           "meta": 39.4,
           "metaLines": 2.43,
           "actions": 34,
@@ -1741,8 +1825,8 @@
           ]
         },
         "desc": {
-          "h": 33.6,
-          "lineClamp": "2",
+          "h": 16.8,
+          "lineClamp": "1",
           "lineHeight": 16.8,
           "overflow": "hidden",
           "boxOrient": "vertical"
@@ -1768,13 +1852,13 @@
           "bgImage": "linear-gradient(140deg, rgb(240, 227, 200), rgb(217, 188, 134))",
           "left": 1212,
           "right": 1252,
-          "top": 139.9,
-          "bottom": 179.9,
-          "centerY": 159.9
+          "top": 115,
+          "bottom": 155,
+          "centerY": 135
         },
         "head": {
-          "titleCenterY": 159.9,
-          "titleTop": 150.9,
+          "titleCenterY": 135,
+          "titleTop": 126,
           "titleLeft": 1258,
           "titleH": 18,
           "titleTextOverflow": "ellipsis",
@@ -1789,6 +1873,8 @@
         "wage": "💰：每 4 小时 + ⚡️ 30＋BTTC 20",
         "wageExtra": "＋BTTC 20",
         "action": "claim",
+        "actionsPresent": true,
+        "actionsNodes": 1,
         "actionText": "领工资",
         "actionDisabled": true,
         "needLogin": "0",
@@ -1815,15 +1901,18 @@
         "tintBg": "rgb(255, 230, 15)",
         "tintOpacity": "0.12",
         "scope": "current",
-        "top": 130.9,
-        "h": 177,
-        "clientH": 175,
-        "scrollH": 175,
+        "top": 106,
+        "h": 190,
+        "clientH": 188,
+        "scrollH": 188,
         "clientW": 315,
         "scrollW": 315,
         "blocks": {
           "head": 40,
-          "desc": 33.6,
+          "desc": 16.8,
+          "actionsPresent": true,
+          "actionsNodes": 1,
+          "cardChildren": 4,
           "meta": 39.4,
           "metaLines": 2.43,
           "actions": 34,
@@ -1842,8 +1931,8 @@
           ]
         },
         "desc": {
-          "h": 33.6,
-          "lineClamp": "2",
+          "h": 16.8,
+          "lineClamp": "1",
           "lineHeight": 16.8,
           "overflow": "hidden",
           "boxOrient": "vertical"
@@ -1904,11 +1993,11 @@
         },
         "current": {
           "top": 106,
-          "bottom": 307.9,
+          "bottom": 296,
           "left": 1196,
           "right": 1516,
           "w": 320,
-          "h": 201.9
+          "h": 190
         },
         "currentEmpty": false,
         "currentEmptyText": null,
@@ -1917,6 +2006,10 @@
         "currentRightOfCheckin": true,
         "stackedCurrentFirst": false,
         "currentWidth": 320,
+        "currentAria": "当前项目",
+        "titleNodes": 0,
+        "sameTopStrict": true,
+        "sameHeight": true,
         "boxOverflow": 0
       },
       "mint": {
@@ -1945,7 +2038,7 @@
         "110:list"
       ],
       "heights": [
-        "101:177",
+        "101:190",
         "102:180",
         "103:180",
         "104:180",
@@ -2013,8 +2106,8 @@
       "top": {
         "present": true,
         "checkin": {
-          "top": 313.1,
-          "bottom": 549.1,
+          "top": 288.2,
+          "bottom": 524.2,
           "left": 10,
           "right": 380,
           "w": 370,
@@ -2022,11 +2115,11 @@
         },
         "current": {
           "top": 114,
-          "bottom": 304.1,
+          "bottom": 279.2,
           "left": 10,
           "right": 380,
           "w": 370,
-          "h": 190.1
+          "h": 165.2
         },
         "currentEmpty": false,
         "currentEmptyText": null,
@@ -2035,6 +2128,10 @@
         "currentRightOfCheckin": false,
         "stackedCurrentFirst": true,
         "currentWidth": 370,
+        "currentAria": "当前项目",
+        "titleNodes": 0,
+        "sameTopStrict": false,
+        "sameHeight": false,
         "boxOverflow": 0
       },
       "mint": {
@@ -2134,11 +2231,11 @@
         },
         "current": {
           "top": 106,
-          "bottom": 307.9,
+          "bottom": 296,
           "left": 1196,
           "right": 1516,
           "w": 320,
-          "h": 201.9
+          "h": 190
         },
         "currentEmpty": false,
         "currentEmptyText": null,
@@ -2147,6 +2244,10 @@
         "currentRightOfCheckin": true,
         "stackedCurrentFirst": false,
         "currentWidth": 320,
+        "currentAria": "当前项目",
+        "titleNodes": 0,
+        "sameTopStrict": true,
+        "sameHeight": true,
         "boxOverflow": 0
       },
       "mint": {
@@ -2175,7 +2276,7 @@
         "110:list"
       ],
       "heights": [
-        "101:current:177",
+        "101:current:190",
         "102:list:180",
         "103:list:180",
         "104:list:180",
@@ -2239,9 +2340,9 @@
           "bgImage": "linear-gradient(140deg, rgb(255, 232, 163), rgb(255, 196, 77))",
           "left": 334,
           "right": 374,
-          "top": 325.9,
-          "bottom": 365.9,
-          "centerY": 345.9
+          "top": 314,
+          "bottom": 354,
+          "centerY": 334
         },
         {
           "present": true,
@@ -2259,9 +2360,9 @@
           "bgImage": "linear-gradient(140deg, rgb(255, 232, 163), rgb(255, 196, 77))",
           "left": 936,
           "right": 976,
-          "top": 325.9,
-          "bottom": 365.9,
-          "centerY": 345.9
+          "top": 314,
+          "bottom": 354,
+          "centerY": 334
         }
       ],
       "initialCards": [
@@ -2283,13 +2384,13 @@
             "bgImage": "linear-gradient(140deg, rgb(240, 227, 200), rgb(217, 188, 134))",
             "left": 1212,
             "right": 1252,
-            "top": 139.9,
-            "bottom": 179.9,
-            "centerY": 159.9
+            "top": 115,
+            "bottom": 155,
+            "centerY": 135
           },
           "head": {
-            "titleCenterY": 159.9,
-            "titleTop": 150.9,
+            "titleCenterY": 135,
+            "titleTop": 126,
             "titleLeft": 1258,
             "titleH": 18,
             "titleTextOverflow": "ellipsis",
@@ -2315,13 +2416,13 @@
             "bgImage": "linear-gradient(140deg, rgb(201, 244, 228), rgb(91, 215, 180))",
             "left": 33,
             "right": 73,
-            "top": 325.9,
-            "bottom": 365.9,
-            "centerY": 345.9
+            "top": 314,
+            "bottom": 354,
+            "centerY": 334
           },
           "head": {
-            "titleCenterY": 345.9,
-            "titleTop": 336.9,
+            "titleCenterY": 334,
+            "titleTop": 325,
             "titleLeft": 79,
             "titleH": 18,
             "titleTextOverflow": "ellipsis",
@@ -2347,13 +2448,13 @@
             "bgImage": "linear-gradient(140deg, rgb(255, 211, 165), rgb(253, 158, 91))",
             "left": 635,
             "right": 675,
-            "top": 325.9,
-            "bottom": 365.9,
-            "centerY": 345.9
+            "top": 314,
+            "bottom": 354,
+            "centerY": 334
           },
           "head": {
-            "titleCenterY": 345.9,
-            "titleTop": 336.9,
+            "titleCenterY": 334,
+            "titleTop": 325,
             "titleLeft": 681,
             "titleH": 18,
             "titleTextOverflow": "ellipsis",
@@ -2379,13 +2480,13 @@
             "bgImage": "linear-gradient(140deg, rgb(255, 232, 163), rgb(255, 196, 77))",
             "left": 1237,
             "right": 1277,
-            "top": 325.9,
-            "bottom": 365.9,
-            "centerY": 345.9
+            "top": 314,
+            "bottom": 354,
+            "centerY": 334
           },
           "head": {
-            "titleCenterY": 345.9,
-            "titleTop": 336.9,
+            "titleCenterY": 334,
+            "titleTop": 325,
             "titleLeft": 1283,
             "titleH": 18,
             "titleTextOverflow": "ellipsis",
@@ -2411,13 +2512,13 @@
             "bgImage": "linear-gradient(140deg, rgb(191, 233, 255), rgb(111, 195, 247))",
             "left": 33,
             "right": 73,
-            "top": 514.9,
-            "bottom": 554.9,
-            "centerY": 534.9
+            "top": 503,
+            "bottom": 543,
+            "centerY": 523
           },
           "head": {
-            "titleCenterY": 534.9,
-            "titleTop": 525.9,
+            "titleCenterY": 523,
+            "titleTop": 514,
             "titleLeft": 79,
             "titleH": 18,
             "titleTextOverflow": "ellipsis",
@@ -2443,13 +2544,13 @@
             "bgImage": "linear-gradient(140deg, rgb(255, 211, 165), rgb(253, 158, 91))",
             "left": 334,
             "right": 374,
-            "top": 514.9,
-            "bottom": 554.9,
-            "centerY": 534.9
+            "top": 503,
+            "bottom": 543,
+            "centerY": 523
           },
           "head": {
-            "titleCenterY": 534.9,
-            "titleTop": 525.9,
+            "titleCenterY": 523,
+            "titleTop": 514,
             "titleLeft": 380,
             "titleH": 18,
             "titleTextOverflow": "ellipsis",
@@ -2475,13 +2576,13 @@
             "bgImage": "linear-gradient(140deg, rgb(255, 211, 165), rgb(253, 158, 91))",
             "left": 635,
             "right": 675,
-            "top": 514.9,
-            "bottom": 554.9,
-            "centerY": 534.9
+            "top": 503,
+            "bottom": 543,
+            "centerY": 523
           },
           "head": {
-            "titleCenterY": 534.9,
-            "titleTop": 525.9,
+            "titleCenterY": 523,
+            "titleTop": 514,
             "titleLeft": 681,
             "titleH": 18,
             "titleTextOverflow": "ellipsis",
@@ -2507,13 +2608,13 @@
             "bgImage": "linear-gradient(140deg, rgb(255, 233, 196), rgb(255, 184, 92))",
             "left": 936,
             "right": 976,
-            "top": 514.9,
-            "bottom": 554.9,
-            "centerY": 534.9
+            "top": 503,
+            "bottom": 543,
+            "centerY": 523
           },
           "head": {
-            "titleCenterY": 534.9,
-            "titleTop": 525.9,
+            "titleCenterY": 523,
+            "titleTop": 514,
             "titleLeft": 982,
             "titleH": 18,
             "titleTextOverflow": "ellipsis",
@@ -2541,9 +2642,9 @@
           "bgImage": "linear-gradient(140deg, rgb(255, 232, 163), rgb(255, 196, 77))",
           "left": 23,
           "right": 63,
-          "top": 756.1,
-          "bottom": 796.1,
-          "centerY": 776.1
+          "top": 731.2,
+          "bottom": 771.2,
+          "centerY": 751.2
         },
         {
           "present": true,
@@ -2561,9 +2662,9 @@
           "bgImage": "linear-gradient(140deg, rgb(255, 232, 163), rgb(255, 196, 77))",
           "left": 23,
           "right": 63,
-          "top": 1134.1,
-          "bottom": 1174.1,
-          "centerY": 1154.1
+          "top": 1109.2,
+          "bottom": 1149.2,
+          "centerY": 1129.2
         }
       ],
       "initialCards": [
@@ -2585,13 +2686,13 @@
             "bgImage": "linear-gradient(140deg, rgb(240, 227, 200), rgb(217, 188, 134))",
             "left": 26,
             "right": 66,
-            "top": 147.9,
-            "bottom": 187.9,
-            "centerY": 167.9
+            "top": 123,
+            "bottom": 163,
+            "centerY": 143
           },
           "head": {
-            "titleCenterY": 167.9,
-            "titleTop": 158.9,
+            "titleCenterY": 143,
+            "titleTop": 134,
             "titleLeft": 72,
             "titleH": 18,
             "titleTextOverflow": "ellipsis",
@@ -2617,13 +2718,13 @@
             "bgImage": "linear-gradient(140deg, rgb(201, 244, 228), rgb(91, 215, 180))",
             "left": 23,
             "right": 63,
-            "top": 567.1,
-            "bottom": 607.1,
-            "centerY": 587.1
+            "top": 542.2,
+            "bottom": 582.2,
+            "centerY": 562.2
           },
           "head": {
-            "titleCenterY": 587.1,
-            "titleTop": 578.1,
+            "titleCenterY": 562.2,
+            "titleTop": 553.2,
             "titleLeft": 69,
             "titleH": 18,
             "titleTextOverflow": "ellipsis",
@@ -2649,13 +2750,13 @@
             "bgImage": "linear-gradient(140deg, rgb(255, 211, 165), rgb(253, 158, 91))",
             "left": 23,
             "right": 63,
-            "top": 945.1,
-            "bottom": 985.1,
-            "centerY": 965.1
+            "top": 920.2,
+            "bottom": 960.2,
+            "centerY": 940.2
           },
           "head": {
-            "titleCenterY": 965.1,
-            "titleTop": 956.1,
+            "titleCenterY": 940.2,
+            "titleTop": 931.2,
             "titleLeft": 69,
             "titleH": 18,
             "titleTextOverflow": "ellipsis",
@@ -2681,13 +2782,13 @@
             "bgImage": "linear-gradient(140deg, rgb(255, 232, 163), rgb(255, 196, 77))",
             "left": 23,
             "right": 63,
-            "top": 1323.1,
-            "bottom": 1363.1,
-            "centerY": 1343.1
+            "top": 1298.2,
+            "bottom": 1338.2,
+            "centerY": 1318.2
           },
           "head": {
-            "titleCenterY": 1343.1,
-            "titleTop": 1334.1,
+            "titleCenterY": 1318.2,
+            "titleTop": 1309.2,
             "titleLeft": 69,
             "titleH": 18,
             "titleTextOverflow": "ellipsis",
@@ -2713,13 +2814,13 @@
             "bgImage": "linear-gradient(140deg, rgb(191, 233, 255), rgb(111, 195, 247))",
             "left": 23,
             "right": 63,
-            "top": 1512.1,
-            "bottom": 1552.1,
-            "centerY": 1532.1
+            "top": 1487.2,
+            "bottom": 1527.2,
+            "centerY": 1507.2
           },
           "head": {
-            "titleCenterY": 1532.1,
-            "titleTop": 1523.1,
+            "titleCenterY": 1507.2,
+            "titleTop": 1498.2,
             "titleLeft": 69,
             "titleH": 18,
             "titleTextOverflow": "ellipsis",
@@ -2745,13 +2846,13 @@
             "bgImage": "linear-gradient(140deg, rgb(255, 211, 165), rgb(253, 158, 91))",
             "left": 23,
             "right": 63,
-            "top": 1701.1,
-            "bottom": 1741.1,
-            "centerY": 1721.1
+            "top": 1676.2,
+            "bottom": 1716.2,
+            "centerY": 1696.2
           },
           "head": {
-            "titleCenterY": 1721.1,
-            "titleTop": 1712.1,
+            "titleCenterY": 1696.2,
+            "titleTop": 1687.2,
             "titleLeft": 69,
             "titleH": 18,
             "titleTextOverflow": "ellipsis",
@@ -2777,13 +2878,13 @@
             "bgImage": "linear-gradient(140deg, rgb(255, 211, 165), rgb(253, 158, 91))",
             "left": 23,
             "right": 63,
-            "top": 1890.1,
-            "bottom": 1930.1,
-            "centerY": 1910.1
+            "top": 1865.2,
+            "bottom": 1905.2,
+            "centerY": 1885.2
           },
           "head": {
-            "titleCenterY": 1910.1,
-            "titleTop": 1901.1,
+            "titleCenterY": 1885.2,
+            "titleTop": 1876.2,
             "titleLeft": 69,
             "titleH": 18,
             "titleTextOverflow": "ellipsis",
@@ -2809,13 +2910,13 @@
             "bgImage": "linear-gradient(140deg, rgb(255, 233, 196), rgb(255, 184, 92))",
             "left": 23,
             "right": 63,
-            "top": 2079.1,
-            "bottom": 2119.1,
-            "centerY": 2099.1
+            "top": 2054.2,
+            "bottom": 2094.2,
+            "centerY": 2074.2
           },
           "head": {
-            "titleCenterY": 2099.1,
-            "titleTop": 2090.1,
+            "titleCenterY": 2074.2,
+            "titleTop": 2065.2,
             "titleLeft": 69,
             "titleH": 18,
             "titleTextOverflow": "ellipsis",
@@ -3001,6 +3102,8 @@
         "wage": "💰：每 4 小时 + ⚡️ 30＋BTTC 20",
         "wageExtra": "＋BTTC 20",
         "action": "join",
+        "actionsPresent": true,
+        "actionsNodes": 1,
         "actionText": "加入",
         "actionDisabled": false,
         "needLogin": "1",
@@ -3035,7 +3138,10 @@
         "scrollW": 290,
         "blocks": {
           "head": 40,
-          "desc": 33.6,
+          "desc": 16.8,
+          "actionsPresent": true,
+          "actionsNodes": 1,
+          "cardChildren": 4,
           "meta": 39.4,
           "metaLines": 2.43,
           "actions": 34,
@@ -3054,8 +3160,8 @@
           ]
         },
         "desc": {
-          "h": 33.6,
-          "lineClamp": "2",
+          "h": 16.8,
+          "lineClamp": "1",
           "lineHeight": 16.8,
           "overflow": "hidden",
           "boxOrient": "vertical"
@@ -3100,6 +3206,8 @@
         "wage": "💰：每 6 小时 + ⚡️ 25",
         "wageExtra": null,
         "action": "join",
+        "actionsPresent": true,
+        "actionsNodes": 1,
         "actionText": "加入",
         "actionDisabled": false,
         "needLogin": "1",
@@ -3134,7 +3242,10 @@
         "scrollW": 290,
         "blocks": {
           "head": 40,
-          "desc": 33.6,
+          "desc": 16.8,
+          "actionsPresent": true,
+          "actionsNodes": 1,
+          "cardChildren": 4,
           "meta": 39.4,
           "metaLines": 2.43,
           "actions": 34,
@@ -3153,8 +3264,8 @@
           ]
         },
         "desc": {
-          "h": 33.6,
-          "lineClamp": "2",
+          "h": 16.8,
+          "lineClamp": "1",
           "lineHeight": 16.8,
           "overflow": "hidden",
           "boxOrient": "vertical"
@@ -3199,6 +3310,8 @@
         "wage": "💰：每 8 小时 + ⚡️ 20＋BTTC 50",
         "wageExtra": "＋BTTC 50",
         "action": "join",
+        "actionsPresent": true,
+        "actionsNodes": 1,
         "actionText": "加入",
         "actionDisabled": false,
         "needLogin": "1",
@@ -3233,7 +3346,10 @@
         "scrollW": 290,
         "blocks": {
           "head": 40,
-          "desc": 33.6,
+          "desc": 16.8,
+          "actionsPresent": true,
+          "actionsNodes": 1,
+          "cardChildren": 4,
           "meta": 39.4,
           "metaLines": 2.43,
           "actions": 34,
@@ -3252,8 +3368,8 @@
           ]
         },
         "desc": {
-          "h": 33.6,
-          "lineClamp": "2",
+          "h": 16.8,
+          "lineClamp": "1",
           "lineHeight": 16.8,
           "overflow": "hidden",
           "boxOrient": "vertical"
@@ -3298,6 +3414,8 @@
         "wage": "💰：每 6 小时 + ⚡️ 25",
         "wageExtra": null,
         "action": "join",
+        "actionsPresent": true,
+        "actionsNodes": 1,
         "actionText": "加入",
         "actionDisabled": false,
         "needLogin": "1",
@@ -3333,6 +3451,9 @@
         "blocks": {
           "head": 40,
           "desc": 0,
+          "actionsPresent": true,
+          "actionsNodes": 1,
+          "cardChildren": 5,
           "meta": 39.4,
           "metaLines": 2.43,
           "actions": 34,
@@ -3352,7 +3473,7 @@
         },
         "desc": {
           "h": 0,
-          "lineClamp": "2",
+          "lineClamp": "1",
           "lineHeight": 16.8,
           "overflow": "hidden",
           "boxOrient": "vertical"
@@ -3397,6 +3518,8 @@
         "wage": "💰：每 4 小时 + ⚡️ 30＋BTTC 20",
         "wageExtra": "＋BTTC 20",
         "action": "join",
+        "actionsPresent": true,
+        "actionsNodes": 1,
         "actionText": "加入",
         "actionDisabled": false,
         "needLogin": "1",
@@ -3432,6 +3555,9 @@
         "blocks": {
           "head": 40,
           "desc": 0,
+          "actionsPresent": true,
+          "actionsNodes": 1,
+          "cardChildren": 5,
           "meta": 39.4,
           "metaLines": 2.43,
           "actions": 34,
@@ -3451,7 +3577,7 @@
         },
         "desc": {
           "h": 0,
-          "lineClamp": "2",
+          "lineClamp": "1",
           "lineHeight": 16.8,
           "overflow": "hidden",
           "boxOrient": "vertical"
@@ -3467,6 +3593,93 @@
       ],
       "cardRightMax": 380,
       "hasBannerAndList": true
+    },
+    "actions_gating": {
+      "grid1536": [
+        "102:action=null:nodes=0:h=180:desc=2",
+        "103:action=null:nodes=0:h=180:desc=2",
+        "104:action=null:nodes=0:h=180:desc=2",
+        "105:action=null:nodes=0:h=180:desc=2",
+        "106:action=null:nodes=0:h=180:desc=2",
+        "107:action=null:nodes=0:h=180:desc=2",
+        "108:action=null:nodes=0:h=180:desc=2",
+        "109:action=null:nodes=0:h=180:desc=2",
+        "110:action=null:nodes=0:h=180:desc=2"
+      ],
+      "guest1536": [
+        "101:action=join:nodes=1:h=180:desc=1",
+        "102:action=join:nodes=1:h=180:desc=1",
+        "103:action=join:nodes=1:h=180:desc=1",
+        "104:action=join:nodes=1:h=180:desc=1",
+        "105:action=join:nodes=1:h=180:desc=1",
+        "106:action=join:nodes=1:h=180:desc=1",
+        "107:action=join:nodes=1:h=180:desc=1",
+        "108:action=null:nodes=0:h=180:desc=2",
+        "109:action=null:nodes=0:h=180:desc=2",
+        "110:action=join:nodes=1:h=180:desc=1"
+      ],
+      "topHired": {
+        "present": true,
+        "checkin": {
+          "top": 106,
+          "bottom": 296,
+          "left": 20,
+          "right": 1187,
+          "w": 1167,
+          "h": 190
+        },
+        "current": {
+          "top": 106,
+          "bottom": 296,
+          "left": 1196,
+          "right": 1516,
+          "w": 320,
+          "h": 190
+        },
+        "currentEmpty": false,
+        "currentEmptyText": null,
+        "currentProject": "101",
+        "sameRow": true,
+        "currentRightOfCheckin": true,
+        "stackedCurrentFirst": false,
+        "currentWidth": 320,
+        "currentAria": "当前项目",
+        "titleNodes": 0,
+        "sameTopStrict": true,
+        "sameHeight": true,
+        "boxOverflow": 0
+      },
+      "topGuest": {
+        "present": true,
+        "checkin": {
+          "top": 136,
+          "bottom": 268,
+          "left": 20,
+          "right": 1187,
+          "w": 1167,
+          "h": 132
+        },
+        "current": {
+          "top": 136,
+          "bottom": 268,
+          "left": 1196,
+          "right": 1516,
+          "w": 320,
+          "h": 132
+        },
+        "currentEmpty": true,
+        "currentEmptyText": "还没有加入任何项目，从下方挑一个开始打工吧",
+        "currentProject": null,
+        "sameRow": true,
+        "currentRightOfCheckin": true,
+        "stackedCurrentFirst": false,
+        "currentWidth": 320,
+        "currentAria": "当前项目",
+        "titleNodes": 0,
+        "sameTopStrict": true,
+        "sameHeight": true,
+        "boxOverflow": 0
+      }
     }
   },
   "assertions": {
@@ -3508,7 +3721,7 @@
       "checkinRetiredUiAbsent": true,
       "battReadWired": true,
       "listBelowCheckin": true,
-      "gapPx": 20.9,
+      "gapPx": 9,
       "cardsStillListed": true,
       "zeroOverflow": true
     },
@@ -3734,6 +3947,20 @@
       "cards390": true,
       "touchTarget44On390": true,
       "bannerAndList390": true
+    },
+    "actionsGating": {
+      "actionsAbsentWhenNoAction": true,
+      "desc2LinesNoActions": true,
+      "desc1LineWithActions": true,
+      "noInnerClippingStillTrue": true
+    },
+    "topAlign": {
+      "currentCardSameTop1536": true,
+      "currentCardSameHeight1536": true,
+      "emptyPlaceholderSameBox1536": true,
+      "noCurrentTitleNode": true,
+      "currentAriaLabel": true,
+      "emptyPlaceholderAriaLabel": true
     }
   },
   "pageErrors": [],
@@ -3880,7 +4107,7 @@
     "Failed to load resource: net::ERR_FAILED",
     "Failed to load resource: net::ERR_FAILED"
   ],
-  "finishedAt": "2026-10-24T02:45:59.958Z",
+  "finishedAt": "2026-10-24T03:31:06.756Z",
   "verdict": {
     "required": [
       {
@@ -4790,6 +5017,56 @@
       },
       {
         "key": "geometry.mobileTouch44On180",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "actionsGating.actionsAbsentWhenNoAction",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "actionsGating.desc2LinesNoActions",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "actionsGating.desc1LineWithActions",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "actionsGating.noInnerClippingStillTrue",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "topAlign.currentCardSameTop1536",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "topAlign.currentCardSameHeight1536",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "topAlign.emptyPlaceholderSameBox1536",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "topAlign.noCurrentTitleNode",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "topAlign.currentAriaLabel",
+        "value": true,
+        "pass": true
+      },
+      {
+        "key": "topAlign.emptyPlaceholderAriaLabel",
         "value": true,
         "pass": true
       }
