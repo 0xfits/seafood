@@ -438,6 +438,9 @@
 > **状态：v2.48（行为变更 · **`/dashboard` 审核面板整块下线 —— 前后端两侧已无「Task Progress 审批」面**：读口（tasklist pending 队列 + 其 `/count`）· 写口（`handleVerifyTask` → 单条提交的 verify 子路径）· 面板 UI（搜索框 / 通过驳回钮 / 队列摘要 / 空态）· 队列 state 与派生函数（`resolvePendingVerificationCount` / `filteredPendingTasks` / `visiblePendingTasks` / `pendingVerificationTasks` / `reviewQuery` / `showAllPending` / `processingTaskId` / `refreshing`）**四类一并拆除**；仪表盘其余面板（用户 / 管理员 / 积分 / 奖品 四卡 + 管理入口 + 角色徽标）**一字未动**；**零新路由 ⇒ 注册点不变 · 零新错误码 · 零迁移 · 零 i18n 键增删（1451 × 4）** · 正文 = **§49.21**）（**插于 v2.47 块之后（升序接放）** · 本笔只写 `docs/**`）** · 作者角色 = **Zang（Specifier · 制度员）**
 > **v2.48 修订入口**：逐条 delta → 依据锚点 → 改动点 = **本册 §49.21**（**不建独立 delta 件**，承 v2.29–v2.47 先例）；姊妹册 = `master-plan` **§5.455 / 版本行 v0.374**。**实现面 = 同一工作区 7 路径**（1 M 页面 + 3 M 单测 + 1 M 探针 + 2 M 文档）；门读数由本笔同轮现取（§49.21.5）。
 > **★★ v2.48 本单要点（先说结论，不含糊）**：① **假前提就地订正**：v2.47 写的「后端口逐字保留 / 审核动作仍由 `/dashboard` 承担」**两层皆假** —— 后端口已于 `43ea14a`（2026-10-21）删除（生产三 URL 404），面板早已只显示「加载失败」；② **前端不留死面板** ⇒ 读口 / 写口 / UI / state **四类全删**；③ **i18n 键保留不删**（`dashPage.*` 审核相关键四语俱在，flat **1451 × 4** 不动；新成孤儿的键**逐键登记、不删**）；④ **单测改锚 + 反转**（`task-review-removed` 第⑥条反转为「前端零残留」+ 新增第⑦条「后端注册点现取不存在」；`dashboard-page` 面板在场三例改锚 / 删除，逐条列因）；⑤ **探针补 `/task/review` 落 404 臂**（含 `en` / `hk` / `vn` 三前缀档）；⑥ **门读数（本笔现取）** = unit **96 files / 1054 tests / 0 failed** · a11y **1 file / 16 tests** · components **2 files / 14 tests** · build **exit 0** ⇒ `index-BbdcISCd.js` **661,246 B** / `index-CsvmqOIr.css` **188,773 B**。
+> **状态：v2.49（口径变更 · **后台【费率配置】更名【交易所管理】 · 路由 `/dashboard/fee-rate` → `/dashboard/exchange`** —— **只改页名与路径，页面功能 / 字段 / 写口一律不动**；组件与文件名 `FeeRatePage` **保留**（最小改动）、闸仍 `manage_settings`；i18n **只改值不改键**（`adminNav.feeRate` / `adminNav.feeRateDesc` 键名逐字不动 ⇒ 键集零漂移 `1453 × 4`）；**零新路由 ⇒ 注册点不变 · 零新错误码 · 零迁移 · 前端 `<Route` 三计数口径 `44 / 36 / 26` 不变** · 正文 = **§49.22**）（**插于 v2.48 块之后（升序接放）** · 本笔只写 `docs/**`）** · 作者角色 = **Zang（Specifier · 制度员）**
+> **v2.49 修订入口**：逐条 delta → 依据锚点 → 改动点 = **本册 §49.22**（**不建独立 delta 件**，承 v2.29–v2.48 先例）；姊妹册 = `master-plan` **§5.460 / 版本行 v0.379** + `docs/design/design-system.spec.md` **v1.32 §33（`T131`）**。**实现面 = 同一工作区 7 路径**（2 M 代码 · 4 M 四语 locale · 1 A 单测 · 3 M 文档）；门读数由本笔同轮现取（§49.22.5）。
+> **★★ v2.49 本单要点（先说结论，不含糊）**：① **只改文案值与 URL 段**（`App.jsx` 内层 `<Route path="exchange">` + `AdminLayout` 侧栏 `path: '/dashboard/exchange'`），**`FeeRatePage.jsx` 文件名 / 组件名 / 8 键字段 / 读写两口一字未动**；② **四语新值** = zh「交易所管理」/ hk「交易所管理」/ en「Exchange」/ vn「Quản lý sàn」，描述 zh「交易所费率与参数」/ hk「交易所費率與參數」/ en「Exchange fee rate and parameters」/ vn「Tỷ lệ phí và tham số sàn」（**键名 `adminNav.feeRate` / `adminNav.feeRateDesc` 不变**）；③ **项目页保留字表不动** —— `fee-rate` 与 `exchange` 两段**都在** `RESERVED_PROJECT_SEGMENTS`（`37` 段不变，历史 slug 继续保护）⇒ `project-page.test.jsx` 的「三十七段」断言**零改动**；④ **单测新增 `admin-exchange-rename.test.jsx`（6 条）**：静态改锚（`path="exchange"` 在场 / `path="fee-rate"` 零命中 / 侧栏 `'/dashboard/exchange'`）+ 运行时（`/dashboard/exchange` 渲染费率页且侧栏链接 href 指新路径；旧 `/dashboard/fee-rate` 不再渲染费率页）；⑤ **门读数（本笔现取）** = unit **98 files / 1075 tests / 0 failed**（改前基线 **97 / 1069**）· a11y **1 file / 16 tests** · components **2 files / 14 tests** · build **exit 0** ⇒ `index-BUK9eGDS.js` **663,938 B** / `index-9yLpCO20.css` **190,708 B**；⑥ **产物字面核验**：`dashboard/exchange` **1 命中**、`dashboard/fee-rate` **0 命中**（裸 `fee-rate` 仍 1 命中 = 保留字表字面，属**有意保留**）。
 
 
 > **v2.19 修订入口**：逐条 delta → 依据锚点 → 改动点 = `docs/audit/route-layer-v2.19-delta.md`（**同批姊妹册** = `docs/audit/data-layer-v0.26-delta.md` + `docs/audit/commission-v0.4-delta.md`）。**凡与 Zang 裁定冲突处，一律以 Zang 裁定为准**（本单为 P9⑤ 契约冻结；**未改写任何裁定、未发明任何路径 / 数值 / 权限键 / 文案值**）。**★ 姊妹册（同批）**：`docs/commission.spec.md` **v0.4 §19** + `docs/data-layer.spec.md` **v0.26 §34**，**本册不重抄其条文、只指路**。
@@ -7369,7 +7372,7 @@ CONSTRAINT admin_refund_audit_log_idem_uniq   UNIQUE (idempotency_key, result)  
 |---|---|---|
 | 注册点（现行） | `grep -cE '^app\.(get\|post\|put\|delete\|patch)\(' backend-ts/src/index.ts` | 门 `p8-s2-fee-rebate-gate.ts:72-73` 写死 **87**（P9④ 后）；本节 **+0** ⇒ 仍 **87** |
 | 后台费率 / 权重口 | `p8-s2` 门 `:52-53` | `GET /api/admin/commission_policy` + `POST /api/admin/commission_policy`（**各恰 1 处**）；闸 = `manage_settings`；取数复用 `getCommissionPolicy` |
-| 后台页 | `p8-s2` 门 `:41-42` / `:126-127` | `FeeRatePage.jsx`（8 键）/ `ReferralWeightMatrixPage.jsx`（`levels`/`weights_bp`/`weights_sum_bp`/`fee_rate_bp` 4 键）；路由 `fee-rate` / `weight-matrix` 闸 `manage_settings` |
+| 后台页 | `p8-s2` 门 `:41-42` / `:126-127` | `FeeRatePage.jsx`（8 键）/ `ReferralWeightMatrixPage.jsx`（`levels`/`weights_bp`/`weights_sum_bp`/`fee_rate_bp` 4 键）；路由 `fee-rate` / `weight-matrix` 闸 `manage_settings`。**★ 已更名：`fee-rate` → `exchange`（Kevin 2026-10-24；页名→交易所管理，只改页名与路径、功能不动；组件名 `FeeRatePage` 保留、闸不变）—— 见 §49.22** |
 | 四语命名空间键数 | `p8-s2` 门 `:187` | `adminFeeRate 18` / `adminWeightMatrix 21` / `adminNav 28` |
 | 守卫常量镜像 | `p8-s2` 门 `:160-164` / `:171-177` | `FEE_RATE_MIN=100 / FEE_RATE_MAX=500 / LEVELS_MIN=1 / LEVELS_MAX=10 / WEIGHTS_SUM_MAX=10000`（前端两页逐值相等 `C6`） |
 | `app_config` 写口 | `database.ts:46-78` / `admin-service.ts:88` | 合法键闭集 **9**（`B1`–`B7` 含 `invite_reward_policy`）；`app-service` 现写「禁写费率键（费率真源 = `commission_policy.fee_rate_bp`）」 |
@@ -10386,3 +10389,67 @@ ORDER BY score DESC, l.time_created DESC, l.listing_id DESC
 - `dashPage.subtitle`（中文「优先处理待审核事项，再进入各个管理模块。」）**文案未改** —— 它属 i18n 内容面（四语同改 + 键值校验），本笔只拆面板、不改文案 ⇒ 该句现已与页面实际内容不完全对应，**登记为待 Kevin 一句话**（改文案会动四语值、不动键集）。
 - 审核动作的**新归属**（`currency-review` 之外是否还需「Task Progress 审批」面）**本单不裁**——现役审核面只有币种审核；若需重建，须**先建后端口**、再谈前端。
 - 生产同版核验**不在本节**（归 `master-plan` §5.455 与本笔报告；本册只记文档面）。
+
+### 49.22 后台【费率配置】更名【交易所管理】（路由 `/dashboard/fee-rate` → `/dashboard/exchange` · **只改页名与路径、页面功能一字不动**）· 2026-10-24 · **v2.49**（口径变更 ⇒ 升版；头注**追加** v2.49 状态块，按升序接放于 v2.48 块之后）· 本笔**只追加 + 1 处行内订正**（§31.1「后台页」行内追加更名标注，旧字面逐字保留）
+
+**依据** = Kevin 2026-10-24 裁定（原话口径：「后台【费率配置】页更名为【交易所管理】，地址由 `/dashboard/fee-rate` 改为 `/dashboard/exchange`；**只改名与路径，不改页面功能与内容**」）。
+
+#### 49.22.1 改的四处（实现面 · 全部现取）
+
+| # | 文件 | 改动 | 现取 |
+|---|---|---|---|
+| ① | `frontend/src/App.jsx` | 内层相对段 `path="fee-rate"` ⇒ **`path="exchange"`**；组件仍 `FeeRatePage`、闸仍 `requiredPermission="manage_settings"`、`adminOnly={true}` 一字不动；同段注释里的 `fee-rate` 示例同步为 `exchange`（并标「原 fee-rate，2026-10-24 更名；段名仍保留在保留字表」） | `grep -n 'path="exchange"' frontend/src/App.jsx` ⇒ 2 处（**① ** `:215` 区注释散文 + **② ** `:406` 路由行）；`grep -c 'path="fee-rate"'` ⇒ **0** |
+| ② | `frontend/src/components/layout/AdminLayout.jsx` | 侧栏项 `path: '/dashboard/fee-rate'` ⇒ **`path: '/dashboard/exchange'`**；`title` 仍 `t('adminNav.feeRate')`、`description` 仍 `t('adminNav.feeRateDesc')`、`icon` 仍 `Percent`、`requiredPermission` 仍 `manage_settings` | `:90`；`grep -c "'/dashboard/fee-rate'"` ⇒ **0** |
+| ③ | `frontend/src/locales/{zh,hk,en,vn}.json` | **只改值、不改键**（`adminNav.feeRate` / `adminNav.feeRateDesc` 键名逐字不动） | 见 §49.22.2 四语表 |
+| ④ | `frontend/src/test/unit/admin-exchange-rename.test.jsx` | **新增 6 条**（静态 + 运行时，见 §49.22.4） | 新文件 |
+
+**明确不动（四类）**：① `frontend/src/pages/admin/FeeRatePage.jsx` **文件名 / 组件名 / 8 键字段 / 读写两口 / 守卫常量镜像**一律不动（页面 h2 取 `t('adminNav.feeRate')` ⇒ **文案随值自动跟随**，无需改页面）；② 后端 `GET/POST /api/admin/commission_policy` 与 `commission_policy` 表 **零改动**；③ `frontend/src/project-slug.js` 的 `RESERVED_PROJECT_SEGMENTS` **不删 `fee-rate`、不改 `exchange`**（两段均在，`37` 段不变 ⇒ 历史 slug 继续受保护）；④ 其它后台页与 `weight-matrix` 相邻项一字不动。
+
+#### 49.22.2 四语新值（值变更 2 键；键集 `1453 × 4` 零增删）
+
+| 键 | zh | hk | en | vn |
+|---|---|---|---|---|
+| `adminNav.feeRate` | **交易所管理** | **交易所管理** | **Exchange** | **Quản lý sàn** |
+| `adminNav.feeRateDesc` | **交易所费率与参数** | **交易所費率與參數** | **Exchange fee rate and parameters** | **Tỷ lệ phí và tham số sàn** |
+
+- **改前值（留痕）**：zh「费率配置」/「费率与生效版本」· hk「費率設定」/「費率與生效版本」· en「Fee Rates」/「Fee rate and effective versions」· vn「Cấu hình phí」/「Tỷ lệ phí và phiên bản hiệu lực」。
+- **键集自证（本笔现取）**：四语逐文件 `len(json)` = **135** 顶层 / 递归叶 = **1453**；`adminNav` 命名空间 **30** 键 ×4 相等 —— **只改值 ⇒ 计数零漂移**（承本册「业务名改写 = 只改文案值，不改路由 / 表 / API 路径」体例，但**本单是例外**：Kevin 同时点名改 URL 段，故路由段同批改，**组件名 / API 路径仍不动**）。
+- **页面标题自动跟随**：`FeeRatePage.jsx:140` 的 `<h2>{t('adminNav.feeRate')}</h2>` 无需改码即显示「交易所管理」—— 这是「只改值」的直接收益，**不作为额外改动登记**。
+
+#### 49.22.3 旧路径的口径（无重定向 · 与 `shard → exchange` 先例不同）
+
+- **旧 `/dashboard/fee-rate` 不设 `<Navigate>`** —— Kevin 只要求改地址，未要求旧链接兼容；后台页无外链收藏场景（入口恒为侧栏），且 `/dashboard/*` 嵌套路由内**无 catch-all**（现取：该块末条即 `audit-console`）⇒ 旧段**无匹配子路由**，`AdminLayout` 的 `<Outlet />` 为空。
+- **本册如实登记**：旧段 = **无匹配子路由（空白 outlet）**，**不是** catch-all 提示页、**也不是** 301 / 重定向。若 Kevin 要求旧链接给提示，须**另立单**（属行为新增，本单不做）。
+- **关联先例差异**：`/shard → /exchange`（2026-10-03 改名单，回归契约 = `frontend/src/test/unit/route-exchange-rename.test.jsx`）当年建了 `LegacyExchangeRedirect` + `<Navigate>`，因为那是**对外用户路径**；本单是**后台内部路径**，口径不同，**不得类比套用**。
+
+#### 49.22.4 单测（新增 6 条 · 禁降强度）
+
+`frontend/src/test/unit/admin-exchange-rename.test.jsx`：
+
+1. **①-1 静态**：`App.jsx` 含 `<Route path="exchange" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><FeeRatePage /></ProtectedRoute>} />`（**整条逐字**，闸与组件同时钉死）；`path="fee-rate"` **零命中**；`import FeeRatePage from './pages/admin/FeeRatePage'` **仍在**（防「删路由顺手删页」）。
+2. **①-2 静态**：`AdminLayout.jsx` 含 `path: '/dashboard/exchange',`、**不含** `'/dashboard/fee-rate'`，且 `title: t('adminNav.feeRate')` / `description: t('adminNav.feeRateDesc')` **键名逐字未变**。
+3. **①-3 四语值**：八条值断言逐字（§49.22.2 表）。
+4. **①-4 保留字表不动**：`RESERVED_PROJECT_SEGMENTS` 长度 **37**、`toContain('fee-rate')` 且 `toContain('exchange')`（**正向双钉** —— 防「顺手删 fee-rate」与「顺手删 exchange」两向回归）。
+5. **②-1 运行时**：`/dashboard/exchange` ⇒ 渲染费率页（`fee rate page content`）+ 侧栏 `role=link[name='adminNav.feeRate']` 的 **`href = /dashboard/exchange`** + 页面内 `a[href="/dashboard/fee-rate"]` **为 null**。
+6. **②-2 运行时（反向）**：`/dashboard/fee-rate` ⇒ **不渲染**费率页（该段已注销）。
+
+**既有测试零改动自证**：`grep -rn "fee-rate\|feeRate" frontend/src/test` 现取 = **2 处** —— ① `i18n-batch-b4a.test.jsx:98` 的注释（`adminNav` 计数口径，**不含 `fee-rate` 断言**）；② `project-page.test.jsx:129` 的 `'fee-rate'`（**保留字表成员，本单刻意不动 ⇒ 断言随数据不变、零改锚**）。⇒ **本单无「改锚既有断言」**，新增 1 文件是唯一测试面改动。
+
+#### 49.22.5 门读数（本笔现取 · 2026-10-24）
+
+- `cd frontend && npx vitest run src/test/unit` = **98 files / 1075 tests / 0 failed**（**改前基线 = 97 files / 1069 tests**，本笔开工前自取落盘；净 **+1 file / +6 tests** = 新增 `admin-exchange-rename.test.jsx`）。
+- `npx vitest run src/test/accessibility` = **1 file / 16 tests / 0 failed**。
+- `npx vitest run src/test/components` = **2 files / 14 tests / 0 failed**。
+- `npm run build` = **exit 0**（`✓ built in 1.96s`）⇒ **`index-BUK9eGDS.js` 663,938 B** ＋ **`index-9yLpCO20.css` 190,708 B**。
+- **产物字面核验（dist 现取）**：`grep -o 'dashboard/exchange' dist/assets/index-*.js | wc -l` = **1**；`grep -o 'dashboard/fee-rate' …` = **0**；**裸 `fee-rate` = 1** —— 该命中的唯一来源是 `project-slug.js` 的保留字数组字面（**刻意保留**，见 §49.22.1 明确不动 ③）。
+
+#### 49.22.6 前端 `<Route` 三计数口径（§44.5 / §49.20.3）
+
+- **本笔只改一段 `path` 字面 ⇒ 三数不变**：`grep -cE '<Route' frontend/src/App.jsx` = **`44`**（字面，本笔实跑）· `grep -oE '<Route[ >]' frontend/src/App.jsx | wc -l` = **`36`**（精确，本笔实跑）· 内层 `<Routes>` 逐段清点 = **`26`**（沿用 §49.20.3 口径与数值；**改名不增删任何 `<Route>` ⇒ 逐段清点无变化**，如实登记未重数）。
+- **`§44.5` 三行不同批前推**：该节「下一笔再增删 `<Route` 必须同批前推」的前提是**增删**；本笔 **+0 / −0** ⇒ 不触。
+
+#### 49.22.7 未做（`NOT_MEASURED` · 不预填）
+
+- **旧路径 `/dashboard/fee-rate` 的用户可见提示页**：未做（§49.22.3 口径 = 无匹配子路由）；如需，须另立单。
+- **`FeeRatePage` 组件名 / 文件名的语义化改名**（`ExchangeManagement.jsx`）：**未做 · 刻意不做** —— 最小改动原则，文件名与组件名不影响用户可见面；若 Kevin 要统一命名，另立单（会牵连 import / 单测 / 门锚点）。
+- **真机 / 浏览器实操读数**（真实后台点击侧栏跳转）：`NOT_MEASURED` —— 本笔只有 jsdom 运行时断言 + dist 字面核验；生产核验见 `master-plan` §5.460 与本笔报告。
