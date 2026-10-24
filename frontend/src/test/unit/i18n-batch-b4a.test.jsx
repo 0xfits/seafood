@@ -39,7 +39,6 @@ vi.mock('../../admin-utils', () => ({
 }))
 
 import AdminLayout from '../../components/layout/AdminLayout'
-import TasksManagement from '../../pages/admin/TasksManagement'
 
 const SRC = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const LANGS = ['zh', 'en', 'hk', 'vn']
@@ -53,10 +52,11 @@ describe('P6-I18N-LIT-B4a · en 档渲染英文（后台面两个页面；reward
     render(<MemoryRouter initialEntries={['/']}><AdminLayout /></MemoryRouter>)
 
     // 侧边栏导航（`adminNav.*`；2026-10-24：`permissions` / `weight-matrix` / `currency-review` / `arbitration-review`
-    //  四项已随「交易所管理 Tab 模块」与两页下架从侧栏移除 ⇒ 本清单同步改锚（`Exchange` = `adminNav.feeRate` 的 en 值））
+    //  四项已随「交易所管理 Tab 模块」与两页下架从侧栏移除；**同日第②轮**再减「任务管理」「碎片管理」两项
+    //  ⇒ 本清单同步改锚（`Exchange` = `adminNav.feeRate` 的 en 值；`Basic settings` = `adminNav.settings` 的新 en 值））
     for (const label of [
-      'Dashboard', 'Task Management', 'Shard Management',
-      'User Management', 'Exchange', 'Points Management', 'System Settings',
+      'Dashboard',
+      'User Management', 'Exchange', 'Points Management', 'Basic settings', 'Site Copy', 'Audit console',
     ]) {
       expect(await screen.findByText(label)).toBeInTheDocument()
     }
@@ -72,22 +72,11 @@ describe('P6-I18N-LIT-B4a · en 档渲染英文（后台面两个页面；reward
     expect(screen.queryByText('在线')).toBeNull()
   })
 
-  it('TasksManagement（en 档）：页头 / 只读告示 / 刷新 / 兜底描述 / 积分 / 开关态 全走英文', async () => {
-    render(<TasksManagement />)
-
-    expect(await screen.findByText('Task Management')).toBeInTheDocument()
-    expect(screen.getByText(/read-only mode/)).toBeInTheDocument()
-    expect(screen.getByText('Refresh')).toBeInTheDocument()
-    expect(await screen.findByText('Task A')).toBeInTheDocument()
-    // `note` 为空 ⇒ 兜底键 `adminCommon.noDescription`
-    expect(screen.getByText('No description')).toBeInTheDocument()
-    // `adminCommon.pointsValue` = '{{value}} points'
-    expect(screen.getByText('10 points')).toBeInTheDocument()
-    expect(screen.getByText('Open')).toBeInTheDocument()
-    expect(screen.queryByText('暂无描述')).toBeNull()
-    expect(screen.queryByText('刷新')).toBeNull()
-    expect(screen.queryByText('任务管理')).toBeNull()
-  })
+  // ★ 2026-10-24（Kevin · 三轮中的第②轮）：`TasksManagement`（任务管理）整页下线 ⇒ 原
+  //   「TasksManagement（en 档）：页头 / 只读告示 / 刷新 / 兜底描述 / 积分 / 开关态 全走英文」一条随之删除
+  //   （判据底 = 该页 DOM，页面文件已删 ⇒ 锚点不可达，非降强度）。`adminTasks.*` / `adminNav.tasks`
+  //   四语键**保留不删**（键集计数不受影响，仅登记孤儿）；两页零残留与 settings 单字段行为由
+  //   `admin-basic-settings.test.jsx` 钉死。
 
 })
 

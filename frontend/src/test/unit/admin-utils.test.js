@@ -62,14 +62,14 @@ describe('admin-utils', () => {
       is_admin: false,
       permissions: ['publish_tasks'],
       can_access_admin: true,
-      preferred_admin_path: '/dashboard/tasks',
+      preferred_admin_path: '/dashboard/users',
     })
 
     await expect(fetchAdminAccess(currentUser)).resolves.toEqual({
       is_admin: false,
       permissions: ['publish_tasks'],
       can_access_admin: true,
-      preferred_admin_path: '/dashboard/tasks',
+      preferred_admin_path: '/dashboard/users',
     })
   })
 })

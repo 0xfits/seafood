@@ -98,8 +98,8 @@ describe('顶栏选中态：四项同一样式', () => {
     expect(ordersActive(container)).toBe(false)
   })
 
-  it('③ /dashboard 与 /dashboard/tasks ⇒ 管理面板 active（管理员项在场时）', async () => {
-    for (const entry of ['/dashboard', '/dashboard/tasks']) {
+  it('③ /dashboard 与 /dashboard/users ⇒ 管理面板 active（管理员项在场时）', async () => {
+    for (const entry of ['/dashboard', '/dashboard/users']) {
       const { container, unmount } = renderAt(entry)
       await waitFor(() => expect(container.querySelectorAll('nav a').length).toBe(3))
       const rows = navState(container)

@@ -49,8 +49,6 @@ import ItemDetailPage from './pages/item/ItemDetailPage'
 import NotFoundPage from './pages/NotFoundPage'
 
 // 管理页面组件
-import TasksManagement from './pages/admin/TasksManagement'
-import ShardsManagement from './pages/admin/ShardsManagement'
 import UsersManagement from './pages/admin/UsersManagement'
 import PointsManagement from './pages/admin/PointsManagement'
 import SystemSettings from './pages/admin/SystemSettings'
@@ -395,8 +393,6 @@ function App() {
           } 
         >
           <Route index element={<ProtectedRoute adminOnly={true}><DashboardPage /></ProtectedRoute>} />
-          <Route path="tasks" element={<ProtectedRoute adminOnly={true} requiredPermission={['manage_tasks', 'publish_tasks']}><TasksManagement /></ProtectedRoute>} />
-          <Route path="shards" element={<ProtectedRoute adminOnly={true} requiredPermission={['manage_rewards', 'publish_prizes']}><ShardsManagement /></ProtectedRoute>} />
           <Route path="users" element={<ProtectedRoute adminOnly={true} requiredPermission="read_users"><UsersManagement /></ProtectedRoute>} />
           <Route path="points" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_points"><PointsManagement /></ProtectedRoute>} />
           <Route path="settings" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><SystemSettings /></ProtectedRoute>} />
@@ -418,8 +414,12 @@ function App() {
           {/* P9①（spec §27.2/§26.6）：站点文案页（角色文案 + 站点标语 + 数值项），闸 = manage_settings */}
           <Route path="site-text" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><SiteTextPage /></ProtectedRoute>} />
           <Route path="audit-console" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_audit"><AuditConsolePage /></ProtectedRoute>} />
-          {/* 后台内层兜底：已下线段（`arbitration-review` / `permissions` 等）与任何未知后台子路径 ⇒ 提示页（404 形态，非重定向）。
-              缺此条时 `/dashboard/<未注册段>` 会渲出**空 main**（父路由部分匹配、`<Outlet/>` 无匹配），看起来像白页。 */}
+          {/* 后台内层兜底：已下线段（`arbitration-review` / `permissions` / `tasks` / `shards` 等）与任何未知后台子路径
+              ⇒ 提示页（404 形态，非重定向）。
+              缺此条时 `/dashboard/<未注册段>` 会渲出**空 main**（父路由部分匹配、`<Outlet/>` 无匹配），看起来像白页。
+              ★ Kevin 2026-10-24（三轮中的第②轮）：「任务管理」(tasks) 与「碎片管理」(shards) 两页下线 ⇒
+                页面文件 / 路由 / 侧栏项三处删除，旧地址落后台内层本条 catch-all；后端口（`campaign/all`、
+                `prize/all` + 市场 `orderbook`/`trades`）**一律不动**（公开页与首页仍在消费）。 */}
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       

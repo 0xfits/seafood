@@ -3,11 +3,9 @@ import { useTranslation } from 'react-i18next'
 import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard,
-  Trophy,
   Users,
   BarChart3,
   Settings,
-  Layers,
   Percent,
   Menu,
   X,
@@ -32,25 +30,15 @@ const AdminLayout = () => {
   })
 
   const menuItems = [
+    // ★ Kevin 2026-10-24（三轮中的第②轮）：侧栏再减两项 ——「任务管理」与「碎片管理」两页下线
+    //   （页面 / 路由 / 侧栏项三处零残留；旧地址落后台内层 catch-all 提示页）。
+    //   i18n 键 `adminNav.tasks` / `tasksDesc` / `shards` / `shardsDesc` **保留不删**（登记孤儿，键集计数不变）；
+    //   后端口（`campaign/all` / `prize/all`）不动。
     {
       title: t('adminNav.dashboard'),
       icon: LayoutDashboard,
       path: '/dashboard',
       description: t('adminNav.dashboardDesc'),
-    },
-    {
-      title: t('adminNav.tasks'),
-      icon: Trophy,
-      path: '/dashboard/tasks',
-      description: t('adminNav.tasksDesc'),
-      requiredPermission: ['manage_tasks', 'publish_tasks'],
-    },
-    {
-      title: t('adminNav.shards'),
-      icon: Layers,
-      path: '/dashboard/shards',
-      description: t('adminNav.shardsDesc'),
-      requiredPermission: ['manage_rewards', 'publish_prizes'],
     },
     {
       title: t('adminNav.users'),

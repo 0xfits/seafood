@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
 import {
   Users,
-  Trophy,
   Gift,
   BarChart3,
   Settings,
@@ -48,13 +47,6 @@ const DashboardPage = () => {
 
   const managementLinks = [
     {
-      title: t('adminNav.tasks'),
-      description: t('dashPage.linkTasksDesc'),
-      to: '/dashboard/tasks',
-      icon: Trophy,
-      variant: 'primary',
-    },
-    {
       title: t('adminNav.users'),
       description: t('dashPage.linkUsersDesc'),
       to: '/dashboard/users',
@@ -84,7 +76,7 @@ const DashboardPage = () => {
     // job 下线（2026-10-21）：旧 `GET /api/task/all`（悬赏全表）已随后端删除 ⇒ 本页不再取。
     //   「任务总数」卡随之删除：现任务 = campaign task，唯一公开读口 `/api/home/campaign-tasks`
     //   只给 `LIMIT 20` 的 active 热门行 ⇒ 拿不到真·总数（照旧渲染只会把 20 说成「总数」，是假读数）。
-    //   管理侧要看真实任务请走 `/dashboard/tasks`（campaign 口径列表）。
+    //   管理侧要看真实任务无独立列表页（2026-10-24 起「任务管理」页已下线；公开 `/campaign` 与首页仍在消费读口）。
     //   （词典键 `dashPage.statTasks` / `dashPage.errTaskStats` 保留：四语键集计数锚点，删键会改 flat 读数）
     const results = await Promise.allSettled([
       fetchApiJson('/api/user/stats', { headers: authHeaders }),
@@ -162,7 +154,6 @@ const DashboardPage = () => {
   // 角色徽标 = 角色名（管理员 / 审核员 / 员工），只读权限三键，与已下线的审核队列无关 ⇒ 保留。
   const dashboardRoleLabel = access.is_admin ? t('dashPage.roleAdmin') : hasAdminPermission(access, 'review_tasks') ? t('dashPage.roleReviewer') : t('dashPage.roleStaff')
   const visibleManagementLinks = managementLinks.filter((item) => {
-    if (item.to === '/dashboard/tasks') return hasAdminPermission(access, ['manage_tasks', 'publish_tasks'])
     if (item.to === '/dashboard/users') return hasAdminPermission(access, 'read_users')
     if (item.to === '/dashboard/points') return hasAdminPermission(access, 'manage_points')
     if (item.to === '/dashboard/settings') return hasAdminPermission(access, 'manage_settings')

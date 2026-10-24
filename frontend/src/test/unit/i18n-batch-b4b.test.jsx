@@ -54,7 +54,6 @@ vi.mock('../../admin-utils', () => ({
 }))
 
 import PointsManagement from '../../pages/admin/PointsManagement'
-import ShardsManagement from '../../pages/admin/ShardsManagement'
 import SystemSettings from '../../pages/admin/SystemSettings'
 import UsersManagement from '../../pages/admin/UsersManagement'
 
@@ -125,55 +124,34 @@ describe('P6-I18N-LIT-B4b · en 档渲染英文（后台剩余 5 个面）', () 
     expect(screen.queryByText('零积分用户')).toBeNull()
   })
 
-  it('ShardsManagement（en 档）：页头 / 三个页签 / 刷新 全走英文（holdings 面板文案走取值+源码断言）', async () => {
-    wrap(<ShardsManagement />)
+  // ★ 2026-10-24（Kevin · 三轮中的第②轮）：`ShardsManagement`（碎片管理）整页下线 ⇒ 原
+  //   「ShardsManagement（en 档）：页头 / 三个页签 / 刷新 全走英文」一条随之删除（页面文件已删 ⇒ 锚点不可达，
+  //   非降强度）；`adminShards.*` / `adminNav.shards` 四语键**保留不删**（键集计数不变，登记孤儿）。
 
-    expect(await screen.findByText('Shard Management')).toBeInTheDocument()
-    for (const tab of ['Holdings overview', 'Open orders', 'Trade history']) {
-      expect(screen.getByText(tab)).toBeInTheDocument()
-    }
-    expect(screen.getByText('Refresh')).toBeInTheDocument()
-    // 反证
-    expect(screen.queryByText('碎片管理')).toBeNull()
-    expect(screen.queryByText('持仓总览')).toBeNull()
-    expect(screen.queryByText('挂单管理')).toBeNull()
-
-    // ③ 本仓 `Tabs` 不渲染非激活页签 ⇒ holdings 面板文案走「locale 取值 + 源码面」断言
-    for (const lang of LANGS) {
-      const t = readTable(lang)
-      expect(t.adminShards.holdingsNote).not.toContain('api/')
-      expect(t.adminShards.holdingsNote).not.toContain('§')
-      expect(t.adminShards.thPrize.length).toBeGreaterThan(0)
-      expect(t.adminShards.thStoresCount.length).toBeGreaterThan(0)
-    }
-    // 必做②：原「个人持仓可通过 /api/shard 查询…」已改写为无接口路径的表述
-    expect(readTable('en').adminShards.holdingsNote).toContain('in their own account page')
-    const src = fs.readFileSync(path.join(SRC, 'pages/admin/ShardsManagement.jsx'), 'utf8')
-    expect(src).not.toContain('/api/shard')
-    expect(src).toContain("t('adminShards.holdingsNote')")
-  })
-
-  it('SystemSettings（en 档）：页头 / 三张卡 / 各字段标签 / 保存按钮 全走英文', async () => {
+  it('SystemSettings（en 档）：页头 / 单字段卡 / 站点名称标签 / 保存按钮 全走英文', async () => {
     wrap(<SystemSettings />)
 
-    // 三张卡只在 `initialLoading` 结束后出现 ⇒ 先等它
-    expect(await screen.findByText('Basic settings')).toBeInTheDocument()
-    // `System Settings` 同时是页头 h2 与「系统设置」卡片标题 ⇒ 至少 2 处
-    expect(screen.getAllByText('System Settings').length).toBeGreaterThanOrEqual(2)
+    // 卡片只在 `initialLoading` 结束后出现 ⇒ 先等卡片内容（页头 h2 在 loading 期就在场，不能拿它当「加载完」信号）
+    expect(await screen.findByText('Site name')).toBeInTheDocument()
+    // 页头 h2（`adminNav.settings`）与卡片标题（`adminSettings.cardBasic`）**同值** ⇒ 至少 2 处
+    expect(screen.getAllByText('Basic settings').length).toBeGreaterThanOrEqual(2)
     expect(screen.getByText(/This page reads and saves site settings\./)).toBeInTheDocument()
     expect(screen.getByText('Current content matches the saved settings.')).toBeInTheDocument()
-    for (const chunk of ['Site description', 'Default language', 'Maintenance mode',
-      'Allow registration', 'Email notifications', 'Points settings', 'Default points per task',
-      'Max tasks per day', 'Reward cooldown (hours)', 'Save settings']) {
-      expect(screen.getByText(chunk)).toBeInTheDocument()
-    }
+    // 唯一字段 = 站点名称（复用 `adminSiteText.labelSiteTitle` 的 en 值）
+    expect(screen.getByText('Site name')).toBeInTheDocument()
+    expect(screen.getByText('Save settings')).toBeInTheDocument()
     // 必做②：原「（保存按 §2.4 S1/DL36 带 `ops:` 幂等键）…（§5.1 = `410`）」已改写
     expect(screen.queryByText(/§/)).toBeNull()
     expect(screen.queryByText(/410/)).toBeNull()
-    // 反证
-    expect(screen.queryByText('系统设置')).toBeNull()
+    // 反证：简体原文不出现；且已删的 8 个字段标签一个都不渲染
     expect(screen.queryByText('基本设置')).toBeNull()
+    expect(screen.queryByText('站点名称')).toBeNull()
     expect(screen.queryByText('保存设置')).toBeNull()
+    for (const gone of ['Site description', 'Default language', 'Maintenance mode',
+      'Allow registration', 'Email notifications', 'Points settings', 'Default points per task',
+      'Max tasks per day', 'Reward cooldown (hours)']) {
+      expect(screen.queryByText(gone)).toBeNull()
+    }
   })
 })
 

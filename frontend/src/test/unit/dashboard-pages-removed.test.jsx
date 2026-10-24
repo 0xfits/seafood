@@ -38,9 +38,11 @@ describe('后台下架：listing-review 与 rewards 两页零残留', () => {
     expect(zh.adminNav.listingReview).toBe('商品审核')
   })
 
-  it('⑤ TasksManagement / ShardsManagement 等其余后台页不受影响（文件仍在；两页下架见 admin-exchange-module ②）', () => {
-    expect(fs.existsSync(path.join(SRC, 'pages/admin/TasksManagement.jsx'))).toBe(true)
-    expect(fs.existsSync(path.join(SRC, 'pages/admin/ShardsManagement.jsx'))).toBe(true)
+  it('⑤ TasksManagement / ShardsManagement 两页已下线（2026-10-24 第②轮 ⇒ 文件不存在）；其余后台页不受影响', () => {
+    // ★ 2026-10-24（Kevin · 三轮中的第②轮）：本行由 at.true 反转为 at.false（两页下线，
+    //   零残留判据见 `admin-basic-settings.test.jsx` ②）。
+    expect(fs.existsSync(path.join(SRC, 'pages/admin/TasksManagement.jsx'))).toBe(false)
+    expect(fs.existsSync(path.join(SRC, 'pages/admin/ShardsManagement.jsx'))).toBe(false)
     // ★ 2026-10-24（Kevin · 三轮中的第①轮）：仲裁审核 / 权限管理两页下架 ⇒ 本行由 at.true 反转为 at.false
     expect(fs.existsSync(path.join(SRC, 'pages/admin/ArbitrationReviewPage.jsx'))).toBe(false)
     expect(fs.existsSync(path.join(SRC, 'pages/admin/PermissionsManagement.jsx'))).toBe(false)

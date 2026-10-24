@@ -5,10 +5,11 @@
  *   ① 走**真实** i18n 实例（`import '../../i18n'`）+ `i18n.changeLanguage('en')`，**不 mock** `react-i18next`；
  *   ② 数据面只 mock `../../admin-utils`（权限 / 取数口）；组件树其余全真；
  *   ③ 反证 = 简体原文在 en 档渲染期不得出现（逐条 `queryByText` 断言）；
- *   ④ **必做① 可判负**：`SystemSettings` 的待保存值（`defaults.siteDescription`）在 zh 档与 en 档
- *      必须**相同且为空串**。本用例让 mock 的 `/api/admin/settings` **不含** `siteDescription`，
- *      ⇒ 取值只能来自 `defaults`：旧实现 `siteDescription: t('adminSettings.siteDescription')`
- *      会让 zh 档 = 「去中心化社区奖励平台」、en 档 = 英译文（两档不同）⇒ 该用例必然判负；
+ *   ④ **必做① 可判负**：`SystemSettings` 的待保存值（现役唯一字段 `siteName`）在 zh 档与 en 档
+ *      必须**相同且为空串**。本用例让 mock 的 `/api/admin/settings` **不含** `siteName`，
+ *      ⇒ 取值只能来自初始 state：若把初值写成 `t(...)` 的求值结果，zh 档 = 中文文案、en 档 = 英译文
+ *      （两档不同）⇒ 该用例必然判负；（旧锚点 `defaults.siteDescription` 已随 2026-10-24 第②轮
+ *      单字段重构删除，判据改锚不降强度）；
  *   ⑤ **必做②**（D7 最后一项）：`pages/HomePage.jsx` 旧三目链收口到 `pickLocalized`，
  *      `p6-tr2-i18n-locales.mjs` 的 LEGACY 名单清零（脚本退出码即断言）；
  *   ⑥ AC④ = 直接 exec 本批类级断言脚本（脚本内禁 `pkill`/服务/网络）。
@@ -169,7 +170,7 @@ describe('P6-I18N-LIT-B5 · en 档渲染英文（组件库 + 开发预览页）'
 })
 
 describe('P6-I18N-LIT-B5 · 必做① `SystemSettings` 待保存值与界面语言无关（可判负）', () => {
-  const siteDescriptionOf = async (lang) => {
+  const siteNameOf = async (lang) => {
     await i18n.changeLanguage(lang)
     cleanup()
     wrap(<SystemSettings />)
@@ -177,20 +178,24 @@ describe('P6-I18N-LIT-B5 · 必做① `SystemSettings` 待保存值与界面语�
     return box.value
   }
 
-  it('zh 档与 en 档的 `defaults.siteDescription`（待保存值）必须相同且为空串', async () => {
-    const zh = await siteDescriptionOf('zh')
-    const en = await siteDescriptionOf('en')
+  it('zh 档与 en 档的 `siteName`（唯一字段的待保存值）必须相同且为空串', async () => {
+    const zh = await siteNameOf('zh')
+    const en = await siteNameOf('en')
 
     expect(en).toBe(zh)
     expect(zh).toBe('')
   })
 
-  it('`t(...)` 只能当 placeholder：源码里不得再出现 `siteDescription: t(`', () => {
+  it('`t(...)` 只能当标签：初始 state 不得由 `t(...)` 求值（源码面）', () => {
     const src = fs.readFileSync(path.join(SRC, 'pages/admin/SystemSettings.jsx'), 'utf8')
 
-    expect(src).not.toContain('siteDescription: t(')
-    expect(src).toContain('const defaults = { ...DEFAULT_SETTINGS }')
-    expect(src).toContain("placeholder={t('adminSettings.siteDescription')}")
+    // ★ 2026-10-24（第②轮 · 单字段重构）：旧锚点 `defaults.siteDescription` 已随 8 个零消费方字段删除 ⇒
+    //   改锚到现役承重点 `siteName` 的初始 state（同一「待保存值不得来自 t()」判据，未降强度）。
+    expect(src).not.toMatch(/useState\(\s*t\(/)
+    expect(src).toContain("useState('')")
+    expect(src).not.toContain('DEFAULT_SETTINGS')
+    // 字段标签仍走 i18n（复用既有四语键，零新增键）
+    expect(src).toContain("t('adminSiteText.labelSiteTitle')")
   })
 })
 

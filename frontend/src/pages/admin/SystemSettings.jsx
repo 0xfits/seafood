@@ -2,38 +2,39 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Button, Card, CardHeader, CardTitle, CardContent } from '../../components/ui'
-import { Settings, Save, RefreshCw, Database, Globe } from 'lucide-react'
+import { Save, Globe } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { fetchAdminAccess, fetchApiJson, getAuthHeaders, getStoredUser, hasAdminPermission } from '../../admin-utils'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import { adminOpsKey } from '../../idempotency'
 
-const DEFAULT_SETTINGS = {
-  siteDescription: '',
-  maintenance: false,
-  allowRegistration: true,
-  emailNotifications: true,
-  defaultLanguage: 'zh',
-  pointsPerTask: 100,
-  maxDailyTasks: 10,
-  rewardCooldown: 24,
-}
-
+/**
+ * 基本设置（Kevin 2026-10-24 裁定 · 三轮中的第②轮：`/dashboard/settings` 重构为**单字段**面板）
+ *
+ * 语义（本页唯一契约）：
+ *  ① **只保留 `siteName` 一个字段**。它是 `system_settings` 里**唯一有真消费方**的键
+ *     （`backend-ts/src/messages-service.ts` 读它做 Telegram 通知文案里的站点名）；
+ *     而原页面暴露的另外 8 个字段（`siteDescription` / `maintenance` / `allowRegistration` /
+ *     `emailNotifications` / `defaultLanguage` / `pointsPerTask` / `maxDailyTasks` /
+ *     `rewardCooldown`）在后端**零消费方** ⇒ UI / state / 校验全部删除（i18n 键保留不删，登记孤儿）。
+ *  ② 读 = `GET /api/admin/settings`，只取 `siteName`；写 = `POST /api/admin/settings`，
+ *     请求体**恰为** `{ siteName }` —— **不发**其它 8 个字段、**不发**全量对象。
+ *     后端是**补丁合并**语义（`assertSystemSettingsPatch`：「不补默认值 —— 未给字段在
+ *     `saveSystemSettings` 里与现态合流」）⇒ 只发一个键不会清空其它键。
+ *  ③ 闸 = `manage_settings`（不变）；成功 / 失败沿用页面既有 toast（承 T126：资金无关设置不强制新造）。
+ *
+ * ★ `ops:` 幂等键走 **`Idempotency-Key` 请求头**而不是 body：后端 `resolveAdminOpsKey` 的取值优先级是
+ *   `body.create_key → body.idempotency_key → Idempotency-Key 头`（三处等价，服务端只校验前缀、不落库）⇒
+ *   走头才能让**请求体键集精确为 `['siteName']`**。判据见 `src/test/unit/admin-basic-settings.test.jsx`。
+ */
 const SystemSettings = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  // ★ P6-I18N-LIT-B5 必做①：`defaults` 是**待保存值**（`saveSettings` 会把它连同 `settings` 一起 POST），
-  //   因此**必须与界面语言无关** —— 不得把 `siteDescription` 的初值写成 `t(...)` 的求值结果。
-  //   危害：① 同一次「未改动即保存」在不同语言界面会落库**不同数据**；
-  //         ② 本仓翻译管线以 zh 为源，落库英文后会被「当中文再翻译」产生垃圾。
-  //   `t(...)` 只能当 placeholder / 说明用（见下方 textarea 的 `placeholder`）。
-  //   可判负用例：`src/test/unit/i18n-batch-b5.test.jsx`（zh 档与 en 档下待保存值必须相同且为空）。
-  const defaults = { ...DEFAULT_SETTINGS }
-  const [settings, setSettings] = useState(() => ({ ...defaults }))
-  const [savedSettings, setSavedSettings] = useState(() => ({ ...defaults }))
+  // ★ 待保存值必须与界面语言无关（`t(...)` 只能当标签 / 说明）：初值取空串，落定值一律来自后端读口。
+  const [siteName, setSiteName] = useState('')
+  const [savedSiteName, setSavedSiteName] = useState('')
   const [initialLoading, setInitialLoading] = useState(true)
   const [loading, setLoading] = useState(false)
-  const [refreshing, setRefreshing] = useState(false)
   const [access, setAccess] = useState({ is_admin: false, permissions: [], can_access_admin: false })
 
   useEffect(() => {
@@ -58,12 +59,10 @@ const SystemSettings = () => {
         headers: getAuthHeaders(currentUser),
       })
 
-      const normalized = {
-        ...defaults,
-        ...data,
-      }
-      setSettings(normalized)
-      setSavedSettings(normalized)
+      // 只认 `siteName`（其余 8 键在本页无 UI ⇒ 不入 state，避免又被发回去）
+      const nextSiteName = data && typeof data.siteName === 'string' ? data.siteName : ''
+      setSiteName(nextSiteName)
+      setSavedSiteName(nextSiteName)
     } catch (error) {
       console.error('Error loading settings:', error)
       toast.error(t('adminSettings.loadFailed', { message: error.message }))
@@ -79,6 +78,8 @@ const SystemSettings = () => {
       const headers = {
         ...getAuthHeaders(currentUser),
         'Content-Type': 'application/json',
+        // §2.4 S1 / §9.B B1（DL36）：后台写必须带 `ops:` 幂等键（前缀硬闸，服务端不落库）。
+        'Idempotency-Key': adminOpsKey(currentUser?.uID, 'setting', 'system_settings'),
       }
       if (!headers.Authorization) {
         toast.error(t('adminCommon.sessionExpired'))
@@ -86,33 +87,16 @@ const SystemSettings = () => {
         return
       }
 
-      const normalized = {
-        ...settings,
-        pointsPerTask: Number(settings.pointsPerTask) || 0,
-        maxDailyTasks: Number(settings.maxDailyTasks) || 0,
-        rewardCooldown: Number(settings.rewardCooldown) || 0,
-      }
-
-      // §2.4 **S1** / §9.B **B1**（DL36）：`POST /api/admin/settings` 现为**请求侧强校验** ——
-      //   无 `ops:` 前缀的幂等键 ⇒ `400 LEDGER_IDEMPOTENCY_KEY_REQUIRED`
-      //   （真源 = `backend-ts/src/admin-service.ts:63-72`；前缀硬闸 `:76-78`）。
-      //   键形态 = §4.5 的 `ops:<admin_uid>:<action>:<key>`（服务端**只校验前缀、不落库** ⇒ 形状契约，
-      //   非重放机制；同一操作的键**确定性相同** ⇒ 重试不会引入新语义）。
+      // ★ 请求体恰为 `{ siteName }` —— 补丁合并语义，其它键（含全量对象）一律不出现。
       const saved = await fetchApiJson('/api/admin/settings', {
         method: 'POST',
         headers,
-        body: JSON.stringify({
-          ...normalized,
-          create_key: adminOpsKey(currentUser?.uID, 'setting', 'system_settings'),
-        }),
+        body: JSON.stringify({ siteName }),
       })
 
-      const nextSettings = {
-        ...defaults,
-        ...saved,
-      }
-      setSettings(nextSettings)
-      setSavedSettings(nextSettings)
+      const nextSiteName = saved && typeof saved.siteName === 'string' ? saved.siteName : siteName
+      setSiteName(nextSiteName)
+      setSavedSiteName(nextSiteName)
       toast.success(t('adminSettings.saved'))
     } catch (error) {
       console.error('Error saving settings:', error)
@@ -122,20 +106,10 @@ const SystemSettings = () => {
     }
   }
 
-  // ── 弃用面下线（P4-B4b-i · §2.4 **S5** / §5.1「一键重置设置」行；C3 ② 终审「删除」）───────
-  // 原 `resetSettings`（`POST /api/admin/settings/reset`，原 `:123`）已由后端落为 **`410` + `R107` +
-  // `details.sunset`**（无 token 亦 `410`，**不伪装 401**）⇒ 前端**零调用**（判据 = §9.B B5）；
-  // 该端点 = 「无审计的批量破坏写」⇒ 处置 = **删按钮 + 删调用**（逐项改走 `POST /api/admin/settings`，
-  // 每条一键 + 一条留痕）。
+  // ── 弃用面下线（P4-B4b-i · §2.4 **S5** / §5.1「一键重置设置」行）──────────────────────
+  // `POST /api/admin/settings/reset` 已由后端落为 **`410` + `R107`** ⇒ 前端**零调用**（判据 = §9.B B5）。
 
-  const handleSettingChange = (key, value) => {
-    setSettings(prev => ({
-      ...prev,
-      [key]: value
-    }))
-  }
-
-  const hasChanges = JSON.stringify(settings) !== JSON.stringify(savedSettings)
+  const hasChanges = siteName !== savedSiteName
   const canManageSettings = hasAdminPermission(access, 'manage_settings')
 
   return (
@@ -149,7 +123,6 @@ const SystemSettings = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          {/* §2.4 S5：`POST /api/admin/settings/reset` 已 410 ⇒ 「重置」按钮删除（页面只读化+逐项保存） */}
           <Button variant="primary" onClick={saveSettings} disabled={loading || !hasChanges || !canManageSettings}>
             <Save className="w-4 h-4 mr-2" />
             {loading ? t('adminCommon.saving') : t('adminSettings.saveButton')}
@@ -169,127 +142,31 @@ const SystemSettings = () => {
           </div>
 
           <div className="grid gap-6">
-        {/* 基本设置 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Globe className="w-5 h-5" />
-              {t('adminSettings.cardBasic')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">{t('adminSettings.labelSiteDescription')}</label>
-              <textarea
-                value={settings.siteDescription}
-                onChange={(e) => handleSettingChange('siteDescription', e.target.value)}
-                placeholder={t('adminSettings.siteDescription')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
-                rows={3}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">{t('adminSettings.labelDefaultLanguage')}</label>
-              <select
-                value={settings.defaultLanguage}
-                onChange={(e) => handleSettingChange('defaultLanguage', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
-              >
-                <option value="zh">{t('adminSettings.langZh')}</option>
-                <option value="en">English</option>
-                <option value="hk">{t('adminSettings.langHk')}</option>
-                <option value="vn">{t('adminSettings.langVn')}</option>
-              </select>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* 系统设置 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Settings className="w-5 h-5" />
-              {t('adminNav.settings')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-medium">{t('adminSettings.maintenance')}</h4>
-                <p className="text-sm text-gray-600">{t('adminSettings.maintenanceDesc')}</p>
-              </div>
-              <input
-                type="checkbox"
-                checked={settings.maintenance}
-                onChange={(e) => handleSettingChange('maintenance', e.target.checked)}
-                className="w-4 h-4"
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-medium">{t('adminSettings.allowRegistration')}</h4>
-                <p className="text-sm text-gray-600">{t('adminSettings.allowRegistrationDesc')}</p>
-              </div>
-              <input
-                type="checkbox"
-                checked={settings.allowRegistration}
-                onChange={(e) => handleSettingChange('allowRegistration', e.target.checked)}
-                className="w-4 h-4"
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-medium">{t('adminSettings.emailNotifications')}</h4>
-                <p className="text-sm text-gray-600">{t('adminSettings.emailNotificationsDesc')}</p>
-              </div>
-              <input
-                type="checkbox"
-                checked={settings.emailNotifications}
-                onChange={(e) => handleSettingChange('emailNotifications', e.target.checked)}
-                className="w-4 h-4"
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* 积分设置 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Database className="w-5 h-5" />
-              {t('adminSettings.cardPoints')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">{t('adminSettings.labelPointsPerTask')}</label>
-              <input
-                type="number"
-                value={settings.pointsPerTask}
-                onChange={(e) => handleSettingChange('pointsPerTask', Number(e.target.value))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">{t('adminSettings.labelMaxDailyTasks')}</label>
-              <input
-                type="number"
-                value={settings.maxDailyTasks}
-                onChange={(e) => handleSettingChange('maxDailyTasks', Number(e.target.value))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">{t('adminSettings.labelRewardCooldown')}</label>
-              <input
-                type="number"
-                value={settings.rewardCooldown}
-                onChange={(e) => handleSettingChange('rewardCooldown', Number(e.target.value))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
-              />
-            </div>
-          </CardContent>
-        </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Globe className="w-5 h-5" />
+                  {t('adminSettings.cardBasic')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* 站点名称 = `siteName`。文案复用既有四语键 `adminSiteText.labelSiteTitle`
+                    （zh「站点名称」/ hk「站點名稱」/ en「Site name」/ vn「Tên trang」）⇒ 零新增键、零计数前推。 */}
+                <div>
+                  <label htmlFor="admin-setting-site-name" className="block text-sm font-medium mb-2">
+                    {t('adminSiteText.labelSiteTitle')}
+                  </label>
+                  <input
+                    id="admin-setting-site-name"
+                    data-sf-m="admin-setting-site-name"
+                    type="text"
+                    value={siteName}
+                    onChange={(e) => setSiteName(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
+                  />
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </>
       )}

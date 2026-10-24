@@ -34,9 +34,10 @@ const ENDONYM_ALLOWLIST = new Set(['adminSettings.langZh', 'adminSettings.langHk
 // 本批写集（B4b 范围 + 必做① 落点）
 // ★ 2026-10-24：`pages/admin/PermissionsManagement.jsx` 整页下架（Kevin · 三轮中的第①轮，后端口仍存活、
 //   仅删前端）⇒ 从写集移除该文件；`adminPermissions` 键面仍在 LOCALE_KEYS（键保留不删 ⇒ 断言范围不变）。
+// ★ 2026-10-24（第②轮）：`pages/admin/ShardsManagement.jsx`（碎片管理）整页下线 ⇒ 从写集移除；
+//   `adminShards` 键面仍在 LOCALE_KEYS（键保留不删 ⇒ 断言范围不变）。`SystemSettings` 仍在写集（本批重构为单字段）。
 const WRITE_SET = [
   'pages/admin/PointsManagement.jsx',
-  'pages/admin/ShardsManagement.jsx',
   'pages/admin/SystemSettings.jsx',
   'pages/admin/UsersManagement.jsx',
   'pages/DashboardPage.jsx',
@@ -106,7 +107,7 @@ let cjkTotal = 0
 let engTotal = 0
 let codeTotal = 0
 let commentTotal = 0
-console.log('[B4b-CJK] ① 写集 = 后台剩余 5 面 + DashboardPage；口径 = 剥注释后残留 CJK（表意文字）')
+console.log('[B4b-CJK] ① 写集 = 后台剩余 4 面 + DashboardPage；口径 = 剥注释后残留 CJK（表意文字）')
 for (const rel of WRITE_SET) {
   const { cjkHits, engHits, codeLines, comments, rawLines } = scan(rel)
   cjkTotal += cjkHits.length
