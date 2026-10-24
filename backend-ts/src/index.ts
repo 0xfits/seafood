@@ -74,6 +74,16 @@ import {
   reviewCurrency404,
   reviewCurrencyVerb,
 } from './currency-review-service';
+// ★ 交易所管理第④面（`route-layer.spec` v2.52 §49.25 · `ledger.spec` v0.18 §19.20）：
+//   币种上架 / 下架（状态变更动作口）—— `POST /api/admin/currency/:cid/status`（闸 `manage_settings`）
+//   + 配套只读列表 `GET /api/admin/currency/status`（同闸；**不改**上面既有读口的 `review_tasks` 闸）。
+import {
+  CURRENCY_STATUS_OPS_ACTION,
+  currencyStatusVerb,
+  listCurrencyStatusesForAdmin,
+  parseCidShape,
+  parseTargetStatus,
+} from './currency-status-service';
 // 批 8⑤（`route-layer.spec` v2.10 §25 / `data-layer.spec` v0.17 §28）：合规审核（商品轴）
 //   · 读口 `GET /api/admin/listing` + 动作口 `POST /api/admin/listing/:listingId/takedown`（§25.2 · 闸 `review_tasks`）
 // ★ 2026-10-21：招工仲裁面（`/api/admin/arbitration*`）随 job 域下线移除。
@@ -2876,6 +2886,74 @@ app.post('/api/admin/currency/:cid/review', async (req, res) => {
       200, result.replay ? { idempotent_replay: true } : undefined);
   } catch (error) {
     return sendInfraMapped(res, 'admin.currency.review', error);
+  }
+});
+
+// ============================================================================
+// 交易所管理第④面（`route-layer.spec` **v2.52 §49.25** · `ledger.spec` **v0.18 §19.20**）：
+//   币种上架 / 下架（状态变更动作口）
+//   · 读口 `GET /api/admin/currency/status`（`data` 键集 = `cid / symbol / status / listed_at` 恰 4 键）
+//   · 动作口 `POST /api/admin/currency/:cid/status`（闸 **`manage_settings`**；注册点 **114 → 116**〔含读口〕）
+// 权限键 = `manage_settings`（§49.25.3：12 键零增删）；**零新增错误码**（33 码闭集不动）；
+// 事务形态 = 两阶段（Phase A 撤单解冻 → Phase B 单语句改状态 + 写日志）；**零账务分录**。
+// ============================================================================
+
+// ---- 读口 · `GET /api/admin/currency/status`（供前端「币种管理」tab；§49.25 配套面）----------------
+//   · 只读（只 `SELECT`）；**不得**借读口补写（`DL23`）；无 `ops:` 键（读口无副作用）；
+//   · 闸 = `manage_settings`（**与既有 `GET /api/admin/currency` 的 `review_tasks` 闸分开**，旧口一字未动）。
+app.get('/api/admin/currency/status', async (req, res) => {
+  const actor = await requireAdmin(req, res, 'manage_settings');
+  if (!actor) return;
+
+  try {
+    const rows = await listCurrencyStatusesForAdmin();
+    return sendSuccess(res, rows, 'Currency status list (admin)');
+  } catch (error) {
+    return sendInfraMapped(res, 'admin.currency.status.list', error);
+  }
+});
+
+// ---- 动作口 · `POST /api/admin/currency/:cid/status`（§49.25.2 线格式）-------------------------------
+//   · 请求体 = `{ status, memo?, create_key? }`；`status ∈ {listed, frozen, delisted}`（`draft` ⇒ 400 形状错）；
+//   · `:cid` 形状闸 `/^[1-9]\d*$/`（否则 404，**不得静默按 0**）；
+//   · `ops:` 幂等键 = `ops:<admin_uid>:currency_status:<cid>:<to_status>`（`DL157②`；缺键 ⇒ 400 `DL36`）；
+//   · 流程 = Phase A（撤单解冻，逐单独立事务）→ Phase B（单语句：断言 + `UPDATE status` + 日志恰 1 行）；
+//   · `from == to` ⇒ 200 + 顶层 `idempotent_replay:true`（**零日志零撤单**）；`draft → listed` ⇒ 409
+//     `LISTING_REQUIRES_FEE_PATH`（带资金腿，不在本口）；`data` 恰 5 键（§49.25.9）。
+app.post('/api/admin/currency/:cid/status', async (req, res) => {
+  const actor = await requireAdmin(req, res, 'manage_settings');
+  if (!actor) return;
+
+  try {
+    // `:cid` 形状闸**先于**一切（非数字 / 前导 0 / cid<=0 ⇒ 404，不得静默按 0 处理）
+    const cidShape = parseCidShape(req.params.cid);
+    if (!cidShape.ok) return sendVerbError(res, cidShape.err);
+
+    // `status` 闭集闸先于幂等键（键形含 `to_status`，形状不合法则无从构造规范键）
+    const target = parseTargetStatus((req.body || {}).status);
+    if (!target.ok) return sendVerbError(res, target.err);
+
+    // DL36 / DL157②：`ops:<admin_uid>:currency_status:<cid>:<to_status>`（缺键 ⇒ 400；只强校验、不落库）
+    const opsKey = resolveAdminOpsKey(
+      req, actor.session.uID, CURRENCY_STATUS_OPS_ACTION, `${cidShape.cid}:${target.status}`,
+    );
+    if (!opsKey.ok) return sendVerbError(res, opsKey.error);
+
+    const result = await currencyStatusVerb({
+      cidRaw: req.params.cid,
+      actorUid: actor.session.uID,
+      body: (req.body || {}) as Record<string, unknown>,
+    });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(
+      res,
+      result.view,
+      result.replay ? 'Currency status unchanged (idempotent replay)' : 'Currency status updated',
+      200,
+      result.replay ? { idempotent_replay: true } : undefined,
+    );
+  } catch (error) {
+    return sendInfraMapped(res, 'admin.currency.status.post', error);
   }
 });
 

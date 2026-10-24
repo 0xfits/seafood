@@ -1,0 +1,134 @@
+{
+  "run": "20261024T040134Z5z44",
+  "name": "currency-status-gate",
+  "at": "2026-10-24T04:01:42.863Z",
+  "checks": [
+    {
+      "id": "S1",
+      "what": "status 缺失 ⇒ 400 LEDGER_AMOUNT_INVALID/MISSING",
+      "pass": true,
+      "reading": "{\"ok\":false,\"err\":{\"ok\":false,\"status\":400,\"code\":\"LEDGER_AMOUNT_INVALID\",\"message\":\"Request shape is invalid\",\"details\":{\"field\":\"status\",\"reason\":\"MISSING\",\"allowed\":[\"listed\",\"frozen\",\"delisted\"]},\"authDomain\":false}}"
+    },
+    {
+      "id": "S2",
+      "what": "status=draft ⇒ 400 STATUS_NOT_IN_CLOSED_SET（不得 409 / 不得放行）",
+      "pass": true,
+      "reading": "{\"ok\":false,\"err\":{\"ok\":false,\"status\":400,\"code\":\"LEDGER_AMOUNT_INVALID\",\"message\":\"Request shape is invalid\",\"details\":{\"field\":\"status\",\"reason\":\"STATUS_NOT_IN_CLOSED_SET\",\"provided\":\"draft\",\"allowed\":[\"listed\",\"frozen\",\"delisted\"]},\"authDomain\":false}}"
+    },
+    {
+      "id": "S3",
+      "what": "status 非字符串 ⇒ 400 NOT_STRING",
+      "pass": true,
+      "reading": "{\"ok\":false,\"err\":{\"ok\":false,\"status\":400,\"code\":\"LEDGER_AMOUNT_INVALID\",\"message\":\"Request shape is invalid\",\"details\":{\"field\":\"status\",\"reason\":\"NOT_STRING\",\"allowed\":[\"listed\",\"frozen\",\"delisted\"]},\"authDomain\":false}}"
+    },
+    {
+      "id": "S4",
+      "what": "memo 201 字符 ⇒ 400 TOO_LONG",
+      "pass": true,
+      "reading": "len=201"
+    },
+    {
+      "id": "S5",
+      "what": ":cid 非数字 / 前导 0 / 0 ⇒ 404（不得静默按 0）",
+      "pass": true,
+      "reading": "404,404,404"
+    },
+    {
+      "id": "S6",
+      "what": "ops 键 action 词 = currency_status（DL157②）",
+      "pass": true,
+      "reading": "currency_status"
+    },
+    {
+      "id": "D1",
+      "what": "draft→listed ⇒ 409 LISTING_REQUIRES_FEE_PATH（零日志零撤单）",
+      "pass": true,
+      "reading": "409/LEDGER_CURRENCY_INVALID_TRANSITION/LISTING_REQUIRES_FEE_PATH logs=0 cancels=0 status=draft"
+    },
+    {
+      "id": "D2",
+      "what": "带活跃挂单直改状态 ⇒ 409 ACTIVE_ORDERS_REMAIN（status 未变 / 零日志 / 挂单未动）",
+      "pass": true,
+      "reading": "409/LEDGER_CURRENCY_INVALID_TRANSITION/ACTIVE_ORDERS_REMAIN status=listed logs=0 order=open open_orders=1"
+    },
+    {
+      "id": "D3",
+      "what": "listed→frozen ⇒ 200 / data 恰 5 键 / cancelled_orders=1 / status 读库真值 / 顺序 A→B",
+      "pass": true,
+      "reading": "{\"cid\":\"451\",\"from_status\":\"listed\",\"status\":\"frozen\",\"cancelled_orders\":1,\"deposit_action\":\"none\"} keys=cancelled_orders,cid,deposit_action,from_status,status seq=AB db=frozen"
+    },
+    {
+      "id": "D4",
+      "what": "审计行恰 1 行 / from→to 正确 / actor_uid = 管理员（≠ owner 900001 的\"被操作方\"语义）",
+      "pass": true,
+      "reading": "logs=1 {\"from_status\":\"listed\",\"to_status\":\"frozen\",\"actor_uid\":\"1\",\"memo\":\"admin currency status:451:listed->frozen\"}"
+    },
+    {
+      "id": "D5",
+      "what": "重放 ⇒ 200 + idempotent_replay + from_status=status + cancelled_orders=0 + 日志仍 1 行 + 零撤单",
+      "pass": true,
+      "reading": "{\"cid\":\"451\",\"from_status\":\"frozen\",\"status\":\"frozen\",\"cancelled_orders\":0,\"deposit_action\":\"none\"} replay=true logs=1 cancels=0"
+    },
+    {
+      "id": "D6",
+      "what": "零账务动作：ledger_entry 零新增 + total_supply 零变动",
+      "pass": true,
+      "reading": "ledger 928→928 supply 0→0"
+    },
+    {
+      "id": "D7",
+      "what": "delisted→listed ⇒ 409 LD011（终态不可复活 / 零日志）",
+      "pass": true,
+      "reading": "409/LEDGER_CURRENCY_INVALID_TRANSITION/ status=delisted logs=1"
+    },
+    {
+      "id": "D8",
+      "what": "$ 被动 ⇒ 409 SYSTEM_CURRENCY_IMMUTABLE（status 未变 / 零日志）",
+      "pass": true,
+      "reading": "409/LEDGER_CURRENCY_INVALID_TRANSITION/SYSTEM_CURRENCY_IMMUTABLE status=listed logs=0"
+    },
+    {
+      "id": "D9",
+      "what": "Phase A 失败 ⇒ 透传该单既有码（403 AUTH_FORBIDDEN）+ 不进 Phase B + status 未变",
+      "pass": true,
+      "reading": "403/AUTH_FORBIDDEN/ACTOR_NOT_ALLOWED seq=A status=listed"
+    },
+    {
+      "id": "D10",
+      "what": "memo 缺省派生 = admin currency status:<cid>:<from>-><to>",
+      "pass": true,
+      "reading": "admin currency status:451:listed->delisted"
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "passed": 16,
+    "failed": 0,
+    "red": []
+  },
+  "fixture": {
+    "cid": 451,
+    "adminUid": 1,
+    "sym": "ZZGATE040134",
+    "fk_on_log": "2",
+    "log_row": {
+      "from_status": "listed",
+      "to_status": "frozen",
+      "actor_uid": "1",
+      "memo": "admin currency status:451:listed->frozen"
+    },
+    "view_d3": {
+      "cid": "451",
+      "from_status": "listed",
+      "status": "frozen",
+      "cancelled_orders": 1,
+      "deposit_action": "none"
+    },
+    "cid1_status": "listed"
+  },
+  "tx": {
+    "rolled_back": true,
+    "ms": 8204,
+    "error": null
+  }
+}

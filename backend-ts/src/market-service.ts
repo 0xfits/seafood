@@ -433,7 +433,91 @@ export const cancelAllMarketOrders = async (params: {
 };
 
 // ============================================================================
-// M3 · 成交（`market_post_event(op='trade')`；`trade` ×4 + `trade_fee` ×2，DL85/DL87）
+// §49.25.5 Phase A（`route-layer.spec` v2.52）· **按币种**撤单解冻（管理员状态变更的前置副作用）
+// ----------------------------------------------------------------------------
+// 硬口径（逐条承契约）：
+//   · **只枚举 → 逐单复用既有 `cancelOne`**（`market_post_event(op='cancel')`；`hold_release` ×2 同账户
+//     `balance ↔ frozen`；根键 `biz:market:cancel:<order_id>`）——**不自写分录、不改 `market_order`**。
+//   · **不放宽 owner 授权闸**：每单的 `actorUid` 取**该单自己的 `owner_uid`**（`cancelOne` 内部的
+//     `order.ownerUid !== actorUid ⇒ 403` 一字未动）⇒ 资金腿只碰该 owner 自己的账户；管理员身份只落
+//     `currency_status_log.actor_uid`（由 Phase B 写），**不伪造 admin 越权撤单**。
+//   · **逐单独立事务**（`cancelOne` 内部一次 `marketPostEvent` = 一条语句 = 一个隐式事务）——
+//     **不**把多单与 Phase B 压进一个跨批事务（R30 分批口径 / R79・R83 加锁全序不成环）。
+//   · **任一单失败 ⇒ 立即中止并原样上抛该单既有错误码**（33 码闭集内，不包装新码）；
+//     已撤的单各自已提交、不回滚（重投时它们已是 `cancelled` 终态、不会再被枚举）。
+//   · 调用方（`currency-status-service`）**必须**检查 `failed > 0` ⇒ 不进入 Phase B。
+// ============================================================================
+export const cancelOrdersOfCurrency = async (params: {
+  /** 目标币种 = `market_order.base_cid`（`quote_cid` 恒 `1`，`0016:132` CHECK） */
+  cid: number;
+  /** 发起该动作的管理员 uid（**仅审计归属**，不用于授权；不参与任何资金腿） */
+  adminUid?: number;
+  /** 依赖注入（离线门用）；缺省 = 真 DB 枚举 */
+  listOpenIds?: typeof DatabaseService.listOpenCidsMarketOrderIds;
+  /** 依赖注入（离线门用）；缺省 = 真撤单 */
+  cancel?: (ownerUid: number, orderIdText: string) => Promise<VerbResult>;
+}): Promise<{
+  ok: boolean;
+  cancelled: number;
+  attempted: number;
+  failed: number;
+  orders: Array<Record<string, unknown>>;
+  /** 首个失败的既有错误（`ok=false` 时必填；**不新增码**，直接透传） */
+  error?: VerbErr;
+}> => {
+  const lister = params.listOpenIds ?? DatabaseService.listOpenCidsMarketOrderIds.bind(DatabaseService);
+  const cancel = params.cancel ?? cancelOne;
+
+  let ids: number[];
+  try {
+    ids = await lister(params.cid);
+  } catch (e) {
+    const err = fromLedgerError(e);
+    return { ok: false, cancelled: 0, attempted: 0, failed: 0, orders: [], error: err };
+  }
+
+  const orders: Array<Record<string, unknown>> = [];
+  let cancelled = 0;
+
+  for (const id of ids) {
+    const orderIdText = String(id);
+    // ① 只读解析（拿 `owner_uid` 作为撤单身份）+ 同币种校验（防枚举后行被改动 ⇒ 不越界撤别币种的单）
+    let order: Awaited<ReturnType<typeof DatabaseService.resolveMarketOrder>>;
+    try {
+      order = await DatabaseService.resolveMarketOrder(id);
+    } catch (e) {
+      const err = fromLedgerError(e);
+      orders.push({ order_id: orderIdText, ok: false, status: err.status, code: err.code, details: err.details });
+      return { ok: false, cancelled, attempted: ids.length, failed: 1, orders, error: err };
+    }
+    if (!order) {
+      const err = ref404('market_order', orderIdText, { field: 'order_id', reason: 'order_not_found' });
+      orders.push({ order_id: orderIdText, ok: false, status: err.status, code: err.code, details: err.details });
+      return { ok: false, cancelled, attempted: ids.length, failed: 1, orders, error: err };
+    }
+    if (order.baseCid !== params.cid) {
+      // 枚举后该单已被改到别的币种对（理论上不可变）⇒ 跳过、不撤（不静默改他币种挂单）
+      orders.push({ order_id: orderIdText, ok: false, skipped: true, reason: 'BASE_CID_MISMATCH' });
+      continue;
+    }
+
+    // ② 逐单撤单（独立事务；owner 身份 ⇒ 授权闸原样生效）
+    const r = await cancel(order.ownerUid, orderIdText);
+    if (r.ok) {
+      cancelled += 1;
+      orders.push({ order_id: orderIdText, ok: true, order_status: r.view?.order_status ?? null, replay: r.replay === true });
+      continue;
+    }
+    orders.push({ order_id: orderIdText, ok: false, status: r.status, code: r.code, details: r.details });
+    return { ok: false, cancelled, attempted: ids.length, failed: 1, orders, error: r };
+  }
+
+  const failed = orders.filter((o) => o.ok !== true && o.skipped !== true).length;
+  return { ok: failed === 0, cancelled, attempted: ids.length, failed, orders };
+};
+
+// ============================================================================
+// M3 · 成交（`market_post_event(op='trade')`；`trade` ×4 + `trade_fee` ×2，DL85/DL87)
 // ----------------------------------------------------------------------------
 // 触发端点（§4.2 M3）= **撮合服务调用**（批 3 新端点）；**本片只交付服务层**（无前端调用 ⇒ 路由随批 4 = §1.8 待补行）。
 // 资金四栏（§4.3 M3）：**买方** `−quote`、**卖方** `−base`（**均从各自冻结额结算**，`trade` ×4）；

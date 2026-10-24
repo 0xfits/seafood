@@ -1,0 +1,28 @@
+{
+  "run": "20261024T040154Zs9so",
+  "name": "currency-status-list-probe",
+  "at": "2026-10-24T04:01:57.284Z",
+  "ok": true,
+  "readings": {
+    "cid_21": {
+      "expected_n": 3,
+      "got_n": 3,
+      "identical": true
+    },
+    "cid_4": {
+      "expected_n": 1,
+      "got_n": 1,
+      "identical": true
+    },
+    "cid_10": {
+      "expected_n": 1,
+      "got_n": 1,
+      "identical": true
+    },
+    "empty_cid_399": {
+      "got_n": 0,
+      "expected_n": 0,
+      "identical": true
+    }
+  }
+}

@@ -954,6 +954,73 @@ const currencyReviewPostEventParams = (input: {
 ];
 
 // ============================================================================
+// `route-layer.spec` **v2.52 §49.25.5 Phase B**：管理员币种状态变更（冻结 / 下架 / 解冻）
+//   的 DB 侧唯一显式语句（单语句 CTE = **一个**隐式事务）。
+// ----------------------------------------------------------------------------
+// ★ 一条语句 = 三件事同生同灭（DL73 / DL157②「改状态与日志必须同一事务」）：
+//   ① `cur`   ：业务行 `public.currency FOR UPDATE`（DL141 全序第一步：业务行先锁；Phase B 不碰 `account`）
+//   ② `apply` ：`UPDATE currency SET status, time_updated` —— **状态前置条件**（`cur.status = $3`）
+//               + **活跃挂单 = 0 谓词**（§49.25.5 ⑥「再断言」· fail-closed 关窗竞态兜底）
+//               + `$2 <> $3`（`from == to` 不产行 ⇒ 重放零副作用）
+//   ③ `slog`  ：`currency_status_log` **恰 1 行**（`FROM apply` 门控 ⇒ 状态未真迁移就零行）
+// ★ **零账务**（§49.25.6）：本语句**不调** `ledger_post_event`、不写 `ledger_entry` / `account` /
+//   `currency.total_supply` ⇒ 无退还、无罚没、无平台收入。撤单解冻在 **Phase A**（逐单
+//   `market_post_event(op='cancel')`，独立事务），**不在**本语句内。
+// ★ 回执（服务层据此映射既有码，不新增码）：`cur_found` / `cur_status` / `open_orders` /
+//   `applied` / `slogged` / `applied_status`（= 读库真值，**不是**回显入参）。
+// ============================================================================
+const CURRENCY_STATUS_POST_EVENT_SQL = `
+      WITH cur AS (
+        SELECT c.cid, c.status
+        FROM public.currency AS c
+        WHERE c.cid = $1::bigint
+        FOR UPDATE
+      ),
+      act AS (
+        SELECT count(*)::int AS open_orders
+        FROM public.market_order AS o
+        WHERE o.base_cid = $1::bigint
+          AND o.status IN ('open','partial')
+          AND o.amount > o.amount_filled
+      ),
+      apply AS (
+        UPDATE public.currency AS c
+        SET status = $2::text,
+            time_updated = now()
+        WHERE c.cid = $1::bigint
+          AND $2::text <> $3::text
+          AND c.status = $3::text
+          AND (SELECT cur.status FROM cur) = $3::text
+          AND (SELECT act.open_orders FROM act) = 0
+        RETURNING c.cid, c.status
+      ),
+      slog AS (
+        INSERT INTO public.currency_status_log (cid, from_status, to_status, actor_uid, memo)
+        SELECT $1::bigint, $3::text, $2::text, $4::bigint, $5::text
+        FROM apply
+        RETURNING log_id
+      )
+      SELECT
+        (SELECT count(*)::int FROM cur)    AS cur_found,
+        (SELECT cur.status FROM cur)       AS cur_status,
+        (SELECT act.open_orders FROM act)  AS open_orders,
+        (SELECT count(*)::int FROM apply)  AS applied,
+        (SELECT count(*)::int FROM slog)   AS slogged,
+        (SELECT a.status FROM apply a)     AS applied_status
+    `;
+
+/** `CURRENCY_STATUS_POST_EVENT_SQL` 的 `$1..$5` 绑定（顺序写死）。 */
+const currencyStatusPostEventParams = (input: {
+  cid: number; toStatus: string; fromStatus: string; actorUid: number; memo: string;
+}): unknown[] => [
+  input.cid,        // $1  cid（bigint；cur / act / apply / slog 复用）
+  input.toStatus,   // $2  to_status（text；'listed' | 'frozen' | 'delisted'）
+  input.fromStatus, // $3  from_status（text；状态前置条件 —— 读到的真值，不匹配 ⇒ 零副作用）
+  input.actorUid,   // $4  actor_uid（bigint；= **管理员** uid，不是 owner）
+  input.memo,       // $5  memo（text；body.memo 或服务端派生）
+];
+
+// ============================================================================
 // 批 8⑤（`route-layer.spec` v2.10 §25.2 / `data-layer.spec` v0.17 §28.6）：商品合规下架（takedown）
 //   的 DB 侧唯一显式语句（单语句 CTE = 一个隐式事务；**商品无账务分录** DL59 ⇒ 零 `ledger_post_event`）。
 //   · 台账 `public.listing_review_log`（`0026`）：通过（approved）与驳回（rejected）**都必须落行**
@@ -3773,6 +3840,26 @@ export class DatabaseService {
   }
 
   // ==========================================================================================
+  // `route-layer.spec` v2.52 §49.25.5 Phase B · 管理员币种状态变更：
+  //   `UPDATE currency.status` + `currency_status_log` 恰 1 行（**同一语句**）+ 活跃挂单 = 0 谓词。
+  //   **零账务分录**（不调 `ledger_post_event`）。单语句 CTE = 一个隐式事务（模块常量
+  //   `CURRENCY_STATUS_POST_EVENT_SQL` 单一真源）；传 `ex` ⇒ 在既有事务内执行（探针用）。
+  //   回执键：`cur_found` / `cur_status` / `open_orders` / `applied` / `slogged` / `applied_status`。
+  // ==========================================================================================
+  static async currencyStatusPostEvent(input: {
+    cid: number;
+    toStatus: string;
+    fromStatus: string;
+    actorUid: number;
+    memo: string;
+  }, ex?: SqlRunner): Promise<RawRow> {
+    const rows = await runSql(CURRENCY_STATUS_POST_EVENT_SQL, currencyStatusPostEventParams(input), ex);
+    const row = rows[0] || null;
+    if (!row) throw new Error('currencyStatusPostEvent: no row returned');
+    return row;
+  }
+
+  // ==========================================================================================
   // 批 8④（`route-layer.spec` v2.8 §23.2）· 读口 `GET /api/admin/currency` 的 DB 侧取数
   //   data 键集自 §23.2 起冻结：cid / symbol / name / status / owner_uid / time_created /
   //   listed_at（+ 可选 deposit_amount / deposit_cid）。
@@ -4295,6 +4382,26 @@ export class DatabaseService {
       SELECT o.order_id::text AS order_id
         FROM public.market_order o
        WHERE o.owner_uid = ${uid}::bigint
+         AND o.status IN ('open','partial')
+         AND o.amount > o.amount_filled
+       ORDER BY o.order_id ASC
+    `);
+    return rows.map((r) => Number(getValue(r, 'order_id'))).filter((n) => Number.isInteger(n) && n > 0);
+  }
+
+  /**
+   * `route-layer.spec` **v2.52 §49.25.5 ⑤**（币种下架 / 冻结的 Phase A）· **只读**候选集：
+   * 该 `base_cid` 的**全部活跃挂单**（`status ∈ {open,partial}` ∧ `amount > amount_filled`），`order_id` 升序确定。
+   * `quote_cid` 恒 `1`（`0016:132` CHECK `quote_cid = 1`）⇒ `base_cid` 即该币种（无需按 quote 过滤）。
+   * **只读 / 无锁 / 无 DDL**：本函数不改 `market_order`；撤单仍只走 `market_post_event(op='cancel')`。
+   * 加锁全序（R79/R83）：调用方逐单各成一次撤单事务（各自只锁一行业务行 + 该 owner 的 `account`）⇒ 不成环。
+   */
+  static async listOpenCidsMarketOrderIds(cid: number): Promise<number[]> {
+    const sql = getSql();
+    const rows = extractRows(await sql`
+      SELECT o.order_id::text AS order_id
+        FROM public.market_order o
+       WHERE o.base_cid = ${cid}::bigint
          AND o.status IN ('open','partial')
          AND o.amount > o.amount_filled
        ORDER BY o.order_id ASC
