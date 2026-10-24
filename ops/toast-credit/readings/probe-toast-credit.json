@@ -2,7 +2,7 @@
   "meta": {
     "dist": "/Users/kevin/bistro/seafood/frontend/dist",
     "origin": "http://sf.local",
-    "startedAt": "2026-10-24T06:17:59.833Z",
+    "startedAt": "2026-10-24T13:04:27.246Z",
     "fixture": "in-page route interception (zero backend / zero db write)"
   },
   "states": {
@@ -17,14 +17,14 @@
         "right": "16px"
       },
       "credit": {
-        "text": "已领到 ⚡️ 3 与 10 $",
+        "text": "已领到 ⚡️3 与 $10",
         "className": "go2072408551 sf-toast-credit",
         "rect": {
-          "left": 640.1,
+          "left": 646.4,
           "top": 323.2,
-          "right": 895.8,
+          "right": 889.5,
           "bottom": 387.5,
-          "width": 255.7,
+          "width": 243.1,
           "height": 64.3,
           "cx": 768,
           "cy": 355.3
@@ -52,20 +52,20 @@
       },
       "ordinary": [
         {
-          "text": "已领到 ⚡️ 3 与 10 $",
+          "text": "已领到 ⚡️3 与 $10",
           "className": "go3958317564",
           "rect": {
-            "left": 694.1,
+            "left": 700.4,
             "top": 343.2,
-            "right": 861.8,
+            "right": 855.5,
             "bottom": 367.5,
-            "width": 167.7,
+            "width": 155.1,
             "height": 24.3,
             "cx": 778,
             "cy": 355.3
           },
           "fontSize": "18px",
-          "rightGap": 674.2
+          "rightGap": 680.5
         }
       ],
       "ordinaryFontSize": "18px",
@@ -86,14 +86,14 @@
         "right": "16px"
       },
       "credit": {
-        "text": "已领到 ⚡️ 3 与 10 $",
+        "text": "已领到 ⚡️3 与 $10",
         "className": "go2072408551 sf-toast-credit",
         "rect": {
-          "left": 67.1,
+          "left": 73.4,
           "top": 286.1,
-          "right": 322.8,
+          "right": 316.5,
           "bottom": 350.4,
-          "width": 255.7,
+          "width": 243.1,
           "height": 64.3,
           "cx": 195,
           "cy": 318.2
@@ -121,20 +121,20 @@
       },
       "ordinary": [
         {
-          "text": "已领到 ⚡️ 3 与 10 $",
+          "text": "已领到 ⚡️3 与 $10",
           "className": "go3958317564",
           "rect": {
-            "left": 121.1,
+            "left": 127.4,
             "top": 306.1,
-            "right": 288.8,
+            "right": 282.5,
             "bottom": 330.4,
-            "width": 167.7,
+            "width": 155.1,
             "height": 24.3,
             "cx": 205,
             "cy": 318.2
           },
           "fontSize": "18px",
-          "rightGap": 101.2
+          "rightGap": 107.5
         }
       ],
       "ordinaryFontSize": "18px",
@@ -191,14 +191,14 @@
         "right": "16px"
       },
       "credit": {
-        "text": "已领到 ⚡️ 3 与 10 $",
+        "text": "已领到 ⚡️3 与 $10",
         "className": "go2072408551 sf-toast-credit",
         "rect": {
-          "left": 640.1,
+          "left": 646.4,
           "top": 323.2,
-          "right": 895.8,
+          "right": 889.5,
           "bottom": 387.5,
-          "width": 255.7,
+          "width": 243.1,
           "height": 64.3,
           "cx": 768,
           "cy": 355.3
@@ -226,20 +226,20 @@
       },
       "ordinary": [
         {
-          "text": "已领到 ⚡️ 3 与 10 $",
+          "text": "已领到 ⚡️3 与 $10",
           "className": "go3958317564",
           "rect": {
-            "left": 694.1,
+            "left": 700.4,
             "top": 343.2,
-            "right": 861.8,
+            "right": 855.5,
             "bottom": 367.5,
-            "width": 167.7,
+            "width": 155.1,
             "height": 24.3,
             "cx": 778,
             "cy": 355.3
           },
           "fontSize": "18px",
-          "rightGap": 674.2
+          "rightGap": 680.5
         }
       ],
       "ordinaryFontSize": "18px",
@@ -247,6 +247,34 @@
       "tokenProbe": {
         "pageFg": "#e8eaed",
         "surfaceBg": "#101114"
+      }
+    },
+    "currencyOrder": {
+      "zh": {
+        "url": "/zh/wage",
+        "text": "已领到 ⚡️30 与 ₿20",
+        "htmlLang": "zh-CN",
+        "battUnitFirst": true,
+        "currencyUnitFirst": true,
+        "noEmojiSpace": true,
+        "noSymbolSpace": true,
+        "noTrailingSymbol": true,
+        "noTickerQuantity": true,
+        "noTickerAtAll": true,
+        "noLiteralDollarSpace": true
+      },
+      "en": {
+        "url": "/en/wage",
+        "text": "Claimed ⚡️30 and ₿20",
+        "htmlLang": "en",
+        "battUnitFirst": true,
+        "currencyUnitFirst": true,
+        "noEmojiSpace": true,
+        "noSymbolSpace": true,
+        "noTrailingSymbol": true,
+        "noTickerQuantity": true,
+        "noTickerAtAll": true,
+        "noLiteralDollarSpace": true
       }
     }
   },
@@ -273,11 +301,27 @@
     "dark.colorIsPageFg": true,
     "dark.bgIsSurface": true,
     "dark.hCenterDevLe2px": true,
+    "currency.zh.present": true,
+    "currency.zh.battUnitFirst": true,
+    "currency.zh.noEmojiSpace": true,
+    "currency.zh.symbolBeforeAmount": true,
+    "currency.zh.noSymbolSpace": true,
+    "currency.zh.noQtyBeforeSymbol": true,
+    "currency.zh.noQtyBeforeTicker": true,
+    "currency.zh.noTickerLiteral": true,
+    "currency.en.present": true,
+    "currency.en.battUnitFirst": true,
+    "currency.en.noEmojiSpace": true,
+    "currency.en.symbolBeforeAmount": true,
+    "currency.en.noSymbolSpace": true,
+    "currency.en.noQtyBeforeSymbol": true,
+    "currency.en.noQtyBeforeTicker": true,
+    "currency.en.noTickerLiteral": true,
     "pageerror.zero": true
   },
   "counts": {
-    "checks": 23,
-    "passed": 23,
+    "checks": 39,
+    "passed": 39,
     "failed": 0,
     "pageerror": 0,
     "consoleErrors": 0
@@ -288,7 +332,7 @@
       "vCenterRatio": 0.37,
       "fontSize": "18px",
       "hostZ": "50",
-      "text": "已领到 ⚡️ 3 与 10 $"
+      "text": "已领到 ⚡️3 与 $10"
     },
     "mobile": {
       "hCenterDev": 0,
@@ -308,6 +352,32 @@
       "rightGap": 36,
       "fontSize": "16px",
       "hostZ": "9999"
+    },
+    "currencyOrder": {
+      "zh": {
+        "url": "/zh/wage",
+        "text": "已领到 ⚡️30 与 ₿20",
+        "battUnitFirst": true,
+        "noEmojiSpace": true,
+        "currencyUnitFirst": true,
+        "noSymbolSpace": true,
+        "noTrailingSymbol": true,
+        "noTickerQuantity": true,
+        "noTickerAtAll": true,
+        "noLiteralDollarSpace": true
+      },
+      "en": {
+        "url": "/en/wage",
+        "text": "Claimed ⚡️30 and ₿20",
+        "battUnitFirst": true,
+        "noEmojiSpace": true,
+        "currencyUnitFirst": true,
+        "noSymbolSpace": true,
+        "noTrailingSymbol": true,
+        "noTickerQuantity": true,
+        "noTickerAtAll": true,
+        "noLiteralDollarSpace": true
+      }
     }
   },
   "errors": {

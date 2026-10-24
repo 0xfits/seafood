@@ -150,7 +150,7 @@ describe('① 正常渲染', () => {
     expect(q('task-reward').getAttribute('data-sf-amount')).toBe('15')
     expect(q('task-reward').textContent).toContain('完成奖 $15')
     await waitFor(() => expect(q('task-reward-secondary')).not.toBeNull())
-    expect(q('task-reward-secondary').textContent).toBe('+40 batt')
+    expect(q('task-reward-secondary').textContent).toBe('+batt40') // T139-a 货币文案：单位（batt）紧贴数量、无空格
     // 参与数
     expect(q('task-joined').textContent).toBe('已参与 66 / 共 300 人')
     // 描述

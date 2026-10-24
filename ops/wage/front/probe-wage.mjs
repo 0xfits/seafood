@@ -102,7 +102,9 @@ const AVATAR_INITIAL_IDS = ROWS.filter((r) => !(typeof r.avatar_url === 'string'
 // 头像臂用的 1×1 PNG（/api/media/* 直出，避免 <img> 因 404 变成破图）
 const PNG_1PX = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFAAH/q842iQAAAABJRU5ErkJggg==', 'base64')
 
-const CUR = [{ cid: 1, symbol: '$' }, { cid: 4, symbol: 'BTTC' }]
+// ★ 2026-10-24 T139-a：次币符号按**生产实证**取 `₿`（`/api/currencies` cid 4 ⇒ symbol `₿` / name BTTC），
+//   探针夹具与生产同形，才能把「单位在前、连写」验到字面级（旧值 'BTTC' 已不符生产）。
+const CUR = [{ cid: 1, symbol: '$' }, { cid: 4, symbol: '₿' }]
 
 // 非 2xx 响应：带 `__status` 标记 ⇒ attachRoutes 按真状态码下发（同 ops/project-page 探针机制），
 // 页面侧 fetchApiJson 才会按「非 ok / success:false」抛错 ⇒ 项目页走 not-found 分支。
@@ -809,8 +811,15 @@ async function main() {
     zeroWriteWhileGated: cdClicksWhileGated === 0,
     autoEnabledAtDueTime: cdDue === true && Boolean(cd1 && cd1.actionDisabled === false && cd1.claimable === '1' && cd1.hint === null),
     // 到账（batt + 次币）改由 Toast 承载；同时卡内不得有 ok 节点、DOM 里不得有模态框
+    // ★ T139-a 货币文案顺序（Kevin 2026-10-24 定稿）：**单位与数量一律无空格连写**，顺序「单位+数量」
+    //   ⇒ 目标逐字 `已领到 ⚡️30 与 ₿20`；反例（空格 / 数量在前 / 裸代码）一并判负。
     claimOkWithBothCurrencies: Boolean(
-      cdSnap2.toasts.some((s) => /⚡️\s*30/.test(s || '') && /20\s*BTTC/.test(s || ''))
+      cdSnap2.toasts.some((s) => {
+        const t = s || ''
+        return /\u26A1\uFE0F?30/.test(t) && /\u20BF20/.test(t)
+          && !/\u26A1\uFE0F?\s+30/.test(t) && !/\u20BF\s+20/.test(t)
+          && !/20\s*\u20BF/.test(t) && !/20\s*BTTC/.test(t) && !/\$\s+\d/.test(t)
+      })
         && (cd2 && cd2.noticeKind !== 'ok')
         && cdSnap2.claimModal.count === 0
     ),
@@ -854,8 +863,14 @@ async function main() {
     postPath: (STATE.calls.find((c) => /\/claim$/.test(c.path)) || {}).path,
     // 成功反馈 = Toast：文案含到账 batt 与次币；卡内零 ok 节点；模态框计数 0
     toastOk: afterClaim.toasts.length >= 1 && /已领到/.test(claimToast),
-    toastHasBatt: /⚡️\s*30/.test(claimToast),
-    toastHasCurrency: /20\s*BTTC/.test(claimToast),
+    // T139-a：`⚡️30`（连写）在场；`₿20`（单位在前、连写）在场
+    toastHasBatt: /\u26A1\uFE0F?30/.test(claimToast),
+    toastHasCurrency: /\u20BF20/.test(claimToast),
+    // 反例必须**不在场**：emoji 后有空格 / 符号后有空格 / 数量在前 / 裸币种代码
+    toastNoEmojiSpace: !/\u26A1\uFE0F?\s+30/.test(claimToast),
+    toastNoSymbolSpace: !/\u20BF\s+20/.test(claimToast),
+    toastNoQtyBeforeSymbol: !/20\s*\u20BF/.test(claimToast),
+    toastNoTickerLiteral: !/20\s*BTTC/.test(claimToast),
     cardNoOkNotice: c101 && c101.noticeKind !== 'ok',
     claimModalGone: afterClaim.claimModal.count === 0,
     cardRefreshedAndGated: c101 && c101.claimable === '0' && Number(c101.remaining) > 0,
@@ -1394,7 +1409,9 @@ async function main() {
     wageVisible: Boolean(gById['101'] && (gById['101'].wage || '').includes(
       ZH.wage.wageLine.replace('{{hours}}', '4').replace('{{batt}}', '30')
     )),
-    currencyExtraVisible: Boolean(gById['103'] && /BTTC/.test(gById['103'].wageExtra || '')),
+    // T139-a：`＋₿50`（zh `wage.wageExtra` = `＋{{symbol}}{{amount}}`，单位在前、连写；符号取生产值 `₿`）。
+    //   ★ 判据用**准符号**（`＋` U+FF0B + `₿` U+20BF），不再放通配 `.` —— 通配会把任何前缀算绿。
+    currencyExtraVisible: Boolean(gById['103'] && /^\s*＋\u20BF50\s*$/.test(gById['103'].wageExtra || '')),
     // ★ 三键缺省 ⇒ 不得被读成 hired：无一张卡有【领工资】、无一张卡是【已加入】态，全部【加入】
     noClaimButtons: guestSnap.cards.every((c) => c.claimCount === 0 && c.action !== 'claim'),
     // 招募中的卡全部是【加入】（8 张）；已截止的两张本来就没有动作按钮（状态标签体现）

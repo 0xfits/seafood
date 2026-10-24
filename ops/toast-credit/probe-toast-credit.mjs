@@ -51,6 +51,9 @@ const hexToRgb = (hex) => {
 const STATE = {
   me: { bound: false, parent_uid: null, bound_at: null, depth: null },
   calls: [],
+  // ⑥ 货币文案顺序段的夹具开关（默认值 = 原几何段所用夹具，改前改后同一份）
+  wageSymbol: '$',
+  claim: { wage_batt: 3, wage_currency_amount: '10' },
 }
 
 const WAGE_ROW = {
@@ -71,9 +74,9 @@ const apiResponse = (method, pathname, bodyText) => {
   }
   if (/^\/api\/project\/\d+\/claim$/.test(pathname)) {
     STATE.calls.push({ method, path: pathname })
-    return { status: 200, body: ok({ wage_batt: 3, wage_currency_amount: '10', batt_after: 73, next_claim_at: nextAt }, 'claimed') }
+    return { status: 200, body: ok({ ...STATE.claim, batt_after: 73, next_claim_at: nextAt }, 'claimed') }
   }
-  if (pathname === '/api/currencies') return { status: 200, body: ok([{ cid: 2, symbol: '$', name: 'USD' }]) }
+  if (pathname === '/api/currencies') return { status: 200, body: ok([{ cid: 2, symbol: STATE.wageSymbol, name: 'Probe' }]) }
   if (pathname === '/api/batt') return { status: 200, body: ok({ batt: 70, capBatt: 100, canAccept: true, bttc: null }) }
   if (pathname === '/api/referral/me') {
     STATE.calls.push({ method, path: pathname })
@@ -198,10 +201,10 @@ const seedAuth = (theme) => (ctx) => ctx.addInitScript((th) => {
   document.addEventListener('DOMContentLoaded', () => document.head.appendChild(st))
 }, theme)
 
-const newPage = async (browser, viewport, theme = 'light') => {
+const newPage = async (browser, viewport, theme = 'light', locale = 'zh-CN') => {
   const pageErrors = []
   const consoleErrors = []
-  const ctx = await browser.newContext({ viewport, locale: 'zh-CN' })
+  const ctx = await browser.newContext({ viewport, locale })
   await attachRoutes(ctx)
   await seedAuth(theme)(ctx)
   const page = await ctx.newPage()
@@ -291,6 +294,42 @@ async function main() {
   consoleErrors.push(...k.consoleErrors)
   out.states.creditDark = creditDark
 
+  // ============ ⑥ 货币文案顺序（T139-a）：领工资同返 batt + 次币 ⇒ Toast 必须「单位 + 数量」 ============
+  // 夹具：一次领取同时返回 ⚡️30 与次币 20（zh / en 两档）。次币符号 = **`₿`**（生产 `/api/currencies`
+  // 实证：cid 4 ⇒ symbol `₿` / name BTTC）⇒ 期望**逐字**「已领到 ⚡️30 与 ₿20」（en：`Claimed ⚡️30 and ₿20`）。
+  // 正断言（严格连写，不接受空格）：`⚡️30` 与 `₿20` 在场；反断言：`⚡️ 30` / `₿ 20` / `20 ₿` / `20 BTTC` /
+  // `$ 10` 均不在场（前两者 = 单位+空格+数量，后两者 = 数量在前 —— 任一命中即判负）。
+  const currencyOrder = {}
+  for (const lang of ['zh', 'en']) {
+    STATE.wageSymbol = '\u20BF'
+    STATE.claim = { wage_batt: 30, wage_currency_amount: '20' }
+    const c = await newPage(browser, { width: 1536, height: 960 }, 'light', lang === 'en' ? 'en-US' : 'zh-CN')
+    await open(c.page, `/${lang}/wage`, '[data-sf-m="wage-current-claim"]')
+    const snap = await claimWageToast(c.page)
+    pageErrors.push(...c.pageErrors)
+    consoleErrors.push(...c.consoleErrors)
+    const text = snap.credit ? snap.credit.text : ''
+    currencyOrder[lang] = {
+      url: `/${lang}/wage`,
+      text,
+      htmlLang: snap.theme === undefined ? null : await c.page.evaluate(() => document.documentElement.lang || ''),
+      // 正断言 = **严格连写**（单位紧贴数量；`\s*` 会放过坏形，故一律不用）
+      battUnitFirst: /\u26A1\uFE0F?30/.test(text),
+      currencyUnitFirst: /\u20BF20/.test(text),
+      // 反断言 = 坏形全不在场：emoji 空格 / 符号空格 / 数量在前 / 裸币种代码 / 字面 `$ ` 带空格
+      noEmojiSpace: !/\u26A1\uFE0F?\s+30/.test(text),
+      noSymbolSpace: !/\u20BF\s+20/.test(text),
+      noTrailingSymbol: !/20\s*\u20BF/.test(text),
+      noTickerQuantity: !/20\s*BTTC/.test(text),
+      noTickerAtAll: !/BTTC/.test(text),
+      noLiteralDollarSpace: !/\$\s+\d/.test(text),
+    }
+    await c.ctx.close()
+  }
+  STATE.wageSymbol = '$'
+  STATE.claim = { wage_batt: 3, wage_currency_amount: '10' }
+  out.states.currencyOrder = currencyOrder
+
   await browser.close()
 
   // ============================== 断言（逐条可归因） ==============================
@@ -330,6 +369,23 @@ async function main() {
     'dark.colorIsPageFg': Boolean(dark && dark.color === hexToRgb(DARK_TOKENS['--sf-page-fg'])),
     'dark.bgIsSurface': Boolean(dark && dark.background === hexToRgb(DARK_TOKENS['--sf-surface-bg'])),
     'dark.hCenterDevLe2px': Boolean(dark && dark.hCenterDev <= 2),
+    // ⑥ T139-a 货币文案顺序：领工资同返 batt + 次币 ⇒ 「单位 + 数量」，四语同序（此处验 zh / en）
+    'currency.zh.present': Boolean(currencyOrder.zh && currencyOrder.zh.text.length > 0),
+    'currency.zh.battUnitFirst': Boolean(currencyOrder.zh && currencyOrder.zh.battUnitFirst),
+    'currency.zh.noEmojiSpace': Boolean(currencyOrder.zh && currencyOrder.zh.noEmojiSpace),
+    'currency.zh.symbolBeforeAmount': Boolean(currencyOrder.zh && currencyOrder.zh.currencyUnitFirst),
+    'currency.zh.noSymbolSpace': Boolean(currencyOrder.zh && currencyOrder.zh.noSymbolSpace),
+    'currency.zh.noQtyBeforeSymbol': Boolean(currencyOrder.zh && currencyOrder.zh.noTrailingSymbol),
+    'currency.zh.noQtyBeforeTicker': Boolean(currencyOrder.zh && currencyOrder.zh.noTickerQuantity),
+    'currency.zh.noTickerLiteral': Boolean(currencyOrder.zh && currencyOrder.zh.noTickerAtAll),
+    'currency.en.present': Boolean(currencyOrder.en && currencyOrder.en.text.length > 0),
+    'currency.en.battUnitFirst': Boolean(currencyOrder.en && currencyOrder.en.battUnitFirst),
+    'currency.en.noEmojiSpace': Boolean(currencyOrder.en && currencyOrder.en.noEmojiSpace),
+    'currency.en.symbolBeforeAmount': Boolean(currencyOrder.en && currencyOrder.en.currencyUnitFirst),
+    'currency.en.noSymbolSpace': Boolean(currencyOrder.en && currencyOrder.en.noSymbolSpace),
+    'currency.en.noQtyBeforeSymbol': Boolean(currencyOrder.en && currencyOrder.en.noTrailingSymbol),
+    'currency.en.noQtyBeforeTicker': Boolean(currencyOrder.en && currencyOrder.en.noTickerQuantity),
+    'currency.en.noTickerLiteral': Boolean(currencyOrder.en && currencyOrder.en.noTickerAtAll),
     // ⑤
     'pageerror.zero': pageErrors.length === 0,
   }
@@ -348,6 +404,13 @@ async function main() {
     mobile: mobile ? { hCenterDev: mobile.hCenterDev, vCenterRatio: mobile.vCenterRatio, fontSize: mobile.fontSize } : null,
     dark: dark ? { color: dark.color, background: dark.background, fontSize: dark.fontSize, hCenterDev: dark.hCenterDev, vCenterRatio: dark.vCenterRatio, theme: creditDark.theme } : null,
     ordinary: ord ? { top: ord.rect.top, rightGap: ord.rightGap, fontSize: ord.fontSize, hostZ: ordSnap.host.zIndex } : null,
+    currencyOrder: Object.fromEntries(Object.entries(currencyOrder).map(([lang, v]) => [lang, {
+      url: v.url, text: v.text,
+      battUnitFirst: v.battUnitFirst, noEmojiSpace: v.noEmojiSpace,
+      currencyUnitFirst: v.currencyUnitFirst, noSymbolSpace: v.noSymbolSpace,
+      noTrailingSymbol: v.noTrailingSymbol, noTickerQuantity: v.noTickerQuantity, noTickerAtAll: v.noTickerAtAll,
+      noLiteralDollarSpace: v.noLiteralDollarSpace,
+    }])),
   }
   out.errors = { pageerror: pageErrors.slice(0, 10), console: consoleErrors.slice(0, 10) }
 

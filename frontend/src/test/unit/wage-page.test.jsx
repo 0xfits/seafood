@@ -215,7 +215,7 @@ describe('/wage ① 列表卡：状态 / 已招 X/Y / 工资行 / 按钮态', ()
     expect(hc.getAttribute('data-hired')).toBe('2')
     expect(hc.getAttribute('data-total')).toBe('3')
     expect(cardOf(container, '11').querySelector('[data-sf-m="wage-card-wage"]').textContent)
-      .toContain('每 4 小时 + ⚡️ 30')
+      .toContain('每 4 小时 + ⚡️30')
     expect(cardOf(container, '11').querySelector('[data-sf-m="wage-card-wage"]').textContent)
       .not.toContain('batt 30/次')
 
@@ -476,7 +476,7 @@ describe('/wage ③ 未登录（公开浏览） / 空态', () => {
     expect(cardOf(container, '13').querySelector('[data-sf-m="wage-card-status"]').textContent)
       .toBe(zh.wage.statusClosed)
     expect(open.querySelector('[data-sf-m="wage-card-headcount"]').textContent).toContain(zh.wage.headcount)
-    expect(open.querySelector('[data-sf-m="wage-card-wage"]').textContent).toContain('每 6 小时 + ⚡️ 20')
+    expect(open.querySelector('[data-sf-m="wage-card-wage"]').textContent).toContain('每 6 小时 + ⚡️20')
     // 次币定额：客态也必须拿到币种符号（/api/currencies 是公开读口）
     expect(open.querySelector('[data-sf-m="wage-card-wage-extra"]').textContent).toContain('BTTC')
 
@@ -746,7 +746,7 @@ describe('/wage ⑦ 页顶两列 / 当前项目卡 / 铸造入口', () => {
     // 项目名 / 头像 / 工资标准 / 名额 / 倒计时 / 领工资
     expect(current.querySelector('[data-sf-m="wage-card-title"]').textContent).toBe('海鲜打包')
     expect(current.querySelector('[data-sf-m="wage-card-avatar"]')).not.toBeNull()
-    expect(current.querySelector('[data-sf-m="wage-card-wage"]').textContent).toContain('每 4 小时 + ⚡️ 30')
+    expect(current.querySelector('[data-sf-m="wage-card-wage"]').textContent).toContain('每 4 小时 + ⚡️30')
     const hc = current.querySelector('[data-sf-m="wage-card-headcount"]')
     expect(hc.getAttribute('data-hired')).toBe('2')
     expect(hc.getAttribute('data-total')).toBe('3')

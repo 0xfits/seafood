@@ -17,7 +17,7 @@ const t = (key, values) => {
     'wage.statusClosed': '已截止',
     'jobs.participants': `已参与 ${values?.count} 人`,
     'jobs.participantsHeadcount': `已参与 ${values?.done} / 共 ${values?.limit} 人`,
-    'campaign.rewardSecondary': `+${values?.amount} ${values?.symbol}`,
+    'campaign.rewardSecondary': `+${values?.symbol}${values?.amount}`,
   }
   return table[key] ?? key
 }
@@ -140,10 +140,10 @@ describe('HomeCampaignCard · 徽标 / 进度 / 奖励', () => {
     const withSymbol = renderCard(baseCard, { symbols: { 2: 'batt' } })
     expect(withSymbol.container.querySelector('.sf-home-camp-reward-cur').textContent).toBe('$')
     expect(withSymbol.container.querySelector('[data-sf-amount]').getAttribute('data-sf-amount')).toBe('15')
-    expect(withSymbol.queryByText('+40 batt')).not.toBeNull()
+    expect(withSymbol.queryByText('+batt40')).not.toBeNull()
     cleanup()
     const noSymbol = renderCard(baseCard, { symbols: {} })
-    expect(noSymbol.queryByText('+40 batt')).toBeNull()
+    expect(noSymbol.queryByText('+batt40')).toBeNull()
   })
 
   it('卡内自上而下五段钩子齐备（项目行 / 标题 / 徽标 / 进度 / 奖励）', () => {
