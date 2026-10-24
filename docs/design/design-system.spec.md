@@ -5085,6 +5085,7 @@ showEdit     = isAuthenticated && (isOwner || canEditAny) && statusEditable
 
 - **行序**：`cid` 升序（与 `ledger.ts` 的 `cid` 口径一致、与后台既有表格默认一致）。**不提供排序器**（本 tab 不做排序控件 —— 4 列的规模不需要）。
 - **不做分页强制**：沿用后台既有表格形态；若实现需要分页，**分页参数不入本契约**（登记为实现自由度）。
+- **★ 已裁（2026-10-24 · 实现轮现取）：取 (a)** —— 新读口 **`GET /api/admin/currency/status`**（闸 **`manage_settings`**），`data` **恰 4 键** `{ cid, symbol, status, listed_at }`（**不含** `owner_uid`；本 tab 需要的是符号 / 状态 / 上市时间 + 行内 `cid`）；**旧读口 `GET /api/admin/currency` 的 `review_tasks` 闸与键集一字未动**（(b) 已否）。契约正典 = `route-layer.spec` **§49.25.11**；实现 = `index.ts:2904` + `currency-status-service.ts:314`。**未做**：本 tab 的请求切换属**前端单**（`<Route` 三计数预计 `46 → 47` / `38 → 39` / 内层逐段 `26`），本笔**零前端改动**。
 - **读口**：**复用既有 `GET /api/admin/currency`**（§23.2，闸 `review_tasks`）—— **★ 这条是本节对实现方的硬提醒**：该读口闸是 `review_tasks`，而本 tab 闸是 `manage_settings` ⇒ **只有 `manage_settings` 无 `review_tasks` 的管理员会读不到列表**。**二选一（实现轮必裁，本笔不裁）**：**(a)** 本 tab 的读请求改走一个新读口（`GET /api/admin/currency/status`，闸 `manage_settings`，`data` 键集 = 本节 4 列 + `owner_uid`）；**(b)** 把既有读口闸改为 `['manage_settings','review_tasks']`（并集，**但会改变 §23.2 已冻结的闸**）。**推荐 (a)**（不改已冻结条文）；**本笔只登记冲突，不预填决定**（`NOT_MEASURED`）。
 
 ### 36.4 行操作契约（**按 `R27` 白名单 + 本节子集逐格写死**）

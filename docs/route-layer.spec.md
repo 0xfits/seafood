@@ -454,6 +454,7 @@
 > **状态：v2.53（行为变更 · **后台「站点文案」页拆解到位** —— `/dashboard/site-text` 整页**下线**（页面文件 / 路由 / 侧栏项三处零残留，旧地址 `<Navigate replace>` ⇒ `/dashboard/settings` 保书签）；四块内容**按归属搬家**（邀请奖励 `invite_reward_policy` ⇒ `/dashboard/points` · 页闸 `manage_points`（**卡内控件闸 = `manage_settings`**，收口修正，见 §49.26.2）；评分 `rating_policy` ⇒ `/dashboard/users`；**铸造与销毁 `mint_burn_policy` ⇒ 新页 `/dashboard/power`【电量】· 闸 `manage_settings`**；角色文案 `role_names` + 站点文案 `site_text_overrides` ⇒ `/dashboard/settings`）；**两组装默认值删除**（任务电量 `batt_policy` / 签到 `checkin_policy` · UI 与默认值一并删，四语 i18n 键**保留**为孤儿）；写口**一律沿用** `POST /api/admin/settings` 形态 B `{ key, value, create_key: adminOpsKey(uid,'setting',key) }`（**零新端点 / 零后端改动 / 零新权限码 / 零 i18n 键增删**）；后台品牌行 `Jinli Admin` ⇒ **`Seafood Admin`** 且整段为**指向首页的带语言前缀链接**（`arialabel` = 品牌名 + 返回首页，hover 按 T130 第③类只变色））· 正文 = **§49.26**
 > **v2.53 修订入口**：逐条 delta → 依据锚点 → 改动点 = **本册 §49.26**（**不建独立 delta 件**，承 v2.29–v2.52 先例）；姊妹册 = `seafood.master-plan` **§5.465 / 版本行 v0.384** + `docs/design/design-system.spec.md` **v1.36 §37（`T136`）**。**本笔含 3 行就地状态改写**（§44.5 三计数前两行前推，旧值行内留痕、无一处整行删除）。
 > **★★ v2.53 本单要点（先说结论，不含糊）**：① **一页拆成四块、各归其位**（积分 / 用户 / 电量 / 设置）；② **新路由一条** `/dashboard/power`（新组件 `pages/admin/PowerPage.jsx`，标题「电量」复用 `battCard.title` ⇒ **零新增 i18n 键**），**旧段一条 redirect**；③ **两组装删除**（`batt_policy` / `checkin_policy`），**四语键保留**（`adminSiteText.policyBatt` / `policyCheckin` 及 9 个字段标签登记为孤儿）；④ **计数前推** `46 / 38 / 26` ⇒ **`47 / 39 / 26`**（§44.5 前两行就地前推、旧值留痕；第三数 ±0 = 改动全在 `/dashboard` 父段内的嵌套段）；**★ 2026-10-24 收口（旧值留痕）**：改前读数 `102 / 1139`（build `index-CZSLqN9o.js` 636,785 B）⇒ **收口后** unit **102 files / 1143 tests / 0 failed** · a11y **1 / 16** · components **2 / 14** · build **exit 0** ⇒ `index-DDfED5f2.js` **636,988 B** / `index-N4cMn6Lr.css` **190,954 B**（CSS 名与字节未变）。
+> **★ 现行版 = v2.54（2026-10-24 · **实现轮补登 · 零代码 / 零删行**）**：**① §49.25.2 注册点 `114 → 116`**（旧值 `114 → 115` 只算动作口；实现轮同批落**配套读口** `GET /api/admin/currency/status`，闸 `manage_settings`、`data` 恰 4 键 `{cid,symbol,status,listed_at}` ⇒ 细则见**新增 §49.25.11**；**旧读口 `GET /api/admin/currency` 的 `review_tasks` 闸一字未动**）；**② §49.25.5 `$` 拦截已改判 = 目标侧断言**（`cid == 1 && to !== 'listed'` ⇒ `409 LD011` + `reason=SYSTEM_CURRENCY_IMMUTABLE`；旧句「入口第一道闸 = `assertSystemCurrencyImmutable(cur)`」**逐字保留** —— 该助手只判当前态、`$` 种子恒 `listed` ⇒ 永不触发）；**③ §49.25.8 三个 `details.reason` 登记**（`SYSTEM_CURRENCY_IMMUTABLE` / `CURRENCY_STATE_INVALID` / `PHASE_A_CANCEL_FAILED`，**非闭集 · 零新增码 · 33 码不动**）；**④ §49.25.5 竞态已知限制挂账**（下单侧 `0016_market.sql:556/561` 读 `currency` 不加锁 ⇒ Phase A 后 / Phase B 前新挂单可漏检；加固 = 下单分支 `FOR SHARE`，**另开单**）。仿姊妹册 = `seafood.master-plan` **§5.467 / v0.386** + `ledger.spec` **§19.20.A 追加** + `design-system.spec` **§36 读口已裁 (a)**。
 
 > **v2.19 修订入口**：逐条 delta → 依据锚点 → 改动点 = `docs/audit/route-layer-v2.19-delta.md`（**同批姊妹册** = `docs/audit/data-layer-v0.26-delta.md` + `docs/audit/commission-v0.4-delta.md`）。**凡与 Zang 裁定冲突处，一律以 Zang 裁定为准**（本单为 P9⑤ 契约冻结；**未改写任何裁定、未发明任何路径 / 数值 / 权限键 / 文案值**）。**★ 姊妹册（同批）**：`docs/commission.spec.md` **v0.4 §19** + `docs/data-layer.spec.md` **v0.26 §34**，**本册不重抄其条文、只指路**。
 > **★★ v2.19 本单要点（先说结论，不含糊）**：① **零新用户面口**（邀请奖励 = 结算腿，无独立读 / 动作口）；② **后台配置面复用**（费率 + 6 项权重矩阵）；③ **注册点 `87 → 87`（+0）**；④ **权限键 11 键内（零增删）**；⑤ **错误码零新增 + `R107`**；⑥ **真生效四段（①③④ 段）**；⑦ **连带门改版**（`p8-s2` 8 键 / 守卫常量 / 页字段面随 `R-9-1` ⇒ 归实现单）。
@@ -10615,6 +10616,9 @@ ORDER BY score DESC, l.time_created DESC, l.listing_id DESC
 | 错误码 | **零新增**（§14.1 的 **33 码闭集不动**） | §49.25.8 |
 | 迁移面 | **零迁移 / 零 DDL**（`currency` / `currency_status_log` / `market_order` 全在既有迁移内） | `0017:139-152`（日志 7 列）/ `0016:112-137` |
 
+- **★ 注册点已前推（实现轮现取 · 2026-10-24）**：上表「注册点 = `114` → `115`」只算了**动作口** 1 条；实现轮（`a0a9542`）同批落了**配套只读口** `GET /api/admin/currency/status` ⇒ **现盘 = `114` → `116`**（动作口 +1、读口 +1；`grep -cE '^app\.(get|post|put|patch|delete)\('` 现取 = `116`）。**旧值留痕**：`114 → 115`（仅动作口）⇒ **`114 → 116`**（含读口）。
+- **★ 配套只读口（实现轮新增行 · 不在本笔原线格式内）**：`GET /api/admin/currency/status` · 闸 **`manage_settings`** · `data` **恰 4 键** `{ cid, symbol, status, listed_at }` · 只 `SELECT`（零写面、无 `ops:` 键）⇒ 细则见 **§49.25.11**。**旧读口 `GET /api/admin/currency` 的 `review_tasks` 闸一字未动**（不放宽已冻结节点）。
+
 #### 49.25.3 权限闸 = **`manage_settings`**（**不新增第 13 键** · 理由写死 · 标「一句话可改」）
 
 - **终选 = `manage_settings`**。三条理由：
@@ -10674,6 +10678,9 @@ ORDER BY score DESC, l.time_created DESC, l.listing_id DESC
 
 - **判负（可机读 · 逐条）**：① 绕过 `market_post_event` 自写 `ledger_entry` / 直改 `account.frozen` ⇒ 判负；② 给 `cancelOne` 加「admin 可越权」分支 ⇒ 判负；③ 新造第二个撤单根键（`biz:market:cancel:*` 之外）⇒ 判负；④ Phase A 与 Phase B 压成一个跨批大事务 ⇒ 判负（违 R30 分批口径）；⑤ Phase B 在活跃挂单 > 0 时提交 ⇒ 判负；⑥ 带未成交挂单时**直接改状态而不先撤单** ⇒ **必须被拒（`ACTIVE_ORDERS_REMAIN`）或事务回滚**，两者皆无 ⇒ 判负；⑦ 撤单走「先改 `market_order.status` 再补 `hold_release`」两步写 ⇒ 判负（资金与状态必须同语句，`market_post_event` 已保证）；⑧ 撤单失败被吞（`failed > 0` 仍进 Phase B）⇒ 判负。
 
+- **★ 已改判（2026-10-24 · 实现轮现取）：`$` 的拦截从「当前态断言」改为「目标侧断言」**。原文（**逐字保留**）：**「入口第一道闸 = `assertSystemCurrencyImmutable(cur)`」** —— 该句作为 **R26 的映射**仍成立，但作为**本口的实现手段已不成立**：`assertSystemCurrencyImmutable(cur)` 只判**当前**状态，而 `$` 的种子行**恒为 `listed`**（R26 原文 + `0016` 种子）⇒ **永不触发**，拦不住「把 `$` 改成 `frozen` / `delisted`」这条**真正的目标**。**改判后**：Phase B 第一道闸 = **目标侧**断言 `cid === 1 && to !== 'listed'` ⇒ **`409` `LEDGER_CURRENCY_INVALID_TRANSITION`（`LD011`）+ `details.reason = 'SYSTEM_CURRENCY_IMMUTABLE'`**（实现面 = `currency-status-service.ts:203-207`，**先于**状态机判定与 Phase A）；`to = 'listed'` 照旧走 `from == to` 重放分支（200）。**零副作用不变**：`cid = 1` 的 `status` 与 `currency_status_log` 均无变更。旧句与改判句**并存**（旧句只作规则映射，实现口径看改判句）。
+- **★ 竞态已知限制（2026-10-24 登记 · 不改码 · 加固另开单）**：**下单侧**读 `currency` 行**不加锁**（`migrations/0016_market.sql:556/561`）⇒ **Phase A 撤完单之后 / Phase B 提交之前**新挂单**可漏检**；Phase B 的「活跃挂单 = 0」`apply` 谓词是**关窗兜底**、不是**防新开**。影响面 = 极小窗口内该 `cid` 可能残留 1 张活跃挂单及其 `hold` 冻结。**加固 = 下单分支对该 `cid` 取 `FOR SHARE`**（挡住「状态迁移中开新单」）⇒ **另开一单**，本口与下单路径**本轮一律不动**。
+
 #### 49.25.6 **零账务动作**（再次确认 · 与 v0.3 结论一致 · 区分两个「零」）
 
 - **状态腿本身 = 零账务动作**（逐字承 `ledger.spec` §3.2 转移表 + §7.2 #14 + **v0.3（P1c）裁定** 见 `§19.8.B`）：**无** `listing_deposit_refund`（该 kind 已于 v0.2 删除）· **无** `listing_deposit_forfeit`（已于 v0.3 P1c 删除）· **无**平台收入腿 · **无**余额扣减。保证金**上市即消耗、不退**（R31 v0.2 / `§3.1 R31`）；**强制下架亦无账务动作**（保证金已消耗 ⇒ 不存在可罚没的标的物）。
@@ -10714,6 +10721,15 @@ ORDER BY score DESC, l.time_created DESC, l.listing_id DESC
 
 - **零新增的判据（写死）**：上表 **11 行**用到的码 ∈ `{LEDGER_CURRENCY_NOT_FOUND, LEDGER_CURRENCY_INVALID_TRANSITION, LEDGER_AMOUNT_INVALID, LEDGER_IDEMPOTENCY_KEY_REQUIRED}` **共 4 个既有码 + 401/403/503 三个既有状态类** ⇒ **§14.1 仍 33 码**。
 - **若确需新增（本笔不批 · 登记路径）**：例如 `LEDGER_CURRENCY_HAS_OPEN_ORDERS` —— **必须一次到位**：① §14.1 追加行（33 → 34）；② `ledger-errors.ts` 常量表 + `LEDGER_ERROR_BUCKETS` + `httpStatusOf`；③ **反向映射 `LD0nn` 分支**（`0009` 先例）；④ `p2c-00-code-roundtrip.ts` **33 → 34 全量往返闭合**（`--assert`）；⑤ 三处 `reason` 名对齐。**本笔改判负**：本轮实现若在闭集外新增码 ⇒ 判负。
+- **★ `details.reason` 三点登记（实现轮现取 · 2026-10-24）**：本口 `details.reason` **不是闭集**（域开放、只做描述），三者**全部落在既有 `LD011`（`LEDGER_CURRENCY_INVALID_TRANSITION`）409 之内** ⇒ **未新增错误码**（§14.1 仍 33 码）：
+
+| # | `details.reason` | 触发条件（现取） | 码 / 状态 | 备注 |
+|--:|---|---|---|---|
+| ① | **`SYSTEM_CURRENCY_IMMUTABLE`** | `cid = 1` **且** `to !== 'listed'`（**目标侧**断言，§49.25.5 ★改判） | `409` `LD011` | `details` = `{ cid, from, to, reason, symbol:'$' }`；`to='listed'` 走重放分支（200） |
+| ② | **`CURRENCY_STATE_INVALID`** | Phase B `apply` 谓词未命中**且**回读 `curStatus !== to`（R27 断言已过之后的**兜底**：并发改态 / `from` 漂移） | `409` `LD011` | `details` = `{ cid, from: curStatus \|\| from, to, reason }` |
+| ③ | **`PHASE_A_CANCEL_FAILED`** | Phase A 有失败（`failed > 0`）**但**未带出该单既有码（`phaseA.error` 缺） | `409` `LD011` | **构造性防御**：真实依赖（`cancelOrdersOfCurrency`）恒带 `error` ⇒ **生产不可达**；登记为防御分支，**不得据此新增码** |
+
+- **★ 上表与 §49.25.8 主表的关系**：主表 11 行给的是**码**；本表给的是**同码内的 `reason` 细分**（`details.reason` 与 `code` 各司其职，调用方**只准按 `code` 分支**、`reason` 供诊断与前端文案）。
 
 #### 49.25.9 响应形状（`data` 键集**冻结**）+ 判负清单
 
@@ -10757,6 +10773,21 @@ ORDER BY score DESC, l.time_created DESC, l.listing_id DESC
 
 - **本笔零 `<Route>` 改动**（零代码）⇒ **§44.5 三计数 `46 / 38 / 26` 不变**（本笔**不触**那三行，故无就地前推、无旧值留痕需求）。**实现轮预计**（**登记，不预填为读数**）：后台新增「币种管理」一条**嵌套子路由** ⇒ **字面 `46 → 47`**、**精确 `38 → 39`**、**内层逐段清点仍 `26`**（承 v2.50 对 `exchange` 三条子路由的同类处置：嵌套段不入内层逐段口径）；实现轮**必须**同批前推 §44.5 三行 + 本节读数。
 - **实现轮 i18n 预计**（**登记，`NOT_MEASURED`，不预填**）：新增 `adminNav.currencyStatus` / `adminNav.currencyStatusDesc` **2 键 × 4 语** ⇒ 拍平 `1453 ⇒ 1455`、四语节点 `5812 ⇒ 5820`（**实现轮现取为准**；本笔不改任何 locale）。
+
+#### 49.25.11 配套只读口：`GET /api/admin/currency/status`（实现轮新增 · 闸 `manage_settings` · `data` 恰 4 键）
+
+| 项 | 冻结值 | 依据 |
+|---|---|---|
+| 路径 / 方法 | **`GET /api/admin/currency/status`**（**纯读**、无请求体、无 `ops:` 键） | 实现面 = `index.ts:2904`；`currency-status-service.ts:314`（`listCurrencyStatusesForAdmin`） |
+| 闸 | **`requireAdmin(req, res, 'manage_settings')`** —— **与写口同键**（同模块同域）；**不改**既有读口 `GET /api/admin/currency` 的 `review_tasks` 闸 | §49.25.3 · §23.2（旧口条文**一字未动**） |
+| `data` 键集 | **恰 4 键** `{ cid, symbol, status, listed_at }`（`cid` = 十进制串；`listed_at` 可 `null`） | §49.25.11 现取；**不含** `owner_uid` / `review_tasks` 面字段 |
+| 数据源 | **复用** `DatabaseService.listCurrenciesForAdmin(null)`（零新 SQL、零新写面、只 `SELECT`） | `DL23`（不得借读口补写） |
+| 响应 | `sendSuccess(res, rows, 'Currency status list (admin)')` ⇒ `{success:true,message,data:[…]}`；失败 = R107 | §49.25.2 响应形状 |
+| 错误码 | **零新增**（401 / 403 / 503 三类既有） | §49.25.8 |
+
+- **★ 为什么另开一读口（而不是改旧口闸）**：旧读口 `GET /api/admin/currency`（§23.2）的闸 = `review_tasks` **已冻结**；本 tab 的写口闸 = `manage_settings` ⇒ 若复用旧口，则「只有 `manage_settings`、无 `review_tasks`」的管理员**读不到列表**（只有写权限、无读权限 = 自相矛盾）。**改旧口闸 = 放宽已冻结节点的可见面** ⇒ 取**另开只读投影**（`design-system.spec` §36 登记的两选一中的 **(a)**）。旧口**一字未动**（`review_tasks` 闸不变、`data` 键集不变）。
+- **判负**：① 改旧读口 `GET /api/admin/currency` 的闸或键集 ⇒ 判负；② 本读口出现任何写语句（`INSERT` / `UPDATE` / `DELETE`）⇒ 判负；③ `data` 键集漂移（多键 / 少键 / 嵌套）⇒ 判负；④ 本读口要求 `ops:` 幂等键 ⇒ 判负（读口无副作用）。
+- **注册点**：含本读口后 **`114` → `116`**（§49.25.2 ★注册点已前推）。
 
 ### 49.26 后台「站点文案」页**拆解到位**（一页拆四块 + 新页【电量】+ 两组装删除 + 品牌行改品牌链接）· 2026-10-24 · **v2.53**（行为变更 ⇒ 升版；头注**追加** v2.53 状态块，接放于 v2.52 块之后）· 本笔**含 3 行就地状态改写**（§44.5 三计数前两行前推 + 第三行复核注；旧值均行内留痕、无一处整行删除）· 实现笔 = 同轮工作区
 
