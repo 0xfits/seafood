@@ -1,6 +1,6 @@
 {
   "probe": "ops/task-page/probe-task-page.mjs",
-  "startedAt": "2026-10-21T11:28:01.719Z",
+  "startedAt": "2026-10-24T02:05:34.990Z",
   "dist": "/Users/kevin/bistro/seafood/frontend/dist",
   "negArm": false,
   "fixtures": {
@@ -22,6 +22,7 @@
       "scrollContained": 0,
       "hooks": {
         "taskPage": true,
+        "taskList": false,
         "taskPageTask": "1",
         "taskTitle": "转发推文",
         "taskSubtasks": 2,
@@ -44,6 +45,7 @@
       "scrollContained": 0,
       "hooks": {
         "taskPage": false,
+        "taskList": false,
         "taskPageTask": null,
         "taskTitle": null,
         "taskSubtasks": 0,
@@ -62,36 +64,15 @@
           "tag": "a",
           "href": "/task/1",
           "task": "1",
-          "mock": "0",
+          "mock": null,
           "title": "转发推文"
         },
         {
           "tag": "a",
           "href": "/task/2",
           "task": "2",
-          "mock": "0",
+          "mock": null,
           "title": "填写问卷"
-        },
-        {
-          "tag": "div",
-          "href": null,
-          "task": null,
-          "mock": "1",
-          "title": "每日签到打卡"
-        },
-        {
-          "tag": "div",
-          "href": null,
-          "task": null,
-          "mock": "1",
-          "title": "邀请 3 位好友注册"
-        },
-        {
-          "tag": "div",
-          "href": null,
-          "task": null,
-          "mock": "1",
-          "title": "完成首笔质押"
         }
       ]
     },
@@ -101,6 +82,22 @@
         "othersPresent": []
       },
       "/task/new": {
+        "own": true,
+        "othersPresent": []
+      },
+      "/task/review": {
+        "own": true,
+        "othersPresent": []
+      },
+      "/en/task/review": {
+        "own": true,
+        "othersPresent": []
+      },
+      "/hk/task/review": {
+        "own": true,
+        "othersPresent": []
+      },
+      "/vn/task/review": {
         "own": true,
         "othersPresent": []
       },
@@ -120,6 +117,7 @@
       "scrollContained": 0,
       "hooks": {
         "taskPage": false,
+        "taskList": false,
         "taskPageTask": null,
         "taskTitle": null,
         "taskSubtasks": 0,
@@ -129,16 +127,13 @@
         "jobsDetail": false,
         "notFound": false,
         "projectPage": true,
-        "projectToggle": {
-          "next": "active",
-          "text": "上线",
-          "disabled": false
-        },
-        "projectTaskState": "draft",
+        "projectToggle": null,
+        "projectTaskState": null,
         "projectTaskErr": null
       },
       "cards": []
     },
+    "1536_projectToggleMissing": true,
     "1536_project_after": {
       "pathname": "/sui",
       "overflowPx": 0,
@@ -146,6 +141,7 @@
       "scrollContained": 0,
       "hooks": {
         "taskPage": false,
+        "taskList": false,
         "taskPageTask": null,
         "taskTitle": null,
         "taskSubtasks": 0,
@@ -155,12 +151,8 @@
         "jobsDetail": false,
         "notFound": false,
         "projectPage": true,
-        "projectToggle": {
-          "next": "draft",
-          "text": "下线",
-          "disabled": false
-        },
-        "projectTaskState": "active",
+        "projectToggle": null,
+        "projectTaskState": null,
         "projectTaskErr": null
       },
       "cards": []
@@ -172,6 +164,7 @@
       "scrollContained": 0,
       "hooks": {
         "taskPage": false,
+        "taskList": false,
         "taskPageTask": null,
         "taskTitle": null,
         "taskSubtasks": 0,
@@ -190,36 +183,15 @@
           "tag": "a",
           "href": "/task/1",
           "task": "1",
-          "mock": "0",
+          "mock": null,
           "title": "转发推文"
         },
         {
           "tag": "a",
           "href": "/task/2",
           "task": "2",
-          "mock": "0",
+          "mock": null,
           "title": "填写问卷"
-        },
-        {
-          "tag": "a",
-          "href": "/task/55",
-          "task": "55",
-          "mock": "0",
-          "title": "草稿任务甲"
-        },
-        {
-          "tag": "div",
-          "href": null,
-          "task": null,
-          "mock": "1",
-          "title": "每日签到打卡"
-        },
-        {
-          "tag": "div",
-          "href": null,
-          "task": null,
-          "mock": "1",
-          "title": "邀请 3 位好友注册"
         }
       ]
     },
@@ -230,6 +202,7 @@
       "scrollContained": 0,
       "hooks": {
         "taskPage": true,
+        "taskList": false,
         "taskPageTask": "1",
         "taskTitle": "转发推文",
         "taskSubtasks": 2,
@@ -252,6 +225,7 @@
       "scrollContained": 1,
       "hooks": {
         "taskPage": false,
+        "taskList": false,
         "taskPageTask": null,
         "taskTitle": null,
         "taskSubtasks": 0,
@@ -270,36 +244,15 @@
           "tag": "a",
           "href": "/task/1",
           "task": "1",
-          "mock": "0",
+          "mock": null,
           "title": "转发推文"
         },
         {
           "tag": "a",
           "href": "/task/2",
           "task": "2",
-          "mock": "0",
+          "mock": null,
           "title": "填写问卷"
-        },
-        {
-          "tag": "div",
-          "href": null,
-          "task": null,
-          "mock": "1",
-          "title": "每日签到打卡"
-        },
-        {
-          "tag": "div",
-          "href": null,
-          "task": null,
-          "mock": "1",
-          "title": "邀请 3 位好友注册"
-        },
-        {
-          "tag": "div",
-          "href": null,
-          "task": null,
-          "mock": "1",
-          "title": "完成首笔质押"
         }
       ]
     },
@@ -309,6 +262,22 @@
         "othersPresent": []
       },
       "/task/new": {
+        "own": true,
+        "othersPresent": []
+      },
+      "/task/review": {
+        "own": true,
+        "othersPresent": []
+      },
+      "/en/task/review": {
+        "own": true,
+        "othersPresent": []
+      },
+      "/hk/task/review": {
+        "own": true,
+        "othersPresent": []
+      },
+      "/vn/task/review": {
         "own": true,
         "othersPresent": []
       },
@@ -328,6 +297,7 @@
       "scrollContained": 0,
       "hooks": {
         "taskPage": false,
+        "taskList": false,
         "taskPageTask": null,
         "taskTitle": null,
         "taskSubtasks": 0,
@@ -337,16 +307,13 @@
         "jobsDetail": false,
         "notFound": false,
         "projectPage": true,
-        "projectToggle": {
-          "next": "active",
-          "text": "上线",
-          "disabled": false
-        },
-        "projectTaskState": "draft",
+        "projectToggle": null,
+        "projectTaskState": null,
         "projectTaskErr": null
       },
       "cards": []
     },
+    "390_projectToggleMissing": true,
     "390_project_after": {
       "pathname": "/sui",
       "overflowPx": 0,
@@ -354,6 +321,7 @@
       "scrollContained": 0,
       "hooks": {
         "taskPage": false,
+        "taskList": false,
         "taskPageTask": null,
         "taskTitle": null,
         "taskSubtasks": 0,
@@ -363,12 +331,8 @@
         "jobsDetail": false,
         "notFound": false,
         "projectPage": true,
-        "projectToggle": {
-          "next": "draft",
-          "text": "下线",
-          "disabled": false
-        },
-        "projectTaskState": "active",
+        "projectToggle": null,
+        "projectTaskState": null,
         "projectTaskErr": null
       },
       "cards": []
@@ -380,6 +344,7 @@
       "scrollContained": 1,
       "hooks": {
         "taskPage": false,
+        "taskList": false,
         "taskPageTask": null,
         "taskTitle": null,
         "taskSubtasks": 0,
@@ -398,36 +363,15 @@
           "tag": "a",
           "href": "/task/1",
           "task": "1",
-          "mock": "0",
+          "mock": null,
           "title": "转发推文"
         },
         {
           "tag": "a",
           "href": "/task/2",
           "task": "2",
-          "mock": "0",
+          "mock": null,
           "title": "填写问卷"
-        },
-        {
-          "tag": "a",
-          "href": "/task/55",
-          "task": "55",
-          "mock": "0",
-          "title": "草稿任务甲"
-        },
-        {
-          "tag": "div",
-          "href": null,
-          "task": null,
-          "mock": "1",
-          "title": "每日签到打卡"
-        },
-        {
-          "tag": "div",
-          "href": null,
-          "task": null,
-          "mock": "1",
-          "title": "邀请 3 位好友注册"
         }
       ]
     }
@@ -441,20 +385,21 @@
       "pass": true
     },
     "homeCardHref_1536": {
-      "realCards": 2,
-      "allRealHrefTaskPage": true,
-      "hrefs": [
-        "/task/1",
-        "/task/2"
-      ],
+      "realCards": 0,
+      "allRealHrefTaskPage": false,
+      "hrefs": [],
       "mockCardsUnclickable": true,
       "noCampaignHrefOnReal": true,
-      "pass": true
+      "pass": false
     },
     "routeSeparation_1536": {
       "arms": {
         "/task": true,
         "/task/new": true,
+        "/task/review": true,
+        "/en/task/review": true,
+        "/hk/task/review": true,
+        "/vn/task/review": true,
         "/bounty/9": true,
         "/task/1": true
       },
@@ -462,15 +407,15 @@
     },
     "taskOnlineAppearsInHome_1536": {
       "draftAbsentBefore": true,
-      "toggleRenderedBefore": true,
-      "toggleNextWasActive": true,
-      "patchSent": true,
-      "patchPayloadExact": true,
+      "toggleRenderedBefore": false,
+      "toggleNextWasActive": false,
+      "patchSent": false,
+      "patchPayloadExact": false,
       "noInlineError": true,
-      "realCardAppeared": true,
-      "cardHrefTaskPage": true,
+      "realCardAppeared": false,
+      "cardHrefTaskPage": false,
       "notMockFilled": true,
-      "pass": true
+      "pass": false
     },
     "noOverflowNoPageError_1536": {
       "taskOverflowPx": 0,
@@ -499,20 +444,21 @@
       "pass": true
     },
     "homeCardHref_390": {
-      "realCards": 2,
-      "allRealHrefTaskPage": true,
-      "hrefs": [
-        "/task/1",
-        "/task/2"
-      ],
+      "realCards": 0,
+      "allRealHrefTaskPage": false,
+      "hrefs": [],
       "mockCardsUnclickable": true,
       "noCampaignHrefOnReal": true,
-      "pass": true
+      "pass": false
     },
     "routeSeparation_390": {
       "arms": {
         "/task": true,
         "/task/new": true,
+        "/task/review": true,
+        "/en/task/review": true,
+        "/hk/task/review": true,
+        "/vn/task/review": true,
         "/bounty/9": true,
         "/task/1": true
       },
@@ -520,15 +466,15 @@
     },
     "taskOnlineAppearsInHome_390": {
       "draftAbsentBefore": true,
-      "toggleRenderedBefore": true,
-      "toggleNextWasActive": true,
-      "patchSent": true,
-      "patchPayloadExact": true,
+      "toggleRenderedBefore": false,
+      "toggleNextWasActive": false,
+      "patchSent": false,
+      "patchPayloadExact": false,
       "noInlineError": true,
-      "realCardAppeared": true,
-      "cardHrefTaskPage": true,
+      "realCardAppeared": false,
+      "cardHrefTaskPage": false,
       "notMockFilled": true,
-      "pass": true
+      "pass": false
     },
     "noOverflowNoPageError_390": {
       "taskOverflowPx": 0,
@@ -552,10 +498,10 @@
   },
   "summary": {
     "taskPageRendered": true,
-    "homeCardHref": true,
+    "homeCardHref": false,
     "routeSeparation": true,
-    "taskOnlineAppears": true,
+    "taskOnlineAppears": false,
     "noOverflowNoPageError": true
   },
-  "summaryAll": true
+  "summaryAll": false
 }

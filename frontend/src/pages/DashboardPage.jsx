@@ -1,71 +1,49 @@
 import React, { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
 import {
   Users,
   Trophy,
   Gift,
-  Clock,
   BarChart3,
   Settings,
-  Eye,
   Shield,
-  CheckCircle,
-  XCircle,
-  RefreshCw,
-  Search,
 } from 'lucide-react'
 
 import { Button, Card, CardHeader, CardTitle, CardContent, Badge } from '../components/ui'
 import { LoadingPage } from '../components/ui/Loading'
-import { FadeIn, SlideUp, StaggerContainer } from '../components/ui/Motion'
+import { FadeIn, SlideUp } from '../components/ui/Motion'
 import { ResponsiveContainer, ResponsiveGrid } from '../components/ui/Responsive'
 import { buildLocalizedPath, formatEvmAddress, getLanguageFromUrl } from '../utils'
 import { fetchAdminAccess, fetchApiJson, getAuthToken, hasAdminPermission, isAdminUser } from '../admin-utils'
 import { useAuth } from '../auth-context'
 
-const formatTimestamp = (value, t) => {
-  if (!value) return t('dashPage.unknown')
-  const date = new Date(typeof value === 'number' ? value * 1000 : value)
-  return Number.isNaN(date.getTime()) ? t('dashPage.unknown') : date.toLocaleString()
-}
+// 审核面板整块下线（Kevin 2026-10-24 裁定）：本页原「Task Progress 审批」面板消费审核队列两个
+//   读口（tasklist pending 队列 + 其 /count）与单条提交的动作口（verify 子路径），而这两口已于
+//   `43ea14a`（2026-10-21，job 领域下线）随 21 条路由从 backend-ts 删除
+//   ⇒ 生产实测 404（`LEDGER_REF_NOT_FOUND` / `ref_type=endpoint`），面板长期只显示「加载失败」。
+//   故连同读口 / 写口 / 面板 UI / 队列相关 state 一并拆除：前端不留死面板。
+//   现役审核面 = `/dashboard/currency-review`（币种审核，动作口挂在 `:cid` 下的 review 子路径）。
+//   词典键 `dashPage.*` 审核相关项保留不删（四语键集 flat 1451×4 锚点，删键会改读数）。
 
 const EMPTY_DASHBOARD_STATS = {
   totalUsers: 0,
   adminUsers: 0,
   totalPoints: 0,
   totalRewards: 0,
-  pendingVerifications: 0,
-}
-
-const resolvePendingVerificationCount = (canReviewTasks, pendingCount, pendingList) => {
-  if (!canReviewTasks) return 0
-  if (pendingCount?.status === 'fulfilled' && typeof pendingCount.value?.count === 'number') {
-    return pendingCount.value.count
-  }
-  if (pendingList?.status === 'fulfilled' && Array.isArray(pendingList.value)) {
-    return pendingList.value.length
-  }
-  return 0
 }
 
 const DashboardPage = () => {
-  const navigate = useNavigate()
   const { user: currentUser, isAuthenticated } = useAuth()
   const { t } = useTranslation()
-  const [pendingVerificationTasks, setPendingVerificationTasks] = useState([])
   const [loading, setLoading] = useState(true)
-  const [refreshing, setRefreshing] = useState(false)
-  const [processingTaskId, setProcessingTaskId] = useState(null)
   const [isAdmin, setIsAdmin] = useState(false)
   const [access, setAccess] = useState({
     is_admin: false,
     permissions: [],
     can_access_admin: false,
   })
-  const [reviewQuery, setReviewQuery] = useState('')
-  const [showAllPending, setShowAllPending] = useState(false)
   const [dashboardStats, setDashboardStats] = useState(EMPTY_DASHBOARD_STATS)
 
   const managementLinks = [
@@ -106,31 +84,25 @@ const DashboardPage = () => {
     },
   ]
 
-  const loadDashboardData = async (user, accessInfo) => {
+  const loadDashboardData = async (user) => {
     const token = getAuthToken(user)
     const authHeaders = token ? { Authorization: `Bearer ${token}` } : {}
-    // ★ S18：队列读口门改「**已登录即可见**」（即原审核队列页同口径，该页 2026-10-24 已下线）；内容过滤唯一真源 = 后端。
-    const canReviewTasks = isAuthenticated
 
-    // ★ job 下线（2026-10-21）：旧 `GET /api/task/all`（悬赏全表）已随后端删除 ⇒ **本页不再取**。
+    // job 下线（2026-10-21）：旧 `GET /api/task/all`（悬赏全表）已随后端删除 ⇒ 本页不再取。
     //   「任务总数」卡随之删除：现任务 = campaign task，唯一公开读口 `/api/home/campaign-tasks`
-    //   只给 `LIMIT 20` 的 active 热门行 ⇒ **拿不到真·总数**（照旧渲染只会把 20 说成「总数」，
-    //   是假读数）。管理侧要看真实任务请走 `/dashboard/tasks`（campaign 口径列表）。
+    //   只给 `LIMIT 20` 的 active 热门行 ⇒ 拿不到真·总数（照旧渲染只会把 20 说成「总数」，是假读数）。
+    //   管理侧要看真实任务请走 `/dashboard/tasks`（campaign 口径列表）。
     //   （词典键 `dashPage.statTasks` / `dashPage.errTaskStats` 保留：四语键集计数锚点，删键会改 flat 读数）
     const results = await Promise.allSettled([
       fetchApiJson('/api/user/stats', { headers: authHeaders }),
       fetchApiJson('/api/prize/all'),
-      ...(canReviewTasks ? [fetchApiJson('/api/tasklist/pending-verification/count', { headers: authHeaders })] : []),
-      ...(canReviewTasks ? [fetchApiJson('/api/tasklist/pending-verification?limit=50', { headers: authHeaders })] : []),
     ])
 
-    const [userStats, rewards, pendingCount, pendingList] = results
+    const [userStats, rewards] = results
 
     const errors = []
     if (userStats.status === 'rejected') errors.push(t('dashPage.errUserStats'))
     if (rewards.status === 'rejected') errors.push(t('dashPage.errRewardStats'))
-    if (canReviewTasks && pendingCount?.status === 'rejected') errors.push(t('dashPage.errPendingCount'))
-    if (canReviewTasks && pendingList?.status === 'rejected') errors.push(t('dashPage.errPendingList'))
 
     if (errors.length > 0) {
       toast.error(t('dashPage.partialLoadFailed', { list: errors.join(t('common.listSeparator')) }))
@@ -141,10 +113,7 @@ const DashboardPage = () => {
       adminUsers: userStats.status === 'fulfilled' ? userStats.value.admin_count || 0 : 0,
       totalPoints: userStats.status === 'fulfilled' ? userStats.value.total_points || 0 : 0,
       totalRewards: rewards.status === 'fulfilled' ? (rewards.value || []).length : 0,
-      pendingVerifications: resolvePendingVerificationCount(canReviewTasks, pendingCount, pendingList),
     })
-
-    setPendingVerificationTasks(canReviewTasks && pendingList?.status === 'fulfilled' ? pendingList.value || [] : [])
   }
 
   useEffect(() => {
@@ -158,7 +127,6 @@ const DashboardPage = () => {
           permissions: [],
           can_access_admin: false,
         })
-        setPendingVerificationTasks([])
         setDashboardStats(EMPTY_DASHBOARD_STATS)
         setLoading(false)
         return
@@ -175,9 +143,8 @@ const DashboardPage = () => {
         setAccess(accessInfo)
 
         if (admin) {
-          await loadDashboardData(currentUser, accessInfo)
+          await loadDashboardData(currentUser)
         } else {
-          setPendingVerificationTasks([])
           setDashboardStats(EMPTY_DASHBOARD_STATS)
         }
       } catch (error) {
@@ -199,69 +166,8 @@ const DashboardPage = () => {
     }
   }, [currentUser, isAuthenticated])
 
-  const handleVerifyTask = async (jID, approved) => {
-    const token = getAuthToken(currentUser)
-    if (!token) {
-      toast.error(t('adminCommon.sessionExpired'))
-      navigate(buildLocalizedPath(getLanguageFromUrl(window.location.pathname), '/login'))
-      return
-    }
-
-    setProcessingTaskId(jID)
-    try {
-      const confirmed = window.confirm(
-        approved ? t('dashPage.confirmApprove') : t('dashPage.confirmReject')
-      )
-      if (!confirmed) {
-        setProcessingTaskId(null)
-        return
-      }
-
-      await fetchApiJson(`/api/tasklist/${jID}/verify`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ approved }),
-      })
-
-      toast.success(approved ? t('dashPage.verifyApproved') : t('dashPage.verifyRejected'))
-      await loadDashboardData(currentUser, access)
-    } catch (error) {
-      console.error('Error verifying task progress:', error)
-      toast.error(t('dashPage.actionFailed', { message: error.message }))
-    } finally {
-      setProcessingTaskId(null)
-    }
-  }
-
-  const refreshDashboard = async () => {
-    if (!currentUser) return
-    setRefreshing(true)
-    try {
-      await loadDashboardData(currentUser, access)
-      toast.success(t('dashPage.refreshSuccess'))
-    } catch (error) {
-      console.error('Error refreshing dashboard:', error)
-      toast.error(t('dashPage.refreshFailed', { message: error.message }))
-    } finally {
-      setRefreshing(false)
-    }
-  }
-
-  const normalizedQuery = reviewQuery.trim().toLowerCase()
-  // ★ S18：队列面板门 = 登录态（即原审核队列页同口径，该页 2026-10-24 已下线）；角色徽标仍按既有权限口径（语义不变）。
+  // 角色徽标 = 角色名（管理员 / 审核员 / 员工），只读权限三键，与已下线的审核队列无关 ⇒ 保留。
   const dashboardRoleLabel = access.is_admin ? t('dashPage.roleAdmin') : hasAdminPermission(access, 'review_tasks') ? t('dashPage.roleReviewer') : t('dashPage.roleStaff')
-  const filteredPendingTasks = pendingVerificationTasks.filter((task) => {
-    if (!normalizedQuery) return true
-    return (
-      task.task?.title?.toLowerCase().includes(normalizedQuery) ||
-      task.user?.EVM?.toLowerCase().includes(normalizedQuery) ||
-      task.info_input?.toLowerCase().includes(normalizedQuery)
-    )
-  })
-  const visiblePendingTasks = showAllPending ? filteredPendingTasks : filteredPendingTasks.slice(0, 6)
   const visibleManagementLinks = managementLinks.filter((item) => {
     if (item.to === '/dashboard/tasks') return hasAdminPermission(access, ['manage_tasks', 'publish_tasks'])
     if (item.to === '/dashboard/users') return hasAdminPermission(access, 'read_users')
@@ -360,139 +266,7 @@ const DashboardPage = () => {
                 <div className="text-sm text-gray-600">{t('dashPage.statRewards')}</div>
               </CardContent>
             </Card>
-
-            <Card variant="warning" className="text-center">
-              <CardContent className="py-6">
-                <Clock className="w-8 h-8 text-orange-600 mx-auto mb-2" />
-                <div className="text-3xl font-bold text-gray-900 mb-1">
-                  {dashboardStats.pendingVerifications}
-                </div>
-                <div className="text-sm text-gray-600">{t('dashPage.statPending')}</div>
-              </CardContent>
-            </Card>
           </ResponsiveGrid>
-        </SlideUp>
-
-        <SlideUp delay={300}>
-          <Card>
-            <CardHeader>
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <CardTitle className="flex items-center gap-2">
-                  <Eye className="w-5 h-5" />
-                  {t('dashPage.pendingTitle')}
-                </CardTitle>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <div className="flex items-center gap-2">
-                    <Search className="w-4 h-4 text-gray-400" />
-                    <input
-                      type="text"
-                      value={reviewQuery}
-                      onChange={(e) => setReviewQuery(e.target.value)}
-                      placeholder={t('dashPage.searchPlaceholder')}
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
-                    />
-                  </div>
-                  <Button variant="outline" onClick={refreshDashboard} disabled={refreshing}>
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    {refreshing ? t('adminCommon.refreshing') : t('adminCommon.refresh')}
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {/* ★ S18：队列门 = 登录态。原「无审核权限」空态分支在现门面下已不可达 ⇒ 删除（本仓禁死代码）。 */}
-              <>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
-                <div className="text-sm text-gray-600">
-                  {t('dashPage.queueSummary', { visible: visiblePendingTasks.length, matched: filteredPendingTasks.length, total: dashboardStats.pendingVerifications })}
-                </div>
-                {filteredPendingTasks.length > 6 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowAllPending((prev) => !prev)}
-                  >
-                    {showAllPending ? t('dashPage.collapse') : t('dashPage.viewAll')}
-                  </Button>
-                )}
-              </div>
-
-              {filteredPendingTasks.length > 0 ? (
-                <StaggerContainer>
-                  <div className="space-y-4">
-                    {visiblePendingTasks.map((task, index) => (
-                      <FadeIn key={task.jID || task.tlistID} delay={index * 75}>
-                        <Card variant="inactive" className="border-l-4 border-l-orange-500">
-                          <CardContent className="p-4">
-                            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <h3 className="font-semibold text-gray-900">
-                                    {task.task?.title || t('dashPage.taskFallback', { id: task.tID })}
-                                  </h3>
-                                  <Badge variant="warning" size="sm">
-                                    {t('adminCommon.pointsValue', { value: (task.task?.points || 0).toLocaleString() })}
-                                  </Badge>
-                                </div>
-
-                                <div className="text-sm text-gray-600 mb-2">
-                                  <strong>{t('dashPage.submittedBy')}</strong> {formatEvmAddress(task.user?.EVM)}
-                                </div>
-
-                                <div className="text-sm text-gray-600 mb-2">
-                                  <strong>{t('dashPage.submittedContent')}</strong> {task.info_input || t('dashPage.none')}
-                                </div>
-
-                                <div className="text-xs text-gray-500">
-                                  {t('dashPage.submittedAt')} {formatTimestamp(task.time_submitted || task.time_created, t)}
-                                </div>
-                              </div>
-
-                              <div className="flex gap-2 md:ml-4">
-                                <Button
-                                  variant="success"
-                                  size="sm"
-                                  onClick={() => handleVerifyTask(task.jID || task.tlistID, true)}
-                                  disabled={processingTaskId === (task.jID || task.tlistID)}
-                                  aria-label={t('dashPage.approveLabel')}
-                                  title={t('dashPage.approveLabel')}
-                                >
-                                  <CheckCircle className="w-4 h-4 mr-1" />
-                                  {t('dashPage.approve')}
-                                </Button>
-                                <Button
-                                  variant="warning"
-                                  size="sm"
-                                  onClick={() => handleVerifyTask(task.jID || task.tlistID, false)}
-                                  disabled={processingTaskId === (task.jID || task.tlistID)}
-                                  aria-label={t('dashPage.rejectLabel')}
-                                  title={t('dashPage.rejectLabel')}
-                                >
-                                  <XCircle className="w-4 h-4 mr-1" />
-                                  {t('dashPage.reject')}
-                                </Button>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </FadeIn>
-                    ))}
-                  </div>
-                </StaggerContainer>
-              ) : (
-                <div className="text-center py-8">
-                  <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
-                  <p className="text-gray-900 font-medium mb-1">
-                    {dashboardStats.pendingVerifications > 0 ? t('dashPage.noResults') : t('dashPage.noPending')}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {dashboardStats.pendingVerifications > 0 ? t('dashPage.noResultsHint') : t('dashPage.noPendingHint')}
-                  </p>
-                </div>
-              )}
-                </>
-            </CardContent>
-          </Card>
         </SlideUp>
 
         <SlideUp delay={450}>

@@ -146,7 +146,7 @@ describe('已下线 job 面落 404（/task/new · /task/review · /bounty/:jobId
   })
 
   it('三处都不得命中任务列表页 / 任务页（不是「换了个页面继续渲染」）', () => {
-    for (const entry of ['/task/new', '/bounty/9']) {
+    for (const entry of ['/task/new', '/task/review', '/bounty/9']) {
       cleanup()
       renderAt(entry)
       expect(markers(), entry).not.toContain('PAGE_TASK_LIST')

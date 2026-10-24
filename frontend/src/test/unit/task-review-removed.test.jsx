@@ -3,8 +3,12 @@
  *   入口（TaskPage 页头条 Link）/ 路由（App.jsx `task/review`）/ 页面 `pages/jobs/JobReviewPage.jsx`
  *   / 仅它用的 API 层 `pages/jobs/job-api.js` —— 四处静态钉死零残留。
  *
- * 后端口保留不动：`GET /api/tasklist/pending-verification(+ /count)` 仍被 `pages/DashboardPage.jsx` 消费，
- *   审核能力（通过 / 驳回）由 `/dashboard` 审核面板承担 ⇒ 本单不动 backend-ts。
+ * ★ 2026-10-24（Kevin 裁定 · `/dashboard` 审核面板下线，本文件第⑥条随之前移）：
+ *   `GET /api/tasklist/pending-verification(+ /count)` 与 `POST /api/tasklist/:id/verify` **后端早于
+ *   `43ea14a`（2026-10-21，job 领域下线）随 21 条路由删除**，生产实测三 URL 全 404
+ *   （`LEDGER_REF_NOT_FOUND` / `ref_type=endpoint`；对照 `/api/currencies` `/api/home` 均 200）
+ *   ⇒ 前端 `/dashboard` 的审核面板早已不能工作（只显示加载失败），本单连同该面板一并拆除。
+ *   故第⑥条由「后端口仍被 DashboardPage 消费」反转为「**前端零残留 + 后端注册点确不存在**」。
  * i18n 键**保留不删**（`jobs.review` / `jobs.reviewNote` 四语仍在）—— 沿 `dashboard-pages-removed`
  *   先例的「键保留不删」口径：删键会连带触发四语键集计数漂移（1451×4 口径）。
  *
@@ -96,11 +100,40 @@ describe('/task 审核入口 + /task/review 路由链下线：四处零残留（
     expect(new Set(tables.map(([, table]) => table.jobs.review)).size).toBe(4)
   })
 
-  it('⑥ 后端口仍被 /dashboard 消费（审核能力不失；本单不动 DashboardPage 审核面板）', () => {
+  it('⑥ 审核面前端零残留：DashboardPage 不含审核读口 / 写口 / 面板锚点（反向判据）', () => {
     const dash = read('pages/DashboardPage.jsx')
-    expect(dash).toContain('/api/tasklist/pending-verification')
-    expect(dash).toContain('handleVerifyTask')
-    // 但页面侧引用已清（旧同口径注释里的字面量一并未留）
+    // 读口：审核队列两条 URL 一律不得再出现
+    expect(dash).not.toContain('pending-verification')
+    expect(dash).not.toContain('tasklist/')
+    // 写口：动作函数与被它调的 verify 路径
+    expect(dash).not.toContain('handleVerifyTask')
+    expect(dash).not.toContain('/verify')
+    // job 域动作口（`POST /api/job/:jobId/review`）与已删路由的路径残片
+    expect(dash).not.toContain('job/')
+    expect(dash).not.toContain('/review')
     expect(dash).not.toContain('task/review')
+    // 队列面板的 UI 锚点（搜索框 / 通过驳回钮 / 队列摘要 / 待审核统计卡）
+    expect(dash).not.toContain('reviewQuery')
+    expect(dash).not.toContain('queueSummary')
+    expect(dash).not.toContain('resolvePendingVerificationCount')
+    expect(dash).not.toContain('filteredPendingTasks')
+    expect(dash).not.toContain('pendingVerificationTasks')
+    // 反向断言的对照：仪表盘其余面板仍在（不是「整页被删」蒙对）
+    expect(dash).toContain("t('dashPage.statUsers')")
+    expect(dash).toContain("t('dashPage.linksTitle')")
+    expect(dash).toContain("t('dashPage.roleReviewer')")
+  })
+
+  it('⑦ 后端现取事实：`backend-ts/src/index.ts` **不存在**审核队列与 job 审核路由注册点', () => {
+    // 本条的用途：钉住「后端注册点已不存在」这一事实本身 —— 防后来者再按旧文档写出
+    // 「口还在、只是前端换了消费方」这类假前提（现实测三 URL 全 404）。
+    const backend = fs.readFileSync(path.resolve(process.cwd(), '../backend-ts/src/index.ts'), 'utf8')
+    // 正对照：读到的是真路由册（否则下面的反向断言等于对空字符串求假）
+    expect(backend).toContain("app.get('/api/currencies'")
+    expect(backend.length).toBeGreaterThan(100000)
+    expect(backend).not.toContain('pending-verification')
+    expect(backend).not.toContain('/api/job/')
+    expect(backend).not.toMatch(/job\/:jobId\/review/)
+    expect(backend).not.toMatch(/app\.post\('\(\/api\/job/)
   })
 })

@@ -70,7 +70,8 @@ describe('P6-BTN-IMPL-2 · `.sf-btn` 家族纳入 A 体系', () => {
   // ★ 2026-10-21（Kevin 裁定 · job 体系弃用）：`pages/jobs/JobDetailPage.jsx` + `pages/jobs/PublishJobPage.jsx`
   //   随页删除 ⇒ 家族 11 ⇒ **9 文件**；用法 33 ⇒ **27 处**（删 3 + 3）。
   // ★ 2026-10-24（Kevin 裁定 · 审核入口下线）：`pages/jobs/JobReviewPage.jsx` 随页删除、`pages/TaskPage.jsx`
-  //   的唯一 `.sf-btn`（页头审核 Link）随入口摘除 ⇒ 家族 9 ⇒ **7 文件**；用法 27 → **24 处**。
+  //   的唯一 `.sf-btn`（页头审核 Link）随入口摘除 ⇒ 家族 9 ⇒ **7 文件**；用法 **28 → 24 处**
+  //   （上一版断言是 28，非 27 —— 旧注释算术错，读数未动）。
   //   清单仍逐文件、逐行现取（每处必须挂基类 `.sf-btn`），断言强度不变、只前移读数。
   it('家族清单现取：7 个 JSX 文件、24 处用法（每处都挂基类 .sf-btn）', () => {
     expect(inventory.map((e) => e.file).sort()).toEqual([

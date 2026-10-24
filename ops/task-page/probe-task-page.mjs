@@ -7,8 +7,9 @@
  *   ② 首页「热门任务」真卡 **href = `/task/:taskId`**（`data-sf-task` 与 href 末段逐卡相等；
  *      mock 卡不可点、零 `href`）；
  *   ③ **路由互不吞**：`/task`（campaign 列表）/ `/task/:id`（本页）各落各的钩子；
- *      `/task/new`（发布）与 `/bounty/:id`（悬赏详情）两条路由已随 job 下线删除 ⇒ **均落 404 页**
- *      （`/task/new` 由任务页的数字号闸拦下，零 `/api/campaign/task/new` 请求）；
+ *      `/task/new`（发布）、`/task/review`（审核队列）与 `/bounty/:id`（悬赏详情）三条路由
+ *      均已删除 ⇒ **均落 404 页**（`/task/new`、`/task/review` 由任务页的数字号闸拦下，
+ *      零 `/api/campaign/task/new` 请求）；`/task/review` 另探 `en` / `hk` / `vn` 三个前缀档；
  *   ④ **上线后首页真卡出现**：项目页任务卡【上线】（draft⇒active）⇒ `PATCH /api/campaign/task/:id`
  *      载荷恰 `{status:'active'}` ⇒ 回首页，原来不出现的那条真卡出现且 href = `/task/:id`
  *      （不是 mock 卡：`data-sf-camp-mock="0"`）；
@@ -369,6 +370,12 @@ const run = async () => {
       //   其余三条的 others 同步把 `taskList` 纳入「不得命中」集（判据强度只增不减）。
       ['/task', 'taskList', '[data-sf-m="task-list"]', ['taskPage', 'jobsFormWrap', 'jobsDetail', 'jobsNav']],
       ['/task/new', 'notFound', '[data-sf-m="not-found-page"]', ['taskPage', 'taskList', 'jobsNav', 'jobsFormWrap', 'jobsDetail']],
+      // ★ 2026-10-24（Kevin 裁定 · 审核入口/路由下线）：`/task/review` 已无路由与页面 ⇒ 必须落 404，
+      //   且不得命中任务页 / 列表页 / job 面三钩子；`en` / `hk` / `vn` 三个前缀档一并钉住（前缀由 LangShell 承担）。
+      ['/task/review', 'notFound', '[data-sf-m="not-found-page"]', ['taskPage', 'taskList', 'jobsNav', 'jobsFormWrap', 'jobsDetail']],
+      ['/en/task/review', 'notFound', '[data-sf-m="not-found-page"]', ['taskPage', 'taskList', 'jobsNav', 'jobsFormWrap', 'jobsDetail']],
+      ['/hk/task/review', 'notFound', '[data-sf-m="not-found-page"]', ['taskPage', 'taskList', 'jobsNav', 'jobsFormWrap', 'jobsDetail']],
+      ['/vn/task/review', 'notFound', '[data-sf-m="not-found-page"]', ['taskPage', 'taskList', 'jobsNav', 'jobsFormWrap', 'jobsDetail']],
       ['/bounty/9', 'notFound', '[data-sf-m="not-found-page"]', ['taskPage', 'taskList', 'jobsFormWrap', 'jobsNav']],
       ['/task/1', 'taskPage', '[data-sf-m="task-page"]', ['taskList', 'jobsNav', 'jobsFormWrap', 'jobsDetail']],
     ]) {

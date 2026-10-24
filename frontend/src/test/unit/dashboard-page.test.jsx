@@ -1,6 +1,5 @@
 import React, { act } from 'react'
-import { render, screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { cleanup, render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 
@@ -42,6 +41,24 @@ import DashboardPage from '../../pages/DashboardPage'
 import { useAuth } from '../../auth-context'
 import { fetchAdminAccess, fetchApiJson, getAuthToken, hasAdminPermission, isAdminUser } from '../../admin-utils'
 
+/**
+ * ★ 2026-10-24（Kevin 裁定 · `/dashboard` 审核面板下线）：本页原「Task Progress 审批」面板
+ *   整块拆除 —— 它消费的审核队列两口（tasklist pending 队列 + 其 /count）与动作口
+ *   `POST /api/tasklist/:id/verify` 已于 `43ea14a`（2026-10-21，job 领域下线）随 21 条路由从
+ *   backend-ts 删除，生产实测 404（`LEDGER_REF_NOT_FOUND` / `ref_type=endpoint`）
+ *   ⇒ 面板长期只显示「加载失败」。
+ *
+ * 本文件把「面板在场」类用例改为**反向判据**（面板 / 读口 / 写口一并不得在场），
+ * 仍留 ①②③ 三条在役判据（零审核请求 · 其余统计与管理入口不受误伤 · job 面零残留）。
+ *
+ * 删除的用例与原因（判据底随实现一并消失，非降强度）：
+ *   ① 原「reloads pending review endpoints after approving a submission」—— 面板、通过/驳回钮、
+ *      pending 两口与 `handleVerifyTask` 全删，锚点已不存在（其判据被下方「零审核读口」反向用例接管）；
+ *   ② 原「falls back to the pending list length when the count endpoint fails」—— 被测函数
+ *      `resolvePendingVerificationCount`（count 失败降级取列表长度）已随面板删除；
+ *   ③ 原「S18：已登录用户（无 review_tasks）⇒ 队列面板按登录态放开」—— 队列门本身已删。
+ */
+
 const currentUser = {
   uID: 7,
   EVM: '0x1234567890123456789012345678901234567890',
@@ -68,7 +85,9 @@ const renderDashboard = async () => {
   return view
 }
 
-describe('DashboardPage', () => {
+const calledUrls = () => fetchApiJson.mock.calls.map(([url]) => String(url))
+
+describe('DashboardPage（管理总览 · 审核面板已下线）', () => {
   beforeEach(() => {
     vi.clearAllMocks()
 
@@ -89,148 +108,92 @@ describe('DashboardPage', () => {
       }
       return (access.permissions || []).includes(permission)
     })
-
-    vi.spyOn(window, 'confirm').mockReturnValue(true)
   })
 
-  it('reloads pending review endpoints after approving a submission', async () => {
-    let pendingItems = [
-      {
-        jID: 101,
-        tID: 12,
-        info_input: 'proof-link',
-        time_submitted: '2026-04-06T08:00:00Z',
-        task: {
-          title: '待审核任务',
-          points: 88,
-        },
-        user: {
-          EVM: '0xaabbccddeeff0011223344556677889900aabbcc',
-        },
-      },
-    ]
-
+  it('① 审核面板零残留：零审核读口请求、无通过/驳回钮、无搜索框、无队列与「待审核」卡', async () => {
+    // ★ 负对照内建：读口分支里**只**有 user/stats 与 prize/all ⇒ 页面一旦回退去拉审核队列，
+    //   mock 会抛 `Unexpected URL`（toast 报「部分数据加载失败」）⇒ 本例如红。
     fetchApiJson.mockImplementation(async (url) => {
       if (url === '/api/user/stats') return { user_count: 10, admin_count: 1, total_points: 500 }
       if (url === '/api/prize/all') return [{ bID: 1 }]
-      if (url === '/api/tasklist/pending-verification/count') return { count: pendingItems.length }
-      if (url === '/api/tasklist/pending-verification?limit=50') return pendingItems
-      if (url === '/api/tasklist/101/verify') {
-        pendingItems = []
-        return { success: true }
-      }
-      throw new Error(`Unexpected URL: ${url}`)
-    })
-
-    await renderDashboard()
-
-    expect(await screen.findByText('普通用户 Task Progress 审批')).toBeInTheDocument()
-    expect(await screen.findByText('待审核任务')).toBeInTheDocument()
-    expect(screen.getByText(/仅展示普通用户提交的 Task Progress。/)).toBeInTheDocument()
-
-    await userEvent.click(screen.getByRole('button', { name: '通过审核' }))
-
-    await waitFor(() => {
-      expect(
-        fetchApiJson.mock.calls.filter(([url]) => url === '/api/tasklist/pending-verification/count')
-      ).toHaveLength(2)
-      expect(
-        fetchApiJson.mock.calls.filter(([url]) => url === '/api/tasklist/pending-verification?limit=50')
-      ).toHaveLength(2)
-    })
-
-    expect(fetchApiJson).toHaveBeenCalledWith(
-      '/api/tasklist/101/verify',
-      expect.objectContaining({
-        method: 'POST',
-      })
-    )
-    expect(await screen.findByText('当前没有待审核提交')).toBeInTheDocument()
-    expect(toast.success).toHaveBeenCalledWith('任务已通过审核')
-  })
-
-  it('falls back to the pending list length when the count endpoint fails', async () => {
-    fetchApiJson.mockImplementation(async (url) => {
-      if (url === '/api/user/stats') return { user_count: 10, admin_count: 1, total_points: 500 }
-      if (url === '/api/prize/all') return [{ bID: 1 }]
-      if (url === '/api/tasklist/pending-verification/count') {
-        throw new Error('count failed')
-      }
-      if (url === '/api/tasklist/pending-verification?limit=50') {
-        return [
-          {
-            jID: 201,
-            tID: 21,
-            info_input: 'proof-a',
-            task: { title: '任务 A', points: 10 },
-            user: { EVM: '0x1111111111111111111111111111111111111111' },
-          },
-          {
-            jID: 202,
-            tID: 22,
-            info_input: 'proof-b',
-            task: { title: '任务 B', points: 20 },
-            user: { EVM: '0x2222222222222222222222222222222222222222' },
-          },
-        ]
-      }
-      throw new Error(`Unexpected URL: ${url}`)
-    })
-
-    await renderDashboard()
-
-    expect(await screen.findByText(/待审核总数 2。/)).toBeInTheDocument()
-    expect(toast.error).toHaveBeenCalledWith('部分数据加载失败：待审核数量')
-  })
-
-  it('S18：已登录用户（无 review_tasks）⇒ 队列面板按登录态放开（不再收敛为无权限）', async () => {
-    // ★ 负对照内建：`hasAdminPermission` 恒 false（= 无 review_tasks）。若队列门回退为 admin-only
-    //   ⇒ 不发队列读 ⇒ 本例如红（非假门）。
-    fetchAdminAccess.mockResolvedValue({ is_admin: false, can_access_admin: true, permissions: [] })
-    hasAdminPermission.mockReturnValue(false)
-    fetchApiJson.mockImplementation(async (url) => {
-      if (url === '/api/user/stats') return { user_count: 10, admin_count: 1, total_points: 500 }
-      if (url === '/api/prize/all') return []
-      if (url === '/api/tasklist/pending-verification/count') return { count: 1 }
-      if (url === '/api/tasklist/pending-verification?limit=50') {
-        return [{ jID: 301, tID: 31, info_input: 'proof', task: { title: '任务 C', points: 5 }, user: { EVM: '0xabc' } }]
-      }
-      throw new Error(`Unexpected URL: ${url}`)
-    })
-
-    await renderDashboard()
-
-    // 门 = 登录态 ⇒ 登录即取队列（admin-only 门面下此处会 0 次）
-    await waitFor(() => {
-      expect(
-        fetchApiJson.mock.calls.filter(([url]) => url === '/api/tasklist/pending-verification?limit=50')
-      ).toHaveLength(1)
-    })
-    // 原「无审核权限」空态分支已随门面放开删除（本仓禁死代码）⇒ 队列内容直达
-    expect(screen.queryByText('当前账号没有审核权限')).toBeNull()
-    expect(await screen.findByText('任务 C')).toBeInTheDocument()
-  })
-
-  it('job 下线收尾：零 `/api/task/all` 请求，「任务总数」卡已撤（campaign 读口给不出真总数）', async () => {
-    // ★ 负对照内建：读口分支里**没有** `/api/task/all` ⇒ 一旦页面回退去拉旧悬赏全表，
-    //   本 mock 会抛 `Unexpected URL`（toast 报「部分数据加载失败」）⇒ 本例两条断言同时转红。
-    fetchApiJson.mockImplementation(async (url) => {
-      if (url === '/api/user/stats') return { user_count: 10, admin_count: 1, total_points: 500 }
-      if (url === '/api/prize/all') return [{ bID: 1 }, { bID: 2 }]
-      if (url === '/api/tasklist/pending-verification/count') return { count: 0 }
-      if (url === '/api/tasklist/pending-verification?limit=50') return []
       throw new Error(`Unexpected URL: ${url}`)
     })
 
     await renderDashboard()
 
     expect(await screen.findByText('管理总览')).toBeInTheDocument()
-    const urls = fetchApiJson.mock.calls.map(([url]) => String(url))
-    expect(urls.some((url) => url.includes('/api/task/all'))).toBe(false)
+
+    const urls = calledUrls()
+    expect(urls.filter((url) => url.includes('/api/tasklist/'))).toEqual([])
+    expect(urls.some((url) => /pending|verify/i.test(url))).toBe(false)
     expect(toast.error).not.toHaveBeenCalled()
-    // 5 张统计卡（用户 / 管理员 / 积分 / 奖品 / 待审核）——「任务类型」卡已删
-    expect(screen.queryByText('任务类型')).toBeNull()
+
+    // 面板 UI 零残留（标题 / 搜索框 / 通过驳回钮 / 队列摘要 / 待审核统计卡）
+    expect(screen.queryByText('普通用户 Task Progress 审批')).toBeNull()
+    expect(screen.queryByPlaceholderText('搜索 Task Progress 任务、地址或提交内容...')).toBeNull()
+    expect(screen.queryByRole('textbox')).toBeNull()
+    expect(screen.queryByRole('button', { name: '通过审核' })).toBeNull()
+    expect(screen.queryByRole('button', { name: '驳回' })).toBeNull()
+    expect(screen.queryByText('待审核提交')).toBeNull()
+    // 反向断言的对照：其余统计卡与入口面板仍在（不是「整页被拆空」蒙对）
     expect(screen.getByText('总用户数')).toBeInTheDocument()
+    expect(screen.getByText('管理入口')).toBeInTheDocument()
+  })
+
+  it('② 角色徽标保留非审核语义：审核员 / 员工 / 管理员三档照旧', async () => {
+    fetchApiJson.mockImplementation(async (url) => {
+      if (url === '/api/user/stats') return { user_count: 10, admin_count: 1, total_points: 500 }
+      if (url === '/api/prize/all') return [{ bID: 1 }]
+      throw new Error(`Unexpected URL: ${url}`)
+    })
+
+    await renderDashboard()
+    expect(await screen.findByText('审核员')).toBeInTheDocument()
+
+    // 无任何权限 ⇒ 后台成员
+    cleanup()
+    hasAdminPermission.mockReturnValue(false)
+    await renderDashboard()
+    expect(await screen.findByText('后台成员')).toBeInTheDocument()
+
+    // 管理员
+    cleanup()
+    fetchAdminAccess.mockResolvedValue({ is_admin: true, permissions: [], can_access_admin: true })
+    await renderDashboard()
+    expect(await screen.findByText('管理员')).toBeInTheDocument()
+  })
+
+  it('③ job 下线收尾：零 `/api/task/all` 请求，「任务总数」卡已撤（campaign 读口给不出真总数）', async () => {
+    // ★ 负对照内建：读口分支里**没有** `/api/task/all` ⇒ 一旦页面回退去拉旧悬赏全表，
+    //   本 mock 会抛 `Unexpected URL`（toast 报「部分数据加载失败」）⇒ 本例两条断言同时转红。
+    fetchApiJson.mockImplementation(async (url) => {
+      if (url === '/api/user/stats') return { user_count: 10, admin_count: 1, total_points: 500 }
+      if (url === '/api/prize/all') return [{ bID: 1 }, { bID: 2 }]
+      throw new Error(`Unexpected URL: ${url}`)
+    })
+
+    await renderDashboard()
+
+    expect(await screen.findByText('管理总览')).toBeInTheDocument()
+    expect(calledUrls().some((url) => url.includes('/api/task/all'))).toBe(false)
+    expect(toast.error).not.toHaveBeenCalled()
+    // 在役四张统计卡（用户 / 管理员 / 积分 / 奖品）；「任务类型」卡与「待审核」卡均已撤
+    expect(screen.queryByText('任务类型')).toBeNull()
+    expect(screen.queryByText('待审核提交')).toBeNull()
+    expect(screen.getByText('总用户数')).toBeInTheDocument()
+    expect(screen.getByText('管理员数量')).toBeInTheDocument()
+    expect(screen.getByText('累计积分')).toBeInTheDocument()
     expect(screen.getByText('奖品数量')).toBeInTheDocument()
+  })
+
+  it('④ 无后台权限 ⇒ 「权限不足」卡（且零统计读口）', async () => {
+    fetchAdminAccess.mockResolvedValue({ is_admin: false, permissions: [], can_access_admin: false })
+    hasAdminPermission.mockReturnValue(false)
+
+    await renderDashboard()
+
+    expect(await screen.findByText('权限不足')).toBeInTheDocument()
+    expect(screen.queryByText('管理总览')).toBeNull()
+    expect(fetchApiJson).not.toHaveBeenCalled()
   })
 })
