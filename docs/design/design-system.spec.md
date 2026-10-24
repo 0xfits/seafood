@@ -28,6 +28,7 @@
 > **★ 勘误（2026-10-19 · 第三单「媒体上传单」连带：`T94` 渐变占位图条款 + `T80` requiresAuth/恒 5 格 + 底栏①文案微单 · 勘误级不升版 · 本单只写 `docs/**`）**：**依据 = Kevin 2026-10-19 三裁定**（存储 = A「Neon 存图」/ 张数 ≤4 卡用第一张 / 占位 = 机械鱼图）+ 同批缺陷单 `9c8a460`（底栏恒 5 格）；契约正典 = `route-layer.spec` **v2.39 §48** + `data-layer.spec` **v0.34 §40** + `master-plan` **§5.422**。**① `T94` 勘误（状态改写式 · 旧句逐字保留）**：§19.2 `T94` 行「③ 详情面板（**渐变占位图** + 描述 + 库存 + 数量输入）」中的「渐变占位图」**形态限定自本勘误起作废 · 以本段为准** —— 现行口径 = 详情面板 image 槽 = **`media_urls[0] || 机械鱼占位`**（**渲染面允许真图 / 占位图填充原几何盒**，几何盒与槽位不变；媒体上传单落地前维持占位渲染）；§19.4/§19.5 涉「渐变占位图」字面同此读法。**② `T80` 勘误（状态改写式 · 旧句逐字保留）**：`T80` 行与 v1.7 补注中「`我的`→`/profile`（key `profile`，**`requiresAuth`**）」「**`requiresAuth` 仍 `true`**」的**可见性语义自本勘误起作废 · 以本段为准** —— `requiresAuth` 字段已随 `9c8a460` **废除**（`shell/nav.js` 删 `visibleNavItems` + 去 profile `requiresAuth`；生产码 `grep 'visibleNavItems|requiresAuth'` 零引用、仅注释留痕）；现行口径 = **底栏恒 5 格、含未登录**（`BottomTabBar` 恒染 `SHELL_NAV_ITEMS`；未登录点【我的】走既有钱包签名登录引导；详情页 `is-detail` 隐藏面不变）；三测试改锚 = `theme-shell-isomorphism` / `route-exchange-rename` / `v15-nav-floatmenu:92`（`fifth.requiresAuth` ⇒ `fifth.key==='profile'`）。**③ 底栏①文案微单（进行中）**：`home` 键值四语改短（**海鲜 / 海鮮 / Seafood / Hải sản**，键数不变）；§14.10 B / v1.6 注的「海鲜市场」= 旧值字面留痕，实现 commit 落盘后本册以现行值为准（消费点唯一 = `frontend/src/shell/nav.js:20`）。**④ 本册零 token / 零几何 / 零真源改动**（占位资产属图片资源、非主题 token）；**未动 `frontend/**` / `backend-ts/**` / `docs/design/style-preview.html`**。**现取基线 = HEAD `9c8a460`。**
 > **★ 现行版 = v1.24（2026-10-19 · Kevin「宽度与列数」两项口径 · 新增 §25 + 规则 `T121` + 三项结构常量链 · 只追加 + 就地指针 · 本单只写 `docs/**`）**：**① 容器最大宽 = `1536px`**（结构常量 `shell-max-w` `1440px ⇒ 1536px`）。**Kevin 今日口径（逐字）**：「容器最大宽 **1536px**」；**「1500 不是标准宽度」已当面说明** ⇒ **`1500` 不再是候选值**（承 §22.11 `Q8`「保持 `1440px` · 另立单」⇒ **本版取代该口径**，**`Q8` 原行一字未删**、其后追加指针行）。**② 列数断点（写死）** = **视口 `≥1280px` ⇒ 6 列** · **`768–1279px` ⇒ 4 列** · **`<768px` 手机档不变**（现取 d `2` / n `1`，**是否也调 2/2 待 Kevin** ⇒ `OPEN-ITEMS` `B38`）；**夜档 `feed-cols` 由 `3` 统一为 `4`**（与日档一致 —— 回归「列数属断点层、**不得按主题变**」的既有口径，见 `EXCLUDED_FROM_THEME` 该行 why）。**③ 落点约束（写死）**：`frontend/src/shell/shell.css` **只允许唯一 `767` 断点块**（现取 `@media` 计数 = **1** · `shell.css:185`）⇒ **`1280` 的 6 列规则落 `frontend/src/styles.css` 顶层 `@media (min-width:1280px)`**（承 §14 桌面 gutter「断点规则落 `styles.css`、`shell.css` 一字不动」先例），且**只覆盖 `.sf-grid` 的 `grid-template-columns`**。**④ 三件同步链（缺一即判负）**：`docs/design/style-preview.html` **纯追加**真源块（`max-width:1536px` 行 + `repeat(6,minmax(0,1fr))` 行 + 夜档 `repeat(4,…)` 行）⇒ `frontend/src/theme/tokens.js` 的 `STRUCT` / `STRUCT_PROV` **重指**（`shell-max-w` · `feed-cols.n` · **新键 `feed-cols-xl`**）⇒ `frontend/src/theme/theme-tokens.css` **用既有生成器重生成**（先跑零漂移 `cmp = 0` 自证）。**⑤ 零 i18n / 零颜色 / 不动 `TOKEN_KEYS`**（只动 `STRUCT`：**改 2 键值 + 改 1 个 PROV 指针 + 新增 1 键**）。**改动 = 版本头（本行）+ §12 表 v1.24 行 + §22.11 `Q8` 行后**新行**（指针，原行一字未动）+ §25（新）**；**本册只写 `docs/**`**；**未动 `frontend/**`**（值表 / 生成物 / 样式归实现单 —— 本笔 = **契约冻结，实现待发**）；**未启停任何服务**；**未 `git add -A` · 本单 commit 仅含 `docs/**` + `ops/feed-6col/**` · 未 push**。**★ 编号勘误（必须披露）**：派单写「新增记 **`T104`**」，而 **`T104` 已被 v1.19 §21（消息面板化 `T104`–`T108`）占用**（现取 `grep -n 'T104' docs/design/design-system.spec.md` 命中 §21 规则表）⇒ **本册按「数字现取」顺延为 `T121`**（现取最大 `T120` = §24），**派单编号字面保留于此**。
 > **★ 现行版 = v1.25（2026-10-19 · Kevin「商品卡固定尺寸」四条逐字 · 新增 §26 + 规则 `T122` + `Q5` 勘误 + route 册 `§41.3` 勘误指针 · 只追加 + 就地留痕 · 本单只写 `docs/**`）**：**① Kevin 四条原话（逐字见 §26.0）** = 尺寸固定约 252×412、卡高不得变化 ／ 移除【库存不足】与【0 人已领取 0】两提示及其前置礼物图标 ／ 卡最上方商品预览图 240×240（原图按比例裁切后显示）／ 卡底 224×48 发布者信息（左 24px 圆头像 + 灰色脱敏昵称、右橙色信用胶囊无图标）。**② 冻结契约（§26.1 `T122`）** = **卡高恒 412px**（不随内容）· **预览图 = 卡顶通栏 × 固定高 240px、`object-fit:cover` 居中裁切**（原图任意比例）· **412 内部分配 = 240（图）+ 48（卖家栏）+ 中部 flex-1**（标题 clamp-2 + `$` 价格块 + 描述 clamp，溢出隐藏）。**③ 移除** = `statusText` 状态徽章全态（库存不足/可兑换/已兑换）+ 前置稀有度图标（`getRarityIcon` 整函数）+ 卡底「N 人已领取 / 总数」行（含 `Gift`）+ `limited` 限量徽章（同行一并）。**④ 保留** = 整卡链接（`T112`/`T113`）、`$` 价格块（`r9-93`）、描述 clamp、剩余时间行（条件）、CTA 逻辑（`actionLabelKey` 路径逐字不变）、稀有度光斑。**⑤ `Q5` 勘误（状态改写）** = §22.11 `Q5` 已裁行「稀有度图标（`getRarityIcon`）…保留」**图标部分作废**（行后勘误行已插、旧句一字未删）；**装饰光斑保留不变**。**⑥ 卖家栏数据面** = 昵称 = `maskWalletAddress(evm)`（前 6 + `******` 6 星 + 后 4，例 `0x1234******abcd`；route `§41.3`「`…` 掩码」口径同步勘误、旧句保留）· 头像 = 迁移 `0052_users_avatar_url.sql` 的 `users.avatar_url`（可空；null ⇒ 灰底 + 掩码首字符占位）· 信用档位 = `rating` 按 `ratee_uid` 均星四档（≥4.5 优秀 / ≥3.5 良好 / <3.5 一般 / 无评分新卖家），**独立于排序公式**。**⑦ 后端 / i18n 增量（契约数 · 随实现单）** = `listBrands` 行增 `seller{uid,nickname,avatar,credit}`（feed 行键 45→46；详情 `seller` 加 `credit`、顶层仍 46）+ i18n 新命名空间 `sellerCredit` 4 键（top 128→129 / flat 1110→1114 / 四语节点 4440→4456；base = 编制时点现取 128/1110/4440）。**⑧ 零新主题 token / 零 `STRUCT` / 零 PROV 改指 / `style-preview.html` 零改动**（412/240/48/24 属几何常量，承 §24「颜色以外不进主题层」先例落 `reward-card.css`；信用胶囊色值本版不锁）。**改动 = 版本头（本行）+ §12 表 v1.25 行 + §22.11 `Q5` 行后勘误行 + §26（新）**；**本笔零代码**（编制时点工作区另有实现单未提交面 `M frontend/src/components/reward/RewardCard.jsx`，非本单写面）；**未启停任何服务**；**未 `git add -A` · commit 仅含本单 `docs/**` + `ops/card-resize/**` · 未 push**。
+> **★ 现行版 = v1.26（2026-10-24 · Kevin「移动底栏恒 4 格（取消【卖闲置】）+ 桌面浮菜单保留【卖闲置】+ STRUCT token `tabbar-cols` `5 → 4`（PROV 指向 `style-preview.html` L1192）」裁定落册 · **状态改写式 · 只追加零删行** · 本单只写 `docs/**`）**：**① 移动底栏（H5 `BottomTabBar`）取消【卖闲置】格 ⇒ 底栏恒 4 格**（左→右 `home` / `shard` / `messages` / `profile`）⇒ 新规则 **`T123`**（§27.1），`SHELL_NAV_ITEMS` 现取 **4 项**（`frontend/src/shell/nav.js`）。**② 桌面右侧悬浮菜单（`FloatingMenu` · `>767`）保留【卖闲置】⇒ 浮菜单仍五项**（现取 `FM_ITEMS` = `wage`（领工资）/ `sell`（卖闲置）/ `messages`（消息）/ `app`（APP）/ `support`（客服），`frontend/src/shell/FloatingMenu.jsx` **一字未改**）；**路由 `/item/new` 保留、可直链**。**③ STRUCT token `--sf-st-tabbar-cols` `5 → 4`，四处同动已完成**：真源 `docs/design/style-preview.html` **尾部纯追加块 `L1188–1193`**（**新真源行 = `L1192`** `.tabbar{flex:0 0 auto;display:grid;grid-template-columns:repeat(4,1fr);align-items:end;position:relative;z-index:4}`）· `frontend/src/theme/tokens.js:421` 值 `4` · `STRUCT_PROV['tabbar-cols']` = `{d:[1192,'grid-template-columns:repeat(4,1fr)'],n:[1192,同上]}`（`frontend/src/theme/tokens.js:465`）· `frontend/src/theme/theme-tokens.css:24` `--sf-st-tabbar-cols: 4`。**旧 `SP:169` 的 `repeat(5,1fr)` 逐字保留为历史、不作应用值**（§27.3）。PROV 硬门 `theme-tokens.test.js` 已绿。**④ 几何实测**（§27.4）：390 档 `grid-template-columns` = `97.5px × 4`（= 390/4）、末格贴右、`scrollWidth − clientWidth = 0`；1440 / 1536 档底栏 `display:none` 但 **DOM 仍 4 格**；1536 档浮菜单 `sell` 可见（`w=72 h=92`、`href=/item/new`）。**⑤ i18n 零变更**：本单**零新增 / 零删除**键；现取（`json.load` 逐语）**顶层 `135` / 拍平叶子 `1451` / 四语节点 `5804`（= 1451 × 4）**，四语逐文件相同；**`sell` 键仍在、仍被浮菜单消费**（§27.5）。**⑥ 新教训 `N54`**（STRUCT token 变更：真源新行只追加、旧行留痕不动；§27.8）。**⑦ 留痕（§27.9）** —— `T46` / `T80` / §2 token 表 / §7 几何表 / **v1.5 版本行**的「底栏恒 5 格」与「`卖闲置`→`/listing/new`」表述**自本版起作废**，旧字面**逐字保留**、紧随追加取代行。**⇒ 新增 §27 + 规则 `T123` + 教训 `N54`**。**改前快照** = `docs/versions/design-system.spec.v1.25.md`（`cmp=0`；md5 `ffa8cf62fc1180aec1db8b10dff2df4e`）；**本版镜像** = `docs/versions/design-system.spec.v1.26.md`（落笔后建，`cmp=0`）。**本册 v1.26 只写 `docs/**`：未动 `frontend/**` / `backend-ts/**` / `docs/seafood.master-plan.md`（§5.451 由 Kong 写）/ `docs/route-layer.spec.md`（路由未变）；未启停任何服务、未占端口；未 `git add -A`。现取基线 = HEAD `806ea51`（2026-10-24）。**
 
 > **★ v1.10 姊妹册（同批交付）** = `docs/route-layer.spec.md` **v2.28 §38**（`/item` 家族 + 旧路由硬删 + 「前端概念名 ⇄ 后端路径名」映射表）；本册只承载 **形态 / 入口集合 / 可达性 AC / 合并页口径 / i18n 删改留表**，**不重抄**。
 > **v1.5 口径来源（逐字）**：Kevin 2026-10-11 定档 ①方案 A·UI 先行（不动后端）②右悬浮菜单仅桌面档显示、H5 隐藏 ③消息模块占位（后续接驳 X/推特私信）④客服/反馈做弹窗模板位；**＋ Kevin 当日两条连锁更正**（`Zang` 转达）：**(A)** 底栏第二项 = **「市场」→ `/exchange`**（key `shard`，图标 `Store`；**不再新建 `/nearby` 占位页、`nearby` 键不新增**）**(B)** `T76` 去重按新底栏集合重算（**`exchange` 继续排除、`reward`/`task` 恢复**）。
@@ -333,6 +334,7 @@
 | `--sea-side-w` | `320px` | `SP:114 .side{flex:0 0 320px}` | PC 右侧栏；`--sea-side-gap` `18px`（`SP:112`） |
 | `--sea-card-thumb-h` | PC `150px` / 手机 `118px` | `SP:189 .page .thumb{height:150px}`、`SP:190 .feed-m .card .thumb{height:118px}` | 两档同值；B 的「手机行式缩略图 116px 宽」废弃（T35） |
 | `--sea-tabbar-cols` | `5` | `SP:169 .tabbar{grid-template-columns:repeat(5,1fr)}` | 两档同值；**夜间档不得增减格**（切换入口不得塞进底栏，见 T46） |
+| **`--sf-st-tabbar-cols`**〔**取代上一行 `--sea-tabbar-cols` · 2026-10-24 裁定**〕 | **`4`** | **`SP:1192 .tabbar{display:grid;grid-template-columns:repeat(4,1fr)}`** —— `docs/design/style-preview.html` **尾部纯追加块 `L1188–1193`**（新真源行 = **`L1192`**）；**上一行的 `SP:169` + 值 `5` 为历史留痕、不作应用值** | 移动底栏取消【卖闲置】⇒ **恒 4 格**（`T123`）；两档同值；**夜间档不得增减格**（切换入口不得塞进底栏，`T46` 取代注）。**四处同动**（§27.3）：真源追加行 `L1192` · `frontend/src/theme/tokens.js:421` `'tabbar-cols': '4'` · `STRUCT_PROV['tabbar-cols']`（`tokens.js:465`）`{d:[1192,…],n:[1192,…]}` · `frontend/src/theme/theme-tokens.css:24` `--sf-st-tabbar-cols: 4`。**PROV 硬门 `theme-tokens.test.js` 已绿** |
 | `--sea-fab-size` | `46px × 46px`，`margin-top:-16px` | `SP:173 .tabbar .fab{width:46px;height:46px;…margin-top:-16px}` | 两档同值 |
 | `--sea-avatar-size` | `30px` / `--sea-avatar-sm-size` `19px` | `SP:93 .avatar{width:30px;height:30px}`、`SP:128 .avatar.sm{width:19px;height:19px}` | 两档同值（形状可变，尺寸不可变，T27） |
 | `--sea-logo-size` | PC `46px` / 手机 `36px` | `SP:562`（`width="46" height="46"`）、`SP:734`（`36`） | 来自 HTML 模板，属几何 |
@@ -435,6 +437,7 @@ Tailwind 4 侧（`frontend/src/styles/theme.css`，建议路径）：
 | **T44** | 【已冻结口径 / 防 FOUC】内联脚本放在 `index.html` 的 **`<head>` 内、且位于主 CSS `<link>`/样式入口之后、`<body>` 之前**，必须是**同步**脚本（不得 `defer`/`async`/`type="module"`），内容为：读 `localStorage` → 兜底 `matchMedia` → 立刻写 `<html>.classList` + `dataset.theme` + `style.colorScheme`。**任何主题判定都不得等到 React 挂载后才发生**（否则首帧会出现黄底闪一下再变黑，或反之）。 | `index.html` | 判负方法：T72（在 `DOMContentLoaded` 之前读取 `documentElement.className`，必须已是正确档位） |
 | **T45** | 【本册裁定】切换时**不得触发重新挂载**：主题只改 `<html>` 上的类与 CSS 变量，**禁止**把 `theme` 作为 React `key`、禁止条件渲染两套组件树、禁止整页 reload。 | `ThemeProvider` | 违反会中断用户操作（搜索框失焦、列表滚动位置丢失） |
 | **T46** | 【本册裁定】底栏 Tab 恒为 **5 格**（`--sea-tabbar-cols`，`SP:169`），两档一致；**主题切换入口不得占用底栏格位**（§5.3.1 要求交互同构 + T35 的列数一致性）。 | `TabBar` | 若产品坚持手机端「快捷切换」，只能加在顶栏搜索框左侧的图标位（该位置两档都有），不得改底栏 |
+| **T46**〔**2026-10-24 取代注**〕 | 【本册裁定】**底栏 Tab 恒为 4 格**（STRUCT token `--sf-st-tabbar-cols`，真源 **`SP:1192`**），两档一致；**主题切换入口不得占用底栏格位**（§5.3.1 要求交互同构 + `T35` 的列数一致性，**逐字不变**）。**同行旧句「底栏 Tab 恒为 5 格（`--sea-tabbar-cols`，`SP:169`）」已被 2026-10-24 裁定取代、旧字面逐字保留。** | `TabBar` / `frontend/src/shell/BottomTabBar.jsx` | 同行旧避让条（「若产品坚持手机端『快捷切换』…不得改底栏」）**逐字不变**；**格数由 STRUCT token 承载 ⇒ 改格数须四处同动**（真源追加行 + `tokens.js` 值 + `STRUCT_PROV` + `theme-tokens.css`，见 §27.3） |
 | **T47** | 【本册裁定】`prefers-reduced-motion` 语义也走同一套 class 策略之外的媒体查询（允许），但**主题相关的一切不得用媒体查询**（T6）。 | `tokens.css` | 不要把两件事混在一个 `@media` 块里 |
 | **T48** | 【本册裁定】主题切换**不得改变 `document.documentElement.scrollWidth`**（§5.3.7 结尾「不得造成任何元素位移或横向溢出」）：因为 §3 已把所有描边改为零占位、投影不影响布局、圆角不改变几何，故 `scrollWidth` 两档必须逐值相等。 | 全站 | 判负方法：T73（两档 `scrollWidth`/`scrollHeight` 必相等） |
 
@@ -530,6 +533,7 @@ Tailwind 4 侧（`frontend/src/styles/theme.css`，建议路径）：
 | 选中格 | `#030402`，800 + `aria-current="page"` | `#FDE815`，800 + `aria-current="page"` | `--sea-tab-fg-active`、**不得仅靠颜色（T61）：选中态必须同时改字重** |
 | 中央 FAB | `#030402` 底 / `#FDE815` 图标 / `14px` / `0 3px 0 rgba(3,4,2,.28)` | `#FDE815` 底 / `#0B0C0E` 图标 / `2px` / 零投影 | `--sea-radius-fab`、`--sea-shadow-fab` |
 | 几何 | `grid-template-columns:repeat(5,1fr)`；FAB `46×46`、`margin-top:-16px` | **完全相同**（含格数，T46） | `--sea-tabbar-cols`、`--sea-fab-size` |
+| **几何**〔**2026-10-24 取代注**〕 | `grid-template-columns:repeat(4,1fr)`（**恒 4 格**，`T123`）；FAB `46×46`、`margin-top:-16px` | **完全相同**（含 4 格，`T46` 取代注） | `--sf-st-tabbar-cols`、`--sea-fab-size`。**上一行「`repeat(5,1fr)`」已被 2026-10-24 裁定取代、旧字面逐字保留**；新 PROV = `SP:1192`（旧 `SP:169` 为历史留痕） |
 | 图标尺寸 | 22px（`SP:171/174`） | 同 | 几何 token |
 
 ### 7.8 按钮三态（主 / 次 / 幽灵）
@@ -840,6 +844,7 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 | **v1.23** | 2026-10-17 | **「首页商品卡片动作胶囊下线」勘误单（只追加 + 状态改写 · 旧字面逐字保留 · 本单只写 `docs/**` + 本单读数）**：**① Kevin 指令** = 「首页商品卡片移除『查看详情』胶囊」（实现 = `RewardCard.jsx` 的 `actionLabelKey` 存在时动作胶囊**整块不渲染**）。**② 口径改写（取代 `T112` 的 CTA 子条）** = **首页卡片不渲染动作胶囊** · **入口由整卡链接承载**（卡根单一 `<a>`，`href` = `buildLocalizedPath(lang,'/item/'+id)`）· **卡内交互元素计数仍 = 0** · **钩子 `reward-card-view` 随胶囊下线**。**③ 落点** = §22.2 `T112` 后勘误段 · §22.6「CTA 形态」取代行 · §22.9 `AC-3 · v1.23 勘误注` · §22.12 `6-勘误（v1.23）` · `docs/OPEN-ITEMS.md` `F32` 状态改写（+ 头部 v2.40 块）。**④ 读数** = 首页卡内 `reward-card-view` **4 → 0**（1440 / 390 同）· 卡根 `a[href]` 仍在 · 卡内交互元素 `0 → 0` · 末行子元素 `2 → 1` · 点标题仍跳 `/item/3041` · 门套 **57 files / 554 tests 前后不变** · CSS 零变化。**⑤ 零变化面** = 零新 token / 零 `STRUCT` / 零 CSS / 零真源（`style-preview.html` 一字未动）/ i18n 零新增零删除（`item.viewDetail` 键保留不删）。**未 `git add -A` · 未 commit · 未 push。** |
 | **v1.24** | 2026-10-19 | **Kevin「宽度与列数」两项口径落册（新增 §25 + 规则 `T121` + 三项结构常量链 · 只追加 + 就地指针 · 本单只写 `docs/**`）**：**① 容器最大宽 `1536px`**（`shell-max-w` `1440px ⇒ 1536px`；**「1500 不是标准宽度」已当面说明** ⇒ `1500` 退出候选；承 §22.11 `Q8`「保持 `1440px`」⇒ **被本版取代**、原行一字未删 + 追加指针行）。**② 列数断点 = `≥1280 ⇒ 6` / `768–1279 ⇒ 4` / `<768` 手机档不变**（现 d `2` / n `1` ⇒ 是否调 2/2 挂 `B38`）+ **夜档 `feed-cols` `3 ⇒ 4` 统一**（回归「列数不得按主题变」）。**③ 落点约束 = `shell.css` 只许唯一 `767` 块**（现取 `@media` 计数 `1`）⇒ `1280` 的 6 列规则落 **`src/styles.css` 顶层 `@media (min-width:1280px)`**（承 §14 gutter 先例），只覆盖 `.sf-grid` 的 `grid-template-columns`。**④ 三件链** = `style-preview.html` 纯追加真源块（`max-width:1536px` / `repeat(6,…)` / 夜档 `repeat(4,…)`）⇒ `tokens.js` `STRUCT`/`STRUCT_PROV` 重指（**新键 `feed-cols-xl: 6`** + `shell-max-w` + `feed-cols.n`）⇒ `theme-tokens.css` 重生成（先零漂移 `cmp=0`）。**⑤ 零 i18n / 零颜色 / `TOKEN_KEYS` 不动**；**实现待发（笔 2）**。**★ 编号勘误**：派单写 `T104`，但 `T104` 已被 v1.19 §21 占用 ⇒ 顺延 **`T121`**。 |
 | **v1.25** | 2026-10-19 | **Kevin「商品卡固定尺寸」四条逐字落册（新增 §26 + 规则 `T122` + `Q5` 勘误 + route `§41.3` 勘误指针 + data-layer §40.7 · 只追加 + 状态改写 · 本单只写 `docs/**`）**：**① 卡高恒 412**（不随内容；`252` 为测量近似、宽随 `T121` 六列网格 ≈225 @1536）。**② 预览图** = 卡顶通栏 × 高 240 · `object-fit:cover` 居中裁切 · 图源 `media_urls[0] > image_url > url_image > placeholder-item.webp`（机械鱼占位同规格同裁切）。**③ 移除** = 状态徽章（`statusText` 全态 + `getRarityIcon`/`Gift`）·「N 人已领取 / 总数」行 · `limited` 徽章。**④ 保留** = 整卡链接 / `$` 价格块 / 描述 clamp / 剩余时间行（条件）/ CTA（`actionLabelKey` 路径逐字不变）/ 稀有度光斑。**⑤ 卖家栏 48** = 24px 圆头像（`users.avatar_url`〔迁移 `0052`〕null ⇒ 灰底 + 掩码首字符占位）+ `maskWalletAddress` 星号掩码昵称（灰色）+ 右侧信用胶囊（无图标 · 色值不锁）；信用四档由 `rating` 按 `ratee_uid` 均星派生（≥4.5 优秀 / ≥3.5 良好 / <3.5 一般 / 无评分新卖家）、**独立于排序公式**。**⑥ 后端 / i18n** = feed 行键 45→46（`seller` 加性键）· 详情 `seller`+`credit`（顶层仍 46）· `sellerCredit` 4 键（top 129 / flat 1114 / nodes 4456）· 迁移 `0052_users_avatar_url.sql`（无写入口，头像上传另立单）。**⑦ 死键（不删、挂 `B40`）** = `rewardCard.limited` / `common.claimedUnit`；**留活** = `insufficient` / `claimNow` / `claimed` / `timeLimited`（保留面消费）。**⑧ 判负 7 条**（§26.7：卡高≠412 / 图高≠240 / 非 cover / 徽章或领取行出现 / 卖家栏缺失或≠48 / 档位不符 / 明文 EVM）。**⑨ `Q5` 稀有度图标口径作废**（旧句保留 + 行后勘误行）；**route `§41.3`「`…` 掩码」作废 ⇒ 6 星定式**；`statusText` 映射保留、消费点移除。**本笔零代码 · 删行 0 · 未 push**。 |
+| **v1.26** | 2026-10-24 | **Kevin「移动底栏恒 4 格（取消【卖闲置】）+ 桌面浮菜单保留【卖闲置】+ STRUCT token `tabbar-cols` `5 → 4`」裁定落册（状态改写式 · 只追加零删行 · 本单只写 `docs/**`）**：**① 底栏（H5）取消【卖闲置】格 ⇒ 恒 4 格**（`home` / `shard` / `messages` / `profile`）⇒ 新规则 **`T123`**；**② 桌面右侧悬浮菜单（`>767`）保留【卖闲置】** ⇒ 仍**五项**（`wage` / `sell` / `messages` / `app` / `support`），**`FM_ITEMS` 一字未改**、`/item/new` 保留可直链；**③ STRUCT token `5 → 4` 四处同动**：真源 `docs/design/style-preview.html` **尾部纯追加块 `L1188–1193`（新真源行 = `L1192`）** · `tokens.js:421` 值 `4` · `STRUCT_PROV['tabbar-cols']`（`tokens.js:465`）指向 **`1192`** · `theme-tokens.css:24`；**旧 `SP:169` 的 `repeat(5,1fr)` 逐字保留为历史、不作应用值**；PROV 硬门已绿；**④ 几何实测**：390 档 `97.5px × 4`、末格贴右、`scrollWidth − clientWidth = 0`；1440/1536 底栏 `display:none` 但 DOM 仍 4 格；1536 浮菜单 `sell` 可见（`72×92`、`href=/item/new`）；**⑤ i18n 零变更**（顶层 `135` / 拍平 `1451` / 四语节点 `5804`，四语相同；`sell` 键保留、仍被浮菜单消费）；**⑥ 新教训 `N54`**（STRUCT token 变更：真源新行只追加、旧行留痕不动）。**⇒ 新增 §27**（`T123` + `N54` + 留痕清单）。**改前快照** = `docs/versions/design-system.spec.v1.25.md`（`cmp=0`；md5 `ffa8cf62fc1180aec1db8b10dff2df4e`）；**本版镜像** = `docs/versions/design-system.spec.v1.26.md`（`cmp=0`）。**未动 `frontend/**` / `backend-ts/**` / `master-plan` / `route-layer.spec`；未启停服务、未占端口。现取基线 = HEAD `806ea51`。** |
 
 
 ### 与上游文件的关系（只读，本册未改一字）
@@ -1064,6 +1069,7 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 | 编号 | 口径 | 落点 | 连带影响 |
 |---|---|---|---|
 | **T80** | 【本册裁定】**底栏（H5）恒 5 格**（`T46` 不破；**主题切换入口不得占底栏格**），**左→右**：`海鲜市场`→`/`（key `home`）· **`市场`→`/exchange`**（key `shard`，**复用既有积分交易所/碎片市场页**）· `卖闲置`→`/listing/new`（key `sell`，**复用既有发布页**）· `消息`→`/messages`（key `messages`，**新占位页**）· `我的`→`/profile`（key `profile`，`requiresAuth`）。**图标（lucide-react，仓内既有）**：`Home` / `Store` / `PlusCircle` / `MessageCircle` / `User`。**单一真源 = `frontend/src/shell/nav.js`（由 Kong 改）**。 | `frontend/src/shell/nav.js`（`SHELL_NAV_ITEMS` L14–20）· `frontend/src/shell/BottomTabBar.jsx` | 改 nav 集合 ⇒ 挂 `theme-shell-isomorphism.test.jsx`（`:88/:106/:107/:91–103/:130–144/:146–153`）+ `route-exchange-rename.test.jsx`（`:86–89/:103`）（见 §14.5） |
+| **T80**〔**2026-10-24 取代注**〕 | 【本册裁定】**底栏（H5）恒 4 格**（`T46` 取代注 / `T123` 不破；**主题切换入口不得占底栏格**），**左→右**：`海鲜市场`→`/`（key `home`）· **`市场`→`/exchange`**（key `shard`，**复用既有积分交易所/碎片市场页**）· `消息`→`/messages`（key `messages`）· `我的`→`/profile`（key `profile`）。**图标（lucide-react，仓内既有）**：`Home` / `Store` / `MessageCircle` / `User`（**`PlusCircle` 随【卖闲置】移出底栏，仍由桌面浮菜单 `FM_ITEMS.sell` 消费，未删**）。**同一表上一行的旧句「底栏（H5）恒 5 格」+ 五项 key 清单 + 五项图标清单已被 2026-10-24 裁定取代、旧字面逐字保留** —— 其中「`卖闲置`→`/listing/new`（key `sell`）」**不在底栏**（**路由 `/item/new` 保留、可直链**；旧写 `/listing/new` 亦为该路由历史名）。**单一真源 = `frontend/src/shell/nav.js`（`SHELL_NAV_ITEMS` 现取 4 项）**。 | `frontend/src/shell/nav.js`（`SHELL_NAV_ITEMS` 现取 4 项，L32–37）· `frontend/src/shell/BottomTabBar.jsx` · `frontend/src/shell/FloatingMenu.jsx`（`FM_ITEMS` 五项，**未改**） | 改 nav 集合 ⇒ 挂 `theme-shell-isomorphism.test.jsx` + `route-exchange-rename.test.jsx` + `v15-nav-floatmenu.test.jsx`（`:84–94` nav 真源四项 / `:122` 底栏不含 `sell` / `:145–147` 浮菜单仍五项含 `sell`；见 §27.6） |
 | **T81** | 【本册裁定】**右侧悬浮菜单仅桌面档（`>767`）显示**；**`≤767` 必须 `display:none`**。五项**上→下**：`卖闲置`→`/listing/new` · `消息`→`/messages` · `APP`→**弹窗** · `反馈`→**弹窗** · `客服`→**弹窗**。**图标（lucide）**：`PlusCircle` / `MessageCircle` / `Smartphone` / `Gauge` / `Headphones`。**可见性只由 CSS 断点承担**（复用唯一 767 块；**不得新增 `@media`**；**不得用 JS `matchMedia`/`innerWidth`**）。 | `frontend/src/shell/FloatingMenu.jsx`（建议路径）· `frontend/src/shell/shell.css`（唯一 767 块内加 `.sf-fm{display:none}`；桌面默认显示） | 新增 `@media` 块 ⇒ 挂 `theme-shell-isomorphism.test.jsx:215–229`（断 `shell.css` 只有 1 个断点块）；JS 内联断点 ⇒ 挂同文件 `:205–213` |
 | **T82** | 【本册裁定】**悬浮菜单形态 = 结构常量/几何**（**两档同值、不进主题差集**，与 `T10①`/`T29` 自洽）：**容器宽 `108px`** · **单元高 `92px`** · **胶囊圆角 = 容器宽/2 = `54px`** · **图标 `26px`** · **文字 `12px`** · **图标与文字间距 `6px`** · **单元间 `1px` 浅灰分隔线（宽 `48px`）** · **右边距 `16px`** · **垂直定位 `top:45%` + `translateY(-50%)`** · **阴影 `0 6px 18px rgba(0,0,0,.07)`**。来源 = Kevin 参考图等比缩放到桌面。 | `FloatingMenu.jsx` / `shell.css` | 几何两档同值 ⇒ **不破 `T69`**；**这些值不进 token 层**（不是可切换值） |
 | **T83** | 【本册裁定】**悬浮菜单色值走主题 token**（日/夜两档，**不得用固定白**）：**新 token `--sf-fm-bg` / `--sf-fm-fg` / `--sf-fm-divider`**；**日档（按参考图）** `#FFFFFF` / `#333333` / `#E8E8E8`；**夜档（标「推断」，参考图未展示）** `#141619` / `#EDEFF2` / `#262A30`（**值 = 本仓夜档既有面板/卡片值**：`--sf-panel-bg`/`--sf-card-bg` · `--sf-panel-h4-fg`/`--sf-title-fg` · `--sf-panel-border`/`--sf-hr-bg`）。**新 token 必须能在 `docs/design/style-preview.html` 回读到**（追加区块行 983–1042）。 | `frontend/src/theme/tokens.js`（`TOKEN_KEYS`）· `frontend/src/theme/theme-tokens.css`（`:root` / `[data-theme="dark"]`）· `style-preview.html` 追加区块 | 「主题块只声明 token 变量且键名落在 `TOKEN_KEYS` 内」⇒ 挂 `theme-shell-isomorphism.test.jsx:238–259`（新 token 必须入 `TOKEN_KEYS`，否则 `未登记 token` 判负） |
@@ -4439,3 +4445,121 @@ showEdit     = isAuthenticated && (isOwner || canEditAny) && statusEditable
 
 - **落点**：新页面 CSS 落页面级文件（`pages/project/…` 建议形）；**零 `TOKEN_KEYS` 变更**（免四处 PROV，承 §26.18.7）。
 - **未实现/未测**：四条页面路由、两形态骨架、`jobs.line` 值变更、i18n 键 —— **一行代码未写**；判负 #77–#83 一条未跑；零截图、零 HTTP 实测、零库写。本笔只写 `docs/**` ＋ `ops/project/**`，**不 push**；`git diff --numstat` **删除列 = 0**。
+
+## §27 ★★ v1.26 · **移动底栏恒 4 格（取消【卖闲置】）** · **桌面右侧悬浮菜单保留【卖闲置】** · **STRUCT token `--sf-st-tabbar-cols` `5 → 4`（新 PROV 指向 `style-preview.html` L1192）** —— 规则 **`T123`** + 教训 **`N54`**（**本节只追加 · §1–§26 一字未动** · 依据 = **Kevin 2026-10-24 裁定** · **本笔零代码**：实现已在 HEAD `5a91d0e` 落地，本册只写 `docs/**`）
+
+> **本节读法（状态改写式）**：`T46` / `T80` / §2 token 表 / §7 几何表 / v1.5 版本行里所有「**底栏恒 5 格**」（及 `卖闲置`→`/listing/new`）表述**自 2026-10-24 起作废**、**旧字面逐字保留**（受「只追加 / `git diff --numstat` 删除列 = 0」硬口径约束），**紧随其后的追加行 = 现行口径**。旧行号引用在 §27.9 逐条登记。
+
+### 27.0 裁定原话与范围（Kevin 2026-10-24 · 逐字三条）
+
+1. **移动底栏（H5 `BottomTabBar`）取消【卖闲置】格** ⇒ **底栏恒 4 格**：`home` / `shard` / `messages` / `profile`（**左→右**）。
+2. **桌面右侧悬浮菜单（`FloatingMenu`，`>767`）保留【卖闲置】** ⇒ **浮菜单仍五项**（卖闲置 / 消息 / APP / 反馈 / 客服 —— **现取 `FM_ITEMS` 实现序** = `wage`（领工资）/ `sell`（卖闲置）/ `messages`（消息）/ `app`（APP）/ `support`（客服））；**`/item/new` 路由保留、可直链**。
+3. **STRUCT token `--sf-st-tabbar-cols` `5 → 4`**，**四处同动**（§27.3）。
+
+- **范围外（本笔一字未动）**：`frontend/**`、`backend-ts/**`、`docs/seafood.master-plan.md`（§5.451 由 Kong 写）、`docs/route-layer.spec.md`（**路由未变**：`/item/new` 仍在、`/listing/new` 历史名不动）。
+- **本笔性质**：规范落册 + 改前快照；**零代码、零 i18n 键增删、零服务启停**。
+
+### 27.1 新规则 `T123`（底栏恒 4 格）
+
+| 编号 | 口径 | 落点 | 连带影响 |
+|---|---|---|---|
+| **T123** | 【本册裁定 · v1.26】 **移动底栏（H5）恒 4 格**，**左→右** = `home`（`/`）· `shard`（`/exchange`）· `messages`（`/messages`）· `profile`（`/profile`）；**图标** = `Home` / `Store` / `MessageCircle` / `User`（lucide-react，仓内既有）；**格数由 STRUCT token `--sf-st-tabbar-cols` 承载 = `4`**（真源 `SP:1192`）；**取消【卖闲置】格 ≠ 下线该功能** —— `/item/new` 路由与 `sell` 文案键**均保留**，入口只在桌面浮菜单（`T124` 口径见 §27.2）；**主题切换入口仍不得占底栏格位**（`T46` 取代注逐字不变）。 | `frontend/src/shell/nav.js`（`SHELL_NAV_ITEMS` 现取 4 项）· `frontend/src/shell/BottomTabBar.jsx`（零内联 style、列数取自 token）· `frontend/src/theme/tokens.js:421` | ① **不得以「删格」代替「移入口」**：底栏格位下线时**必须**同时指认该入口的替代落点并写进 AC（本单 = 浮菜单 `sell`，已存在、一字未改）；② 改格数 ⇒ **四处同动**（§27.3），漏一处 `theme-tokens.test.js` 的 PROV 硬门必红；③ `nav.js` **不得**恢复 `sell` 项（底栏 4 格为契约），浮菜单 `FM_ITEMS.sell` **不得**删 |
+
+### 27.2 桌面浮菜单五项（不变面 · 本单零改动）
+
+| 序 | key | 形态 | 落点 | 文案键 | 本单 |
+|---|---|---|---|---|---|
+| 1 | `wage` | link | `/wage` | `wage.menuLabel` | 一字不动 |
+| 2 | `sell` | link | **`/item/new`** | **`sell`** | **保留**（本次裁定的核心：底栏下线、浮菜单保留） |
+| 3 | `messages` | link | `/messages` | `messages` | 一字不动 |
+| 4 | `app` | modal | 弹窗模板位 | `app` | 一字不动 |
+| 5 | `support` | modal | 弹窗模板位 | `support` | 一字不动 |
+
+- **真源 = `frontend/src/shell/FloatingMenu.jsx` 的 `FM_ITEMS`**（`>767` 显示、`≤767` 隐藏，`T81`–`T83` 几何与 token 逐字不变）。
+- **`sell` 文案键仍被消费** ⇒ **i18n 键不得随底栏删格一起删**（§27.5；`v15-nav-floatmenu.test.jsx:89–90` 已有四语非空断言）。
+- **「反馈」项历史口径**：旧锚 `['sell','wage','messages','app','support']` 已前移，**【反馈】项连同其弹窗模板位已移除**（见该测试 `:136` 注释）；本文按**现取 `FM_ITEMS`** 记五项，不据旧清单改写。
+
+### 27.3 STRUCT token `--sf-st-tabbar-cols` `5 → 4`：四处同动 + 新 PROV
+
+| # | 位置 | 现值（现取） | 证据 / 判据 |
+|---|---|---|---|
+| 1 | **真源** `docs/design/style-preview.html` | **新真源行 = `L1192`**（`<section id="tabbar-cols-4-v20261024">` 内 `.tabbar{flex:0 0 auto;display:grid;grid-template-columns:repeat(4,1fr);align-items:end;position:relative;z-index:4}`） | **尾部纯追加块**：注释行 `L1188` + `<section>` `L1189` + `<h3>` `L1190` + `<p>` `L1191` + `<pre>` **`L1192`** + `</section>` `L1193`；**旧 `L169` 的 `.tabbar{…repeat(5,1fr)…}` 逐字保留为历史、不作应用值**（纯追加、零改行） |
+| 2 | `frontend/src/theme/tokens.js` | `'tabbar-cols': '4'`（**`:421`**） | STRUCT 段；同处留痕注释 `:419–420` 已写明「5 → 4 + 真源回读 = L1192」 |
+| 3 | `frontend/src/theme/tokens.js` 的 `STRUCT_PROV` | `'tabbar-cols': { d: [1192, 'grid-template-columns:repeat(4,1fr)'], n: [1192, 'grid-template-columns:repeat(4,1fr)'] }`（**`:465`**） | **PROV 硬门** `frontend/src/test/unit/theme-tokens.test.js` **逐键回读该行号** ⇒ 新值必须能在 `L1192` 原文里命中所声明的片段（**已绿**） |
+| 4 | `frontend/src/theme/theme-tokens.css` | `--sf-st-tabbar-cols: 4;`（**`:24`**） | 生成物与 `STRUCT` 同值（CSS↔JS 互校门） |
+
+- **★ 口径（`N54`）**：**改 STRUCT token 的值时，「真源」只允许在 `style-preview.html` 尾部追加新块、不得改写旧行**；`STRUCT_PROV` 指针从旧行号（`169`）**改指新行号（`1192`）**，旧行留在文件里当历史。**旧行若被就地改值，PROV 会与新值「表面相符」但历史断链**（且 `numstat` 删除列 ≠ 0 ⇒ 违本册只追加口径）。
+- **CSS 变量名换代**：本册 §2 token 表的历史行写作 `--sea-tabbar-cols`，实现侧现名 = `--sf-st-tabbar-cols`（`--sf-*` 前缀，`tokens.js` 的 STRUCT 段）；**新行以现名为准，旧行逐字保留**。
+
+### 27.4 几何实测（现取 · 本单复核裁定读数）
+
+| 档位 | 读数 | 判据 |
+|---|---|---|
+| **390**（H5） | `.sf-tabbar` `grid-template-columns` = **`97.5px × 4`**（= 390 / 4） | **四等宽**；末格（`profile`）右缘贴容器右缘；`documentElement.scrollWidth − clientWidth` = **0**（零横向溢出） |
+| **1440 / 1536**（桌面） | `.sf-tabbar` `display:none`，**DOM 仍 4 个 `a[data-sf-nav]`** | 隐藏 ≠ 减格（DOM 恒在与外壳同构断言不破） |
+| **1536**（浮菜单） | `sell` 项可见：`w = 72` / `h = 92` / `href = /item/new` | 浮菜单几何（`T82`）与路由可达**同时成立** |
+
+- **触控目标**：390 档单元宽 `97.5` ≥ 44（`T77` 不破）；可见文本仍 `12px`（`T79` 不破）。
+- **本册 v1.26 只登记读数**（读数由实现/质检单 `5a91d0e` 同批实测；本笔未起服务、未开户重测）。
+
+### 27.5 i18n：零变更（本单核数）
+
+| 项 | 现取 | 判据 |
+|---|---|---|
+| 顶层键（每语） | **`135`** | 四语逐文件相同（`zh` / `en` / `hk` / `vn`） |
+| 拍平叶子（每语） | **`1451`** | 同上；**本单零增删** |
+| 四语节点 | **`5804`**（= 1451 × 4） | 同上 |
+| `sell` 键 | **保留**（四语非空） | 底栏下线**不删键**：浮菜单 `FM_ITEMS.sell` 仍消费；`v15-nav-floatmenu.test.jsx:89–90` 四语非空断言 |
+
+- **反例（判负）**：以「底栏不再用 `sell`」为由删 `sell` 键 ⇒ 浮菜单渲染裸键名 + 四语键集断言红。
+
+### 27.6 断言影响（改锚登记 · 实现侧已在 `5a91d0e` 落地）
+
+| # | 文件 / 锚 | 内容 | 口径 |
+|---|---|---|---|
+| 1 | `frontend/src/test/unit/v15-nav-floatmenu.test.jsx:84–87` | `SHELL_NAV_ITEMS.map(i => i.key)` = 四项、且 `not.toContain('sell')` | **已按 4 格前推**（现取绿） |
+| 2 | 同上 `:89–90` | `sell` 文案键四语非空 | **不得删**（§27.5） |
+| 3 | 同上 `:94` | 按 `key` 取例（**禁写死索引** —— 删 `sell` 后索引由 4 漂到 3） | 已前推 |
+| 4 | 同上 `:122` | 渲染态 `a[data-sf-nav]` **不含 `sell`** | 已前推 |
+| 5 | 同上 `:145–147` | 浮菜单 `data-sf-fm` = `['wage','sell','messages','app','support']` | **一字未改**（本单核心取证点） |
+| 6 | `theme-shell-isomorphism.test.jsx` / `fix-nav-langshell.test.jsx` | 底栏 `data-sf-nav` 面向断言 | 由 4 项派生，随 nav 真源自动跟随 |
+| 7 | `frontend/src/test/unit/theme-tokens.test.js` | `STRUCT_PROV` 逐键回读 `style-preview.html` 行号 | **新指针 `1192` 已绿** |
+
+### 27.7 验收判据（可判负）
+
+1. **390 档**：底栏 `a[data-sf-nav]` 的 key 序 **恰 = `['home','shard','messages','profile']`**，`getComputedStyle(nav).gridTemplateColumns` 拆成 **4 段等宽**（每段 = 容器宽 / 4），`scrollWidth − clientWidth = 0`。
+2. **浮菜单（≥768）**：`data-sf-fm` 五项**含 `sell`**，`sell` 的 `href` 解析后路径 = `/item/new`、`w=72 / h=92`。
+3. **直链**：`/item/new` 直接访问进入发布页（不被重定向、不落提示页）。
+4. **token 溯源**：`grep -n "tabbar-cols" frontend/src/theme/tokens.js` 中 `STRUCT` 值 = `'4'`，`STRUCT_PROV` 两档行号 = **`1192`**；`theme-tokens.test.js` 绿。
+5. **i18n**：四语顶层 `135` / 拍平 `1451` 逐语相等；`sell` 四语非空。
+6. **反向臂（判负灵敏度）**：把底栏改回 5 项（或把 token 值改回 `5`）⇒ 判据 1（与 PROV 门）**必须变红**。
+
+### 27.8 新教训 `N54`（STRUCT token 变更的真源纪律）
+
+- **`N54` · 改 STRUCT token 的值 = 「尾部追加新真源块 + `STRUCT_PROV` 改指新行号」，**不得就地改写旧真源行**。** 理由链：① 本册与真源都受「**只追加、`git diff --numstat` 删除列 = 0**」约束 ⇒ 就地改值必然产生删行；② `STRUCT_PROV` 是**行号 → 片段**的硬映射，旧行若被就地改值，指针仍指 `169` 也「看起来对」，**历史与现行混在一行**、事后无法区分该行是「一直是 5」还是「被改成 4」；③ 正确形态 = 旧行（`169`，`repeat(5,1fr)`）**逐字留作历史**、新块追加在文件尾（`1188–1193`）、指针指 **`1192`** ⇒ 三处读数各自可查、`numstat` 纯追加。**类级规则**：任何「值变了但文档不许改行」的场景，一律**追加 + 改指针 + 旧行标注为历史**，绝不「原地覆盖 + 声明已同步」。
+
+### 27.9 留痕清单（旧字面逐字保留 · 已被 2026-10-24 裁定取代）
+
+| # | 位置（改前盘面行号 · 现取为 `v1.25` 快照行号） | 旧字面（节录，**逐字保留**） | 现行口径（取代行） |
+|---|---|---|---|
+| 1 | `:4` 版本头 v1.5 | 「**底栏（H5）五项新集合**〔`T80`〕」 | 「底栏四项集合」→ §27.1 `T123`；**该行为历史留痕，仅追加本行指针、未改一字** |
+| 2 | `:15` 版本头 v1.15 | 「就地收窄 `T46`/`T80` 的「底栏恒 5 格」，仅限 `/item/:id`」 | 该收窄仅涉详情页隐藏面，**与格数无关**；格数口径以 §27 为准 |
+| 3 | `:28` 勘误行（2026-10-19） | 「现行口径 = **底栏恒 5 格、含未登录**」 | **已被 2026-10-24 裁定取代** ⇒ 底栏恒 **4 格**、含未登录（`T123`）；「含未登录」语义**不变** |
+| 4 | `:335` §2 token 表 | 「`--sea-tabbar-cols` \| `5` \| `SP:169 .tabbar{…repeat(5,1fr)}`」 | 紧随其后追加行：`--sf-st-tabbar-cols` = `4`、`SP:1192` |
+| 5 | `:437` §5 规则表 `T46` | 「底栏 Tab 恒为 **5 格**（`--sea-tabbar-cols`，`SP:169`）」 | 紧随其后追加行：`T46`〔2026-10-24 取代注〕**恒 4 格** |
+| 6 | `:532` §7 几何表 `.tabbar` | 「`grid-template-columns:repeat(5,1fr)`；FAB `46×46`…」 | 紧随其后追加行：`repeat(4,1fr)`（恒 4 格） |
+| 7 | `:821` 版本表 **v1.5** 行 | 「复**恒 5 格（`T46` 不破）**」+「`卖闲置`→`/listing/new`（sell）」 | **已被取代**：恒 4 格；`sell` **不在底栏**（路由 `/item/new` 保留、入口在浮菜单）；**本行只对该 v1.5 行加指针、旧字一字未改** |
+| 8 | `:1066` §14.1 `T80` 行 | 「**底栏（H5）恒 5 格**…五项 key 清单…五项图标清单」 | 紧随其后追加行：`T80`〔2026-10-24 取代注〕**恒 4 格** + 四项 key/图标清单 |
+
+- **未改写旧字的自证**：本单 `git diff --numstat` 的**删除列 = 0**（§27 全部为追加行；六处就地「改」均以**紧随其后的追加行**实现）。
+- **未列入改写面**：`docs/route-layer.spec.md`（路由未变，`/item/new` 一直在）· `docs/seafood.master-plan.md`（Kong 已写 §5.451）· i18n 四语 JSON（零键变更）。
+
+### 27.10 未核实 / 未测（诚实清单）
+
+| # | 项 | 状态 | 说明 |
+|---|---|---|---|
+| 1 | 真机（iOS Safari / Android Chrome）底栏 4 格渲染 | **`NOT_MEASURED`（本笔）** | 本笔只登记 `5a91d0e` 同批实测的 390 视口读数；真机由 Kevin / Kong 用 5800 局域网入口核 |
+| 2 | 320 / 375 档四等宽与末格贴右 | **`NOT_MEASURED`（本笔）** | 结构上等比（`1fr × 4`），但本笔未逐档实测 |
+| 3 | `≤767` 浮菜单隐藏面的连带影响 | 现取 = 无 | 浮菜单仍按 767 断点隐藏（`T81` 不变），本单未动其可见性 |
+| 4 | 底栏「无【卖闲置】」对移动端发布路径的可达性 | **已给替代落点** | 移动端发布入口 = 浮菜单在 `≤767` **隐藏** ⇒ **移动档发布入口需另核**：现取 `Header` 移动面板 / 首页是否有发布入口**本笔未逐条核实**（**列为待查**，若确无则应另立单，不在本册自选方案） |
+
