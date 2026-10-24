@@ -1,0 +1,794 @@
+{
+  "meta": {
+    "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+    "origin": "http://sf.local",
+    "startedAt": "2026-10-24T05:59:37.211Z",
+    "fixture": "in-page route interception (zero backend / zero db write)"
+  },
+  "states": {
+    "nav": {
+      "present": true,
+      "hookOrder": [
+        "profile-nav-assets",
+        "profile-nav-trades",
+        "profile-nav-published",
+        "profile-nav-sold",
+        "profile-nav-bought",
+        "profile-nav-favorites",
+        "profile-nav-invite",
+        "profile-nav-settings"
+      ],
+      "itemOrder": [
+        "我的资产",
+        "我的置换我发布的我卖出的我买到的",
+        "我发布的",
+        "我卖出的",
+        "我买到的",
+        "我的收藏",
+        "我的邀请",
+        "账户设置"
+      ],
+      "inviteLabel": "我的邀请",
+      "inviteHref": "/profile/invite"
+    },
+    "unbound": {
+      "beforePaste": {
+        "present": true,
+        "title": "我的邀请",
+        "text": "我的邀请输入邀请人的 6 位数字编号（不足 6 位前面补 0，例如 000100）邀请人编号绑定",
+        "cellCount": 6,
+        "cells": [
+          {
+            "hook": "invite-otp-cell-0",
+            "value": "",
+            "disabled": false,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          },
+          {
+            "hook": "invite-otp-cell-1",
+            "value": "",
+            "disabled": false,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          },
+          {
+            "hook": "invite-otp-cell-2",
+            "value": "",
+            "disabled": false,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          },
+          {
+            "hook": "invite-otp-cell-3",
+            "value": "",
+            "disabled": false,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          },
+          {
+            "hook": "invite-otp-cell-4",
+            "value": "",
+            "disabled": false,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          },
+          {
+            "hook": "invite-otp-cell-5",
+            "value": "",
+            "disabled": false,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          }
+        ],
+        "digits": "",
+        "submit": {
+          "present": true,
+          "disabled": true,
+          "text": "绑定"
+        },
+        "bound": {
+          "present": false,
+          "uid": null,
+          "text": null,
+          "hint": null
+        },
+        "error": {
+          "present": false
+        },
+        "hasOkText": false,
+        "loading": false
+      },
+      "afterPaste": {
+        "present": true,
+        "title": "我的邀请",
+        "text": "我的邀请输入邀请人的 6 位数字编号（不足 6 位前面补 0，例如 000100）邀请人编号绑定",
+        "cellCount": 6,
+        "cells": [
+          {
+            "hook": "invite-otp-cell-0",
+            "value": "0",
+            "disabled": false,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          },
+          {
+            "hook": "invite-otp-cell-1",
+            "value": "0",
+            "disabled": false,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          },
+          {
+            "hook": "invite-otp-cell-2",
+            "value": "0",
+            "disabled": false,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          },
+          {
+            "hook": "invite-otp-cell-3",
+            "value": "1",
+            "disabled": false,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          },
+          {
+            "hook": "invite-otp-cell-4",
+            "value": "0",
+            "disabled": false,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          },
+          {
+            "hook": "invite-otp-cell-5",
+            "value": "0",
+            "disabled": false,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          }
+        ],
+        "digits": "000100",
+        "submit": {
+          "present": true,
+          "disabled": false,
+          "text": "绑定"
+        },
+        "bound": {
+          "present": false,
+          "uid": null,
+          "text": null,
+          "hint": null
+        },
+        "error": {
+          "present": false
+        },
+        "hasOkText": false,
+        "loading": false
+      },
+      "calls": [
+        "GET /api/referral/me"
+      ]
+    },
+    "success": {
+      "pane": {
+        "present": true,
+        "title": "我的邀请",
+        "text": "我的邀请已绑定邀请人 000100邀请人一经绑定不可更改，如需调整请联系客服。",
+        "cellCount": 6,
+        "cells": [
+          {
+            "hook": "invite-otp-cell-0",
+            "value": "0",
+            "disabled": true,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          },
+          {
+            "hook": "invite-otp-cell-1",
+            "value": "0",
+            "disabled": true,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          },
+          {
+            "hook": "invite-otp-cell-2",
+            "value": "0",
+            "disabled": true,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          },
+          {
+            "hook": "invite-otp-cell-3",
+            "value": "1",
+            "disabled": true,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          },
+          {
+            "hook": "invite-otp-cell-4",
+            "value": "0",
+            "disabled": true,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          },
+          {
+            "hook": "invite-otp-cell-5",
+            "value": "0",
+            "disabled": true,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          }
+        ],
+        "digits": "000100",
+        "submit": {
+          "present": false
+        },
+        "bound": {
+          "present": true,
+          "uid": "000100",
+          "text": "已绑定邀请人 000100邀请人一经绑定不可更改，如需调整请联系客服。",
+          "hint": "邀请人一经绑定不可更改，如需调整请联系客服。"
+        },
+        "error": {
+          "present": false
+        },
+        "hasOkText": false,
+        "loading": false
+      },
+      "toast": {
+        "hostPresent": false,
+        "hits": [
+          {
+            "tag": "div",
+            "role": null,
+            "ariaLive": null,
+            "text": "邀请人绑定成功",
+            "inToastHost": false
+          },
+          {
+            "tag": "div",
+            "role": null,
+            "ariaLive": null,
+            "text": "邀请人绑定成功",
+            "inToastHost": false
+          },
+          {
+            "tag": "div",
+            "role": null,
+            "ariaLive": null,
+            "text": "邀请人绑定成功",
+            "inToastHost": false
+          },
+          {
+            "tag": "div",
+            "role": "status",
+            "ariaLive": "polite",
+            "text": "邀请人绑定成功",
+            "inToastHost": false
+          }
+        ],
+        "textAll": [
+          "邀请人绑定成功"
+        ]
+      },
+      "bindBody": {
+        "inviter_uid": 100
+      },
+      "calls": [
+        "POST /api/referral/bind",
+        "GET /api/referral/me"
+      ]
+    },
+    "failure409": {
+      "pane": {
+        "present": true,
+        "title": "我的邀请",
+        "text": "我的邀请输入邀请人的 6 位数字编号（不足 6 位前面补 0，例如 000100）邀请人编号绑定绑定失败：编号不存在、不能绑定自己，或该账号已绑定邀请人。",
+        "cellCount": 6,
+        "cells": [
+          {
+            "hook": "invite-otp-cell-0",
+            "value": "0",
+            "disabled": false,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          },
+          {
+            "hook": "invite-otp-cell-1",
+            "value": "0",
+            "disabled": false,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          },
+          {
+            "hook": "invite-otp-cell-2",
+            "value": "0",
+            "disabled": false,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          },
+          {
+            "hook": "invite-otp-cell-3",
+            "value": "1",
+            "disabled": false,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          },
+          {
+            "hook": "invite-otp-cell-4",
+            "value": "0",
+            "disabled": false,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          },
+          {
+            "hook": "invite-otp-cell-5",
+            "value": "0",
+            "disabled": false,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          }
+        ],
+        "digits": "000100",
+        "submit": {
+          "present": true,
+          "disabled": false,
+          "text": "绑定"
+        },
+        "bound": {
+          "present": false,
+          "uid": null,
+          "text": null,
+          "hint": null
+        },
+        "error": {
+          "present": true,
+          "role": "alert",
+          "text": "绑定失败：编号不存在、不能绑定自己，或该账号已绑定邀请人。"
+        },
+        "hasOkText": false,
+        "loading": false
+      },
+      "toast": {
+        "hostPresent": false,
+        "hits": [],
+        "textAll": []
+      },
+      "bindBody": {
+        "inviter_uid": 100
+      },
+      "calls": [
+        "GET /api/referral/me",
+        "POST /api/referral/bind"
+      ]
+    },
+    "bound": {
+      "pane": {
+        "present": true,
+        "title": "我的邀请",
+        "text": "我的邀请已绑定邀请人 000100邀请人一经绑定不可更改，如需调整请联系客服。",
+        "cellCount": 6,
+        "cells": [
+          {
+            "hook": "invite-otp-cell-0",
+            "value": "0",
+            "disabled": true,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          },
+          {
+            "hook": "invite-otp-cell-1",
+            "value": "0",
+            "disabled": true,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          },
+          {
+            "hook": "invite-otp-cell-2",
+            "value": "0",
+            "disabled": true,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          },
+          {
+            "hook": "invite-otp-cell-3",
+            "value": "1",
+            "disabled": true,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          },
+          {
+            "hook": "invite-otp-cell-4",
+            "value": "0",
+            "disabled": true,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          },
+          {
+            "hook": "invite-otp-cell-5",
+            "value": "0",
+            "disabled": true,
+            "inputMode": "numeric",
+            "w": 44,
+            "h": 52
+          }
+        ],
+        "digits": "000100",
+        "submit": {
+          "present": false
+        },
+        "bound": {
+          "present": true,
+          "uid": "000100",
+          "text": "已绑定邀请人 000100邀请人一经绑定不可更改，如需调整请联系客服。",
+          "hint": "邀请人一经绑定不可更改，如需调整请联系客服。"
+        },
+        "error": {
+          "present": false
+        },
+        "hasOkText": false,
+        "loading": false
+      },
+      "calls": [
+        "GET /api/referral/me"
+      ]
+    },
+    "mobile": {
+      "w390": {
+        "snapshot": {
+          "overflowPx": 0,
+          "offenders": [
+            {
+              "sel": "div.sf-prof-nav-group",
+              "right": 444,
+              "inScrollHost": "sf-prof-nav"
+            },
+            {
+              "sel": "a.sf-prof-link",
+              "right": 437,
+              "inScrollHost": "sf-prof-nav"
+            },
+            {
+              "sel": "a.sf-prof-link",
+              "right": 530,
+              "inScrollHost": "sf-prof-nav"
+            },
+            {
+              "sel": "a.sf-prof-link.is-active",
+              "right": 616,
+              "inScrollHost": "sf-prof-nav"
+            },
+            {
+              "sel": "a.sf-prof-link",
+              "right": 702,
+              "inScrollHost": "sf-prof-nav"
+            }
+          ],
+          "pane": {
+            "present": true,
+            "title": "我的邀请",
+            "text": "我的邀请输入邀请人的 6 位数字编号（不足 6 位前面补 0，例如 000100）邀请人编号绑定",
+            "cellCount": 6,
+            "cells": [
+              {
+                "hook": "invite-otp-cell-0",
+                "value": "",
+                "disabled": false,
+                "inputMode": "numeric",
+                "w": 44,
+                "h": 48
+              },
+              {
+                "hook": "invite-otp-cell-1",
+                "value": "",
+                "disabled": false,
+                "inputMode": "numeric",
+                "w": 44,
+                "h": 48
+              },
+              {
+                "hook": "invite-otp-cell-2",
+                "value": "",
+                "disabled": false,
+                "inputMode": "numeric",
+                "w": 44,
+                "h": 48
+              },
+              {
+                "hook": "invite-otp-cell-3",
+                "value": "",
+                "disabled": false,
+                "inputMode": "numeric",
+                "w": 44,
+                "h": 48
+              },
+              {
+                "hook": "invite-otp-cell-4",
+                "value": "",
+                "disabled": false,
+                "inputMode": "numeric",
+                "w": 44,
+                "h": 48
+              },
+              {
+                "hook": "invite-otp-cell-5",
+                "value": "",
+                "disabled": false,
+                "inputMode": "numeric",
+                "w": 44,
+                "h": 48
+              }
+            ],
+            "digits": "",
+            "submit": {
+              "present": true,
+              "disabled": true,
+              "text": "绑定"
+            },
+            "bound": {
+              "present": false,
+              "uid": null,
+              "text": null,
+              "hint": null
+            },
+            "error": {
+              "present": false
+            },
+            "hasOkText": false,
+            "loading": false
+          },
+          "nav": {
+            "present": true,
+            "hookOrder": [
+              "profile-nav-assets",
+              "profile-nav-trades",
+              "profile-nav-published",
+              "profile-nav-sold",
+              "profile-nav-bought",
+              "profile-nav-favorites",
+              "profile-nav-invite",
+              "profile-nav-settings"
+            ],
+            "itemOrder": [
+              "我的资产",
+              "我的置换我发布的我卖出的我买到的",
+              "我发布的",
+              "我卖出的",
+              "我买到的",
+              "我的收藏",
+              "我的邀请",
+              "账户设置"
+            ],
+            "inviteLabel": "我的邀请",
+            "inviteHref": "/profile/invite"
+          }
+        },
+        "pageErrors": [],
+        "consoleErrors": []
+      },
+      "w767": {
+        "snapshot": {
+          "overflowPx": 0,
+          "offenders": [],
+          "pane": {
+            "present": true,
+            "title": "我的邀请",
+            "text": "我的邀请输入邀请人的 6 位数字编号（不足 6 位前面补 0，例如 000100）邀请人编号绑定",
+            "cellCount": 6,
+            "cells": [
+              {
+                "hook": "invite-otp-cell-0",
+                "value": "",
+                "disabled": false,
+                "inputMode": "numeric",
+                "w": 104.2,
+                "h": 48
+              },
+              {
+                "hook": "invite-otp-cell-1",
+                "value": "",
+                "disabled": false,
+                "inputMode": "numeric",
+                "w": 104.2,
+                "h": 48
+              },
+              {
+                "hook": "invite-otp-cell-2",
+                "value": "",
+                "disabled": false,
+                "inputMode": "numeric",
+                "w": 104.2,
+                "h": 48
+              },
+              {
+                "hook": "invite-otp-cell-3",
+                "value": "",
+                "disabled": false,
+                "inputMode": "numeric",
+                "w": 104.2,
+                "h": 48
+              },
+              {
+                "hook": "invite-otp-cell-4",
+                "value": "",
+                "disabled": false,
+                "inputMode": "numeric",
+                "w": 104.2,
+                "h": 48
+              },
+              {
+                "hook": "invite-otp-cell-5",
+                "value": "",
+                "disabled": false,
+                "inputMode": "numeric",
+                "w": 104.2,
+                "h": 48
+              }
+            ],
+            "digits": "",
+            "submit": {
+              "present": true,
+              "disabled": true,
+              "text": "绑定"
+            },
+            "bound": {
+              "present": false,
+              "uid": null,
+              "text": null,
+              "hint": null
+            },
+            "error": {
+              "present": false
+            },
+            "hasOkText": false,
+            "loading": false
+          },
+          "nav": {
+            "present": true,
+            "hookOrder": [
+              "profile-nav-assets",
+              "profile-nav-trades",
+              "profile-nav-published",
+              "profile-nav-sold",
+              "profile-nav-bought",
+              "profile-nav-favorites",
+              "profile-nav-invite",
+              "profile-nav-settings"
+            ],
+            "itemOrder": [
+              "我的资产",
+              "我的置换我发布的我卖出的我买到的",
+              "我发布的",
+              "我卖出的",
+              "我买到的",
+              "我的收藏",
+              "我的邀请",
+              "账户设置"
+            ],
+            "inviteLabel": "我的邀请",
+            "inviteHref": "/profile/invite"
+          }
+        },
+        "pageErrors": [],
+        "consoleErrors": []
+      }
+    }
+  },
+  "assertions": {
+    "nav": {
+      "navPresent": true,
+      "inviteHookPresent": true,
+      "inviteBetweenFavoritesAndSettings": true,
+      "inviteLabelIsInvite": true,
+      "favoritesLabelIntact": true,
+      "settingsLabelIntact": true,
+      "inviteHrefLocalized": true
+    },
+    "unbound": {
+      "panePresent": true,
+      "titleIsInvite": true,
+      "sixCells": true,
+      "cellsEditable": true,
+      "cellsNumericInputMode": true,
+      "submitHiddenBefore6": true,
+      "pasteFillsAllSix": true,
+      "submitEnabledAfterPaste": true,
+      "noErrorBeforeSubmit": true
+    },
+    "success": {
+      "postSent": true,
+      "inviterUidParsed": true,
+      "toastShown": true,
+      "toastNotInsidePane": true,
+      "noInlineSuccessText": true,
+      "noInlineSuccessHook": true,
+      "meReloadedAfterBind": true,
+      "boundUidPadded": true,
+      "cellsClearedAfterBind": true
+    },
+    "failure409": {
+      "postSent": true,
+      "inlineAlertShown": true,
+      "inlineTextIsInviteErr": true,
+      "inlineHidesMachineCode": true,
+      "noToast": true,
+      "noOkTextAnywhere": true,
+      "paneStillInteractive": true,
+      "cellsKept": true,
+      "zeroPageError": true
+    },
+    "bound": {
+      "boundBlockShown": true,
+      "boundTextHasLabel": true,
+      "boundUidZeroPadded": true,
+      "sixCellsShown": true,
+      "cellsAllDisabled": true,
+      "cellsReadShowBoundUid": true,
+      "noSubmitButton": true,
+      "hintShown": true,
+      "zeroPageError": true
+    },
+    "desktop1536": {
+      "zeroOverflow": true,
+      "noOffenders": true,
+      "zeroPageError": true,
+      "zeroConsoleError": true
+    },
+    "mobile390": {
+      "sixCells": true,
+      "zeroOverflow": true,
+      "noOffenders": true,
+      "offscreenInsideScrollHost": 5,
+      "eachCellAtLeast44": true,
+      "zeroPageError": true,
+      "inviteInNav": true
+    },
+    "mobile767": {
+      "sixCells": true,
+      "zeroOverflow": true,
+      "noOffenders": true,
+      "offscreenInsideScrollHost": 0,
+      "eachCellAtLeast44": true,
+      "zeroPageError": true,
+      "inviteInNav": true
+    }
+  },
+  "summary": {
+    "checks": 59,
+    "passed": 59,
+    "failed": [],
+    "pageErrors": 0,
+    "verdict": "PASS"
+  },
+  "finishedAt": "2026-10-24T05:59:42.426Z"
+}

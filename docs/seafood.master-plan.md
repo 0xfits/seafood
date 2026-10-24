@@ -4,6 +4,8 @@
 > 本文件是**唯一进度真源**（living plan）。每期开工前由 Jing 出 `docs/*.spec.md` 冻结口径，本文件只记阶段/派单/验收，不记实现细节。
 > ★ **版本行 = `v0.367`（2026-10-22）** —— 做市架构 **P1 / P2 / P3** 分期裁定入册：**P2（WS 行情 / post-only·IOC / maker-taker 费率分离 / MM 独立限频）列入未来建设计划、暂不实施**；三段摘要见 **§6 末「做市架构分期」**，挂账见 `docs/OPEN-ITEMS.md` **`B45`**（本行上方 `v0.2` 为初版行、逐字保留不动）
 
+> ★ **版本行 = `v0.388`（2026-10-24）** —— **【我的邀请】上线**（用户自助绑定邀请人：两端口 `GET /api/referral/me` + `POST /api/referral/bind` ＋ 前端路由 `/profile/invite` ＋ OTP 6 格输入形态；一次性、不可改绑；`depth` 由 DB 触发器算、`create_key` 只校验不消费）；三段摘要见 **§5.469**，契约见 `route-layer.spec` **v2.55 §49.27** + `design-system.spec` **v1.38 §39（`T138`）**
+
 ---
 
 ## 0. 一句话定位
@@ -1415,6 +1417,20 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 **D. 我裁的口径（一句话可改）**：① **批 7 =「用户可见读口」线**，首单只做 `/api/user/ledger`；② **`/api/user/points` 暂不注册** —— 前端现无消费方（现走 `/api/user/asset/:uID`），不造**无人消费的空路径**（本册 §1.2 补强的同一理由）；③ **装饰性切角与 legacy 硬阴影不并入本批**（审美面，需 Kevin 口径）；④ **本批不 `commit`/`push`**，由我验收后入库 —— **注意本仓推送即上线**。
 
+
+### 5.469 ★★ **【我的邀请】上线** = 用户**自助绑定邀请人**（两端口 `GET /api/referral/me` + `POST /api/referral/bind` · 前端路由 `/profile/invite` · OTP 6 格输入形态 · 注册点 `116 → 118` · 零新错误码 · 零迁移/零 DDL）· 2026-10-24 · **v0.388** · 纯追加
+
+**A. 依据**：Kevin 2026-10-24 需求「我的邀请」—— 用户自行填写邀请人 6 位数字编号（不足补 0，如 `000100`）一次性绑定；**一人一次、不可改绑**（改绑无端点、无 UI）。
+
+**B. 本笔产出**：后端新增 2 条注册路径（`backend-ts/src/referral-service.ts` + `index.ts` 接线，**注册点 `116` → `118`**）；前端新增 `profile/invite` 一条受闸路由（同一 `ProfilePage`，左栏菜单位于「我的收藏」与「账户设置」**之间**）+ `OtpInput` 6 格组件 + `referral-api.js` + 四语 i18n 8 键。契约正文 = `route-layer.spec` **v2.55 §49.27**；形态 / 菜单位置 = `design-system.spec` **v1.38 §39（`T138` 家族）**。
+
+**C. 端点契约（现取）**：`GET /api/referral/me` ⇒ `data = {bound, parent_uid, bound_at, depth}`（未绑后三项 `null`）；`POST /api/referral/bind` ⇒ body `{inviter_uid: number, create_key?: string}`，回执 `{parent_uid, depth, bound_at}`；闸一律 `requireActor`（登录用户，**零新增权限码**）。**错误码零新增**（33 码闭集不动）：`REFERRAL_ALREADY_BOUND` / `REFERRAL_SELF_BIND` / `REFERRAL_PARENT_NOT_FOUND` / `REFERRAL_BIND_REJECTED_BY_GUARD` / `NOT_A_POSITIVE_INTEGER` 五条机读 `details.reason` + `create_key` 形态四值，全部挂既有码。
+
+**D. 两条实现口径（跨册登记）**：① **`depth` 由 DB 触发器算**（`0011` §B⑦ `trg_referral_cycle_guard`：`NEW.depth := 1 + COALESCE(v_parent_stored_depth, 0)`）—— 单测里后端两端口与 depth 均由触发器返回，**应用层零参与**（不算、不传、不回写；`CR16` 不改）；② **`create_key` 只做形态校验、不消费** —— 理由：`referral.child_uid` 主键已提供天然幂等，重复绑定落 `409`；若消费键会把「重复绑定」误判为「同键重放」而放宽 409。
+
+**E. 门读数（本笔现取）**：unit **104 files / 1171 tests / 0 failed** · a11y **1 file / 16 tests** · components **2 files / 14 tests** · build **exit 0** ⇒ `index-CFtJeqEX.js` **644,886 B** / `index-B8_-5uN9.css` **192,737 B** · 真浏览器探针 **59 checks / 59 passed / pageerror 0**（`ops/profile-invite/probe-profile-invite.mjs` ⇒ `ops/profile-invite/readings/probe-profile-invite.json`，夹具拦截 POST、**生产库零写入**）。
+
+**F. 挂账（如实）**：生产 `/api/referral/me` 与 `/api/referral/bind` 的无 token 探针应在 push 后核 `401`；`ops/uid-renumber-2026-10-24/**` 的两处既存改动**非本单**、未纳入本笔提交。
 
 ### 5.468 ★★ **uid 规范化迁移契约冻结** —— 真实账号 `970213 → 100100` · 193 个 mock 重编 `1000–1192` · 序列重启 `100101` · **31 处 FK ＋ `ledger_entry` / `account` 级联重写**（单事务 · 两相 offset · FK deferrable）· append-only 触发器临时禁用/恢复 · 备份/回滚/15 条判负/四关授权链 · 2026-10-24 · **v0.387** · 纯追加
 

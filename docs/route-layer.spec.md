@@ -455,6 +455,9 @@
 > **v2.53 修订入口**：逐条 delta → 依据锚点 → 改动点 = **本册 §49.26**（**不建独立 delta 件**，承 v2.29–v2.52 先例）；姊妹册 = `seafood.master-plan` **§5.465 / 版本行 v0.384** + `docs/design/design-system.spec.md` **v1.36 §37（`T136`）**。**本笔含 3 行就地状态改写**（§44.5 三计数前两行前推，旧值行内留痕、无一处整行删除）。
 > **★★ v2.53 本单要点（先说结论，不含糊）**：① **一页拆成四块、各归其位**（积分 / 用户 / 电量 / 设置）；② **新路由一条** `/dashboard/power`（新组件 `pages/admin/PowerPage.jsx`，标题「电量」复用 `battCard.title` ⇒ **零新增 i18n 键**），**旧段一条 redirect**；③ **两组装删除**（`batt_policy` / `checkin_policy`），**四语键保留**（`adminSiteText.policyBatt` / `policyCheckin` 及 9 个字段标签登记为孤儿）；④ **计数前推** `46 / 38 / 26` ⇒ **`47 / 39 / 26`**（§44.5 前两行就地前推、旧值留痕；第三数 ±0 = 改动全在 `/dashboard` 父段内的嵌套段）；**★ 2026-10-24 收口（旧值留痕）**：改前读数 `102 / 1139`（build `index-CZSLqN9o.js` 636,785 B）⇒ **收口后** unit **102 files / 1143 tests / 0 failed** · a11y **1 / 16** · components **2 / 14** · build **exit 0** ⇒ `index-DDfED5f2.js` **636,988 B** / `index-N4cMn6Lr.css` **190,954 B**（CSS 名与字节未变）。
 > **★ 现行版 = v2.54（2026-10-24 · **实现轮补登 · 零代码 / 零删行**）**：**① §49.25.2 注册点 `114 → 116`**（旧值 `114 → 115` 只算动作口；实现轮同批落**配套读口** `GET /api/admin/currency/status`，闸 `manage_settings`、`data` 恰 4 键 `{cid,symbol,status,listed_at}` ⇒ 细则见**新增 §49.25.11**；**旧读口 `GET /api/admin/currency` 的 `review_tasks` 闸一字未动**）；**② §49.25.5 `$` 拦截已改判 = 目标侧断言**（`cid == 1 && to !== 'listed'` ⇒ `409 LD011` + `reason=SYSTEM_CURRENCY_IMMUTABLE`；旧句「入口第一道闸 = `assertSystemCurrencyImmutable(cur)`」**逐字保留** —— 该助手只判当前态、`$` 种子恒 `listed` ⇒ 永不触发）；**③ §49.25.8 三个 `details.reason` 登记**（`SYSTEM_CURRENCY_IMMUTABLE` / `CURRENCY_STATE_INVALID` / `PHASE_A_CANCEL_FAILED`，**非闭集 · 零新增码 · 33 码不动**）；**④ §49.25.5 竞态已知限制挂账**（下单侧 `0016_market.sql:556/561` 读 `currency` 不加锁 ⇒ Phase A 后 / Phase B 前新挂单可漏检；加固 = 下单分支 `FOR SHARE`，**另开单**）。仿姊妹册 = `seafood.master-plan` **§5.467 / v0.386** + `ledger.spec` **§19.20.A 追加** + `design-system.spec` **§36 读口已裁 (a)**。
+> **状态：v2.55（行为变更 · **【我的邀请】上线 = 用户自助绑定邀请人（两端口 ＋ 1 条前端路由）** —— 新增 **`GET /api/referral/me`**（读绑定态）与 **`POST /api/referral/bind`**（一次性绑定），闸 = `requireActor`（登录用户，**零新增权限码**）；前端新增 **`profile/invite`** 一条受闸路由（同一个 `ProfilePage`，左栏菜单位于「我的收藏」与「账户设置」**之间**）；**零新错误码**（一律借既有码，`details.reason` 六条见 §49.27.3）· **零迁移 / 零 DDL / 零新守卫**（防环 / 已绑 / 已有下级 / 父 depth 一律用 `0010` / `0011` 既有闸）· i18n 新增 8 键（四语齐步）· 正文 = **§49.27**
+> **v2.55 修订入口**：逐条 delta → 依据锚点 → 改动点 = **本册 §49.27**（**不建独立 delta 件**，承 v2.29–v2.54 先例）；姊妹册 = `seafood.master-plan` **§5.469 / 版本行 v0.388** + `docs/design/design-system.spec.md` **v1.38 §39（`T138`）**。**本笔含 2 行就地状态改写**（§44.5「前端路由（字面）」与「后端注册点」两行的现值格），**旧值均行内留痕、无一处整行删除**。
+> **★★ v2.55 本单要点（先说结论，不含糊）**：① **两端口** —— `GET /api/referral/me` ⇒ `data = {bound, parent_uid, bound_at, depth}`（未绑 ⇒ 后三项 `null`）；`POST /api/referral/bind` ⇒ body `{inviter_uid: number, create_key?: string}`，回执 `{parent_uid, depth, bound_at}`；② **注册点 `116` → `118`**（`grep -cE '^app\.(get|post|put|patch|delete)\(' backend-ts/src/index.ts` 现取 = `118`）；③ **错误码零新增**（33 码闭集不动）：`REFERRAL_ALREADY_BOUND` / `REFERRAL_SELF_BIND` / `REFERRAL_PARENT_NOT_FOUND` / `REFERRAL_BIND_REJECTED_BY_GUARD` / `NOT_A_POSITIVE_INTEGER` 五条机读 `reason` + `create_key` 形态四值，**全部挂既有码**（§49.27.3 逐条对照）；④ **`depth` 由 DB 触发器算**（`0011` §B⑦ `trg_referral_cycle_guard`：`NEW.depth := 1 + COALESCE(v_parent_stored_depth, 0)`）—— **应用层零参与**（不算、不传、不回写；`CR16` 不改）；⑤ **`create_key` 只做形态校验、不消费**（理由：`referral.child_uid` 主键已提供天然幂等，消费键会把「重复绑定」误判为「同键重放」而放宽 409）；⑥ **一人一次、不可改绑**（改绑无端点、无 UI）；⑦ **门读数（本笔现取）** = unit **104 files / 1171 tests / 0 failed** · a11y **1 / 16** · components **2 / 14** · build **exit 0** ⇒ `index-CFtJeqEX.js` **644,886 B** / `index-B8_-5uN9.css` **192,737 B** · 真浏览器探针 **59/59 PASS**（`ops/profile-invite/readings/probe-profile-invite.json`）。
 
 > **v2.19 修订入口**：逐条 delta → 依据锚点 → 改动点 = `docs/audit/route-layer-v2.19-delta.md`（**同批姊妹册** = `docs/audit/data-layer-v0.26-delta.md` + `docs/audit/commission-v0.4-delta.md`）。**凡与 Zang 裁定冲突处，一律以 Zang 裁定为准**（本单为 P9⑤ 契约冻结；**未改写任何裁定、未发明任何路径 / 数值 / 权限键 / 文案值**）。**★ 姊妹册（同批）**：`docs/commission.spec.md` **v0.4 §19** + `docs/data-layer.spec.md` **v0.26 §34**，**本册不重抄其条文、只指路**。
 > **★★ v2.19 本单要点（先说结论，不含糊）**：① **零新用户面口**（邀请奖励 = 结算腿，无独立读 / 动作口）；② **后台配置面复用**（费率 + 6 项权重矩阵）；③ **注册点 `87 → 87`（+0）**；④ **权限键 11 键内（零增删）**；⑤ **错误码零新增 + `R107`**；⑥ **真生效四段（①③④ 段）**；⑦ **连带门改版**（`p8-s2` 8 键 / 守卫常量 / 页字段面随 `R-9-1` ⇒ 归实现单）。
@@ -8545,10 +8548,10 @@ CONSTRAINT admin_refund_audit_log_idem_uniq   UNIQUE (idempotency_key, result)  
 
 | 口径 | 现取命令 | 现值 | 本单影响 |
 |---|---|---|---|
-| 前端路由（字面） | `grep -cE '<Route' frontend/src/App.jsx` | **`47`**（**现取 2026-10-24 · v2.53 前推** · 旧值 **`46`**〔v2.51–v2.52，逐字留痕〕 · 旧值 `48`〔v2.50〕/ `44`〔v2.47–v2.49〕/ `42` 留痕） | **+1**（v2.53：删 `site-text` 一条受闸 `<Route>`、增 `site-text` redirect 一条 + 新增 `power` 一条 ⇒ 净 `+1`；旧 `−2`（v2.51 删两条 `<Route>`）与 `+4`〔v2.50 净增〕留痕；含 **2 行注释散文**含字面 `<Route`；承 §40.2 注释污染口径） ※ 相对旧值 **+6** = v2.47 −1 ＋ 其后各节新增累计 ＋ **v2.50 +4**（交易所管理壳内 index + 3 子路由）；明细见 **§49.20.3 / §49.23.6** |
+| 前端路由（字面） | `grep -cE '<Route' frontend/src/App.jsx` | **`48`**（**现取 2026-10-24 · v2.55 前推** · 旧值 **`47`**〔v2.53〕/ `46`〔v2.51–v2.52，逐字留痕〕 · 旧值 `48`〔v2.50〕/ `44`〔v2.47–v2.49〕/ `42` 留痕） | **+1**（**v2.55：新增 `profile/invite` 一条受闸路由**；v2.53：删 `site-text` 一条受闸 `<Route>`、增 `site-text` redirect 一条 + 新增 `power` 一条 ⇒ 净 `+1`；旧 `−2`（v2.51 删两条 `<Route>`）与 `+4`〔v2.50 净增〕留痕；含 **2 行注释散文**含字面 `<Route`；承 §40.2 注释污染口径） ※ 相对旧值 **+6** = v2.47 −1 ＋ 其后各节新增累计 ＋ **v2.50 +4**（交易所管理壳内 index + 3 子路由）；明细见 **§49.20.3 / §49.23.6** |
 | 前端路由（精确） | `grep -oE '<Route[ >]' frontend/src/App.jsx \| wc -l` | **`39`**（**现取 2026-10-24 · v2.53 前推** · 旧值 **`38`**〔v2.51–v2.52，逐字留痕〕 · 旧值 `40`〔v2.50〕/ `36`〔v2.47–v2.49〕/ `34` 留痕） | **+1**（v2.53 同上：`site-text` 受闸行 −1、redirect 行 +1、`power` 行 +1；旧 `−2`（v2.51）与 `+4`〔v2.50〕留痕；**多行开写法系统性不计入** = §40.3 / §42.5 已登记盲点） ※ 相对旧值 **+6** = v2.47 −1 ＋ 增量累计 ＋ **v2.50 +4**；明细见 **§49.20.3 / §49.23.6** |
 | 前端内层逐段 | 内层 `<Routes>` 内逐段清点 | **`26`**（**现取 2026-10-24 · v2.53 复核仍 `26`** · **v2.53 的增删全在 `/dashboard` 父段内（嵌套段不入本口径）⇒ ±0**；旧记 `26` 见 v2.51 · 旧记 `20`〔16 单行 + 4 多行〕留痕；**v2.50 复核仍 `26`**；**v2.51 删的两条是 `/dashboard` 父段下的嵌套段 ⇒ 不入本口径、数值不变**） | **±0** ※ 相对旧值 **+6** = v2.47 −1 ＋ 增量累计（`exchange` 三条子路由是**嵌套段**、不计入内层逐段口径）；明细见 **§49.20.3 / §49.23.6** |
-| 后端注册点 | `grep -cE '^app\.(get\|post\|put\|delete\|patch)\(' backend-ts/src/index.ts` | **`105`**（get 45 / post 56 / put 0 / delete 3 / patch 1） | **±0**（`AC10-2` 冻结面 `backend-ts/scripts/p7b-03-offline-gates.ts:145` 现取 = `regs === 105`，**已到位**） |
+| 后端注册点 | `grep -cE '^app\.(get\|post\|put\|delete\|patch)\(' backend-ts/src/index.ts` | **`118`**（**现取 2026-10-24 · v2.55 前推**；get 52 / post 59 / put 0 / delete 3 / patch 4 · 旧值 **`116`**〔v2.54〕/ **`105`**〔v2.53 时点读数 —— v2.50–v2.54 期间本行未同步，本笔**如实补登**〕留痕） | **+2**（v2.55：`GET /api/referral/me` + `POST /api/referral/bind`）；旧「**±0**（`AC10-2` 冻结面 `backend-ts/scripts/p7b-03-offline-gates.ts:145` 现取 = `regs === 105`，**已到位**）」为 v2.53 时点口径、逐字留痕 |
 
 - **判负**：任一计数发生变化（新增/删除 `<Route` 或注册行）⇒ 判负；**不得**以路由别名 / `app.use` 挂载 / 查询参数伪装成「零新增」绕过计数口径（§40.2 口径连续性）。
 - **★ 与 v2.27 §37.3 的对照（诚实登记）**：§37.3 当时记「落地后 `35 → 36`」「注册点仍 `89`」—— 该两读数为**当时点**；**现行口径以本节现取为准**（`42/34/20` 与 `105`）；**该三数已于 2026-10-24 前推为 `44 / 36 / 26`**（本笔删 1 条单行 `<Route path="task/review">` ⇒ 三相各 −1；明细见 §49.20.3）；**v2.50（2026-10-24）同批再前推为 `48 / 40 / 26`**（交易所管理收 Tab 模块 ⇒ 前两数 +4、内侧逐段清点仍 `26`；旧值 `44 / 36 / 26` 就地留痕；明细见 **§49.23.6**）
@@ -10860,3 +10863,87 @@ ORDER BY score DESC, l.time_created DESC, l.listing_id DESC
 5. 品牌行仍是纯文本（不可点）/ `href` 无语言前缀 / 出现位移类 hover 类 / 出现 `Jinli Admin` ⇒ 判负。
 6. 新增 i18n 键 / 删除 `adminSiteText` 既有键 / 新增权限码 / 后端改动 ⇒ 判负。
 - **`NOT_MEASURED`**：真浏览器（1440 / 768 / 390 三档）视觉走查**未跑**（本笔只跑 jsdom 单测 + a11y/components + build）；生产 `curl` 核验见同一提交的报告（`dashboard/power` ≥1、`Seafood Admin` ≥1、站点文案项 0）；侧栏**折叠态**（`sidebarOpen=false`）下品牌链接的可点击面积**未几何实测**（仅保证仍是同一 `<Link>`）。
+
+
+### 49.27 【我的邀请】= 用户**自助绑定邀请人**（两端口 ＋ 1 条前端路由 · **注册点 `116` → `118`** · **零新错误码** · 零迁移 · 零 DDL）· 2026-10-24 · **v2.55**（行为变更 ⇒ 升版；头注**追加** v2.55 状态块，接放于 v2.54 块之后）· 本笔**含 2 行就地状态改写**（§44.5 前端字面行 + 后端注册点行；旧值行内留痕、无一处整行删除）
+
+#### 49.27.1 端点契约（两端口 · 现取）
+
+| # | 方法 / 路径 | 闸 | 入参 | `data`（成功回执） | 真源（现取） |
+|---|---|---|---|---|---|
+| 1 | `GET /api/referral/me` | `requireActor`（登录用户；**零新增权限码**） | 无 | `{bound, parent_uid, bound_at, depth}` —— 未绑 ⇒ `bound=false` + 后三项 `null` | `backend-ts/src/index.ts:2816`；服务层 `referral-service.ts:93` `getMyReferral` |
+| 2 | `POST /api/referral/bind` | 同上 | body `{inviter_uid: number, create_key?: string}`（**除这两键外一律忽略**） | `{parent_uid, depth, bound_at}`；`message = 'Referral bound'` | `backend-ts/src/index.ts:2828`；服务层 `referral-service.ts:116` `bindMyReferral` |
+
+- **`depth` 不在入参**（`CR16` 不破）：本端口**不接受** `depth`、也不回写；回执里的 `depth` 是库算真值原样读回（口径见 §49.27.4①）。
+- **不可改绑**：无「改绑」端点、无 `PUT` / `PATCH`、无 UI 入口 —— 一人一次由 `referral.child_uid`（**主键**，`0007` §A）结构性保证。
+- **`parent_uid` 的补零**：`000100` ⇒ `100` 的**去前导零解析在前端 UI 层完成**（`frontend/src/pages/profile/InvitePane.jsx` `parseInviteUid`），本端口只收**正整数**；`0` / 负数 / 非整数 ⇒ §49.27.3 的形状闸。
+
+#### 49.27.2 注册点 `116` → `118`（现取）
+
+- 口径 = `grep -cE '^app\.(get|post|put|patch|delete)\(' backend-ts/src/index.ts` ⇒ **`118`**（get 52 / post 59 / put 0 / delete 3 / patch 4）。本节落地前 **`116`**（v2.54 现取）⇒ **本笔 +2**（读口 1 + 动作口 1）。
+- **§44.5 已就地前推**（旧值 `116` / `105` 行内留痕；`105` 是 v2.53 时点读数、v2.50–v2.54 期间该行未同步，本笔如实补登）。
+- **前端路由**：新增 **`profile/invite`** 一条（`App.jsx`，`<ProtectedRoute>` 族，同一个 `ProfilePage`）⇒ §44.5 **字面 `47` → `48`**；**精确计数 `39` 不变**（本条是多行开写法 `<Route` 换行，属 §40.3 / §42.5 已登记的**口径盲点**，非漏登）；**内层逐段 `26` 不变**（`profile` 属顶层段）。
+
+#### 49.27.3 错误码 / `details.reason` 清单（**零新增码 · 33 码闭集不动**）
+
+| `details.reason` | 借用的既有码 | HTTP | 触发点（先命中者先返回） |
+|---|---|---|---|
+| `NOT_A_POSITIVE_INTEGER` | `LEDGER_AMOUNT_INVALID`（`LD016`） | `400` | `inviter_uid` 缺失 / 非整数 / `< 1`（形状闸，**不查库**） |
+| `REFERRAL_SELF_BIND` | `LEDGER_AMOUNT_INVALID`（`LD016`） | `400` | `inviter_uid === actor.uid`（路由层先拦；库侧 `referral_no_self` CHECK 同义兜底） |
+| `REFERRAL_ALREADY_BOUND` | `LEDGER_IDEMPOTENCY_CONFLICT`（`LD003`） | `409` | 事务内预读已有 referral 行；或 `referral_bind` 的 `LD003` 分支（**同码同 reason**，与 DB 逐字同） |
+| `REFERRAL_PARENT_NOT_FOUND` | `LEDGER_REF_NOT_FOUND`（`LD022`） | `404` | `users.uid` 无该行 |
+| `REFERRAL_BIND_REJECTED_BY_GUARD` | `LEDGER_AMOUNT_INVALID`（`LD016`） | `400` | 库守卫拒绝（环 / 已有下级 / 父 `depth` 陈旧）；若驱动带来 PG `DETAIL` 里的 `REFERRAL_*` 则**透出该值**（仅放行 `REFERRAL_` 前缀） |
+| `TOO_LONG` / `PREFIX_REQUIRED` / `RESERVED_SEPARATOR` / `CONTROL_CHARACTER` | `LEDGER_IDEMPOTENCY_KEY_INVALID` | `400` | `create_key` 若给 ⇒ §4.5 形态校验四档（**校验后忽略，见 §49.27.4②**） |
+
+- **护栏不破**：机读 `reason` / `code` **不进用户可见文案**（前端失败一律一句可读文案 `invite.err`；`reason` 只进 `data-sf-reason` 供探针取证）。
+- **未登录**：两端口均 `401 AUTH_UNAUTHORIZED`（`requireActor`，既有口径；生产核验以本条为判据）。
+
+#### 49.27.4 两条实现口径（**本笔登记，后续任何改动先读这两条**）
+
+① **`depth` 由 DB 触发器算，应用层零参与**
+   - 真源 = `backend-ts/migrations/0011_commission_assert_closure_and_referral_depth_guard.sql` §B⑦：`trg_referral_cycle_guard` 是 `BEFORE INSERT … FOR EACH ROW`，`NEW.depth := 1 + COALESCE(v_parent_stored_depth, 0)`。
+   - `0007` §C 的 `referral_bind` 插入时写**占位 `0`**，由触发器覆写 ⇒ 守卫若被摘掉，`referral_depth_rng CHECK(depth >= 1)` 立刻炸（**响亮失败**，不会静默写坏 depth）。
+   - ⇒ 应用层**不自算、不传参、不回填** `depth`；`referral-service.ts` 只把函数返回的 `depth` 原样读回做回执。**判负**：任何在 TS 侧算 `depth`（含 `parentDepth + 1`）或把它塞进 INSERT 的写法。
+
+② **`create_key` 只做形态校验、不消费**
+   - 本面**零账本分录**（`referral` 表无 `idempotency_key` 列），一次性由 **`referral.child_uid` 主键** + `0011` ③ 结构性保证 ⇒ **天然幂等**。
+   - 因此**不派生也不消费** `biz:referral:bind:<child_uid>`：同键重放与「同父重放」不可区分，自造键只会把 `409` 语义搅浑、把「重复绑定」误判成「幂等重放」而**放宽已绑判定**。
+   - ⇒ 路由层收到 `create_key` 只做 §4.5 四档形态校验（前缀 / `#` / 控制字符 / 长度）后**丢弃**。**判负**：把 `create_key` 落库、或据其返回 `200` 覆盖 `409`。
+
+#### 49.27.5 校验顺序（与库侧优先级对齐 · 不自造第二套）
+
+`① 登录(401) → ② 正整数(400) → ③ 自指(400) → ④ create_key 形态(400) → ⑤ 已绑(409) → ⑥ 父存在(404) → ⑦ referral_bind`（⑦ 内部 = 自指 → `users` 两行 `FOR UPDATE` 串行化 → 已绑 → 环 → 已有下级 → 父 `depth` 真实性 → `depth` 覆写）。
+
+- **防环 / 已绑 / 已有下级 / 父 depth 真实性 ⇒ 全部交给库**（`0010` ⑤ / `0011` ③④⑥⑦）。`referral-service.ts` **没有**祖先链游走 / 环判定 / 叶判定的代码 —— 复制品一旦与库漂移，**先跑的那份赢、另一份变成谎言**。
+- ⑤⑥ 只是**事务内预读**（为了让 409 / 404 更早、reason 更准），**不替代** ⑦ 的判定；并发下由 ⑦ 的 `FOR UPDATE` 兜底。
+
+#### 49.27.6 门与探针读数（本笔现取 · 2026-10-24）
+
+| 门 | 读数 |
+|---|---|
+| unit（`vitest run src/test/unit`） | **104 files / 1171 tests / 0 failed**（含本单新增 `profile-invite.test.jsx` 19 例 + `sf14-profile-views.test.jsx` 导航钩子数组前推） |
+| a11y（`src/test/accessibility`） | **1 file / 16 tests / 0 failed** |
+| components（`src/test/components`） | **2 files / 14 tests / 0 failed** |
+| build（`npm run build`） | **exit 0** ⇒ `dist/assets/index-CFtJeqEX.js` **644,886 B** / `dist/assets/index-B8_-5uN9.css` **192,737 B** |
+| 真浏览器探针（`ops/profile-invite/probe-profile-invite.mjs`） | **59 checks / 59 passed / 0 failed · pageerror 0 · verdict PASS**；读数 = `ops/profile-invite/readings/probe-profile-invite.json` |
+
+- **探针六面**：① 左栏排序（`profile-nav-invite` 在 `favorites` 与 `settings` 之间，标签 = 我的邀请）；② 未绑定态 6 格可输入 + 第 1 格粘贴 `000100` ⇒ 6 格填满 + 提交钮可用 + 请求体 `inviter_uid === 100`；③ 成功（夹具 200）⇒ **Toast 出现**且**卡内零成功文案**；④ 失败（夹具 `409 LD003`）⇒ 卡内 `role="alert"` 内联、**无 Toast**、文案不含机读码；⑤ 已绑定（夹具 `bound=true`）⇒「已绑定邀请人 000100」+ 6 格 `disabled` + **无提交钮**；⑥ 1536 / 390 / 767 三档**零横向溢出**；≤767 每格触控 **44×48**（≥44）。
+- **生产库零写入**：探针全程 `context.route` 夹具拦截（`GET /api/referral/me` / `POST /api/referral/bind` 均不触真实后端）。
+
+#### 49.27.7 判负（可证伪）
+
+1. `GET /api/referral/me` 未绑时返回 `parent_uid: 0` / `''`（**必须 `null`**）⇒ 判负。
+2. `POST /api/referral/bind` 接受 `depth` 入参、或据其写库 ⇒ 判负（破 `CR16` 与 §49.27.4①）。
+3. 已绑的 child 再绑返回 `200`（同父或异父）⇒ 判负；改绑存在任何端口 / UI 入口 ⇒ 判负。
+4. `create_key` 被消费 / 落库 / 据其放行 `409` ⇒ 判负（§49.27.4②）。
+5. 应用层出现环判定 / 祖先链游走 / 叶判定代码 ⇒ 判负（第二套判据）。
+6. 新增错误码 / 改 `reason` 字面（`REFERRAL_*` 五条须与 DB 逐字同）⇒ 判负。
+7. 注册点 ≠ `118` 或 §44.5 三计数未同步 ⇒ 判负。
+8. 前端把机读 `reason` 拼进可见文案 ⇒ 判负。
+
+#### 49.27.8 `NOT_MEASURED` / 诚实登记
+
+- **`NOT_MEASURED`**：真库端到端（真 `referral_bind` + 触发器 `depth` 实算）**本笔未跑** —— 本单纪律 = **生产库零写入**；探针用夹具，单测跑 jsdom。`depth` 真值链路的证据 = `0011` §B⑦ 迁移原文（已核）+ 上游一次性实测记录，**不在本笔射程内**。
+- **`NOT_MEASURED`**：并发两请求同 child 的竞态实测未跑（机制 = `users` 两行 `FOR UPDATE` + `child_uid` PK，判据存在、压测未做）。
+- **诚实登记**：`i18n` 新增 **8 键**（`profileNav.invite` + `invite.{desc,label,bound,boundHint,submit,ok,err}`），四语齐步；现取 **top `136` / flat `1461` × 4 语**（逐文件相等）。
+- **本笔未动**：`referral` 表结构（零 DDL）、`0010` / `0011` 既有守卫、账本码表、权限码表；未启停任何服务。
