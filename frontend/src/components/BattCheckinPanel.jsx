@@ -26,7 +26,7 @@ import { fetchBatt } from '../batt-checkin'
 // 电量卡锚点（R-9-83）：供招工线「电量不足」提示以 `/wage#batt-checkin` 直达。
 export const BATT_CHECKIN_ANCHOR_ID = 'batt-checkin'
 
-const BattCheckinPanel = () => {
+const BattCheckinPanel = ({ children }) => {
   const { t } = useTranslation()
   const { isAuthenticated, user } = useAuth()
   const location = useLocation()
@@ -74,6 +74,11 @@ const BattCheckinPanel = () => {
             <BattMeter batt={batt?.batt ?? null} canAccept={batt?.canAccept ?? null} />
             <span className="text-sm text-gray-500">{t('battCard.rangeHint')}</span>
           </div>
+          {/* ★ Kevin 2026-10-24：卡内追加动作区（当前唯一消费方 = `/wage` 的【铸造】入口）。
+              children 以**函数**形式调用 ⇒ 复用本卡已取的同一份 `GET /api/batt` 读数（`batt` / `bttc` / policy），
+              零新增 GET；`reload` 供子级动作成功后重拉（电量点阵与缺口同源刷新）。
+              不传 children ⇒ 卡面逐字不变（其他渲染点零影响）。 */}
+          {typeof children === 'function' ? children({ batt, reload: load }) : children}
         </CardContent>
       </Card>
     </FadeIn>

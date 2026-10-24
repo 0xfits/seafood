@@ -12,6 +12,10 @@
 
 .sf-wage-page {
   --sf-w-ctl-h: 34px;
+  /* 网格卡固定高（页内几何常量 · 两档同值 · 不进主题层）：
+   * 内边距 26 + 卡头 40 + 描述 3 行 ≈57 + 名额/工资区 ≈40 + 操作区（钮 34 或 44 + 换行倒计时）+ 内联提示 1 行；
+   * 390 / 1536 两档由 probe 的 scrollHeight ≤ clientHeight 判据守住「不裁内容」。 */
+  --sf-wage-card-h: 288px;
 }
 
 .sf-wage-head {
@@ -24,17 +28,94 @@
 /* 电量卡 + 签到区（自 /activities 并入本页顶部）：只做「与下方列表留白」的页壳间距，
  * 卡内几何与配色由组件自带 ⇒ 本文件不复制它的样式、不新增主题 token。 */
 .sf-wage-checkin {
+  margin-bottom: 0;
+  min-width: 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * 页顶两列（Kevin 2026-10-24 需求A）
+ *   桌面：左电量卡（`1fr` 弹性主位）+ 右当前项目卡（固定 320px）；
+ *   移动（≤767）：单列堆叠，**当前项目卡在前**（`order:-1`；领工资是主操作，
+ *   不得被电量卡挤到折叠线下）。同一份 DOM ⇒ 桌面档不受 order 影响。
+ *   只吃既有 `--sf-st-feed-gap-m` / `--sf-*` token，零新主题 token、零新断点。
+ * ------------------------------------------------------------------------ */
+.sf-wage-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: var(--sf-st-feed-gap-m);
+  align-items: start;
   margin-bottom: var(--sf-st-feed-gap-m);
+}
+
+.sf-wage-current {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.sf-wage-current-title {
+  margin: 0;
+  color: var(--sf-title-fg);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+/* 当前项目卡：内容比网格卡少一行工资排布，高度自适应（不被网格卡的固定高钳住） */
+.sf-wage-current .sf-wage-current-card {
+  height: auto;
+}
+
+/* 未加入占位（灰态）：虚线边 + 面板底色，不引入任何新色值 */
+.sf-wage-current.is-empty {
+  box-sizing: border-box;
+  min-height: 132px;
+  padding: 13px 14px;
+  border: var(--sf-st-stroke-w-thin) dashed var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-btna);
+  background: var(--sf-panel-bg);
+}
+
+.sf-wage-current-empty-text {
+  margin: 0;
+  color: var(--sf-meta-fg);
+  font-size: 13px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+/* 电量卡内【铸造】入口（Kevin 2026-10-24 需求D）：一行 = 钮 + 缺口，缺口可换行不撑破卡 */
+.sf-wage-mint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.sf-wage-mint-btn {
+  flex: none;
 }
 
 .sf-wage-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--sf-st-feed-gap-m);
-  align-items: start;
+  /* ★ Kevin 2026-10-24 需求C：行内自动等高（原先 `align-items:start` 是卡高矮不齐的第二成因） */
+  align-items: stretch;
+  grid-auto-rows: 1fr;
 }
 
+/* 卡：固定高度 + 纵向 flex ⇒ 操作区贴底对齐（同排卡片逐值等高）
+ *   `--sf-wage-card-h` 是页内几何常量（非主题 token，两档同值）；
+ *   高度按「卡头 40 + 描述 3 行 + 名额/工资 + 操作区（含换行的倒计时）+ 内联提示」一次算足，
+ *   高度不足时内容会溢出（probe 有 scrollHeight ≤ clientHeight 的判据兜底）。 */
 .sf-wage-card {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  height: var(--sf-wage-card-h);
+  min-width: 0;
   padding: 13px 14px;
   gap: 10px;
 }
@@ -181,6 +262,14 @@
   font-size: 13px;
   line-height: 1.45;
   overflow-wrap: anywhere;
+  /* ★ Kevin 2026-10-24 需求C：描述**固定 3 行**（现卡高矮不齐的根因 = 描述行数随文案变）。
+   *   `-webkit-line-clamp` + ellipsis + 固定 3 行占位（min-height）⇒ 有/无描述、长短文案都占同样高度。
+   *   文本框仍是全文本（探针/测试读 textContent 不受影响），只是视觉裁到 3 行。 */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  min-height: calc(3 * 1.45em);
 }
 
 .sf-wage-card-meta {
@@ -206,6 +295,8 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
+  /* ★ Kevin 2026-10-24 需求C：操作区贴底 —— 与固定高卡配合，同排卡片的按钮落在同一条基线上 */
+  margin-top: auto;
 }
 
 .sf-wage-in-service {
@@ -454,6 +545,15 @@
 
 /* 手机档：主要动作触控目标 ≥44（全站口径；只在此单断点内抬高，桌面几何不受影响） */
 @media (max-width: 767px) {
+  /* ★ 页顶两列 ⇒ 单列堆叠，且**当前项目卡排在前**（领工资是主操作） */
+  .sf-wage-top {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sf-wage-current {
+    order: -1;
+  }
+
   .sf-wage-btn {
     min-height: 44px;
   }

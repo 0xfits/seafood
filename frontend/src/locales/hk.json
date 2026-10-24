@@ -61,7 +61,9 @@
     "errTransition": "該狀態切換不被允許",
     "errFrozen": "項目已結束，不能再修改",
     "poolInsufficient": "項目方次幣獎池不足，暫時無法發放，請聯繫項目管理員",
-    "currencyUnavailable": "項目工資幣種暫不可用，無法發放，請聯繫項目管理員"
+    "currencyUnavailable": "項目工資幣種暫不可用，無法發放，請聯繫項目管理員",
+    "currentTitle": "當前項目",
+    "currentEmpty": "還沒有加入任何項目，從下方挑一個開始打工吧"
   },
   "login": "登錄",
   "logout": "登出",

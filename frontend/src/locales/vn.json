@@ -61,7 +61,9 @@
     "errTransition": "Không cho phép chuyển đổi trạng thái này",
     "errFrozen": "Dự án đã kết thúc, không thể chỉnh sửa nữa",
     "poolInsufficient": "Quỹ tiền tệ phụ của dự án không đủ nên tạm thời chưa thể chi trả, vui lòng liên hệ quản trị dự án",
-    "currencyUnavailable": "Đơn vị tiền lương của dự án tạm thời không khả dụng nên chưa thể chi trả, vui lòng liên hệ quản trị dự án"
+    "currencyUnavailable": "Đơn vị tiền lương của dự án tạm thời không khả dụng nên chưa thể chi trả, vui lòng liên hệ quản trị dự án",
+    "currentTitle": "Dự án hiện tại",
+    "currentEmpty": "Bạn chưa tham gia dự án nào — hãy chọn một dự án bên dưới để bắt đầu."
   },
   "login": "Đăng nhập",
   "logout": "Đăng xuất",

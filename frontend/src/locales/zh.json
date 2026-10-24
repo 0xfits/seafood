@@ -61,7 +61,9 @@
     "errTransition": "该状态切换不被允许",
     "errFrozen": "项目已结束，不能再修改",
     "poolInsufficient": "项目方次币奖池不足，暂时无法发放，请联系项目管理员",
-    "currencyUnavailable": "项目工资币种暂不可用，无法发放，请联系项目管理员"
+    "currencyUnavailable": "项目工资币种暂不可用，无法发放，请联系项目管理员",
+    "currentTitle": "当前项目",
+    "currentEmpty": "还没有加入任何项目，从下方挑一个开始打工吧"
   },
   "login": "登录",
   "register": "注册",

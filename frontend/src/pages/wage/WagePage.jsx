@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import BattCheckinPanel from '../../components/BattCheckinPanel'
+import WageMintEntry from './WageMintEntry'
 import { applyToWageProject, claimWage, fetchWageCurrencies, fetchWageProjects } from './wage-api'
 import { projectHrefOf } from '../../project-slug'
 import { avatarInitialOf, avatarToneOf } from '../../avatar-tone'
@@ -74,6 +75,14 @@ import './wage.css'
 //   与 `project-edit-form.js`，字段构建 / 校验 / 载荷 / `EDIT_REASON_MAP` 的唯一真源）。
 //   本页只保留**整卡链接**（行有 slug ⇒ `/<slug>`）与卡内既有交互（【加入】/【领工资】/倒计时/提示）；
 //   卡内**不再有【编辑】钮，也不再请求 `/api/user`**（管理员三键判定随编辑一起搬到项目页）。
+// ★ Kevin 2026-10-24 需求A/B/C/D（布局重排 + 铸造入口）：
+//   A. 页顶改**两列同一行**：左电量卡（弹性主位，锚点/深链不动）、右当前项目卡（固定 320px，钩子
+//      `wage-current`）；无已加入项目 ⇒ 灰态占位（`wage-current-empty`）；≤767 上下堆叠且当前项目卡在前。
+//   B. 已加入项目**从下方网格移出**：`wage-list` 只列其它项目（排序与卡形态不变，不在网格重复出现）。
+//   C. 卡尺寸规范：`.sf-wage-card` 固定高 + 网格 `align-items: stretch` + 描述固定 3 行截断 +
+//      操作区 `margin-top:auto` 贴底 ⇒ 同排卡片逐值等高；零新主题 token（只吃既有 `--sf-*`）。
+//   D. 电量卡内新增【铸造】入口（`pages/wage/WageMintEntry.jsx`）：可点 / 可见置灰两态 + 缺口同源口径
+//      （复用 `BttcAssetPanel` 的 `mintShortfallOf`），成功 Toast（T126 · 5000ms）/ 失败卡内内联。
 // ============================================================================
 
 const num = (value, fallback = 0) => {
@@ -249,6 +258,18 @@ const WagePage = () => {
     return hiredRow ? projectKey(hiredRow) : ''
   }, [isAuthenticated, list.rows])
 
+  /** 「当前项目」行 = 本人已在职的那一行（取自同一份列表读数，不另开读口）。 */
+  const currentRow = useMemo(() => {
+    if (!isAuthenticated || !hiredKey) return null
+    return list.rows.find((row) => projectKey(row) === hiredKey) || null
+  }, [isAuthenticated, hiredKey, list.rows])
+
+  /** 下方网格 = **其它项目**（Kevin 2026-10-24 需求B：已加入的那张不再在网格里重复出现）。 */
+  const gridRows = useMemo(
+    () => (hiredKey ? list.rows.filter((row) => projectKey(row) !== hiredKey) : list.rows),
+    [hiredKey, list.rows],
+  )
+
   const setNotice = (key, notice) => setNotices((prev) => ({ ...prev, [key]: notice }))
 
   const markBusy = (key, value) => {
@@ -368,7 +389,7 @@ const WagePage = () => {
   //   `pages/project/project-edit-form.js`，UI 见 `pages/project/ProjectEditModal.jsx`。
   //   本页零编辑钮、零 `/api/user` 请求、零 PATCH（卡片只保留整卡链接与加入/领工资）。
 
-  const renderCard = (row) => {
+  const renderCard = (row, { current = false } = {}) => {
     const key = projectKey(row)
     const recruiting = String(row?.status || '') === 'recruiting'
     const role = myRoleOf(row) // 'hired' | 'none' | null（null = 匿名 / 行内缺键）
@@ -433,9 +454,9 @@ const WagePage = () => {
           </div>
         </div>
 
-        {row?.description ? (
-          <p className="sf-wage-card-desc" data-sf-m="wage-card-desc">{row.description}</p>
-        ) : null}
+        {/* 简述**恒定在场**、固定 3 行截断（Kevin 2026-10-24 需求C：卡高矮不齐的根因是描述行数随文案变）
+            ⇒ 无描述的行也占位，同排卡片行高一致；`-webkit-line-clamp` 见 wage.css。 */}
+        <p className="sf-wage-card-desc" data-sf-m="wage-card-desc">{row?.description || ''}</p>
 
         <div className="sf-wage-card-meta">
           {/* ★ Kevin 2026-10-23 需求B：旧【已招 X/Y】文案退场，改为「招工名额」+ 270×3 进度条。
@@ -481,7 +502,7 @@ const WagePage = () => {
               <button
                 type="button"
                 className="sf-wage-btn is-primary"
-                data-sf-m="wage-card-action"
+                data-sf-m={current ? 'wage-current-claim' : 'wage-card-action'}
                 data-sf-action="claim"
                 data-sf-need-login={isAuthenticated ? '0' : '1'}
                 data-sf-claimable={claimable ? '1' : '0'}
@@ -552,7 +573,7 @@ const WagePage = () => {
 
     // 根元素：有 slug ⇒ `<Link>`（整卡可点、href 可探针断言）；无 slug ⇒ 原 `<article>` 不变。
     // 卡内交互元素（加入 / 领工资 / 编辑 / 表单）stopPropagation ⇒ 不触发整卡跳转。
-    const cardClass = `sf-wage-card sf-card${joined ? ' is-joined' : ''}`
+    const cardClass = `sf-wage-card sf-card${joined ? ' is-joined' : ''}${current ? ' sf-wage-current-card' : ''}`
     const cardData = {
       'data-sf-project': key,
       'data-sf-joined': joined ? '1' : '0',
@@ -594,11 +615,37 @@ const WagePage = () => {
           )}
         </header>
 
-        {/* 电量卡（Kevin 2026-10-20：自 /activities 并入本页顶部，位于项目列表之上）。
-            ★ 2026-10-20 需求③：签到按钮 / 连续签到天数已下线，本处只剩电量点阵；
-            组件自带锚点 `batt-checkin` 与 hash 滚动；未登录时组件返回 null（不白屏）。 */}
-        <div className="sf-wage-checkin" data-sf-m="wage-checkin">
-          <BattCheckinPanel />
+        {/* ★ Kevin 2026-10-24 需求A：顶部改**两列**（同一行）——
+            左 = 电量卡（`wage-checkin`，宽弹性占主位；卡内追加【铸造】入口，锚点 `batt-checkin` 与
+            `/wage#batt-checkin` 深链逐字不动：`id` 仍在组件根上，hash 滚动仍直达）；
+            右 = **当前项目卡**（`wage-current`，固定 320px）：承载已加入项目的工资标准 / 名额 /
+            下次可领倒计时 / 【领工资】；未加入 ⇒ 灰态占位 `wage-current-empty`。
+            ≤767 移动档：上下堆叠且**当前项目卡排在前**（领工资是主操作，不得被电量卡挤到折叠线下），
+            由 wage.css 的 `order` 实现（同一 DOM，桌面左电右项目）。 */}
+        <div className="sf-wage-top" data-sf-m="wage-top">
+          <div className="sf-wage-checkin" data-sf-m="wage-checkin">
+            <BattCheckinPanel>
+              {({ batt, reload }) => <WageMintEntry batt={batt} reload={reload} />}
+            </BattCheckinPanel>
+          </div>
+
+          {currentRow ? (
+            <section
+              className="sf-wage-current"
+              data-sf-m="wage-current"
+              data-sf-project={projectKey(currentRow)}
+            >
+              <h2 className="sf-wage-current-title" data-sf-m="wage-current-title">{t('wage.currentTitle')}</h2>
+              {renderCard(currentRow, { current: true })}
+            </section>
+          ) : (
+            <section className="sf-wage-current is-empty" data-sf-m="wage-current-empty">
+              <h2 className="sf-wage-current-title" data-sf-m="wage-current-title">{t('wage.currentTitle')}</h2>
+              <p className="sf-wage-current-empty-text" data-sf-m="wage-current-empty-text">
+                {t('wage.currentEmpty')}
+              </p>
+            </section>
+          )}
         </div>
 
         {/* 客态轻提示条（不遮挡列表：项目列表本身是公开浏览面，只有写口需登录） */}
@@ -620,11 +667,11 @@ const WagePage = () => {
               {t('wage.retry')}
             </button>
           </div>
-        ) : list.rows.length === 0 ? (
+        ) : gridRows.length === 0 ? (
           <p className="sf-foot-note" data-sf-m="wage-empty">{t('wage.empty')}</p>
         ) : (
           <div className="sf-wage-list" data-sf-m="wage-list">
-            {list.rows.map(renderCard)}
+            {gridRows.map((row) => renderCard(row))}
           </div>
         )}
       </div>

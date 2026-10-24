@@ -61,7 +61,9 @@
     "errTransition": "This status change is not allowed",
     "errFrozen": "This project has ended and can no longer be edited",
     "poolInsufficient": "The project's secondary-currency pool is insufficient, so the payout cannot be issued right now. Please contact the project admin.",
-    "currencyUnavailable": "The project's wage currency is currently unavailable, so the payout cannot be issued. Please contact the project admin."
+    "currencyUnavailable": "The project's wage currency is currently unavailable, so the payout cannot be issued. Please contact the project admin.",
+    "currentTitle": "Current project",
+    "currentEmpty": "You have not joined any project yet — pick one below to start working."
   },
   "login": "Login",
   "register": "Register",

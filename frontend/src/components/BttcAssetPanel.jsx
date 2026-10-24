@@ -23,8 +23,10 @@ import { postBttcMint, postBttcBurn } from '../bttc-api'
 /** 面板根钩子（含余额 / 铸造 / 分解 / 缺口提示）—— 独立导出，供探针与单测按名引用。 */
 export const BTTC_ASSET_HOOK = 'bttc-asset'
 
-/** 铸造缺额：`batt ≥ policy.mintBattCost` ∧ `$ ≥ policy.mintFeeUsd`（纯展示 · 只做减法）。 */
-const mintShortfallOf = (batt, bttc) => {
+/** 铸造缺额：`batt ≥ policy.mintBattCost` ∧ `$ ≥ policy.mintFeeUsd`（纯展示 · 只做减法）。
+ *  ★ 2026-10-24：改为 **具名导出** —— `/wage` 电量卡内的【铸造】入口复用同一份口径
+ *  （不得在 WagePage 侧复制第二份减法；两处缺口读数必须同源）。 */
+export const mintShortfallOf = (batt, bttc) => {
   if (!bttc || bttc.status === null || bttc.canMint) return { batt: 0, usd: '0' }
   const policy = bttc.policy || {}
   const positiveInt = (v, fallback) => {

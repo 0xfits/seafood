@@ -12,7 +12,10 @@
  *   ⑤ 项目卡**零编辑**（Kevin 2026-10-21②：编辑整体移入项目页 `/:slug` + 模态框）：
  *      即便本人是 owner / 载荷带 manage_tasks 三键，本页也零【编辑】钮、零 PATCH、零 `/api/user`；
  *      卡内不得残留行内表单/编辑字段容器；整卡链接（有 slug ⇒ `/<slug>`）与加入/领工资行为不变；
- *   ⑥ i18n `wage` 命名空间四语齐备 + 计数前推（top 135 / flat 1386 / 四语节点 5544）。
+ *   ⑥ i18n `wage` 命名空间四语齐备 + 计数前推（top 135 / flat 1453 / 四语节点 5812）。
+ *   ⑦ 2026-10-24 布局重排：页顶两列（左电量卡 / 右当前项目卡 + 无已加入时的灰态占位）、
+ *      已加入项目**不在下方网格**重复出现、电量卡内【铸造】入口两态（可点 / 可见置灰 + 缺口）与
+ *      成功 Toast / 失败内联。
  *
  * 注：真实浏览器几何（390/1536 零溢出）与真实契约联调由 `ops/wage/front/` 的探针覆盖，
  *     jsdom 不套用 media query，故此处不断言列数。
@@ -116,11 +119,33 @@ const ROW_CLOSED = {
 const okBody = (data) => ({ ok: true, status: 200, json: async () => ({ success: true, data }) })
 const errBody = (status, error) => ({ ok: false, status, json: async () => ({ success: false, error }) })
 
+/** `GET /api/batt` 夹具（电量卡 + 铸造入口共用的唯一读口）：默认可铸造。 */
+const BATT_OK = {
+  batt: 70,
+  capBatt: 100,
+  floorBatt: 0,
+  acceptThresholdBatt: 50,
+  canAccept: true,
+  bttc: {
+    balance: '12',
+    status: 'listed',
+    canMint: true,
+    canBurn: false,
+    usdBalance: '5',
+    policy: { mintBattCost: 100, mintFeeUsd: 1, burnBttcCost: 1, burnFeeUsd: 1 },
+  },
+}
+/** 不可铸造（电量 70 < 100 门槛）：缺口 = 30 电量；`$0` 余额 ⇒ 再缺 $1。 */
+const BATT_SHORT = {
+  ...BATT_OK,
+  bttc: { ...BATT_OK.bttc, canMint: false, usdBalance: '0' },
+}
+
 /**
  * 路由拦截式 fetch 替身：`/api/project/all` 与 `/api/currencies` 走夹具，写口逐案定制。
  * `adminPayload` = `GET /api/user` 的替身载荷（管理员三键判定用）；`onPatch` = PATCH 写口逐案定制。
  */
-const installFetch = ({ rows = [], onClaim, onApply, onPatch, adminPayload = null } = {}) => {
+const installFetch = ({ rows = [], onClaim, onApply, onPatch, adminPayload = null, battPayload = null, onMint } = {}) => {
   const calls = []
   const fn = vi.fn(async (url, options = {}) => {
     const target = String(url)
@@ -131,6 +156,9 @@ const installFetch = ({ rows = [], onClaim, onApply, onPatch, adminPayload = nul
       return okBody([{ cid: 1, symbol: '$' }, { cid: 4, symbol: 'BTTC' }])
     }
     if (target.startsWith('/api/user')) return okBody(adminPayload ?? { uID: 7 })
+    // 电量卡 / 铸造入口的唯一读口（2026-10-24：卡内【铸造】复用同一份读数 ⇒ 零新增 GET）
+    if (target.startsWith('/api/batt')) return okBody(battPayload ?? BATT_OK)
+    if (target.startsWith('/api/bttc/mint')) return onMint ? onMint() : okBody({ minted: true })
     if (/\/api\/project\/[^/]+\/apply$/.test(target)) {
       return onApply ? onApply(target) : okBody({})
     }
@@ -208,9 +236,12 @@ describe('/wage ① 列表卡：状态 / 已招 X/Y / 工资行 / 按钮态', ()
     const hint = cardOf(container, '11').querySelector('[data-sf-m="wage-card-hint"]')
     expect(hint.textContent).toMatch(/后可领$/)
 
-    // ★ 已加入的项目**不得再出现【加入】**（卡内只有【领工资】）
+    // ★ 已加入的项目**不得再出现【加入】**（卡内只有【领工资】）。
+    //   2026-10-24：该卡的【领工资】改挂新钩子 `wage-current-claim`（它已移到右上【当前项目卡】），
+    //   故这里按动作属性计数（钩子名随布局变更，动作语义不变）。
     expect(cardOf(container, '11').querySelector('[data-sf-action="join"]')).toBeNull()
-    expect(cardOf(container, '11').querySelectorAll('[data-sf-m="wage-card-action"]')).toHaveLength(1)
+    expect(cardOf(container, '11').querySelectorAll('[data-sf-action="claim"]')).toHaveLength(1)
+    expect(cardOf(container, '11').querySelector('[data-sf-m="wage-current-claim"]')).not.toBeNull()
 
     // ★ Kevin 2026-10-23：已在任一项目在职 ⇒ **所有卡**都不再给【加入】，
     //   也不再展示「同时只能在一个项目打工」提示（切换入口已迁到项目页）
@@ -642,6 +673,8 @@ describe('/wage ⑥ i18n `wage` 命名空间（四语齐备 + 计数前推）', 
     'inService', 'full', 'oneAtATime', 'claimed', 'claimedWithCurrency', 'claimTooSoon', 'notHired',
     'claimFailed', 'applyFailed', 'loginRequired', 'loginCta', 'loadFailed', 'retry', 'empty',
     'joinedBadge', 'streakReward',
+    // ★ Kevin 2026-10-24：页顶「当前项目卡」两键（标题 / 未加入占位），四语对称
+    'currentTitle', 'currentEmpty',
     // 项目卡【编辑】（2026-10-21）：表单标题/状态标签/保存动作/错误文案（间隔校验复用 bountyProject）
     'editTitle', 'fieldStatus', 'cancel', 'saving', 'editSaved', 'editFailed',
     'errTitle', 'errDescription', 'errHeadcount', 'errHeadcountBelowHired', 'errMinDays', 'errBatt',
@@ -668,11 +701,161 @@ describe('/wage ⑥ i18n `wage` 命名空间（四语齐备 + 计数前推）', 
     ))
     for (const lang of LANGS) {
       expect(Object.keys(TABLES[lang]).length, `${lang} top`).toBe(135) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532] // [i18n-bump project-slug（2026-10-21）：新增顶层 project 50 键 ⇒ top 134⇒135 / flat 1277⇒1327 / 四语节点 5108⇒5308 / top×4 536⇒540；bountyProject 注册天数 6 键（四语对称）已随前次订正计入 1277]
-      expect(flat(TABLES[lang]).length, `${lang} flat`).toBe(1451) // [home-hero-removal（2026-10-24）：删 5 个死键（homePage.welcome/heroLead/heroTail/continueTask/registerNow，四语对称）⇒ flat 1456⇒1451 / 四语节点 5824⇒5804（top 135 不变）] [i18n-bump project-wage-slider（2026-10-24）：+2 `project.*` 键（wageRateAnchor/wageLegacyRate，四语对称）⇒ flat 1454⇒1456 / 四语节点 5816⇒5824（top 135 不变 / project 140⇒142）] // [i18n-bump project-avatar（2026-10-22）：+5 `project.*` 键（avatarChange/avatarReset/avatarResetConfirm/avatarTooLarge/avatarUploadFail，四语对称）⇒ flat 1388⇒1393 / 四语节点 5552⇒5572 / project 102⇒107（top 135 不变）] [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532] // [i18n-bump wage-edit +18 键（项目卡【编辑】表单/错误文案，四语对称）⇒ flat 1253⇒1271 / 四语节点 5012⇒5084（top 134 不变）] // [i18n-bump min-days-select +6 键（bountyProject.days1/7/30/365 + minDaysLegacy/minDaysNoGate，四语对称）⇒ flat 1271⇒1277 / 四语节点 5084⇒5108（top 134 不变）] // [i18n-bump project-slug（2026-10-21）：新增顶层 project 50 键 ⇒ top 134⇒135 / flat 1277⇒1327 / 四语节点 5108⇒5308 / top×4 536⇒540；bountyProject 注册天数 6 键（四语对称）已随前次订正计入 1277] // [i18n-bump task-status（2026-10-21 · 步 3 任务上线/下线开关）：+2 键 `project.taskOnline`/`project.taskOffline`（四语对称）⇒ top 135 不变 / flat 1355⇒1369 / 四语节点 5420⇒5476 / top×4 540 不变] // [i18n-bump subtask-manage（2026-10-22 · 子任务行内编辑/删除）：+9 `project.*` 键（子任务编辑/删除/锁/有凭证/失败，四语对称）⇒ top 135 不变 / flat 1369⇒1378 / 四语节点 5476⇒5512 / project 85⇒94] [i18n-bump exchange-trend（2026-10-22 · /exchange 价格走势 + 撤全计数）：+5 `market.*` 键（priceTrend / trendRange / cancelAllOkCount / cancelAllNone / cancelPartial，四语对称）⇒ flat 1394⇒1399 / 四语节点 5576⇒5596 / market 29⇒34（top 135 不变）] [i18n-bump project-recruit（2026-10-22③ · 项目页拆出【招工】模态框）：+3 `project.*` 键（entryRecruit / recruitTitle / recruitSaved，四语对称）⇒ flat 1399⇒1415 / 四语节点 5596⇒5660 / project 107⇒110（top 135 不变）] [i18n-bump project-vault（2026-10-23）：+12 `project.*` 键（vaultTitle/vaultLine/vaultRechargeLabel/vaultRechargeBtn/vaultRecharging/vaultRechargeOk/vaultFailDetail/vaultErrInsufficient/vaultErrAmountInvalid/vaultErrCidInvalid/vaultErrGeneral/recruitZeroHint，四语对称）⇒ flat 1415⇒1427 / 四语节点 5660⇒5708 / project 121⇒133（top 135 不变；vn 待复核）] // [i18n-bump exchange-route（2026-10-23 · /exchange 路径参数 + 持币人 + 选择页）：+7 `market.*` 键（holdersTitle/holdersTotal/holdersEmpty/holdersFail/pickNote/pickTitle/pickCta，四语对称）⇒ flat 1427⇒1434 / 四语节点 5708⇒5788 / market 34⇒41（top 135 不变；vn 待复核）] [i18n-bump campaign-claim（2026-10-23）：+13 `campaign.*` 键（submit.battCost/battInsufficient/rewardPending + claim.{cta,claiming,all,allCost,pending,ok,allOk,battInsufficient,nothingToClaim,failed}，四语对称）⇒ flat 1434⇒1447 / 四语节点 5736⇒5788（top 135 不变 / campaign 74⇒87）] [i18n-bump project-wage-std（2026-10-23）：+7 `project.*` 键（entryWageStd / wageStdTitle / wageStdHint / newSlotsLabel / newSlotsHint / slotsReadout / wageStdSaved，四语对称）⇒ flat 1447⇒1454 / 四语节点 5788⇒5816 / project 133⇒140（top 135 不变）]
+      expect(flat(TABLES[lang]).length, `${lang} flat`).toBe(1453) // [home-hero-removal（2026-10-24）：删 5 个死键（homePage.welcome/heroLead/heroTail/continueTask/registerNow，四语对称）⇒ flat 1456⇒1451 / 四语节点 5824⇒5804（top 135 不变）] [i18n-bump project-wage-slider（2026-10-24）：+2 `project.*` 键（wageRateAnchor/wageLegacyRate，四语对称）⇒ flat 1454⇒1456 / 四语节点 5816⇒5824（top 135 不变 / project 140⇒142）] // [i18n-bump project-avatar（2026-10-22）：+5 `project.*` 键（avatarChange/avatarReset/avatarResetConfirm/avatarTooLarge/avatarUploadFail，四语对称）⇒ flat 1388⇒1393 / 四语节点 5552⇒5572 / project 102⇒107（top 135 不变）] [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532] // [i18n-bump wage-edit +18 键（项目卡【编辑】表单/错误文案，四语对称）⇒ flat 1253⇒1271 / 四语节点 5012⇒5084（top 134 不变）] // [i18n-bump min-days-select +6 键（bountyProject.days1/7/30/365 + minDaysLegacy/minDaysNoGate，四语对称）⇒ flat 1271⇒1277 / 四语节点 5084⇒5108（top 134 不变）] // [i18n-bump project-slug（2026-10-21）：新增顶层 project 50 键 ⇒ top 134⇒135 / flat 1277⇒1327 / 四语节点 5108⇒5308 / top×4 536⇒540；bountyProject 注册天数 6 键（四语对称）已随前次订正计入 1277] // [i18n-bump task-status（2026-10-21 · 步 3 任务上线/下线开关）：+2 键 `project.taskOnline`/`project.taskOffline`（四语对称）⇒ top 135 不变 / flat 1355⇒1369 / 四语节点 5420⇒5476 / top×4 540 不变] // [i18n-bump subtask-manage（2026-10-22 · 子任务行内编辑/删除）：+9 `project.*` 键（子任务编辑/删除/锁/有凭证/失败，四语对称）⇒ top 135 不变 / flat 1369⇒1378 / 四语节点 5476⇒5512 / project 85⇒94] [i18n-bump exchange-trend（2026-10-22 · /exchange 价格走势 + 撤全计数）：+5 `market.*` 键（priceTrend / trendRange / cancelAllOkCount / cancelAllNone / cancelPartial，四语对称）⇒ flat 1394⇒1399 / 四语节点 5576⇒5596 / market 29⇒34（top 135 不变）] [i18n-bump project-recruit（2026-10-22③ · 项目页拆出【招工】模态框）：+3 `project.*` 键（entryRecruit / recruitTitle / recruitSaved，四语对称）⇒ flat 1399⇒1415 / 四语节点 5596⇒5660 / project 107⇒110（top 135 不变）] [i18n-bump project-vault（2026-10-23）：+12 `project.*` 键（vaultTitle/vaultLine/vaultRechargeLabel/vaultRechargeBtn/vaultRecharging/vaultRechargeOk/vaultFailDetail/vaultErrInsufficient/vaultErrAmountInvalid/vaultErrCidInvalid/vaultErrGeneral/recruitZeroHint，四语对称）⇒ flat 1415⇒1427 / 四语节点 5660⇒5708 / project 121⇒133（top 135 不变；vn 待复核）] // [i18n-bump exchange-route（2026-10-23 · /exchange 路径参数 + 持币人 + 选择页）：+7 `market.*` 键（holdersTitle/holdersTotal/holdersEmpty/holdersFail/pickNote/pickTitle/pickCta，四语对称）⇒ flat 1427⇒1434 / 四语节点 5708⇒5788 / market 34⇒41（top 135 不变；vn 待复核）] [i18n-bump campaign-claim（2026-10-23）：+13 `campaign.*` 键（submit.battCost/battInsufficient/rewardPending + claim.{cta,claiming,all,allCost,pending,ok,allOk,battInsufficient,nothingToClaim,failed}，四语对称）⇒ flat 1434⇒1447 / 四语节点 5736⇒5788（top 135 不变 / campaign 74⇒87）] [i18n-bump project-wage-std（2026-10-23）：+7 `project.*` 键（entryWageStd / wageStdTitle / wageStdHint / newSlotsLabel / newSlotsHint / slotsReadout / wageStdSaved，四语对称）⇒ flat 1447⇒1454 / 四语节点 5788⇒5816 / project 133⇒140（top 135 不变）]
     }
     expect(Object.keys(TABLES.zh).length * LANGS.length).toBe(540) // [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532] // [i18n-bump project-slug（2026-10-21）：新增顶层 project 50 键 ⇒ top 134⇒135 / flat 1277⇒1327 / 四语节点 5108⇒5308 / top×4 536⇒540；bountyProject 注册天数 6 键（四语对称）已随前次订正计入 1277]
-    expect(flat(TABLES.zh).length * LANGS.length).toBe(5804) // [home-hero-removal（2026-10-24）：删 5 个死键（homePage.welcome/heroLead/heroTail/continueTask/registerNow，四语对称）⇒ flat 1456⇒1451 / 四语节点 5824⇒5804（top 135 不变）] [i18n-bump project-wage-slider（2026-10-24）：+2 `project.*` 键（wageRateAnchor/wageLegacyRate，四语对称）⇒ flat 1454⇒1456 / 四语节点 5816⇒5824（top 135 不变 / project 140⇒142）] // [i18n-bump project-avatar（2026-10-22）：+5 `project.*` 键（avatarChange/avatarReset/avatarResetConfirm/avatarTooLarge/avatarUploadFail，四语对称）⇒ flat 1388⇒1393 / 四语节点 5552⇒5572 / project 102⇒107（top 135 不变）] [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532] // [i18n-bump wage-edit +18 键（项目卡【编辑】表单/错误文案，四语对称）⇒ flat 1253⇒1271 / 四语节点 5012⇒5084（top 134 不变）] // [i18n-bump min-days-select +6 键（bountyProject.days1/7/30/365 + minDaysLegacy/minDaysNoGate，四语对称）⇒ flat 1271⇒1277 / 四语节点 5084⇒5108（top 134 不变）] // [i18n-bump project-slug（2026-10-21）：新增顶层 project 50 键 ⇒ top 134⇒135 / flat 1277⇒1327 / 四语节点 5108⇒5308 / top×4 536⇒540；bountyProject 注册天数 6 键（四语对称）已随前次订正计入 1277] // [i18n-bump task-status（2026-10-21 · 步 3 任务上线/下线开关）：+2 键 `project.taskOnline`/`project.taskOffline`（四语对称）⇒ top 135 不变 / flat 1355⇒1369 / 四语节点 5420⇒5476 / top×4 540 不变] // [i18n-bump subtask-manage（2026-10-22 · 子任务行内编辑/删除）：+9 `project.*` 键（子任务编辑/删除/锁/有凭证/失败，四语对称）⇒ top 135 不变 / flat 1369⇒1378 / 四语节点 5476⇒5512 / project 85⇒94] [i18n-bump exchange-trend（2026-10-22 · /exchange 价格走势 + 撤全计数）：+5 `market.*` 键（priceTrend / trendRange / cancelAllOkCount / cancelAllNone / cancelPartial，四语对称）⇒ flat 1394⇒1399 / 四语节点 5576⇒5596 / market 29⇒34（top 135 不变）] [i18n-bump project-recruit（2026-10-22③ · 项目页拆出【招工】模态框）：+3 `project.*` 键（entryRecruit / recruitTitle / recruitSaved，四语对称）⇒ flat 1399⇒1415 / 四语节点 5596⇒5660 / project 107⇒110（top 135 不变）] [i18n-bump project-vault（2026-10-23）：+12 `project.*` 键（vaultTitle/vaultLine/vaultRechargeLabel/vaultRechargeBtn/vaultRecharging/vaultRechargeOk/vaultFailDetail/vaultErrInsufficient/vaultErrAmountInvalid/vaultErrCidInvalid/vaultErrGeneral/recruitZeroHint，四语对称）⇒ flat 1415⇒1427 / 四语节点 5660⇒5708 / project 121⇒133（top 135 不变；vn 待复核）] // [i18n-bump exchange-route（2026-10-23 · /exchange 路径参数 + 持币人 + 选择页）：+7 `market.*` 键（holdersTitle/holdersTotal/holdersEmpty/holdersFail/pickNote/pickTitle/pickCta，四语对称）⇒ flat 1427⇒1447 / 四语节点 5708⇒5736 / market 34⇒41（top 135 不变；vn 待复核）] [i18n-bump campaign-claim（2026-10-23）：+13 `campaign.*` 键（submit.battCost/battInsufficient/rewardPending + claim.{cta,claiming,all,allCost,pending,ok,allOk,battInsufficient,nothingToClaim,failed}，四语对称）⇒ flat 1434⇒1447 / 四语节点 5736⇒5788（top 135 不变 / campaign 74⇒87）] [i18n-bump project-wage-std（2026-10-23）：+7 `project.*` 键（entryWageStd / wageStdTitle / wageStdHint / newSlotsLabel / newSlotsHint / slotsReadout / wageStdSaved，四语对称）⇒ flat 1447⇒1454 / 四语节点 5788⇒5816 / project 133⇒140（top 135 不变）]
+    expect(flat(TABLES.zh).length * LANGS.length).toBe(5812) // [home-hero-removal（2026-10-24）：删 5 个死键（homePage.welcome/heroLead/heroTail/continueTask/registerNow，四语对称）⇒ flat 1456⇒1451 / 四语节点 5824⇒5804（top 135 不变）] [i18n-bump project-wage-slider（2026-10-24）：+2 `project.*` 键（wageRateAnchor/wageLegacyRate，四语对称）⇒ flat 1454⇒1456 / 四语节点 5816⇒5824（top 135 不变 / project 140⇒142）] // [i18n-bump project-avatar（2026-10-22）：+5 `project.*` 键（avatarChange/avatarReset/avatarResetConfirm/avatarTooLarge/avatarUploadFail，四语对称）⇒ flat 1388⇒1393 / 四语节点 5552⇒5572 / project 102⇒107（top 135 不变）] [i18n-bump campaign（顶层 campaign 54 键，四语对称）⇒ top 132⇒133 / flat 1169⇒1223 / 四语节点 4676⇒4892 / top×4 528⇒532] // [i18n-bump wage-edit +18 键（项目卡【编辑】表单/错误文案，四语对称）⇒ flat 1253⇒1271 / 四语节点 5012⇒5084（top 134 不变）] // [i18n-bump min-days-select +6 键（bountyProject.days1/7/30/365 + minDaysLegacy/minDaysNoGate，四语对称）⇒ flat 1271⇒1277 / 四语节点 5084⇒5108（top 134 不变）] // [i18n-bump project-slug（2026-10-21）：新增顶层 project 50 键 ⇒ top 134⇒135 / flat 1277⇒1327 / 四语节点 5108⇒5308 / top×4 536⇒540；bountyProject 注册天数 6 键（四语对称）已随前次订正计入 1277] // [i18n-bump task-status（2026-10-21 · 步 3 任务上线/下线开关）：+2 键 `project.taskOnline`/`project.taskOffline`（四语对称）⇒ top 135 不变 / flat 1355⇒1369 / 四语节点 5420⇒5476 / top×4 540 不变] // [i18n-bump subtask-manage（2026-10-22 · 子任务行内编辑/删除）：+9 `project.*` 键（子任务编辑/删除/锁/有凭证/失败，四语对称）⇒ top 135 不变 / flat 1369⇒1378 / 四语节点 5476⇒5512 / project 85⇒94] [i18n-bump exchange-trend（2026-10-22 · /exchange 价格走势 + 撤全计数）：+5 `market.*` 键（priceTrend / trendRange / cancelAllOkCount / cancelAllNone / cancelPartial，四语对称）⇒ flat 1394⇒1399 / 四语节点 5576⇒5596 / market 29⇒34（top 135 不变）] [i18n-bump project-recruit（2026-10-22③ · 项目页拆出【招工】模态框）：+3 `project.*` 键（entryRecruit / recruitTitle / recruitSaved，四语对称）⇒ flat 1399⇒1415 / 四语节点 5596⇒5660 / project 107⇒110（top 135 不变）] [i18n-bump project-vault（2026-10-23）：+12 `project.*` 键（vaultTitle/vaultLine/vaultRechargeLabel/vaultRechargeBtn/vaultRecharging/vaultRechargeOk/vaultFailDetail/vaultErrInsufficient/vaultErrAmountInvalid/vaultErrCidInvalid/vaultErrGeneral/recruitZeroHint，四语对称）⇒ flat 1415⇒1427 / 四语节点 5660⇒5708 / project 121⇒133（top 135 不变；vn 待复核）] // [i18n-bump exchange-route（2026-10-23 · /exchange 路径参数 + 持币人 + 选择页）：+7 `market.*` 键（holdersTitle/holdersTotal/holdersEmpty/holdersFail/pickNote/pickTitle/pickCta，四语对称）⇒ flat 1427⇒1447 / 四语节点 5708⇒5736 / market 34⇒41（top 135 不变；vn 待复核）] [i18n-bump campaign-claim（2026-10-23）：+13 `campaign.*` 键（submit.battCost/battInsufficient/rewardPending + claim.{cta,claiming,all,allCost,pending,ok,allOk,battInsufficient,nothingToClaim,failed}，四语对称）⇒ flat 1434⇒1447 / 四语节点 5736⇒5788（top 135 不变 / campaign 74⇒87）] [i18n-bump project-wage-std（2026-10-23）：+7 `project.*` 键（entryWageStd / wageStdTitle / wageStdHint / newSlotsLabel / newSlotsHint / slotsReadout / wageStdSaved，四语对称）⇒ flat 1447⇒1454 / 四语节点 5788⇒5816 / project 133⇒140（top 135 不变）]
     // 新增命名空间恰 +1 顶层 / +29 拍平键（相对上一版 131 / 1140）；joinedBadge 加入后 30 键；streakReward 加入后 31 键；wage-edit +18 键后 49 键
-    expect(REQUIRED).toHaveLength(51)
+    expect(REQUIRED).toHaveLength(53)
+  })
+})
+
+// ----------------------------------------------------------------------------
+// /wage ⑦ 页顶两列 / 当前项目卡 / 铸造入口（Kevin 2026-10-24 需求A/B/D）
+// ----------------------------------------------------------------------------
+// 口径：
+//   · 页顶 = 同一行两列：左电量卡（`wage-checkin`，主位）+ 右当前项目卡（`wage-current`，320px）；
+//   · 当前项目卡承载：项目名/头像 + 工资标准 + 已招 X/Y + 下次可领倒计时 + 【领工资】（新钩子
+//     `wage-current-claim`）；无已加入项目 ⇒ 灰态占位 `wage-current-empty`；
+//   · 已加入项目**不再在下方 `wage-list` 网格里重复出现**；
+//   · 电量卡内【铸造】：`canMint` ⇒ 可点；否则**可见置灰**（disabled + aria-disabled）+ 缺口
+//     「还差 X 电量 / $Y」；成功 ⇒ Toast（5000ms，T126）、失败 ⇒ 卡内内联。
+describe('/wage ⑦ 页顶两列 / 当前项目卡 / 铸造入口', () => {
+  const topOf = (root) => root.querySelector('[data-sf-m="wage-top"]')
+
+  it('两列同一行：左电量卡 + 右当前项目卡；当前卡含工资标准/名额/倒计时/领工资钮', async () => {
+    installFetch({ rows: [rowHired({ next_claim_at: FUTURE() }), ROW_OPEN, ROW_CLOSED] })
+    const { container } = mount()
+    await waitFor(() => expect(cards(container)).toHaveLength(3))
+
+    const top = topOf(container)
+    expect(top).not.toBeNull()
+    // 左：电量卡（锚点与深链载体仍在）
+    const checkin = top.querySelector('[data-sf-m="wage-checkin"]')
+    expect(checkin).not.toBeNull()
+    expect(checkin.querySelector('#batt-checkin')).not.toBeNull()
+    // 右：当前项目卡
+    const current = top.querySelector('[data-sf-m="wage-current"]')
+    expect(current).not.toBeNull()
+    expect(current.getAttribute('data-sf-project')).toBe('11')
+    expect(current.querySelector('[data-sf-m="wage-current-title"]').textContent).toBe(zh.wage.currentTitle)
+    // 项目名 / 头像 / 工资标准 / 名额 / 倒计时 / 领工资
+    expect(current.querySelector('[data-sf-m="wage-card-title"]').textContent).toBe('海鲜打包')
+    expect(current.querySelector('[data-sf-m="wage-card-avatar"]')).not.toBeNull()
+    expect(current.querySelector('[data-sf-m="wage-card-wage"]').textContent).toContain('每 4 小时 + ⚡️ 30')
+    const hc = current.querySelector('[data-sf-m="wage-card-headcount"]')
+    expect(hc.getAttribute('data-hired')).toBe('2')
+    expect(hc.getAttribute('data-total')).toBe('3')
+    expect(current.querySelector('[data-sf-m="wage-card-hint"]').textContent).toMatch(/后可领$/)
+    const claim = current.querySelector('[data-sf-m="wage-current-claim"]')
+    expect(claim).not.toBeNull()
+    expect(claim.getAttribute('data-sf-action')).toBe('claim')
+    expect(claim.disabled).toBe(true) // 倒计时未到 ⇒ 置灰（行为不变）
+    // 占位态不得同时在场
+    expect(container.querySelector('[data-sf-m="wage-current-empty"]')).toBeNull()
+    // 整页仍只有一个「当前项目」区，且它不在网格里
+    expect(container.querySelectorAll('[data-sf-m="wage-current"]')).toHaveLength(1)
+  })
+
+  it('已加入项目从网格移出：wage-list 只列其它项目（排序不变、无重复）', async () => {
+    installFetch({ rows: [rowHired(), ROW_OPEN, ROW_CLOSED] })
+    const { container } = mount()
+    await waitFor(() => expect(cards(container)).toHaveLength(3))
+
+    const list = container.querySelector('[data-sf-m="wage-list"]')
+    expect(list).not.toBeNull()
+    const inList = Array.from(list.querySelectorAll('[data-sf-m="wage-card"]'))
+      .map((el) => el.getAttribute('data-sf-project'))
+    expect(inList).toEqual(['12', '13'])
+    expect(inList).not.toContain('11')
+    // 已加入那张只出现在当前项目卡里（全页仅一份卡实例）
+    expect(container.querySelectorAll('[data-sf-m="wage-card"][data-sf-project="11"]')).toHaveLength(1)
+    expect(container.querySelector('[data-sf-m="wage-current"] [data-sf-project="11"]')).not.toBeNull()
+  })
+
+  it('无已加入项目 ⇒ 灰态占位卡（wage-current-empty）+ 有内容的网格', async () => {
+    installFetch({ rows: [ROW_OPEN, ROW_CLOSED] })
+    const { container } = mount()
+    await waitFor(() => expect(cards(container)).toHaveLength(2))
+
+    const empty = container.querySelector('[data-sf-m="wage-current-empty"]')
+    expect(empty).not.toBeNull()
+    expect(empty.textContent).toContain(zh.wage.currentEmpty)
+    expect(empty.textContent).toContain(zh.wage.currentTitle)
+    expect(container.querySelector('[data-sf-m="wage-current"]')).toBeNull()
+    // 占位卡不抢网格：无已加入 ⇒ 网格仍是全部行
+    const inList = Array.from(container.querySelectorAll('[data-sf-m="wage-list"] [data-sf-m="wage-card"]'))
+      .map((el) => el.getAttribute('data-sf-project'))
+    expect(inList).toEqual(['12', '13'])
+  })
+
+  it('铸造可点：POST /api/bttc/mint（幂等键 cli:）+ 成功 Toast（5000ms）+ 重拉读数', async () => {
+    AUTH.user = { uID: 7, token: 't-7' }
+    const { calls } = installFetch({ rows: [ROW_OPEN], battPayload: BATT_OK })
+    const { container } = mount()
+    await waitFor(() => expect(container.querySelector('[data-sf-m="wage-mint"]')).not.toBeNull())
+
+    const mint = container.querySelector('[data-sf-m="wage-mint"]')
+    expect(mint.disabled).toBe(false)
+    expect(mint.getAttribute('aria-disabled')).toBe('false')
+    expect(container.querySelector('[data-sf-m="wage-mint-shortfall"]')).toBeNull()
+    // 入口在电量卡内（Kevin：卡内铸造入口）
+    expect(container.querySelector('[data-sf-m="wage-checkin"] [data-sf-m="wage-mint"]')).not.toBeNull()
+
+    fireEvent.click(mint)
+    await waitFor(() => expect(calls.filter((c) => c.url === '/api/bttc/mint')).toHaveLength(1))
+    const post = calls.find((c) => c.url === '/api/bttc/mint')
+    expect(post.method).toBe('POST')
+    expect(String(post.body?.create_key || '')).toMatch(/^cli:[0-9a-fA-F-]{8,}$/)
+    // 成功 ⇒ 一条 Toast（T126 · duration 5000）；卡内零成功文案
+    await waitFor(() => expect(TOAST.success).toHaveBeenCalledTimes(1))
+    expect(TOAST.success.mock.calls[0][0]).toBe(zh.bttcPanel.mintOk)
+    expect(TOAST.success.mock.calls[0][1]).toEqual({ duration: 5000 })
+    expect(TOAST.error).not.toHaveBeenCalled()
+    expect(container.querySelector('[data-sf-m="wage-mint-err"]')).toBeNull()
+    // 成功后重拉同一读口（电量点阵 / 余额 / 缺口同源刷新）
+    await waitFor(() => expect(calls.filter((c) => c.url === '/api/batt').length).toBeGreaterThanOrEqual(2))
+  })
+
+  it('铸造不可点：可见但置灰 + aria-disabled + 缺口「还差 X 电量 / $Y」；点击零请求', async () => {
+    AUTH.user = { uID: 7, token: 't-7' }
+    const { calls } = installFetch({ rows: [ROW_OPEN], battPayload: BATT_SHORT })
+    const { container } = mount()
+    await waitFor(() => expect(container.querySelector('[data-sf-m="wage-mint"]')).not.toBeNull())
+
+    const mint = container.querySelector('[data-sf-m="wage-mint"]')
+    expect(mint).not.toBeNull() // 可见
+    expect(mint.disabled).toBe(true) // 但置灰
+    expect(mint.getAttribute('aria-disabled')).toBe('true')
+    const shortfall = container.querySelector('[data-sf-m="wage-mint-shortfall"]')
+    expect(shortfall).not.toBeNull()
+    expect(shortfall.textContent).toContain(zh.bttcPanel.mintNeedBatt.replace('{{n}}', '30'))
+    expect(shortfall.textContent).toContain(zh.bttcPanel.mintNeedUsd.replace('{{n}}', '1'))
+    fireEvent.click(mint)
+    await waitFor(() => expect(container.querySelector('[data-sf-m="wage-mint"]')).not.toBeNull())
+    expect(calls.filter((c) => c.url === '/api/bttc/mint')).toHaveLength(0)
+    expect(TOAST.success).not.toHaveBeenCalled()
+  })
+
+  it('铸造失败：卡内内联错误（T126），不改 Toast、页面不白屏', async () => {
+    AUTH.user = { uID: 7, token: 't-7' }
+    installFetch({
+      rows: [ROW_OPEN],
+      battPayload: BATT_OK,
+      onMint: () => errBody(400, { code: 'BTTC_MINT_INSUFFICIENT_BATT', message: 'insufficient batt' }),
+    })
+    const { container } = mount()
+    await waitFor(() => expect(container.querySelector('[data-sf-m="wage-mint"]')).not.toBeNull())
+
+    fireEvent.click(container.querySelector('[data-sf-m="wage-mint"]'))
+    await waitFor(() => {
+      const err = container.querySelector('[data-sf-m="wage-mint-err"]')
+      expect(err).not.toBeNull()
+      expect(err.getAttribute('role')).toBe('alert')
+      expect(err.textContent.trim().length).toBeGreaterThan(0)
+    })
+    // 失败一律内联 ⇒ 零成功 Toast；电量卡仍在（不白屏）
+    expect(TOAST.success).not.toHaveBeenCalled()
+    expect(container.querySelector('#batt-checkin')).not.toBeNull()
   })
 })
