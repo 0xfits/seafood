@@ -1,5 +1,6 @@
 # 海鲜市场 · 多币种账本口径冻结裁定书
 
+> **文档状态（最新）**：**v0.18**（2026-10-24；**本次 = 「管理员币种状态变更动作口（`POST /api/admin/currency/:cid/status`）↔ R26/R27/R28/R30 的映射登记」** —— **只增不改 · 追加式**、**R1–R109 编号与条文一字未动、§14.1 仍 33 码、章节编号未重排**、旧写法**不静默重写**：① **新增 §19.20**（**动作口 ↔ 四条既有规则的逐条映射** + **挂单撤单解冻的唯一路径** + **零账务动作再次确认**），**本册只追加这一段映射、无条款变更**（`R10` / `R26` / `R27` / `R28` / `R29` / `R30` / `R31` / §3.2 转移表 / §7.2 #14 / §7.3 `R83` **正文与状态列一字未改**）；② **口径来源** = 上位册 `docs/route-layer.spec.md` **v2.52 §49.25**（契约正典）+ `docs/seafood.master-plan.md` **§5.464 / v0.383**；③ **本册只读、零库连接、零迁移、零代码**。**范围** = **只写本册**（**不建快照 / 不建 delta 件** —— 与 v0.14 起的 `docs/versions/ledger.spec.v*.md` 快照惯例分离：本轮为上位册的**映射登记**，非本册条文变更，故不占快照序号）。**★ 头注留痕（诚实登记）**：紧邻其下的 **v0.17** 行仍带「文档状态（最新）」字样 —— 受「只追加 / `git diff --numstat` 删除列 = 0」硬口径约束，**未改写该行** ⇒ **以文件最上方的本行（v0.18）为现行版**。
 > **文档状态（最新）**：**v0.17**（2026-10-04；**本次 = 「S14 本批实现形态回写：`R-9-97`..`R-9-103` 的账本面落地面」** —— **只增不改 · 追加式**、**R1–R109 编号与条文一字未动、§14.1 仍 33 码、章节编号未重排**、旧写法**不静默重写**：实际迁移 `0042` —— `job_escrow` = `reward × headcount`（余额不足 ⇒ 既有 `LEDGER_INSUFFICIENT_BALANCE` · 零新增码）；settle 幂等键 = `biz:job:settle:<job_id>:<submission_id>`；`job_escrow_refund` = `reward × (headcount − 已发放份数)`。**范围** = **只写本册 + 改后快照 `docs/versions/ledger.spec.v0.17.md`**（Jing · 单号 **S14-IMPL-WRITEBACK**）。**★ 头注留痕（诚实登记）**：紧邻其下的 v0.15 行仍带「文档状态（最新）」字样 —— 受「只追加 / `git diff --numstat` 删除列 = 0」硬口径约束，**未改写该行** ⇒ **以文件最上方的本行（v0.17）为现行版**。
 > **文档状态（最新）**：**v0.15**（2026-10-03；**本次 = 「P9⑤ C3 规范回写：`kind` 关闭集 23 → 24（末位追加 `invite_first_task_reward`，平台账户出账腿 +1）＋ `R101` 的 `−1` `debit` 首开（仅 1 项）＋ `R103` 就地修订（区分「运维提取（留白不变）」⇄「需求规定的发放（`R-9-66`）」）」** —— **只增不改 · 追加式**、**R1–R109 编号与条文一字未动、§14.1 仍 33 码、章节编号未重排**、旧写法**不静默重写**：① **§5.1 kind 表末位追加 `invite_first_task_reward`**（**只增不改序**；**`kind` 关闭集 23 → 24**；迁移 **`0038_kind_close_set_24.sql`**：`ledger_kind_enum` CHECK **24 值** + `ledger_kind_ok`（**`p_frozen_settle` 第二支一字不动**）+ `ledger_assert_platform_mutation`（`−1` `debit` 首开））；**三列登记** = **减方** `uid = −1` `balance −(perLeg×N)` ／ **增方** 完成首任务者本人 + 直接上级（`referral.parent_uid`）各 `+firstTaskUsd` ／ **净增发 = 0**；② **`R101`（§13.3）就地增补**：`−1` 的 **`credit` 8 值逐字不变**、**`debit` 首开且仅 1 项 `invite_first_task_reward`**；③ **★ `R103`（§13.3）就地修订**：**「平台运维提取」留白保持不变**（`platform_withdraw` **仍未批**、后台**不得**提供提取按钮）⇄ **「需求 §6.2② 明文授权的发放」= 系统内转移**（`R-9-66` ⇒ 经 `R101` `−1` debit 白名单放行）；④ **§14.3 错误表就地增行**（`invite_first_task_reward` 白名单内**放行**；白名单外 `−1` debit 仍 `LEDGER_RESERVED_UID` / `400`）；⑤ **§15 #3 就地加注**（**本项与 `invite_first_task_reward` 无关**）；⑥ **§18 变更记录 + §19.18 登记**（`R-9-64`/`R-9-65`/`R-9-66` 逐条 + 快照 / delta）。**范围** = **只写本册 + 改后快照 `docs/versions/ledger.spec.v0.15.md` + delta 件 `docs/audit/ledger-v0.15-delta.md`**（Jing · Unit **JING-SPEC-P9-5C3**）。**★ 头注留痕（诚实登记）**：紧邻其下的 **v0.14** 行仍带「文档状态（最新）」字样 —— 本册受「只追加 / `git diff --numstat` 删除列 = 0」硬口径约束，**未改写该行** ⇒ **以文件最上方的本行（v0.15）为现行版**。
 > **文档状态（最新）**：**v0.16**（2026-10-03；**本次 = 「S0 任务模型规范冻结：`R-9-97`..`R-9-103` 的账本面（托管 = `reward × headcount` / 逐笔发放 / 随时结束退剩余）」** —— **只增不改 · 追加式**、**R1–R109 编号与条文一字未动、§14.1 仍 33 码、章节编号未重排**、旧写法**不静默重写**（新旧冲突逐条列出、交裁 ⇒ §19.19.D）：① `R-9-98` `job_escrow` 金额 = `reward × headcount`（余额不足 ⇒ 发布失败）；② `R-9-101` 逐笔发放（每份 `reward`：`job_payout`+`job_fee`+`commission` 按既有费分佣口径 · **逐事件守恒** · 发满 `headcount` ⇒ `settled`）；③ `R-9-102` `job_escrow_refund` 金额 = `reward × (headcount − 已发放份数)`。**范围** = **只写本册 + 改后快照 `docs/versions/ledger.spec.v0.16.md`**（Jing · 单号 **S0-TASKMODEL-FREEZE**）。**★ 头注留痕（诚实登记）**：紧邻其下的 **v0.15** 行仍带「文档状态（最新）」字样 —— 受「只追加 / `git diff --numstat` 删除列 = 0」硬口径约束，**未改写该行** ⇒ **以文件最上方的本行（v0.16）为现行版**。
@@ -2119,3 +2120,59 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | 5 | D#5 §14.1 33 码闭集（**不得新增码**） | `0042` **未新增任何 `LDxxx` 码**；「余额不足」复用既有 `LEDGER_INSUFFICIENT_BALANCE` | **一致** |
 
 **F.1 真库读数（只读探针 · 2026-10-04）**：`schema_migration` = **41 行 / `max(version) = '0042'`**。**本册未连写库、未启停服务、未跑迁移、未改 `backend-ts/**`；未触 `ledger_post_event` 函数体。**
+
+---
+
+### 19.20 v0.18 登记（管理员币种状态变更动作口 ↔ `R26`/`R27`/`R28`/`R30` 的映射 · 挂单撤单解冻的唯一路径 · 零账务动作再次确认）
+
+> **本节的定位（先说清楚）**：**本册只追加一段映射，无条款变更**。`R10` / `R26` / `R27` / `R28` / `R29` / `R30` / `R31` 的**条文正文与状态列一字未改**，§3.2 转移表、§7.2 #14、§7.3 `R83` **同样一字未改**。本节做的事 = 把上位册新冻的**动作口**（`docs/route-layer.spec.md` **v2.52 §49.25**：`POST /api/admin/currency/:cid/status`）**逐条钉到既有规则上**，使实现方不必在四份册之间自行推断「哪条规则管哪一格」。
+>
+> **依据** = Kevin 2026-10-24 批准的业务范围（交易所管理扩成真模块：费率 / 建币审核 / 费率等级+权重矩阵**已上线** + **币种上架 / 下架（本轮出契约、下一轮实现）**）；契约正典 = 上位册 **v2.52 §49.25**；姊妹登记 = `master-plan` **§5.464 / v0.383**、`design-system.spec` **v1.35 §36（`T135`）**、`data-layer.spec` **§40.16**（无 schema 变更）。
+>
+> **本册开工现取**：HEAD `b3c9a6c`；`backend-ts/src/ledger.ts:656-661`（`CURRENCY_TRANSITIONS`）/ `:663-667`（`assertCurrencyTransition`）/ `:670-674`（`assertSystemCurrencyImmutable`）/ `:140`（`SYSTEM_CURRENCY_CID = 1n`）/ `:219`（`CURRENCY_OP_MATRIX.hold` 仅 `listed`）/ `:221`（`hold_release` 四态全可）；`backend-ts/src/database.ts:823-836`（`slog … FROM apply` 门控手法）。
+
+#### 19.20.A 动作口 ↔ 四条既有规则的逐条映射（**映射，不是新规则**）
+
+| 规则（本册既有） | 原文要点（**逐字引，不改写**） | 动作口如何兑现 | 落到何处（可判负） |
+|---|---|---|---|
+| **R10**（§3.1，`:231`） | 「`currency.status` 四态字符串枚举：`draft / listed / frozen / delisted`；`listed_at` 在首次进入 `listed` 时写入，之后**不再清空**」 | 本口**只写 `status` 与 `time_updated`**；**不写 `listed_at`**（`frozen → listed` 的「重新上市」**不刷新** `listed_at` —— 「首次进入」才写） | `currency.status` 四态闭集不变；`listed_at` 在 `frozen → listed` 后**保持原值** ⇒ 若被刷新 ⇒ 判负 |
+| **R26**（§3.1，`:287`） | 「**`$` 的状态恒为 `listed`**：migration 种子行写死，且服务层禁止把 `cid = 1` 改为 `frozen` / `delisted`」 | 入口**第一道状态闸** = `assertSystemCurrencyImmutable(cur)`（`ledger.ts:670`）；`cid = 1` 且 `to ∈ {frozen, delisted}` ⇒ 既有 `LEDGER_CURRENCY_INVALID_TRANSITION`（`409`），**零副作用** | 抛码位置在**状态机断言之前**；`cid = 1` 的 `status` 与 `currency_status_log` 均**无变更** ⇒ 任一有变 ⇒ 判负 |
+| **R27**（§3.1，`:288`） | 「状态转移**只允许** §3.2 表中列出的 5 条；其余组合（含 `delisted → *`、`listed → draft`）一律返回 `LEDGER_CURRENCY_INVALID_TRANSITION`。转移必须落 `currency.status` + `time_updated`」 | 断言 = `assertCurrencyTransition(from, to)`（`ledger.ts:663`）；白名单表 = `CURRENCY_TRANSITIONS`（`:656-661`）；**`to = 'draft'` 被 `400` 形状闸先拦**（R27 无任何 `→ draft` 的边） | 非法组合 ⇒ **`409 LD011`**，**且** `currency.status` 未变**且** `currency_status_log` 零新行 ⇒ 任一不满足 ⇒ 判负 |
+| **R28**（§3.1，`:289`） | 「`hold` / 交易所挂单：`draft`❌ `listed`✅ `frozen`❌ `delisted`❌」 + **P1a 裁定**「**`hold_release` 四态全可**…依据 §7.2 #14『下架必须撤销挂单并解冻』—— 否则撤单会卡死在 `delisted` 币种上」 | **这就是「先撤单、后改状态」可行的唯一依据**：Phase A（撤单）在 `listed` 态执行（`hold_release` 恒可）；Phase B 才把状态推到 `frozen`/`delisted`。若反过来，窗口内会出现「`delisted` 币种仍有 open 单」+ 撮合侧 `settle` 仅 `listed` ⇒ 死单 | 撤单必须发生在状态变更**之前**（顺序可判：Phase A 的 `market_order` 状态与 `hold_release` 分录时间戳早于 `currency_status_log.time_created`）⇒ 反序 ⇒ 判负 |
+| **R29**（§3.1，`:290`） | 「`frozen` 是**平台合规冻结**…解冻同样只能平台发起。冻结/解冻**不产生任何账务分录**…但**必须**写一条审计记录（建议 `currency_status_log`…）」 | 本口即 R29 所述「平台发起」的**唯一入口**；审计行 = `currency_status_log` **恰 1 行**（见下 §19.20.C） | 冻结/解冻产生 `ledger_entry` 且 `kind ∉ {hold_release}` ⇒ 判负；无审计行 ⇒ 判负 |
+| **R30**（§3.1，`:291`） | 「`delisted` 是**终态**：不可复活…因此下架时**必须**同时处理该币种的未成交挂单（全部撤销 + 解冻）」 | `CURRENCY_TRANSITIONS.delisted = []`（`:660`）落实终态；Phase A 落实「全部撤销 + 解冻」；Phase B 的 `apply` 谓词再断言「活跃挂单 = 0」（fail-closed 关窗竞态） | 终态复活 ⇒ `409 LD011`；活跃挂单 > 0 时状态仍变 ⇒ 判负（必须 `409 ACTIVE_ORDERS_REMAIN` **或**整体回滚） |
+| **R31**（§3.1，`:292`） | 「`listing_deposit` = **消耗**…（**不可退**）；`listing_fee` / `currency_create_fee` = **消耗**（不可退）」 | 本口**零账务动作**：**无**退还（`listing_deposit_refund` 已于 v0.2 删除）、**无**罚没（`listing_deposit_forfeit` 已于 **v0.3（P1c）** 删除，见 **§19.8.B**） | 下架/冻结/强制下架产生任何保证金腿 ⇒ 判负（详见 §19.20.C） |
+| **R83**（§7.2，`:735`） | 「并发 `mint` / `burn` / **状态变更**必须先锁 `currency` 行（`SELECT … FOR UPDATE`），再动 `account`，顺序不可颠倒」 | Phase B 的 `apply` CTE 首段即 `SELECT … FROM public.currency … FOR UPDATE`（照 `LIST_CURRENCY_WITH_DEPOSIT_SQL` 的 `cur` 段手法）；Phase A 逐单事务只锁一行业务行 + 该 owner 的 `account` | Phase B 未锁 `currency` 行 ⇒ 判负；Phase A 与 Phase B 压成一个事务（同时持多把 `market_order` 锁 + `currency` 锁，与 R79 全序成环风险）⇒ 判负 |
+
+- **★ 一条必须写死的边界（R27 是上限、不是「每个口都要全给」）**：R27 管的是**「哪些组合合法」**。本口 = **状态运维口**，**只承担 6 个合法格里的 5 个**；**`draft → listed` 例外地不在本口** —— 该格必须同时做 `currency_create_fee` + `listing_fee` + `listing_deposit`（§3.2 转移表 / R31）⇒ 其**唯一入口**仍是 `POST /api/currency/:cid/list`（`listCurrencyWithDeposit`）+ 审核通过路径。**本口遇到 `(draft, listed)` ⇒ 既有 `LEDGER_CURRENCY_INVALID_TRANSITION`（`409`）+ `details.reason = 'LISTING_REQUIRES_FEE_PATH'`**；在本口接受该格 ⇒ **等于跳过上市费与保证金** ⇒ 判负。
+
+#### 19.20.B 挂单撤单解冻的**唯一路径**（写死 · 只此一条）
+
+- **唯一路径（逐字）**：**逐单 `market_post_event(op='cancel')`** ⇒ DB 编排函数内出 `market_order.status` 变更 + **`hold_release` × 2 条分录**（同账户 `balance ↔ frozen`），根键 = **既有** `biz:market:cancel:<order_id>`。
+  - 服务层唯一入口 = `market-service.ts:325` `cancelOne`（**仅订单 `owner_uid` 可撤**）⇒ `DatabaseService.marketPostEvent`。
+  - **不得**：① 直接 `UPDATE public.account SET frozen = frozen - x, balance = balance + x`（绕过账本）；② 自写 `ledger_entry` 造 `hold_release`；③ 先改 `market_order.status` 再补分录（两步写）；④ 新造第二个撤单根键。
+- **「按币种撤单」在现盘不存在，必须新写一个只读函数**（本册只登记该事实，函数体在实现单）：
+  - 现盘两条枚举都**按 `owner_uid`**：`database.ts:4292 listOpenMarketOrderIds(uid)`、`market-service.ts:390 cancelAllMarketOrders`（**全撤 ≠ 按币种撤**）。
+  - 必写 = `SELECT o.order_id FROM public.market_order o WHERE o.base_cid = $1::bigint AND o.status IN ('open','partial') AND o.amount > o.amount_filled ORDER BY o.order_id ASC`（`quote_cid` 恒 `1`，`0016:132` CHECK ⇒ `base_cid` 即该币种；**只读、无锁、无 DDL**）。
+- **与 R28 的咬合（本册必须写清）**：`hold_release` **四态全可**（P1a 裁定）⇒ 即便某币在 `frozen` 态残留活跃挂单（`listed → frozen` **不撤单**，§3.2 该格原文「已挂单需另行撤销，见 R28」），**撤单仍能成功**；这正是 `frozen → delisted` 必须**先撤单**的原因 —— 否则终态会带着死单进入 `delisted`（违 R30）。
+- **与 §7.2 #14 的咬合**：该行事务三件事 = 「改 `currency.status` → **无账务动作** → 撤销该币种全部活跃挂单（`hold_release` + `market_order` 状态）」。**本册承认该行措辞的书写顺序是「先状态、后撤单」，而本口实现顺序是「先撤单、后状态」** —— **两者不冲突**：该行管的是**同一事务内的动作清单**（并明写锁对象含「该币种活跃 `market_order`」），本口把它拆成 **Phase A（逐单独立事务）+ Phase B（状态单事务）**，理由是 R30 的「**每批仍是独立事务，不允许跨批冻结资金**」与 R79 全序（多单同事务会同时持多把业务行锁 + `currency` 锁 ⇒ 成环风险）。**本条 = 本册对该书写顺序的唯一解释，其它解释一律不成立**；若将来 Zang 要求「严格按该行书写顺序」，**须新开 `R` 条**，不得就地改 `#14`。
+
+#### 19.20.C **零账务动作**的再次确认（引 v0.3 结论 · 并区分两个「零」）
+
+- **再次确认（与 v0.3（P1c）结论一致，`§19.8.B`）**：币种**下架** / **强制下架** / **冻结** / **解冻** 的**状态腿本身，零账务动作** ——
+  1. **无** `listing_deposit_refund`（**该 kind 已于 v0.2 删除**，见 §5.1 / §19.1）；
+  2. **无** `listing_deposit_forfeit`（**该 kind 已于 v0.3（P1c）删除**，见 §5.1 #21 / **§19.8.B**）；
+  3. **无**平台收入腿（`uid = -1` 零变动）；
+  4. **无**余额扣减、**无** `currency.total_supply` 变动。
+  ⇒ 依据 = **R31 v0.2 更正**（保证金**上市即消耗、不可退、无罚没**）+ §3.2 转移表（`listed/frozen → delisted` 格「正常下架：**无账务动作**…**强制下架亦无账务动作**」）。
+- **★ 两个「零」必须分清（本册写死，防实现方把「解冻」误读成「零资金变动」）**：
+  - **零收支腿**（本口严格如此）：本口对 `ledger_entry` 的写入**只可能是 `hold_release`**（且仅来自 Phase A）。`hold_release` 是**同账户两腿**（`frozen −x` / `balance +x`），**不是收支事件**。
+  - **零资金变动**（本口**不是**如此）：撤单解冻会把用户**自己的**钱从 `frozen` 挪回 `balance` ⇒ **单账户 `balance` 会增加**、`frozen` 会减少，但 `Σbalance` **净增 = 0**、平台账户**零变动**。**不得**据此认为「本口动了用户的钱」。
+- **判负（本册口径）**：本口产生任何 `ledger_entry` 且 `kind ∉ {hold_release}` ⇒ 判负；`hold_release` 的分录对**不在同一 `uid` 上**（跨账户 ⇒ 变成收支）⇒ 判负；`currency.total_supply` 有变 ⇒ 判负；`uid = -1` / `-2` / `-3` 任一账户有变 ⇒ 判负。
+
+#### 19.20.D 变更记录与自证（v0.18）
+
+- **本节只追加**：`git diff --numstat docs/ledger.spec.md` 删除列 = **0**（读数见交付报告）。
+- **未动面（逐条声明）**：`R1`–`R109` 编号与条文**一字未动**；§14.1 **仍 33 码**（**零新增错误码**：本节用到的码全在既有集合内 —— `LEDGER_CURRENCY_NOT_FOUND` / `LEDGER_CURRENCY_INVALID_TRANSITION` / `LEDGER_AMOUNT_INVALID` / `LEDGER_IDEMPOTENCY_KEY_REQUIRED`）；章节编号**未重排**（新内容向后追加为 **§19.20**）；§3.2 转移表 / §7.2 #14 / §7.3 `R83` / §13.3 `R101`·`R103` **一字未改**。
+- **本册本笔未做**：**零代码 / 零迁移 / 零库连接 / 零 HTTP / 零服务启停**；**未建快照 / 未建 delta 件**（理由见头注 v0.18 行：本轮为上位册的映射登记，非本册条文变更）。
+- **权威顺序**：**契约线格式**（body / 闸 / 错误码 / 响应键集 / 判负清单）**一律以上位册 `route-layer.spec` v2.52 §49.25 为准**；本册只负责「这条动作口在账本面**对应哪些既有规则**」。两册若有出入，**以 §49.25 为准并回改本册**（本节为映射、不持独立裁定权）。
