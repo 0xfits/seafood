@@ -244,6 +244,20 @@ const readHome = (page) => page.evaluate(() => {
     empty_title: empty?.querySelector('p:first-child')?.textContent?.trim() ?? null,
     empty_hint: empty?.querySelector('p:last-child')?.textContent?.trim() ?? null,
     section_heading: (document.querySelector('[data-sf-m="home-camp"] h2')?.textContent || '').trim(),
+    // ★ 2026-10-24（Kevin）：【热门任务】右上入口读数（文案 / 变体类 / 链接 / 计算色）
+    viewall: (() => {
+      const btn = document.querySelector('[data-sf-m="home-viewall"]')
+      if (!btn) return null
+      const cs = getComputedStyle(btn)
+      return {
+        text: (btn.textContent || '').trim(),
+        class: btn.className,
+        href: btn.closest('a')?.getAttribute('href') ?? null,
+        bg: cs.backgroundColor,
+        color: cs.color,
+        box_shadow: cs.boxShadow,
+      }
+    })(),
     card_class_count: document.querySelectorAll('.sf-home-camp-card').length,
     rows: cards.map((card, index) => ({
       task_id: card.getAttribute('data-sf-task'),
@@ -329,6 +343,16 @@ async function armRowcount(browser) {
     old_jobs_api_hits_zero: wide.oldApiHits.length === 0 && three.oldApiHits.length === 0,
     pageerror_zero: wide.pageErrors.length === 0 && three.pageErrors.length === 0,
     window_error_zero: wide.winErrors.length === 0 && three.winErrors.length === 0,
+    // ⑤ ★ 2026-10-24（Kevin）：【热门任务】右上入口 = 文案「全部悬赏」+ 弱化 ghost（非 proceed 蓝底）+ 仍指 /campaign
+    viewall_present: Boolean(wide.reading.viewall),
+    viewall_text_is_all_bounties: wide.reading.viewall?.text === '全部悬赏',
+    viewall_wears_ghost: Boolean(wide.reading.viewall?.class?.split(/\s+/).includes('btn-ghost')),
+    viewall_not_proceed: Boolean(wide.reading.viewall)
+      && !wide.reading.viewall.class.split(/\s+/).includes('btn-proceed'),
+    // 弱化「不再蓝底」的**计算值**取证（proceed 蓝 = --tone-blue #3b82f6 ⇒ rgb(59, 130, 246)）
+    viewall_bg_is_ghost_white: /^rgba\(255,\s*255,\s*255,\s*0\.55\)$/.test(wide.reading.viewall?.bg || ''),
+    viewall_bg_not_blue: !/59,\s*130,\s*246/.test(wide.reading.viewall?.bg || ''),
+    viewall_href_campaign: wide.reading.viewall?.href === '/campaign',
   }
   return {
     arm: 'rowcount',

@@ -61,7 +61,13 @@ describe('P6-I18N-LIT-B1 · en 档渲染英文文案', () => {
     expect(screen.queryByRole('heading', { name: 'Welcome to Jinli Club' })).toBeNull()
     expect(await screen.findByRole('heading', { name: 'Hot tasks' })).toBeInTheDocument()
     expect(await screen.findByRole('heading', { name: 'Featured rewards' })).toBeInTheDocument()
-    expect(screen.getAllByText('View all')).toHaveLength(1)
+    // ★ 2026-10-24（Kevin）：【热门任务】右上入口文案改值（en「All bounties」）+ 形态改**弱化 ghost**
+    //   （半透明白底 / 灰字 / 无阴影），不再 proceed 蓝底；`.btn-proceed` 类本体未动（WalletAuthPanel 仍用）。
+    const viewAll = screen.getAllByText('All bounties')
+    expect(viewAll).toHaveLength(1)
+    expect(viewAll[0].className).toContain('btn-ghost')
+    expect(viewAll[0].className).not.toContain('btn-proceed')
+    expect(screen.queryByText('View all')).toBeNull()
     expect(screen.queryByText('Publish item')).toBeNull()
     // 隐藏标题：恰 1 个 h1，文案 = en 档 `siteBrand`，class 含 sf-visually-hidden
     const h1s = document.querySelectorAll('h1')

@@ -473,7 +473,7 @@ const HomePage = () => {
               ★ 卡 = 读口行的一一映射（最多 5 张），**零 mock / 零补位**：无可见行 ⇒ 空态
               （复用既有键 `taskPage.emptyAvailable/Hint`，零新增 i18n），版块不造假卡 ——
               与 `/campaign` 同一谓词、同一批任务。
-              「查看全部」指向活动列表 `/campaign`（旧 jobs 悬赏拉取已删 ⇒ 不再指 `/task`）。
+              「全部悬赏」指向活动列表 `/campaign`（旧 jobs 悬赏拉取已删 ⇒ 不再指 `/task`）。
               ★ 2026-10-24（Kevin）：hero 整块删除后，其渐变背景（`bg-gradient-to-r
               from-yellow-50 to-blue-50` + `rounded-2xl` + `p-8`）**只移到此容器** —— 零新类、
               零新 token（类名均已在 `styles/tailwind-compat.css`），且**不加** `text-center`、
@@ -485,7 +485,10 @@ const HomePage = () => {
                 <p className="text-gray-600">{t('homePage.hotTasksLead')}<span className="text-sm font-bold text-yellow-600 dark:text-yellow-400">$</span></p>
               </div>
               <Link to={buildLocalizedPath(lang, '/campaign')}>
-                <Button variant="proceed">{t('common.viewAll')}</Button>
+                {/* ★ 2026-10-24（Kevin）：入口取**弱化 ghost**形态（半透明白底 / 灰字 / 无阴影），
+                    不再 proceed 蓝底 —— 与「热门任务」版块主位不抢视觉；`.btn-proceed` 本体未动
+                    （WalletAuthPanel 仍在用）。钩子 `home-viewall` 供探针/单测锤。 */}
+                <Button variant="ghost" data-sf-m="home-viewall">{t('common.viewAll')}</Button>
               </Link>
             </div>
 

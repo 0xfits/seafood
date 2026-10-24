@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-24T00:33:45.829Z",
+  "at": "2026-10-24T02:30:35.097Z",
   "spec": "HOME-CAMP-v2 · 去 mock 四臂（旧 mock_cards / mock_not_clickable / exactly_five_cards 判据已删除）",
   "fixture": {
     "home_rows": 6,
@@ -37,6 +37,14 @@
           "empty_title": null,
           "empty_hint": null,
           "section_heading": "热门任务",
+          "viewall": {
+            "text": "全部悬赏",
+            "class": "btn btn-ghost btn-md px-4 py-2 text-base",
+            "href": "/campaign",
+            "bg": "rgba(255, 255, 255, 0.55)",
+            "color": "rgb(75, 85, 99)",
+            "box_shadow": "none"
+          },
           "card_class_count": 5,
           "rows": [
             {
@@ -124,6 +132,14 @@
           "empty_title": null,
           "empty_hint": null,
           "section_heading": "热门任务",
+          "viewall": {
+            "text": "全部悬赏",
+            "class": "btn btn-ghost btn-md px-4 py-2 text-base",
+            "href": "/campaign",
+            "bg": "rgba(255, 255, 255, 0.55)",
+            "color": "rgb(75, 85, 99)",
+            "box_shadow": "none"
+          },
           "card_class_count": 3,
           "rows": [
             {
@@ -192,7 +208,14 @@
         "avatar_two_forms": true,
         "old_jobs_api_hits_zero": true,
         "pageerror_zero": true,
-        "window_error_zero": true
+        "window_error_zero": true,
+        "viewall_present": true,
+        "viewall_text_is_all_bounties": true,
+        "viewall_wears_ghost": true,
+        "viewall_not_proceed": true,
+        "viewall_bg_is_ghost_white": true,
+        "viewall_bg_not_blue": true,
+        "viewall_href_campaign": true
       }
     },
     {
@@ -206,6 +229,14 @@
         "empty_title": "暂无可用悬赏",
         "empty_hint": "请稍后再来查看",
         "section_heading": "热门任务",
+        "viewall": {
+          "text": "全部悬赏",
+          "class": "btn btn-ghost btn-md px-4 py-2 text-base",
+          "href": "/campaign",
+          "bg": "rgba(255, 255, 255, 0.55)",
+          "color": "rgb(75, 85, 99)",
+          "box_shadow": "none"
+        },
         "card_class_count": 0,
         "rows": [],
         "doc": {
@@ -362,7 +393,14 @@
       "avatar_two_forms": true,
       "old_jobs_api_hits_zero": true,
       "pageerror_zero": true,
-      "window_error_zero": true
+      "window_error_zero": true,
+      "viewall_present": true,
+      "viewall_text_is_all_bounties": true,
+      "viewall_wears_ghost": true,
+      "viewall_not_proceed": true,
+      "viewall_bg_is_ghost_white": true,
+      "viewall_bg_not_blue": true,
+      "viewall_href_campaign": true
     },
     "empty": {
       "zero_cards": true,
