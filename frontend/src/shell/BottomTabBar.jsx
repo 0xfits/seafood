@@ -22,11 +22,15 @@ const isItemDetailPath = (pathname) => {
 }
 
 // 手机竖屏底部 tab 骨架（web 横屏由断点 CSS 隐藏，但**始终在 DOM 中**）。
-// 结构与比选页手机壳底栏同形：grid repeat(5,1fr) 的竖直 icon+label 单元
-// （docs/design/style-preview.html:169-174）。底栏恒 5 格（含未登录；`/profile` 保护由路由层
-// ProtectedRoute 承担 —— 见 shell/nav.js 2026-10-19 留痕，本组件不读登录态）。
+// 结构与比选页手机壳底栏同形：grid `repeat(var(--sf-st-tabbar-cols),1fr)` 的竖直 icon+label 单元
+// （结构常量 `tabbar-cols`；真源 docs/design/style-preview.html:1192 = `repeat(4,1fr)`）。
+// 底栏恒 **4 格**（含未登录；`/profile` 保护由路由层 ProtectedRoute 承担 —— 本组件不读登录态）。
+// ★ [留痕] 2026-10-24 · Kevin 裁定：**只下移动底栏的【卖闲置】入口**（`sell` 项已从 SHELL_NAV_ITEMS 删除）
+//   ⇒ 底栏 5 → 4 格；**桌面右侧悬浮菜单的【卖闲置】保留**（`FloatingMenu.FM_ITEMS` 未改）；
+//   路由 `/item/new` 保留（直链可用）。列数一律由 STRUCT token 承载，本组件零内联 style。
 //
-// ★ v1.19 §21（消息面板化 · 方案 1「就地叠加」· 入口①底栏第 4 格）：
+// ★ v1.19 §21（消息面板化 · 方案 1「就地叠加」· 入口①底栏消息格 —— 2026-10-24 由第 4 格变第 3 格，
+//   判定按 `item.key === 'messages'`、不写死格位索引）：
 //   左键单击（`button === 0` 且无 ctrl/meta/shift/alt）⇒ `preventDefault()` + 在**当前路径**上加
 //   `?msg=1`（保留当前 search 里除 `c` / `msg` 外的参数）⇒ `navigate`（**不换页**、宿主页原地左压）；
 //   修饰键 / 中键 ⇒ **不拦截**，交给浏览器自然跳转（退化为 `/messages` 直链落点）。
@@ -38,7 +42,7 @@ const BottomTabBar = () => {
   const navigate = useNavigate()
   const lang = getLanguageFromUrl(location.pathname)
   const items = SHELL_NAV_ITEMS
-  // T103 未读角标（第 4 格 messages）：共享态同源消费。★ 本文件**不得**引入任何视口宽度判定 ——
+  // T103 未读角标（messages 格）：共享态同源消费。★ 本文件**不得**引入任何视口宽度判定 ——
   //   `theme-shell-isomorphism` 硬断言禁止在外壳 JS 里出现断点类读数，且**按明文全文扫描**（注释同样命中）
   //   ⇒ 本文件只做**路由串**匹配，宽度翻转一律交给 CSS 断点块（`shell.css` 唯一 767 块）。
   const { total: unreadTotal } = useUnreadCount()
@@ -46,7 +50,7 @@ const BottomTabBar = () => {
   // T95：仅详情路由追加 is-detail 修饰类；隐藏规则落 styles.css 顶层（具体性压过 767 断点块）
   const isDetail = isItemDetailPath(location.pathname)
 
-  // 入口①（底栏第 4 格）= **就地叠加**：当前路径 + `?msg=1`（不换页、不改 `href`）。
+  // 入口①（底栏 messages 格）= **就地叠加**：当前路径 + `?msg=1`（不换页、不改 `href`）。
   const onTabClick = (event, item) => {
     if (item.key !== 'messages') return
     if (event.button !== 0) return

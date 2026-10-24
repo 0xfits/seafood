@@ -416,7 +416,9 @@ export const STRUCT = {
   'feed-gap-m': '9px',
   'card-thumb-h': '150px',
   'card-thumb-h-m': '118px',
-  'tabbar-cols': '5',
+  // [留痕] 2026-10-24 · Kevin 裁定：只下移动底栏【卖闲置】、桌面浮菜单【卖闲置】保留 ⇒ 底栏 5 → 4 格。
+  // 真源回读 = style-preview.html:1192（尾部纯追加段；旧 5 格行 :169 逐字保留为历史、不作应用值）。
+  'tabbar-cols': '4',
   'tabbar-fab': '46px',
   'tabbar-fab-overlap': '-16px',
   'statusbar-pad': '7px 16px 3px',
@@ -460,7 +462,7 @@ export const STRUCT_PROV = {
   'feed-gap-m': { d: [116, 'gap:9px'], n: [328, 'gap:8px'] },
   'card-thumb-h': { d: [189, 'height:150px'], n: [189, 'height:150px'] },
   'card-thumb-h-m': { d: [190, 'height:118px'], n: [330, 'min-height:106px'] },
-  'tabbar-cols': { d: [169, 'grid-template-columns:repeat(5,1fr)'], n: [169, 'grid-template-columns:repeat(5,1fr)'] },
+  'tabbar-cols': { d: [1192, 'grid-template-columns:repeat(4,1fr)'], n: [1192, 'grid-template-columns:repeat(4,1fr)'] },
   'tabbar-fab': { d: [173, 'width:46px;height:46px'], n: [173, 'width:46px;height:46px'] },
   'tabbar-fab-overlap': { d: [173, 'margin-top:-16px'], n: [173, 'margin-top:-16px'] },
   'statusbar-pad': { d: [162, 'padding:7px 16px 3px'], n: [162, 'padding:7px 16px 3px'] },

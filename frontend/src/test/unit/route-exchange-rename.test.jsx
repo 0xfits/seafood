@@ -100,9 +100,10 @@ describe('① 导航真源：path/route = exchange，key/labelKey 保持 shard',
     expect(isNavItemActive('/exchange', shardItem)).toBe(true)
     expect(isNavItemActive('/hk/exchange/anything', shardItem)).toBe(true)
     expect(isNavItemActive('/reward', shardItem)).toBe(false)
-    // 底栏恒 5 格（含未登录）—— 2026-10-19 缺陷单改锚：前版「游客 4 / 登录 5」两断言已废，
-    // 现 key 集恒 5（/profile 保护由 App.jsx ProtectedRoute 承担，与 messages 同口径）。
-    expect(SHELL_NAV_ITEMS.map((i) => i.key)).toEqual(['home', 'shard', 'sell', 'messages', 'profile'])
+    // 底栏恒 4 格（含未登录）—— 2026-10-24 · Kevin 裁定：只下移动底栏【卖闲置】⇒ key 集 5 → 4；
+    // 前版「游客 4 / 登录 5」两断言（2026-10-19 已废）仍不复活；（/profile 保护由 App.jsx ProtectedRoute 承担，
+    // 与 messages 同口径）。改名单（shard → exchange）本身不受影响：`shard` 键仍在、仍在底栏。
+    expect(SHELL_NAV_ITEMS.map((i) => i.key)).toEqual(['home', 'shard', 'messages', 'profile'])
   })
 
   it('App.jsx 源：交易所页挂在 path="exchange"；旧 /shard 由一条 Navigate 重定向承接', () => {

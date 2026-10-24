@@ -1184,3 +1184,10 @@ body.view-mobile .frame.pc{display:none}
   <pre>@media (min-width:1280px){.sf-feed{grid-template-columns:repeat(6,minmax(0,1fr))}}</pre>
   <p>手机竖屏档（≤767px）= 2 列（不变，<code>feed-cols-m</code>；夜档是否统一 2/2 见 OPEN-ITEMS <code>B38</code>）。</p>
 </section>
+
+<!-- PROV 追加 2026-10-24（Kevin 裁定：只下移动底栏【卖闲置】、桌面悬浮菜单【卖闲置】保留）——底栏列数 5 → 4。 -->
+<section id="tabbar-cols-4-v20261024">
+  <h3>底栏（H5）恒 4 格（结构常量 <code>tabbar-cols</code> · 日/夜同值 · 2026-10-24）</h3>
+  <p>底栏【卖闲置】入口下线 ⇒ 底栏恒 4 格（<code>home</code> / <code>shard</code> / <code>messages</code> / <code>profile</code>）。原 5 格行（:169 <code>.tabbar</code>）保留为历史、不再作应用值；桌面右侧悬浮菜单的【卖闲置】保留（浮菜单格子不占底栏）。</p>
+  <pre>.tabbar{flex:0 0 auto;display:grid;grid-template-columns:repeat(4,1fr);align-items:end;position:relative;z-index:4}</pre>
+</section>

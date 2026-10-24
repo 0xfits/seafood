@@ -89,12 +89,13 @@ describe('应用外壳 · 骨架同构（横竖屏同一套 DOM）', () => {
     expect(tabs.map((a) => a.getAttribute('data-sf-nav'))).toEqual(SHELL_NAV_ITEMS.map((i) => i.key))
   })
 
-  it('顶栏与底栏「分家」：底栏=nav 五项（含 home）· 桌面左 nav=Header menuItems 三项（各自独立断言）', () => {
+  it('顶栏与底栏「分家」：底栏=nav 四项（含 home · 2026-10-24 删 sell）· 桌面左 nav=Header menuItems 三项（各自独立断言）', () => {
     useAuth.mockReturnValue({ isAuthenticated: true, user: { uID: '1', EVM: '0xabcdef1234' }, logout: vi.fn() })
     const { container } = renderShell()
-    // ① 底栏（shell/nav.js 真源）：五项 href（含显式 home tab）
+    // ① 底栏（shell/nav.js 真源）：**四项** href（含显式 home tab；`sell` 项 2026-10-24 已从底栏下线）
     const tabHrefs = Array.from(container.querySelectorAll('[data-sf-region="tabbar"] a[data-sf-nav]')).map((a) => a.getAttribute('href'))
-    expect(tabHrefs).toEqual(['/', '/exchange', '/item/new', '/messages', '/profile'])
+    expect(tabHrefs).toEqual(['/', '/exchange', '/messages', '/profile'])
+    expect(tabHrefs).not.toContain('/item/new')
     expect(tabHrefs).toEqual(SHELL_NAV_ITEMS.map((i) => navPathInLang(i, 'zh')))
     // ② 桌面左 nav + 右侧控件簇（Header.jsx · menuItems 现状值一字不动；home 由品牌 logo 承担）。
     //    sf14 前推（2026-10-14 单）：右上角新增「订单」按钮复用 nav-link 控件类 ⇒ href 集合 +'/profile'。
@@ -104,13 +105,28 @@ describe('应用外壳 · 骨架同构（横竖屏同一套 DOM）', () => {
     expect(brandHref).not.toBeNull()
   })
 
-  it('底栏恒 5 格（含未登录；/profile 保护由路由层 ProtectedRoute 承担 —— 2026-10-19 缺陷单改锚）', () => {
-    // 前版曾断言「未登录不含 profile」（visibleNavItems 过滤已废）⇒ 现口径：key 集恒 5。
-    expect(SHELL_NAV_ITEMS.map((i) => i.key)).toEqual(['home', 'shard', 'sell', 'messages', 'profile'])
-    useAuth.mockReturnValue({ isAuthenticated: true, user: { uID: '1', EVM: '0xabcdef1234' }, logout: vi.fn() })
-    const { container } = renderShell()
-    const tabs = Array.from(container.querySelectorAll('[data-sf-region="tabbar"] a[data-sf-nav]')).map((a) => a.getAttribute('data-sf-nav'))
-    expect(tabs).toEqual(['home', 'shard', 'sell', 'messages', 'profile'])
+  it('底栏恒 4 格（含未登录；/profile 保护由路由层 ProtectedRoute 承担）· 浮菜单【卖闲置】仍在（2026-10-24 改锚）', () => {
+    // 2026-10-24 · Kevin 裁定：只下移动底栏【卖闲置】⇒ key 集 5 → 4（sell 已删）；浮菜单一字未改。
+    // 前版口径「底栏恒 5 格」已作废；logout 过滤类断言（visibleNavItems 已废）仍不复活。
+    expect(SHELL_NAV_ITEMS.map((i) => i.key)).toEqual(['home', 'shard', 'messages', 'profile'])
+    expect(SHELL_NAV_ITEMS.map((i) => i.key)).not.toContain('sell')
+    for (const [authed, label] of [[false, '未登录'], [true, '登录']]) {
+      useAuth.mockReturnValue(
+        authed
+          ? { isAuthenticated: true, user: { uID: '1', EVM: '0xabcdef1234' }, logout: vi.fn() }
+          : { isAuthenticated: false, user: null, logout: vi.fn() }
+      )
+      const { container, unmount } = renderShell()
+      const tabs = Array.from(container.querySelectorAll('[data-sf-region="tabbar"] a[data-sf-nav]')).map((a) => a.getAttribute('data-sf-nav'))
+      // 两档同 4 格、顺序恒定（底栏对全部 4 项恒染）
+      expect(tabs, `${label}底栏格位`).toEqual(['home', 'shard', 'messages', 'profile'])
+      expect(tabs, `${label}底栏不得出现 sell`).not.toContain('sell')
+      // 反向正断言：桌面右侧悬浮菜单仍含【卖闲置】→ /item/new（本单未动 FloatingMenu）
+      const fmSell = container.querySelector('[data-sf-m="floatmenu"] a[data-sf-fm="sell"]')
+      expect(fmSell, `${label}浮菜单 sell 项`).not.toBeNull()
+      expect(fmSell.getAttribute('href')).toBe('/item/new')
+      unmount()
+    }
   })
 
   it('四语切换入口在 shell 顶栏内可点（复用 4b-i locale 机制，不另造一套）', async () => {
@@ -146,12 +162,17 @@ describe('应用外壳 · 骨架同构（横竖屏同一套 DOM）', () => {
   })
 
   it('语言前缀与激活判定复用 utils（/en/exchange、/hk/item/new 均命中）', () => {
-    expect(navPathInLang(SHELL_NAV_ITEMS[1], 'zh')).toBe('/exchange')
-    expect(navPathInLang(SHELL_NAV_ITEMS[1], 'en')).toBe('/en/exchange')
-    expect(isNavItemActive('/en/exchange', SHELL_NAV_ITEMS[1])).toBe(true)
-    expect(isNavItemActive('/hk/item/new', SHELL_NAV_ITEMS[2])).toBe(true)
-    expect(isNavItemActive('/hk/task', SHELL_NAV_ITEMS[1])).toBe(false)
-    expect(isNavItemActive('/', SHELL_NAV_ITEMS[0])).toBe(true)
+    // 按 key 取例（不写死索引）：2026-10-24 删 `sell` 后索引已漂，硬索引会静默指错项。
+    const shardItem = SHELL_NAV_ITEMS.find((i) => i.key === 'shard')
+    const homeItem = SHELL_NAV_ITEMS.find((i) => i.key === 'home')
+    // `sell` 已不在底栏（浮菜单用），但 `/item/new` 路由仍在 ⇒ 激活判定仍需覆盖该路径（用同形对象取例）。
+    const sellItem = { key: 'sell', path: 'item/new', route: 'item/new' }
+    expect(navPathInLang(shardItem, 'zh')).toBe('/exchange')
+    expect(navPathInLang(shardItem, 'en')).toBe('/en/exchange')
+    expect(isNavItemActive('/en/exchange', shardItem)).toBe(true)
+    expect(isNavItemActive('/hk/item/new', sellItem)).toBe(true)
+    expect(isNavItemActive('/hk/task', shardItem)).toBe(false)
+    expect(isNavItemActive('/', homeItem)).toBe(true)
   })
 })
 

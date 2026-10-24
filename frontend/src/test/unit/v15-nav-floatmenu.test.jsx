@@ -2,7 +2,7 @@
  * v1.5 单测（本轮新增）—— design-system.spec v1.5 §14（T80–T86）+ route-layer.spec v2.27 §37
  *
  * 覆盖面（§14.7 判负清单的可测子集，设备档面见浏览器读数）：
- *   ① 底栏（H5）五项 label/href（含四语前缀）
+ *   ① 底栏（H5）四项 label/href（含四语前缀）—— 2026-10-24 底栏【卖闲置】下线（5 → 4 格）
  *   ② 右侧悬浮菜单：五项上→下（含 2026-10-20 改版：**首位【领工资】/wage**、反馈项已移除）/ 链接目标 /
  *      两弹窗开关（遮罩 + ESC）/ 反馈钩子与模板位全仓零残留
  *   ③ 悬浮菜单可见性口径：shell.css 桌面默认 display:flex、≤767 唯一断点块内 display:none（唯一 @media）
@@ -80,17 +80,24 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-describe('v1.5 ① 底栏（H5）五项 label / href（含四语前缀）', () => {
-  it('nav 真源 = 五项，key 序 = home/shard/sell/messages/profile', () => {
-    expect(SHELL_NAV_ITEMS.map((i) => i.key)).toEqual(['home', 'shard', 'sell', 'messages', 'profile'])
+describe('v1.5 ① 底栏（H5）四项 label / href（含四语前缀）', () => {
+  it('nav 真源 = 四项，key 序 = home/shard/messages/profile（sell 已从底栏下线）', () => {
+    // 2026-10-24 · Kevin 裁定：**只下移动底栏【卖闲置】**；浮菜单保留（见下方 ② 段落）。
+    expect(SHELL_NAV_ITEMS.map((i) => i.key)).toEqual(['home', 'shard', 'messages', 'profile'])
+    expect(SHELL_NAV_ITEMS.map((i) => i.key)).not.toContain('sell')
+    expect(SHELL_NAV_ITEMS.some((i) => i.path === 'item/new')).toBe(false)
+    // `sell` 文案键**不得删**（浮菜单仍消费）；四语齐备
+    expect(['zh', 'en', 'hk', 'vn'].every((lang) => typeof TABLES[lang].sell === 'string' && TABLES[lang].sell.length > 0)).toBe(true)
   })
 
-  it('★本单 delta① 底栏⑤：key 仍 profile（路由不动）· labelKey 回 profile · profile 四语值 = 我的/Me/我的/Tôi · me 键已删', () => {
-    const fifth = SHELL_NAV_ITEMS[4]
+  it('★本单 delta① 底栏末格：key 仍 profile（路由不动）· labelKey 回 profile · profile 四语值 = 我的/Me/我的/Tôi · me 键已删', () => {
+    // 按 key 取例（2026-10-24 删 sell 后索引由 4 漂到 3，禁写死索引）
+    const fifth = SHELL_NAV_ITEMS.find((i) => i.key === 'profile')
     expect(fifth.key).toBe('profile')
     expect(fifth.path).toBe('profile')
     expect(fifth.labelKey).toBe('profile')
-    expect(fifth.key).toBe('profile') // requiresAuth 字段已废（2026-10-19：底栏恒 5 格，保护在路由层）
+    expect(fifth.key).toBe('profile') // requiresAuth 字段已废（保护在路由层）；底栏 2026-10-24 起恒 4 格
+    expect(SHELL_NAV_ITEMS[SHELL_NAV_ITEMS.length - 1].key).toBe('profile')
     // 全站统一（Kevin 口径）：profile 键四语取值
     expect({ zh: TABLES.zh.profile, en: TABLES.en.profile, hk: TABLES.hk.profile, vn: TABLES.vn.profile })
       .toEqual({ zh: '我的', en: 'Me', hk: '我的', vn: 'Tôi' })
@@ -102,18 +109,20 @@ describe('v1.5 ① 底栏（H5）五项 label / href（含四语前缀）', () =
   })
 
   it.each([
-    ['zh', '/', ['/', '/exchange', '/item/new', '/messages', '/profile']],
-    ['en', '/en', ['/en/', '/en/exchange', '/en/item/new', '/en/messages', '/en/profile']],
-    ['hk', '/hk', ['/hk/', '/hk/exchange', '/hk/item/new', '/hk/messages', '/hk/profile']],
-    ['vn', '/vn', ['/vn/', '/vn/exchange', '/vn/item/new', '/vn/messages', '/vn/profile']],
-  ])('%s 档：底栏五项 href 与 label 取对应语 locale', (lang, entry, hrefs) => {
+    ['zh', '/', ['/', '/exchange', '/messages', '/profile']],
+    ['en', '/en', ['/en/', '/en/exchange', '/en/messages', '/en/profile']],
+    ['hk', '/hk', ['/hk/', '/hk/exchange', '/hk/messages', '/hk/profile']],
+    ['vn', '/vn', ['/vn/', '/vn/exchange', '/vn/messages', '/vn/profile']],
+  ])('%s 档：底栏四项 href 与 label 取对应语 locale（零 /item/new）', (lang, entry, hrefs) => {
     H.lang = lang
     const { container } = renderIn(<BottomTabBar />, entry)
     const tabs = Array.from(container.querySelectorAll('[data-sf-region="tabbar"] a[data-sf-nav]'))
     expect(tabs.map((a) => a.getAttribute('href'))).toEqual(hrefs)
-    expect(tabs.map((a) => a.getAttribute('data-sf-nav'))).toEqual(['home', 'shard', 'sell', 'messages', 'profile'])
+    expect(tabs.map((a) => a.getAttribute('data-sf-nav'))).toEqual(['home', 'shard', 'messages', 'profile'])
+    expect(tabs.map((a) => a.getAttribute('data-sf-nav'))).not.toContain('sell')
+    expect(tabs.map((a) => a.getAttribute('href')).some((h) => h.includes('/item/new'))).toBe(false)
     expect(tabs.map((a) => a.textContent.trim())).toEqual([
-      TABLES[lang].home, TABLES[lang].shard, TABLES[lang].sell, TABLES[lang].messages, TABLES[lang].profile,
+      TABLES[lang].home, TABLES[lang].shard, TABLES[lang].messages, TABLES[lang].profile,
     ])
     // 语言前缀由 navPathInLang 承担（与真源逐项一致）
     expect(tabs.map((a) => a.getAttribute('href'))).toEqual(
@@ -125,6 +134,8 @@ describe('v1.5 ① 底栏（H5）五项 label / href（含四语前缀）', () =
 describe('v1.5 ② 右侧悬浮菜单（T81–T84）', () => {
   // ★ 改锚（Kevin 2026-10-20 二次收口）：五项 = **领工资（首位）** / 卖闲置 / 消息 / APP / 客服；
   //   【反馈】项连同其弹窗模板位**已移除** ⇒ 旧锚 ['sell','wage','messages','app','support'] 前移为下值。
+  // ★ 本段**一字未改**的取证点（2026-10-24 底栏下线【卖闲置】时）：浮菜单仍 `sell` → `/item/new`
+  //   —— 即「只下移动底栏、浮菜单保留」这条裁定的反向正断言落在此处（底栏侧见本文件 ① 段）。
   //   「领工资排第一」是被点名的顺序口径，故此处逐位断言（不写成集合比较）。
   it('五项上→下 = 领工资/卖闲置/消息/APP/客服（无反馈），链接目标正确', () => {
     const { container } = renderIn(<FloatingMenu />, '/')

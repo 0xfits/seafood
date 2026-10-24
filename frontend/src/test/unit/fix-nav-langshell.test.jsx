@@ -136,13 +136,31 @@ describe('F2 · 首页站内链接语言前缀（真渲染 HomePage）', () => {
 
   //   ★ 口径：本 describe **只渲染 HomePage**（Header / Footer / 壳层均已 mock）⇒ 断的是「首页自身」
   //     不再给发布入口；壳层（底栏「卖闲置」/ 浮层菜单）的既有 `/item/new` 属全局导航，不在本单范围、未动。
-  it('首页零发布入口：`home-publish-link` 不存在，且本页无 `/item/new` 链接', async () => {
+  //   ★ 2026-10-24 用例名订正（上一轮质检遗留 over-claim）：本 describe **只渲染 HomePage**，
+  //     故断言范围只能是「HomePage 组件内」—— 不能写「本页无 /item/new」（壳层另有入口，见下方壳层级用例）。
+  it('HomePage 组件内零 `/item/new` 入口：`home-publish-link` 不存在、组件树内无 `/item/new` 链接', async () => {
     renderHome('/en')
     await screen.findByText('common.viewAll')
     expect(document.querySelector('[data-sf-m="home-publish-link"]')).toBeNull()
     expect(screen.queryByText('item.publish')).toBeNull()
     const hrefs = [...document.querySelectorAll('a')].map((a) => a.getAttribute('href') || '')
     expect(hrefs.some((href) => href.includes('/item/new'))).toBe(false)
+  })
+
+  // ★ 壳层级取证（2026-10-24 · Kevin 裁定「只下移动底栏【卖闲置】、桌面悬浮菜单保留」）：
+  //   本用例渲染**整壳**（`<App />` 落在 `/en`，非单组件），故断言范围覆盖底栏 + 浮菜单两侧。
+  it('壳层级：底栏 4 格且无 sell；桌面悬浮菜单仍含【卖闲置】→ /en/item/new', async () => {
+    cleanup()
+    inRouter(<App />, '/en')
+    await screen.findByText('common.viewAll')
+    const tabs = [...document.querySelectorAll('[data-sf-region="tabbar"] a[data-sf-nav]')]
+    expect(tabs.map((a) => a.getAttribute('data-sf-nav'))).toEqual(['home', 'shard', 'messages', 'profile'])
+    expect(tabs.some((a) => a.getAttribute('data-sf-nav') === 'sell')).toBe(false)
+    expect(tabs.some((a) => (a.getAttribute('href') || '').includes('/item/new'))).toBe(false)
+    // 反向正断言：浮菜单【卖闲置】仍在（一字未改），链接带语言前缀
+    const fmSell = document.querySelector('[data-sf-m="floatmenu"] a[data-sf-fm="sell"]')
+    expect(fmSell).not.toBeNull()
+    expect(fmSell.getAttribute('href')).toBe('/en/item/new')
   })
 
   it('en 档：查看全部 href = `/en/campaign`（无 undefined、无重复段）', async () => {
