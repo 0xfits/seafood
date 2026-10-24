@@ -442,6 +442,9 @@
 > **v2.49 修订入口**：逐条 delta → 依据锚点 → 改动点 = **本册 §49.22**（**不建独立 delta 件**，承 v2.29–v2.48 先例）；姊妹册 = `master-plan` **§5.460 / 版本行 v0.379** + `docs/design/design-system.spec.md` **v1.32 §33（`T131`）**。**实现面 = 同一工作区 7 路径**（2 M 代码 · 4 M 四语 locale · 1 A 单测 · 3 M 文档）；门读数由本笔同轮现取（§49.22.5）。
 > **★★ v2.49 本单要点（先说结论，不含糊）**：① **只改文案值与 URL 段**（`App.jsx` 内层 `<Route path="exchange">` + `AdminLayout` 侧栏 `path: '/dashboard/exchange'`），**`FeeRatePage.jsx` 文件名 / 组件名 / 8 键字段 / 读写两口一字未动**；② **四语新值** = zh「交易所管理」/ hk「交易所管理」/ en「Exchange」/ vn「Quản lý sàn」，描述 zh「交易所费率与参数」/ hk「交易所費率與參數」/ en「Exchange fee rate and parameters」/ vn「Tỷ lệ phí và tham số sàn」（**键名 `adminNav.feeRate` / `adminNav.feeRateDesc` 不变**）；③ **项目页保留字表不动** —— `fee-rate` 与 `exchange` 两段**都在** `RESERVED_PROJECT_SEGMENTS`（`37` 段不变，历史 slug 继续保护）⇒ `project-page.test.jsx` 的「三十七段」断言**零改动**；④ **单测新增 `admin-exchange-rename.test.jsx`（6 条）**：静态改锚（`path="exchange"` 在场 / `path="fee-rate"` 零命中 / 侧栏 `'/dashboard/exchange'`）+ 运行时（`/dashboard/exchange` 渲染费率页且侧栏链接 href 指新路径；旧 `/dashboard/fee-rate` 不再渲染费率页）；⑤ **门读数（本笔现取）** = unit **98 files / 1075 tests / 0 failed**（改前基线 **97 / 1069**）· a11y **1 file / 16 tests** · components **2 files / 14 tests** · build **exit 0** ⇒ `index-BUK9eGDS.js` **663,938 B** / `index-9yLpCO20.css` **190,708 B**；⑥ **产物字面核验**：`dashboard/exchange` **1 命中**、`dashboard/fee-rate` **0 命中**（裸 `fee-rate` 仍 1 命中 = 保留字表字面，属**有意保留**）。
 
+> **状态：v2.50（行为变更 · **后台【交易所管理】收成同页 Tab 模块 ＋ 两页下架 ＋ 侧栏闸放宽** —— `currency-review` **移入** `/dashboard/exchange/*` 子路径；`arbitration-review` 与 `permissions` 两条**下线**（前端路由 / 页面文件 / 侧栏项三处零残留，旧地址落提示页）；侧栏该项闸 `manage_settings` ⇒ **`manage_settings ∨ review_tasks`**（**缺陷修正**：`review_tasks`-only 管理员原先**看不到入口**，而币种审核 tab 就住在里面）；**前端 `<Route` 三计数口径 `44 / 36 / 26` ⇒ `48 / 40 / 26`**（同批前推 · 旧值留痕；`26` 不变）· 后端零改动 · 零新错误码 · 零迁移 · i18n 零键增删（`1453 × 4`）· 正文 = **§49.23**）（**插于 v2.49 块之后（升序接放）** · 实现笔 = `1ab7c65`（本册同批登记））** · 作者角色 = **Zang（Specifier · 制度员）**
+> **v2.50 修订入口**：逐条 delta → 依据锚点 → 改动点 = **本册 §49.23**（**不建独立 delta 件**，承 v2.29–v2.49 先例）；姊妹册 = `master-plan` **§5.461 / 版本行 v0.380** + `docs/design/design-system.spec.md` **v1.33 §34（`T132`）**。**实现面 = 同一工作区 10 路径**（2 M 代码 · 4 M 四语 locale · 2 A 单测 · 3 M 文档）；门读数由本笔同轮现取（§49.23.5）。
+> **★★ v2.50 本单要点（先说结论，不含糊）**：① **交易所管理 = 同页 Tab 模块**（壳 `ExchangeManagementPage.jsx`：页标题 + `.sf-chip` tab 条 + `<Outlet/>`；`index ⇒ fee-rate` 重定向；三条子路由 `fee-rate` / `currency-review` / `commission-levels` **各自设闸**，外壳不设闸）；② **两页下架** —— `ArbitrationReviewPage`（生产 404 死页）与 `PermissionsManagement`（后端仍在、前端删）⇒ 页面文件 / 路由 / 侧栏项三处零残留，旧地址落提示页（**后端与 i18n 键一律不动**）；③ **侧栏闸修正**（本笔唯一「真缺陷」修复）= `requiredPermission: ['manage_settings', 'review_tasks']`（数组语义 = 任一命中即可见，判据仍是既有 `hasAdminPermission`，**零新判定函数**）；④ **文案** —— `shard` 键**只改值不改键**：zh/hk「海底交易所」/ en「Exchange」/ vn「Sàn」（顶栏 `Header.jsx` 与手机底栏 `shell/nav.js` **同键同值**）；⑤ **计数前推** `44/36/26` ⇒ **`48/40/26`**（前两数 +4 = 壳内 index + 3 子路由，旧页 −2 与旧址 +3 相抵后净 +4；`26` 逐段清点不变）；⑥ **门读数（本笔现取）** = unit **104 files / 1140 tests / 0 failed** · build **exit 0** ⇒ `index-Bdhob8i7.js` **650,398 B** / `index-DlwKB1N1.css` **190,634 B**。
 
 > **v2.19 修订入口**：逐条 delta → 依据锚点 → 改动点 = `docs/audit/route-layer-v2.19-delta.md`（**同批姊妹册** = `docs/audit/data-layer-v0.26-delta.md` + `docs/audit/commission-v0.4-delta.md`）。**凡与 Zang 裁定冲突处，一律以 Zang 裁定为准**（本单为 P9⑤ 契约冻结；**未改写任何裁定、未发明任何路径 / 数值 / 权限键 / 文案值**）。**★ 姊妹册（同批）**：`docs/commission.spec.md` **v0.4 §19** + `docs/data-layer.spec.md` **v0.26 §34**，**本册不重抄其条文、只指路**。
 > **★★ v2.19 本单要点（先说结论，不含糊）**：① **零新用户面口**（邀请奖励 = 结算腿，无独立读 / 动作口）；② **后台配置面复用**（费率 + 6 项权重矩阵）；③ **注册点 `87 → 87`（+0）**；④ **权限键 11 键内（零增删）**；⑤ **错误码零新增 + `R107`**；⑥ **真生效四段（①③④ 段）**；⑦ **连带门改版**（`p8-s2` 8 键 / 守卫常量 / 页字段面随 `R-9-1` ⇒ 归实现单）。
@@ -7372,7 +7375,7 @@ CONSTRAINT admin_refund_audit_log_idem_uniq   UNIQUE (idempotency_key, result)  
 |---|---|---|
 | 注册点（现行） | `grep -cE '^app\.(get\|post\|put\|delete\|patch)\(' backend-ts/src/index.ts` | 门 `p8-s2-fee-rebate-gate.ts:72-73` 写死 **87**（P9④ 后）；本节 **+0** ⇒ 仍 **87** |
 | 后台费率 / 权重口 | `p8-s2` 门 `:52-53` | `GET /api/admin/commission_policy` + `POST /api/admin/commission_policy`（**各恰 1 处**）；闸 = `manage_settings`；取数复用 `getCommissionPolicy` |
-| 后台页 | `p8-s2` 门 `:41-42` / `:126-127` | `FeeRatePage.jsx`（8 键）/ `ReferralWeightMatrixPage.jsx`（`levels`/`weights_bp`/`weights_sum_bp`/`fee_rate_bp` 4 键）；路由 `fee-rate` / `weight-matrix` 闸 `manage_settings`。**★ 已更名：`fee-rate` → `exchange`（Kevin 2026-10-24；页名→交易所管理，只改页名与路径、功能不动；组件名 `FeeRatePage` 保留、闸不变）—— 见 §49.22** |
+| 后台页 | `p8-s2` 门 `:41-42` / `:126-127` | `FeeRatePage.jsx`（8 键）/ `ReferralWeightMatrixPage.jsx`（`levels`/`weights_bp`/`weights_sum_bp`/`fee_rate_bp` 4 键）；路由 `fee-rate` / `weight-matrix` 闸 `manage_settings`。**★ 已更名：`fee-rate` → `exchange`（Kevin 2026-10-24；页名→交易所管理，只改页名与路径、功能不动；组件名 `FeeRatePage` 保留、闸不变）—— 见 §49.22**。**★ 2026-10-24 · v2.50 追加标记（旧句逐字保留）：三页收成同页 Tab 模块 —— `fee-rate` ⇒ `/dashboard/exchange/fee-rate`、`weight-matrix` ⇒ `/dashboard/exchange/commission-levels`、`currency-review` ⇒ `/dashboard/exchange/currency-review`（旧地址由 `<Navigate replace>` 承接）；侧栏该项闸改为 `manage_settings ∨ review_tasks` —— 见 §49.23** |
 | 四语命名空间键数 | `p8-s2` 门 `:187` | `adminFeeRate 18` / `adminWeightMatrix 21` / `adminNav 28` |
 | 守卫常量镜像 | `p8-s2` 门 `:160-164` / `:171-177` | `FEE_RATE_MIN=100 / FEE_RATE_MAX=500 / LEVELS_MIN=1 / LEVELS_MAX=10 / WEIGHTS_SUM_MAX=10000`（前端两页逐值相等 `C6`） |
 | `app_config` 写口 | `database.ts:46-78` / `admin-service.ts:88` | 合法键闭集 **9**（`B1`–`B7` 含 `invite_reward_policy`）；`app-service` 现写「禁写费率键（费率真源 = `commission_policy.fee_rate_bp`）」 |
@@ -8532,13 +8535,13 @@ CONSTRAINT admin_refund_audit_log_idem_uniq   UNIQUE (idempotency_key, result)  
 
 | 口径 | 现取命令 | 现值 | 本单影响 |
 |---|---|---|---|
-| 前端路由（字面） | `grep -cE '<Route' frontend/src/App.jsx` | **`44`**（**现取 2026-10-24** · 旧记 `42` 留痕） | **±0**（含 **2 行注释散文**含字面 `<Route`；承 §40.2 注释污染口径） ※ 相对旧值 **+2** = 本笔 −1（删 1 条单行 `<Route path="task/review">`）＋ 其后各节新增累计；明细见 **§49.20.3** |
-| 前端路由（精确） | `grep -oE '<Route[ >]' frontend/src/App.jsx \| wc -l` | **`36`**（**现取 2026-10-24** · 旧记 `34` 留痕） | **±0**（**多行开写法系统性不计入** = §40.3 / §42.5 已登记盲点） ※ 相对旧值 **+2** = 本笔 −1 ＋ 增量累计；明细见 **§49.20.3** |
-| 前端内层逐段 | 内层 `<Routes>` 内逐段清点 | **`26`**（**现取 2026-10-24** · 旧记 `20`〔16 单行 + 4 多行〕留痕） | **±0** ※ 相对旧值 **+6** = 本笔 −1 ＋ 增量累计；明细见 **§49.20.3** |
+| 前端路由（字面） | `grep -cE '<Route' frontend/src/App.jsx` | **`48`**（**现取 2026-10-24 · v2.50 前推** · 旧值 `44`〔v2.47–v2.49〕/ `42` 留痕） | **+4**（含 **2 行注释散文**含字面 `<Route`；承 §40.2 注释污染口径） ※ 相对旧值 **+6** = v2.47 −1 ＋ 其后各节新增累计 ＋ **v2.50 +4**（交易所管理壳内 index + 3 子路由）；明细见 **§49.20.3 / §49.23.6** |
+| 前端路由（精确） | `grep -oE '<Route[ >]' frontend/src/App.jsx \| wc -l` | **`40`**（**现取 2026-10-24 · v2.50 前推** · 旧值 `36`〔v2.47–v2.49〕/ `34` 留痕） | **+4**（**多行开写法系统性不计入** = §40.3 / §42.5 已登记盲点） ※ 相对旧值 **+6** = v2.47 −1 ＋ 增量累计 ＋ **v2.50 +4**；明细见 **§49.20.3 / §49.23.6** |
+| 前端内层逐段 | 内层 `<Routes>` 内逐段清点 | **`26`**（**现取 2026-10-24** · 旧记 `20`〔16 单行 + 4 多行〕留痕；**v2.50 复核仍 `26`**） | **±0** ※ 相对旧值 **+6** = v2.47 −1 ＋ 增量累计（`exchange` 三条子路由是**嵌套段**、不计入内层逐段口径）；明细见 **§49.20.3 / §49.23.6** |
 | 后端注册点 | `grep -cE '^app\.(get\|post\|put\|delete\|patch)\(' backend-ts/src/index.ts` | **`105`**（get 45 / post 56 / put 0 / delete 3 / patch 1） | **±0**（`AC10-2` 冻结面 `backend-ts/scripts/p7b-03-offline-gates.ts:145` 现取 = `regs === 105`，**已到位**） |
 
 - **判负**：任一计数发生变化（新增/删除 `<Route` 或注册行）⇒ 判负；**不得**以路由别名 / `app.use` 挂载 / 查询参数伪装成「零新增」绕过计数口径（§40.2 口径连续性）。
-- **★ 与 v2.27 §37.3 的对照（诚实登记）**：§37.3 当时记「落地后 `35 → 36`」「注册点仍 `89`」—— 该两读数为**当时点**；**现行口径以本节现取为准**（`42/34/20` 与 `105`）；**该三数已于 2026-10-24 前推为 `44 / 36 / 26`**（本笔删 1 条单行 `<Route path="task/review">` ⇒ 三相各 −1；明细见 §49.20.3）
+- **★ 与 v2.27 §37.3 的对照（诚实登记）**：§37.3 当时记「落地后 `35 → 36`」「注册点仍 `89`」—— 该两读数为**当时点**；**现行口径以本节现取为准**（`42/34/20` 与 `105`）；**该三数已于 2026-10-24 前推为 `44 / 36 / 26`**（本笔删 1 条单行 `<Route path="task/review">` ⇒ 三相各 −1；明细见 §49.20.3）；**v2.50（2026-10-24）同批再前推为 `48 / 40 / 26`**（交易所管理收 Tab 模块 ⇒ 前两数 +4、内侧逐段清点仍 `26`；旧值 `44 / 36 / 26` 就地留痕；明细见 **§49.23.6**）
 
 ### 44.6 未测项 / 诚实清单（`NOT_MEASURED` · 禁填 0/空）
 
@@ -10447,9 +10450,71 @@ ORDER BY score DESC, l.time_created DESC, l.listing_id DESC
 
 - **本笔只改一段 `path` 字面 ⇒ 三数不变**：`grep -cE '<Route' frontend/src/App.jsx` = **`44`**（字面，本笔实跑）· `grep -oE '<Route[ >]' frontend/src/App.jsx | wc -l` = **`36`**（精确，本笔实跑）· 内层 `<Routes>` 逐段清点 = **`26`**（沿用 §49.20.3 口径与数值；**改名不增删任何 `<Route>` ⇒ 逐段清点无变化**，如实登记未重数）。
 - **`§44.5` 三行不同批前推**：该节「下一笔再增删 `<Route` 必须同批前推」的前提是**增删**；本笔 **+0 / −0** ⇒ 不触。
+- **★ v2.50 已触并同批前推（旧值留痕）**：v2.49 当时 `+0 / −0`；**下一笔 `1ab7c65` 增删了 `<Route>`** ⇒ 三计数前推 **`44 / 36 / 26` ⇒ `48 / 40 / 26`**（§44.5 三行已就地前推、旧值保留；明细 = **§49.23.6**）。
 
 #### 49.22.7 未做（`NOT_MEASURED` · 不预填）
 
 - **旧路径 `/dashboard/fee-rate` 的用户可见提示页**：未做（§49.22.3 口径 = 无匹配子路由）；如需，须另立单。
 - **`FeeRatePage` 组件名 / 文件名的语义化改名**（`ExchangeManagement.jsx`）：**未做 · 刻意不做** —— 最小改动原则，文件名与组件名不影响用户可见面；若 Kevin 要统一命名，另立单（会牵连 import / 单测 / 门锚点）。
 - **真机 / 浏览器实操读数**（真实后台点击侧栏跳转）：`NOT_MEASURED` —— 本笔只有 jsdom 运行时断言 + dist 字面核验；生产核验见 `master-plan` §5.460 与本笔报告。
+
+---
+
+### 49.23 后台【交易所管理】收成同页 Tab 模块 ＋ 两页下架 ＋ 侧栏闸放宽（`review_tasks` 缺陷修正）· 2026-10-24 · **v2.50**（行为变更 ⇒ 升版；头注**追加** v2.50 状态块，按升序接放于 v2.49 块之后；正文**只追加**，另 4 处就地状态改写均**旧字面逐字保留**）
+
+#### 49.23.1 依据与写盘范围
+
+- **依据** = Kevin 2026-10-24 裁定（三件事：交易所管理收 Tab 模块 / 两页下架 / `shard` 键文案定稿「海底交易所」）。**实现笔 = `1ab7c65`**（本册同批登记；该笔**不 amend**、原样保留）。
+- **写盘范围（本册）** = `docs/route-layer.spec.md` 本笔：头注 v2.50 块（3 行）+ 本节（新）+ 4 处就地状态改写（§31.1 后台页行 / §44.5 三计数三行 + 对照行 / §49.22.6 追加条目）。**零删行**：所有旧字面（`44/36/26`、`fee-rate`、`weight-matrix`）**逐字保留**，新值以「追加标记 / 就地前推 + 旧值留痕」形态并存。
+- **不动面** = `backend-ts/**`（零改动）· `frontend/**`（实现归实现笔）· `migrations/**` · `docs/design/style-preview.html` · i18n **键集零增删**（`1453 × 4`）。
+
+#### 49.23.2 路由面：`/dashboard/exchange` = 同页 Tab 壳（`App.jsx:404-417`）
+
+| 段（内层 `/dashboard` 下） | 元素 | 闸 | 说明 |
+|---|---|---|---|
+| `exchange`（壳） | `<ExchangeManagementPage />` | **无闸**（外壳不设闸） | 页标题 `adminNav.feeRate` + `.sf-chip` tab 条 + `<Outlet/>` |
+| `exchange` index | `<Navigate to="fee-rate" replace />` | — | 直链 `/dashboard/exchange` **保书签**落到费率 tab |
+| `exchange/fee-rate` | `FeeRatePage` | `manage_settings` | 原 `/dashboard/fee-rate` 的正身 |
+| `exchange/currency-review` | `CurrencyReviewPage` | **`review_tasks`** | **`currency-review` 由独立页移入交易所子路径**（动作口 `POST /api/admin/currency/:cid/review` 一字未动） |
+| `exchange/commission-levels` | `ReferralWeightMatrixPage` | `manage_settings` | 原 `/dashboard/weight-matrix`（`commission-levels` 段名沿用，不改写） |
+| `fee-rate`（旧址） | `<Navigate to="/dashboard/exchange" replace />` | — | 两级重定向 ⇒ `/dashboard/exchange/fee-rate` |
+| `currency-review`（旧址） | `<Navigate to="/dashboard/exchange/currency-review" replace />` | — | 直落子路径 |
+| `weight-matrix`（旧址） | `<Navigate to="/dashboard/exchange/commission-levels" replace />` | — | 直落子路径 |
+
+- **闸逐子路由各自设**（外壳零闸）：无相应权限的管理员点该子路由由**它自己的**闸拦下（单测 ④ 第 3 条钉死），tab 条只渲染**当前用户有权限**的那几条。
+
+#### 49.23.3 下线的两条路由（前端三处零残留 · 后端与 i18n 键不动）
+
+| 下线对象 | 依据 | 处理 | 旧地址行为 |
+|---|---|---|---|
+| `ArbitrationReviewPage.jsx`（`/dashboard/arbitration-review`） | 生产 404 死页（后端口已删） | 页面文件 + `<Route>` + 侧栏项**三处全删** | 落提示页（`NotFoundPage` 形态），**不重定向** |
+| `PermissionsManagement.jsx`（`/dashboard/permissions`） | 后端仍在、前端删（Kevin 裁定下架） | 同上三处全删 | 同上 |
+| （同批撤项）`weight-matrix` / `currency-review` 两个**侧栏项** | 已收成交易所管理内 tab | 侧栏项删除，`path` 由壳承接 | — |
+
+- **不动**：后端口（`/api/admin/arbitration/*` 已不存在属既有事实；`/api/admin/permissions` 仍在）· `adminNav.permissions` / `adminNav.arbitrationReview` / `adminNav.weightMatrix` / `adminNav.currencyReview` **四语键一律保留**（只登记为孤儿，不删）。
+- **旧句逐字保留 + 追加标记**：§31.1「后台页」行内追加 v2.50 标记（`currency-review` ⇒ 子路径、`weight-matrix` ⇒ `commission-levels`、闸改两值数组）；本节 49.23.2 表为权威口径。
+
+#### 49.23.4 ★ 缺陷修正：侧栏【交易所管理】的闸（本笔唯一「真缺陷」）
+
+- **缺陷**：币种审核 tab **住在**交易所管理内，而侧栏该项闸只认 `manage_settings` ⇒ **`review_tasks`-only 的管理员看不到入口**（有权限、无入口）。单测 ④ 的运行时用例（只出 `currency-review` 一条 tab）恰好证明「有权限」，与「侧栏不可见」构成矛盾 ⇒ 判为真缺陷。
+- **修法**（最小改动、**零新判定函数**）：`frontend/src/components/layout/AdminLayout.jsx` 该项 `requiredPermission: 'manage_settings'` ⇒ **`requiredPermission: ['manage_settings', 'review_tasks']`**（数组写法沿用同行既有先例：`tasks` = `['manage_tasks','publish_tasks']`、`shards` = `['manage_rewards','publish_prizes']`）。
+- **判定语义确认**（`admin-utils.hasAdminPermission:67-75`）：数组分支 `permission.some((item) => (access.permissions || []).includes(item))` ⇒ **任一命中即可见**；`is_admin` 仍先行放行 ⇒ **无需改判据**，只改该项可计算式的入参形态。
+- **断言（新增 `exchange-label-and-sidebar-gate.test.jsx` 4 条）**：① 源码 = 该项为两值数组且判据仍是 `hasAdminPermission(access, item.requiredPermission)`；② **仅 `review_tasks` ⇒ 侧栏可见**【交易所管理】（文案 = `zh.adminNav.feeRate`），且 `manage_settings`-only 项（`/dashboard/site-text`）仍不可见（闸未放宽成「谁都看」）；③ **仅 `manage_settings` ⇒ 同样可见**；④ 判负：两权限俱无（非 `is_admin`）⇒ 入口不可见。
+
+#### 49.23.5 门读数与产物字面核验（本笔现取）
+
+- `cd frontend && npx vitest run` = **104 files / 1140 tests / 0 failed**。
+- `npm run build` = **exit 0** ⇒ **`index-Bdhob8i7.js` 650,398 B** ＋ **`index-DlwKB1N1.css` 190,634 B**（CSS 字节与 v2.49 的 `190,708 B` **不同** —— 因 v2.49 起实现笔已改样式，本笔未动 CSS）。
+- **产物字面核验（dist 现取）**：`dashboard/exchange/currency-review` ≥ 1 · `dashboard/arbitration-review` = **0** · `dashboard/permissions` = **0** · `海底交易所` ≥ 1 · `Exchange` / `Sàn` 均在。
+- **生产同版核验** = `curl --resolve 0xseafood.com:443:76.76.21.21 https://0xseafood.com/index.html` 的 assets 名与字节**与本地 build 逐字同**（读数见 `master-plan` §5.461）。
+
+#### 49.23.6 前端 `<Route` 三计数前推（**`44 / 36 / 26` ⇒ `48 / 40 / 26`** · 旧值留痕）
+
+- **字面** `grep -cE '<Route' frontend/src/App.jsx` = **`48`**（旧 `44`）；**精确** `grep -oE '<Route[ >]' … | wc -l` = **`40`**（旧 `36`）；**内层逐段清点** = **`26`**（不变 —— `exchange` 三条子路由是**嵌套段**，不计入内层逐段口径）。
+- **增量归因**（可复算）：`+4`（壳内 `index` 1 条 + 三条子路由 3 条）· `−2`（`arbitration-review` / `permissions` 两条删除）· `+3`（三条旧址 `<Navigate>`）⇒ 净 **+4**（`44 → 48`）；精确口径同步 `36 → 40`。
+- **已同批前推处**：本节 + **§44.5 三行现值**（旧值就地留痕）+ **§44.5 对照行** + **§49.22.6 追加条目**。`§44.5` 的「下一笔再增删 `<Route` 必须同批前推」条款由此**已履行**。
+
+#### 49.23.7 判负清单 + 未做（`NOT_MEASURED` · 不预填）
+
+- **判负**：① 侧栏该项又回到单值 `manage_settings` ⇒ 判负（缺陷复发）；② 壳上出现统一闸 / tab 不过滤权限 ⇒ 判负；③ `currency-review` 在**两条**路径同时存在（旧址未 redirect）⇒ 判负；④ `arbitration-review` / `permissions` 任一残留（页面文件 / `<Route>` / 侧栏项）⇒ 判负；⑤ i18n 键被删 / `shard` 键名被改 ⇒ 判负；⑥ 后端任一改动 ⇒ 判负。
+- **未做 · 已知取舍（登记，不在本笔修）**：① **后台首页（`/dashboard`）无「交易所管理」卡片**（入口只有侧栏一项）；② `adminNav.permissions` / `adminNav.arbitrationReview` 两键成**孤儿**（保留不删，与 `dashboard-pages-removed` 先例同口径）；③ **币种状态变更**（审核动作的业务效果）**下一轮**；④ 真机点击走查 `NOT_MEASURED` —— 本笔只有 jsdom 运行时断言 + 生产 dist 字面核验。
