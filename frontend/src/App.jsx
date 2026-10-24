@@ -216,7 +216,7 @@ const LangShell = () => {
             shard / messages / theme-preview / login / register …）按 react-router v6 排名天然优先于 `:slug`；
             其余与显式路由同名的一级段（tasks / campaigns / items / projects / admin / api / settings /
             assets / market / order / orders / jobs / dashboard / users / points / rewards / permissions /
-            fee-rate / weight-matrix / site-text / audit-console / 三个 review 页 …）由 ProjectPage 依
+            exchange（原 fee-rate，2026-10-24 更名；段名仍保留在保留字表） / weight-matrix / site-text / audit-console / 三个 review 页 …）由 ProjectPage 依
             `RESERVED_PROJECT_SEGMENTS`（37 段，后端 `PROJECT_SLUG_RESERVED` 同表）判别 ⇒
             渲染 catch-all 同款提示页（不发请求）。slug 无效 / 项目不存在（读口 404）同落提示页。 */}
         <Route path=":slug" element={<ProjectPage />} />
@@ -402,8 +402,8 @@ function App() {
           <Route path="permissions" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_permissions"><PermissionsManagement /></ProtectedRoute>} />
           <Route path="points" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_points"><PointsManagement /></ProtectedRoute>} />
           <Route path="settings" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><SystemSettings /></ProtectedRoute>} />
-          {/* 8②（spec §19.5(d)）：费率页 / 权重矩阵页，闸 = manage_settings（与读写两口同键） */}
-          <Route path="fee-rate" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><FeeRatePage /></ProtectedRoute>} />
+          {/* 8②（spec §19.5(d)）：交易所管理（原「费率配置」· 2026-10-24 更名，仅改页名与路径）/ 权重矩阵页，闸 = manage_settings（与读写两口同键） */}
+          <Route path="exchange" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><FeeRatePage /></ProtectedRoute>} />
           <Route path="weight-matrix" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><ReferralWeightMatrixPage /></ProtectedRoute>} />
           {/* 8④（spec §23.6/§23.7）：自建单位审核页，闸 = review_tasks */}
           <Route path="currency-review" element={<ProtectedRoute adminOnly={true} requiredPermission="review_tasks"><CurrencyReviewPage /></ProtectedRoute>} />

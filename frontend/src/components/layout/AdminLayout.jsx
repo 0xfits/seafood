@@ -87,7 +87,7 @@ const AdminLayout = () => {
     {
       title: t('adminNav.feeRate'),
       icon: Percent,
-      path: '/dashboard/fee-rate',
+      path: '/dashboard/exchange',
       description: t('adminNav.feeRateDesc'),
       requiredPermission: 'manage_settings',
     },
