@@ -52,10 +52,11 @@ describe('P6-I18N-LIT-B4a · en 档渲染英文（后台面两个页面；reward
   it('AdminLayout（侧边栏 + 顶栏 + 账号区）：导航/面板名/角色/在线 全走英文', async () => {
     render(<MemoryRouter initialEntries={['/']}><AdminLayout /></MemoryRouter>)
 
-    // 侧边栏 8 条导航（`adminNav.*`）
+    // 侧边栏导航（`adminNav.*`；2026-10-24：`permissions` / `weight-matrix` / `currency-review` / `arbitration-review`
+    //  四项已随「交易所管理 Tab 模块」与两页下架从侧栏移除 ⇒ 本清单同步改锚（`Exchange` = `adminNav.feeRate` 的 en 值））
     for (const label of [
       'Dashboard', 'Task Management', 'Shard Management',
-      'User Management', 'Permission Management', 'Points Management', 'System Settings',
+      'User Management', 'Exchange', 'Points Management', 'System Settings',
     ]) {
       expect(await screen.findByText(label)).toBeInTheDocument()
     }

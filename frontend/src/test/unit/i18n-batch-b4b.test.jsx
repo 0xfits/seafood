@@ -53,7 +53,6 @@ vi.mock('../../admin-utils', () => ({
   })),
 }))
 
-import PermissionsManagement from '../../pages/admin/PermissionsManagement'
 import PointsManagement from '../../pages/admin/PointsManagement'
 import ShardsManagement from '../../pages/admin/ShardsManagement'
 import SystemSettings from '../../pages/admin/SystemSettings'
@@ -70,30 +69,10 @@ afterEach(() => { cleanup() })
 describe('P6-I18N-LIT-B4b · en 档渲染英文（后台剩余 5 个面）', () => {
   beforeEach(async () => { await i18n.changeLanguage('en') })
 
-  it('PermissionsManagement（en 档）：页头 / 说明 / 徽标 / 成员区 / 兜底描述 全走英文', async () => {
-    wrap(<PermissionsManagement />)
-
-    expect(await screen.findByText('Permission Management')).toBeInTheDocument()
-    expect(screen.getByText(/The "Admin access" group maps to full admin permissions/)).toBeInTheDocument()
-    expect(screen.getByText('Add permission group')).toBeInTheDocument()
-    expect(screen.getByText('Refresh')).toBeInTheDocument()
-    // 等列表落地（`loading` 守卫）
-    expect(await screen.findByText('Reviewers')).toBeInTheDocument()
-    // `description` 为空 ⇒ 兜底键 `adminCommon.noDescription`
-    expect(screen.getByText('No description')).toBeInTheDocument()
-    expect(screen.getByText('Editable')).toBeInTheDocument()
-    // `readonly` 组 ⇒ 只读徽标 + 系统组不可编辑/删除的 title
-    expect(screen.getByText('Read-only')).toBeInTheDocument()
-    expect(screen.getByTitle('Edit permission group')).toBeInTheDocument()
-    expect(screen.getByTitle('System permission groups cannot be deleted')).toBeInTheDocument()
-    // `user_ids` 为空 ⇒ `adminPermissions.noMembers`
-    expect(screen.getByText('No members assigned')).toBeInTheDocument()
-    // 反证：简体原文不出现
-    expect(screen.queryByText('权限管理')).toBeNull()
-    expect(screen.queryByText('添加权限组')).toBeNull()
-    expect(screen.queryByText('暂无描述')).toBeNull()
-    expect(screen.queryByText('只读')).toBeNull()
-  })
+  // ★ 2026-10-24（Kevin · 三轮中的第①轮）：`PermissionsManagement` 整页下架 ⇒ 原「PermissionsManagement（en 档）
+  //   页头 / 说明 / 徽标 / 成员区 / 兜底描述 全走英文」一条随之删除（判据底 = 该页 DOM，页面已不存在 ⇒ 锚点不可达，
+  //   非降强度）。`adminPermissions.*` / `adminNav.permissions` 四语键**保留不删**（键集计数不受影响，仅登记孤儿键）。
+  //   同页守卫链在 `p6-tail` ② 改锚到 PointsManagement 继续承重；模块侧行为在 `admin-exchange-module` 钉死。
 
   it('UsersManagement（en 档）：页头 / 四张统计卡 / 表头 / 角色徽标 / 兜底简介 全走英文', async () => {
     wrap(<UsersManagement />)

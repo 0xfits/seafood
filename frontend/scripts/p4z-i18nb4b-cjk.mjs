@@ -32,8 +32,9 @@ const CODE_LINE = /fetchApiJson\(|fetch\(|import\s|require\(|from\s+['"]/
 const ENDONYM_ALLOWLIST = new Set(['adminSettings.langZh', 'adminSettings.langHk'])
 
 // 本批写集（B4b 范围 + 必做① 落点）
+// ★ 2026-10-24：`pages/admin/PermissionsManagement.jsx` 整页下架（Kevin · 三轮中的第①轮，后端口仍存活、
+//   仅删前端）⇒ 从写集移除该文件；`adminPermissions` 键面仍在 LOCALE_KEYS（键保留不删 ⇒ 断言范围不变）。
 const WRITE_SET = [
-  'pages/admin/PermissionsManagement.jsx',
   'pages/admin/PointsManagement.jsx',
   'pages/admin/ShardsManagement.jsx',
   'pages/admin/SystemSettings.jsx',

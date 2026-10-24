@@ -24,7 +24,7 @@ import { useAuth } from '../auth-context'
 //   `43ea14a`（2026-10-21，job 领域下线）随 21 条路由从 backend-ts 删除
 //   ⇒ 生产实测 404（`LEDGER_REF_NOT_FOUND` / `ref_type=endpoint`），面板长期只显示「加载失败」。
 //   故连同读口 / 写口 / 面板 UI / 队列相关 state 一并拆除：前端不留死面板。
-//   现役审核面 = `/dashboard/currency-review`（币种审核，动作口挂在 `:cid` 下的 review 子路径）。
+//   现役审核面 = `/dashboard/exchange/currency-review`（币种审核，动作口挂在 `:cid` 下的 review 子路径）。
 //   词典键 `dashPage.*` 审核相关项保留不删（四语键集 flat 1451×4 锚点，删键会改读数）。
 
 const EMPTY_DASHBOARD_STATS = {
@@ -60,13 +60,6 @@ const DashboardPage = () => {
       to: '/dashboard/users',
       icon: Users,
       variant: 'proceed',
-    },
-    {
-      title: t('adminNav.permissions'),
-      description: t('dashPage.linkPermissionsDesc'),
-      to: '/dashboard/permissions',
-      icon: Shield,
-      variant: 'success',
     },
     {
       title: t('adminNav.points'),
@@ -171,7 +164,6 @@ const DashboardPage = () => {
   const visibleManagementLinks = managementLinks.filter((item) => {
     if (item.to === '/dashboard/tasks') return hasAdminPermission(access, ['manage_tasks', 'publish_tasks'])
     if (item.to === '/dashboard/users') return hasAdminPermission(access, 'read_users')
-    if (item.to === '/dashboard/permissions') return hasAdminPermission(access, 'manage_permissions')
     if (item.to === '/dashboard/points') return hasAdminPermission(access, 'manage_points')
     if (item.to === '/dashboard/settings') return hasAdminPermission(access, 'manage_settings')
     return true

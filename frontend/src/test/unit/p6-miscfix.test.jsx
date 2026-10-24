@@ -135,7 +135,6 @@ describe('② 链接构造器回归：源码残留必须逐条已登记', () => 
     'pages/DashboardPage.jsx|navigate|/login',
     'pages/DashboardPage.jsx|to=|/',
     'pages/admin/PointsManagement.jsx|navigate|/login',
-    'pages/admin/PermissionsManagement.jsx|navigate|/login',
     'pages/admin/UsersManagement.jsx|navigate|/login',
     'pages/admin/SystemSettings.jsx|navigate|/login',
   ])

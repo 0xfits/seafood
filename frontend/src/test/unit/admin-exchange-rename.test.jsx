@@ -2,7 +2,8 @@
  * 后台【费率配置】→【交易所管理】改名（Kevin 2026-10-24 裁定）—— 只改页名与路径的单测
  *
  * 契约：
- *  ① 页面路径 = `/dashboard/exchange`（`App.jsx` 内层相对段）；旧 `fee-rate` 段**不再注册**。
+ *  ① 页面路径 = `/dashboard/exchange/fee-rate`（`App.jsx` 内层相对段；壳 `/dashboard/exchange` 的 index 即重定向到此，
+ *     旧 `/dashboard/fee-rate` 保书签落 redirect）。
  *  ② 侧栏项真源：`adminNav.feeRate` / `adminNav.feeRateDesc` **键名不变**（只改值）⇒ href = `/dashboard/exchange`。
  *  ③ 组件名 / 文件名 `FeeRatePage` 保留（最小改动）；闸仍 `manage_settings`。
  *  ④ 项目页保留字表**不动**：`fee-rate` 与 `exchange` 两段都仍在 `RESERVED_PROJECT_SEGMENTS`（历史 slug 继续保护）。
@@ -61,14 +62,18 @@ const renderAt = (p) =>
     </MemoryRouter>
   )
 
-describe('① 路由与侧栏改锚：fee-rate ⇒ exchange', () => {
-  it('App.jsx：交易所页挂在 path="exchange"，闸仍 manage_settings，组件仍 FeeRatePage；旧段零注册', () => {
+describe('① 路由与侧栏改锚：fee-rate ⇒ exchange（2026-10-24 第①轮：exchange 升为 Tab 模块）', () => {
+  it('App.jsx：交易所是壳 + 三条子路由（fee-rate 自带闸 manage_settings、组件仍 FeeRatePage）', () => {
     const app = read('App.jsx')
+    expect(app).toContain('<Route path="exchange" element={<ExchangeManagementPage />}>')
     expect(app).toContain(
-      '<Route path="exchange" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><FeeRatePage /></ProtectedRoute>} />'
+      '<Route path="fee-rate" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><FeeRatePage /></ProtectedRoute>} />'
     )
-    expect(app).not.toMatch(/path="fee-rate"/)
     expect(app).toContain("import FeeRatePage from './pages/admin/FeeRatePage'")
+    expect(app).toContain("import ExchangeManagementPage from './pages/admin/ExchangeManagementPage'")
+    // 旧段（顶层 `fee-rate`）只保留 redirect，不再挂页面：`path="fee-rate"` 的全仓出现点 = 内层子路由 + 旧址 redirect 两处
+    expect(app.match(/path="fee-rate"/g)).toHaveLength(2)
+    expect(app).toContain('<Route path="fee-rate" element={<Navigate to="/dashboard/exchange" replace />} />')
   })
 
   it('AdminLayout 侧栏：href = /dashboard/exchange，key 仍 adminNav.feeRate（只改值不改键）', () => {
@@ -103,10 +108,10 @@ describe('② 运行时：新路径渲染费率页 + 侧栏链接指向新路径
     useAuth.mockReturnValue({ isAuthenticated: true, user: { uid: 1 } })
   })
 
-  it('/dashboard/exchange 渲染费率页，侧栏项 href = /dashboard/exchange', async () => {
+  it('/dashboard/exchange（index）⇒ 落到 fee-rate 子路径渲费率页，侧栏项 href = /dashboard/exchange', async () => {
     renderAt('/dashboard/exchange')
 
-    await waitFor(() => expect(screen.getByTestId('pathname').textContent).toBe('/dashboard/exchange'))
+    await waitFor(() => expect(screen.getByTestId('pathname').textContent).toBe('/dashboard/exchange/fee-rate'))
     await waitFor(() => expect(screen.getByText('fee rate page content')).toBeInTheDocument())
 
     const link = await screen.findByRole('link', { name: 'adminNav.feeRate' })
@@ -115,11 +120,11 @@ describe('② 运行时：新路径渲染费率页 + 侧栏链接指向新路径
     expect(document.querySelector('a[href="/dashboard/fee-rate"]')).toBeNull()
   })
 
-  it('旧 /dashboard/fee-rate 不再渲染费率页（该段已注销 ⇒ 无匹配子路由）', async () => {
+  it('旧 /dashboard/fee-rate 保书签：redirect 到 /dashboard/exchange 再落到 fee-rate 子路径（不再有独立页）', async () => {
     renderAt('/dashboard/fee-rate')
 
-    await waitFor(() => expect(screen.getByTestId('pathname').textContent).toBe('/dashboard/fee-rate'))
-    await new Promise((resolve) => setTimeout(resolve, 30))
-    expect(screen.queryByText('fee rate page content')).toBeNull()
+    await waitFor(() => expect(screen.getByTestId('pathname').textContent).toBe('/dashboard/exchange/fee-rate'))
+    // 页面本体仍是同一个费率面板（redirect 链，不是新页面）
+    await waitFor(() => expect(screen.getByText('fee rate page content')).toBeInTheDocument())
   })
 })

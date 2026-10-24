@@ -52,13 +52,12 @@ import NotFoundPage from './pages/NotFoundPage'
 import TasksManagement from './pages/admin/TasksManagement'
 import ShardsManagement from './pages/admin/ShardsManagement'
 import UsersManagement from './pages/admin/UsersManagement'
-import PermissionsManagement from './pages/admin/PermissionsManagement'
 import PointsManagement from './pages/admin/PointsManagement'
 import SystemSettings from './pages/admin/SystemSettings'
+import ExchangeManagementPage from './pages/admin/ExchangeManagementPage'
 import FeeRatePage from './pages/admin/FeeRatePage'
 import ReferralWeightMatrixPage from './pages/admin/ReferralWeightMatrixPage'
 import CurrencyReviewPage from './pages/admin/CurrencyReviewPage'
-import ArbitrationReviewPage from './pages/admin/ArbitrationReviewPage'
 import SiteTextPage from './pages/admin/SiteTextPage'
 import AuditConsolePage from './pages/admin/AuditConsolePage'
 
@@ -399,19 +398,29 @@ function App() {
           <Route path="tasks" element={<ProtectedRoute adminOnly={true} requiredPermission={['manage_tasks', 'publish_tasks']}><TasksManagement /></ProtectedRoute>} />
           <Route path="shards" element={<ProtectedRoute adminOnly={true} requiredPermission={['manage_rewards', 'publish_prizes']}><ShardsManagement /></ProtectedRoute>} />
           <Route path="users" element={<ProtectedRoute adminOnly={true} requiredPermission="read_users"><UsersManagement /></ProtectedRoute>} />
-          <Route path="permissions" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_permissions"><PermissionsManagement /></ProtectedRoute>} />
           <Route path="points" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_points"><PointsManagement /></ProtectedRoute>} />
           <Route path="settings" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><SystemSettings /></ProtectedRoute>} />
-          {/* 8②（spec §19.5(d)）：交易所管理（原「费率配置」· 2026-10-24 更名，仅改页名与路径）/ 权重矩阵页，闸 = manage_settings（与读写两口同键） */}
-          <Route path="exchange" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><FeeRatePage /></ProtectedRoute>} />
-          <Route path="weight-matrix" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><ReferralWeightMatrixPage /></ProtectedRoute>} />
-          {/* 8④（spec §23.6/§23.7）：自建单位审核页，闸 = review_tasks */}
-          <Route path="currency-review" element={<ProtectedRoute adminOnly={true} requiredPermission="review_tasks"><CurrencyReviewPage /></ProtectedRoute>} />
-          {/* 8⑤（spec §25.2/§25.7）：商品合规审核页 / 招工仲裁页，闸 = review_tasks */}
-          <Route path="arbitration-review" element={<ProtectedRoute adminOnly={true} requiredPermission="review_tasks"><ArbitrationReviewPage /></ProtectedRoute>} />
+          {/* 交易所管理（Kevin 2026-10-24 裁定 · 同页 Tab 模块）：壳 = ExchangeManagementPage，
+              三条子路由**各自设闸**（不得外层统一闸）；index ⇒ 重定向到 fee-rate（保书签）。 */}
+          <Route path="exchange" element={<ExchangeManagementPage />}>
+            <Route index element={<Navigate to="fee-rate" replace />} />
+            <Route path="fee-rate" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><FeeRatePage /></ProtectedRoute>} />
+            <Route path="currency-review" element={<ProtectedRoute adminOnly={true} requiredPermission="review_tasks"><CurrencyReviewPage /></ProtectedRoute>} />
+            <Route path="commission-levels" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><ReferralWeightMatrixPage /></ProtectedRoute>} />
+          </Route>
+          {/* 旧地址 redirect（保书签；`<Navigate replace>`，不新增页面）：
+              /dashboard/fee-rate ⇒ /dashboard/exchange ·
+              /dashboard/currency-review ⇒ /dashboard/exchange/currency-review ·
+              /dashboard/weight-matrix ⇒ /dashboard/exchange/commission-levels */}
+          <Route path="fee-rate" element={<Navigate to="/dashboard/exchange" replace />} />
+          <Route path="currency-review" element={<Navigate to="/dashboard/exchange/currency-review" replace />} />
+          <Route path="weight-matrix" element={<Navigate to="/dashboard/exchange/commission-levels" replace />} />
           {/* P9①（spec §27.2/§26.6）：站点文案页（角色文案 + 站点标语 + 数值项），闸 = manage_settings */}
           <Route path="site-text" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><SiteTextPage /></ProtectedRoute>} />
           <Route path="audit-console" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_audit"><AuditConsolePage /></ProtectedRoute>} />
+          {/* 后台内层兜底：已下线段（`arbitration-review` / `permissions` 等）与任何未知后台子路径 ⇒ 提示页（404 形态，非重定向）。
+              缺此条时 `/dashboard/<未注册段>` 会渲出**空 main**（父路由部分匹配、`<Outlet/>` 无匹配），看起来像白页。 */}
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
       
       {/* 显式语言壳路由：/en/*、/hk/*、/vn/*、/zh/*（顺序即 SUPPORTED_LANGS；zh 也保留显式壳，配合自愈层把 /zh → /） */}

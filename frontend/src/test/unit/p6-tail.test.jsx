@@ -23,11 +23,15 @@ const mocks = vi.hoisted(() => ({
   fetchApiJson: vi.fn(),
   getAuthHeaders: vi.fn(() => ({})),
   hasAdminPermission: vi.fn(() => false),
+  loadAdminUsersWithAssets: vi.fn(async () => ({ users: [], stats: { userCount: 0, adminCount: 0, assetCount: 0, totalPoints: 0, avgPoints: 0, zeroPoints: 0 } })),
 }))
 vi.mock('../../admin-utils', () => mocks)
 vi.mock('react-hot-toast', () => ({ default: { error: vi.fn(), success: vi.fn() } }))
 
-import PermissionsManagement from '../../pages/admin/PermissionsManagement'
+// ★ 2026-10-24（Kevin · 三轮中的第①轮）：`PermissionsManagement` 整页下架（后端 /api/admin/permissions 仍存活、
+//   仅删前端）⇒ ② 段「admin 守卫链未被绕过」的**承重页 1:1 改锚到 `/dashboard/points`（PointsManagement）：
+//   同为「getStoredUser ⇒ fetchAdminAccess ⇒ can_access_admin」三跳守卫的后台页，判据逐条等价、强度不降。
+import PointsManagement from '../../pages/admin/PointsManagement'
 
 const SRC = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const walk = (dir, out = []) => {
@@ -43,7 +47,7 @@ const strip = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/[^\n]*/
 
 afterEach(() => { cleanup(); vi.clearAllMocks() })
 
-const renderPage = () => render(<MemoryRouter initialEntries={['/dashboard/permissions']}><PermissionsManagement /></MemoryRouter>)
+const renderPage = () => render(<MemoryRouter initialEntries={['/dashboard/points']}><PointsManagement /></MemoryRouter>)
 
 describe('① 乙族残留 = 0 · 站内链接唯一构造器', () => {
   it('硬编码 to="/…" / navigate(\'/…\' 残留数 = 0（上批 10 处已全部收口）', () => {
@@ -61,14 +65,14 @@ describe('① 乙族残留 = 0 · 站内链接唯一构造器', () => {
     const n = prodFiles().reduce((a, f) => a + ((fs.readFileSync(f, 'utf8').match(/buildLocalizedPath\(/g) || []).length), 0)
     expect(n).toBeGreaterThanOrEqual(10)
   })
-  it('原 10 处登记点所在 5 文件均已引构造器（`ActiveTaskModal` 随 job 体系删除 ⇒ 6 ⇒ 5）', () => {
-    for (const rel of ['pages/DashboardPage.jsx', 'pages/admin/PermissionsManagement.jsx', 'pages/admin/PointsManagement.jsx', 'pages/admin/SystemSettings.jsx', 'pages/admin/UsersManagement.jsx']) {
+  it('原 10 处登记点所在 5 文件均已引构造器（`ActiveTaskModal` 随 job 体系删除 ⇒ 6 ⇒ 5；`PermissionsManagement` 2026-10-24 整页下架 ⇒ 5 ⇒ 4）', () => {
+    for (const rel of ['pages/DashboardPage.jsx', 'pages/admin/PointsManagement.jsx', 'pages/admin/SystemSettings.jsx', 'pages/admin/UsersManagement.jsx']) {
       expect(fs.readFileSync(path.join(SRC, rel), 'utf8')).toContain('buildLocalizedPath(')
     }
   })
 })
 
-describe('② admin 守卫链未被绕过（行为不变）', () => {
+describe('② admin 守卫链未被绕过（行为不变；承重页 = PointsManagement）', () => {
   it('未登录：不取 admin 数据、出错误提示（守卫仍拦在第一跳）', async () => {
     mocks.getStoredUser.mockReturnValue(null)
     renderPage()
@@ -81,14 +85,15 @@ describe('② admin 守卫链未被绕过（行为不变）', () => {
     mocks.fetchAdminAccess.mockResolvedValue({ is_admin: false, permissions: [], can_access_admin: false })
     renderPage()
     await waitFor(() => expect(toast.error).toHaveBeenCalled())
-    expect(mocks.fetchApiJson).not.toHaveBeenCalledWith('/api/admin/permissions', expect.anything())
+    expect(mocks.fetchAdminAccess).toHaveBeenCalled()
+    expect(mocks.loadAdminUsersWithAssets).not.toHaveBeenCalled()
+    expect(mocks.fetchApiJson).not.toHaveBeenCalled()
   })
   it('admin（正对照）：放行并取数（证明守卫只拦非法态）', async () => {
     mocks.getStoredUser.mockReturnValue({ uID: 1, EVM: '0xabc' })
     mocks.fetchAdminAccess.mockResolvedValue({ is_admin: true, permissions: [], can_access_admin: true })
-    mocks.fetchApiJson.mockResolvedValue({ groups: [], users: [] })
     renderPage()
-    await waitFor(() => expect(mocks.fetchApiJson).toHaveBeenCalledWith('/api/admin/permissions', expect.anything()))
+    await waitFor(() => expect(mocks.loadAdminUsersWithAssets).toHaveBeenCalled())
   })
 })
 
