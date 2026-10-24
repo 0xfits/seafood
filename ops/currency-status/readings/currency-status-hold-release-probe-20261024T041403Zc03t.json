@@ -1,0 +1,144 @@
+{
+  "run": "20261024T041403Zc03t",
+  "name": "currency-status-hold-release-probe",
+  "at": "2026-10-24T04:14:07.265Z",
+  "checks": [
+    {
+      "id": "F1",
+      "what": "夹具自证：真挂单 open / amount>amount_filled / account frozen = 剩余量（真 hold 落地）",
+      "pass": true,
+      "reading": "order=70 status=open amount=10 filled=0 remain=10 account={\"bal\":95,\"frz\":10,\"ver\":2}"
+    },
+    {
+      "id": "F0",
+      "what": "tx 隔离自证：未绑定事务时 neon 独立连接看不到本事务夹具（读数 = 0 单）",
+      "pass": true,
+      "reading": "naked_list=[] cid=462 order=70"
+    },
+    {
+      "id": "H1",
+      "what": "① ledger_entry 恰新增 2 条 hold_release（同 uid 同 cid；Σdelta=+10 / Σfrozen=−10 / 持仓净变 0）",
+      "pass": true,
+      "reading": "n=2 Δledger=2 delta=[0,10] frozen=[-10,0] Σdelta=10 Σfrozen=-10 Σ=0 rows=[[\"hold_release\",\"995403\",\"462\",\"0\",\"-10\"],[\"hold_release\",\"995403\",\"462\",\"10\",\"0\"]]"
+    },
+    {
+      "id": "H2",
+      "what": "② account：frozen −10 / balance +10（= 该单成交前剩余量 amount−amount_filled=10），version 递增",
+      "pass": true,
+      "reading": "frozen 10→0 balance 95→105 version 2→3 remain=10"
+    },
+    {
+      "id": "H3",
+      "what": "③ market_order.status = cancelled（撤单真落库，非仅返 200）",
+      "pass": true,
+      "reading": "order open→cancelled res={\"ok\":true,\"cancelled\":1,\"failed\":0,\"attempted\":1} fatal=null"
+    },
+    {
+      "id": "H4",
+      "what": "④ 幂等根键（event_root_key）= biz:market:cancel:<order_id>；逐条 idempotency_key 为派生 <root>#<i>",
+      "pass": true,
+      "reading": "root=biz:market:cancel:70 entry_keys=[biz:market:cancel:70,biz:market:cancel:70#2] order.ledger_event_keys=biz:probe:holdrel:ZZHLD041403:20261024T041403Z,biz:market:cancel:70"
+    },
+    {
+      "id": "H5",
+      "what": "附加：cancelOrdersOfCurrency 回执 = attempted 1 / cancelled 1 / failed 0 / orders[0].ok",
+      "pass": true,
+      "reading": "[{\"order_id\":\"70\",\"ok\":true,\"order_status\":\"cancelled\",\"replay\":false}]"
+    },
+    {
+      "id": "H6",
+      "what": "⑤ 收尾 ROLLBACK ⇒ 库上零残留（users/currency/market_order/ledger_entry/account/status_log 全 0）",
+      "pass": true,
+      "reading": "rolled_back=true residual={\"users\":0,\"currency\":0,\"market_order\":0,\"ledger_entry\":0,\"account\":0,\"currency_status_log\":0}"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "passed": 8,
+    "failed": 0,
+    "red": []
+  },
+  "fixture": {
+    "cid": 462,
+    "tuid": 995403,
+    "order_id": 70,
+    "root": "biz:market:cancel:70",
+    "sym": "ZZHLD041403",
+    "remain": 10,
+    "fixture_before": {
+      "ledger_total": 931,
+      "account": {
+        "bal": 95,
+        "frz": 10,
+        "ver": 2
+      },
+      "order_status": "open",
+      "amount": "10",
+      "amount_filled": "0"
+    },
+    "after": {
+      "ledger_total": 933,
+      "account": {
+        "bal": 105,
+        "frz": 0,
+        "ver": 3
+      },
+      "order_status": "cancelled",
+      "entries": [
+        {
+          "txid": "4619",
+          "uid": "995403",
+          "cid": "462",
+          "kind": "hold_release",
+          "delta": "0",
+          "frozen_delta": "-10",
+          "event_root_key": "biz:market:cancel:70",
+          "entry_key": "biz:market:cancel:70"
+        },
+        {
+          "txid": "4620",
+          "uid": "995403",
+          "cid": "462",
+          "kind": "hold_release",
+          "delta": "10",
+          "frozen_delta": "0",
+          "event_root_key": "biz:market:cancel:70",
+          "entry_key": "biz:market:cancel:70#2"
+        }
+      ],
+      "sums": {
+        "delta": 10,
+        "frozen": -10,
+        "net": 0
+      }
+    },
+    "verdict": {
+      "ok": true,
+      "cancelled": 1,
+      "attempted": 1,
+      "failed": 0,
+      "orders": [
+        {
+          "order_id": "70",
+          "ok": true,
+          "order_status": "cancelled",
+          "replay": false
+        }
+      ]
+    }
+  },
+  "tx": {
+    "rolled_back": true,
+    "ms": 2908,
+    "attempts": 1,
+    "error": null
+  },
+  "residual": {
+    "users": 0,
+    "currency": 0,
+    "market_order": 0,
+    "ledger_entry": 0,
+    "account": 0,
+    "currency_status_log": 0
+  }
+}
