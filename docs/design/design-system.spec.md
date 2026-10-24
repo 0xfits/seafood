@@ -37,6 +37,7 @@
 > **★ 现行版 = v1.31（2026-10-24 · Kevin「可点击组件 hover 分级 + 公共 chip 类 `.sf-chip`」裁定落册 · **纯追加零删行** · 新增 §32 + 规则 `T130` · 本单 = 1 个新 CSS 类 + 首页 2 处改用它 + 单测/探针改锚，代码已入库）**：**① 新类 `.sf-chip`** —— 落 `frontend/src/styles.css` **顶层**（不入 `@media`、**零新主题 token**：颜色只引用既有 `--border-color` / `--text-secondary`）；几何 = `inline-flex/center/gap4/px-3 py-1.5/14px/1.4/6px`；透明底 + **1px 细边框** + 次要文字色；**hover 与 `.btn:hover` 逐字一致 = `translateY(-1px)`，不变色/不变边/不加阴影**，`:active` 归零，`prefers-reduced-motion` 只在本类内禁用位移（不新增全局策略）。**② 选中态** `.sf-chip.is-active` = 现有黄底白字黄边（`#eab308` / `#fff`），整站统一。**③ 首页两处改用它** —— 【推荐】/【新发】两 tab（`role=tab` / `aria-selected` / `data-sf-sort` / `data-sf-m` **全部保留**，切档逻辑零变动）＋【全部悬赏】入口（**不再用 `Button`**，改 `<Link className="sf-chip" data-sf-m="home-viewall">`，文案键与四语值不变）。**④ `T130` = 可点击组件 hover 分级规范**（① 按钮/标签/chip 抬升 1px；② 可点卡片 = 容器反馈不上移；③ 文本链接只变色；④ 图标按钮浮现底色块；`.btn.btn-a` 家族为**冻结例外**、不追溯）。**⑤ 全站四类可点击组件盘点入册（§32.4，本单未改码）** 作为分批改依据。**⑥ 红线** = 不动 `.btn` / `.btn-proceed` / 不改其它页；i18n 零键增删（**1453 × 4 不变**）。**改动 = 版本头（本行）+ §12 表 v1.31 行 + §32（新）**；本册只写 `docs/**`。
 > **★ 现行版 = v1.32（2026-10-24 · Kevin「后台【费率配置】更名【交易所管理】」裁定落册 · **只追加零删行** · 新增 §33 + 规则 `T131` · 本单 = 2 个 locale 值 × 4 语 + 1 条侧栏 `path` + 1 段路由 `path`，代码已入库）**：**① 侧栏文案值变更** —— `adminNav.feeRate` 四语 zh「交易所管理」/ hk「交易所管理」/ en「Exchange」/ vn「Quản lý sàn」，`adminNav.feeRateDesc` 同步为「交易所费率与参数」族（**键名一字不动 ⇒ 键集 `1453 × 4` 零漂移**）。**② 侧栏 `path` 与路由段同批** —— `AdminLayout` 该项 `path: '/dashboard/exchange'`、`App.jsx` 内层 `<Route path="exchange">`；**组件名 / 文件名 `FeeRatePage`、页面字段与读写两口、闸 `manage_settings` 一律不动**。**③ 零视觉 token / 零 `STRUCT` / 零几何**（只改标签文字值与 URL 段 ⇒ 侧栏项排版由既有样式承接，宽度随文案自适应）。**④ 与 §32 的关系** —— 本单**不新增可点击组件形态**，`T130` 四级 hover 口径对该侧栏项**照旧适用**。**本册 v1.32 未动 `frontend/**`（实现归 Zang 同轮落地）· 未动 `docs/design/style-preview.html` · 未启停任何服务**。**改动 = 版本头（本行）+ §12 表 v1.32 行 + §33（新）**。
 > **★ 现行版 = v1.33（2026-10-24 · Kevin「交易所管理收成 Tab 模块 ＋ 仲裁审核 / 权限管理两页下架 ＋「市场」→「海底交易所」」裁定落册 · **状态改写式 · 只追加零删行** · 新增 §34 + 规则 `T132`（Tab 模块形态）/ `T133`（侧栏单项闸 = 权限并集））**：**① 后台侧栏项** 13 ⇒ **9**（删 `permissions` / `arbitration-review` / `weight-matrix` / `currency-review` 四项，入口合并为一项「交易所管理」）。**②「交易所管理」= 同页 Tab 模块** —— tab 条复用 `T130` 公共类 `.sf-chip`（选中态 `.is-active`）+ `role=tablist/tab` + `aria-selected`；**闸逐子路由各自设**（外层壳不设闸）；**tab 按权限过滤**（只渲染当前用户有权限的那几条）。**③ 侧栏该项的闸 = `manage_settings ∨ review_tasks`**（`requiredPermission: ['manage_settings', 'review_tasks']`；数组语义 = 任一命中即可见，判据仍是既有 `hasAdminPermission`；修「`review_tasks`-only 管理员看不到入口」缺陷）。**④ 文案** —— `shard` 键**只改值不改键**：zh/hk「海底交易所」/ en「**Exchange**」/ vn「**Sàn**」（顶栏 `Header.jsx` 与手机底栏 `shell/nav.js` 同键同值；底栏 390 档不折行）。**⑤ 零新 token / 零 `STRUCT` 增项 / 零几何常量**（只复用既有 `.sf-chip`；侧栏项宽度随文案自适应）。**本册 v1.33 只写 `docs/**`，未启停任何服务，未 `git add -A`。改动 = 版本头（本行）+ §12 表 v1.33 行 + §34（新）。**
+> **★ 现行版 = v1.34（2026-10-24 · 第②轮后台瘦身 · 状态改写式 · 只追加零删行 · 本单只写 `docs/**`）**：**① 新增 §35 + 规则 `T134`** —— **后台「设置面板」= 单字段面板**：只渲染**有真消费方**的键（现值仅 `siteName`），**请求体键集恰一**（`{ siteName }`），**非字段载体（`ops:` 幂等键）必须走请求头**（`Idempotency-Key`）而**不得**塞进 body；**② 侧栏再减两项**（「任务管理」`adminNav.tasks` / 「碎片管理」`adminNav.shards` ⇒ 侧栏 9 项降 7 项），两页**整页下线**（文件 / 路由 / 侧栏 / 后台首页快捷卡**四处零残留**），**不套 `T132` Tab 模块**（`T132` 管「同域多页收成一个侧栏项」，撤项≠合并 ⇒ 无 tab 可留）；**③ 键集零增删**（`adminNav.tasks`/`tasksDesc`/`shards`/`shardsDesc` 等成孤儿但**保留**）⇒ **不触发键集计数前推**（以 `master-plan` §5.462 现取为准）。**改动 = 版本头（本行）+ §12 表 v1.34 行 + 尾追加 §35（规则 `T134`）**。**本册本单只写 `docs/**`**；未动 `frontend/**` / `backend-ts/**` / `tools/**` / `ctrl/**` / 真源 `docs/design/style-preview.html`（**零改动**）；未启停任何服务（绝不 `pm2 restart`）；未 `git add -A` · 未 commit · 未 push（提交由同批另一笔完成）。**现取基线 = HEAD `423a4c8`（2026-10-24）。**
 
 > **★ v1.10 姊妹册（同批交付）** = `docs/route-layer.spec.md` **v2.28 §38**（`/item` 家族 + 旧路由硬删 + 「前端概念名 ⇄ 后端路径名」映射表）；本册只承载 **形态 / 入口集合 / 可达性 AC / 合并页口径 / i18n 删改留表**，**不重抄**。
 > **v1.5 口径来源（逐字）**：Kevin 2026-10-11 定档 ①方案 A·UI 先行（不动后端）②右悬浮菜单仅桌面档显示、H5 隐藏 ③消息模块占位（后续接驳 X/推特私信）④客服/反馈做弹窗模板位；**＋ Kevin 当日两条连锁更正**（`Zang` 转达）：**(A)** 底栏第二项 = **「市场」→ `/exchange`**（key `shard`，图标 `Store`；**不再新建 `/nearby` 占位页、`nearby` 键不新增**）**(B)** `T76` 去重按新底栏集合重算（**`exchange` 继续排除、`reward`/`task` 恢复**）。
@@ -859,6 +860,7 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 | **v1.31** | 2026-10-24 | **Kevin「可点击组件 hover 分级 + 公共 chip 类」裁定落册（纯追加零删行）**：新增 §32 + 规则 `T130`（① 按钮/标签/chip = `translateY(-1px)` 与既有 `.btn:hover` 逐字一致、不改色；② 可点卡片 = 容器反馈不上移；③ 文本链接只变色；④ 图标按钮浮现底色块；`.btn.btn-a`/`.btn-a-alt` 为冻结例外不追溯）+ 公共类 `.sf-chip` 定义（透明底 + 1px 中性细边框 + 次要字色；`is-active` = 黄底白字黄边；hover 抬升 1px；`prefers-reduced-motion` 仅本类禁用位移；**零新 token**）+ 首页两 tab 与【全部悬赏】入口改用它（后者由 `Button variant=ghost` 改 `<Link className="sf-chip">`，钩子 `home-viewall` 与 `href=/campaign` 不变）+ **全站四类可点击组件 hover 盘点附录**（§32.4：23 行 / 覆盖 ①按钮 7 行 ②卡片 7 行 ③链接 3 行 ④图标钮 6 行，逐项给 `文件:行`＋现 hover＋缺口）。i18n 零键增删（1453 × 4）。单测改锚 2 处 + 新增 1 例；探针新增 `chip` 臂 16 条判据、`rowcount` 2 条旧 ghost 判据改锚。 |
 | **v1.32** | 2026-10-24 | **Kevin「后台【费率配置】更名【交易所管理】」裁定落册（只追加零删行）**：新增 §33 + 规则 `T131`（后台导航项改名 = 文案值 + 侧栏 `path` + 路由段**三处同批**，组件名 / 字段 / 写口 / 闸**不动**）。**实测读数** = `adminNav.feeRate` 四语「交易所管理 / 交易所管理 / Exchange / Quản lý sàn」、`adminNav.feeRateDesc` 四语「交易所费率与参数」族；侧栏 href `/dashboard/exchange`、旧 `/dashboard/fee-rate` 0 命中（dist 现取）。**零 token / 零 `STRUCT` / 零几何**；姊妹册 = `route-layer.spec` **v2.49 §49.22** + `master-plan` **§5.460 / v0.379**。 |
 | **v1.33** | 2026-10-24 | **Kevin「交易所管理收成 Tab 模块 ＋ 两页下架 ＋「市场」→「海底交易所」」裁定落册（状态改写式 · 只追加零删行）**：新增 §34 + 规则 `T132`（后台 Tab 模块形态：`.sf-chip` tab 条 + 逐子路由各自闸 + tab 按权限过滤）与 `T133`（侧栏单项闸 = 子面权限**并集**；撤项时「入口合并」优先于「多留一项」）。**① 后台侧栏项 13 ⇒ 9**（删 `permissions` / `arbitration-review` / `weight-matrix` / `currency-review` 四项，合并为一项「交易所管理」⇒ 无入口丢失）。**② Tab 模块** —— `ExchangeManagementPage` 壳 = 页标题 + `.sf-chip` tab 条（`is-active` 选中态 / `role=tablist`·`tab` / `aria-selected`）+ `<Outlet/>`；三子路由 `fee-rate` / `currency-review` / `commission-levels` **各自设闸**。**③ 侧栏闸** = `['manage_settings', 'review_tasks']`（任一命中）。**④ 文案** = `shard` 键值 zh/hk「海底交易所」/ en「Exchange」/ vn「Sàn」（**键名不动**；顶栏与底栏同键同值；底栏 390 档不折行）。**零新 token / 零 `STRUCT` / 零几何**；姊妹册 = `route-layer.spec` **v2.50 §49.23** + `master-plan` **§5.461 / v0.380**。 |
+| **v1.34** | 2026-10-24 | **Kevin「第②轮后台瘦身：基本设置只留站点名称 / 任务管理 + 碎片管理两页下线」裁定落册（状态改写式 · 只追加零删行）**：新增 §35 + 规则 `T134`（后台**设置面板 = 单字段面板**：只渲染有真消费方的键（现值仅 `siteName`）、**请求体键集恰一**、非字段载体（`ops:` 幂等键）走**请求头**，禁塞进 body）+ 侧栏再减两项（9 ⇒ 7）。`T132`/`T133` 一字未动（本笔删的是**并列侧栏项**且**两页整页下线** ⇒ 不构成「同域多页」⇒ 不套 Tab 模块）。实测 = 门 `101 / 1116` · build exit 0 ⇒ `index-DaydpU75.js` 635,921 B / `index-DdfpA9Yc.css` 190,454 B · 产物 `dashboard/tasks` 0 / `dashboard/shards` 0 / `基本设置` 2。 |
 
 
 ### 与上游文件的关系（只读，本册未改一字）
@@ -4995,3 +4997,34 @@ showEdit     = isAuthenticated && (isOwner || canEditAny) && statusEditable
 - **本节零删行**：`git diff --numstat docs/design/design-system.spec.md` 删除列 = **0**（本版 = 版本头追加 1 行 + §12 变更记录表追加 1 行 + 尾追加 §34）。
 - **未改写面**：`§1–§33` 一字未动；`docs/design/style-preview.html`（真源）**零改动**；`frontend/**` 由同轮实现单（`1ab7c65` + 本单第 ① 笔）落地，本册只登记口径。
 - **编号现取**：节号 **`§34`**（现盘最大 `§33`）；规则 **`T132` / `T133`**（现盘最大**已定义** `T131`）；版本行 **`v1.33`**（现盘最大 `v1.32`）。
+
+## §35 ★★ v1.34 · **后台「基本设置」= 单字段面板（`T134`）＋ 侧栏再减两项** —— 规则 `T134`（2026-10-24 · Kevin「第②轮后台瘦身」裁定：基本设置只留站点名称 · 任务管理 / 碎片管理两页下线 · **状态改写式 · 只追加零删行**）
+
+### 35.1 裁定口径（`T134`）
+
+| 规则 | 条文 | 依据 / 真源 | 判负 |
+|---|---|---|---|
+| **T134** | 【本册裁定 · v1.34】**后台「设置面板」必须是「单字段面板」**：**① 只渲染有真消费方的键**（现值 = `system_settings` 的 **9 键中仅 `siteName`** 有真消费方 ⇒ 面板只出「站点名称」一行）；**② 写请求体键集恰一**（`POST /api/admin/settings` 形态 A 的 body 逐字 = `{ siteName }`；**不得**回发其它 8 键、**不得**回发全量对象；语义 = **补丁合并**，未出现的键保持库中原值）；**③ 非字段载体走请求头** —— `ops:` 幂等键若必须携带，**只能**落 `Idempotency-Key` 请求头，**不得**塞进 body（否则键集会 > 1）；**④ 读侧只取该字段**（`GET /api/admin/settings` 只把 `siteName` 进 state，其余键不入 state ⇒ 结构上不可能被回发）。 | 实现 = `frontend/src/pages/admin/SystemSettings.jsx`（:62 只认 `siteName` · :78-83 头载体 · :91-95 body 恰一）；后端 = `backend-ts/src/admin-service.ts:52-87`（`resolveAdminOpsKey` 三档取值等价）· `backend-ts/src/index.ts:1864-1901`（形态 A / 形态 B 判别）；姊妹册 = `route-layer.spec` **v2.51 §49.24** | body 出现 `siteName` 之外的键（含 `create_key` / `idempotency_key` / 全量对象）⇒ 判负；幂等键落 body ⇒ 判负；面板渲染无消费方的键（「假开关」）⇒ 判负；写口改 `PUT` / 新路径 / 新错误码 ⇒ 判负 |
+| **T134-a** | 【本册裁定 · v1.34】**「撤两项」不套 `T132` Tab 模块**：`T132` 适用于「**同域多页要收成一个侧栏项**」（多个子面并存 ⇒ 折 tab）；本笔是**整页下线**（页面已不存在）⇒ **无可折的 tab**，侧栏直接减两项（9 ⇒ 7）。**判据** = 「撤项后该侧栏项下是否还有 ≥2 个仍在场的子面」：有 ⇒ `T132`；无 ⇒ 直接撤项。 | `T132`（§34 / v1.33）· 本笔实现 `AdminLayout.jsx` `menuItems` 9 ⇒ 7 项 | 已整页下线的能力被保留成「空 tab / 占位 tab」⇒ 判负；把 `T132` 误用于撤项（留下 1 个 tab 的壳）⇒ 判负 |
+
+### 35.2 本单实测（v1.34 · 2026-10-24）
+
+- **面板现值**：字段 **1**（`siteName`）· 请求体键集 = `['siteName']`（**恰一**）· 幂等键载体 = 请求头 `Idempotency-Key`（值为 `ops:<uid>:setting:system_settings`）。
+- **侧栏现值**：`menuItems` = **7 项**（旧 9 ⇒ 本笔 −2，`layout/AdminLayout.jsx`）；两页文件删除 = **120 + 261 行**。
+- **四处零残留**：页面文件 / `<Route>`（`App.jsx` 共 −2 条）/ 侧栏项 / 后台首页快捷卡（`DashboardPage.jsx` `to: '/dashboard/tasks'` 一项 + 其权限过滤行）。
+- **门读数（现取）**：`npx vitest run` = **101 files / 1116 tests / 0 failed**（基线 **100 / 1105**）· `npm run build` = **exit 0** ⇒ `index-DaydpU75.js` 635,921 B + `index-DdfpA9Yc.css` 190,454 B · 产物字面 `dashboard/tasks` **0** / `dashboard/shards` **0** / `基本设置` **2**。
+- **同轮旁证门**：components **2 / 14** · a11y **1 / 16**（0 failed）。
+- **i18n**：**零键增删**（`adminNav.tasks` / `tasksDesc` / `shards` / `shardsDesc` / `dashPage.linkTasksDesc` **保留为孤儿**；删键会改四语键集计数锚点）⇒ **不触发键集计数前推**。
+- **零新 token / 零 `STRUCT` / 零 CSS 契约变更**（页面删减只减样式消费面；真源 `docs/design/style-preview.html` **零改动**）。
+
+### 35.3 与既有序号的关系
+
+- 与 **§34（`T132` / `T133`）**：`T132` 管「同域多页收 Tab 模块」、`T133` 管「侧栏项闸 = 权限并集」；本笔 `T134` 管「设置面板 = 单字段 + 键载体分层」，`T134-a` 划清「撤项 ≠ 合并」的适用边界。**`T132` / `T133` 条文一字未动**。
+- 与 **§32（`T130`）**：`.sf-chip` 类本笔零消费（无 tab 条）。
+- **编号现取**：节号 **`§35`**（现盘最大 `§34`）；规则 **`T134` / `T134-a`**（现盘最大**已定义** `T133`）；版本行 **`v1.34`**（现盘最大 `v1.33`）。
+
+### 35.4 纪律自检
+
+- **本节零删行**：`git diff --numstat docs/design/design-system.spec.md` 删除列 = **0**（本版 = 版本头追加 1 行 + §12 变更记录表追加 1 行 + 尾追加 §35）。
+- **未改写面**：`§1–§34` 一字未动；真源 `style-preview.html` 零改动；`backend-ts/**` 本册零改动（`frontend/**` 由同批实现单落地，本册只登记口径）。
+- **快照口径（诚实）**：本单**未新建 / 未重制 `docs/versions/**` 快照**（写面限 `docs/**`）；`docs/versions/design-system.spec.v1.33.md` 保留 v1.33 字面 = **历史**，现行口径以本册 live 正文为准。

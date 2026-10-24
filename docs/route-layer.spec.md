@@ -445,6 +445,9 @@
 > **状态：v2.50（行为变更 · **后台【交易所管理】收成同页 Tab 模块 ＋ 两页下架 ＋ 侧栏闸放宽** —— `currency-review` **移入** `/dashboard/exchange/*` 子路径；`arbitration-review` 与 `permissions` 两条**下线**（前端路由 / 页面文件 / 侧栏项三处零残留，旧地址落提示页）；侧栏该项闸 `manage_settings` ⇒ **`manage_settings ∨ review_tasks`**（**缺陷修正**：`review_tasks`-only 管理员原先**看不到入口**，而币种审核 tab 就住在里面）；**前端 `<Route` 三计数口径 `44 / 36 / 26` ⇒ `48 / 40 / 26`**（同批前推 · 旧值留痕；`26` 不变）· 后端零改动 · 零新错误码 · 零迁移 · i18n 零键增删（`1453 × 4`）· 正文 = **§49.23**）（**插于 v2.49 块之后（升序接放）** · 实现笔 = `1ab7c65`（本册同批登记））** · 作者角色 = **Zang（Specifier · 制度员）**
 > **v2.50 修订入口**：逐条 delta → 依据锚点 → 改动点 = **本册 §49.23**（**不建独立 delta 件**，承 v2.29–v2.49 先例）；姊妹册 = `master-plan` **§5.461 / 版本行 v0.380** + `docs/design/design-system.spec.md` **v1.33 §34（`T132`）**。**实现面 = 同一工作区 10 路径**（2 M 代码 · 4 M 四语 locale · 2 A 单测 · 3 M 文档）；门读数由本笔同轮现取（§49.23.5）。
 > **★★ v2.50 本单要点（先说结论，不含糊）**：① **交易所管理 = 同页 Tab 模块**（壳 `ExchangeManagementPage.jsx`：页标题 + `.sf-chip` tab 条 + `<Outlet/>`；`index ⇒ fee-rate` 重定向；三条子路由 `fee-rate` / `currency-review` / `commission-levels` **各自设闸**，外壳不设闸）；② **两页下架** —— `ArbitrationReviewPage`（生产 404 死页）与 `PermissionsManagement`（后端仍在、前端删）⇒ 页面文件 / 路由 / 侧栏项三处零残留，旧地址落提示页（**后端与 i18n 键一律不动**）；③ **侧栏闸修正**（本笔唯一「真缺陷」修复）= `requiredPermission: ['manage_settings', 'review_tasks']`（数组语义 = 任一命中即可见，判据仍是既有 `hasAdminPermission`，**零新判定函数**）；④ **文案** —— `shard` 键**只改值不改键**：zh/hk「海底交易所」/ en「Exchange」/ vn「Sàn」（顶栏 `Header.jsx` 与手机底栏 `shell/nav.js` **同键同值**）；⑤ **计数前推** `44/36/26` ⇒ **`48/40/26`**（前两数 +4 = 壳内 index + 3 子路由，旧页 −2 与旧址 +3 相抵后净 +4；`26` 逐段清点不变）；⑥ **门读数（本笔现取）** = unit **104 files / 1140 tests / 0 failed** · build **exit 0** ⇒ `index-Bdhob8i7.js` **650,398 B** / `index-DlwKB1N1.css` **190,634 B**。
+> **状态：v2.51（行为变更 · **后台【基本设置】收成单字段面板 ＋ 后台「任务管理」/「碎片管理」两页下线** —— `POST /api/admin/settings`（形态 A）的**请求体键集恰为 `{ siteName }`**（补丁合并语义，不再回发其余 8 个字段 / 不回发全量对象）；该写口的 `ops:` 幂等键**改走 `Idempotency-Key` 请求头**（后端口三档取值等价，见 §49.24.2）；`/dashboard/tasks` 与 `/dashboard/shards` 两条后台子路由**下线**（页面文件 / 路由 / 侧栏项 / 后台首页快捷卡**四处零残留**，旧地址落后台内层 catch-all 提示页）；**后端口一律不动**）**
+> **v2.51 修订入口**：逐条 delta → 依据锚点 → 改动点 = **本册 §49.24**（**不建独立 delta 件**，承 v2.29–v2.50 先例）；姊妹册 = `seafood.master-plan` **§5.462 / 版本行 v0.381** + `docs/design/design-system.spec.md` **v1.34 §35（`T134`）**。**本笔只追加 + 就地状态改写（`§44.5` 三计数两行前推、旧值行内留痕；无一处整行删除）**。
+> **★★ v2.51 本单要点（先说结论，不含糊）**：① **写口契约 = 单字段 `siteName`**（`frontend/src/pages/admin/SystemSettings.jsx:94` `body: JSON.stringify({ siteName })`，键集恰一）；② **幂等键走请求头**（前端 `SystemSettings.jsx:82` 发 `'Idempotency-Key'`；后端 `resolveAdminOpsKey`（`backend-ts/src/admin-service.ts:59`）读 `req.headers['idempotency-key'] ?? req.headers['Idempotency-Key']` ⇒ **三档等价**：`body.create_key → body.idempotency_key → 头`；Node 入站头名**小写归一** ⇒ **大小写不敏感、逐字可对**）；③ **两页下线 = 四处零残留**（两页文件删除 + `App.jsx` 两条 `<Route>` + `AdminLayout.jsx` 两个侧栏项 + `DashboardPage.jsx` 管理快捷卡 `to: '/dashboard/tasks'`）；④ **计数前推** `48 / 40 / 26` ⇒ **`46 / 38 / 26`**（§44.5 三行就地前推、旧值留痕）；⑤ **三条偏差显式登记**（头键载体 / 首页快捷卡连带删除 / 基线实测 `100 / 1105` 而非派单所写 `104 / 1140`）—— 见 §49.24.4。
 
 > **v2.19 修订入口**：逐条 delta → 依据锚点 → 改动点 = `docs/audit/route-layer-v2.19-delta.md`（**同批姊妹册** = `docs/audit/data-layer-v0.26-delta.md` + `docs/audit/commission-v0.4-delta.md`）。**凡与 Zang 裁定冲突处，一律以 Zang 裁定为准**（本单为 P9⑤ 契约冻结；**未改写任何裁定、未发明任何路径 / 数值 / 权限键 / 文案值**）。**★ 姊妹册（同批）**：`docs/commission.spec.md` **v0.4 §19** + `docs/data-layer.spec.md` **v0.26 §34**，**本册不重抄其条文、只指路**。
 > **★★ v2.19 本单要点（先说结论，不含糊）**：① **零新用户面口**（邀请奖励 = 结算腿，无独立读 / 动作口）；② **后台配置面复用**（费率 + 6 项权重矩阵）；③ **注册点 `87 → 87`（+0）**；④ **权限键 11 键内（零增删）**；⑤ **错误码零新增 + `R107`**；⑥ **真生效四段（①③④ 段）**；⑦ **连带门改版**（`p8-s2` 8 键 / 守卫常量 / 页字段面随 `R-9-1` ⇒ 归实现单）。
@@ -8535,9 +8538,9 @@ CONSTRAINT admin_refund_audit_log_idem_uniq   UNIQUE (idempotency_key, result)  
 
 | 口径 | 现取命令 | 现值 | 本单影响 |
 |---|---|---|---|
-| 前端路由（字面） | `grep -cE '<Route' frontend/src/App.jsx` | **`48`**（**现取 2026-10-24 · v2.50 前推** · 旧值 `44`〔v2.47–v2.49〕/ `42` 留痕） | **+4**（含 **2 行注释散文**含字面 `<Route`；承 §40.2 注释污染口径） ※ 相对旧值 **+6** = v2.47 −1 ＋ 其后各节新增累计 ＋ **v2.50 +4**（交易所管理壳内 index + 3 子路由）；明细见 **§49.20.3 / §49.23.6** |
-| 前端路由（精确） | `grep -oE '<Route[ >]' frontend/src/App.jsx \| wc -l` | **`40`**（**现取 2026-10-24 · v2.50 前推** · 旧值 `36`〔v2.47–v2.49〕/ `34` 留痕） | **+4**（**多行开写法系统性不计入** = §40.3 / §42.5 已登记盲点） ※ 相对旧值 **+6** = v2.47 −1 ＋ 增量累计 ＋ **v2.50 +4**；明细见 **§49.20.3 / §49.23.6** |
-| 前端内层逐段 | 内层 `<Routes>` 内逐段清点 | **`26`**（**现取 2026-10-24** · 旧记 `20`〔16 单行 + 4 多行〕留痕；**v2.50 复核仍 `26`**） | **±0** ※ 相对旧值 **+6** = v2.47 −1 ＋ 增量累计（`exchange` 三条子路由是**嵌套段**、不计入内层逐段口径）；明细见 **§49.20.3 / §49.23.6** |
+| 前端路由（字面） | `grep -cE '<Route' frontend/src/App.jsx` | **`46`**（**现取 2026-10-24 · v2.51 前推** · 旧值 `48`〔v2.50〕/ `44`〔v2.47–v2.49〕/ `42` 留痕） | **−2**（v2.51 删两条 `<Route>` · 旧 `+4`〔v2.50 净增〕留痕；含 **2 行注释散文**含字面 `<Route`；承 §40.2 注释污染口径） ※ 相对旧值 **+6** = v2.47 −1 ＋ 其后各节新增累计 ＋ **v2.50 +4**（交易所管理壳内 index + 3 子路由）；明细见 **§49.20.3 / §49.23.6** |
+| 前端路由（精确） | `grep -oE '<Route[ >]' frontend/src/App.jsx \| wc -l` | **`38`**（**现取 2026-10-24 · v2.51 前推** · 旧值 `40`〔v2.50〕/ `36`〔v2.47–v2.49〕/ `34` 留痕） | **−2**（v2.51 删两条单行 `<Route>` · 旧 `+4`〔v2.50〕留痕；**多行开写法系统性不计入** = §40.3 / §42.5 已登记盲点） ※ 相对旧值 **+6** = v2.47 −1 ＋ 增量累计 ＋ **v2.50 +4**；明细见 **§49.20.3 / §49.23.6** |
+| 前端内层逐段 | 内层 `<Routes>` 内逐段清点 | **`26`**（**现取 2026-10-24 · v2.51 复核仍 `26`** · 旧记 `20`〔16 单行 + 4 多行〕留痕；**v2.50 复核仍 `26`**；**v2.51 删的两条是 `/dashboard` 父段下的嵌套段 ⇒ 不入本口径、数值不变**） | **±0** ※ 相对旧值 **+6** = v2.47 −1 ＋ 增量累计（`exchange` 三条子路由是**嵌套段**、不计入内层逐段口径）；明细见 **§49.20.3 / §49.23.6** |
 | 后端注册点 | `grep -cE '^app\.(get\|post\|put\|delete\|patch)\(' backend-ts/src/index.ts` | **`105`**（get 45 / post 56 / put 0 / delete 3 / patch 1） | **±0**（`AC10-2` 冻结面 `backend-ts/scripts/p7b-03-offline-gates.ts:145` 现取 = `regs === 105`，**已到位**） |
 
 - **判负**：任一计数发生变化（新增/删除 `<Route` 或注册行）⇒ 判负；**不得**以路由别名 / `app.use` 挂载 / 查询参数伪装成「零新增」绕过计数口径（§40.2 口径连续性）。
@@ -10518,3 +10521,57 @@ ORDER BY score DESC, l.time_created DESC, l.listing_id DESC
 
 - **判负**：① 侧栏该项又回到单值 `manage_settings` ⇒ 判负（缺陷复发）；② 壳上出现统一闸 / tab 不过滤权限 ⇒ 判负；③ `currency-review` 在**两条**路径同时存在（旧址未 redirect）⇒ 判负；④ `arbitration-review` / `permissions` 任一残留（页面文件 / `<Route>` / 侧栏项）⇒ 判负；⑤ i18n 键被删 / `shard` 键名被改 ⇒ 判负；⑥ 后端任一改动 ⇒ 判负。
 - **未做 · 已知取舍（登记，不在本笔修）**：① **后台首页（`/dashboard`）无「交易所管理」卡片**（入口只有侧栏一项）；② `adminNav.permissions` / `adminNav.arbitrationReview` 两键成**孤儿**（保留不删，与 `dashboard-pages-removed` 先例同口径）；③ **币种状态变更**（审核动作的业务效果）**下一轮**；④ 真机点击走查 `NOT_MEASURED` —— 本笔只有 jsdom 运行时断言 + 生产 dist 字面核验。
+
+### 49.24 后台瘦身第②轮：**【基本设置】收成单字段面板** ＋ **「任务管理」/「碎片管理」两页下线**（写口请求体键集恰为 `{ siteName }` · **`ops:` 幂等键改走 `Idempotency-Key` 请求头** · **后端口一律不动** · 零新路由 / 零新错误码 / 零迁移 / 零 i18n 键增删）· 2026-10-24 · **v2.51**（契约变更 ⇒ 升版；头注**追加** v2.51 状态块，接放于 v2.50 块之后）· 本笔**含 3 行就地状态改写**（§44.5 三计数，旧值行内留痕、无一处整行删除）
+
+#### 49.24.1 依据与范围（Kevin 2026-10-24 第②轮裁定）
+
+- **依据** = Kevin「**后台瘦身第②轮**：基本设置只留站点名称一个字段；任务管理、碎片管理两页下线」+ 派单硬约束「**请求体键集必须恰为 `{ siteName }`**」（若把 `ops:` 幂等键塞进 body，键集就变成 2 个 ⇒ 幂等键必须改走**请求头**载体）。
+- **写面（同一工作区 18 路径）**：删 2（`pages/admin/TasksManagement.jsx` / `pages/admin/ShardsManagement.jsx`）· M 3 代码（`App.jsx` / `components/layout/AdminLayout.jsx` / `pages/DashboardPage.jsx`）· M 1 页面（`pages/admin/SystemSettings.jsx` 重写为单字段面板）· M 4 四语 locale（`locales/{zh,hk,en,vn}.json`）· A 1 单测（`admin-basic-settings.test.jsx`）· M 6 单测 · M 1 脚本（`frontend/scripts/p4z-i18nb4b-cjk.mjs`）。
+- **`backend-ts/**` 本笔零改动**（只读用于现取核验：`resolveAdminOpsKey` 与 `POST /api/admin/settings` 既有形态 A 语义）。
+
+#### 49.24.2 写口契约（单字段 · 补丁合并 · 幂等键走请求头）
+
+- **读** = `GET /api/admin/settings`：本页只取 `siteName`（其余 8 键无 UI ⇒ 不入 state，避免被再次回发）。
+- **写** = `POST /api/admin/settings`（**形态 A**，裸值对象、无自有属性 `key`）：`SystemSettings.jsx:91-95`
+  `fetchApiJson('/api/admin/settings', { method: 'POST', headers, body: JSON.stringify({ siteName }) })` ⇒ **请求体键集 = `['siteName']`（恰一）**；语义 = **补丁合并**（未出现的键保持库中原值），**不是**全量覆盖。
+- **★ 幂等键载体 = `Idempotency-Key` 请求头**（依据 = 上条硬约束）。前端发键：`SystemSettings.jsx:78-83` 的 `headers` 对象内 `'Idempotency-Key': adminOpsKey(currentUser?.uID, 'setting', 'system_settings')`。
+- **后端读键（现取 · 本笔逐字核）** = `backend-ts/src/admin-service.ts:59`
+  `const headerKey = req.headers ? (req.headers['idempotency-key'] ?? req.headers['Idempotency-Key']) : undefined;`；`:60`
+  `const raw = body.create_key ?? body.idempotency_key ?? headerKey;` ⇒ **三档取值等价**（body.create_key → body.idempotency_key → 头），**头与体同等效力**、校验口径一致（`:64-85`：非空 / >200 拒 / 必须 `ops:` 前缀 / 禁 `#` / 禁控制字符），**且只做强校验、不落库**（`:50` 口径自曝）。**头名对齐** = 前端 `Idempotency-Key` ↔ 后端 `'idempotency-key'` / `'Idempotency-Key'` **双写兜底**；Node/Express 入站头名**一律小写归一** ⇒ 一个字面即可命中、**大小写不敏感**。**路由侧接线** = `backend-ts/src/index.ts:1898` `resolveAdminOpsKey(req, actor.session.uID, 'setting', targetKey)`（`targetKey` 形态 A 恒 `'system_settings'` ⇒ 键形 `ops:<uid>:setting:system_settings` 逐字不变）；`database.ts:125-129` 另声明 `create_key` / `idempotency_key` / `idempotencyKey` 为**请求信封控制字段**（写入门禁判定前**剥离**，头载体不在字段集内 ⇒ 不影响键集判定）。
+- **判负**：`{ siteName }` 之外出现任何 body 键（含 `create_key` / `idempotency_key` / `saveAll` / 全量对象）⇒ 判负；幂等键落 body ⇒ 判负；头名与后端读取面**不同源**（既非小写、也非 `Idempotency-Key`）⇒ 判负；写口改成 `PUT` / 新路径 / 新错误码 ⇒ 判负。
+
+#### 49.24.3 两页下线（`tasks` / `shards`）· **四处零残留**
+
+| # | 面 | 落点 | 处置 |
+|---|---|---|---|
+| ① | 页面文件 | `frontend/src/pages/admin/TasksManagement.jsx`（120 行）· `ShardsManagement.jsx`（261 行） | **删除**（`D`） |
+| ② | 路由 | `frontend/src/App.jsx` `<Route path="tasks">` / `<Route path="shards">`（各带 `requiredPermission` 数组闸） | **删除**；旧地址落后台内层 `<Route path="*">` ⇒ `NotFoundPage`（**非重定向**） |
+| ③ | 侧栏 | `frontend/src/components/layout/AdminLayout.jsx` `menuItems` 两项（`adminNav.tasks` / `adminNav.shards`） | **删除**（侧栏自 9 项减到 7 项）|
+| ④ | 后台首页快捷卡 | `frontend/src/pages/DashboardPage.jsx` `managementLinks` 的 `to: '/dashboard/tasks'` 一项 + `visibleManagementLinks` 对应权限过滤行 | **一并删除**（**否则点进死页** —— 见 §49.24.4 ②）|
+
+- **不动项**：后端口（`GET /api/campaign/all`、`/api/prize/all` + 市场 `orderbook`/`trades`）**一律保留**（公开 `/campaign`、`/prize` 与首页仍在消费）；i18n 键 `adminNav.tasks` / `tasksDesc` / `shards` / `shardsDesc` / `dashPage.linkTasksDesc` / `dashPage.statTasks` **保留不删**（登记孤儿；删键会改四语键集计数锚点）；`TaskPage` / `CampaignTaskPage` / 碎片市场公开页**一字不动**。
+
+#### 49.24.4 ★ 三条偏差 / 事实（**必须显式登记** · 不得省略）
+
+1. **幂等键走请求头**（非派单字面「请求体带键」）：因「请求体键集恰为 `{ siteName }`」与「body 里放幂等键」**互斥** ⇒ 载体改为 `Idempotency-Key` 头；后端**早已支持**该载体（`admin-service.ts:59-60` 三档等价，非本笔新增能力）⇒ **零后端改动**即达成。核验结论 = **头部真被读、头名逐字对得上**（§49.24.2）。
+2. **`DashboardPage` 管理快捷卡点到 `/dashboard/tasks` 已一并删除**：该卡是第**四**处入口（前三处 = 页面文件 / 路由 / 侧栏），只删前三处会留下**点进死页**的活链接 ⇒ 本笔同时删除卡片与其实权限过滤行；`Trophy` 图标导入随之移除（**零未用导入**）。
+3. **基线实测 = `100 files / 1105 tests / 0 failed`（非派单所写 `104 / 1140`）**：派单的 `104 / 1140` 是**上一轮（第①轮 · v2.50 §49.23.5）**的读数；本轮开工现取基线为 **`100 / 1105`**（差额 = 上一轮之后已入库的用例变动，本笔不追认、不改写旧记录）⇒ 本笔**只以现取基线为增量基准**：交单读数 = **`101 files / 1116 tests / 0 failed`**（**+1 文件 / +11 用例** = 新增 `admin-basic-settings.test.jsx`）。
+
+#### 49.24.5 门读数与产物字面核验（本笔现取）
+
+- `cd frontend && npx vitest run` = **101 files / 1116 tests / 0 failed**（基线 `100 / 1105`）。
+- `npm run build` = **exit 0** ⇒ **`index-DaydpU75.js` 635,921 B** ＋ **`index-DdfpA9Yc.css` 190,454 B**（JS 比 v2.50 的 `650,398 B` **小 14,477 B** = 两页 + 单字段面板缩身；CSS 同比 `190,634 B` ⇒ `190,454 B`）。
+- **产物字面核验（dist 现取）**：`dashboard/tasks` = **0** · `dashboard/shards` = **0** · **`基本设置` = 2**。
+- **同轮旁证门**：components **2 / 14** · a11y **1 / 16**（均 0 failed）。
+- **生产同版核验** = `curl --resolve 0xseafood.com:443:76.76.21.21 https://0xseafood.com/index.html` 的 assets 名与字节**与本地 build 逐字同**（读数见 `master-plan` §5.462）。
+
+#### 49.24.6 前端 `<Route` 三计数前推（**`48 / 40 / 26` ⇒ `46 / 38 / 26`** · 旧值留痕）
+
+- **字面** `grep -cE '<Route' frontend/src/App.jsx` = **`46`**（旧 `48`）；**精确** `grep -oE '<Route[ >]' … | wc -l` = **`38`**（旧 `40`）；**内层逐段清点** = **`26`**（不变 —— 删的两条是 `/dashboard` 父段下的**嵌套段**，不入内层逐段口径；与 v2.50 对 `exchange` 三条子路由的同类处置一致）。
+- **本笔贡献 = 前两相各 −2**（删 `tasks` / `shards` 两条单行 `<Route>`）；判负：现取 ≠ **`46 / 38 / 26`** ⇒ 判负；下一笔再增删 `<Route` 必须**同批**前推本节与 §44.5 三行。
+
+#### 49.24.7 判负清单 + 未做（`NOT_MEASURED` · 不预填）
+
+- **判负**：① `/dashboard/tasks` 或 `/dashboard/shards` 仍渲染**任何页面**（含替身页）= 判负（必须落 `NotFoundPage`）；② 两页文件 / `<Route>` / 侧栏项 / 首页快捷卡 四处任一残留 = 判负；③ 写口 body 出现 `siteName` 之外的键 = 判负；④ 幂等键落 body 或头名不匹配 = 判负；⑤ 后端 `backend-ts/**` 任一改动 = 判负；⑥ i18n 键被删 / 键名被改 = 判负。
+- **未做 · 已知取舍（登记，不在本笔修）**：① `adminNav.tasks` / `tasksDesc` / `shards` / `shardsDesc` / `dashPage.linkTasksDesc` 五键成**孤儿**（保留不删，与 `adminNav.permissions` 先例同口径）；② 「管理侧看真实任务」现**无独立列表页**（公开 `/campaign` 仍可用）；③ 单字段面板之外的 8 个设置字段（费率 / 权重矩阵 / 每日任务上限等）**本页已无 UI** ⇒ 改值只能走 `POST /api/admin/settings` 的**形态 B**（键级信封）或运维 SQL —— **登记为待裁**；④ 真机点击走查 `NOT_MEASURED`（本笔只有 jsdom 运行时断言 + 生产 dist 字面核验）。
