@@ -32,6 +32,8 @@ vi.mock('react-i18next', () => ({
 
 const AUTH = vi.hoisted(() => ({ isAuthenticated: true, user: { uID: 7 } }))
 vi.mock('../../auth-context', () => ({ useAuth: () => AUTH }))
+// 成功分支已改 Toast（2026-10-24）⇒ 本文件只关心导航/文案，隔离掉 toast 的真实副作用。
+vi.mock('react-hot-toast', () => ({ default: { success: vi.fn(), error: vi.fn() } }))
 
 import WagePage from '../../pages/wage/WagePage'
 

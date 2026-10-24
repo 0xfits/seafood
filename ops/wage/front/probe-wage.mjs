@@ -4,7 +4,8 @@
  * 口径（逐条对齐派单验证项）：
  *   ① 悬浮菜单 5 项、无【反馈】、**首位 = 领工资**且 href 含 `/wage`（顺序 = 领工资/卖闲置/消息/APP/客服）；
  *   ② `/wage` 列表渲染 10 项、招募中/已截止态、加入与领工资按钮态（置灰依据逐条核）；
- *   ③ 领工资成功 ⇒ 卡内到账提示 + 列表重拉；失败（400 间隔未到）⇒ 卡内内联提示、卡仍在；
+ *   ③ 领工资成功 ⇒ **Toast 到账提示**（2026-10-24 起，卡内零成功文案、无模态框）+ 列表重拉；
+ *      失败（400 间隔未到）⇒ 卡内内联提示（失败不改 Toast）、卡仍在；
  *   ④ 390 / 1536 两档：`scrollWidth - clientWidth = 0` + 零 pageerror。
  *   ⑤ 客态臂（独立 context、无登录种子）：未登录**也**渲染项目卡（项目名 / 工资行 / 次币可见）+
  *      页顶轻提示与列表并存；点【加入】/【领工资】⇒ 卡内登录提示、**零写请求**（apply/claim 各 0）。
@@ -208,6 +209,14 @@ const SNAP_FN = `(() => {
   return {
     viewport: { w: innerWidth, h: innerHeight },
     overflowPx: de.scrollWidth - de.clientWidth,
+    // ★ 2026-10-24：资金变动类成功反馈 = Toast ⇒ 读数改看 react-hot-toast 的容器
+    //   （[data-rht-toaster] 是它自己打的容器钩子；条目 role="status"），
+    //   同时留一条独立读数证明「模态框已整体撤掉」（判据数不减）。
+    toasts: qa('[data-rht-toaster] [role="status"]').map((el) => txt(el)),
+    claimModal: {
+      present: !!q('[data-sf-m="wage-claim"]'),
+      count: qa('[data-sf-m="wage-claim"]').length,
+    },
     floatmenu: {
       present: !!fm,
       count: fmItems.length,
@@ -630,15 +639,19 @@ async function main() {
   // 到点后撤掉「按请求时刻重算 next_claim_at」的模拟 ⇒ 领薪成功后的刷新读到的是服务端**新时间**
   STATE.countdownMs = 0
   await page.click('[data-sf-project="101"] [data-sf-action="claim"]')
+  // ★ 2026-10-24：成功改 Toast（卡内零成功文案）⇒ 等 toast 出现，不再等卡内 ok 节点
   await page.waitForFunction(() => {
-    const n = document.querySelector('[data-sf-project="101"] [data-sf-m="wage-card-notice"]')
-    return !!n && n.getAttribute('data-sf-kind') === 'ok'
+    const t = document.querySelector('[data-rht-toaster] [role="status"]')
+    return !!t && /已领到/.test(t.textContent || '')
   }, null, { timeout: 8000 }).catch(() => {})
   await settle(page)
   const cd2 = (await page.evaluate(SNAP_FN)).cards.find((c) => c.project === '101')
+  const cdSnap2 = await page.evaluate(SNAP_FN)
   const cdRemaining = Number(cd2 && cd2.remaining)
   out.states['1536_countdown_claim'] = {
     card: cd2,
+    toastTexts: cdSnap2.toasts,
+    claimModal: cdSnap2.claimModal,
     remainingSeconds: cdRemaining,
     intervalFallbackSeconds: 4 * 3600,
     serverNextAtSeconds: Math.round((Date.parse(STATE.afterClaimNextAt) - Date.now()) / 1000),
@@ -652,8 +665,11 @@ async function main() {
     ),
     zeroWriteWhileGated: cdClicksWhileGated === 0,
     autoEnabledAtDueTime: cdDue === true && Boolean(cd1 && cd1.actionDisabled === false && cd1.claimable === '1' && cd1.hint === null),
+    // 到账（batt + 次币）改由 Toast 承载；同时卡内不得有 ok 节点、DOM 里不得有模态框
     claimOkWithBothCurrencies: Boolean(
-      cd2 && cd2.noticeKind === 'ok' && /batt\s*30/.test(cd2.noticeText || '') && /20\s*BTTC/.test(cd2.noticeText || '')
+      cdSnap2.toasts.some((s) => /⚡️\s*30/.test(s || '') && /20\s*BTTC/.test(s || ''))
+        && (cd2 && cd2.noticeKind !== 'ok')
+        && cdSnap2.claimModal.count === 0
     ),
     // 重新置灰的剩余量 ≈ 服务端新 next_claim_at（3h25m）而不是本地间隔兜底（4h）⇒ 证明「刷新拿新时间」生效
     regatedByServerNextAt: cdRemaining > 12000 && cdRemaining <= 12400,
@@ -670,11 +686,18 @@ async function main() {
   // ============================ ③ 领工资成功臂 =====================================
   await page.click('[data-sf-project="101"] [data-sf-action="claim"]')
   await settle(page)
-  await page.waitForFunction(() => !!document.querySelector('[data-sf-project="101"] [data-sf-m="wage-card-notice"]'), null, { timeout: 5000 }).catch(() => {})
+  // ★ 2026-10-24：成功反馈 = Toast ⇒ 等 toast 条目出现（不再等卡内 ok 节点）
+  await page.waitForFunction(() => {
+    const t = document.querySelector('[data-rht-toaster] [role="status"]')
+    return !!t && /已领到/.test(t.textContent || '')
+  }, null, { timeout: 5000 }).catch(() => {})
   await settle(page)
   const afterClaim = await page.evaluate(SNAP_FN)
   const c101 = afterClaim.cards.find((c) => c.project === '101')
+  const claimToast = (afterClaim.toasts || []).join(' | ')
   out.states['1536_claim_ok'] = {
+    toastTexts: afterClaim.toasts,
+    claimModal: afterClaim.claimModal,
     noticeKind: c101 && c101.noticeKind,
     noticeText: c101 && c101.noticeText,
     claimable: c101 && c101.claimable,
@@ -686,9 +709,12 @@ async function main() {
   out.assertions.claimOk = {
     postCount1: STATE.calls.filter((c) => /\/claim$/.test(c.path)).length === 1,
     postPath: (STATE.calls.find((c) => /\/claim$/.test(c.path)) || {}).path,
-    noticeOk: c101 && c101.noticeKind === 'ok',
-    noticeHasBatt: c101 && /batt\s*30/.test(c101.noticeText || ''),
-    noticeHasCurrency: c101 && /20\s*BTTC/.test(c101.noticeText || ''),
+    // 成功反馈 = Toast：文案含到账 batt 与次币；卡内零 ok 节点；模态框计数 0
+    toastOk: afterClaim.toasts.length >= 1 && /已领到/.test(claimToast),
+    toastHasBatt: /⚡️\s*30/.test(claimToast),
+    toastHasCurrency: /20\s*BTTC/.test(claimToast),
+    cardNoOkNotice: c101 && c101.noticeKind !== 'ok',
+    claimModalGone: afterClaim.claimModal.count === 0,
     cardRefreshedAndGated: c101 && c101.claimable === '0' && Number(c101.remaining) > 0,
     listRefetched: STATE.calls.filter((c) => c.path === '/api/project/all').length >= 2,
     cardStillPresent: afterClaim.cards.length === 10,
@@ -1144,7 +1170,8 @@ async function main() {
     'countdown.gatedWithCountdown', 'countdown.zeroWriteWhileGated', 'countdown.autoEnabledAtDueTime',
     'countdown.claimOkWithBothCurrencies', 'countdown.regatedByServerNextAt',
     'countdown.claimPostCount1', 'countdown.listRefetchedAfterClaim',
-    'claimOk.postCount1', 'claimOk.noticeOk', 'claimOk.noticeHasBatt', 'claimOk.noticeHasCurrency',
+    'claimOk.postCount1', 'claimOk.toastOk', 'claimOk.toastHasBatt', 'claimOk.toastHasCurrency',
+    'claimOk.cardNoOkNotice', 'claimOk.claimModalGone',
     'claimOk.cardRefreshedAndGated', 'claimOk.listRefetched',
     'claimFail.noticeErr', 'claimFail.noticeIsReason', 'claimFail.noWhiteScreen',
     'geometry.zeroOverflow390', 'geometry.zeroOverflow1536', 'geometry.cards390',

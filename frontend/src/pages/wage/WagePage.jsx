@@ -7,7 +7,7 @@ import BattCheckinPanel from '../../components/BattCheckinPanel'
 import { applyToWageProject, claimWage, fetchWageCurrencies, fetchWageProjects } from './wage-api'
 import { projectHrefOf } from '../../project-slug'
 import { avatarInitialOf, avatarToneOf } from '../../avatar-tone'
-import WageClaimModal from './WageClaimModal'
+import toast from 'react-hot-toast'
 import './wage.css'
 
 // ============================================================================
@@ -60,6 +60,9 @@ import './wage.css'
 //   · 框体 = 三路零请求关闭（✕ / 背板 / Esc）+ 滚动锁定，文案 = 到账电量（⚡️）+ 可选次币 + 连续奖励；
 //   · 卡内 `wage-card-notice` 只留**失败 / 登录 / 加入成功**三态 —— 领取成功不再写进卡；
 //   · 关闭后卡面靠重拉列表拿到的 `next_claim_at` 自行置灰倒计时（与关闭动作无关，不因关框丢状态）。
+//   ▲ 以上「模态框」一条已被 **Kevin 2026-10-24 裁定**推翻（资金余额变动类成功反馈 = Toast）：
+//     成功 ⇒ `toast.success(...)` 一条（主文案 + 可选连续奖励句，duration 5000），**模态框整体撤掉**
+//     （`WageClaimModal.jsx` 已删）；卡内仍**不写**成功文案，失败/登录/加入成功三态不变（失败不得改 Toast）。
 // ★ Kevin 2026-10-23 需求B：卡内【已招 X/Y】文案 ⇒ 前文案「招工名额」+ 270×3 进度条
 //   （填充 = hired/headcount；`headcount = 0` ⇒ 恒 0%；超员钳到 100%）；钩子 `wage-card-headcount`
 //   保留，读数改由 `data-hired` / `data-total` 承载。
@@ -163,9 +166,8 @@ const WagePage = () => {
   const [list, setList] = useState({ phase: 'loading', rows: [] })
   const [busy, setBusy] = useState({}) // projectKey ⇒ 'join' | 'claim'
   const [notices, setNotices] = useState({}) // projectKey ⇒ { kind:'ok'|'err'|'login', text }
-  // ★ Kevin 2026-10-23 需求A：领取成功的**模态框**载荷（`{ text, streak }`）；null = 框关闭。
-  //   卡内不再承载成功文案 ⇒ 成功结果只有这一个出口。
-  const [claimModal, setClaimModal] = useState(null)
+  // ★ Kevin 2026-10-24 裁定：领取成功改 **Toast**（不再有模态框 state）——
+  //   成功结果只经 `toast.success` 一条出口，页面不持有它；失败/登录/加入仍走上方 `notices`。
   const [claimAt, setClaimAt] = useState({}) // projectKey ⇒ 下次可领时间戳
   const [symbols, setSymbols] = useState({}) // cid ⇒ 币种符号
   const [clock, setClock] = useState(() => Date.now())
@@ -333,10 +335,12 @@ const WagePage = () => {
       const streakText = streak > 0 && bonus > 0
         ? tRef.current('wage.streakReward', { n: streak, bonus })
         : ''
-      // ★ Kevin 2026-10-23 需求A：成功 ⇒ **弹模态框**，卡内**不写**成功文案
-      //   ⇒ 先清掉该卡旧提示（上一轮失败 / 登录提示不得留在框背后像一次失败的余影）。
+      // ★ Kevin 2026-10-24 裁定：成功 ⇒ **Toast**（资金余额变动类统一），卡内**不写**成功文案。
+      //   · 一条 toast = 主文案 +（有连续奖励时）空格拼上的奖励句；duration 5000（文案较长，默认 4s 偏短）；
+      //   · `<Toaster/>` 挂在 `main.jsx` 顶层 ⇒ 重拉列表不会把它带走，无需等待即可刷新；
+      //   · 先清掉该卡旧提示（上一轮失败 / 登录提示不得留在成功背后像一次失败的余影）。
       setNotice(key, null)
-      setClaimModal({ text, streak: streakText })
+      toast.success([text, streakText].filter(Boolean).join(' '), { duration: 5000 })
       // 刷新列表拿服务端**新的** `next_claim_at`（下次可领时间的真源）。
       const refreshed = await load({ silent: true })
       const fresh = Array.isArray(refreshed) ? refreshed.find((item) => projectKey(item) === key) : null
@@ -624,18 +628,6 @@ const WagePage = () => {
           </div>
         )}
       </div>
-
-      {/* ★ Kevin 2026-10-23 需求A：领工资成功 ⇒ 独立模态框（卡内零成功文案）。
-          框体 portal 到 body；卸载 = 关闭（✕ / 背板 / Esc 三路零请求）。 */}
-      {claimModal ? (
-        <WageClaimModal
-          title={t('success')}
-          text={claimModal.text}
-          streak={claimModal.streak}
-          closeLabel={t('confirm')}
-          onClose={() => setClaimModal(null)}
-        />
-      ) : null}
     </div>
   )
 }

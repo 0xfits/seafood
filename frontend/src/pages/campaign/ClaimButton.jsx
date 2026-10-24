@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import toast from 'react-hot-toast'
 import { claimCampaignAll, claimSubtaskReward, claimTaskReward } from './campaign-api'
 import { isBattInsufficient, isNothingToClaim } from './campaign-util'
 
@@ -14,8 +15,10 @@ import { isBattInsufficient, isNothingToClaim } from './campaign-util'
 // 硬口径：
 //   · **匿名零按钮**：未登录整枚不渲染（不是 disabled）—— 领取是纯写动作，公开读面不给假入口；
 //   · 「有没有得领」由页面按读口 `pending_rewards` 决定（本组件不做二次判据），组件只管点击结果；
-//   · 结果一律**内联**（不弹 toast）：成功显示到账金额；失败按机读码分三支
-//     `batt_insufficient` / `nothing_to_claim` / 其他；
+//   · 结果出口：**成功 ⇒ `toast.success`（资金余额变动类统一口径，Kevin 2026-10-24 裁定）**，
+//     组件内**不再**渲染内联成功节点；**失败仍内联**，按机读码分三支
+//     `batt_insufficient` / `nothing_to_claim` / 其他（失败不得改 Toast）；
+//     ▲ 原文为「结果一律**内联**（不弹 toast）：成功显示到账金额」——已被 2026-10-24 裁定推翻（仅成功一支）。
 //   · 成功后由 `onClaimed` 让页面**重拉详情**（待领取行以读口为准，本组件不自造乐观态）；
 //     失败里 `nothing_to_claim` 同样触发复读（把已失效的按钮收掉）。
 // ============================================================================
@@ -60,16 +63,15 @@ const ClaimButton = ({
       const result = await claim(String(refId).trim(), user)
       if (variant === 'campaign') {
         const claimed = Array.isArray(result?.claimed) ? result.claimed : []
-        setNotice({
-          kind: 'ok',
-          key: 'campaign.claim.allOk',
-          values: { n: claimed.length, amount: result?.total_primary ?? 0 },
-        })
+        toast.success(
+          t('campaign.claim.allOk', { n: claimed.length, amount: result?.total_primary ?? 0 }),
+          { duration: 5000 }
+        )
       } else {
-        setNotice({ kind: 'ok', key: 'campaign.claim.ok', values: { amount: result?.amount ?? 0 } })
+        toast.success(t('campaign.claim.ok', { amount: result?.amount ?? 0 }), { duration: 5000 })
       }
-      // ★ 先让用户看见到账金额，再重拉（立即重拉会把本行卸载 ⇒ 内联结论一闪即逝）
-      await new Promise((r) => setTimeout(r, 900))
+      // ★ 2026-10-24：成功改 Toast（挂在 `main.jsx` 顶层，跨路由/卸载存活）⇒ 原先
+      //   「先让用户看见内联金额、再延时 900ms 重拉」的理由已不存在，直接复读。
       onClaimed?.(result)
     } catch (error) {
       if (isBattInsufficient(error)) {

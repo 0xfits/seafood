@@ -5,7 +5,8 @@
  *   ① 项目列表：招募中 / 已截止态、已招 X/Y、工资行（batt + 可选次币）、
  *      【加入】/【领工资】按钮态与「同时只能在一个项目打工」提示；
  *   ② 领取间隔未到 ⇒ 置灰 + 倒计时文案；行内不带可领时间 ⇒ 可点，由服务端 400 兜底（reason 映射）；
- *   ③ 加入 / 领工资成功 ⇒ 卡内提示 + 重拉列表；失败 ⇒ 卡内内联提示、列表不白屏；
+ *   ③ 加入 / 领工资成功 ⇒ 卡内提示 + 重拉列表（★ 领工资成功自 2026-10-24 起改 **Toast**，卡内零成功文案）；
+ *      失败 ⇒ 卡内内联提示（失败**不**改 Toast）、列表不白屏；
  *   ④ 未登录 ⇒ **也拉列表并渲染项目卡**（公开浏览面），页顶只留轻提示；【加入】/【领工资】可点、
  *      点击只弹卡内登录提示且零写请求；
  *   ⑤ 项目卡**零编辑**（Kevin 2026-10-21②：编辑整体移入项目页 `/:slug` + 模态框）：
@@ -48,6 +49,12 @@ vi.mock('react-i18next', () => ({
 
 const AUTH = vi.hoisted(() => ({ isAuthenticated: true, user: { uID: 7, EVM: '0xABCDEF1234567890abcdef1234567890ABCDEF12' } }))
 vi.mock('../../auth-context', () => ({ useAuth: () => AUTH }))
+
+// ★ Kevin 2026-10-24 裁定：领工资成功 = **Toast**（模态框整体撤掉），失败仍内联。
+//   ⇒ 成功断言看 toast 的调用参数 + 「DOM 里没有模态框 / 卡内没有 ok 文案」；
+//     失败断言继续看卡内 err 节点，并额外钉死「失败不得弹 toast」。
+const TOAST = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn() }))
+vi.mock('react-hot-toast', () => ({ default: TOAST }))
 
 import WagePage from '../../pages/wage/WagePage'
 // ★ 本页已不引用 item-edit-access（编辑判定随【编辑】搬到项目页）⇒ 无需复位三键缓存。
@@ -153,6 +160,8 @@ beforeEach(() => {
   I18N.lang = 'zh'
   AUTH.isAuthenticated = true
   AUTH.user = { uID: 7 }
+  TOAST.success.mockClear()
+  TOAST.error.mockClear()
 })
 
 afterEach(() => {
@@ -317,7 +326,7 @@ describe('/wage ② 加入 / 领工资行为', () => {
     expect(cardOf(container, '11').querySelector('[data-sf-m="wage-card-hint"]')).toBeNull()
   })
 
-  it('领工资成功：POST claim ⇒ 卡内到账数值提示 + 间隔置灰倒计时', async () => {
+  it('领工资成功：POST claim ⇒ Toast 到账数值（卡内零成功文案、无模态框）+ 间隔置灰倒计时', async () => {
     const { calls } = installFetch({
       rows: [rowHired({ next_claim_at: null, claim_ready_in_seconds: null })],
       onClaim: () => okBody({ wage_batt: 30, wage_currency_amount: 0 }),
@@ -329,20 +338,45 @@ describe('/wage ② 加入 / 领工资行为', () => {
     expect(btn.disabled).toBe(false)
     fireEvent.click(btn)
 
-    // 模态框走 portal 到 body ⇒ 必须在 document 上取（container 内看不到）
-    await waitFor(() => expect(document.querySelector('[data-sf-m="wage-claim"]')).not.toBeNull())
-    expect(document.querySelector('[data-sf-m="wage-claim"]').textContent).toContain('已领到')
-    // 卡内不得再出现成功类提示（Kevin 2026-10-23 A）
+    // ★ 2026-10-24：成功 ⇒ 一条 toast（`wage.claimed` 插值 batt）+ duration 5000
+    await waitFor(() => expect(TOAST.success).toHaveBeenCalledTimes(1))
+    const [msg, opts] = TOAST.success.mock.calls[0]
+    expect(msg).toBe(zh.wage.claimed.replace('{{batt}}', '30'))
+    expect(opts).toEqual({ duration: 5000 })
+    expect(TOAST.error).not.toHaveBeenCalled()
+    // 模态框整体撤掉：DOM 里不得再出现该钩子（portal 到 body，故在 document 上取）
+    expect(document.querySelector('[data-sf-m="wage-claim"]')).toBeNull()
+    // 卡内不得再出现成功类提示（成功提示的唯一出口 = Toast）
     expect(cardOf(container, '11').querySelector('[data-sf-m="wage-card-notice"][data-sf-kind="ok"]')).toBeNull()
     const claim = calls.filter((c) => /\/claim$/.test(c.url))
     expect(claim).toHaveLength(1)
     expect(claim[0].url).toBe('/api/project/11/claim')
-    // 领完 ⇒ 按 wage_interval_hours 起倒计时（置灰）
+    // 领完 ⇒ 按 wage_interval_hours 起倒计时（置灰）—— 行为不变
     await waitFor(() => {
       const after = cardOf(container, '11').querySelector('[data-sf-action="claim"]')
       expect(after.getAttribute('data-sf-claimable')).toBe('0')
       expect(after.disabled).toBe(true)
     })
+  })
+
+  it('领工资成功 + 连续奖励 ⇒ 同一条 Toast 拼上「已连续 N 次…额外奖励 $X」（不弹第二条）', async () => {
+    installFetch({
+      rows: [rowHired({ next_claim_at: null, claim_ready_in_seconds: null })],
+      onClaim: () => okBody({ wage_batt: 30, streak: 3, bonus_amount: 5 }),
+    })
+    const { container } = mount()
+    await waitFor(() => expect(cards(container)).toHaveLength(1))
+
+    fireEvent.click(cardOf(container, '11').querySelector('[data-sf-action="claim"]'))
+    await waitFor(() => expect(TOAST.success).toHaveBeenCalledTimes(1))
+    const [msg, opts] = TOAST.success.mock.calls[0]
+    const main = zh.wage.claimed.replace('{{batt}}', '30')
+    const streak = zh.wage.streakReward.replace('{{n}}', '3').replace('{{bonus}}', '5')
+    expect(msg).toBe(`${main} ${streak}`)
+    expect(msg).toContain('已连续 3 次')
+    expect(msg).toContain('$5')
+    expect(opts).toEqual({ duration: 5000 })
+    expect(TOAST.success).toHaveBeenCalledTimes(1)
   })
 
   it('领工资失败（400 间隔未到）：卡内内联提示 + 列表仍在、按钮转置灰', async () => {
@@ -365,6 +399,8 @@ describe('/wage ② 加入 / 领工资行为', () => {
       expect(notice.getAttribute('role')).toBe('alert')
       expect(notice.textContent).toBe(zh.wage.claimTooSoon)
     })
+    // ★ 失败留在卡内内联，不得改 Toast（Kevin 2026-10-24 明定）
+    expect(TOAST.success).not.toHaveBeenCalled()
     // 不白屏：卡还在，且失败体里的剩余秒数被接成倒计时
     expect(cards(container)).toHaveLength(1)
     const btn = cardOf(container, '11').querySelector('[data-sf-action="claim"]')

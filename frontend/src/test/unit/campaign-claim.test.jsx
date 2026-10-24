@@ -43,6 +43,12 @@ vi.mock('react-i18next', () => ({
 const AUTH = vi.hoisted(() => ({ isAuthenticated: true, user: { uID: 77 } }))
 vi.mock('../../auth-context', () => ({ useAuth: () => AUTH }))
 
+// ★ Kevin 2026-10-24 裁定：领取成功 = **Toast**（`react-hot-toast`），失败仍内联。
+//   ⇒ 成功断言改在 toast 的**调用参数**上，同时钉死「不再有内联 ok 节点」；
+//     失败断言继续看内联 err 节点，并额外钉死「失败不得弹 toast」。
+const TOAST = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn() }))
+vi.mock('react-hot-toast', () => ({ default: TOAST }))
+
 import CampaignTaskPage from '../../pages/campaign/CampaignTaskPage'
 import CampaignDetailPage from '../../pages/campaign/CampaignDetailPage'
 import SubtaskItem from '../../pages/campaign/SubtaskItem'
@@ -176,6 +182,8 @@ beforeEach(() => {
   H.table = zh
   AUTH.isAuthenticated = true
   AUTH.user = { uID: 77 }
+  TOAST.success.mockClear()
+  TOAST.error.mockClear()
   window.localStorage.clear()
 })
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); window.localStorage.clear() })
@@ -320,7 +328,7 @@ describe('②③④ 提交结果与载荷', () => {
 // ⑤⑥⑧ 三处【领取】
 // ============================================================================
 describe('⑤ 子任务行【领取】', () => {
-  it('有 pending ⇒ 一枚 claim 按钮；点击 ⇒ POST /api/campaign/subtask/9001/claim + 空载荷；成功内联到账金额', async () => {
+  it('有 pending ⇒ 一枚 claim 按钮；点击 ⇒ POST /api/campaign/subtask/9001/claim + 空载荷；成功走 Toast（无内联 ok 节点）', async () => {
     const { fetchMock } = routed({
       taskBody: taskView({ pending_rewards: { items: [PENDING_SUBTASK], total_by_cid: { 1: '5' } } }),
     })
@@ -336,11 +344,16 @@ describe('⑤ 子任务行【领取】', () => {
 
     const before = callsTo(fetchMock, '/api/campaign/task/1').length
     fireEvent.click(button)
-    await waitFor(() => expect(q('task-subtask-claim-btn-notice')).not.toBeNull())
+    // ★ 成功 ⇒ toast.success(文案含到账数值, { duration: 5000 })；组件内不再渲染内联成功节点
+    await waitFor(() => expect(TOAST.success).toHaveBeenCalledTimes(1))
+    const [msg, opts] = TOAST.success.mock.calls[0]
+    expect(msg).toBe('已领取 $5')
+    expect(opts).toEqual({ duration: 5000 })
+    expect(TOAST.error).not.toHaveBeenCalled()
+    expect(q('task-subtask-claim-btn-notice')).toBeNull()
     const call = callsTo(fetchMock, '/api/campaign/subtask/9001/claim')[0]
     expect(call[1].method).toBe('POST')
     expect(bodyOf(call)).toEqual({})
-    expect(q('task-subtask-claim-btn-notice').textContent).toBe('已领取 $5')
     // 成功后重拉详情（待领取行以读口为准）
     await waitFor(() => expect(callsTo(fetchMock, '/api/campaign/task/1').length).toBeGreaterThan(before))
   })
@@ -367,11 +380,15 @@ describe('⑤ 任务完成奖【领取】', () => {
     const button = q('task-reward-claim').querySelector('[data-sf-action="claim"]')
     expect(button.getAttribute('data-sf-claim')).toBe('task')
     fireEvent.click(button)
-    await waitFor(() => expect(q('task-reward-claim-btn-notice')).not.toBeNull())
+    // ★ 成功 ⇒ Toast（任务完成奖：`campaign.claim.ok` 插值 amount），内联 ok 节点不再存在
+    await waitFor(() => expect(TOAST.success).toHaveBeenCalledTimes(1))
+    const [msg, opts] = TOAST.success.mock.calls[0]
+    expect(msg).toBe('已领取 $15')
+    expect(opts).toEqual({ duration: 5000 })
+    expect(q('task-reward-claim-btn-notice')).toBeNull()
     const call = callsTo(fetchMock, '/api/campaign/task/1/claim')[0]
     expect(call[1].method).toBe('POST')
     expect(bodyOf(call)).toEqual({})
-    expect(q('task-reward-claim-btn-notice').textContent).toBe('已领取 $15')
   })
 })
 
@@ -388,14 +405,18 @@ describe('⑤⑥ 活动级【一键领取】', () => {
     expect(button.textContent).toBe('一键领取')
 
     fireEvent.click(button)
-    await waitFor(() => expect(q('campaign-claim-all-notice')).not.toBeNull())
+    // ★ 活动级成功 ⇒ 一条 Toast（`campaign.claim.allOk` 带 {n}/{amount} 插值），无内联 ok 节点
+    await waitFor(() => expect(TOAST.success).toHaveBeenCalledTimes(1))
+    const [msg, opts] = TOAST.success.mock.calls[0]
+    expect(msg).toBe('已领取 2 项，共 $15')
+    expect(opts).toEqual({ duration: 5000 })
+    expect(q('campaign-claim-all-notice')).toBeNull()
     // ★ 一次点击共扣 1 电量 ⇒ 请求恰 1 条，且没有任何 per-item 的 claim 子路径
     expect(callsTo(fetchMock, '/claim')).toHaveLength(1)
     const call = callsTo(fetchMock, '/claim')[0]
     expect(String(call[0])).toBe('/api/campaign/501/claim')
     expect(call[1].method).toBe('POST')
     expect(bodyOf(call)).toEqual({})
-    expect(q('campaign-claim-all-notice').textContent).toBe('已领取 2 项，共 $15')
     // 成功后重拉详情
     await waitFor(() => expect(callsTo(fetchMock, '/api/campaign/501').length).toBeGreaterThanOrEqual(2))
   })
@@ -437,6 +458,8 @@ describe('⑦ 领取失败三文案', () => {
     await waitFor(() => expect(q('task-subtask-claim-btn-notice')).not.toBeNull())
     expect(q('task-subtask-claim-btn-notice').textContent).toBe('电量不足，无法领取')
     expect(q('task-subtask-claim-btn-notice').getAttribute('data-sf-kind')).toBe('err')
+    // ★ 失败必须留在内联，不得改 Toast（Kevin 2026-10-24 明定）
+    expect(TOAST.success).not.toHaveBeenCalled()
   })
 
   it('nothing_to_claim ⇒ 「暂无可领取的奖励」', async () => {
@@ -445,6 +468,7 @@ describe('⑦ 领取失败三文案', () => {
     fireEvent.click(q('task-subtask-claim-btn'))
     await waitFor(() => expect(q('task-subtask-claim-btn-notice')).not.toBeNull())
     expect(q('task-subtask-claim-btn-notice').textContent).toBe('暂无可领取的奖励')
+    expect(TOAST.success).not.toHaveBeenCalled()
   })
 
   it('其他失败（500）⇒ 「领取失败，请稍后重试」', async () => {
@@ -453,6 +477,7 @@ describe('⑦ 领取失败三文案', () => {
     fireEvent.click(q('task-subtask-claim-btn'))
     await waitFor(() => expect(q('task-subtask-claim-btn-notice')).not.toBeNull())
     expect(q('task-subtask-claim-btn-notice').textContent).toBe('领取失败，请稍后重试')
+    expect(TOAST.success).not.toHaveBeenCalled()
   })
 })
 
