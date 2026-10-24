@@ -9,10 +9,14 @@
 --   其余 193 个 mock 按**旧 uid 升序**重编 `1000, 1001, … 1192` · 序列重启 `100101`
 --   ⇒ 194 行用户在 31 处 FK + `ledger_entry` / `account` / 6 处非 FK uid 面上一次性换号。
 --
--- 形态（§40.17.3）：**单事务**（本文件不写 BEGIN/COMMIT —— `scripts/migrate.ts` 逐文件包事务；
---   `ops/**/rollback.sh` 用 `psql --single-transaction` 包同一事务）· **两相 offset**
---   （相 1 `uid + 10^7` 回收区、相 2 落终值；`users` PK 是唯一索引、唯一索引冲突**不可延迟**，
---   新旧号段必然相交 ⇒ 单相 UPDATE 必撞 23505，见 §40.17.3 D）· FK 方案 **Ⅰ**
+-- 形态（§40.17.3）：**单事务**（本文件不写 BEGIN/COMMIT —— `backend-ts/scripts/migrate.ts` 逐文件包事务
+--   并写 `schema_migration`；`ops/**/rollback.sh` 以显式 `BEGIN; … COMMIT;` 包同一事务）· **两相 offset**
+--   （相 1 `uid + 10^7` 回收区、相 2 落终值；`users` PK 是唯一索引、唯一索引冲突**不可延迟**）。
+--   ★ 口径订正（本轮）：**本数据集上两相 offset 不是「修 23505」的必需品** —— `UR-PRE-4` 保证
+--   旧号段（`970213` + mock `…`）与新号段（`1000–1192` / `100100`）**不相交**，单相 UPDATE 当前
+--   **不会**撞 23505。保留两相的理由是**防御未来号段相交**（例：将来再收窄 mock 段、或真实账号
+--   落在新段内时，单相 UPDATE 的中间态必撞唯一索引，而 DEFERRABLE 救不了唯一索引）—— 属纵深防御，
+--   不是本单的故障修复。FK 方案 **Ⅰ**
 --   （31 条 `ALTER CONSTRAINT … DEFERRABLE INITIALLY IMMEDIATE` + `SET CONSTRAINTS ALL DEFERRED`，
 --   收口 `SET CONSTRAINTS ALL IMMEDIATE` 后复原 `NOT DEFERRABLE`）。
 --
@@ -30,6 +34,22 @@
 --   12 复原 31 × `NOT DEFERRABLE` → 19 触发器 `ENABLE` → 序列 `RESTART WITH 100101`
 --      → **17 条判负**（§40.17.9 `UR9-1..15` + 本轮新增 `UR9-16`（9 行已不存在）/ `UR9-17`（19 触发器全 `O`），
 --      全为 `DO $$ … RAISE EXCEPTION … $$`，任一红即整体回滚）
+--
+-- ★ 方向门（2026-10-24 复核修订 B1）：本文件被**两个方向**复用（`up` = apply；`down` = `rollback.sh`）。
+--   凡是「只在 up 成立」的数值口径都必须用 `v_up` 显式短路，否则 apply 之后**回滚必红**（复核提出的 4 处）：
+--     · `UR-PRE-5`「精确谓词命中 = 9」与「全表漂移 = 9」（步骤 2c 之前）—— down 时那 9 行已删 ⇒ 0 是正确终态；
+--     · 步骤 2c 的 `v_target` 与 `v_hit` —— 合法集放宽为 `{0, 9}`。
+--   ★ **fail-closed 未放宽**：up 方向仍硬要求 =9，且判定点在步骤 2c **之前**（`UR-PRE-5`，第一次写之前）；
+--     2c 放到 `{0,9}` 不会在 up 方向放过「现盘已被提前清理」—— 那条路由 `UR-PRE-5` 拦。
+--   自证：同一事务内 `ur.direction=up` 跑一遍 → `ur.direction=down` 再跑一遍，两遍均全绿后 ROLLBACK
+--   （`ops/uid-renumber-2026-10-24/readings/updown-*.json`；apply 前必须有一次该读数）。
+--
+-- ★ 回滚边界登记（2026-10-24 复核修订 B2）：步骤 2c 的 `DELETE` 是**有意的单向操作** ——
+--   本文件全文**无任何** `INSERT INTO public.*`，回滚**不重建**那 9 行 ⇒ `account` 行数**永久** 141 → 132
+--   （`down` 方向删 0 行，不会补回）。`rollback.sh` 只对调 `ur_map` 反向重跑同一文件，**不可能**复活这 9 行。
+--   备份 `dump/account.csv` 只保留了 (uid,cid,balance,frozen,version,时间) 7 列，缺
+--   `accountId`/`providerId`/`userId`（NOT NULL 无默认）⇒ **结构上无法逐字回灌** ⇒ 处置口径 =
+--   「可前滚、不回滚此项」，那 9 行视为永久删除（见 `ops/uid-renumber-2026-10-24/README.md` §7.1）。
 --
 -- ★ R73 / §40.17.8 `UR8-1` 登记（临时禁用 append-only 触发器**须显式登记原因与时长**）：
 --   原因 = 换号必须 `UPDATE` 留痕表的 uid 列（append-only 守卫 `BEFORE UPDATE` 拦死）；
@@ -183,7 +203,9 @@ BEGIN
   SELECT count(*) INTO v_t9 FROM public.account a
    WHERE a.uid IN (971469,971591,976489,979689,981486,983264,987867,988363,988399)
      AND a.cid = 399 AND a.balance = 40 AND a.frozen = 0;
-  IF v_t9 <> 9 THEN
+  -- ⚠ 方向门（本单 B1）：`=9` 只是 **up 方向**的口径。down 方向（回滚）时那 9 行已被删，
+  --   所以此处 `v_up AND` 短路；**up 方向仍然硬要求 =9（fail-closed 未放宽）**。
+  IF v_up AND v_t9 <> 9 THEN
     RAISE EXCEPTION 'UR-PRE-5 FAILED (NM2 清理目标漂移): 精确谓词命中 % 行 ≠ 9（uid 清单/cid=399/balance=40/frozen=0；可能已被清理或数据已变，停止并核对授权清单，不得放宽谓词）', v_t9;
   END IF;
 
@@ -212,7 +234,8 @@ BEGIN
   END IF;
 
   -- 9 行必须**全部**处于漂移态（= 确实无 ledger 兜底）；若已与快照一致，说明目标集已变，停止核对
-  IF v_drift <> 9 THEN
+  -- ⚠ 方向门（本单 B1）：同 UR-PRE-5 第一条 —— down 方向那 9 行已删（漂移 0 是正确终态）。
+  IF v_up AND v_drift <> 9 THEN
     RAISE EXCEPTION 'UR-PRE-5 FAILED (NM2 目标集失真): 全表漂移 % 行 ≠ 9（授权目标应全部无账本兜底；停止并重新核数）', v_drift;
   END IF;
 
@@ -322,10 +345,12 @@ DECLARE
   v_target int; v_led bigint; v_child int; v_hit int; v_after int; v_drift int; v_txt text;
 BEGIN
   -- 2c-① 删前断言：精确谓词恰好 9 行（不足 = 已被清理/数据已变，超出 = 谓词写宽 ⇒ 都停，不得放宽）
+  -- ⚠ 方向门（本单 B1）：`{0,9}` 是双向合法集 —— up 必须是 9（由 `UR-PRE-5` 在上方硬断言，
+  --   故此处放到 0 也不会在 up 方向放过「已被清理」的现盘）；down 时该 9 行已删 ⇒ 命中 0 是正确终态。
   SELECT count(*) INTO v_target FROM public.account
    WHERE uid = ANY (v_uids) AND cid = 399 AND balance = 40 AND frozen = 0;
-  IF v_target <> 9 THEN
-    RAISE EXCEPTION 'UR-DEL9 FAILED (删前断言): 精确谓词命中 % 行 ≠ 9（uid 清单 / cid=399 / balance=40 / frozen=0）。停止核对授权清单，不得放宽谓词、不得改成清零', v_target;
+  IF v_target NOT IN (0, 9) THEN
+    RAISE EXCEPTION 'UR-DEL9 FAILED (删前断言): 精确谓词命中 % 行 ∉ {0,9}（uid 清单 / cid=399 / balance=40 / frozen=0）。up 必须是 9、down 必须是 0；停止核对授权清单，不得放宽谓词、不得改成清零', v_target;
   END IF;
 
   -- 2c-② 关联残留现取：无账本 + 无入向 FK ⇒ 明确「无关联残留」
@@ -347,8 +372,9 @@ BEGIN
    WHERE uid = ANY (v_uids) AND cid = 399 AND balance = 40 AND frozen = 0;
   GET DIAGNOSTICS v_hit = ROW_COUNT;
   ALTER TABLE public.account ENABLE TRIGGER trg_account_guard;
-  IF v_hit <> 9 THEN
-    RAISE EXCEPTION 'UR-DEL9 FAILED: DELETE 命中 % 行 ≠ 9（谓词与现盘不一致；事务将整体回滚）', v_hit;
+  -- ⚠ 方向门（本单 B1）：同 2c-① —— down 时命中 0 行是正确终态（那 9 行已在 up 删除）。
+  IF v_hit NOT IN (0, 9) THEN
+    RAISE EXCEPTION 'UR-DEL9 FAILED: DELETE 命中 % 行 ∉ {0,9}（up 必须 9 / down 必须 0；谓词与现盘不一致，事务将整体回滚）', v_hit;
   END IF;
 
   -- 2c-④ 删后断言：0 行残留 + 守卫已复启

@@ -26,7 +26,7 @@
  *   · 读数落 `ops/uid-renumber-2026-10-24/readings/dryrun-<ts>.json`。
  *
  * 用法（`--arm` 可重复；默认两臂都跑）：
- *   cd backend-ts && TS_NODE_PROJECT=$PWD/tsconfig.json npx ts-node --transpile-only \
+ *   cd backend-ts && TS_NODE_PROJECT=$PWD/tsconfig.scripts.json npx ts-node --transpile-only \
  *     ../ops/uid-renumber-2026-10-24/dryrun.ts
  *   ... dryrun.ts --arm=faithful           # 只跑 A
  *   ... dryrun.ts --arm=repaired --arm=faithful
@@ -101,10 +101,17 @@ SELECT jsonb_build_object(
           SELECT ROW(e.balance_after, e.frozen_after) FROM public.ledger_entry e
            WHERE e.uid = a.uid AND e.cid = a.cid ORDER BY e.txid DESC LIMIT 1)))
     FROM public.account),
+  -- 读数覆盖 22 个触发器：trg_%_append_only 15 个（契约 14 个 + trg_commission_policy_append_only）
+  --   + trg_batt_account_user_fk + trg_account_guard + 5 个额外写闸（UR-BLOCK-6）
+  --   ⇒ 13/13 equality 现在真能证明 19 守卫复位（此前 5 个额外写闸不在读数里）
   'triggers', (SELECT jsonb_object_agg(tgname, tgenabled::text ORDER BY tgname) FROM pg_trigger
                 WHERE NOT tgisinternal
                   AND (tgname LIKE 'trg_%_append_only'
-                       OR tgname IN ('trg_batt_account_user_fk', 'trg_account_guard'))),
+                       OR tgname IN ('trg_batt_account_user_fk', 'trg_account_guard',
+                                     'trg_admin_user_role_key_immutable', 'trg_conversation_read_mark_only',
+                                     'trg_message_no_update_or_delete',
+                                     'trg_listing_order_core_immutable_guard',
+                                     'trg_market_order_core_immutable_guard'))),
   'fk_users', (SELECT jsonb_object_agg(conname, condeferrable::text || '/' || condeferred::text ORDER BY conname)
                  FROM pg_constraint WHERE contype = 'f' AND confrelid = 'public.users'::regclass),
   'seq', (SELECT jsonb_build_object('last_value', last_value, 'is_called', is_called) FROM public.users_uid_seq),
