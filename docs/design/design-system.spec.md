@@ -39,6 +39,7 @@
 > **★ 现行版 = v1.33（2026-10-24 · Kevin「交易所管理收成 Tab 模块 ＋ 仲裁审核 / 权限管理两页下架 ＋「市场」→「海底交易所」」裁定落册 · **状态改写式 · 只追加零删行** · 新增 §34 + 规则 `T132`（Tab 模块形态）/ `T133`（侧栏单项闸 = 权限并集））**：**① 后台侧栏项** 13 ⇒ **9**（删 `permissions` / `arbitration-review` / `weight-matrix` / `currency-review` 四项，入口合并为一项「交易所管理」）。**②「交易所管理」= 同页 Tab 模块** —— tab 条复用 `T130` 公共类 `.sf-chip`（选中态 `.is-active`）+ `role=tablist/tab` + `aria-selected`；**闸逐子路由各自设**（外层壳不设闸）；**tab 按权限过滤**（只渲染当前用户有权限的那几条）。**③ 侧栏该项的闸 = `manage_settings ∨ review_tasks`**（`requiredPermission: ['manage_settings', 'review_tasks']`；数组语义 = 任一命中即可见，判据仍是既有 `hasAdminPermission`；修「`review_tasks`-only 管理员看不到入口」缺陷）。**④ 文案** —— `shard` 键**只改值不改键**：zh/hk「海底交易所」/ en「**Exchange**」/ vn「**Sàn**」（顶栏 `Header.jsx` 与手机底栏 `shell/nav.js` 同键同值；底栏 390 档不折行）。**⑤ 零新 token / 零 `STRUCT` 增项 / 零几何常量**（只复用既有 `.sf-chip`；侧栏项宽度随文案自适应）。**本册 v1.33 只写 `docs/**`，未启停任何服务，未 `git add -A`。改动 = 版本头（本行）+ §12 表 v1.33 行 + §34（新）。**
 > **★ 现行版 = v1.34（2026-10-24 · 第②轮后台瘦身 · 状态改写式 · 只追加零删行 · 本单只写 `docs/**`）**：**① 新增 §35 + 规则 `T134`** —— **后台「设置面板」= 单字段面板**：只渲染**有真消费方**的键（现值仅 `siteName`），**请求体键集恰一**（`{ siteName }`），**非字段载体（`ops:` 幂等键）必须走请求头**（`Idempotency-Key`）而**不得**塞进 body；**② 侧栏再减两项**（「任务管理」`adminNav.tasks` / 「碎片管理」`adminNav.shards` ⇒ 侧栏 9 项降 7 项），两页**整页下线**（文件 / 路由 / 侧栏 / 后台首页快捷卡**四处零残留**），**不套 `T132` Tab 模块**（`T132` 管「同域多页收成一个侧栏项」，撤项≠合并 ⇒ 无 tab 可留）；**③ 键集零增删**（`adminNav.tasks`/`tasksDesc`/`shards`/`shardsDesc` 等成孤儿但**保留**）⇒ **不触发键集计数前推**（以 `master-plan` §5.462 现取为准）。**改动 = 版本头（本行）+ §12 表 v1.34 行 + 尾追加 §35（规则 `T134`）**。**本册本单只写 `docs/**`**；未动 `frontend/**` / `backend-ts/**` / `tools/**` / `ctrl/**` / 真源 `docs/design/style-preview.html`（**零改动**）；未启停任何服务（绝不 `pm2 restart`）；未 `git add -A` · 未 commit · 未 push（提交由同批另一笔完成）。**现取基线 = HEAD `423a4c8`（2026-10-24）。**
 > **★ 现行版 = v1.35（2026-10-24 · 交易所管理第④面：币种上架 / 下架 · 「币种管理」tab UI 契约 · **状态改写式 · 只追加零删行** · 本单只写 `docs/**`）**：**新增 §36 + 规则 `T135`** —— 后台「币种管理」tab 的 **UI 契约**：**列表列恰 4 项**（`cid` / 符号 / 状态 / 上线时间）+ **行操作按钮按 R27 白名单动态启用**（非法迁移的按钮**不渲染**，不是禁用）+ **`$`（`cid = 1`）行禁操作** + **危险操作（下架 / 冻结）二次确认** + **状态列直接读 `status`**（`ledger.spec` R10 原文：「后台『币种管理』页的状态列直接读 `status`；交易所只允许 `listed` 币种挂单」）。**零 token / 零 `STRUCT` / 零 CSS 契约变更**（复用既有 `.sf-chip` 与后台表格既有形态）；**本笔零代码：契约冻结，实现归 Kong 下一轮**。姊妹册 = `route-layer.spec` **v2.52 §49.25** + `ledger.spec` **v0.18 §19.20** + `data-layer.spec` **§40.16** + `master-plan` **§5.464 / v0.383**。
+> **★ 现行版 = v1.36（2026-10-24 · 后台「站点文案」页**拆解到位**：一页拆四块（积分 / 用户 / **新页【电量】** / 设置）＋ 两组删除 ＋ 品牌行 `Seafood Admin` = 带语言前缀的首页链接 ＋ **积分页「邀请奖励」卡控件闸缺陷修正** · **状态改写式 · 只追加零删行** · 本单只写 `docs/**`）**：**新增 §37 + 规则 `T136` / `T136-a` / `T136-b` / `T136-c`**。**① `T136`（新页【电量】）** = `/dashboard/power`（侧栏该项**原位**替换已下线的「站点文案」项；**不重排** = 批次 B 的事）· 唯一内容 = **铸造与销毁**数值组（`mint_burn_policy` 5 字段）· 页标题 / 侧栏标题复用既有四语键 `battCard.title`、侧栏描述复用 `adminSiteText.policyMintBurn` ⇒ **零新增 i18n 键**。**② `T136-a`（搬家件的控件闸 = 写口闸 · 本节承载 A 项真缺陷修正）** = 数值策略卡的输入 / 保存控件启用**必须**跟写口 `POST /api/admin/settings` 的后端闸 **`manage_settings`** 同键；无该权限 ⇒ 控件 `disabled` + **恰一行只读提示**（复用 `adminCommon.readOnlyNotice`，**零新增键**），**不得隐藏卡片**；**页面可见性**仍由各页路由闸（积分页 `manage_points` / 用户页 `read_users` / 电量页 `manage_settings`）决定 —— **两个键不得混用**。**③ `T136-b`（两组删除）** = 任务电量 `batt_policy` / 签到 `checkin_policy` **UI 与默认值一并删除**（承 `T135-a` 同取向：不可用的东西不占位），**四语 i18n 键保留为孤儿**（键集 `top 135 / flat 1453` 零漂移）。**④ `T136-c`（品牌行）** = `Seafood Admin`（原硬编码 `Jinli Admin`）＝**一个 `<Link>` 包整段**（图标 + 面板名 + 品牌名，**不得嵌套链接**）→ 首页且 **href 带当前语言前缀**（zh ⇒ `/`；en/hk/vn ⇒ `/<lang>`）、`aria-label` = 品牌名 + 返回首页（复用 `notFound.backHome`）、hover = **`T130` 第③类（只变色 · 不位移）**。**⑤ 读数（本笔现取）** = unit **102 files / 1143 tests / 0 failed**（改前基线 **101 / 1124**；本批 +1 文件 / +19 用例）· a11y **1 / 16** · components **2 / 14** · build **exit 0** ⇒ `index-DDfED5f2.js` **636,988 B** / `index-N4cMn6Lr.css` **190,954 B**（CSS 名与字节**未变**）。**零 token / 零 `STRUCT` / 零 CSS 契约变更**（只复用既有 `.sf-chip` / 后台表格 / `.btn` 家族）。**本单对 design 册 = 纯追加**（`git diff --numstat` = **74 / 0**：版本头 1 行 + §12 表 1 行 + 尾 §37 全文；**整行删除 = 0**）。姊妹册 = `route-layer.spec` **v2.53 §49.26** + `master-plan` **§5.465 / v0.384**。
 
 > **★ v1.10 姊妹册（同批交付）** = `docs/route-layer.spec.md` **v2.28 §38**（`/item` 家族 + 旧路由硬删 + 「前端概念名 ⇄ 后端路径名」映射表）；本册只承载 **形态 / 入口集合 / 可达性 AC / 合并页口径 / i18n 删改留表**，**不重抄**。
 > **v1.5 口径来源（逐字）**：Kevin 2026-10-11 定档 ①方案 A·UI 先行（不动后端）②右悬浮菜单仅桌面档显示、H5 隐藏 ③消息模块占位（后续接驳 X/推特私信）④客服/反馈做弹窗模板位；**＋ Kevin 当日两条连锁更正**（`Zang` 转达）：**(A)** 底栏第二项 = **「市场」→ `/exchange`**（key `shard`，图标 `Store`；**不再新建 `/nearby` 占位页、`nearby` 键不新增**）**(B)** `T76` 去重按新底栏集合重算（**`exchange` 继续排除、`reward`/`task` 恢复**）。
@@ -863,6 +864,7 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 | **v1.33** | 2026-10-24 | **Kevin「交易所管理收成 Tab 模块 ＋ 两页下架 ＋「市场」→「海底交易所」」裁定落册（状态改写式 · 只追加零删行）**：新增 §34 + 规则 `T132`（后台 Tab 模块形态：`.sf-chip` tab 条 + 逐子路由各自闸 + tab 按权限过滤）与 `T133`（侧栏单项闸 = 子面权限**并集**；撤项时「入口合并」优先于「多留一项」）。**① 后台侧栏项 13 ⇒ 9**（删 `permissions` / `arbitration-review` / `weight-matrix` / `currency-review` 四项，合并为一项「交易所管理」⇒ 无入口丢失）。**② Tab 模块** —— `ExchangeManagementPage` 壳 = 页标题 + `.sf-chip` tab 条（`is-active` 选中态 / `role=tablist`·`tab` / `aria-selected`）+ `<Outlet/>`；三子路由 `fee-rate` / `currency-review` / `commission-levels` **各自设闸**。**③ 侧栏闸** = `['manage_settings', 'review_tasks']`（任一命中）。**④ 文案** = `shard` 键值 zh/hk「海底交易所」/ en「Exchange」/ vn「Sàn」（**键名不动**；顶栏与底栏同键同值；底栏 390 档不折行）。**零新 token / 零 `STRUCT` / 零几何**；姊妹册 = `route-layer.spec` **v2.50 §49.23** + `master-plan` **§5.461 / v0.380**。 |
 | **v1.34** | 2026-10-24 | **Kevin「第②轮后台瘦身：基本设置只留站点名称 / 任务管理 + 碎片管理两页下线」裁定落册（状态改写式 · 只追加零删行）**：新增 §35 + 规则 `T134`（后台**设置面板 = 单字段面板**：只渲染有真消费方的键（现值仅 `siteName`）、**请求体键集恰一**、非字段载体（`ops:` 幂等键）走**请求头**，禁塞进 body）+ 侧栏再减两项（9 ⇒ 7）。`T132`/`T133` 一字未动（本笔删的是**并列侧栏项**且**两页整页下线** ⇒ 不构成「同域多页」⇒ 不套 Tab 模块）。实测 = 门 `101 / 1116` · build exit 0 ⇒ `index-DaydpU75.js` 635,921 B / `index-DdfpA9Yc.css` 190,454 B · 产物 `dashboard/tasks` 0 / `dashboard/shards` 0 / `基本设置` 2。 |
 | **v1.35** | 2026-10-24 | **Kevin「交易所管理扩成真模块 · 第④面 = 币种上架 / 下架」契约落册（状态改写式 · 只追加零删行 · 本笔零代码）**：新增 §36 + 规则 `T135` —— 「币种管理」tab（`/dashboard/exchange/currency-status`，闸 `manage_settings`）的 UI 契约：**① 列表列恰 4 项**（`cid` / 符号 / 状态 / 上线时间 = `listed_at`，`NULL` 显示占位符不空白）；**② 行操作按 R27 白名单动态启用**（`draft` ⇒ [下架]；`listed` ⇒ [冻结][下架]；`frozen` ⇒ [上市][下架]；`delisted` ⇒ **无操作**），**不合法组合的按钮不渲染**（不是 `disabled`）；**③ `$`（`cid = 1`）整行禁操作**（仅显示状态 `listed`）；**④ 危险操作二次确认**（下架 / 冻结，确认文案含符号与「不可撤销」表述；`delisted` 为终态）；**⑤ 状态列直接读 `status`**（`R10` 原文）。零新 token / 零 `STRUCT` / 零几何；`T132`（Tab 模块）/ `T133`（侧栏闸并集）/ `T130`（`.sf-chip`）**条文一字未动**。 |
+| **v1.36** | 2026-10-24 | **后台「站点文案」页拆解到位（状态改写式 · 只追加零删行）**：新增 §37 + 规则 `T136` / `T136-a` / `T136-b` / `T136-c` —— **① 四块搬家 + 新页【电量】**：`invite_reward_policy` ⇒ `/dashboard/points`（页闸 `manage_points`）· `rating_policy` ⇒ `/dashboard/users`（页闸 `read_users`）· `mint_burn_policy` ⇒ **新页** `/dashboard/power`（页闸 `manage_settings` · 标题复用 `battCard.title`）· `role_names` + `site_text_overrides` ⇒ `/dashboard/settings`；侧栏「站点文案」项**原位**替换为【电量】（**不重排** = 批次 B）；**② `T136-a` = 搬家件控件闸跟写口闸**（`manage_settings`）—— 无该权限 ⇒ 控件 `disabled` + **恰一行只读提示**（复用 `adminCommon.readOnlyNotice`）+ **不隐藏卡片**；页面可见性仍归各页路由闸（**两键不得混用**）；**本条落 A 项真缺陷修正**：积分页「邀请奖励」卡原跟页面闸 `manage_points` 开控件，而写口 `POST /api/admin/settings` 要 `manage_settings` ⇒ 仅持前者**保存必 403**（假开）；**③ `T136-b` = 两组装删除**（`batt_policy` / `checkin_policy` · UI + 默认值一并删，四语键**保留为孤儿**）；**④ `T136-c` = 品牌行** `Seafood Admin`（原 `Jinli Admin`）＝**一个 `<Link>` 包整段** → 首页**带语言前缀**（zh `/`、en/hk/vn `/<lang>`）、`aria-label` = 品牌名 + 返回首页、hover = `T130` **第③类只变色**（`transition-colors`，无位移类）。**读数** = unit **102 / 1143**（基线 **101 / 1124**）· a11y **16** · components **14** · build exit 0 ⇒ `index-DDfED5f2.js` 636,988 B / `index-N4cMn6Lr.css` 190,954 B。**零 token / 零 `STRUCT` / 零 i18n 键增删**（侧栏标题与描述、只读提示全复用既有键）；`T130` / `T132` / `T133` / `T134` / `T135` **条文一字未动**。 |
 
 
 ### 与上游文件的关系（只读，本册未改一字）
@@ -5125,3 +5127,75 @@ showEdit     = isAuthenticated && (isOwner || canEditAny) && statusEditable
 - **本节零删行**：`git diff --numstat docs/design/design-system.spec.md` 删除列 = **0**（本版 = 版本头追加 1 行 + §12 变更记录表追加 1 行 + 尾追加 §36）。
 - **未改写面**：`§1–§35` 一字未动；`backend-ts/**` / `frontend/**` **本笔零改动**；真源 `style-preview.html` 零改动。
 - **快照口径（诚实）**：本笔**未新建快照**（写面限 `docs/**`）；`docs/versions/design-system.spec.v1.34.md` **不存在**（`docs/versions/` 下仅到 `v1.33`）⇒ 本节同样**不新建**，现行口径以本册 live 正文为准。
+
+---
+
+## §37 ★★ v1.36 · **后台「站点文案」页拆解到位**：一页拆四块（积分 / 用户 / **新页【电量】** / 设置）＋ 两组删除 ＋ 品牌行 `Seafood Admin` = 带语言前缀的首页链接 ＋ **积分页「邀请奖励」卡控件闸缺陷修正** —— 规则 **`T136` / `T136-a` / `T136-b` / `T136-c`**（2026-10-24 · Kevin 批次 A 裁定 · **状态改写式 · 只追加零删行** · 本节只写 `docs/**`，实现已在同批工作区落地）
+
+### 37.0 依据与边界
+
+- **依据** = Kevin 2026-10-24 批次 A 裁定：后台「站点文案」页**拆解到位**（四块按归属搬家 + 两组装删除 + 品牌行改写）；**导航改名与侧栏重排属批次 B，本轮不做**（侧栏项只做**原位替换**，位序与顺序一字不动）。
+- **契约正典**（路由 / 计数 / 判负 / 旧地址 redirect）= `docs/route-layer.spec.md` **v2.53 §49.26**；**本节只管 UI 面**（形态 / 闸的落点 / 控件可见性口径 / 品牌行形态），不重抄线格式与计数条文。
+- **实现面（同批工作区）** = `frontend/src/App.jsx`（`power` 新路由 + `site-text` redirect）· `frontend/src/components/layout/AdminLayout.jsx`（侧栏原位替换 + 品牌行）· `frontend/src/pages/admin/{PowerPage,PolicyGroupCard,PointsManagement,UsersManagement,SystemSettings}.jsx`（新页与新卡）· 删除 `frontend/src/pages/admin/SiteTextPage.jsx` · 单测 `frontend/src/test/unit/admin-site-text-split.test.jsx`。
+- **本笔边界**：**零 token / 零 `STRUCT` / 零 CSS 契约变更 / 零 i18n 键增删 / 零权限码增删 / 零后端改动**（写口一律沿用既有 `POST /api/admin/settings`）。真源 `docs/design/style-preview.html` **零改动**（本批无新颜色、无新几何）。
+
+### 37.1 规则表（`T136` 家族）
+
+| 规则 | 条文 | 依据 / 真源 | 判负 |
+|---|---|---|---|
+| **T136** | 【本册裁定 · v1.36】**后台数值配置块按归属落到各自页，一页拆四块**：`invite_reward_policy` ⇒ 积分页（`/dashboard/points`）、`rating_policy` ⇒ 用户页（`/dashboard/users`）、`mint_burn_policy` ⇒ **新页【电量】（`/dashboard/power`）**、`role_names` + `site_text_overrides` ⇒ 设置页（`/dashboard/settings`）。新页**只承载一组**（铸造与销毁 5 字段），页标题与侧栏标题复用既有四语键 `battCard.title`、侧栏描述复用 `adminSiteText.policyMintBurn` ⇒ **零新增键**；侧栏该项**原位替换**已下线的「站点文案」项（**不重排**）。 | `route-layer.spec` **v2.53 §49.26.2 / §49.26.5**；`T133`（侧栏单项闸；本项闸 = `manage_settings`，单键不涉并集） | 出现第五个落点 / 某块仍留在已下线页 / 新页塞入第二个策略组 ⇒ 判负；侧栏因本批发生**位序变化**（重排）⇒ 判负（属批次 B）；新页或侧栏为此新增 i18n 键 ⇒ 判负 |
+| **T136-a** | 【本册裁定 · v1.36】**搬家件的「控件闸」= 写口闸**：任何以 `POST /api/admin/settings` 为写口的数值 / 覆盖层卡，其**输入与保存控件的启用**必须跟该写口的后端闸（**`manage_settings`**）**同键**；无该权限 ⇒ 控件 `disabled` + **恰一行只读提示**（复用既有键 `adminCommon.readOnlyNotice`），**不得隐藏卡片**；**页面可见性**仍由各页路由闸决定（积分页 `manage_points` / 用户页 `read_users` / 电量页 `manage_settings`）。**两个键的职责不得混用**：用页面键开控件 = 「可编辑但保存必 403」的**假开**；用写口键放宽页面 = 越权可见。 | 后端 `requireAdmin(..., 'manage_settings')`（`POST /api/admin/settings`，本批**未动**）；同型先例 = 用户页「评分」卡（`UsersManagement.jsx` 的 `canManageSettings`） | 用页面闸键（`manage_points` / `manage_users`）开保存控件 ⇒ 判负；无权限时**整卡不渲染** ⇒ 判负（用户失去「为何只读」的可见线索）；只读提示用**新增键**或出现**多行**提示 ⇒ 判负；控件仍可聚焦并触发 POST（`disabled` 缺失）⇒ 判负 |
+| **T136-b** | 【本册裁定 · v1.36】**两组装删除 = 不可用即不占位**（承 `T135-a` 同取向）：`batt_policy`（任务电量）/ `checkin_policy`（签到）的 **UI 与默认值一并删除**，`pages/admin/**` 与 `AdminLayout.jsx` 对这 11 个字段名**零命中**；**四语 i18n 键保留不删**（`adminSiteText.policyBatt` / `policyCheckin` 及 9 个字段标签登记为**孤儿**）。 | `route-layer.spec` §49.26.4（含 5 名词公开读口白名单）；`T134`（只渲染有真消费方的键） | 管理面仍渲染两组任一控件 / 任一字段名 ⇒ 判负；为清键删 `adminSiteText.*`（键集漂移）⇒ 判负；把公开读口字段名（`capBatt` 等）判为残留 ⇒ 误判（见 §37.4 白名单） |
+| **T136-c** | 【本册裁定 · v1.36】**后台品牌行 = 指向首页的文本链接**：品牌名 `Seafood Admin`（原硬编码 `Jinli Admin`）与图标、面板名同处**一个 `<Link>`**（**不得嵌套链接**），`href` = **当前语言前缀 + `/`**（zh ⇒ `/`；en/hk/vn ⇒ `/<lang>`，前缀**按 `location.pathname` 现取**、不得硬编码）；`aria-label` = 品牌名 + 返回首页（复用 `notFound.backHome`）；**hover 落在 `T130` 第③类（文本链接：只变色、不位移）** | `T130` 第③类；`buildLocalizedPath` + `getLanguageFromUrl`（`utils.js`）；`route-layer.spec` §49.26.6 | 品牌行仍为纯文本（不可点）⇒ 判负；`href` 缺语言前缀 / 硬编码 `zh` ⇒ 判负；出现 `translate-*` / `scale-*` / `hover:shadow*` / 负 margin 等位移类 ⇒ 判负；嵌套 `<a>` ⇒ 判负；残留 `Jinli Admin` ⇒ 判负 |
+
+### 37.2 四块搬家：落点 + 双闸（**逐块写死**）
+
+| # | 内容块（`app_config` 键） | 新落点 | **页面闸**（可见性） | **控件闸**（写口同键） |
+|--:|---|---|---|---|
+| ① | **邀请奖励** `invite_reward_policy`（`signupBatt` / `firstTaskUsd` / `rewardLevels`） | `/dashboard/points`（积分页末段一格卡） | `manage_points` | **`manage_settings`**（`T136-a`；**本批修正项**，见 §37.5） |
+| ② | **评分** `rating_policy`（`storageDecimals` / `displayDecimals` / `defaultStars`） | `/dashboard/users`（用户页末段） | `read_users` | **`manage_settings`**（本批前即此口径，`T136-a` 的同型先例） |
+| ③ | **铸造与销毁** `mint_burn_policy`（`mintBattCost` / `mintFeeUsd` / `burnBttcCost` / `burnFeeUsd` / `burnBattGain`） | **新页** `/dashboard/power`【电量】 | **`manage_settings`** | **`manage_settings`** |
+| ④ | **角色文案** `role_names` + **站点文案** `site_text_overrides` | `/dashboard/settings`（两块覆盖层卡） | `manage_settings` | `manage_settings` |
+
+- **写口一律原样**：`POST /api/admin/settings`，形态 B 信封 `{ key, value, create_key: adminOpsKey(uid,'setting',<key>) }`；数值组 `value` = 该组 `fields` 的数值对象；**无读回口**（初值 = 契约默认值，保存后不重读，与原页行为等价）。**零新端点 / 零新字段 / 零新策略组**。
+- **积分页的页面内动作闸不动**：行内「加减积分」按钮仍只认 `manage_points`（`T136-a` 只约束**搬家件**的控件，不改变既有页面动作的权限口径）。
+
+### 37.3 新页【电量】的形态（`/dashboard/power`）
+
+- **内容恰一块**：`PolicyGroupCard` 单例（`POLICY_MINT_BURN`），3 列栅格（`sm` 2 列 / `lg` 3 列）+ 数值提示行 + 保存按钮；卡根钩子 `data-sf-m="admin-policy-mint_burn_policy"`，逐字段钩子 `…-<field>`。
+- **双闸**：路由层 `ProtectedRoute requiredPermission="manage_settings"`（挡在页外）+ 页内 `hasAdminPermission(access,'manage_settings')` 决定控件启用（页内只在取回权限后渲染控件启用态，防「先开后关」）。
+- **零新增样式**：复用后台既有 `Card` / `CardHeader` / `CardTitle` / `CardContent` / `.btn` 家族；**无新 token、无新几何常量**。侧栏图标 `Zap`（`lucide-react`，与「电量」语义一致），标题 `battCard.title`。
+
+### 37.4 两组装删除 + i18n 孤儿登记
+
+- 删除：`batt_policy`（`taskCostBatt` / `capBatt` / `floorBatt` / `acceptThresholdBatt`）与 `checkin_policy`（`baseRewardBatt` / `streakCapDays` / `streakDay7RewardBatt` / `makeupCostUsd` / `makeupDailyLimit`）—— **UI 与默认值一并删**。
+- **公开读口白名单（诚实登记）**：`capBatt` / `floorBatt` / `acceptThresholdBatt` / `streakCapDays` / `makeupCostUsd` 同时是 `GET /api/batt` / `GET /api/checkin` 的响应字段名，仍出现在 `frontend/src/batt-checkin.js`（接口注释）与 `frontend/src/pages/wage/WageMintEntry.jsx`（电量额度条）—— **与设置写侧无关，不属残留**；判据 = 管理面（`pages/admin/**` + `AdminLayout.jsx`）对 11 个名字零命中。
+- **i18n**：`adminSiteText.policyBatt` / `policyCheckin` 与 9 个字段标签**四语保留**（孤儿）⇒ 键集 **`top 135 / flat 1453` 四语**逐文件相等（本批现取），**零漂移**。
+
+### 37.5 A 项真缺陷修正（**本批唯一代码修正 · 落在 `T136-a`**）
+
+- **缺陷**：积分页「邀请奖励」卡的输入 / 保存控件原按**页面闸** `manage_points` 启用，而写口 `POST /api/admin/settings` 需要 `manage_settings` ⇒ **仅持 `manage_points` 的管理员可编辑、但保存必 403**（**假开**：UI 允许用户做一件服务端必然拒绝的事）。
+- **修法（与用户页「评分」卡同型）**：`PointsManagement.jsx` 新增 `canManageSettings = hasAdminPermission(access,'manage_settings')`，卡片改为 `canManage={canManageSettings}`；`PolicyGroupCard.jsx` 新增可选 `readOnlyNotice` 提案，`!canManage && readOnlyNotice` 时在数值提示行与保存按钮之间渲染**恰一行**只读提示（`t('adminCommon.readOnlyNotice')`，钩子 `data-sf-m="admin-policy-<key>-readonly"`）。**控件 `disabled`+提示，不隐藏卡片**；页面可见性与页内动作闸**原样**（`manage_points`）。
+- **零新增 i18n 键**：只读提示复用 `adminCommon.readOnlyNotice`（四语皆在）；卡片组件对**其它两页**输出**零变化**（`readOnlyNotice` 未传 ⇒ 不渲染该行）。
+- **新增断言（`admin-site-text-split.test.jsx` 的 F 组 · 4 条）**：① 仅 `manage_points` ⇒ **卡在场不隐藏**、3 输入框 `disabled`、保存 `disabled`、**恰一行**只读提示（钩子逐字校验）；② 兼持 `manage_points` + `manage_settings` ⇒ 3 输入框可编辑、保存可点、**无**只读提示；③ 仅 `manage_settings` ⇒ 卡片控件可编辑而**页面级**只读提示仍在（证两条闸互不放宽）；④ 源码面 ⇒ 两个权限键各自持有、卡片只吃 `canManageSettings`（禁回退 `canManagePoints`）、卡片只出现 `adminCommon.readOnlyNotice` 一个键。
+
+### 37.6 品牌行（`T136-c` 的落地口径）
+
+- 结构：侧栏头部原 `div`（图标 + `h1` 面板名 + `p` 品牌名）⇒ **一个** `<Link>`（`data-sf-m="admin-brand-link"`），`to = buildLocalizedPath(getLanguageFromUrl(location.pathname), '/')`；折叠态（`sidebarOpen=false`）时品牌文本不渲染、链接仍包住图标（**可点面积随折叠收缩，未几何实测**）。
+- 文案 / a11y：品牌名 `Seafood Admin`（`Jinli Admin` 全 src 零残留）；`aria-label = \`Seafood Admin — ${t('notFound.backHome')}\``（品牌名 + 返回首页，**零新增键**）；保留 `focus-visible:ring-2`。
+- hover：链接本体 `transition-colors`（**无** `translate-*` / `scale-*` / `hover:shadow*` / 负 margin）；变色落在子节点 `h1`（`group-hover:text-blue-600`）与 `p`（`group-hover:text-blue-500`）⇒ 命中 `T130` **第③类「文本链接只变色」**。
+
+### 37.7 零变更声明（**本节不动的东西**）
+
+- **零 token / 零 `STRUCT` / 零 `PROV` 改指 / 零几何契约**：本批无新颜色、无新宽高常量；真源 `docs/design/style-preview.html` 零改动。
+- **零 CSS 契约变更**：产出 CSS 名与字节**未变**（`index-N4cMn6Lr.css` 190,954 B，与本批改前逐字节同）。
+- **零 i18n 键增删 / 零权限码增删 / 零后端改动**：新页标题、侧栏描述、只读提示、品牌行 a11y 名**全部复用既有键**。
+- **旧条文一字未动**：`T130` / `T131` / `T132` / `T133` / `T134` / `T135`（含 `T135-a`~`c`）逐字保留；§1–§36 一字未改（本单只在 §12 表**追加一行**、尾**追加本节**、版本头**追加一行**）。
+
+### 37.8 编号现取与纪律自检
+
+- **编号现取**：节号 **`§37`**（现盘最大 `§36`）；规则 **`T136` / `T136-a` / `T136-b` / `T136-c`**（现盘最大**已定义** `T135` / `T135-a`~`c`）⇒ **接现盘最大 T 号顺延**；版本行 **`v1.36`**（现盘最大 `v1.35`）。
+- **门读数（本笔现取 · 2026-10-24）**：unit **102 files / 1143 tests / 0 failed**（改前基线 **101 / 1124**）· a11y **1 file / 16 tests** · components **2 files / 14 tests** · `npm run build` **exit 0** ⇒ `index-DDfED5f2.js` **636,988 B** / `index-N4cMn6Lr.css` **190,954 B**。
+- **本节零删行**：本单对 `docs/design/design-system.spec.md` 只有**追加**（版本头 1 行 + §12 表 1 行 + 本节全文），`git diff --numstat` 删除列 = **0**。
+- **未改写面**：§1–§36 一字未动；`frontend/**` 由同批实现单落地（本笔只登记口径）；`backend-ts/**` / `tools/**` / `ctrl/**` 零改动；未启停任何服务。
+- **快照口径（诚实）**：本单**未新建 / 未重制** `docs/versions/**` 快照（现盘本册最新快照 = `docs/versions/design-system.spec.v1.27.md`）⇒ 现行口径以本册 live 正文为准。
