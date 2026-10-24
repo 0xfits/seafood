@@ -451,6 +451,11 @@ const HomePage = () => {
   return (
     <ResponsiveContainer>
       <div className="space-y-8" data-sf-m="home-item-list">
+        {/* ★ 2026-10-24（Kevin）：视觉隐藏 `<h1>` —— hero 删除后首页曾**零 h1**（大纲无起点）。
+            口径：文案复用现役键 `siteBrand`（**零新 i18n 键**）；样式为**普通工具类**
+            `.sf-visually-hidden`（`styles.css` 顶层，不入 @media、不加主题 token / CSS 变量）。
+            该元素绝对定位 1px ⇒ 不参与文档流；`space-y-8` 只给它挂 margin-block-end，页面几何零变化。 */}
+        <h1 className="sf-visually-hidden">{t('siteBrand')}</h1>
         {/* ★ 2026-10-24（Kevin）：首页 hero 版块**整块删除** —— 标题（`homePage.welcome`）、
             辅文（`heroLead` / `heroTail`）、两个 CTA（继续任务/立即注册 + 发布入口 `/item/new`）
             一并下线；发布入口**不从 UI 给出**（裁定：暂不给，也不留隐藏链接）。

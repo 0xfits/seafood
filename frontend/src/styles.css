@@ -1429,3 +1429,23 @@ section[id^="section_"] .grid { gap: 1.25rem; }
     min-width: 0;
   }
 }
+
+/* ===== 视觉隐藏工具类（2026-10-24 · 首页隐藏 h1）=====
+   hero 删除后首页零 `<h1>`，改由本类承担「视觉隐藏标题」（SEO / 文档大纲需要，肉眼不可见）。
+   仓内原**无** sr-only / visually-hidden / clip-path:inset(50%) 任何实现 ⇒ 此处新增**普通工具类**：
+   落点 = 本文件**顶层**（上面那个 @media 已闭合）、*不*入 @media、不碰 shell.css、不引主题 token / CSS 变量。
+   写法 = clip + clip-path 双保险（旧引擎读 clip，新引擎读 clip-path）；绝对定位 1px ⇒ 几何零影响。 */
+.sf-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+

@@ -55,13 +55,19 @@ describe('P6-I18N-LIT-B1 · en 档渲染英文文案', () => {
     )
 
     // ★ 2026-10-24（Kevin）：首页 hero 整块删除（标题 `homePage.welcome` + 两个 CTA 一并下线）
-    //   ⇒ 「Welcome to Jinli Club」与「Publish item」改为**零命中**；标题层级从 h2 起（首页零 h1）。
+    //   ⇒ 「Welcome to Jinli Club」与「Publish item」改为**零命中**；2026-10-24（Kevin）起
+    //   首页**恰有 1 个 h1** = 视觉隐藏标题（class `sf-visually-hidden`，文案复用现役键 `siteBrand`），
+    //   hero 之外仍无可见 h1；【热门任务】等版块标题为 h2。
     expect(screen.queryByRole('heading', { name: 'Welcome to Jinli Club' })).toBeNull()
     expect(await screen.findByRole('heading', { name: 'Hot tasks' })).toBeInTheDocument()
     expect(await screen.findByRole('heading', { name: 'Featured rewards' })).toBeInTheDocument()
     expect(screen.getAllByText('View all')).toHaveLength(1)
     expect(screen.queryByText('Publish item')).toBeNull()
-    expect(document.querySelector('h1')).toBeNull()
+    // 隐藏标题：恰 1 个 h1，文案 = en 档 `siteBrand`，class 含 sf-visually-hidden
+    const h1s = document.querySelectorAll('h1')
+    expect(h1s).toHaveLength(1)
+    expect(h1s[0].textContent).toBe(i18n.t('siteBrand'))
+    expect(h1s[0].className).toContain('sf-visually-hidden')
     // ★ HOME-CAMP-v1 去 mock：读口空（mock 恒 []）⇒ 热门任务版块走空态，**零假卡**
     //   （不再补 5 张 mock 卡）；空态文案取既有 `taskPage.emptyAvailable/Hint`。
     expect(document.querySelectorAll('[data-sf-m="home-camp-card"]')).toHaveLength(0)

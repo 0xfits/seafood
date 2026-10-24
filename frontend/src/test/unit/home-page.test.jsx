@@ -25,7 +25,7 @@ vi.mock('react-hot-toast', () => ({
 
 import toast from 'react-hot-toast'
 // P6-I18N-LIT-B1：HomePage 已接 useTranslation => 需初始化真实 i18n（jsdom 无前缀路径 = zh 兜底口径）
-import '../../i18n'
+import i18n from '../../i18n'
 import HomePage from '../../pages/HomePage'
 import { fetchApiJson, getAuthHeaders } from '../../auth'
 import { useAuth } from '../../auth-context'
@@ -313,7 +313,9 @@ describe('HomePage · 去 animate-fade-in 容器（无包裹层）', () => {
     //   其内**直接**就是版块 `<section>`（原 `<FadeIn>` wrapper 不复存在 ⇒ 无中间动画层），
     //   且 hero 的渐变背景**只迁移到这里**（`bg-gradient-to-r … rounded-2xl`，钩子名不变）。
     const list = container.querySelector('[data-sf-m="home-item-list"]')
-    const firstEl = list.children[0]
+    // ★ 2026-10-24（Kevin）：容器**首个**子节点是视觉隐藏 `<h1>`（见下方隐藏标题断言）⇒ 商品流首块
+    //   取「跳过它之后的第一个子节点」，判据不变（首块仍必须是热门任务 section，且无窗口动画层）。
+    const firstEl = list.querySelector(':scope > :not(.sf-visually-hidden)')
     expect(firstEl.querySelectorAll('[class*="animate-fade-in"]')).toHaveLength(0)
     const campSection = firstEl.querySelector('[data-sf-m="home-camp"]')
     expect(campSection).not.toBeNull()
@@ -326,8 +328,12 @@ describe('HomePage · 去 animate-fade-in 容器（无包裹层）', () => {
     // 渐变只移「背景 + 圆角 + 内边距」：不带 text-center、不加边框/阴影
     expect(campSection.className).not.toContain('text-center')
     expect(campSection.className).not.toContain('shadow')
-    // 首页现**零 `<h1>`**（hero 标题已删；【热门任务】仍为 h2，钩子选择器依赖 h2）
-    expect(container.querySelector('h1')).toBeNull()
+    // 首页**恰有 1 个 `<h1>`**：hero 已删 ⇒ 零点改由**视觉隐藏标题**承担（class `sf-visually-hidden`，
+    //   文案复用现役键 `siteBrand`）；【热门任务】仍为 h2，钩子选择器依赖 h2。
+    const h1s = container.querySelectorAll('h1')
+    expect(h1s).toHaveLength(1)
+    expect(h1s[0].textContent).toBe(i18n.t('siteBrand'))
+    expect(h1s[0].className).toContain('sf-visually-hidden')
     expect(campSection.querySelector('h2')).not.toBeNull()
   })
 
