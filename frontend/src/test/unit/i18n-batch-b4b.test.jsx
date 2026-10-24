@@ -220,7 +220,7 @@ describe('P6-I18N-LIT-B4b · 四语 locale 键集 + 类级断言脚本读数', (
     // 批 8⑤ 计数期望订正（逐字登记）：新增顶层 adminListingReview（30 键）+ adminArbitrationReview（34 键）+ adminNav 4 键（listingReview/listingReviewDesc/arbitrationReview/arbitrationReviewDesc）⇒ 顶层 106⇒108 / 拍平 818⇒886 / locale 节点 3272⇒3544（增量来源 = 本批合法新增：注册点 +4 ⇔ 4 新路由；迁移 +2 ⇔ 2 新文件；adminNav +4 ⇔ 4 新菜单键）
     // S25 计数期望订正（台账 B7 死键退役）：四语对称删 10 键 ⇒ 拍平 1060⇒1050（等量下移 = −10/语）。
     // v1.5 §14 delta①（2026-10-11 收尾单 · Zang 裁定⑧）曾另立新键 'me'：top 128⇒129 / flat 1070⇒1071 / 节点 4280⇒4284；[留痕] 本单（2026-10-11 · Kevin 口径）全站统一 profile 值 = 我的/Me/我的/Tôi 并删 'me' ⇒ 计数回落 top 129⇒128 / flat 1071⇒1070 / 节点 4284⇒4280。
-    expect(counts.zh).toEqual({ top: 135, flat: 1453 }) // [home-hero-removal（2026-10-24）：删 5 死键（homePage.welcome/heroLead/heroTail/continueTask/registerNow，四语对称）⇒ flat 1451 / 四语节点 5804（top 135 不变）]
+    expect(counts.zh).toEqual({ top: 136, flat: 1461 }) // [home-hero-removal（2026-10-24）：删 5 死键（homePage.welcome/heroLead/heroTail/continueTask/registerNow，四语对称）⇒ flat 1451 / 四语节点 5804（top 135 不变）]
     // 本批新增的 5 个顶层命名空间（命名空间铁律：不得与既有顶层字符串键冲突）
     for (const [ns, size] of Object.entries(NEW_NS)) {
       expect(Object.keys(tables.zh)).toContain(ns)
@@ -287,6 +287,6 @@ describe('P6-I18N-LIT-B4b · 四语 locale 键集 + 类级断言脚本读数', (
     // 批 8⑤ 计数期望订正（逐字登记）：新增顶层 adminListingReview（30 键）+ adminArbitrationReview（34 键）+ adminNav 4 键（listingReview/listingReviewDesc/arbitrationReview/arbitrationReviewDesc）⇒ 顶层 106⇒108 / 拍平 818⇒886 / locale 节点 3272⇒3544（增量来源 = 本批合法新增：注册点 +4 ⇔ 4 新路由；迁移 +2 ⇔ 2 新文件；adminNav +4 ⇔ 4 新菜单键）
     // S25 计数期望订正（台账 B7 死键退役）：四语对称删 10 键 ⇒ 拍平 1060⇒1050（本读数为脚本 p6-tr2 动态打印，非硬编）。
     // [home-hero-removal（2026-10-24）：删 5 个死键（homePage.welcome/heroLead/heroTail/continueTask/registerNow，四语对称）⇒ flat 1456⇒1451 / 四语节点 5824⇒5804（top 135 不变）]
-    expect(out).toContain('zh: top=135 flat=1453')
+    expect(out).toContain('zh: top=136 flat=1461')
   })
 })

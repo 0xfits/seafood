@@ -33,6 +33,8 @@ import MyOrdersPanel, { SellerOrderActions } from './item/MyOrdersPanel'
 // 发布列表行内动作（2026-10-20 · design §26.13）：【降价】= 字段模式 PATCH（只传 price）；
 //   【编辑】= 跳 /item/:id/edit。取数层 = item-api（本页其余交易取数仍在 trades-api，不跨线复用）。
 import { updateListingFields } from './item/item-api'
+// Kevin 2026-10-24 需求：【我的邀请】pane（`/profile/invite`）—— 苹果式 6 格数字输入 + 一次性绑定。
+import InvitePane from './profile/InvitePane'
 // sf14 需求④：交易/收藏取数层（契约冻结；后端并行单实现中）
 import { addFavorite, fetchFavorites, fetchMyListings, fetchSoldOrders, removeFavorite } from '../trades-api'
 import { fetchApiJson, fetchCurrentUser, getAuthHeaders, updateMyProfile } from '../auth'
@@ -93,6 +95,8 @@ const profileViewOf = (pathname) => {
   const last = parts[parts.length - 1] || ''
   const prev = parts[parts.length - 2] || ''
   if (last === 'favorites') return { kind: 'favorites', subTab: '' }
+  // Kevin 2026-10-24 需求：【我的邀请】= /profile/invite（菜单在「我的收藏」与「账户设置」之间）
+  if (last === 'invite') return { kind: 'invite', subTab: '' }
   if (last === 'settings') return { kind: 'settings', subTab: '' }
   if (last === 'assets') return { kind: 'assets', subTab: '' }
   if (prev === 'trades') {
@@ -1089,6 +1093,12 @@ const ProfilePage = () => {
             view.kind === 'favorites',
           )}
           {navLink(
+            buildLocalizedPath(lang, '/profile/invite'),
+            'profile-nav-invite',
+            t('profileNav.invite'),
+            view.kind === 'invite',
+          )}
+          {navLink(
             buildLocalizedPath(lang, '/profile/settings'),
             'profile-nav-settings',
             t('profileNav.settings'),
@@ -1103,6 +1113,11 @@ const ProfilePage = () => {
           )}
           {view.kind === 'favorites' && (
             <FavoritesPane user={sessionUser} isAuthenticated={isAuthenticated} lang={lang} />
+          )}
+
+          {/* 【我的邀请】（Kevin 2026-10-24）：/profile/invite —— 6 格数字输入 + 一次性绑定 */}
+          {view.kind === 'invite' && (
+            <InvitePane user={sessionUser} isAuthenticated={isAuthenticated} />
           )}
 
           {view.kind === 'assets' && <AssetsPane />}

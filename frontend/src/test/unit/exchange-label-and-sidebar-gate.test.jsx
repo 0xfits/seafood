@@ -159,7 +159,7 @@ describe('B「海底交易所」四语取值 + 顶菜单/底栏同键同值', ()
     expect(en.shard).toBe('Exchange')
     expect(vn.shard).toBe('Sàn')
     // 键集四语一致、总键数不变（135）
-    for (const lang of ['zh', 'en', 'hk', 'vn']) expect(Object.keys(TABLES[lang])).toHaveLength(135)
+    for (const lang of ['zh', 'en', 'hk', 'vn']) expect(Object.keys(TABLES[lang])).toHaveLength(136)
   })
 
   it('导航真源：底栏第 2 格 labelKey 仍为 shard（键名不动）', () => {

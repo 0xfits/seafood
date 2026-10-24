@@ -464,12 +464,22 @@
   "header": {
     "orders": "Đơn hàng"
   },
+  "invite": {
+    "desc": "Nhập mã 6 chữ số của người mời (thêm số 0 ở đầu nếu thiếu, ví dụ 000100)",
+    "label": "Mã người mời",
+    "bound": "Đã liên kết người mời",
+    "boundHint": "Người mời không thể thay đổi sau khi liên kết. Liên hệ hỗ trợ nếu cần.",
+    "submit": "Liên kết",
+    "ok": "Đã liên kết người mời",
+    "err": "Liên kết thất bại: mã không tồn tại, không thể tự liên kết, hoặc tài khoản đã được liên kết."
+  },
   "profileNav": {
     "title": "Trao đổi của tôi",
     "published": "Tin đăng của tôi",
     "sold": "Đã bán",
     "bought": "Đã mua",
     "favorites": "Yêu thích",
+    "invite": "Lời mời của tôi",
     "assets": "Tài sản của tôi",
     "settings": "Cài đặt tài khoản",
     "emptyPublished": "Chưa có tin đăng nào",

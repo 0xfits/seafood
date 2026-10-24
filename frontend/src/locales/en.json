@@ -464,12 +464,22 @@
   "header": {
     "orders": "Orders"
   },
+  "invite": {
+    "desc": "Enter your inviter's 6-digit ID (pad with leading zeros, e.g. 000100)",
+    "label": "Inviter ID",
+    "bound": "Bound inviter",
+    "boundHint": "Your inviter cannot be changed once bound. Contact support if you need help.",
+    "submit": "Bind",
+    "ok": "Inviter bound",
+    "err": "Binding failed: the ID does not exist, you cannot bind yourself, or this account is already bound."
+  },
   "profileNav": {
     "title": "My Swaps",
     "published": "My Listings",
     "sold": "Sold",
     "bought": "Purchases",
     "favorites": "Favorites",
+    "invite": "My Invites",
     "assets": "My assets",
     "settings": "Account Settings",
     "emptyPublished": "No listings published yet",

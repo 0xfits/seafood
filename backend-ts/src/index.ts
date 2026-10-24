@@ -56,6 +56,10 @@ import { getCommissionPolicy, insertCommissionPolicy } from './commission';
 import { placeMarketOrder, cancelMarketOrder, cancelAllMarketOrders, matchTakerOrderLoop } from './market-service';
 // P4-B3a：币种面**真资金**编排（§1.1:147-148 · §4.2 C1/C2 · §7-3 已裁）
 import { createCurrencyVerb, listCurrencyVerb } from './currency-service';
+// 我的邀请（referral 自助绑定）：`GET /api/referral/me` + `POST /api/referral/bind`。
+// 结构判定（防环 / 已绑 / 已有下级 / 父 depth 真实性 / depth 计算）**全在 DB 触发器**
+// （0007 §C + 0010 ⑤ + 0011 ③④⑥⑦）⇒ 本模块只做预读与 reason 翻译，不自造第二套守卫。
+import { bindMyReferral, getMyReferral, REFERRAL_REASON } from './referral-service';
 // P4-B2c：权限与设置（非资金面）service（§1 #36/#37/#38 的 verb + DL36 的 ops: 幂等键）
 import {
   adminPermissionDeleteVerb,
@@ -2774,6 +2778,101 @@ app.delete('/api/favorites/:listingId', async (req, res) => {
     return sendSuccess(res, { listing_id: listingId, deleted });
   } catch (error) {
     return sendInfraMapped(res, 'favorites.delete', error);
+  }
+});
+
+// ============================================================================
+// ★ 我的邀请（`/profile/invite`）· 两端口 —— Kevin 2026-10-24 需求
+// ----------------------------------------------------------------------------
+// `GET  /api/referral/me`    ⇒ `{ bound, parent_uid, bound_at, depth }`（登录用户；未绑 ⇒ 后三项 null）
+// `POST /api/referral/bind`  ⇒ body `{ inviter_uid: number, create_key?: string }`；**一人一次、不可改绑**
+//
+// 校验顺序（与库侧守卫的优先级对齐；库侧顺序 = 自指 → 串行化 → 已绑 → 环 → 已有下级 → 父 depth → depth）：
+//   ① 登录（`requireActor` ⇒ 无 token = 401 `AUTH_UNAUTHORIZED`）
+//   ② `inviter_uid` 为正整数（否则 400 `LEDGER_AMOUNT_INVALID` + `NOT_A_POSITIVE_INTEGER`）
+//   ③ 不得自指（400 `LEDGER_AMOUNT_INVALID` + `REFERRAL_SELF_BIND` —— 与 DB 守卫同名字面）
+//   ④ `create_key` 若给 ⇒ 只做 §4.5 形态校验后**忽略**（本面零分录、一次性由 PK 保证 ⇒ 不消费键）
+//   ⑤ 服务层事务内：已绑 ⇒ 409 `LEDGER_IDEMPOTENCY_CONFLICT` + `REFERRAL_ALREADY_BOUND`；
+//      邀请人不存在 ⇒ 404 `LEDGER_REF_NOT_FOUND` + `REFERRAL_PARENT_NOT_FOUND`
+//   ⑥ 防环 / 已有下级 / 父 depth 真实性 ⇒ **全部交给 `referral_bind` + 触发器**（不自造第二套）
+//
+// depth：**由 DB 触发器算**（0011 ⑦ `NEW.depth := 1 + COALESCE(v_parent_stored_depth, 0)`）
+//   ⇒ 本端点**不接受** `depth` 入参、也不回写（CR16）；回执里的 `depth` 是库算出的真值原样读回。
+// 权限：普通登录用户即可（零新增权限码；`requireAdmin` 不出现在本族）。
+// ============================================================================
+
+/** §4.5 幂等键形态（前缀 / 分隔符 / 控制字符 / 长度）—— 本面**只校验不消费**（见上 ④） */
+const referralCreateKeyVerdict = (raw: unknown): { ok: boolean; reason?: string } => {
+  if (raw === undefined || raw === null || raw === '') return { ok: true };
+  const key = String(raw);
+  if (key.length > 200) return { ok: false, reason: 'TOO_LONG' };
+  if (!/^(biz|cm|cli|ops):/.test(key)) return { ok: false, reason: 'PREFIX_REQUIRED' };
+  if (key.includes('#')) return { ok: false, reason: 'RESERVED_SEPARATOR' };
+  // eslint-disable-next-line no-control-regex
+  if (/[\u0000-\u001f\u007f]/.test(key)) return { ok: false, reason: 'CONTROL_CHARACTER' };
+  return { ok: true };
+};
+
+app.get('/api/referral/me', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  try {
+    const data = await getMyReferral(actor.user.uID);
+    return sendSuccess(res, data);
+  } catch (error) {
+    return sendInfraMapped(res, 'referral.me', error);
+  }
+});
+
+app.post('/api/referral/bind', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  const body = (req.body || {}) as Record<string, unknown>;
+  const inviterRaw = body.inviter_uid ?? body.inviterUid;
+  const inviterUid = parseInteger(inviterRaw, Number.NaN);
+  if (!Number.isInteger(inviterUid) || inviterUid < 1) {
+    return res.status(400).json(ledgerErrorBody(
+      'LEDGER_AMOUNT_INVALID',
+      'Request shape is invalid',
+      { field: 'inviter_uid', reason: 'NOT_A_POSITIVE_INTEGER', received: inviterRaw === undefined ? 'null' : String(inviterRaw) },
+    ));
+  }
+
+  if (inviterUid === actor.user.uID) {
+    return res.status(400).json(ledgerErrorBody(
+      'LEDGER_AMOUNT_INVALID',
+      'Request shape is invalid',
+      { field: 'inviter_uid', reason: REFERRAL_REASON.SELF_BIND, child_uid: String(actor.user.uID), parent_uid: String(inviterUid) },
+    ));
+  }
+
+  const keyVerdict = referralCreateKeyVerdict(
+    body.create_key ?? body.idempotency_key ?? body.idempotencyKey ?? req.get('idempotency-key') ?? undefined,
+  );
+  if (!keyVerdict.ok) {
+    return res.status(400).json(ledgerErrorBody(
+      'LEDGER_IDEMPOTENCY_KEY_INVALID',
+      'Idempotency key invalid',
+      { field: 'create_key', reason: keyVerdict.reason, allowed_prefixes: ['biz:', 'cm:', 'cli:', 'ops:'] },
+    ));
+  }
+
+  try {
+    const bound = await bindMyReferral({ childUid: actor.user.uID, parentUid: inviterUid });
+    return sendSuccess(res, {
+      parent_uid: bound.parent_uid,
+      depth: bound.depth,
+      bound_at: bound.bound_at,
+    }, 'Referral bound');
+  } catch (error) {
+    // 业务码（400 / 404 / 409）走既有分类器原码原状态；其余（驱动 / 传输）⇒ 503 族
+    const normalized = normalizeLedgerError(unwrapInfraCause(error));
+    if (normalized.httpStatus < 500) {
+      return res.status(normalized.httpStatus).json(toErrorResponse(normalized));
+    }
+    return sendInfraMapped(res, 'referral.bind', error);
   }
 });
 

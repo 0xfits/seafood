@@ -464,12 +464,22 @@
   "header": {
     "orders": "訂單"
   },
+  "invite": {
+    "desc": "輸入邀請人的 6 位數字編號（不足 6 位前面補 0，例如 000100）",
+    "label": "邀請人編號",
+    "bound": "已綁定邀請人",
+    "boundHint": "邀請人一經綁定不可更改，如需調整請聯絡客服。",
+    "submit": "綁定",
+    "ok": "邀請人綁定成功",
+    "err": "綁定失敗：編號不存在、不能綁定自己，或該帳號已綁定邀請人。"
+  },
   "profileNav": {
     "title": "我的置換",
     "published": "我發佈的",
     "sold": "我賣出的",
     "bought": "我買到的",
     "favorites": "我的收藏",
+    "invite": "我的邀請",
     "assets": "我的資產",
     "settings": "賬戶設置",
     "emptyPublished": "還沒有發佈過閒置物品",

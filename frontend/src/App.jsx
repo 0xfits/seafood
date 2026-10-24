@@ -199,6 +199,15 @@ const LangShell = () => {
             </ProtectedRoute>
           }
         />
+        {/* 我的邀请（Kevin 2026-10-24 需求）：一次性绑定邀请人；与左栏菜单同位次（收藏 ↔ 设置之间） */}
+        <Route
+          path="profile/invite"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="profile/settings"
           element={

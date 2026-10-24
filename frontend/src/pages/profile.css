@@ -306,6 +306,15 @@
     max-width: 100%;
   }
 
+  /* 与 `.sf-prof-nav` 同一类根因（Kevin 2026-10-24 收口）：手机档 `.sf-prof` 变 column 后，
+     基档 `align-items: flex-start` 使本项**宽 = max-content** ⇒ 6 格输入（每格 max-content 上百 px）
+     把**文档**撑宽（390 档实测 `scrollWidth 1486`），溢出甩给 `<html>`。
+     夹到 100% 后 6 格才按可用宽度均分（`.sf-otp-cell` 的 `flex: 1 1 0` + `min-width: 44px` 生效）。 */
+  .sf-prof-content {
+    width: 100%;
+    max-width: 100%;
+  }
+
   .sf-prof-nav-group {
     flex: none;
     flex-direction: row;
@@ -534,4 +543,134 @@
 @media (max-width: 767px) {
   .sf-prof-avatar-block { align-items: flex-start; }
   .sf-prof-avatar-change { width: 32px; height: 32px; }
+}
+
+/* ============================================================================
+ * 【我的邀请】pane（`/profile/invite` · Kevin 2026-10-24 需求）
+ * ----------------------------------------------------------------------------
+ * 形态：苹果验证码式 **6 格数字输入**（`components/OtpInput.jsx`）+ 一次性绑定。
+ * 零新主题 token：颜色一律既有 `--sf-panel-bg` / `--sf-panel-border` / `--sf-title-fg` /
+ *   `--sf-meta-fg` / `--sf-empty-fg` / `--sf-cat-on-bg` / `--sf-down-fg`；
+ *   几何量落本文件页面局部 `--sf-l-prof-otp-*`（**日/夜两档同值** ⇒ 切主题几何逐值相等）。
+ * 触控：≤767 每格 ≥44（站内硬口径，与 `.sf-prof-link` 手机档同数）。
+ * ========================================================================== */
+.sf-prof {
+  --sf-l-prof-otp-cell-w: 44px;
+  --sf-l-prof-otp-cell-h: 52px;
+  --sf-l-prof-otp-gap: 10px;
+}
+
+.sf-invite-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 16px;
+  background: var(--sf-panel-bg);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-card);
+  box-shadow: none;
+}
+
+.sf-invite-form,
+.sf-invite-bound {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.sf-invite-desc,
+.sf-invite-hint,
+.sf-invite-login-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--sf-meta-fg);
+}
+
+.sf-invite-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sf-title-fg);
+}
+
+.sf-invite-bound-line {
+  margin: 0;
+  font-size: 14px;
+  color: var(--sf-meta-fg);
+}
+
+.sf-invite-bound-uid {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--sf-title-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 6 格输入 ----------------------------------------------------------------- */
+.sf-otp {
+  display: flex;
+  gap: var(--sf-l-prof-otp-gap);
+  align-items: center;
+}
+
+.sf-otp-cell {
+  width: var(--sf-l-prof-otp-cell-w);
+  height: var(--sf-l-prof-otp-cell-h);
+  padding: 0;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--sf-title-fg);
+  background: var(--sf-panel-bg);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-ctl);
+  box-sizing: border-box;
+  font-variant-numeric: tabular-nums;
+  /* 单字符格：禁用 iOS 双击缩放（不放大字号，几何量不受浏览器干预） */
+  touch-action: manipulation;
+}
+
+.sf-otp-cell:focus,
+.sf-otp-cell:focus-visible {
+  outline: 2px solid var(--sf-cat-on-bg);
+  outline-offset: 2px;
+}
+
+.sf-otp-cell:disabled {
+  color: var(--sf-meta-fg);
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* 卡内内联失败（不弹 Toast；`role="alert"` 在组件侧） */
+.sf-invite-error {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sf-down-fg);
+  overflow-wrap: anywhere;
+}
+
+/* 手机档（≤767）：6 格按可用宽度均分（仍 ≥44×44 触控；390 档零溢出） */
+@media (max-width: 767px) {
+  .sf-otp {
+    width: 100%;
+    gap: 8px;
+  }
+
+  .sf-otp-cell {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 44px;
+    min-height: 44px;
+    height: 48px;
+  }
+
+  .sf-invite-form,
+  .sf-invite-bound {
+    align-items: stretch;
+  }
 }

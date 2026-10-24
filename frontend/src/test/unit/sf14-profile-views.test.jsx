@@ -168,7 +168,7 @@ describe('sf14 ② · ProfilePage 侧栏与视图派生', () => {
     const { container } = renderAt(<ProfilePage />, '/profile/settings')
     // 资料加载是异步的（fetchCurrentUser 替身）⇒ 等 settings 内容挂载后再断言
     await waitFor(() => expect(container.querySelector('[data-sf-m="profile-nav"]')).not.toBeNull())
-    for (const hook of ['profile-nav-trades', 'profile-nav-published', 'profile-nav-sold', 'profile-nav-bought', 'profile-nav-favorites', 'profile-nav-assets', 'profile-nav-settings']) {
+    for (const hook of ['profile-nav-trades', 'profile-nav-published', 'profile-nav-sold', 'profile-nav-bought', 'profile-nav-favorites', 'profile-nav-invite', 'profile-nav-assets', 'profile-nav-settings']) {
       expect(container.querySelector(`[data-sf-m="${hook}"]`), hook).not.toBeNull()
     }
   })
@@ -188,6 +188,7 @@ describe('sf14 ② · ProfilePage 侧栏与视图派生', () => {
       'profile-nav-sold',
       'profile-nav-bought',
       'profile-nav-favorites',
+      'profile-nav-invite',
       'profile-nav-settings',
     ])
   })
