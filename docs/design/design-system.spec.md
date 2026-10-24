@@ -31,6 +31,8 @@
 > **★ 现行版 = v1.26（2026-10-24 · Kevin「移动底栏恒 4 格（取消【卖闲置】）+ 桌面浮菜单保留【卖闲置】+ STRUCT token `tabbar-cols` `5 → 4`（PROV 指向 `style-preview.html` L1192）」裁定落册 · **状态改写式 · 只追加零删行** · 本单只写 `docs/**`）**：**① 移动底栏（H5 `BottomTabBar`）取消【卖闲置】格 ⇒ 底栏恒 4 格**（左→右 `home` / `shard` / `messages` / `profile`）⇒ 新规则 **`T123`**（§27.1），`SHELL_NAV_ITEMS` 现取 **4 项**（`frontend/src/shell/nav.js`）。**② 桌面右侧悬浮菜单（`FloatingMenu` · `>767`）保留【卖闲置】⇒ 浮菜单仍五项**（现取 `FM_ITEMS` = `wage`（领工资）/ `sell`（卖闲置）/ `messages`（消息）/ `app`（APP）/ `support`（客服），`frontend/src/shell/FloatingMenu.jsx` **一字未改**）；**路由 `/item/new` 保留、可直链**。**③ STRUCT token `--sf-st-tabbar-cols` `5 → 4`，四处同动已完成**：真源 `docs/design/style-preview.html` **尾部纯追加块 `L1188–1193`**（**新真源行 = `L1192`** `.tabbar{flex:0 0 auto;display:grid;grid-template-columns:repeat(4,1fr);align-items:end;position:relative;z-index:4}`）· `frontend/src/theme/tokens.js:421` 值 `4` · `STRUCT_PROV['tabbar-cols']` = `{d:[1192,'grid-template-columns:repeat(4,1fr)'],n:[1192,同上]}`（`frontend/src/theme/tokens.js:465`）· `frontend/src/theme/theme-tokens.css:24` `--sf-st-tabbar-cols: 4`。**旧 `SP:169` 的 `repeat(5,1fr)` 逐字保留为历史、不作应用值**（§27.3）。PROV 硬门 `theme-tokens.test.js` 已绿。**④ 几何实测**（§27.4）：390 档 `grid-template-columns` = `97.5px × 4`（= 390/4）、末格贴右、`scrollWidth − clientWidth = 0`；1440 / 1536 档底栏 `display:none` 但 **DOM 仍 4 格**；1536 档浮菜单 `sell` 可见（`w=72 h=92`、`href=/item/new`）。**⑤ i18n 零变更**：本单**零新增 / 零删除**键；现取（`json.load` 逐语）**顶层 `135` / 拍平叶子 `1451` / 四语节点 `5804`（= 1451 × 4）**，四语逐文件相同；**`sell` 键仍在、仍被浮菜单消费**（§27.5）。**⑥ 新教训 `N54`**（STRUCT token 变更：真源新行只追加、旧行留痕不动；§27.8）。**⑦ 留痕（§27.9）** —— `T46` / `T80` / §2 token 表 / §7 几何表 / **v1.5 版本行**的「底栏恒 5 格」与「`卖闲置`→`/listing/new`」表述**自本版起作废**，旧字面**逐字保留**、紧随追加取代行。**⇒ 新增 §27 + 规则 `T123` + 教训 `N54`**。**改前快照** = `docs/versions/design-system.spec.v1.25.md`（`cmp=0`；md5 `ffa8cf62fc1180aec1db8b10dff2df4e`）；**本版镜像** = `docs/versions/design-system.spec.v1.26.md`（落笔后建，`cmp=0`）。**本册 v1.26 只写 `docs/**`：未动 `frontend/**` / `backend-ts/**` / `docs/seafood.master-plan.md`（§5.451 由 Kong 写）/ `docs/route-layer.spec.md`（路由未变）；未启停任何服务、未占端口；未 `git add -A`。现取基线 = HEAD `806ea51`（2026-10-24）。**
 > **★ 现行版 = v1.27（2026-10-24 · Kevin「首页取闲鱼的视觉、不取它的语义欠债」裁定落册 + 闲鱼 `www.goofish.com` 真浏览器实测 · **状态改写式 · 只追加零删行** · 本单只写 `docs/**` 并提交 / push）**：**① 实测（§28.1）** = 首页 `document.title`「🐴 闲鱼 - 闲不住？上闲鱼！」· **`h1` = 0** · **`h1`–`h6` = 0** · 地标 `header` + **两个 `main`**（**无 `nav`**）· 元素 `2648` · 正文 `2581` 字（**非拦截页**：首轮默认 UA 被反爬拦、换正常 UA 后取真 DOM）；详情 `/item?id=765416638957` `title`「zara 2020Collection系列 尺码S_闲鱼」· **`h1` = 0** · **`h1`–`h6` = 0**。**② 裁定（§28.2 逐字）** = 「**本站首页取闲鱼的视觉、不取它的语义欠债**」⇒ 视觉上无页面标题（与闲鱼一致）· **保留 `1×1` 视觉隐藏 `h1`** 作读屏锚点（容器首子 · 文案复用 `t('siteBrand')` · `.sf-visually-hidden` 落 `styles.css` 顶层）· **不得**把【热门任务】`h2` 改 `h1`（撞钩子与探针）。**③ 三条理由（§28.3）** = APP 镜像 / 洪布流无主题可做标题 / `<title>` 接管标题职责 —— **解释「为什么它这样」，不构成「我们也该这样」**。**④ 与本站差异（§28.4）** = 视觉取齐；`h1` 我们 **1**（隐藏）、它 **0**；`h1`–`h6` 我们 `h1` + `h2`×2、它 0；地标我们 `header`+`main`+**`nav`**、它 `header`+`main`×2 无 `nav` ⇒ **皆有意不同**（不以欠债对齐）。**⑤ 新规则 `T125`（§28.5）+ 教训 `N55`（§28.8）+ 判负 6 条（§28.7）**。**⇒ 新增 §28**。**改动 = 版本头（本行）+ §12 表 v1.27 行 + §28（新）**；**改前快照** = `docs/versions/design-system.spec.v1.26.md`（本单开工复核 `cmp` = **0**；md5 `f410b532d6ed86b8c17f6c48079ccb1b`；`4565` 行 / `945,158` B）；**本版镜像** = `docs/versions/design-system.spec.v1.27.md`（落笔后建，`cmp=0`）。**本册 v1.27 只写 `docs/**`：未动 `frontend/**` / `backend-ts/**` / `tools/**` / `ctrl/**` / `docs/design/style-preview.html`（真源零改动）；未启停任何服务、未占端口；未 `git add -A`。现取基线 = HEAD `4169140`（2026-10-24；「首页隐藏 `h1`」实现已在 `4169140` 落地，本笔零代码）。**
 
+> **★ 现行版 = v1.28（2026-10-24 · Kevin「资金余额变动类操作的成功反馈统一用 Toast」裁定落册 · **状态改写式 · 只追加零删行** · 新增 §29 + 规则 `T126` · 本单只写 `docs/**`）**：**① 范围＝仅两类** —— 【**领工资**】与【**任务 / 子任务 / 活动一键领奖**】的成功反馈**统一用 Toast**（顶部轻提示，一句话说清到账金额/次币），**不得**再用模态框、**不得**在卡内/行内再写成功文案；**② 明确不在范围** —— **充值 · 购买 · 订单退款 · 发货 · 收货**一律**仍内联**（逐字照旧，不因本条改形态）；**③ 失败一律仍内联** —— `batt_insufficient` / `nothing_to_claim` / 其他错误、以及登录提示与「加入成功」提示**均不得改 Toast**；**④ 依据** = **Kevin 2026-10-24 裁定**（§29.0 逐条转写）；**⑤ 零新 token / 零新 `STRUCT` / 零新 `PROV` / 零新 i18n 键**（成功文案复用现役键）；实现已在 HEAD 落地（master §5.454 / commit `77da63c`），**本单零代码**。
+
 > **★ v1.10 姊妹册（同批交付）** = `docs/route-layer.spec.md` **v2.28 §38**（`/item` 家族 + 旧路由硬删 + 「前端概念名 ⇄ 后端路径名」映射表）；本册只承载 **形态 / 入口集合 / 可达性 AC / 合并页口径 / i18n 删改留表**，**不重抄**。
 > **v1.5 口径来源（逐字）**：Kevin 2026-10-11 定档 ①方案 A·UI 先行（不动后端）②右悬浮菜单仅桌面档显示、H5 隐藏 ③消息模块占位（后续接驳 X/推特私信）④客服/反馈做弹窗模板位；**＋ Kevin 当日两条连锁更正**（`Zang` 转达）：**(A)** 底栏第二项 = **「市场」→ `/exchange`**（key `shard`，图标 `Store`；**不再新建 `/nearby` 占位页、`nearby` 键不新增**）**(B)** `T76` 去重按新底栏集合重算（**`exchange` 继续排除、`reward`/`task` 恢复**）。
 > 交付物路径：`docs/design/design-system.spec.md`
@@ -4674,3 +4676,37 @@ showEdit     = isAuthenticated && (isOwner || canEditAny) && statusEditable
 - **快照**：`docs/versions/design-system.spec.v1.26.md`（改前 `cmp` = **0**；md5 `f410b532d6ed86b8c17f6c48079ccb1b`；`4565` 行 / `945,158` B）；**本版镜像** = `docs/versions/design-system.spec.v1.27.md`（落笔后建，`cmp=0`）。
 
 ---
+
+---
+
+## §29 ★★ v1.28 · **资金余额变动类操作：成功反馈统一用 Toast**（仅【领工资】＋【任务/子任务/活动一键领奖】）—— 规则 **`T126`**
+
+> **本节读法（状态改写式）**：本节**不改写任何旧行**；与旧条文（三弹窗模板位 / 前端「结果一律内联」类表述）冲突处**以本节为准**，旧字面**逐字保留**（受「只追加 / `git diff --numstat` 删除列 = 0」硬口径约束）。依据 = **Kevin 2026-10-24 裁定**。
+
+### 29.0 裁定口径（Kevin 2026-10-24，逐条转写）
+
+| # | 项 | 口径 |
+|---|---|---|
+| 1 | 适用族 | **资金余额变动类操作** |
+| 2 | 适用清单（**仅两类**） | 【**领工资**】·【**任务 / 子任务 / 活动一键领奖**】 |
+| 3 | 成功反馈形态 | **Toast**（顶部轻提示）：**一句话**说清到账金额 / 次币；**不得**再弹模态框；**不得**在卡内 / 行内再写成功文案（成功只剩这一个出口） |
+| 4 | 不在范围（**仍内联**） | **充值** · **购买** · **订单退款 · 发货 · 收货** —— 形态逐字照旧，不因本条改 |
+| 5 | 失败 | **一律仍内联**（含 `batt_insufficient` / `nothing_to_claim` / 其他错误；登录提示与「加入成功」提示同属内联侧，不改 Toast） |
+
+### 29.1 新规则 `T126`
+
+| 编号 | 口径 | 落点 | 连带影响 |
+|---|---|---|---|
+| **T126** | 【本册裁定 · v1.28】 **资金余额变动类操作的成功反馈统一用 `Toast`（顶部轻提示），范围严格限于【领工资】与【任务 / 子任务 / 活动一键领奖】两类**；成功文案**只经 Toast 一条出口**，成功时**不得**弹模态框、**不得**在卡内或行内再渲染成功节点；**充值 / 购买 / 订单退款 / 发货 / 收货不在本条内、仍用内联**；**失败一律仍内联**（不得改 Toast），失败文案须**说清原因**、不得白屏；Toast 时长取 **5000ms**（文案较长，默认 4s 偏短）。**依据** = Kevin 2026-10-24 裁定。 | `frontend/src/pages/wage/WagePage.jsx`（领工资成功 ⇒ `toast.success`，`WageClaimModal.jsx` 已删）· `frontend/src/pages/campaign/ClaimButton.jsx`（单笔 / 一键全领成功 ⇒ `toast.success`，失败仍内联三支）· `frontend/src/main.jsx`（`<Toaster/>` 顶层挂载，跨路由/卸载存活） | ① 不得为「统一」把失败或其它操作族（充值/购买/订单）一并改 Toast —— **失败仍内联**是硬判据；② 不得新造 i18n 键（成功文案复用 `campaign.claim.ok` / `campaign.claim.allOk` 等现役键）；③ 不得新增 toast 主题 token / CSS 变量（沿用既有 `react-hot-toast` 样式与主题壳）；④ 成功侧**不得**保留「内联成功文案 + Toast」双出口；⑤ 本条**不覆盖**「加入成功」「登录提示」等非资金变动提示（仍内联） |
+
+### 29.2 落点与读数（现取 · 本单零代码）
+
+- **`WagePage.jsx`**：成功 ⇒ `toast.success([主文案, 连续奖励句].filter(Boolean).join(' '), { duration: 5000 })`（**一条** toast）；`claimModal` state 与渲染块撤除 ⇒ `WageClaimModal.jsx` **整件删除**（108 行）；卡内零成功文案。
+- **`ClaimButton.jsx`**：成功 ⇒ `toast.success(t('campaign.claim.ok' | 'campaign.claim.allOk'), { duration: 5000 })`；**删成功后 900ms 延时**（Toast 不随卸载消失 ⇒ `onClaimed` 立即重拉）；失败内联三支原样。
+- **探针读数（本笔现取 · 采信）**：`ops/wage/front/probe-wage.mjs` **exit 0 · 146 判据全 true · `failed = []`**，其中 `claimOk.toastHasBatt` / `countdown.claimOkWithBothCurrencies` / `claimOk.claimModalGone` / `claimFail.noticeErr` 均 true。单测门读数（上一轮实跑）**96 files / 1053 tests / 0 failed** · a11y **16** · components **14** · build **exit 0**（`index--OyWFWGv.js` 667,296 B / `index-DiYi9BAn.css` 188,986 B），四语 flat **1451 × 4**（零增删）。
+
+### 29.3 边界与编号现取
+
+- **本节零删行**：`git diff --numstat docs/design/design-system.spec.md` 删除列 = **0**（本版 = **尾追加** + 版本头追加 1 行）。
+- **未改写面**：`§1–§28` 一字未动；`frontend/**` / `backend-ts/**` 本单**零改动**（实现已在上游 commit `77da63c`）；`docs/design/style-preview.html`（真源）**零改动**（无新 token / `STRUCT` / `PROV`）；i18n 四语 JSON **零键变更**（1451 × 4）。
+- **编号现取**：节号 **`§29`**（现盘最大 `§28`）；规则 **`T126`**（现盘最大**已定义** `T125`；`T124` 仅作前向引用、无条文行）；教训**不新增**（本单无新教训）；版本行 **`v1.28`**（现盘最大 `v1.27`）。
