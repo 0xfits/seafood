@@ -300,6 +300,60 @@ const readCampaign = (page) => page.evaluate(() => {
   }
 })
 
+// ── HDR-1LINE（2026-10-24 · Kevin）· 版块头部「标题 + 说明」同行读数 ─────────────
+/** 两块头部几何：`rect.top` 差（同行判据 ≤2px）+ h2 右缘 < 说明左缘 + 说明字号 14px
+ *  + 右侧 chip 不被挤压（chip 左缘必须在两块文字右缘之外）。 */
+const readHeaderRows = (page) => page.evaluate(() => {
+  const box = (el) => {
+    const r = el.getBoundingClientRect()
+    const f = (n) => Number(n.toFixed(2))
+    return { top: f(r.top), left: f(r.left), right: f(r.right), bottom: f(r.bottom), w: f(r.width), h: f(r.height) }
+  }
+  const one = (h2Sel, leadSel) => {
+    const h2 = document.querySelector(h2Sel)
+    const lead = document.querySelector(leadSel)
+    if (!h2 || !lead) return null
+    const hr = box(h2)
+    const lr = box(lead)
+    const row = h2.parentElement
+    return {
+      tag_h2: h2.tagName,
+      tag_lead: lead.tagName,
+      text_h2: (h2.textContent || '').trim(),
+      text_lead: (lead.textContent || '').trim(),
+      font_h2: getComputedStyle(h2).fontSize,
+      font_lead: getComputedStyle(lead).fontSize,
+      line_height_lead: getComputedStyle(lead).lineHeight,
+      row_class: (row?.className || '').trim(),
+      same_parent: h2.parentElement === lead.parentElement,
+      lead_next_sibling: h2.nextElementSibling === lead,
+      p_in_row: row ? row.querySelectorAll('p').length : -1,
+      h2: hr,
+      lead: lr,
+      top_delta: Number(Math.abs(hr.top - lr.top).toFixed(2)),
+      right_left_ok: hr.right < lr.left,
+      dollar_in_lead: [...lead.querySelectorAll('span')].some((s) => (s.textContent || '').trim() === '$'),
+    }
+  }
+  const chip = document.querySelector('[data-sf-m="home-viewall"]')
+  // 「换了行也算合规」的保守判读：说明整体落到 h2 下一行（顶 >= h2 底 - 2）
+  const wrapped = (r) => Boolean(r) && r.lead.top >= r.h2.bottom - 2
+  const camp = one('[data-sf-m="home-camp"] h2', '[data-sf-m="home-camp-lead"]')
+  const feat = one('[data-sf-m="home-featured-head"] h2', '[data-sf-m="home-featured-lead"]')
+  return {
+    camp,
+    featured: feat,
+    camp_wrapped: wrapped(camp),
+    featured_wrapped: wrapped(feat),
+    chip: chip ? box(chip) : null,
+    doc: {
+      client_width: document.documentElement.clientWidth,
+      scroll_width: document.documentElement.scrollWidth,
+      inner_width: window.innerWidth,
+    },
+  }
+})
+
 // ── 臂 ──────────────────────────────────────────────────────────────────────
 const visibleOf = (rows) => rows.filter((row) => row.status === 'active').slice(0, 5)
 
@@ -605,6 +659,78 @@ async function armChip(browser) {
   }
 }
 
+// ── HDR-1LINE 臂：两块头部「标题 + 说明」同一行（1536 必同行；390 允许换行但零横向溢出）──
+async function armHeader(browser) {
+  const wide = await withPage(browser, VP_WIDE, { homeRows: HOME_ROWS },
+    { path: '/', waitFor: '[data-sf-m="home-camp-lead"]' }, readHeaderRows)
+  const mobile = await withPage(browser, VP_MOBILE, { homeRows: HOME_ROWS },
+    { path: '/', waitFor: '[data-sf-m="home-camp-lead"]' }, readHeaderRows)
+
+  const w = wide.reading
+  const m = mobile.reading
+  const sameLine = (r) => Boolean(r) && r.top_delta <= 2 && r.right_left_ok
+  const blockedOrWrapped = (r, wrapped) => sameLine(r) || (Boolean(r) && wrapped === true)
+  const block = (r) => (r ? {
+    h2_text: r.text_h2,
+    lead_text: r.text_lead,
+    lead_tag: r.tag_lead,
+    lead_font: r.font_lead,
+    top_delta: r.top_delta,
+    h2_right: r.h2.right,
+    lead_left: r.lead.left,
+    same_line: sameLine(r),
+  } : null)
+
+  const chip = w.chip
+  const textRight = Math.max(w.camp?.lead.right ?? 0, w.featured?.lead.right ?? 0, w.camp?.h2.right ?? 0)
+
+  const judgement = {
+    // ① 两块都在场，h2 / 说明**文案不变**（zh 档字面；文案改动 ⇒ 本判据红）
+    both_h2_text: w.camp?.text_h2 === '热门任务' && w.featured?.text_h2 === '精选奖励',
+    both_lead_text: w.camp?.text_lead === '参与任务赚取$' && w.featured?.text_lead === '用$兑换精彩礼品',
+    // ② 说明 = `<span>` + 14px（原 16px 的块级 <p> 已退场）；`$` 仍在说明内
+    lead_is_span_both: w.camp?.tag_lead === 'SPAN' && w.featured?.tag_lead === 'SPAN',
+    lead_font_14_both: w.camp?.font_lead === '14px' && w.featured?.font_lead === '14px',
+    no_p_in_rows: w.camp?.p_in_row === 0 && w.featured?.p_in_row === 0,
+    dollar_in_lead_both: w.camp?.dollar_in_lead === true && w.featured?.dollar_in_lead === true,
+    // ③ 同一行（1536）：h2 与说明 rect.top 差 ≤2px **且** h2 右缘 < 说明左缘
+    camp_same_line: sameLine(w.camp),
+    featured_same_line: sameLine(w.featured),
+    both_same_line: sameLine(w.camp) && sameLine(w.featured),
+    top_delta_within_2px: (w.camp?.top_delta ?? 99) <= 2 && (w.featured?.top_delta ?? 99) <= 2,
+    // ④ 右侧 chip 未被挤压（仍在文字右缘之外，且宽度 > 0）
+    chip_not_squeezed: Boolean(chip) && chip.w > 0 && chip.left >= textRight,
+    // ⑤ 390 档：允许换行，但不得横向溢出、不得文字互相压盖；两块头部不得溢出视口
+    mobile_no_overflow: m.doc.scroll_width <= m.doc.client_width + 1
+      && m.doc.scroll_width <= m.doc.inner_width + 1,
+    mobile_rows_legible: blockedOrWrapped(m.camp, m.camp_wrapped) && blockedOrWrapped(m.featured, m.featured_wrapped),
+    mobile_lead_within_viewport: (m.camp?.lead.right ?? 0) <= m.doc.client_width + 1
+      && (m.featured?.lead.right ?? 0) <= m.doc.client_width + 1,
+    mobile_chip_present: Boolean(m.chip),
+    pageerror_zero: wide.pageErrors.length === 0 && mobile.pageErrors.length === 0
+      && wide.winErrors.length === 0 && mobile.winErrors.length === 0,
+  }
+
+  return {
+    arm: 'header',
+    spec: '两块版块头部 = h2 + 说明并成一行（rect.top 差 ≤2px ∧ h2 右缘 < 说明左缘）；390 允许换行',
+    reading: {
+      vp1536: { camp: block(w.camp), featured: block(w.featured), chip: w.chip, doc: w.doc },
+      vp390: {
+        camp: block(m.camp),
+        featured: block(m.featured),
+        camp_wrapped: m.camp_wrapped,
+        featured_wrapped: m.featured_wrapped,
+        chip: m.chip,
+        doc: m.doc,
+      },
+    },
+    pageerror: [...wide.pageErrors, ...mobile.pageErrors],
+    console_errors: [...wide.consoleErrors, ...mobile.consoleErrors],
+    judgement,
+  }
+}
+
 ;(async () => {
   if (!fs.existsSync(path.join(DIST, 'index.html'))) {
     throw new Error(`dist missing: ${DIST} (run cd frontend && npm run build first)`)
@@ -630,6 +756,7 @@ async function armChip(browser) {
     results.arms.push(await armParity(browser))
     results.arms.push(await armViewports(browser))
     results.arms.push(await armChip(browser))
+    results.arms.push(await armHeader(browser))
   } finally {
     await browser.close()
     await new Promise((resolve) => server.close(resolve))
@@ -665,6 +792,7 @@ async function armChip(browser) {
         vp: c.viewport, cards: c.cards, doc: c.doc, overflow: c.no_page_overflow,
         errs: [c.pageerror.length, c.console_errors.length, c.window_errors.length],
       })),
+      header: results.arms[5]?.reading,
     },
   }, null, 2))
   console.log('READING=' + out)

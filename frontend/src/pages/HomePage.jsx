@@ -480,9 +480,17 @@ const HomePage = () => {
               不加边框/阴影；钩子名 `home-camp` 不变（探针依赖）。 */}
           <section data-sf-m="home-camp" className="bg-gradient-to-r from-yellow-50 to-blue-50 rounded-2xl p-8">
             <div className="flex items-center justify-between mb-6">
-              <div>
+              {/* ★ 2026-10-24（Kevin）：标题与说明**并成一行**（原 h2 + 独立 <p> 两行）。
+                  实现要点：① 同行容器 = `flex flex-wrap items-start gap-2`（`items-start` 使两盒顶边对齐，
+                  探针判据「rect.top 差 ≤2px」由此成立；`items-baseline` 因字号差 24/14 会让顶差 ≈8px，
+                  且本仓库 compat CSS 未登记该工具类）；② 说明降为 `<span>`（块级 <p> 无法同行）
+                  且字号 16→14px（`text-sm`）；③ `flex-wrap` 窄屏自动换行 ⇒ 不挤压右侧 chip；
+                  另加 `flex-1`（basis 0 ⇒ 本行按「剩余宽度」收缩、超宽时行内换行），
+                  实测 390 档若无此项，行 max-content 会把右侧 chip 挤窄 ~2px 令其文字折行（基线 82×33.59）。
+                  文案键 / 层级（仍 h2 + 说明文字）一字未改。 */}
+              <div className="flex flex-wrap items-start gap-2 flex-1">
                 <h2 className="text-2xl font-bold text-gray-900">{t('homePage.hotTasks')}</h2>
-                <p className="text-gray-600">{t('homePage.hotTasksLead')}<span className="text-sm font-bold text-yellow-600 dark:text-yellow-400">$</span></p>
+                <span data-sf-m="home-camp-lead" className="text-sm text-gray-600">{t('homePage.hotTasksLead')}<span className="text-sm font-bold text-yellow-600 dark:text-yellow-400">$</span></span>
               </div>
               <Link className="sf-chip" data-sf-m="home-viewall" to={buildLocalizedPath(lang, '/campaign')}>
                 {/* ★ 2026-10-24（Kevin）二次收口：入口改用**公共 chip 类 `.sf-chip`**
@@ -517,9 +525,12 @@ const HomePage = () => {
 
         <SlideUp delay={400}>
           <section data-sf-m="home-items">
-            <div className="mb-6">
+            {/* ★ 2026-10-24（Kevin）：与【热门任务】同款改造 —— 标题与说明并成一行
+                （`flex flex-wrap items-start gap-2` + 说明降 `<span>` 且 `text-sm`）。
+                本块右侧无 chip ⇒ 不需要 `flex-1` 的收缩保护；窄屏 `flex-wrap` 自动换行。 */}
+            <div data-sf-m="home-featured-head" className="mb-6 flex flex-wrap items-start gap-2">
               <h2 className="text-2xl font-bold text-gray-900">{t('homePage.featuredRewards')}</h2>
-              <p className="text-gray-600">{t('homePage.featuredLead')}<span className="text-sm font-bold text-yellow-600 dark:text-yellow-400">$</span>{t('homePage.featuredTail')}</p>
+              <span data-sf-m="home-featured-lead" className="text-sm text-gray-600">{t('homePage.featuredLead')}<span className="text-sm font-bold text-yellow-600 dark:text-yellow-400">$</span>{t('homePage.featuredTail')}</span>
             </div>
 
             {/* ★ FEED-SORT-v2（2026-10-22 · Kevin）：两标签【推荐】(默认) / 【新发】。

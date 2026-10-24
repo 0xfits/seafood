@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-24T02:55:04.450Z",
+  "at": "2026-10-24T06:25:02.509Z",
   "spec": "HOME-CAMP-v2 · 去 mock 四臂 + T130 chip 臂（`.sf-chip` 形状/选中态/真 hover 抬升 1px）",
   "fixture": {
     "home_rows": 6,
@@ -498,6 +498,104 @@
         "tab_hover_no_color_change": true,
         "no_pageerror": true
       }
+    },
+    {
+      "arm": "header",
+      "spec": "两块版块头部 = h2 + 说明并成一行（rect.top 差 ≤2px ∧ h2 右缘 < 说明左缘）；390 允许换行",
+      "reading": {
+        "vp1536": {
+          "camp": {
+            "h2_text": "热门任务",
+            "lead_text": "参与任务赚取$",
+            "lead_tag": "SPAN",
+            "lead_font": "14px",
+            "top_delta": 0,
+            "h2_right": 180,
+            "lead_left": 188,
+            "same_line": true
+          },
+          "featured": {
+            "h2_text": "精选奖励",
+            "lead_text": "用$兑换精彩礼品",
+            "lead_tag": "SPAN",
+            "lead_font": "14px",
+            "top_delta": 0,
+            "h2_right": 148,
+            "lead_left": 156,
+            "same_line": true
+          },
+          "chip": {
+            "top": 129,
+            "left": 1370,
+            "right": 1452,
+            "bottom": 162.59,
+            "w": 82,
+            "h": 33.59
+          },
+          "doc": {
+            "client_width": 1536,
+            "scroll_width": 1536,
+            "inner_width": 1536
+          }
+        },
+        "vp390": {
+          "camp": {
+            "h2_text": "热门任务",
+            "lead_text": "参与任务赚取$",
+            "lead_tag": "SPAN",
+            "lead_font": "14px",
+            "top_delta": 40,
+            "h2_right": 154,
+            "lead_left": 58,
+            "same_line": false
+          },
+          "featured": {
+            "h2_text": "精选奖励",
+            "lead_text": "用$兑换精彩礼品",
+            "lead_tag": "SPAN",
+            "lead_font": "14px",
+            "top_delta": 0,
+            "h2_right": 122,
+            "lead_left": 130,
+            "same_line": true
+          },
+          "camp_wrapped": true,
+          "featured_wrapped": false,
+          "chip": {
+            "top": 134.2,
+            "left": 250,
+            "right": 332,
+            "bottom": 167.8,
+            "w": 82,
+            "h": 33.59
+          },
+          "doc": {
+            "client_width": 390,
+            "scroll_width": 390,
+            "inner_width": 390
+          }
+        }
+      },
+      "pageerror": [],
+      "console_errors": [],
+      "judgement": {
+        "both_h2_text": true,
+        "both_lead_text": true,
+        "lead_is_span_both": true,
+        "lead_font_14_both": true,
+        "no_p_in_rows": true,
+        "dollar_in_lead_both": true,
+        "camp_same_line": true,
+        "featured_same_line": true,
+        "both_same_line": true,
+        "top_delta_within_2px": true,
+        "chip_not_squeezed": true,
+        "mobile_no_overflow": true,
+        "mobile_rows_legible": true,
+        "mobile_lead_within_viewport": true,
+        "mobile_chip_present": true,
+        "pageerror_zero": true
+      }
     }
   ],
   "judgement_detail": {
@@ -565,6 +663,24 @@
       "tab_hover_lift_both": true,
       "tab_hover_no_color_change": true,
       "no_pageerror": true
+    },
+    "header": {
+      "both_h2_text": true,
+      "both_lead_text": true,
+      "lead_is_span_both": true,
+      "lead_font_14_both": true,
+      "no_p_in_rows": true,
+      "dollar_in_lead_both": true,
+      "camp_same_line": true,
+      "featured_same_line": true,
+      "both_same_line": true,
+      "top_delta_within_2px": true,
+      "chip_not_squeezed": true,
+      "mobile_no_overflow": true,
+      "mobile_rows_legible": true,
+      "mobile_lead_within_viewport": true,
+      "mobile_chip_present": true,
+      "pageerror_zero": true
     }
   },
   "verdict": {
@@ -572,7 +688,8 @@
     "empty": true,
     "parity": true,
     "viewports": true,
-    "chip": true
+    "chip": true,
+    "header": true
   },
   "all_pass": true
 }

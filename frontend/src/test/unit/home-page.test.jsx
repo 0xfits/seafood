@@ -366,6 +366,62 @@ describe('HomePage · 去 animate-fade-in 容器（无包裹层）', () => {
     expect(campSection.querySelector('h2')).not.toBeNull()
   })
 
+  // ==========================================================================
+  // ★ 2026-10-24（Kevin）：【热门任务】/【精选奖励】两版块 = **标题与说明并成一行**
+  //   原结构 = `<h2>` + 独立块级 `<p>`（两行）；新结构 = 同行容器（`flex flex-wrap items-start`）
+  //   内的 `<h2>` + `<span>`（说明 16→14px = `text-sm`）。
+  //   本层判据（jsdom 无布局引擎 ⇒ 几何由 `ops/home/qa/probe-home-campaign.mjs` 真浏览器取证）：
+  //   ① 两块的 h2 与说明**同父**（= 同一行容器），且容器带 `flex` + `flex-wrap`（窄屏可换行）；
+  //   ② 说明仍是「h2 的次位说明」：紧跟 h2、文体 = `<span>` 且不再是 `<p>`（块级 ⇒ 必然两行）；
+  //   ③ 文案键与层级不变：h2 文本 = `hotTasks`/`featuredRewards`，说明文本 = 对应 lead(+tail)，
+  //      且 `$` 符号仍在说明内（R-9-93 的口径不被本改造破坏）。
+  // ==========================================================================
+  it('两版块头部并成一行：h2 与说明同父、说明为 text-sm <span>、文案与层级不变', async () => {
+    const { container } = renderHomePage()
+    await screen.findByRole('heading', { name: i18n.t('homePage.hotTasks') })
+    await screen.findByRole('heading', { name: i18n.t('homePage.featuredRewards') })
+
+    const cases = [
+      {
+        head: '[data-sf-m="home-camp"] [data-sf-m="home-camp-lead"]',
+        title: i18n.t('homePage.hotTasks'),
+        lead: i18n.t('homePage.hotTasksLead'),
+        tail: null,
+      },
+      {
+        head: '[data-sf-m="home-featured-head"] [data-sf-m="home-featured-lead"]',
+        title: i18n.t('homePage.featuredRewards'),
+        lead: i18n.t('homePage.featuredLead'),
+        tail: i18n.t('homePage.featuredTail'),
+      },
+    ]
+
+    for (const c of cases) {
+      const leadEl = container.querySelector(c.head)
+      expect(leadEl, `${c.head} 应在场`).not.toBeNull()
+      const h2 = leadEl.parentElement.querySelector('h2')
+      // ① 同一行容器：h2 与说明同父，容器 flex + flex-wrap（窄屏自动换行，不挤压右侧元素）
+      expect(h2, `${c.head} 所在行应有 h2`).not.toBeNull()
+      expect(leadEl.parentElement).toBe(h2.parentElement)
+      const rowClass = h2.parentElement.className.split(/\s+/)
+      expect(rowClass).toContain('flex')
+      expect(rowClass).toContain('flex-wrap')
+      expect(rowClass).toContain('items-start') // 顶边对齐 ⇒ h2/说明 rect.top 一致（探针 ≤2px 判据的前提）
+      // ② 说明紧随 h2（h2 之后的下一个元素 = 说明），且为 span + text-sm（16→14px）
+      expect(h2.nextElementSibling).toBe(leadEl)
+      expect(leadEl.tagName).toBe('SPAN')
+      expect(leadEl.className.split(/\s+/)).toContain('text-sm')
+      // 块级 <p> 已退场：行内不再有 <p>（否则必然两行）
+      expect(h2.parentElement.querySelectorAll('p')).toHaveLength(0)
+      // ③ 文案与层级不变：h2 内容 = 标题键；说明文本 = lead + `$` + tail
+      expect(h2.textContent.trim()).toBe(c.title)
+      const expected = `${c.lead}$${c.tail ?? ''}`
+      expect(leadEl.textContent.trim()).toBe(expected)
+      const dollar = [...leadEl.querySelectorAll('span')].find((el) => el.textContent.trim() === '$')
+      expect(dollar, '说明内应保留 $ 符号').not.toBeUndefined()
+    }
+  })
+
   it('商品卡根直落网格子项（无中间 wrapper）· 卡结构完整', async () => {
     const { container } = renderHomePage()
     const grid = await waitFor(() => {
