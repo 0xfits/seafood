@@ -82,11 +82,12 @@ describe('① 导航真源：path/route = exchange，key/labelKey 保持 shard',
     expect(shardItem.route).toBe('exchange')
   })
 
-  it('四语标签键取值逐字冻结（t(\'shard\') 值已按 v1.5 §14.10 全站统一为「市场」族）', () => {
-    expect(zh.shard).toBe('市场')
-    expect(hk.shard).toBe('市場')
-    expect(en.shard).toBe('Market')
-    expect(vn.shard).toBe('Chợ')
+  it('四语标签键取值逐字冻结（Kevin 2026-10-24 定稿：「市场」→「海底交易所」，键名不动）', () => {
+    // 前值（v1.5 §14.10「市场」族，2026-10-24 作废留痕）：zh 市场 / hk 市場 / en Market / vn Chợ
+    expect(zh.shard).toBe('海底交易所')
+    expect(hk.shard).toBe('海底交易所')
+    expect(en.shard).toBe('Exchange')
+    expect(vn.shard).toBe('Sàn') // vn：Sàn = 交易所通用简称（正式全称 sàn giao dịch），Kevin 选定单字短版
   })
 
   it('四语前缀下导航 href = 同前缀的 /exchange', () => {

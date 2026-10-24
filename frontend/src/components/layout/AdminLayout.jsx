@@ -78,7 +78,9 @@ const AdminLayout = () => {
       icon: Percent,
       path: '/dashboard/exchange',
       description: t('adminNav.feeRateDesc'),
-      requiredPermission: 'manage_settings',
+      // 2026-10-24 缺陷修正：币种审核 tab 住在交易所管理内 ⇒ 闸必须含 `review_tasks`，
+      // 否则 review_tasks-only 管理员**没有入口**。（数组语义 = 任一命中即可见，见 admin-utils.hasAdminPermission）
+      requiredPermission: ['manage_settings', 'review_tasks'],
     },
     {
       title: t('adminNav.siteText'),
