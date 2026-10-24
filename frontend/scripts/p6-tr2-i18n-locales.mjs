@@ -62,7 +62,7 @@ console.log(`[TR-2] 四语齐备=${badgeOk ? 'PASS' : 'FAIL'}；四语互异取�
 
 const WIRED = [
   'pages/item/ItemDetailPage.jsx',
-  'pages/jobs/JobReviewPage.jsx',
+  // ★ 2026-10-24（Kevin 裁定）：`pages/jobs/JobReviewPage.jsx` 随审核入口下线整页删除 ⇒ 退出清单。
   'pages/market/MarketPage.jsx',
   'pages/ProfilePage.jsx',
 ]

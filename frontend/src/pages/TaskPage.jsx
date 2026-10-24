@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 import { Card, CardContent } from '../components/ui'
 import { LoadingPage } from '../components/ui/Loading'
@@ -10,7 +10,7 @@ import HomeCampaignCard from '../components/campaign/HomeCampaignCard'
 import { fetchHomeCampaignTasks, fetchHomeCurrencies } from '../home-api'
 import { normalizeHomeCampaignRow } from '../home-campaign'
 import { useAuth } from '../auth-context'
-import { buildLocalizedPath, getLanguageFromUrl } from '../utils'
+import { getLanguageFromUrl } from '../utils'
 
 // ============================================================================
 // `/task` · **campaign 任务列表**（Kevin 2026-10-21 裁定：job / 悬赏体系弃用）
@@ -30,8 +30,9 @@ import { buildLocalizedPath, getLanguageFromUrl } from '../utils'
 //     `taskPage.emptyAvailable` / `taskPage.emptyAvailableHint` ⇒ **本页新增 i18n 键只有 1 个**
 //     （`taskPage.moreSubtasks`，四语对称；类型徽标 / 必做小标全部复用既有 `campaign.*` 键）；
 //   · 发布口 `/task/new` 已下线（后端 `POST /api/job` 随 job 体系删除）⇒ 本页**不再有发布入口**；
-//     审核口 `/task/review` 保留（唯一入口 = 页头条按钮）；
-//   · 类名只吃既有 `sf-home-camp-grid` / `sf-home-camp-card`（卡组件自带）+ `sf-jobs*`（页头条），
+//     ★ 审核口（页头条按钮）亦随 Kevin 2026-10-24 裁定整条链路下线（入口 / 路由 / 页面 / 仅它用的
+//       API 层全删；审核动作仍由 `/dashboard` 审核面板承担）⇒ 本页**零入口**、页头只有标题；
+//   · 类名只吃既有 `sf-home-camp-grid` / `sf-home-camp-card`（卡组件自带），
 //     不新造样式层、不改几何。
 // ============================================================================
 
@@ -109,18 +110,6 @@ const TaskPage = () => {
             <h1 className="text-4xl font-bold text-gray-900 mb-4" data-sf-m="task-list-title">
               {t('taskPage.title')}
             </h1>
-            {/* 页头条（沿用 jobs.css 的 `sf-jobs` token 层）：发布口已随 job 体系下线，只留审核口。 */}
-            <div className="sf-jobs" data-sf-m="jobs-nav">
-              <div className="sf-jobs-actions">
-                <Link
-                  className="sf-btn sf-jobs-btn"
-                  to={buildLocalizedPath(lang, '/task/review')}
-                  data-sf-m="jobs-nav-review"
-                >
-                  {t('jobs.review')}
-                </Link>
-              </div>
-            </div>
           </div>
         </FadeIn>
 

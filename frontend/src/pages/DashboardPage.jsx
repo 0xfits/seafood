@@ -109,7 +109,7 @@ const DashboardPage = () => {
   const loadDashboardData = async (user, accessInfo) => {
     const token = getAuthToken(user)
     const authHeaders = token ? { Authorization: `Bearer ${token}` } : {}
-    // ★ S18：队列读口门改「**已登录即可见**」（与 `/task/review` 同口径）；内容过滤唯一真源 = 后端。
+    // ★ S18：队列读口门改「**已登录即可见**」（即原审核队列页同口径，该页 2026-10-24 已下线）；内容过滤唯一真源 = 后端。
     const canReviewTasks = isAuthenticated
 
     // ★ job 下线（2026-10-21）：旧 `GET /api/task/all`（悬赏全表）已随后端删除 ⇒ **本页不再取**。
@@ -251,7 +251,7 @@ const DashboardPage = () => {
   }
 
   const normalizedQuery = reviewQuery.trim().toLowerCase()
-  // ★ S18：队列面板门 = 登录态（与 `/task/review` 同口径）；角色徽标仍按既有权限口径（语义不变）。
+  // ★ S18：队列面板门 = 登录态（即原审核队列页同口径，该页 2026-10-24 已下线）；角色徽标仍按既有权限口径（语义不变）。
   const dashboardRoleLabel = access.is_admin ? t('dashPage.roleAdmin') : hasAdminPermission(access, 'review_tasks') ? t('dashPage.roleReviewer') : t('dashPage.roleStaff')
   const filteredPendingTasks = pendingVerificationTasks.filter((task) => {
     if (!normalizedQuery) return true

@@ -10,7 +10,9 @@
  *      （旧符号 title = `uiCommon.dashJPoints`）。
  *   ④ 文案键 `common.communityPoints` 四语值齐改；键计数（件一值-only 不变 / 件二 +2 jobs 键 ⇒ flat 1041；S5① +3 jobs 键 ⇒ 1044）。
  *
- * 口径：i18n 走真四语表（zh）逐字断言；`auth` / `auth-context` / `admin-utils` / `job-api` 按既有单测口径 mock。
+ * 口径：i18n 走真四语表（zh）逐字断言；`auth` / `auth-context` / `admin-utils` 按既有单测口径 mock。
+ * ★ 2026-10-24：`pages/jobs/job-api` 模块随审核面下线整文件删除 ⇒ 本例原有那条 `vi.mock('../../pages/jobs/job-api', …)`
+ *   （且其 mock 的 `applyToJob` / `submitDeliverable` 早已不是该模块导出）一并清掉。
  */
 import React from 'react'
 import fs from 'node:fs'
@@ -69,7 +71,6 @@ vi.mock('../../auth', () => ({
   getAuthHeaders: vi.fn(() => ({ Authorization: 'Bearer t' })),
   clearAuthSession: vi.fn(),
 }))
-vi.mock('../../pages/jobs/job-api', () => ({ applyToJob: vi.fn(), submitDeliverable: vi.fn() }))
 vi.mock('react-hot-toast', () => ({ default: { error: vi.fn(), success: vi.fn() } }))
 
 import Header from '../../components/Header'

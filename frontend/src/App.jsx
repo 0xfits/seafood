@@ -32,12 +32,12 @@ import CampaignTaskPage from './pages/campaign/CampaignTaskPage'
 // 保留段（wage/task/… 二十一段）在页面自身判别 ⇒ 不渲染项目页、落 catch-all 提示页。
 import ProjectPage from './pages/project/ProjectPage'
 
-// 招工线残留面：`/task/review` = 待审核队列（读 `GET /api/tasklist/pending-verification` +
-// 写 `POST /api/job/:jobId/review`，两口径不变）。
 // ★ 2026-10-21（Kevin 裁定 · job 体系弃用）：发布页 `PublishJobPage`（`/task/new`）与详情页
 //   `JobDetailPage`（`/bounty/:jobId`）**文件与路由一并删除**（后端 `POST /api/job`、`GET /api/task/:tID`、
 //   `POST /api/task-progress/:id/submit` 同批下架）。
-import JobReviewPage from './pages/jobs/JobReviewPage'
+// ★ 2026-10-24（Kevin 裁定）：招工线审核面**整条链路下线**（页头条入口 / 路由 / 页面组件 /
+//   仅它用的 API 接线层全删）⇒ 该 URL 不再存在，落 `task/:taskId` 的纯数字闸 ⇒ 404 提示页；
+//   审核动作仍由 `/dashboard` 审核面板承担（后端读口保留、闲置但无害）。
 // 闲置物品线（**2026-10-11 合并单**：路由家族 `listing*` → `item*`；`RewardPage` 与列表页合并入首页）：
 //   `item/new`（发布，原 `listing/new`）· `item/:itemId`（详情，原 `listing/:listingId`）
 //   · `item`（**同路由 `?id=` 兼容**：无 `/item/:itemId` 段时按 query 的 `id` 渲染详情；两者都无 id ⇒ 重定向首页 `/`）。
@@ -108,17 +108,9 @@ const LangShell = () => {
             `/task` = **campaign 任务列表**（读 `GET /api/home/campaign-tasks`，卡 → `/task/<taskId>`）。
             ★ 发布口 `/task/new` 与其页面文件已删除 ⇒ 该 URL 不再有发布页（落 `task/:taskId` 的
               campaign 任务页判非数字号 ⇒ 404 提示页，见 CampaignTaskPage 的数字号闸）；
-            `/task/review` 保留（待审核队列）。 */}
+            ★ 2026-10-24（Kevin 裁定）：页头条审核入口与其路由整条下线 ⇒ 本路由无任何子静态段。 */}
         <Route path="task" element={<TaskPage />} />
 
-        {/* 招工线残留面（P4-B4c-ii-a · route §4.2 J5）：review ⇒ GET /api/tasklist/pending-verification
-            + POST /api/job/:jobId/review（键服务端派生）。
-            ★ 2026-10-21 路由重切（Kevin 需求①）：`/task/<id>` 归 **campaign 任务页**
-              （`GET /api/campaign/task/:taskId`）；
-            ★ 同日 Kevin 裁定 job 弃用：`/bounty/:jobId`（悬赏详情）与 `/task/new`（发布）**两条都已移除**。
-            静态段优先于动态段（react-router v6 排名）⇒ `/task/review` 不会被 `:taskId` 吃掉；
-            段数不同 ⇒ `task`（列表，1 段）与 `task/:taskId`（2 段）不互吞。 */}
-        <Route path="task/review" element={<JobReviewPage />} />
         {/* 闲置物品线（**2026-10-11 合并单**·路由家族 `listing*` → `item*`；旧 `/reward`、`/listing*` **硬删、不 301**）：
             item/new   ⇒ 发布（原 `listing/new`）；item/:itemId ⇒ 详情（原 `listing/:listingId`）；
             item（无段）⇒ **同路由 `?id=` 兼容**（按 query 的 `id` 渲染详情；两者都无 id ⇒ 组件内 `<Navigate to="/">`）。
@@ -137,7 +129,7 @@ const LangShell = () => {
             读口 `GET /api/campaign/task/:taskId`（公开；30s 缓存；draft 对匿名/非 owner ⇒ 404）；
             页面自身按 404 落提示页、未登录不拦截阅读（公开页、零写口）；非数字号（如已下线的
             `new`）在页内直接判 404 ⇒ 不发请求。
-            与静态段 `task/review` 段值不同 ⇒ 后者排名优先，互不吞。 */}
+            ★ 2026-10-24：审核队列静态段已移除 ⇒ `/task/<x>` 只剩本动态段一条。 */}
         <Route path="task/:taskId" element={<CampaignTaskPage />} />
 
         {/* ★ 2026-10-21（Kevin 裁定 · job 体系弃用）：悬赏详情 `/bounty/:jobId` 路由与

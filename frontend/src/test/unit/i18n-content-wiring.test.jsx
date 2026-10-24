@@ -250,7 +250,7 @@ describe('TR-2 · 静态不变量：新接页面不得用 `??` 取多语列（�
   const LEGACY = []
   const WIRED = [
     'pages/item/ItemDetailPage.jsx',
-    'pages/jobs/JobReviewPage.jsx',
+    // ★ 2026-10-24（Kevin 裁定）：`pages/jobs/JobReviewPage.jsx` 随审核入口下线整页删除 ⇒ 退出清单。
     'pages/market/MarketPage.jsx',
     'pages/ProfilePage.jsx',
     'pages/HomePage.jsx',

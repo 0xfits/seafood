@@ -14,9 +14,9 @@ import './campaign.css'
 // `/task/:taskId` · **campaign 任务页**（Kevin 2026-10-21 需求①）
 // ----------------------------------------------------------------------------
 // 口径（与后端并行单逐条对齐）：
-//   · 路由归属：`/task/<id>` = **campaign task**（活动任务）。`/task`（列表 = campaign 任务列表）
-//     与 `/task/review` 不动（react-router v6 静态段排名优先于动态段 ⇒ 三者互不吞）；
+//   · 路由归属：`/task/<id>` = **campaign task**（活动任务）。`/task`（列表 = campaign 任务列表）不动；
 //     ★ 2026-10-21 Kevin 裁定 job 体系弃用 ⇒ `/bounty/<jobId>`（悬赏详情）与 `/task/new`（发布）已移除，
+//     ★ 2026-10-24 审核队列静态段亦已移除 ⇒ `/task/<x>` 只剩本动态段一条（v6 排名照旧，互不吞）；
 //     本页对**非数字号**直接判 404（`/task/new` 落 `:taskId` 时不再向后端要一个不存在的任务）。
 //   · 读口 = `GET /api/campaign/task/:taskId`（公开；30s 缓存）。行形状：
 //       { task_id, title, description, status, time_start, time_end,

@@ -95,16 +95,18 @@ describe('P6-I18N-LIT-B2 · en 档渲染英文文案（Task / Home / Profile）'
   //   改为 **campaign 任务列表**（读 `GET /api/home/campaign-tasks`，卡 = `HomeCampaignCard`）。
   //   故本例原「副标题 / Available / To claim / Pending Verification / Join now / 翻译中」六处锚点随旧页面
   //   一并删除；新页零新增 i18n 键（标题沿用 `taskPage.title`、空态沿用 `taskPage.emptyAvailable*`、
-  //   页头审核入口沿用 `jobs.review`）⇒ 英文档仍逐字可判。
-  it('TaskPage（/en/task）：标题 / 页头审核入口 / campaign 卡走英文，中文原文与旧 job 面不出现', async () => {
+  //   页头审核入口已于 2026-10-24 整条下线（`jobs.review` 键按「留键不删」口径保留在表里，但页面零引用））
+  //   ⇒ 英文档仍逐字可判：标题与卡走英文，审核钩子零命中。
+  it('TaskPage（/en/task）：标题 / campaign 卡走英文，审核入口钩子零命中，中文原文与旧 job 面不出现', async () => {
     render(<MemoryRouter initialEntries={['/en/task']}><TaskPage /></MemoryRouter>)
 
     expect(await screen.findByText('Bounty Center')).toBeInTheDocument()
-    // 页头唯一入口 = 审核队列（发布口 `/task/new` 已随 job 体系下线）
-    const reviewLink = document.querySelector('[data-sf-m="jobs-nav-review"]')
-    expect(reviewLink).not.toBeNull()
-    expect(reviewLink.getAttribute('href')).toBe('/en/task/review')
-    expect(reviewLink.textContent).toBe('Review queue')
+    // ★ 2026-10-24（Kevin 裁定）：`/task` 页头审核入口整条下线 ⇒ 钩子与文案零命中
+    //   （发布口 `/task/new` 早于 2026-10-21 随 job 体系下线；本页现只剩标题 + 卡）。
+    expect(document.querySelector('[data-sf-m="jobs-nav-review"]')).toBeNull()
+    expect(document.querySelector('[data-sf-m="jobs-nav"]')).toBeNull()
+    expect(screen.queryByText('Review queue')).toBeNull()
+    expect(document.querySelector('a[href="/en/task/review"]')).toBeNull()
     // 卡：campaign 读口行（标题 / 状态 / 参与 / 项目名）走英文键
     expect(screen.getByText('English campaign task')).toBeInTheDocument()
     expect(screen.getByText('Ongoing')).toBeInTheDocument()

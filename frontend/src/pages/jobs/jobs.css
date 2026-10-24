@@ -216,7 +216,7 @@
      · `.sf-layout` —— 主列与侧栏的**共同祖先**；侧栏是 `.sf-layout > .sf-layout-side > .sf-jobs-panel`，
        **不在 `.sf-jobs` 子树内** ⇒ 只挂主列根时侧栏里的 `min-height: var(--sf-j-ctl-h)` 取空值
        ⇒ 回退 `auto`。`/task/new` 发布页已随 job 体系删除（2026-10-21）；`/task`（campaign 任务列表）
-       与 `/task/review` 的侧栏当前无消费者（消费者全扫读数 = 0），但 `.sf-jobs-status` 仍是本文件
+       和审核队列静态段（2026-10-24 已下线）的侧栏当前无消费者（消费者全扫读数 = 0），但 `.sf-jobs-status` 仍是本文件
        既有类，故同一处一并覆盖。 */
 @media (max-width: 767px) {
   .sf-jobs,

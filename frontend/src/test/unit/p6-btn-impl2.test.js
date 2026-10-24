@@ -69,19 +69,20 @@ describe('P6-BTN-IMPL-2 · `.sf-btn` 家族纳入 A 体系', () => {
   //   （返回首页入口挂 `.sf-btn`）⇒ 家族清单 10 ⇒ 11 文件（`≥22 处用法` 不变）。冻结清单随裁定前移。
   // ★ 2026-10-21（Kevin 裁定 · job 体系弃用）：`pages/jobs/JobDetailPage.jsx` + `pages/jobs/PublishJobPage.jsx`
   //   随页删除 ⇒ 家族 11 ⇒ **9 文件**；用法 33 ⇒ **27 处**（删 3 + 3）。
-  it('家族清单现取：9 个 JSX 文件、28 处用法（0076 /exchange 选择页 Link +1），且每处都挂基类 .sf-btn', () => {
+  // ★ 2026-10-24（Kevin 裁定 · 审核入口下线）：`pages/jobs/JobReviewPage.jsx` 随页删除、`pages/TaskPage.jsx`
+  //   的唯一 `.sf-btn`（页头审核 Link）随入口摘除 ⇒ 家族 9 ⇒ **7 文件**；用法 27 → **24 处**。
+  //   清单仍逐文件、逐行现取（每处必须挂基类 `.sf-btn`），断言强度不变、只前移读数。
+  it('家族清单现取：7 个 JSX 文件、24 处用法（每处都挂基类 .sf-btn）', () => {
     expect(inventory.map((e) => e.file).sort()).toEqual([
       'components/RatingTimelinessPanel.jsx',
       'pages/NotFoundPage.jsx',
-      'pages/TaskPage.jsx',
       'pages/ThemePreviewPage.jsx',
       'pages/item/ItemDetailPage.jsx',
       'pages/item/MyOrdersPanel.jsx',
       'pages/item/PublishItemPage.jsx',
-      'pages/jobs/JobReviewPage.jsx',
       'pages/market/MarketPage.jsx',
     ])
-    expect(totalUses).toBe(28)
+    expect(totalUses).toBe(24)
     for (const entry of inventory) {
       for (const hit of entry.hits) expect(hit.text).toMatch(/\bsf-btn\b/)
     }

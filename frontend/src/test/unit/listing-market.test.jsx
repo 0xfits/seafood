@@ -77,7 +77,6 @@ import {
 import HomePage from '../../pages/HomePage'
 import ListingDetailPage from '../../pages/item/ItemDetailPage'
 import MarketPage from '../../pages/market/MarketPage'
-import JobReviewPage from '../../pages/jobs/JobReviewPage'
 
 const bodyOf = (callIndex = 0) => {
   const call = fetchApiJson.mock.calls[callIndex]
@@ -337,40 +336,5 @@ describe('四语 locale（P4-B4c-ii-c ① / ② 新增键）', () => {
       }
       expect(new Set(values).size).toBe(added.length)
     }
-  })
-})
-
-describe('审核面准入（S17a 队列页「已登录即可」；发布页 S18 用例随 job 体系下线删除）', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-    fetchApiJson.mockImplementation(async (url) => (String(url).includes('/api/project/all')
-      ? [{ project_id: '11', owner_uid: 7, status: 'recruiting' }]
-      : []))
-    useAuth.mockReturnValue({ isAuthenticated: true, user: { uID: 7, token: 'test' } })
-  })
-
-  it('S17a 已登录普通发布者（无 review_tasks）：审核页**不再**收敛为无权限 ⇒ 发起队列读（过滤真源在后端）', async () => {
-    // ★ 改前口径（已作废 · S17a 弃用）：非 admin ⇒ `jobs-review-denied` 空态且队列读 0 次。
-    //   S16 后端已把读口准入放宽为「admin（持 review_tasks）∨ 已登录」（非 admin 只返回其
-    //   `job.employer_uid` 命中的 pending 提交）⇒ S17a 前端门同步放开：**已登录即发请求**。
-    hasAdminPermission.mockReturnValue(false)
-    fetchAdminAccess.mockResolvedValue({ is_admin: false, can_access_admin: false, permissions: [] })
-    const { container } = renderPage(<JobReviewPage />, '/task/review')
-    await waitFor(() => expect(callsTo('/api/tasklist/pending-verification').length).toBe(1))
-    expect(container.querySelector('[data-sf-m="jobs-review-denied"]')).toBeNull()
-    // ★ 前端不另写「只看自己的」过滤：请求路径**不带**发布者/雇主参数（过滤唯一真源 = 后端）。
-    expect(String(callsTo('/api/tasklist/pending-verification')[0][0])).toBe('/api/tasklist/pending-verification')
-  })
-
-  // ★ 2026-10-21（Kevin 裁定 · job 体系弃用）：原 S18 两条「发布页（`/task/new`）渲染审核入口链接」用例
-  //   随 `PublishJobPage` 页面与路由一并删除（新页 = campaign 任务列表，审核入口在页头条）。
-  //   审核入口的可达性改由 `task-route-split`（`/task/review` 保留）+ `task-list-page`（页头 `jobs-nav-review`
-  //   链接 → `/task/review`）覆盖 ⇒ 本文件只剩队列页两条。
-
-  it('S17a 已登录 admin（review_tasks）：审核页取队列（零回归）', async () => {
-    hasAdminPermission.mockReturnValue(true)
-    fetchAdminAccess.mockResolvedValue({ is_admin: true, can_access_admin: true, permissions: ['review_tasks'] })
-    renderPage(<JobReviewPage />, '/task/review')
-    await waitFor(() => expect(callsTo('/api/tasklist/pending-verification').length).toBe(1))
   })
 })

@@ -164,11 +164,18 @@ describe('TaskPage · campaign 任务列表', () => {
     expect(fetchSpy).not.toHaveBeenCalled()
     expect(fetchHomeCampaignTasks.mock.calls.every(([user]) => user === null || user === undefined)).toBe(true)
 
-    // 页内链接闭集 = 任务卡（/task/:id）+ 审核口（/task/review）；无发布口、无悬赏详情口
+    // 页内链接闭集 = 只剩任务卡（/task/:id）；无发布口、无悬赏详情口。
     const hrefs = [...container.querySelectorAll('a')].map((a) => a.getAttribute('href'))
     expect(hrefs.some((href) => String(href).includes('/task/new'))).toBe(false)
     expect(hrefs.some((href) => String(href).startsWith('/bounty/'))).toBe(false)
-    expect(hrefs).toContain('/task/review')
+    // ★ 2026-10-24（Kevin 裁定）：审核入口整条下线 ⇒ 页内 href **不含** `/task/review`，
+    //   且页头条钩子 `jobs-nav-review` 零命中（反向下钉，防回潮）。
+    expect(hrefs.some((href) => String(href).includes('/task/review'))).toBe(false)
+    expect(container.querySelector('[data-sf-m="jobs-nav-review"]')).toBeNull()
+    expect(container.querySelector('[data-sf-m="jobs-nav"]')).toBeNull()
+    // 卡链接仍在（正向对照：反向断言不是靠「整页无链接」蒙对）
+    expect(hrefs.length).toBeGreaterThan(0)
+    expect(hrefs.every((href) => String(href).includes('/task/') && !String(href).includes('/task/review'))).toBe(true)
     expect(screen.queryByText('发布悬赏')).toBeNull()
     expect(container.querySelector('[data-sf-m="jobs-form-wrap"]')).toBeNull()
   })

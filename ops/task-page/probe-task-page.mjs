@@ -210,6 +210,9 @@ const SNAP_FN = () => {
     scrollContained: scrollContainers.size, // 诊断：被横滚容器收住的越界元素（非缺陷，仅记账）
     hooks: {
       taskPage: !!q('[data-sf-m="task-page"]'),
+      // ★ 2026-10-24（Kevin 裁定 · 审核入口下线）：`/task` 页头条 `jobs-nav` 整块删除 ⇒
+      //   该页的「自有钩子」改锚为列表根 `task-list`（原以 `jobs-nav` 作 own，删入口后会误红）。
+      taskList: !!q('[data-sf-m="task-list"]'),
       taskPageTask: q('[data-sf-m="task-page"]')?.getAttribute('data-sf-task') || null,
       taskTitle: txt(q('[data-sf-m="task-title"]')),
       taskSubtasks: qa('[data-sf-m="task-subtask"]').length,
@@ -361,13 +364,15 @@ const run = async () => {
 
     // ③ 路由互不吞（★ job 下线后：`/task/new` 发布口与 `/bounty/:id` 详情口已删 ⇒ 两者均落 404 页）
     const routes = {}
-    for (const [url, own, others] of [
-      ['/task', 'jobsNav', ['taskPage', 'jobsFormWrap', 'jobsDetail']],
-      ['/task/new', 'notFound', ['taskPage', 'jobsNav', 'jobsFormWrap', 'jobsDetail']],
-      ['/bounty/9', 'notFound', ['taskPage', 'jobsFormWrap', 'jobsNav']],
-      ['/task/1', 'taskPage', ['jobsNav', 'jobsFormWrap', 'jobsDetail']],
+    for (const [url, own, ownSel, others] of [
+      // ★ 2026-10-24 改锚：`/task` 的 own = `taskList`（原 `jobsNav` 随审核入口下线删除）；
+      //   其余三条的 others 同步把 `taskList` 纳入「不得命中」集（判据强度只增不减）。
+      ['/task', 'taskList', '[data-sf-m="task-list"]', ['taskPage', 'jobsFormWrap', 'jobsDetail', 'jobsNav']],
+      ['/task/new', 'notFound', '[data-sf-m="not-found-page"]', ['taskPage', 'taskList', 'jobsNav', 'jobsFormWrap', 'jobsDetail']],
+      ['/bounty/9', 'notFound', '[data-sf-m="not-found-page"]', ['taskPage', 'taskList', 'jobsFormWrap', 'jobsNav']],
+      ['/task/1', 'taskPage', '[data-sf-m="task-page"]', ['taskList', 'jobsNav', 'jobsFormWrap', 'jobsDetail']],
     ]) {
-      const snap = await open(page, url, null)
+      const snap = await open(page, url, ownSel)
       routes[url] = { own: snap.hooks[own] === true, othersPresent: others.filter((k) => snap.hooks[k] === true) }
     }
     out.states[`${label}_routes`] = routes
@@ -383,7 +388,15 @@ const run = async () => {
     const projectSnap = await open(page, '/sui', '[data-sf-m="project-task-status-toggle"]')
     out.states[`${label}_project`] = projectSnap
     const toggle0 = projectSnap.hooks.projectToggle
-    await page.click('[data-sf-m="project-task-status-toggle"]')
+    // ★ 2026-10-24（本单只做超时兜底，判据不放松）：`project-task-status-toggle` 在前端 src 已不存在
+    //   （`project-publish.test.jsx:467/:519` 断言该钩子 0 处）⇒ 本臂的「上线」点击为**预存在失效**，
+    //   与审核入口下线无关。硬等 30s 会把整支探针炸掉（JSON 不落盘）⇒ 改为 3s 短超时捕获，
+    //   本臂仍按 `toggleRenderedBefore=false` 判红（结果如实登记，不掩盖）。
+    try {
+      await page.click('[data-sf-m="project-task-status-toggle"]', { timeout: 3000 })
+    } catch {
+      out.states[`${label}_projectToggleMissing`] = true
+    }
     await page.waitForTimeout(400)
     await settle(page)
     const afterProject = await page.evaluate(SNAP_FN)
