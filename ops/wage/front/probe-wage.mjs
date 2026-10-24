@@ -19,6 +19,16 @@
  *      行有 `avatar_url` ⇒ `<img src>`（`object-fit:cover`、`alt=""`），无 ⇒ 项目名首字 + `data-sf-tone`
  *      （档位 = 前端唯一真源 `avatarToneOf(name)`，1..10）；标题 `min-width:0` + ellipsis ⇒ 卡头不因头像折行；
  *      1536 / 390 两档尺寸/圆形/档位稳定、零横向溢出、零 pageerror。
+ *   ⑧ 顶部两列 + 当前项目卡 + 卡等高 + 铸造入口（Kevin 2026-10-24）：
+ *      顶部**两列** = 左电量卡（`wage-checkin`，锚 `batt-checkin` 不动）/ 右当前项目卡（`wage-current`，
+ *      固定 320px，承载工资标准 / 名额 / 倒计时 / 领工资钮 `wage-current-claim`）；无已加入 ⇒ 灰态占位
+ *      `wage-current-empty`（文案 = `wage.currentEmpty`）；≤767 上下堆叠且**当前项目卡在前**。
+ *      已加入项目**从下方 `wage-list` 网格移出**（网格 9 张、页面卡总数仍 10）。
+ *      `.sf-wage-card` 同行等高（组内极差 ≤1px）+ 描述固定 3 行截断（`-webkit-line-clamp:3`）。
+ *      铸造入口 `wage-mint`：canMint=false ⇒ 可见置灰（`disabled` + `aria-disabled=true`）+ 缺口
+ *      `wage-mint-shortfall`（「还差 30 电量」）；canMint=true ⇒ 可点，点 ⇒ 1 笔 POST + Toast「铸造成功」
+ *      （3s 后仍在场）+ 卡内零成功文案；写口失败 ⇒ 卡内内联 `wage-mint-err`、无成功 Toast。
+ *      两档（1536 / 390）零横向溢出、零 pageerror。
  *
  * 手法（同 ops/v119-msg-panel 体例）：
  *   · 静态服务 = context.route 把 http://sf.local/** 映射到磁盘 dist（零 dev server）；
@@ -105,6 +115,8 @@ const STATE = {
   countdownMs: 0, // > 0 ⇒ 101 行按「现在 + N ms」透出 next_claim_at（倒计时臂）
   afterClaimNextAt: null, // 领工资成功 ⇒ 刷新后的行带上这个 next_claim_at（验「刷新拿新时间」）
   anon: false, // true ⇒ 三键（my_role/my_hired_at/next_claim_at）整键缺省（匿名臂）
+  battCanMint: false, // true ⇒ /api/batt 的 bttc.canMint = true（铸造可点臂）
+  mintFail: false, // true ⇒ POST /api/bttc/mint 回失败（卡内内联臂）
   userPayload: { uID: 970213 }, // GET /api/user 载荷（编辑三臂切换 admin 三键；fetchApiJson 取 data）
   patches: [], // PATCH /api/project/:id 载荷留痕（断言「只含变化字段」）
   rows: ROWS.map((r) => ({ ...r })),
@@ -156,7 +168,7 @@ const apiResponse = (method, pathname, rawBody) => {
     return ok({
       batt: 70, capBatt: 100, floorBatt: 0, acceptThresholdBatt: 50, canAccept: true,
       bttc: {
-        balance: '12', status: 'listed', canMint: false, canBurn: false, usdBalance: '5',
+        balance: '12', status: 'listed', canMint: STATE.battCanMint === true, canBurn: false, usdBalance: '5',
         policy: { mintBattCost: 100, mintFeeUsd: 1, burnBttcCost: 1, burnFeeUsd: 1 },
       },
     })
@@ -164,6 +176,14 @@ const apiResponse = (method, pathname, rawBody) => {
   if (pathname === '/api/checkin') {
     STATE.calls.push({ method, path: pathname })
     return ok({ streakDay: 3, streakCapDays: 7, checkedInToday: false, canMakeup: false, makeupCostUsd: '1' })
+  }
+  // 铸造写口（Kevin 2026-10-24 需求D）：成功臂只记调用；失败臂按真契约回 success:false。
+  if (pathname === '/api/bttc/mint' && method === 'POST') {
+    STATE.calls.push({ method, path: pathname })
+    if (STATE.mintFail) {
+      return { success: false, error: { code: 'BTTC_MINT_INSUFFICIENT', details: { reason: 'mint_insufficient' } } }
+    }
+    return ok({ minted: '1' })
   }
   const claim = pathname.match(/^\/api\/project\/(\d+)\/claim$/)
   if (claim && method === 'POST') {
@@ -285,9 +305,62 @@ const SNAP_FN = `(() => {
       minDaysHint: qa('[data-sf-edit-hint="minDays"]').length,
       option365: qa('option[value="365"]').length,
     },
+    // ★ 2026-10-24 需求A：顶部两列几何（左电量卡 / 右当前项目卡 320px；无加入 ⇒ 灰态占位）
+    top: (() => {
+      const box = q('[data-sf-m="wage-top"]')
+      const ci = q('[data-sf-m="wage-checkin"]')
+      const cur = q('[data-sf-m="wage-current"]')
+      const emp = q('[data-sf-m="wage-current-empty"]')
+      const rb = (el) => {
+        if (!el) return null
+        const r = el.getBoundingClientRect()
+        return {
+          top: Math.round(r.top * 10) / 10, bottom: Math.round(r.bottom * 10) / 10,
+          left: Math.round(r.left * 10) / 10, right: Math.round(r.right * 10) / 10,
+          w: Math.round(r.width * 10) / 10, h: Math.round(r.height * 10) / 10,
+        }
+      }
+      const ciR = rb(ci)
+      const curR = rb(cur || emp)
+      return {
+        present: !!box,
+        checkin: ciR,
+        current: curR,
+        currentEmpty: !!emp,
+        currentEmptyText: emp ? txt(q('[data-sf-m="wage-current-empty-text"]')) : null,
+        currentProject: cur ? cur.getAttribute('data-sf-project') : null,
+        sameRow: !!(ciR && curR) && Math.abs(ciR.top - curR.top) <= 2,
+        currentRightOfCheckin: !!(ciR && curR) && curR.left >= ciR.right - 1,
+        stackedCurrentFirst: !!(ciR && curR) && curR.top <= ciR.top + 1 && curR.bottom <= ciR.top + 2,
+        currentWidth: curR ? curR.w : null,
+        boxOverflow: box ? box.scrollWidth - box.clientWidth : null,
+      }
+    })(),
+    // ★ 2026-10-24 需求D：铸造入口两态（可见置灰 + 缺口 / 可点 + Toast 成功、失败卡内内联）
+    mint: (() => {
+      const btn = q('[data-sf-m="wage-mint"]')
+      const area = q('[data-sf-m="wage-mint-area"]')
+      const short = q('[data-sf-m="wage-mint-shortfall"]')
+      const err = q('[data-sf-m="wage-mint-err"]')
+      return {
+        present: !!btn,
+        areaPresent: !!area,
+        text: txt(btn),
+        disabled: btn ? btn.disabled === true : null,
+        ariaDisabled: btn ? btn.getAttribute('aria-disabled') : null,
+        canMintFlag: btn ? btn.getAttribute('data-sf-can-mint') : null,
+        h: btn ? Math.round(btn.getBoundingClientRect().height * 10) / 10 : null,
+        shortfallText: short ? txt(short) : null,
+        shortfallBatt: short ? txt(q('[data-sf-m="wage-mint-shortfall-batt"]')) : null,
+        shortfallUsd: short ? txt(q('[data-sf-m="wage-mint-shortfall-usd"]')) : null,
+        errText: err ? txt(err) : null,
+      }
+    })(),
     cards: cards.map((c) => {
       const st = c.querySelector('[data-sf-m="wage-card-status"]')
-      const act = c.querySelector('[data-sf-m="wage-card-action"]')
+      // ★ 2026-10-24：当前项目卡（wage-current）的领工资钮钩子 = wage-current-claim，
+      //   wage-list 网格卡仍是 wage-card-action ⇒ 读数取两钩子并集（同一套字段，判据不放松）。
+      const act = c.querySelector('[data-sf-m="wage-card-action"], [data-sf-m="wage-current-claim"]')
       const hint = c.querySelector('[data-sf-m="wage-card-hint"]')
       const extra = c.querySelector('[data-sf-m="wage-card-wage-extra"]')
       const notice = c.querySelector('[data-sf-m="wage-card-notice"]')
@@ -308,6 +381,9 @@ const SNAP_FN = `(() => {
         : null
       const tR = ttl ? ttl.getBoundingClientRect() : null
       const tCs = ttl ? getComputedStyle(ttl) : null
+      const desc = c.querySelector('[data-sf-m="wage-card-desc"]')
+      const dCs = desc ? getComputedStyle(desc) : null
+      const dR = desc ? desc.getBoundingClientRect() : null
       const r = c.getBoundingClientRect()
       const cs = getComputedStyle(c)
       const tint = getComputedStyle(c, '::before')
@@ -379,6 +455,17 @@ const SNAP_FN = `(() => {
         borderLeftColor: cs.borderLeftColor,
         tintBg: tint.backgroundColor,
         tintOpacity: tint.opacity,
+        // ★ 2026-10-24：卡所在容器（顶部当前项目卡 / 下方网格）+ 卡高 + 描述 3 行截断读数
+        scope: c.closest('[data-sf-m="wage-current"]') ? 'current' : 'list',
+        top: Math.round(r.top * 10) / 10,
+        h: Math.round(r.height * 10) / 10,
+        desc: {
+          h: dR ? Math.round(dR.height * 10) / 10 : null,
+          lineClamp: dCs ? String(dCs.webkitLineClamp || '') : null,
+          lineHeight: dCs ? Math.round(parseFloat(dCs.lineHeight) * 10) / 10 : null,
+          overflow: dCs ? dCs.overflow : null,
+          boxOrient: dCs ? String(dCs.webkitBoxOrient || '') : null,
+        },
       }
     }),
   }
@@ -495,12 +582,14 @@ async function main() {
     cardPresent: ci.hasCard === true && ci.cardId === 'batt-checkin',
     meterPresent: ci.hasMeter === true,
     meterHasBattText: /70/.test(ci.meterText || ''),
-    // ★ 签到 UI 下线订正（Kevin 2026-10-20 需求③ · 已随 c5fb450 落库；BTTC 铸/解迁 /profile/assets）：
-    //   卡面 = 电量表独存，【签到】/【铸造】/【分解】一律零在场（反向断言 = 不得回归）；
+    // ★ 签到 UI 下线订正（Kevin 2026-10-20 需求③ · 已随 c5fb450 落库；BTTC 铸/解迁 /profile/assets）；
+    //   2026-10-24 需求A/D 再订正：卡内在**电量表之外**只恢复【铸造】这一个动作钮（不是整块资产面板）——
+    //   ⇒ 判据由「零按钮」改为「按钮集恰好 = {铸造}」，且【签到】/【分解】零在场（旧 UI 仍不得回归）。
     //   读口 = /api/batt 在用、/api/checkin 零调用（UI 下线 ⇒ 不再读）。
-    //   HEAD 探针对拍证据：/tmp/probe-head-result.json 同此 3 键红（判据早于契约变更，非本单引入）。
-    checkinUiRetired: (ci.buttonTexts || []).length === 0 && ci.hasMeter === true,
-    mintAreaRetired: (ci.buttonTexts || []).length === 0,
+    //   键名随口径同步更名（判据数不减：原 2 键 → 本组 2 键 + mintEntry 组 8 键）。
+    checkinHostsMintOnly: (ci.buttonTexts || []).length === 1
+      && ci.buttonTexts[0] === ZH.bttcPanel.mintButton && ci.hasMeter === true,
+    checkinRetiredUiAbsent: (ci.buttonTexts || []).every((x) => !/签到|分解/.test(x || '')),
     battReadWired: STATE.calls.some((c) => c.path === '/api/batt') && !STATE.calls.some((c) => c.path === '/api/checkin'),
     listBelowCheckin: ci.listPresent === true && ci.cardBottom !== null && ci.listTop !== null && ci.cardBottom <= ci.listTop,
     gapPx: ci.cardBottom !== null && ci.listTop !== null ? Math.round((ci.listTop - ci.cardBottom) * 10) / 10 : null,
@@ -595,6 +684,15 @@ async function main() {
   out.assertions.list.fullCardDisabledWithHint = Boolean(
     byIdFull['107'] && byIdFull['107'].actionDisabled === true && byIdFull['107'].hint === ZH.wage.full
   )
+  // ★ 2026-10-24 需求A 空态：无已加入项目 ⇒ 右列渲灰态占位 `wage-current-empty`（不渲染动作卡）
+  out.states['1536_current_empty'] = fullSnap.top
+  out.assertions.topLayout = {
+    emptyPlaceholderWhenNoHired: fullSnap.top.currentEmpty === true
+      && fullSnap.top.currentProject === null
+      && fullSnap.top.currentEmptyText === ZH.wage.currentEmpty
+      && fullSnap.top.sameRow === true,
+  }
+
   // ★ 未在职臂（新契约的正向面）：无人在职 ⇒ 招募中的卡**全部**有【加入】+ 页头那句提示在场。
   //   计数 = 8（101..107 + 110 全是 `status=recruiting`；107 已招满 ⇒ 钮在但 disabled 并挂「已招满」，
   //   已截止的 108/109 零动作按钮）。判据取**整页计数**（不按卡白名单），漏一张即红。
@@ -753,6 +851,118 @@ async function main() {
   }
   STATE.claimFail = false
 
+  // ================= ③-e 顶部两列 / 铸造入口 / 卡等高（Kevin 2026-10-24 需求 A·C·D）========
+  // A. 顶部两列：左 = 电量卡（`wage-checkin`）、右 = 当前项目卡（`wage-current`，320px）——
+  //    断言同行（top 差 ≤ 2px）、右卡在左卡之右、宽 320±1、承载的正是已加入的 101；
+  //    已加入项目**从下方网格移出** ⇒ `wage-list` 卡 = 9 张（页面卡总数仍 10）；
+  // C. 卡尺寸规范：同一行卡等高（组内高度极差 ≤ 1px）+ 描述固定 3 行截断
+  //    （`-webkit-line-clamp:3` + `overflow:hidden` + 实测高度 ≈ 3 行高）；
+  // D. 铸造两态：canMint=false ⇒ 可见置灰（disabled + aria-disabled=true）+ 缺口「还差 30 电量」；
+  //    canMint=true ⇒ 可点（未置灰、无缺口）；点 ⇒ 恰好 1 笔 POST + Toast「铸造成功」（3s 后仍在场，
+  //    对应 duration 5000）+ 卡内零成功文案；失败 ⇒ 卡内内联 `wage-mint-err` 且无成功 Toast。
+  STATE.battCanMint = false
+  STATE.calls.length = 0
+  const topSnap = await open('/wage')
+  out.states['1536_top'] = {
+    top: topSnap.top,
+    mint: topSnap.mint,
+    scopes: topSnap.cards.map((c) => `${c.project}:${c.scope}`),
+    heights: topSnap.cards.map((c) => `${c.project}:${c.h}`),
+  }
+  const scopeOf = (s, p) => (s.cards.find((c) => c.project === p) || {}).scope || null
+  // 同行卡等高：按 top 分桶（同桶 = 同一行），组内高度极差 ≤ 1px
+  const rowsEqual = (s) => {
+    const byRow = new Map()
+    for (const c of s.cards) {
+      if (c.scope !== 'list') continue
+      const key = String(Math.round(c.top))
+      byRow.set(key, [...(byRow.get(key) || []), c.h])
+    }
+    const groups = [...byRow.values()]
+    return groups.length >= 2 && groups.every((hs) => Math.max(...hs) - Math.min(...hs) <= 1)
+  }
+  const descCard = topSnap.cards.find((c) => c.scope === 'list' && c.desc && c.desc.h > 0)
+  out.assertions.topLayout = {
+    twoColumnsSameRow: topSnap.top.present === true && topSnap.top.sameRow === true
+      && topSnap.top.currentRightOfCheckin === true,
+    currentWidth320: topSnap.top.currentWidth !== null && Math.abs(topSnap.top.currentWidth - 320) <= 1,
+    currentHostsHired: topSnap.top.currentProject === '101' && scopeOf(topSnap, '101') === 'current',
+    hiredMovedOutOfGrid: topSnap.cards.filter((c) => c.scope === 'list').length === 9
+      && scopeOf(topSnap, '101') === 'current',
+    pageCardCount10: topSnap.cards.length === 10,
+    zeroOverflowTop: topSnap.top.boxOverflow === 0,
+    ...out.assertions.topLayout,
+  }
+  out.assertions.equalHeight = {
+    gridRowsEqual1536: rowsEqual(topSnap),
+    descClamp3: Boolean(descCard && descCard.desc.lineClamp === '3' && descCard.desc.overflow === 'hidden'),
+    descExactly3Lines: Boolean(descCard && descCard.desc.lineHeight > 0
+      && Math.abs(descCard.desc.h - 3 * descCard.desc.lineHeight) <= 2),
+    cardHeightUniform: new Set(topSnap.cards.filter((c) => c.scope === 'list').map((c) => c.h)).size === 1,
+  }
+  // —— 铸造·不可点臂（默认夹具 batt 70 < mintBattCost 100、$5 ≥ fee $1 ⇒ 只缺电量 30）——
+  const mint0 = topSnap.mint
+  await page.evaluate(() => {
+    const b = document.querySelector('[data-sf-m="wage-mint"]')
+    if (b) b.click()
+  })
+  await settle(page)
+  out.assertions.mintEntry = {
+    visibleDisabled: mint0.present === true && mint0.disabled === true
+      && mint0.ariaDisabled === 'true' && mint0.canMintFlag === '0',
+    shortfallShown: /还差/.test(mint0.shortfallText || '') && /30/.test(mint0.shortfallBatt || ''),
+    shortfallUsdNone: mint0.shortfallUsd === null,
+    zeroPostWhenDisabled: STATE.calls.filter((c) => /\/api\/bttc\/mint$/.test(c.path)).length === 0,
+  }
+  // —— 铸造·可点臂（canMint=true）——
+  STATE.battCanMint = true
+  STATE.calls.length = 0
+  const mintOnSnap = await open('/wage')
+  const mintOn = mintOnSnap.mint
+  out.states['1536_mint_enabled'] = mintOn
+  out.assertions.mintEntry.enabledWhenCanMint = mintOn.present === true && mintOn.disabled === false
+    && mintOn.ariaDisabled === 'false' && mintOn.canMintFlag === '1' && mintOn.shortfallText === null
+  // 桌面档按钮高 ≥32px（44px 触摸下限是移动档判据 ⇒ geometry.mintTouch390）
+  out.assertions.mintEntry.tapHeightDesktop = mintOn.h !== null && mintOn.h >= 32
+  await page.evaluate(() => {
+    const b = document.querySelector('[data-sf-m="wage-mint"]')
+    if (b) b.click()
+  })
+  await page.waitForFunction(() => {
+    const t = document.querySelector('[data-rht-toaster] [role="status"]')
+    return !!t && /铸造成功/.test(t.textContent || '')
+  }, null, { timeout: 8000 }).catch(() => {})
+  await settle(page)
+  const mintAfter = await page.evaluate(SNAP_FN)
+  const mintPosts = STATE.calls.filter((c) => /\/api\/bttc\/mint$/.test(c.path)).length
+  await page.waitForTimeout(3000)
+  const mintLate = await page.evaluate(SNAP_FN)
+  out.states['1536_mint_success'] = {
+    toasts: mintAfter.toasts,
+    toastsAfter3s: mintLate.toasts,
+    posts: mintPosts,
+    mintErr: mintAfter.mint.errText,
+  }
+  out.assertions.mintEntry.successPostCount1 = mintPosts === 1
+  out.assertions.mintEntry.successToast = mintAfter.toasts.some((x) => /铸造成功/.test(x || ''))
+  out.assertions.mintEntry.toastPersists3s = mintLate.toasts.some((x) => /铸造成功/.test(x || ''))
+  out.assertions.mintEntry.noInlineOkInCard = mintAfter.mint.errText === null
+  // —— 铸造·失败臂（写口回 success:false）⇒ 卡内内联、无成功 Toast ——
+  STATE.mintFail = true
+  STATE.calls.length = 0
+  await open('/wage')
+  await page.evaluate(() => {
+    const b = document.querySelector('[data-sf-m="wage-mint"]')
+    if (b) b.click()
+  })
+  await page.waitForFunction(() => !!document.querySelector('[data-sf-m="wage-mint-err"]'), null, { timeout: 6000 }).catch(() => {})
+  await settle(page)
+  const mintFailSnap = await page.evaluate(SNAP_FN)
+  out.states['1536_mint_fail'] = { mint: mintFailSnap.mint, toasts: mintFailSnap.toasts }
+  out.assertions.mintEntry.failureInline = Boolean(mintFailSnap.mint.errText)
+    && !mintFailSnap.toasts.some((x) => /铸造成功/.test(x || ''))
+  STATE.mintFail = false
+
   // ============================ ④ 两档几何 / pageerror =============================
   const geoSnaps = {}
   for (const [label, width, height] of [['390', 390, 844], ['1536', 1536, 960]]) {
@@ -771,6 +981,10 @@ async function main() {
       checkinAboveList: snap.checkin.cardBottom !== null && snap.checkin.listTop !== null
         && snap.checkin.cardBottom <= snap.checkin.listTop,
       checkinButtons: snap.checkin.buttonTexts,
+      // ★ 2026-10-24：顶部两列（1536 同行 / 390 堆叠且当前项目卡在前）+ 铸造入口
+      top: snap.top,
+      mint: snap.mint,
+      scopes: snap.cards.map((c) => `${c.project}:${c.scope}`),
       // ★ 2026-10-22 卡头头像（两档读数留证）：形态 / 尺寸 / 档位
       avatarModes: snap.cards.map((c) => `${c.project}:${c.avatar.mode}`),
       avatarSizes: [...new Set(snap.cards.map((c) => `${c.avatar.w}x${c.avatar.h}`))],
@@ -795,6 +1009,16 @@ async function main() {
       && out.states['390_geometry'].checkinRight <= 390,
     checkin1536: out.states['1536_geometry'].checkinPresent === true
       && out.states['1536_geometry'].checkinAboveList === true,
+    // ★ 2026-10-24：两档顶部两列 —— 1536 同行（右卡在右）、390 上下堆叠且当前项目卡在前；零溢出
+    topSameRow1536: out.states['1536_geometry'].top.sameRow === true
+      && out.states['1536_geometry'].top.currentRightOfCheckin === true,
+    topStackedCurrentFirst390: out.states['390_geometry'].top.sameRow === false
+      && out.states['390_geometry'].top.stackedCurrentFirst === true,
+    topZeroOverflow390: out.states['390_geometry'].top.boxOverflow === 0,
+    topCurrentWithinViewport390: out.states['390_geometry'].top.current !== null
+      && out.states['390_geometry'].top.current.right <= 390,
+    mintTouch390: out.states['390_geometry'].mint.present === true
+      && out.states['390_geometry'].mint.h >= 44,
     zeroPageErrors: pageErrors.length === 0,
     // ★ 已加入卡两档都可辨（底色/描边与普通卡 computed 值不同）
     joinedDistinct390: out.states['390_geometry'].joinedCards === 1
@@ -1152,7 +1376,7 @@ async function main() {
     'menu.fiveItems', 'menu.noFeedback', 'menu.firstIsWage', 'menu.orderMatches', 'menu.dividers4',
     'checkin.wrapperPresent', 'checkin.cardPresent', 'checkin.meterPresent', 'checkin.meterHasBattText',
     // 签到 UI 下线订正（c5fb450 契约）：三键 1:1 更名，判据数不减（语义随契约订正，反向断言加严）
-    'checkin.checkinUiRetired', 'checkin.mintAreaRetired', 'checkin.battReadWired',
+    'checkin.checkinHostsMintOnly', 'checkin.checkinRetiredUiAbsent', 'checkin.battReadWired',
     'checkin.listBelowCheckin', 'checkin.cardsStillListed', 'checkin.zeroOverflow',
     'hashDeepLink.cardPresent', 'hashDeepLink.cardInViewport', 'hashDeepLink.listStillBelow',
     'activitiesGone.pathnameIsActivities', 'activitiesGone.noActivitiesPageHook',
@@ -1210,6 +1434,18 @@ async function main() {
     'avatar.avatarTitleSingleLine', 'avatar.avatarInsideCardBoth',
     'avatar.avatarZeroOverflow390', 'avatar.avatarZeroOverflow1536', 'avatar.avatarCardCountBoth',
     'avatar.zeroPageErrors',
+    // ⑧ 顶部两列 / 卡等高 / 铸造入口（Kevin 2026-10-24 需求 A·C·D）
+    'topLayout.twoColumnsSameRow', 'topLayout.currentWidth320', 'topLayout.currentHostsHired',
+    'topLayout.hiredMovedOutOfGrid', 'topLayout.pageCardCount10', 'topLayout.zeroOverflowTop',
+    'topLayout.emptyPlaceholderWhenNoHired',
+    'equalHeight.gridRowsEqual1536', 'equalHeight.descClamp3', 'equalHeight.descExactly3Lines',
+    'equalHeight.cardHeightUniform',
+    'mintEntry.visibleDisabled', 'mintEntry.shortfallShown', 'mintEntry.shortfallUsdNone',
+    'mintEntry.zeroPostWhenDisabled', 'mintEntry.enabledWhenCanMint', 'mintEntry.tapHeightDesktop',
+    'mintEntry.successPostCount1', 'mintEntry.successToast', 'mintEntry.toastPersists3s',
+    'mintEntry.noInlineOkInCard', 'mintEntry.failureInline',
+    'geometry.topSameRow1536', 'geometry.topStackedCurrentFirst390', 'geometry.topZeroOverflow390',
+    'geometry.topCurrentWithinViewport390', 'geometry.mintTouch390',
   ]
   const verdicts = required.map((key) => {
     const [group, field] = key.split('.')
