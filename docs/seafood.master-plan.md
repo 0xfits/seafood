@@ -7,6 +7,7 @@
 > ★ **版本行 = `v0.388`（2026-10-24）** —— **【我的邀请】上线**（用户自助绑定邀请人：两端口 `GET /api/referral/me` + `POST /api/referral/bind` ＋ 前端路由 `/profile/invite` ＋ OTP 6 格输入形态；一次性、不可改绑；`depth` 由 DB 触发器算、`create_key` 只校验不消费）；三段摘要见 **§5.469**，契约见 `route-layer.spec` **v2.55 §49.27** + `design-system.spec` **v1.38 §39（`T138`）**
 > ★ **版本行 = `v0.389`（2026-10-24）** —— **Toast 双轨**（Kevin 裁定）：普通提示类 + 余额减少类 toast **一字不改**（右上角 / `<Toaster position="top-right" />` 不动）；**余额增加类**成功反馈**统一走单一出口 `toastCredit`**（`frontend/src/toast-credit.js` ⇒ `position:'top-center'` · `duration:5000` · `className:'sf-toast-credit'` · `18px` · `marginTop:32vh`），归类**恰 5 处 / 6 个调用点** = 领工资 · 领奖（一键全领 / 单笔）· 铸造 · 退款到账 · 确认收货；层级 = 强化档在场时容器 **50 < 模态框 60**，普通档仍 9999（`:has()` 定向）；**零新 token / 零新 i18n 键 / 零后端**。三段摘要见 **§5.470**，形态契约见 `design-system.spec` **v1.39 §40（`T139`）**
 > ★ **版本行 = `v0.390`（2026-10-24）** —— **「币种管理」tab 实现落地**（交易所管理第④面接上前端路由 `/dashboard/exchange/currency-status`，闸 `manage_settings`；四态按钮矩阵以 `T135-b` 为准 —— **`draft` 行只渲「下架」**、不渲必 409 的「上市」并就地一句只读提示；`$` 行零可点控件；危险动作二次确认；成功默认 toast、失败内联）；三段摘要见 **§5.471**，契约见 `route-layer.spec` **v2.56 §49.28** + `design-system.spec` **§36.8**（就地追加实现落地段，不升版）
+> ★ **版本行 = `v0.391`（2026-10-24）** —— **货币文案「单位紧贴数量、无空格连写」定稿**（`⚡️`/币种符号/`J` 一律**单位在前 + 数量在后 + 零空格**；`{{amount}} {{symbol}}`、`{{price}} J`、`{{amount}} 积分`、`⚡️ {{batt}}` 全废）；唯一豁免 = **非货币量词**（`{{hours}} 小时` / `{{n}} 项` / `#{{id}}`）。本单 **10 键 × 4 语**值定稿（零键增删）+ 新增守卫 `frontend/src/test/unit/currency-format-order.test.js`（7 例：8 类坏形全量扫 + 检测器自证 + 白名单不可隐藏货币坏形）锁死形态。三段摘要见 **§5.472**，契约见 `design-system.spec` **§40.7（`T139-a`，就地追加不升版）**
 
 ---
 
@@ -1419,6 +1420,24 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 **D. 我裁的口径（一句话可改）**：① **批 7 =「用户可见读口」线**，首单只做 `/api/user/ledger`；② **`/api/user/points` 暂不注册** —— 前端现无消费方（现走 `/api/user/asset/:uID`），不造**无人消费的空路径**（本册 §1.2 补强的同一理由）；③ **装饰性切角与 legacy 硬阴影不并入本批**（审美面，需 Kevin 口径）；④ **本批不 `commit`/`push`**，由我验收后入库 —— **注意本仓推送即上线**。
 
+
+### 5.472 ★★ **货币文案「单位紧贴数量、无空格连写」** = 10 键 × 4 语定稿 ＋ 守卫测试 `currency-format-order.test.js` 锁死 · 2026-10-24 · **v0.391** · 纯追加
+
+**A. 裁定（Kevin · 硬门）**：货币类文案**一律**「**单位在前 + 数量在后 + 两者无空格连写**」，`⚡️` 亦不留空格；**唯一豁免 = 非货币量词**（`{{hours}} 小时` / `{{n}} 项` / `#{{id}}`）。目标渲染逐字 = `已领到 ⚡️30 与 ₿20` · `＋₿20` · `增加 $100` · `锁定为 J12` · `余额 ₿1013` · `💰：每 4 小时 + ⚡️30`。此前 `{{amount}} {{symbol}}`（渲染 `20 BTTC`）、`{{price}} J`、`{{amount}} 积分`、`⚡️ {{batt}}` 全部作废。
+
+**B. 实现（本批 `frontend/**` + `ops/**`）**
+- **文案**：`frontend/src/locales/{zh,en,hk,vn}.json` **10 键 × 4 语**定稿（`wage.claimed` / `wage.claimedWithCurrency` / `wage.wageLine` / `wage.wageExtra` / `campaign.rewardSecondary` / `project.vaultRechargeOk` / `project.vaultLine` / `adminPoints.adjustSuccessAdd` / `adminPoints.adjustSuccessSubtract` / `adminRewards.floorPriceHint`），**零键增删**（80 行改动 = 40 增 40 删（四语对称 × 10 键/语））。积分 Toast 单位由「积分 / points」改货币符号 `$`（`增加 ${{amount}}`）。
+- **守卫**（新文件）`frontend/src/test/unit/currency-format-order.test.js`：四语全量扫 **8 类坏形**（`qty-then-symbol` / `symbol-space-qty` / `literal-symbol-space-qty` / `emoji-space-qty` / `qty-then-J` / `qty-then-points-cn` / `qty-then-points-latin` / `qty-then-ticker`）+ 排版专项（防过度整改）+ 10 键反向锁定 + **检测器自证**（9 条注入必红、7 条正例不得误判）+ **白名单不可隐藏货币坏形**，共 **7 例**。
+- **旧期望同步**：`task-detail-page.test.jsx`（`+40 batt` ⇒ `+batt40`）· `home-campaign-card.test.jsx`（本地 zh mock 键值 + 两处 `+40 batt` ⇒ `+batt40`）· `wage-page.test.jsx`（三处 `⚡️ 30` / `⚡️ 20` ⇒ `⚡️30` / `⚡️20`）。全仓再扫 `⚡️ <数>` / `+<数> batt` **0 残留**。
+- **探针**：`ops/toast-credit/probe-toast-credit.mjs` 新增 ⑥ 货币顺序臂（zh / en 各 8 判据，正断言**严格连写**、反断言坏形全不在场）；`ops/wage/front/probe-wage.mjs` 次币符号夹具改**生产实证值 `₿`**（cid 4），`toastHasBatt` / `toastHasCurrency` 收紧为 `⚡️30` / `₿20` 并加 4 条坏形反断言，`currencyExtraVisible` 的通配 `.` 改**准符号** `＋₿50`。
+
+**C. 读数（本笔现取）**
+- **守卫**：**7 / 7 绿**；注入坏形即红（`[zh] campaign.rewardSecondary 命中「qty-then-symbol」({{amount}} {{symbol}})`），复原回绿 ⇒ **检测器非空转**。**修前 148 处假红归因**：`symbol-space-qty` / `literal-symbol-space-qty` 两处插值少一层非捕获分组（顶格 `|` 使 `price|balance|…` 成独立分支）⇒ 改 `(?:${MONEY_QTY})` 后 **0 命中**。
+- **门**：unit **107 files / 1218 tests / 0 failed**（基线 **106 / 1211**）· a11y **1 / 16** · components **2 / 14** · build **exit 0** ⇒ `index-2BmA_JUI.js` **654,717 B** / `index-pf_G9iq1.css` **195,601 B**（CSS 名与字节未变 ⇒ 零样式改动）。
+- **探针**：toast 双轨 **39 / 39 PASS**（zh `已领到 ⚡️30 与 ₿20`、en `Claimed ⚡️30 and ₿20`；`⚡️ 30` / `₿ 20` / `20 ₿` / `20 BTTC` / `$ 10` 全不在场；几何档 0px 偏差 / 37% / 18px 不变，普通档 16px + z=9999）· `/wage` **192 / 192 required PASS**（`💰：每 4 小时 + ⚡️30＋₿20`、`＋₿50`、`pageerror 0`）。
+- **生产核验**：`curl --resolve 0xseafood.com:443:76.76.21.21` 取 `assets/index-*.js` 与本地产物**同名同字节**，包内连写文案全部命中。
+
+**D. 规范面**：`design-system.spec` **§40.7 / `T139-a`**（就地追加，`T139` 一字未动、**不升版**，仍 v1.39）+ 本册本节。**零后端 / 零迁移 / 零 i18n 键 / 零新 token / 零样式改动**。
 
 ### 5.471 ★★ **「币种管理」tab 实现落地** = 第④面接前端路由 `currency-status` ＋ **四态按钮矩阵以 `T135-b` 为准（`draft` 行仅「下架」）** · 2026-10-24 · **v0.390** · 纯追加
 

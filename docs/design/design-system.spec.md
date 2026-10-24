@@ -5404,3 +5404,40 @@ showEdit     = isAuthenticated && (isOwner || canEditAny) && statusEditable
 - **`NOT_MEASURED`**：真机 iOS Safari 的 `:has()` 与 `marginTop: 32vh` 视觉未实测（探针覆盖 Chrome 1536 / 390 两档）；模态框打开且强化 toast 同时在场的像素级遮挡未截图（层级只取 computed `z-index` 与 CSS 实测值 60）。
 - **未改写面**：`§1–§39` 与 `T1`–`T138` 正文一字未动；`docs/design/style-preview.html`（真源）零改动；`backend-ts/**` / `ctrl/**` / `tools/**` 零改动。
 - **本单对 design 册 = 纯追加**（版本头 1 行 + §12 表 1 行 + 本节全文），`git diff --numstat` 删除列 = **0**。
+
+### 40.7 ★ 追加规则 `T139-a` —— **货币文案顺序与间距**（2026-10-24 · Kevin 定稿 · 纯追加 · 不改 `T139` 一字）
+
+**A. 裁定（Kevin 2026-10-24，硬门）**：全站**货币类**文案一律「**单位紧贴数量、无空格连写**」，且**顺序恒定 = 单位在前、数量在后**；`⚡️`（batt 单位）同样**不留空格**。
+
+| 项 | 口径 |
+| --- | --- |
+| **顺序** | **单位 + 数量**，恒定不可倒；`{{amount}} {{symbol}}`（渲染 `20 BTTC`）、`{{price}} J`、`{{amount}} 积分` 全属坏形 |
+| **间距** | 单位与数量之间**零空白连写**：`⚡️{{batt}}` / `{{symbol}}{{amount}}` / `J{{price}}` / `${{amount}}`；`⚡️ {{batt}}`、`{{symbol}} {{amount}}`、`$ {{amount}}`、`J {{price}}` 全属坏形 |
+| **单位集合** | 币种符号（`$` / `₿` / `€` …）· 币种代码（`BTTC` / `USDT` …）· 价单位 `J` · batt 单位 `⚡️` · 积分名（「积分 / points / điểm」→ **已废**，积分 Toast 改 `$` 符号） |
+| **四语同形** | `zh` / `en` / `hk` / `vn` **同一形态**（单位在前 + 连写）；语序差异只允许出现在**词句层**（如 `Claimed … and …`），**货币片段内部一字不差** |
+| **唯一豁免** | **非货币量词**：`{{hours}} 小时` / `{{n}} 项` / `{{visible}} 条` / `#{{id}}` —— 仍是「数量 + 空格 + 量词」，**不得被「连写化」误改** |
+| **目标渲染（逐字）** | `已领到 ⚡️30 与 ₿20` · `＋₿20` · `增加 $100` · `锁定为 J12` · `余额 ₿1013` · `💰：每 4 小时 + ⚡️30` |
+
+**B. 落点（现盘）**
+
+| 面 | 文件 | 形态 |
+| --- | --- | --- |
+| 文案 | `frontend/src/locales/{zh,en,hk,vn}.json` | 本单改 10 个键 × 4 语：`wage.claimed` · `wage.claimedWithCurrency` · `wage.wageLine` · `wage.wageExtra` · `campaign.rewardSecondary` · `project.vaultRechargeOk` · `project.vaultLine` · `adminPoints.adjustSuccessAdd` · `adminPoints.adjustSuccessSubtract` · `adminRewards.floorPriceHint`（值变更，**零键增删**） |
+| 守卫 | `frontend/src/test/unit/currency-format-order.test.js`（新） | 四语全量扫 8 类坏形 + 排版专项 + 10 键反向锁定 + **检测器自证** + **白名单不可隐藏货币坏形**，共 **7 例** |
+| 探针 | `ops/toast-credit/probe-toast-credit.mjs` · `ops/wage/front/probe-wage.mjs` | 真浏览器逐字断言（`⚡️30` / `₿20` 严格连写；坏形全不在场） |
+
+**C. 判负**
+
+1. 任一语出现「数量 + 单位」或「单位 + 空格 + 数量」= 判负（守卫测试即红）；
+2. 把**非货币量词**也连写化（`{{hours}}小时`）或删空格 = 判负（`40.7 A` 豁免行是唯一例外）；
+3. 货单位写成**裸币种代码**（`20 BTTC`）= 判负，须走 `{{symbol}}`；
+4. 新增货币文案不经守卫测试覆盖 = 判负（新键必须落进 `EXPECTED` 或全量扫面）；
+5. 以「放宽正则 / 加白名单」消红 = 判负 —— 白名单**仅**可登记非货币量词且须写理由（自检三条：四语存在 / 理由非空 / 仍命中非货币计数形，防僵死）。
+
+**D. 读数（本笔现取 · 2026-10-24）**
+
+- **守卫**：`currency-format-order.test.js` **7 / 7 绿**；**检测器自证**：向 `zh.campaign.rewardSecondary` 注入 `+{{amount}} {{symbol}}` ⇒ 立即红并报 `[zh] campaign.rewardSecondary 命中「qty-then-symbol」({{amount}} {{symbol}})`，复原后回绿（**非空转**）。
+- **修前假红归因**：坏形正则 `symbol-space-qty` / `literal-symbol-space-qty` 两处插值**少一层非捕获分组**（`{{${MONEY_QTY}}}` ⇒ 顶格 `|` 使 `price|balance|…` 变成**独立分支**）⇒ 误报 **148 处**；改为 `{{(?:${MONEY_QTY})}}` 后 **0 命中**。
+- **门**：unit **107 files / 1218 tests / 0 failed**（基线 **106 / 1211**）· a11y **1 / 16** · components **2 / 14** · `npm run build` **exit 0** ⇒ `index-2BmA_JUI.js` **654,717 B** / `index-pf_G9iq1.css` **195,601 B**（CSS 名与字节**未变** ⇒ 本单零样式改动）。
+- **探针**：toast 双轨 **39 / 39 PASS**（zh `已领到 ⚡️30 与 ₿20` / en `Claimed ⚡️30 and ₿20`，反例 `⚡️ 30`·`₿ 20`·`20 ₿`·`20 BTTC`·`$ 10` 全不在场；几何档中心偏差 **0px** · 纵向 **37%** · **18px** 不变）· `/wage` 探针 **192 / 192 required PASS**（`wageText = 💰：每 4 小时 + ⚡️30＋₿20`、`currencyExtra = ＋₿50`，`pageerror 0`）。
+- **本单对 design 册 = 纯追加**（本节全文），`git diff --numstat` 删除列 = **0**；`T139` 条文一字未动，版本仍 **v1.39**（就地追加，不升版）。
