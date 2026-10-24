@@ -1539,3 +1539,123 @@ section[id^="section_"] .grid { gap: 1.25rem; }
 }
 
 
+
+/* ===== 「币种管理」tab（design-system.spec v1.35 §36 · 规则 `T135`）表格与行形态 =====
+   落点 = 本文件**顶层**（`.sf-chip` 之后）；**零新增主题 token**（只引既有
+        `--border-color` / `--text-secondary`；状态色沿用既有 `styles/tailwind-compat.css` 的黄/红/绿取值）。
+   窄屏口径（≤767）：表头隐藏、每行转「标签 + 值」的卡行式（`td::before` 取 `data-label`），
+        **不得横向溢出**（外层 `overflow-x:auto` 只是兜底，正常路径不触发滚动）。 */
+.sf-curstatus-wrap { width: 100%; overflow-x: auto; }
+
+.sf-curstatus-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  table-layout: fixed;
+}
+
+.sf-curstatus-table th,
+.sf-curstatus-table td {
+  padding: 0.6rem 0.5rem 0.6rem 0;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border-color);
+  overflow-wrap: anywhere;   /* 长符号 / 长时间串换行，不撑破列 */
+}
+
+.sf-curstatus-table th {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+/* 列宽（4 列 + 操作列；操作列最宽，其余按内容） */
+.sf-curstatus-table th:nth-child(1), .sf-curstatus-table td:nth-child(1) { width: 5rem; }
+.sf-curstatus-table th:nth-child(2), .sf-curstatus-table td:nth-child(2) { width: 18%; }
+.sf-curstatus-table th:nth-child(3), .sf-curstatus-table td:nth-child(3) { width: 7rem; }
+.sf-curstatus-table th:nth-child(4), .sf-curstatus-table td:nth-child(4) { width: 12rem; }
+
+/* 状态列（**直读 `status`**）：四态共用同一形态，`delisted` 加终态标记（不可逆） */
+.sf-curstatus-status {
+  display: inline-block;
+  padding: 0.05rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.sf-curstatus-status.is-final {
+  border-color: #dc2626;   /* 既有 tailwind-compat 红档取值，非新 token */
+  color: #dc2626;
+}
+
+.sf-curstatus-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+
+/* `$` 行守卫标记：**不可点**（非 button / 非 a），只表达「禁操作 + 为何」 */
+.sf-curstatus-locked {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  opacity: 0.85;
+}
+
+/* `draft` 行只读提示（`T135-b`）：与「$」守卫同档，非可点控件、不抢按钮视觉权重 */
+.sf-curstatus-hint {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  opacity: 0.9;
+}
+
+/* 动作失败内联条（列表上方）：`role=alert`；三档中性色，不新起主题口径 */
+.sf-curstatus-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #dc2626;
+  color: #dc2626;
+  font-size: 14px;
+}
+.sf-curstatus-error-close {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+@media (max-width: 767px) {
+  .sf-curstatus-table { table-layout: auto; }
+  .sf-curstatus-table thead { display: none; }
+  .sf-curstatus-table,
+  .sf-curstatus-table tbody,
+  .sf-curstatus-table tr,
+  .sf-curstatus-table td { display: block; width: 100%; }
+
+  .sf-curstatus-table tr {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+  .sf-curstatus-table td {
+    border-bottom: 0;
+    padding: 0.15rem 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .sf-curstatus-table td[data-label]::before {
+    content: attr(data-label);
+    color: var(--text-secondary);
+    font-size: 12px;
+    flex: 0 0 5.5rem;
+  }
+  .sf-curstatus-table td:last-child { padding-top: 0.35rem; }
+  .sf-curstatus-actions { width: 100%; }
+}

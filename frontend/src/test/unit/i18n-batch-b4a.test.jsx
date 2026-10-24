@@ -90,7 +90,7 @@ describe('P6-I18N-LIT-B4a · 四语 locale 键集（6 命名空间 144 键 + 逐
     v && typeof v === 'object' && !Array.isArray(v) ? keyPaths(v, `${prefix}${k}.`) : [`${prefix}${k}`]
   )).sort()
   // 本批新增命名空间 → 键数（逐命名空间硬断言，防「键名写错但四语同步错」）
-  const NEW_NS = { adminNav: 30, adminLayout: 5, adminCommon: 28, dashPage: 58, adminTasks: 14, adminRewards: 42 } // **期望订正（批 8② 费率+权重矩阵）**：`adminNav` 16⇒20（+4 键：`feeRate` / `weightMatrix` 两条菜单项 + 两条路由面文案）；**批 8④ 再订正**：`adminNav` 20⇒22（+2 键：`currencyReview` / `currencyReviewDesc`）；**P9① 再订正**：`adminNav` 26⇒28（+2 键：`siteText` / `siteTextDesc`，⇔ 后台「站点文案」菜单；沿 `R-8-22`）
+  const NEW_NS = { adminNav: 31, adminLayout: 5, adminCommon: 28, dashPage: 58, adminTasks: 14, adminRewards: 42 } // [exchange-currency-status（2026-10-24）：`adminNav` +1（`currencyStatus`）⇒ 30⇒31] // **期望订正（批 8② 费率+权重矩阵）**：`adminNav` 16⇒20（+4 键：`feeRate` / `weightMatrix` 两条菜单项 + 两条路由面文案）；**批 8④ 再订正**：`adminNav` 20⇒22（+2 键：`currencyReview` / `currencyReviewDesc`）；**P9① 再订正**：`adminNav` 26⇒28（+2 键：`siteText` / `siteTextDesc`，⇔ 后台「站点文案」菜单；沿 `R-8-22`）
   const NEW_KEY_TOTAL = Object.values(NEW_NS).reduce((a, b) => a + b, 0)
   // B4a 交付时合计 = 144；B4b（后台剩余面）给既有 `adminCommon` 追加 19 键 ⇒ 现值 163。
   // 保留 144 作为 B4a 历史口径锚点（防「顺手改大期望值」掩盖键名事故）。
@@ -109,6 +109,9 @@ describe('P6-I18N-LIT-B4a · 四语 locale 键集（6 命名空间 144 键 + 逐
   const B9S1_ADDED_TO_ADMINNAV = 2
   // **期望订正（8⑥ 审计台）**：给既有 `adminNav` 追加 2 键（`auditConsole` / `auditConsoleDesc`，⇔ 后台「审计台」菜单 · `R-9-75`）；新命名空间 `auditConsole`（33 键）另计为顶层。
   const B8S6_ADDED_TO_ADMINNAV = 2
+  // **期望订正（exchange-currency-status 2026-10-24）**：给既有 `adminNav` 追加 1 键（`currencyStatus` ⇔ 交易所管理第 4 个 tab）；
+  //   新命名空间 `adminCurrencyStatus`（9 键）另计为顶层，不属本清单。
+  const CURRENCY_STATUS_ADDED_TO_ADMINNAV = 1
 
   it('新增键四语齐备、非空串；四文件拍平键集逐文件相等', () => {
     const tables = {}
@@ -130,8 +133,9 @@ describe('P6-I18N-LIT-B4a · 四语 locale 键集（6 命名空间 144 键 + 逐
     // S25 计数期望订正（台账 B7 死键退役）：四语对称删 10 键 ⇒ 拍平 1060⇒1050（等量下移 = −10/语）。
     // v1.5 §14 delta①（2026-10-11 收尾单 · Zang 裁定⑧）曾另立新键 'me'：top 128⇒129 / flat 1070⇒1071 / 节点 4280⇒4284；[留痕] 本单（2026-10-11 · Kevin 口径）全站统一 profile 值 = 我的/Me/我的/Tôi 并删 'me' ⇒ 计数回落 top 129⇒128 / flat 1071⇒1070 / 节点 4284⇒4280。
   // ★ A5 收口（design-system.spec v1.17 §20.7 #1 / §20.8 前推 · Kong 2026-10-12）：站内信 + Telegram 四语 **+35/-2**（同补同删）⇒ 顶层 122⇒**125** / 拍平 1045⇒**1078** / 四语节点 4180⇒**4312**（1078×4）。★ 顶层读数 = **125（非 §20.8 算式所写 123）**：新键含**两处新顶层错误域** `msg.err.<CODE>`(7) + `tg.err.<CODE>`(5) （route v2.31 §41.5 冻结键名 = 后端 `error.i18n_key` 字面，前端必须按名解析）⇒ 新顶层 = `telegram` + `msg` + `tg` = **+3**；规范算式「顶层 122+1」漏计 `msg`/`tg` 两域（拍平/节点算式与实测一致）。已随本单上报（规范自相矛盾项）。
-    expect(counts.zh).toEqual({ top: 136, flat: 1461 }) // [home-hero-removal（2026-10-24）：删 5 死键（homePage.welcome/heroLead/heroTail/continueTask/registerNow，四语对称）⇒ flat 1451 / 四语节点 5804（top 135 不变）]
-    expect(NEW_KEY_TOTAL).toBe(B4A_ADDED + B4B_ADDED_TO_ADMINCOMMON + B8S2_ADDED_TO_ADMINNAV + B8S4_ADDED_TO_ADMINNAV + B8S5_ADDED_TO_ADMINNAV + B9S1_ADDED_TO_ADMINNAV + B8S6_ADDED_TO_ADMINNAV)
+    // [exchange-currency-status（2026-10-24）：新增顶层 `adminCurrencyStatus`(9 键) + `adminNav.currencyStatus` ⇒ top 136⇒137 / flat 1461⇒1471 / 四语节点 5844⇒5884]
+    expect(counts.zh).toEqual({ top: 137, flat: 1471 }) // [home-hero-removal（2026-10-24）：删 5 死键（homePage.welcome/heroLead/heroTail/continueTask/registerNow，四语对称）⇒ flat 1451 / 四语节点 5804（top 135 不变）]
+    expect(NEW_KEY_TOTAL).toBe(B4A_ADDED + B4B_ADDED_TO_ADMINCOMMON + B8S2_ADDED_TO_ADMINNAV + B8S4_ADDED_TO_ADMINNAV + B8S5_ADDED_TO_ADMINNAV + B9S1_ADDED_TO_ADMINNAV + B8S6_ADDED_TO_ADMINNAV + CURRENCY_STATUS_ADDED_TO_ADMINNAV)
 
     // 本批 6 命名空间：键数逐一对齐 + 四语取值齐备非空
     for (const [ns, size] of Object.entries(NEW_NS)) {

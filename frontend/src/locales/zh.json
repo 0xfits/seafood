@@ -620,6 +620,7 @@
     "weightMatrixDesc": "返佣各层权重",
     "currencyReview": "单位审核",
     "currencyReviewDesc": "审核用户自建积分单位",
+    "currencyStatus": "币种管理",
     "listingReview": "商品审核",
     "listingReviewDesc": "审核用户发布的商品",
     "arbitrationReview": "招工仲裁",
@@ -1024,6 +1025,17 @@
     "approved": "已通过审核",
     "rejected": "已驳回",
     "actionFailed": "提交审核失败：{{message}}"
+  },
+  "adminCurrencyStatus": {
+    "colListedAt": "上线时间",
+    "actList": "上市",
+    "actFreeze": "冻结",
+    "actDelist": "下架",
+    "confirm": "确认对「{{symbol}}」执行「{{action}}」？该币种全部未成交挂单将被撤销；下架后不可恢复。",
+    "locked": "系统币 $ 受保护，状态不可变更。",
+    "reasonActiveOrders": "该币种仍有未成交挂单，请稍后重试。",
+    "reasonFeePath": "上市须经审核与上市费路径，请到「单位审核」页操作。",
+    "done": "币种状态已更新。"
   },
   "adminListingReview": {
     "title": "商品合规审核",

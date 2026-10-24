@@ -56,6 +56,7 @@ import ExchangeManagementPage from './pages/admin/ExchangeManagementPage'
 import FeeRatePage from './pages/admin/FeeRatePage'
 import ReferralWeightMatrixPage from './pages/admin/ReferralWeightMatrixPage'
 import CurrencyReviewPage from './pages/admin/CurrencyReviewPage'
+import CurrencyStatusPage from './pages/admin/CurrencyStatusPage'
 import PowerPage from './pages/admin/PowerPage'
 import AuditConsolePage from './pages/admin/AuditConsolePage'
 
@@ -412,6 +413,8 @@ function App() {
             <Route path="fee-rate" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><FeeRatePage /></ProtectedRoute>} />
             <Route path="currency-review" element={<ProtectedRoute adminOnly={true} requiredPermission="review_tasks"><CurrencyReviewPage /></ProtectedRoute>} />
             <Route path="commission-levels" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><ReferralWeightMatrixPage /></ProtectedRoute>} />
+            {/* 第④面「币种管理」（route-layer.spec §49.25 / design-system.spec §36 · 闸 manage_settings 与写口同键） */}
+            <Route path="currency-status" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><CurrencyStatusPage /></ProtectedRoute>} />
           </Route>
           {/* 旧地址 redirect（保书签；`<Navigate replace>`，不新增页面）：
               /dashboard/fee-rate ⇒ /dashboard/exchange ·

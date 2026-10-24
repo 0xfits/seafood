@@ -620,6 +620,7 @@
     "weightMatrixDesc": "返佣各層權重",
     "currencyReview": "單位審核",
     "currencyReviewDesc": "審核用戶自建積分單位",
+    "currencyStatus": "幣種管理",
     "listingReview": "商品審核",
     "listingReviewDesc": "審核用戶發佈嘅商品",
     "arbitrationReview": "招工仲裁",
@@ -1024,6 +1025,17 @@
     "approved": "已通過審核",
     "rejected": "已駁回",
     "actionFailed": "提交審核失敗：{{message}}"
+  },
+  "adminCurrencyStatus": {
+    "colListedAt": "上線時間",
+    "actList": "上市",
+    "actFreeze": "凍結",
+    "actDelist": "下架",
+    "confirm": "確認對「{{symbol}}」執行「{{action}}」？該幣種全部未成交掛單將被撤銷；下架後不可恢復。",
+    "locked": "系統幣 $ 受保護，狀態不可變更。",
+    "reasonActiveOrders": "該幣種仍有未成交掛單，請稍後重試。",
+    "reasonFeePath": "上市須經審核與上市費路徑，請到「單位審核」頁操作。",
+    "done": "幣種狀態已更新。"
   },
   "adminListingReview": {
     "title": "商品合規審核",

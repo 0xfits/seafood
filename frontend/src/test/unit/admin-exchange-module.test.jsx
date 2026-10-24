@@ -33,6 +33,7 @@ vi.mock('react-i18next', () => ({
 vi.mock('../../pages/admin/FeeRatePage', () => ({ default: () => <div>fee rate panel</div> }))
 vi.mock('../../pages/admin/CurrencyReviewPage', () => ({ default: () => <div>currency review panel</div> }))
 vi.mock('../../pages/admin/ReferralWeightMatrixPage', () => ({ default: () => <div>weight matrix panel</div> }))
+vi.mock('../../pages/admin/CurrencyStatusPage', () => ({ default: () => <div>currency status panel</div> }))
 
 vi.mock('../../auth-context', () => ({ useAuth: vi.fn() }))
 vi.mock('../../components/LoginModal', () => ({ default: () => null }))
@@ -217,10 +218,10 @@ describe('③ 运行时：三条子路由各自渲出对应面板', () => {
     expect(screen.getByTestId('pathname').textContent).toBe('/dashboard/exchange/commission-levels')
   })
 
-  it('tab 条：三条 tab、选中态 = `.is-active` + aria-selected=true（仅当前子路由）', async () => {
+  it('tab 条：四条 tab、选中态 = `.is-active` + aria-selected=true（仅当前子路由）', async () => {
     renderAt('/dashboard/exchange/commission-levels')
     const tabs = await screen.findAllByRole('tab')
-    expect(tabs).toHaveLength(3)
+    expect(tabs).toHaveLength(4) // [exchange-currency-status（2026-10-24）：第 4 项 currency-status 落地 ⇒ 3⇒4]
     for (const tab of tabs) {
       expect(tab.className).toContain('sf-chip')
       expect(tab.getAttribute('aria-selected')).toBe(tab.getAttribute('href') === '/dashboard/exchange/commission-levels' ? 'true' : 'false')
@@ -230,6 +231,7 @@ describe('③ 运行时：三条子路由各自渲出对应面板', () => {
       '/dashboard/exchange/fee-rate',
       '/dashboard/exchange/currency-review',
       '/dashboard/exchange/commission-levels',
+      '/dashboard/exchange/currency-status',
     ])
   })
 })
@@ -252,7 +254,7 @@ describe('④ 运行时：tab 只渲染有权限的那几条（闸仍逐子路�
     expect(document.querySelector('a[href="/dashboard/exchange/commission-levels"]')).toBeNull()
   })
 
-  it('只有 manage_settings：出 fee-rate + commission-levels 两条，币种审核 tab 不在场', async () => {
+  it('只有 manage_settings：出 fee-rate + commission-levels + currency-status 三条，币种审核 tab 不在场', async () => {
     setAccess(['manage_settings'])
     renderAt('/dashboard/exchange/fee-rate')
 
@@ -261,6 +263,7 @@ describe('④ 运行时：tab 只渲染有权限的那几条（闸仍逐子路�
     expect(tabs.map((tab) => tab.getAttribute('href'))).toEqual([
       '/dashboard/exchange/fee-rate',
       '/dashboard/exchange/commission-levels',
+      '/dashboard/exchange/currency-status',
     ])
     expect(document.querySelector('a[href="/dashboard/exchange/currency-review"]')).toBeNull()
   })

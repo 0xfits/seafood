@@ -159,7 +159,8 @@ describe('B「海底交易所」四语取值 + 顶菜单/底栏同键同值', ()
     expect(en.shard).toBe('Exchange')
     expect(vn.shard).toBe('Sàn')
     // 键集四语一致、总键数不变（135）
-    for (const lang of ['zh', 'en', 'hk', 'vn']) expect(Object.keys(TABLES[lang])).toHaveLength(136)
+    // [exchange-currency-status（2026-10-24）：新增顶层 `adminCurrencyStatus`(9 键) + `adminNav.currencyStatus` ⇒ top 136⇒137 / flat 1461⇒1471 / 四语节点 5844⇒5884]
+    for (const lang of ['zh', 'en', 'hk', 'vn']) expect(Object.keys(TABLES[lang])).toHaveLength(137)
   })
 
   it('导航真源：底栏第 2 格 labelKey 仍为 shard（键名不动）', () => {

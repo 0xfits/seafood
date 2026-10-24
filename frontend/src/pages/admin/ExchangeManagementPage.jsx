@@ -11,6 +11,8 @@ import { fetchAdminAccess, getStoredUser, hasAdminPermission } from '../../admin
  *   - `/dashboard/exchange/fee-rate`            ⇒ `FeeRatePage`（费率），闸 `manage_settings`
  *   - `/dashboard/exchange/currency-review`     ⇒ `CurrencyReviewPage`（币种审核），闸 `review_tasks`
  *   - `/dashboard/exchange/commission-levels`   ⇒ `ReferralWeightMatrixPage`（费率等级 + 权重矩阵），闸 `manage_settings`
+ *   - `/dashboard/exchange/currency-status`     ⇒ `CurrencyStatusPage`（币种管理 · 上架 / 冻结 / 下架），闸 `manage_settings`
+ *     （第④面：`route-layer.spec` §49.25 / `design-system.spec` §36 `T135`；**与写口同键**）
  *
  * 本组件只是**壳**：页面标题（沿用 `adminNav.feeRate` 键，值 = 交易所管理）+ tab 条 + `<Outlet/>`。
  * 面板内部逻辑零改（各自仍带读写自检与守卫）。
@@ -29,6 +31,7 @@ const EXCHANGE_TABS = [
   { key: 'feeRate', path: '/dashboard/exchange/fee-rate', permission: 'manage_settings' },
   { key: 'currencyReview', path: '/dashboard/exchange/currency-review', permission: 'review_tasks' },
   { key: 'weightMatrix', path: '/dashboard/exchange/commission-levels', permission: 'manage_settings' },
+  { key: 'currencyStatus', path: '/dashboard/exchange/currency-status', permission: 'manage_settings' },
 ]
 
 const ExchangeManagementPage = () => {

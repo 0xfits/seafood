@@ -223,7 +223,8 @@ describe('P6-I18N-LIT-B5 · 必做② `HomePage` 收口 + LEGACY 清零 + AC③�
     // S25 计数期望订正（台账 B7 死键退役）：四语对称删 10 键 ⇒ 拍平 1060⇒1050（本读数为脚本 p6-tr2 动态打印，非硬编）。
     // v1.5 §14 delta①（2026-10-11 收尾单 · Zang 裁定⑧）曾另立新键 'me'：top 128⇒129 / flat 1070⇒1071 / 节点 4280⇒4284；[留痕] 本单（2026-10-11 · Kevin 口径）全站统一 profile 值 = 我的/Me/我的/Tôi 并删 'me' ⇒ 计数回落 top 129⇒128 / flat 1071⇒1070 / 节点 4284⇒4280。
     // [home-hero-removal（2026-10-24）：删 5 个死键（homePage.welcome/heroLead/heroTail/continueTask/registerNow，四语对称）⇒ flat 1456⇒1451 / 四语节点 5824⇒5804（top 135 不变）]
-    expect(out).toContain('zh: top=136 flat=1461')
+    // [exchange-currency-status（2026-10-24）：新增顶层 `adminCurrencyStatus`(9 键) + `adminNav.currencyStatus` ⇒ top 136⇒137 / flat 1461⇒1471 / 四语节点 5844⇒5884]
+    expect(out).toContain('zh: top=137 flat=1471')
     expect(out).toContain('存量登记（只核不改）：仍在旧三目链 + `??` 上的页面数 = 0 页')
     expect(out).toContain('[TR-2] 总判：PASS')
 
@@ -267,7 +268,9 @@ describe('P6-I18N-LIT-B5 · 四语 locale 键集（本批新增 uiCommon 12 / ui
     // 批 8④ 计数期望订正（逐字登记）：新增顶层 adminCurrencyReview（28 键）+ adminNav 2 键 ⇒ 顶层 105⇒106 / 拍平 788⇒818 / locale 节点 3152⇒3272
     // 批 8⑤ 计数期望订正（逐字登记）：新增顶层 adminListingReview（30 键）+ adminArbitrationReview（34 键）+ adminNav 4 键（listingReview/listingReviewDesc/arbitrationReview/arbitrationReviewDesc）⇒ 顶层 106⇒108 / 拍平 818⇒886 / locale 节点 3272⇒3544（增量来源 = 本批合法新增：注册点 +4 ⇔ 4 新路由；迁移 +2 ⇔ 2 新文件；adminNav +4 ⇔ 4 新菜单键）
     // S25 计数期望订正（台账 B7 死键退役）：四语对称删 10 键 ⇒ 拍平 1060⇒1050（等量下移 = −10/语）。
-    expect(counts.zh).toEqual({ top: 136, flat: 1461 }) // [home-hero-removal（2026-10-24）：删 5 死键（homePage.welcome/heroLead/heroTail/continueTask/registerNow，四语对称）⇒ flat 1451 / 四语节点 5804（top 135 不变）]
+    // [exchange-currency-status（2026-10-24）：新增顶层 `adminCurrencyStatus`（9 键）+ `adminNav.currencyStatus` 1 键 ⇒
+    //  top 136⇒137 / flat 1461⇒1471 / 四语节点 ×4 = 5884（四语齐步，等量上移 = +10/语）]
+    expect(counts.zh).toEqual({ top: 137, flat: 1471 }) // [home-hero-removal（2026-10-24）：删 5 死键（homePage.welcome/heroLead/heroTail/continueTask/registerNow，四语对称）⇒ flat 1451 / 四语节点 5804（top 135 不变）]
 
     const CJK = /[\u4E00-\u9FFF]/
     for (const [ns, size] of Object.entries(NEW_NS)) {

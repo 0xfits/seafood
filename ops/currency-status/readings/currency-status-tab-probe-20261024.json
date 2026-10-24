@@ -1,0 +1,378 @@
+{
+  "ok": true,
+  "base": "http://localhost:5297",
+  "checks": [
+    {
+      "name": "A1 四 tab 在场且顺序 = fee-rate/currency-review/commission-levels/currency-status",
+      "ok": true,
+      "detail": [
+        "/dashboard/exchange/fee-rate",
+        "/dashboard/exchange/currency-review",
+        "/dashboard/exchange/commission-levels",
+        "/dashboard/exchange/currency-status"
+      ]
+    },
+    {
+      "name": "A2 点击第 4 项 ⇒ URL 落 currency-status 且 tab 选中（.is-active + aria-selected）",
+      "ok": true,
+      "detail": "http://localhost:5297/dashboard/exchange/currency-status"
+    },
+    {
+      "name": "A3 列表行数 = 夹具 5 行",
+      "ok": true
+    },
+    {
+      "name": "A4 按钮矩阵逐行 = 状态机可达集",
+      "ok": true,
+      "detail": {
+        "1": [],
+        "3": [
+          "currency-status-action-frozen",
+          "currency-status-action-delisted"
+        ],
+        "5": [
+          "currency-status-action-listed",
+          "currency-status-action-delisted"
+        ],
+        "7": [
+          "currency-status-action-delisted"
+        ],
+        "9": []
+      }
+    },
+    {
+      "name": "A5 `$`（cid=1）行零可点控件 + 守卫标记在场",
+      "ok": true,
+      "detail": {
+        "status": "listed",
+        "buttons": [],
+        "clickable": 0,
+        "locked": true,
+        "draftHint": false,
+        "statusText": "已上市",
+        "listedAtText": "2026-01-01 00:00:00"
+      }
+    },
+    {
+      "name": "A6 终态 delisted 行零按钮",
+      "ok": true
+    },
+    {
+      "name": "A7 状态列直读 status（data-status 原值 + 词条）",
+      "ok": true,
+      "detail": "frozen"
+    },
+    {
+      "name": "A8 listed_at 为 null ⇒ `—`",
+      "ok": true,
+      "detail": "—"
+    },
+    {
+      "name": "A9 `draft` 行带只读提示（`T135-b`：上市需走建币审核）且提示非可点控件",
+      "ok": true,
+      "detail": {
+        "status": "draft",
+        "buttons": [
+          "currency-status-action-delisted"
+        ],
+        "clickable": 1,
+        "locked": false,
+        "draftHint": true,
+        "statusText": "待审",
+        "listedAtText": "—"
+      }
+    },
+    {
+      "name": "A10 1536 零横向溢出",
+      "ok": true,
+      "detail": 1536
+    },
+    {
+      "name": "B1 390 零横向溢出（侧栏折叠后量本 tab）",
+      "ok": true,
+      "detail": {
+        "doc": 390,
+        "viewport": 390,
+        "main": 310,
+        "rows": []
+      }
+    },
+    {
+      "name": "B2 390 卡行式（表头隐藏、行 display=block）",
+      "ok": true,
+      "detail": {
+        "theadDisplay": "none",
+        "rowDisplay": "block",
+        "tabWrapHeight": 75.1875,
+        "sidebarWidth": 80,
+        "mainWidth": 310
+      }
+    },
+    {
+      "name": "C1 冻结弹二次确认（confirm 类型，文案含符号）",
+      "ok": true,
+      "detail": [
+        {
+          "type": "confirm",
+          "message": "确认对「AAA」执行「冻结」？该币种全部未成交挂单将被撤销；下架后不可恢复。"
+        }
+      ]
+    },
+    {
+      "name": "C2 取消 ⇒ 零 POST",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "C3 确认 ⇒ 恰 1 次 POST 且体 = {status, create_key}（无 memo）",
+      "ok": true,
+      "detail": [
+        {
+          "cid": "3",
+          "body": {
+            "status": "frozen",
+            "create_key": "ops:7:currency_status:3:frozen"
+          }
+        },
+        {
+          "cid": "5",
+          "body": {
+            "status": "listed",
+            "create_key": "ops:7:currency_status:5:listed"
+          }
+        }
+      ]
+    },
+    {
+      "name": "C4 成功后就地重拉列表（GET 次数 +1）",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "name": "D1 解冻（frozen→listed）不弹确认层且直接提交",
+      "ok": true,
+      "detail": {
+        "dialogs": [],
+        "posted": 1
+      }
+    },
+    {
+      "name": "E1 零 pageerror",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "readings": {
+    "A_desktop": {
+      "viewport": "1536x900",
+      "tabs": [
+        {
+          "key": "exchange-tab-feeRate",
+          "href": "/dashboard/exchange/fee-rate",
+          "label": "交易所",
+          "active": true
+        },
+        {
+          "key": "exchange-tab-currencyReview",
+          "href": "/dashboard/exchange/currency-review",
+          "label": "单位审核",
+          "active": false
+        },
+        {
+          "key": "exchange-tab-weightMatrix",
+          "href": "/dashboard/exchange/commission-levels",
+          "label": "权重矩阵",
+          "active": false
+        },
+        {
+          "key": "exchange-tab-currencyStatus",
+          "href": "/dashboard/exchange/currency-status",
+          "label": "币种管理",
+          "active": false
+        }
+      ],
+      "url": "http://localhost:5297/dashboard/exchange/currency-status",
+      "activeTab": {
+        "active": true,
+        "ariaSelected": "true"
+      },
+      "rows": 5,
+      "matrix": {
+        "1": {
+          "status": "listed",
+          "buttons": [],
+          "clickable": 0,
+          "locked": true,
+          "draftHint": false,
+          "statusText": "已上市",
+          "listedAtText": "2026-01-01 00:00:00"
+        },
+        "3": {
+          "status": "listed",
+          "buttons": [
+            "currency-status-action-frozen",
+            "currency-status-action-delisted"
+          ],
+          "clickable": 2,
+          "locked": false,
+          "draftHint": false,
+          "statusText": "已上市",
+          "listedAtText": "2026-10-01 08:00:00"
+        },
+        "5": {
+          "status": "frozen",
+          "buttons": [
+            "currency-status-action-listed",
+            "currency-status-action-delisted"
+          ],
+          "clickable": 2,
+          "locked": false,
+          "draftHint": false,
+          "statusText": "已冻结",
+          "listedAtText": "2026-10-02 08:00:00"
+        },
+        "7": {
+          "status": "draft",
+          "buttons": [
+            "currency-status-action-delisted"
+          ],
+          "clickable": 1,
+          "locked": false,
+          "draftHint": true,
+          "statusText": "待审",
+          "listedAtText": "—"
+        },
+        "9": {
+          "status": "delisted",
+          "buttons": [],
+          "clickable": 0,
+          "locked": false,
+          "draftHint": false,
+          "statusText": "已下架",
+          "listedAtText": "2026-10-03 08:00:00"
+        }
+      },
+      "overflow": {
+        "viewport": 1536,
+        "docScrollWidth": 1536,
+        "docClientWidth": 1536,
+        "bodyScrollWidth": 1536,
+        "overflowingRows": [],
+        "rows": [
+          {
+            "cid": "1",
+            "scrollWidth": 1182,
+            "clientWidth": 1182
+          },
+          {
+            "cid": "3",
+            "scrollWidth": 1182,
+            "clientWidth": 1182
+          },
+          {
+            "cid": "5",
+            "scrollWidth": 1182,
+            "clientWidth": 1182
+          },
+          {
+            "cid": "7",
+            "scrollWidth": 1182,
+            "clientWidth": 1182
+          },
+          {
+            "cid": "9",
+            "scrollWidth": 1182,
+            "clientWidth": 1182
+          }
+        ]
+      }
+    },
+    "B_mobile": {
+      "viewport": "390x844",
+      "sidebarCollapsed": true,
+      "overflow": {
+        "viewport": 390,
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "bodyScrollWidth": 390,
+        "overflowingRows": [],
+        "rows": [
+          {
+            "cid": "1",
+            "scrollWidth": 210,
+            "clientWidth": 210
+          },
+          {
+            "cid": "3",
+            "scrollWidth": 210,
+            "clientWidth": 210
+          },
+          {
+            "cid": "5",
+            "scrollWidth": 210,
+            "clientWidth": 210
+          },
+          {
+            "cid": "7",
+            "scrollWidth": 210,
+            "clientWidth": 210
+          },
+          {
+            "cid": "9",
+            "scrollWidth": 210,
+            "clientWidth": 210
+          }
+        ]
+      },
+      "layout": {
+        "theadDisplay": "none",
+        "rowDisplay": "block",
+        "tabWrapHeight": 75.1875,
+        "sidebarWidth": 80,
+        "mainWidth": 310
+      }
+    },
+    "C_confirm": {
+      "posts": [
+        {
+          "cid": "3",
+          "body": {
+            "status": "frozen",
+            "create_key": "ops:7:currency_status:3:frozen"
+          }
+        },
+        {
+          "cid": "5",
+          "body": {
+            "status": "listed",
+            "create_key": "ops:7:currency_status:5:listed"
+          }
+        }
+      ],
+      "afterDismiss": {
+        "dialogs": [
+          {
+            "type": "confirm",
+            "message": "确认对「AAA」执行「冻结」？该币种全部未成交挂单将被撤销；下架后不可恢复。"
+          }
+        ],
+        "posts": 0
+      },
+      "afterAccept": {
+        "dialogs": [
+          {
+            "type": "confirm",
+            "message": "确认对「AAA」执行「冻结」？该币种全部未成交挂单将被撤销；下架后不可恢复。"
+          }
+        ],
+        "posts": 1,
+        "listGetsDelta": 1
+      }
+    },
+    "D_unfreeze": {
+      "dialogs": [],
+      "posted": 1
+    }
+  },
+  "pageErrors": []
+}

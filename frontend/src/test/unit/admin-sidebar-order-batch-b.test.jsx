@@ -122,10 +122,10 @@ describe('批次 B · 六项改名：四语逐字（键名不动 ⇒ 零键漂�
     }
   })
 
-  it('② 键名与键集零漂移：`adminNav` 四语均 30 键，且本批改名的六个键名仍在（未改名）', () => {
+  it('② 键名与键集零漂移：`adminNav` 四语均 31 键，且本批改名的六个键名仍在（未改名）', () => {
     for (const lang of LANGS) {
       const table = readTable(lang).adminNav
-      expect(Object.keys(table).length, lang).toBe(30)
+      expect(Object.keys(table).length, lang).toBe(31) // [exchange-currency-status（2026-10-24）：+1 `adminNav.currencyStatus` ⇒ 30⇒31]
       for (const key of Object.keys(EXPECT)) expect(table[key], `${lang}.${key}`).toBeDefined()
     }
     // 负向锁：旧值不得残留在**本键**上

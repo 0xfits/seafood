@@ -620,6 +620,7 @@
     "weightMatrixDesc": "Referral weights per level",
     "currencyReview": "Unit review",
     "currencyReviewDesc": "Review user-created point units",
+    "currencyStatus": "Currency management",
     "listingReview": "Listing Review",
     "listingReviewDesc": "Review user listings",
     "arbitrationReview": "Job Arbitration",
@@ -1024,6 +1025,17 @@
     "approved": "Approved",
     "rejected": "Rejected",
     "actionFailed": "Failed to submit the review: {{message}}"
+  },
+  "adminCurrencyStatus": {
+    "colListedAt": "Listed at",
+    "actList": "List",
+    "actFreeze": "Freeze",
+    "actDelist": "Delist",
+    "confirm": "Confirm \"{{action}}\" for \"{{symbol}}\"? All open orders of this currency will be cancelled; delisting cannot be undone.",
+    "locked": "The system currency $ is protected; its status cannot be changed.",
+    "reasonActiveOrders": "This currency still has open orders. Please try again later.",
+    "reasonFeePath": "Listing must go through the unit review and listing-fee flow; use the Unit review tab.",
+    "done": "Currency status updated."
   },
   "adminListingReview": {
     "title": "Listing Compliance Review",

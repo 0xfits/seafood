@@ -620,6 +620,7 @@
     "weightMatrixDesc": "Trọng số hoa hồng theo cấp",
     "currencyReview": "Duyệt đơn vị",
     "currencyReviewDesc": "Duyệt đơn vị điểm do người dùng tạo",
+    "currencyStatus": "Quản lý tiền tệ",
     "listingReview": "Duyệt tin đăng",
     "listingReviewDesc": "Duyệt tin đăng của người dùng",
     "arbitrationReview": "Trọng tài việc làm",
@@ -1024,6 +1025,17 @@
     "approved": "Đã duyệt",
     "rejected": "Đã từ chối",
     "actionFailed": "Không gửi được kết quả duyệt: {{message}}"
+  },
+  "adminCurrencyStatus": {
+    "colListedAt": "Thời điểm niêm yết",
+    "actList": "Niêm yết",
+    "actFreeze": "Đóng băng",
+    "actDelist": "Gỡ niêm yết",
+    "confirm": "Xác nhận \"{{action}}\" cho \"{{symbol}}\"? Toàn bộ lệnh chưa khớp của đồng này sẽ bị hủy; gỡ niêm yết không thể hoàn tác.",
+    "locked": "Đồng hệ thống $ được bảo vệ, không thể đổi trạng thái.",
+    "reasonActiveOrders": "Đồng này vẫn còn lệnh chưa khớp, vui lòng thử lại sau.",
+    "reasonFeePath": "Việc niêm yết phải qua luồng duyệt đơn vị và phí niêm yết; hãy dùng tab Duyệt đơn vị.",
+    "done": "Đã cập nhật trạng thái đồng tiền."
   },
   "adminListingReview": {
     "title": "Duyệt tuân thủ tin đăng",
