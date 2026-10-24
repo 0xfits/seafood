@@ -42,6 +42,7 @@
 > **★ 现行版 = v1.36（2026-10-24 · 后台「站点文案」页**拆解到位**：一页拆四块（积分 / 用户 / **新页【电量】** / 设置）＋ 两组删除 ＋ 品牌行 `Seafood Admin` = 带语言前缀的首页链接 ＋ **积分页「邀请奖励」卡控件闸缺陷修正** · **状态改写式 · 只追加零删行** · 本单只写 `docs/**`）**：**新增 §37 + 规则 `T136` / `T136-a` / `T136-b` / `T136-c`**。**① `T136`（新页【电量】）** = `/dashboard/power`（侧栏该项**原位**替换已下线的「站点文案」项；**不重排** = 批次 B 的事）· 唯一内容 = **铸造与销毁**数值组（`mint_burn_policy` 5 字段）· 页标题 / 侧栏标题复用既有四语键 `battCard.title`、侧栏描述复用 `adminSiteText.policyMintBurn` ⇒ **零新增 i18n 键**。**② `T136-a`（搬家件的控件闸 = 写口闸 · 本节承载 A 项真缺陷修正）** = 数值策略卡的输入 / 保存控件启用**必须**跟写口 `POST /api/admin/settings` 的后端闸 **`manage_settings`** 同键；无该权限 ⇒ 控件 `disabled` + **恰一行只读提示**（复用 `adminCommon.readOnlyNotice`，**零新增键**），**不得隐藏卡片**；**页面可见性**仍由各页路由闸（积分页 `manage_points` / 用户页 `read_users` / 电量页 `manage_settings`）决定 —— **两个键不得混用**。**③ `T136-b`（两组删除）** = 任务电量 `batt_policy` / 签到 `checkin_policy` **UI 与默认值一并删除**（承 `T135-a` 同取向：不可用的东西不占位），**四语 i18n 键保留为孤儿**（键集 `top 135 / flat 1453` 零漂移）。**④ `T136-c`（品牌行）** = `Seafood Admin`（原硬编码 `Jinli Admin`）＝**一个 `<Link>` 包整段**（图标 + 面板名 + 品牌名，**不得嵌套链接**）→ 首页且 **href 带当前语言前缀**（zh ⇒ `/`；en/hk/vn ⇒ `/<lang>`）、`aria-label` = 品牌名 + 返回首页（复用 `notFound.backHome`）、hover = **`T130` 第③类（只变色 · 不位移）**。**⑤ 读数（本笔现取）** = unit **102 files / 1143 tests / 0 failed**（改前基线 **101 / 1124**；本批 +1 文件 / +19 用例）· a11y **1 / 16** · components **2 / 14** · build **exit 0** ⇒ `index-DDfED5f2.js` **636,988 B** / `index-N4cMn6Lr.css` **190,954 B**（CSS 名与字节**未变**）。**零 token / 零 `STRUCT` / 零 CSS 契约变更**（只复用既有 `.sf-chip` / 后台表格 / `.btn` 家族）。**本单对 design 册 = 纯追加**（`git diff --numstat` = **74 / 0**：版本头 1 行 + §12 表 1 行 + 尾 §37 全文；**整行删除 = 0**）。姊妹册 = `route-layer.spec` **v2.53 §49.26** + `master-plan` **§5.465 / v0.384**。
 > **★ 现行版 = v1.37（2026-10-24 · Kevin 批次 B 裁定 = 后台侧栏**七项定序 + 六项文案改名** · **只追加零删行** · 本单只写 `docs/**` + 同批实现落在 `frontend/**`）**：**① 定序（`T137`）** = 后台侧栏七项**严格**按 **总览 → 用户 → 积分 → 电量 → 交易所 → 审计 → 设置** 渲染（实现方式 = 只调 `AdminLayout.jsx` 菜单数组的**元素顺序**）。**② 六项改名（`T137-a` · 只改 i18n **值**、键名不动 ⇒ 零键漂移）** = `adminNav.dashboard` 仪表板 ⇒ **总览**（Overview / 總覽 / Tổng quan）· `adminNav.users` 用户管理 ⇒ **用户**（Users / 用戶 / Người dùng）· `adminNav.points` 积分管理 ⇒ **积分**（Points / 積分 / Điểm）· `adminNav.settings` 基本设置 ⇒ **设置**（Settings / 設定 / Cài đặt）· `adminNav.feeRate` 交易所管理 ⇒ **交易所**（Exchange / 交易所 / Sàn）· `adminNav.auditConsole` 审计台 ⇒ **审计**（Audit / 審計 / Kiểm toán）；【电量】项标题仍取 `battCard.title`（**不改**）。**③ 不变量（`T137-b`）** = 七项 `path` / `requiredPermission` / `icon` **一字不动**，路由层与后端**零改动**（本单不改任何 `Route`）。**④ 留痕（`T137-c`）** = `T136` 的判负项「侧栏因本批发生**位序变化（重排）⇒ 判负（属批次 B）**」由本批**消费完毕**（批次 B 已执行，原文一字未改、以本条为准）。**⑤ 诚实登记** = 生产 JS 里 `基本设置` 仍 **1 命中**（= `adminSettings.cardBasic` 卡片标题，**非 `adminNav.settings`**）、`审计台` 仍 **1 命中**（= `auditConsole.pageTitle`）⇒ 属**其它键的合法文案**，不在本批六项改名范围内（是否一并改名 = Kevin 裁定项）；`交易所管理` / `仪表板` / `用户管理` / `积分管理` 均 **0 命中**。**⑥ 读数** = unit **103 files / 1152 tests / 0 failed**（改前基线 **102 / 1143**；本批 +1 文件 / +9 用例）· a11y **1 / 16** · components **2 / 14** · build **exit 0** ⇒ `index-r_IjLpLA.js` **636,831 B** / `index-N4cMn6Lr.css` **190,954 B**（CSS 名与字节**未变** = 零 CSS 契约变更）。姊妹册 = `master-plan` **§5.466 / v0.385**；`route-layer.spec` **不需要改**（路径未变）。
 > **★ 现行版 = v1.38（2026-10-24 · Kevin【我的邀请】需求 · **状态改写式 · 只追加零删行** · 实现与实测同批落在 `frontend/**`）**：**① OTP 6 格输入形态入册（`T138`）** —— 苹果验证码式 **6 格单字符数字输入**（`frontend/src/components/OtpInput.jsx`）：6 格定宽 **44×52**（≤767 均分，各格 `flex: 1 1 0` + `min-width: 44px` + 高 `48px`）、`inputMode="numeric"` + `pattern="[0-9]*"`、粘贴整串从当前格起填满、自动前进 / 回退、整组 `role="group"` + 每格独立 `aria-label`；**`000100` = uid `100`**（补零解析在 UI 层；全 0 / 不足 6 位 ⇒ 无效、**不发请求**）。**② 【我的邀请】pane（`T138-a`）** —— `/profile/invite`：未绑 = 6 格 + 【绑定】；成功 = **Toast**（承 `T126` 一次性变更口径）且卡内**零成功文案**；失败 = **卡内 `role="alert"` 内联**、**不弹 Toast**、不含机读码；已绑 = 「已绑定邀请人 **000100**」+ 6 格 `disabled` + **无提交钮**。**③ 菜单位置（`T138-b`）** —— 左栏「我的收藏」与「账户设置」**之间**（钩子 `profile-nav-invite`），≤767 横向页签同序。**④ 几何 / 主题（`T138-c`）** —— **零新主题 token**（颜色全取既有 `--sf-*`），几何落页面局部 `--sf-l-prof-otp-*`（日 / 夜**同值**）；≤767 每格触控 **44×48 ≥ 44**；390 / 767 / 1536 **零横向溢出**。**⑤ 手机档缺陷与修法（本单实测）** —— `.sf-prof` 在 ≤767 变 `column` 后，基档 `align-items: flex-start` 使 `.sf-prof-content` 宽 = **max-content**（390 实测 `scrollWidth 1486`，6 格各 ~231px）⇒ 补 `.sf-prof-content { width: 100%; max-width: 100% }`（与 `.sf-prof-nav` 2026-10-21 同根因、同修法）。**⑥ 读数** = unit **104 files / 1171 tests / 0 failed** · a11y **1 / 16** · components **2 / 14** · build **exit 0** ⇒ `index-CFtJeqEX.js` **644,886 B** / `index-B8_-5uN9.css` **192,737 B** · 真浏览器探针 **59/59 PASS**。姊妹册 = `route-layer.spec` **v2.55 §49.27** + `master-plan` **§5.469 / v0.388**。
+> **★ 现行版 = v1.39（2026-10-24 · Kevin「Toast 双轨」裁定落册 · **状态改写式 · 只追加零删行** · 新增 §40 + 规则 `T139` · 实现与实测同批落在 `frontend/**`）**：**① 分两类** —— **普通提示类 + 余额减少类** toast **一字不改**（右上角、既有字号）；**余额增加类** ⇒ **单一出口 `toastCredit`**（`frontend/src/toast-credit.js`）：**页面正中**（`position: 'top-center'` + `32vh` 重心，非贴顶）· **18px** · **5s** · 专属类 **`.sf-toast-credit`**（`frontend/src/styles.css` 顶层：字重 700 / 描边 + 柔光 / 0.92→1 缩放入场 / `prefers-reduced-motion` 禁用 / 深色档随 token 翻档）。**② 归类硬口径（恰 5 处 6 个调用点）** —— 领工资（`WagePage`）· 领奖一键全领 + 领奖单笔（`ClaimButton` ×2）· 铸造 BTTC +1（`WageMintEntry`）· 退款到账（`MyOrdersPanel`）· 确认收货货款入账（`MyOrdersPanel`）；**充值 / 购买 / 收藏 / 发布编辑 / 保存设置 / 权限角色 / 刷新 / 登录注册 / bio 保存 / 我的邀请绑定** 等**不在名单内、一律维持原样**；**失败一律仍内联**（不得改 toast）。**③ 层级** —— 强化档在场时 toast 容器压到 **50**（**< 模态框实测 60**）；普通 toast 单独在场时容器仍 **9999**（`:has()` 定向，故双轨互不借道）。**④ 零新主题 token / 零新 i18n 键 / 零后端**（成功文案复用现役键）。**⑤ 纪律** —— 新增「余额增加类」成功提示**必须先归入 `toastCredit`**，否则视为退回弱提示、判负。**读数**：unit **105 files / 1188 tests**（基线 104/1171）· a11y **1/16** · components **2/14** · build `index-BFyDo_Vn.js` **645,092 B** / `index-CA97N5ax.css` **193,425 B** · 探针 **23/23**。
 
 > **★ v1.10 姊妹册（同批交付）** = `docs/route-layer.spec.md` **v2.28 §38**（`/item` 家族 + 旧路由硬删 + 「前端概念名 ⇄ 后端路径名」映射表）；本册只承载 **形态 / 入口集合 / 可达性 AC / 合并页口径 / i18n 删改留表**，**不重抄**。
 > **v1.5 口径来源（逐字）**：Kevin 2026-10-11 定档 ①方案 A·UI 先行（不动后端）②右悬浮菜单仅桌面档显示、H5 隐藏 ③消息模块占位（后续接驳 X/推特私信）④客服/反馈做弹窗模板位；**＋ Kevin 当日两条连锁更正**（`Zang` 转达）：**(A)** 底栏第二项 = **「市场」→ `/exchange`**（key `shard`，图标 `Store`；**不再新建 `/nearby` 占位页、`nearby` 键不新增**）**(B)** `T76` 去重按新底栏集合重算（**`exchange` 继续排除、`reward`/`task` 恢复**）。
@@ -870,6 +871,7 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 | **v1.37** | 2026-10-24 | **后台侧栏七项定序 + 六项文案改名（批次 B · 只追加零删行）**：新增 §38 + 规则 `T137` / `T137-a` / `T137-b` / `T137-c` —— **① `T137` 定序** = 总览 → 用户 → 积分 → **电量** → 交易所 → 审计 → 设置（实现 = `AdminLayout.jsx` 菜单数组元素顺序；各项 path / 闸 / icon 一字不动）；**② `T137-a` 六项改名（只改值 · 零键漂移）** = `adminNav.dashboard` 总览 / `users` 用户 / `points` 积分 / `settings` 设置 / `feeRate` 交易所 / `auditConsole` 审计（四语 zh/hk/en/vn 逐字落册）；**③ `T137-b`** = 七项 `path`（`/dashboard`、`/dashboard/users`、`/dashboard/points`、`/dashboard/power`、`/dashboard/exchange`、`/dashboard/audit-console`、`/dashboard/settings`）与权限闸/图标**零改动**、路由层零改动；**④ `T137-c`** = `T136` 判负项「重排 ⇒ 判负（属批次 B）」**已被本批消费**（原文留痕、以本条为准）；**⑤ 诚实登记** = 生产 JS `基本设置` 1 命中（`adminSettings.cardBasic`）· `审计台` 1 命中（`auditConsole.pageTitle`）= 其它键合法文案，不在本批范围。**读数** = unit **103 / 1152**（基线 **102 / 1143**）· a11y **16** · components **14** · build exit 0 ⇒ `index-r_IjLpLA.js` 636,831 B / `index-N4cMn6Lr.css` 190,954 B（CSS 字节未变）。 |
 | **v1.38** | 2026-10-24 | **【我的邀请】= 用户自助绑定邀请人（状态改写式 · 只追加零删行 · 实现同批落地）**：新增 §39 + 规则 `T138` / `T138-a` / `T138-b` / `T138-c` —— **① `T138` OTP 6 格输入形态**（`components/OtpInput.jsx`：6 格定宽 44×52 · `inputMode=numeric` · 粘贴整串从当前格填满 · 自动前进/回退 · `role=group` + 每格 `aria-label` · `000100 ⇒ 100` 补零在 UI 层）；**② `T138-a` 【我的邀请】pane 三态**（`/profile/invite`：未绑 = 6 格 + 【绑定】· 成功 = **Toast** 且卡内零成功文案 · 失败 = 卡内 `role=alert` 内联且不弹 Toast · 已绑 = 「已绑定邀请人 000100」+ 6 格 `disabled` + 无提交钮）；**③ `T138-b` 菜单位置**（「我的收藏」↔「账户设置」之间，钩子 `profile-nav-invite`，≤767 横向页签同序）；**④ `T138-c` 几何/主题**（零新 token · 页面局部 `--sf-l-prof-otp-*` 日夜同值 · ≤767 每格 44×48 ≥44 · 390/767/1536 零横向溢出）；**⑤ 手机档真缺陷修正** = `.sf-prof-content` 在 column 档宽 = max-content（390 实测 `scrollWidth 1486`）⇒ 夹 `width/max-width: 100%`（与 `.sf-prof-nav` 同根因）；**⑥ 读数** = unit **104 / 1171** · a11y **1/16** · components **2/14** · build `index-CFtJeqEX.js` **644,886 B** / `index-B8_-5uN9.css` **192,737 B** · 探针 **59/59**。姊妹册 = `route-layer.spec` v2.55 §49.27 + `master-plan` §5.469 / v0.388（正文 §39） |
 
+| **v1.39** | 2026-10-24 | **Toast 双轨（状态改写式 · 只追加零删行 · 实现与实测同批落地）**：新增 §40 + 规则 `T139` —— **① 分类** = 普通提示类 + 余额减少类**保持现状**（右上角、既有字号、`<Toaster position="top-right" />` 一字不改）；余额增加类 ⇒ **单一出口 `toastCredit`**（`toast.success` + 单条 `position:'top-center'` · `duration:5000` · `className:'sf-toast-credit'` · `style{marginTop:'32vh', fontSize:18}`）。**② 5 处归类清单** = 领工资 · 领奖（一键全领 / 单笔）· 铸造 · 退款到账 · 确认收货；**发货 / 购买 / 充值 / 收藏 / 保存设置 / 刷新 / 登录注册等维持原样**，失败仍内联。**③ 样式** = `.sf-toast-credit` 顶层块（18px/700/描边+柔光/缩放入场/reduced-motion 禁用/深色档随 token），**零新 token**；层级 = 强化档在场时容器 **50 < 模态框 60**，普通档仍 **9999**（`:has()` 定向）。**④ 读数** = unit **105/1188**（基线 104/1171）· a11y **1/16** · components **2/14** · build `index-BFyDo_Vn.js` 645,092 B / `index-CA97N5ax.css` 193,425 B · 探针 **23/23 PASS**（中心偏差 0px · 纵向 37% · 18px · 普通档 16px 且 z=9999 · 深色档 rgb(232,234,237)/rgb(16,17,20) · pageerror 0）。 |
 
 ### 与上游文件的关系（只读，本册未改一字）
 
@@ -5329,3 +5331,63 @@ showEdit     = isAuthenticated && (isOwner || canEditAny) && statusEditable
 - **i18n 现取**：top **136** / flat **1461** × 四语（zh / en / hk / vn 逐文件相等）。
 - **`NOT_MEASURED`**：真库绑定（`referral_bind` + 触发器算 `depth`）**未跑**（纪律 = 生产库零写入）；真机 iOS Safari 的粘贴行为未实测（探针用合成 `ClipboardEvent`，覆盖 Chrome）。
 - **未改写面**：`docs/versions/**` 本单**未新建 / 未重制**快照（现行口径以本册 live 正文为准）；`ctrl/**` / `tools/**` 零改动；未启停任何服务。
+
+## §40 ★★ v1.39 · **Toast 双轨**：普通/余额减少类维持原样 ＋ **余额增加类走单一出口 `toastCredit`** —— 规则 **`T139`**（2026-10-24 · Kevin 裁定 · **状态改写式 · 只追加零删行** · 实现与实测同批落在 `frontend/**`）
+
+> **本节读法（状态改写式）**：本节**不改写任何旧行**。与旧条文冲突处（`T126` 的「范围严格限于领工资 / 领奖两类」与「订单退款 / 收货仍内联」两支）**以本节为准**，旧字面逐字保留。依据 = **Kevin 2026-10-24「Toast 分两类」裁定**；实现 = `frontend/src/toast-credit.js`（新）+ 4 个调用点文件 + `frontend/src/styles.css` 顶层块。
+
+### 40.0 裁定口径（Kevin 2026-10-24，逐条转写）
+
+1. **Toast 分两类**，不许混着写：
+   - **① 普通提示类 + 余额减少类** ⇒ **保持现状一字不改**（右上角、既有字号、默认 `duration`）；
+   - **② 余额增加类** ⇒ **视觉强化**：位置到**页面正中央**（视觉重心、非贴顶）、**字号放大**、**更醒目**。
+2. 归类是**纪律**：只有「钱/币进账」这类成功反馈进强化档；不因「想更醒目」就把别的提示搬进去。
+3. 强化档必须是**单一出口**（一处真源），5 处调用点全部借同一出口，不许各写一份 options。
+
+### 40.1 新规则 `T139`
+
+| 规则 | 条文 | 落点（现盘） | 判负 |
+| --- | --- | --- | --- |
+| **T139** | 【本册裁定 · v1.39】**Toast 双轨**：**普通提示类 + 余额减少类**一律照旧；**余额增加类**成功反馈**只能**经 `toastCredit`（`position:'top-center'` · `duration:5000` · `className:'sf-toast-credit'` · `style{marginTop:'32vh', fontSize:18, padding:'14px 22px', borderRadius:14, maxWidth:'min(90vw,560px)'}`）⇒ 页面正中、**18px**、5s。**新增任何「余额增加类」成功提示必须先归入此出口**。失败一律**仍内联**（不得改 Toast）。 | `frontend/src/toast-credit.js`（唯一出口）· `styles.css` 顶层 `.sf-toast-credit` 块 · `pages/wage/WagePage.jsx` · `pages/campaign/ClaimButton.jsx`（×2）· `pages/wage/WageMintEntry.jsx` · `pages/item/MyOrdersPanel.jsx`（×2） | ① 在调用点内联写 `position/className/fontSize`（绕过出口）= 判负；② 把非「余额增加类」提示搬进强化档 = 判负；③ 失败侧改 Toast = 判负（承 `T126` 失败侧）；④ 新增主题 token 或改 `<Toaster position>` = 判负；⑤ 强化档压过模态框（层级 ≥ 60）= 判负 |
+
+### 40.2 归类清单（**恰 5 处 / 6 个调用点**，不得自行扩面）
+
+| # | 场景 | 文件:行（现盘） | 文案键 | 走 `toastCredit` |
+| --- | --- | --- | --- | --- |
+| 1 | 领工资成功（batt + 次币到账） | `pages/wage/WagePage.jsx` | `wage.claimed` / `wage.claimedWithCurrency` (+`wage.streakReward`) | ✅ |
+| 2 | 领奖·**一键全领** | `pages/campaign/ClaimButton.jsx` | `campaign.claim.allOk` | ✅ |
+| 3 | 领奖·**单笔** | `pages/campaign/ClaimButton.jsx` | `campaign.claim.ok` | ✅ |
+| 4 | 铸造成功（BTTC +1） | `pages/wage/WageMintEntry.jsx` | `bttcPanel.mintOk` | ✅ |
+| 5 | **退款成功**（买方 $ 退回） | `pages/item/MyOrdersPanel.jsx`（退款面板） | `item.refundOk` | ✅ |
+| 6 | **确认收货成功**（卖方货款入账） | `pages/item/MyOrdersPanel.jsx`（订单动作面板，仅 `receive`） | `listingOrders.receiveOk` + `listingOrders.statusLabel.*` | ✅ |
+
+**明确不强化（维持原样、逐字不改）**：分解 / burn · 购买 · 充金库 · 收藏（`item.favoriteOk`）· 发布 / 编辑（`item.publishOk` / `item.editOk`）· 保存设置（`adminSettings.saved` / `adminWeightMatrix.saved` / `adminSiteText.saved`）· 权限 / 角色变更 · 各类刷新（`adminCommon.refresh`）· 登录 / 注册（`walletAuth.*`）· bio 保存（`profilePage.bioSaved` / `authPage.bioSaved`）· **我的邀请绑定成功（`invite.ok`，非余额）** · **发货成功（`listingOrders.shipOk`，非余额）**。
+
+### 40.3 形态与层级（现盘实测）
+
+- **位置**：`position: 'top-center'` 是**单条 toast 覆盖**（`react-hot-toast` 2.6.0 的 `ToastOptions.position`），全局 `<Toaster position="top-right" />` **不动** ⇒ 普通类零变化的物理前提；纵向重心用 `style.marginTop: '32vh'`（容器是 `position:fixed; top/left/right/bottom:16px` 的 flex 容器，逐条 toast 只能在其内位移）⇒ 实测中心 **37%** 视口高（区间 25%–55%）。
+- **字号**：`font-size: 18px`（`styles.css` 用 `!important` 压过 `react-hot-toast` 写在内联 style 上的默认值）；字重 700；描边 = `--sf-st-stroke-w-strong` + `--sf-page-fg`；阴影**只许零偏移**（`0 0 26px rgba(0,0,0,.32)`）—— 本仓 `s22-decor-cleanup` ④ 把「非 inset 且 x/y ≠ 0 的阴影层」判负、并把零偏移环 `0 0 0 Npx` 的出现次数冻结。
+- **入场**：`@keyframes sf-toast-credit-in`（`opacity 0→1` + `scale(0.92→1)`，220ms）；`@media (prefers-reduced-motion: reduce)` 下整段 `animation: none`。
+- **深色档**：**同一份规则**（颜色全取既有 token `--sf-page-fg` / `--sf-surface-bg`），夜档自动翻成「深底亮字亮描边」，**零 `[data-theme]` 分支、零新 token**；实测夜档 `color = rgb(232,234,237)` / `background = rgb(16,17,20)`，对比度未降。
+- **层级**：模态框实测 `.sf-project-modal` / `.sf-wage-modal` = **z-index 60**（数量弹层 20 / 市场下拉 30 / `.sf-fm` 6 / 底栏 4）⇒ 强化档容器取 **50 < 60**；`react-hot-toast` 2.6.0 把 `zIndex: 9999` 写成容器**内联值**且容器本身即叠加上下文 ⇒ 单条 toast 无法越出，只能压容器；用 `[data-rht-toaster]:has(.sf-toast-credit)` **定向**压 —— 普通 toast 单独在场时容器仍是 **9999**（探针实测）。
+
+### 40.4 断言面（单测 + 真浏览器探针）
+
+- **单测** `frontend/src/test/unit/toast-credit.test.jsx`（**17 例**）：出口参数逐键（position / className / 5000 / 18 / 32vh）；`opts` 不改出口定义；`ClaimButton` 两变体真渲染走强化档；`MyOrdersPanel` 退款 / 收货走强化档且**卡内零成功文案**、**发货零 toast 仍内联**、退款失败**零 toast**；**反向** = 收藏 / bio / 后台设置 / 我的邀请绑定**逐字未动**、`toastCredit` 引用面 = 出口 + 4 文件、`<Toaster position="top-right" />` 仍在。
+- **既有断言前推**：`campaign-claim.test.jsx`（3 处）与 `wage-page.test.jsx`（3 处）原 `toEqual({ duration: 5000 })` ⇒ `objectContaining({ duration: 5000, position: 'top-center', className: 'sf-toast-credit' })`（同 5 处，参数变更是本单本体）。
+- **探针** `ops/toast-credit/probe-toast-credit.mjs`（playwright + `frontend/dist` 静态映射 + `context.route` 夹具，**生产库零写入**）⇒ **23 checks / 23 passed / pageerror 0 / console error 0**；读数落 `ops/toast-credit/readings/probe-toast-credit.json`。四面 = ① 强化档水平中心偏差 **0px**（桌面 1536 / 手机 390 两档）、纵向中心 **37% / 37.7%**；② computed **18px**；③ 普通 toast `top=28`（< 120）、右侧 36px、字号 **16px**（仓内既有值）、容器 **z=9999**；④ 夜档 `rgb(232,234,237)` / `rgb(16,17,20)`、仍居中、仍 18px。
+
+### 40.5 零变更声明
+
+- **零新主题 token / 零 `STRUCT` / 零 `PROV`**：颜色取 `--sf-page-fg` / `--sf-surface-bg`，描边宽取 `--sf-st-stroke-w-strong`；`.sf-toast-credit` 为单类，不进 token 层。
+- **零 i18n 键**：成功文案全部复用现役键（`wage.claimed*` / `campaign.claim.ok` / `campaign.claim.allOk` / `bttcPanel.mintOk` / `item.refundOk` / `listingOrders.receiveOk`）。
+- **零后端 / 零路由 / 零迁移**：本单只碰 `frontend/src/{toast-credit.js, styles.css}`、4 个调用点文件、1 个单测文件、2 个既有测试的参数断言、`ops/toast-credit/**`、`docs/**`。
+- **普通 toast 零变化**：`main.jsx` 的 `<Toaster position="top-right" />` 一字未动；除本单 5 处外**任何 toast 调用一字未改**（探针 ③ + 单测反向断言双证）。
+
+### 40.6 编号现取与纪律自检
+
+- **编号现取**：节号 **`§40`**（现盘最大 `§39`）· 规则 **`T139`**（现盘最大 `T138` 家族）· 版本行 **`v1.39`**（现盘最大 `v1.38`）。
+- **门读数（本笔现取 · 2026-10-24）**：unit **105 files / 1188 tests / 0 failed**（基线 **104 / 1171**）· a11y **1 file / 16 tests** · components **2 files / 14 tests** · `npm run build` **exit 0** ⇒ `index-BFyDo_Vn.js` **645,092 B** / `index-CA97N5ax.css` **193,425 B**（改前 `index-CFtJeqEX.js` 644,886 B / `index-B8_-5uN9.css` 192,737 B）· 探针 **23/23 PASS**。
+- **`NOT_MEASURED`**：真机 iOS Safari 的 `:has()` 与 `marginTop: 32vh` 视觉未实测（探针覆盖 Chrome 1536 / 390 两档）；模态框打开且强化 toast 同时在场的像素级遮挡未截图（层级只取 computed `z-index` 与 CSS 实测值 60）。
+- **未改写面**：`§1–§39` 与 `T1`–`T138` 正文一字未动；`docs/design/style-preview.html`（真源）零改动；`backend-ts/**` / `ctrl/**` / `tools/**` 零改动。
+- **本单对 design 册 = 纯追加**（版本头 1 行 + §12 表 1 行 + 本节全文），`git diff --numstat` 删除列 = **0**。

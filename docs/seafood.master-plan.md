@@ -5,6 +5,7 @@
 > ★ **版本行 = `v0.367`（2026-10-22）** —— 做市架构 **P1 / P2 / P3** 分期裁定入册：**P2（WS 行情 / post-only·IOC / maker-taker 费率分离 / MM 独立限频）列入未来建设计划、暂不实施**；三段摘要见 **§6 末「做市架构分期」**，挂账见 `docs/OPEN-ITEMS.md` **`B45`**（本行上方 `v0.2` 为初版行、逐字保留不动）
 
 > ★ **版本行 = `v0.388`（2026-10-24）** —— **【我的邀请】上线**（用户自助绑定邀请人：两端口 `GET /api/referral/me` + `POST /api/referral/bind` ＋ 前端路由 `/profile/invite` ＋ OTP 6 格输入形态；一次性、不可改绑；`depth` 由 DB 触发器算、`create_key` 只校验不消费）；三段摘要见 **§5.469**，契约见 `route-layer.spec` **v2.55 §49.27** + `design-system.spec` **v1.38 §39（`T138`）**
+> ★ **版本行 = `v0.389`（2026-10-24）** —— **Toast 双轨**（Kevin 裁定）：普通提示类 + 余额减少类 toast **一字不改**（右上角 / `<Toaster position="top-right" />` 不动）；**余额增加类**成功反馈**统一走单一出口 `toastCredit`**（`frontend/src/toast-credit.js` ⇒ `position:'top-center'` · `duration:5000` · `className:'sf-toast-credit'` · `18px` · `marginTop:32vh`），归类**恰 5 处 / 6 个调用点** = 领工资 · 领奖（一键全领 / 单笔）· 铸造 · 退款到账 · 确认收货；层级 = 强化档在场时容器 **50 < 模态框 60**，普通档仍 9999（`:has()` 定向）；**零新 token / 零新 i18n 键 / 零后端**。三段摘要见 **§5.470**，形态契约见 `design-system.spec` **v1.39 §40（`T139`）**
 
 ---
 
@@ -1418,6 +1419,23 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 **D. 我裁的口径（一句话可改）**：① **批 7 =「用户可见读口」线**，首单只做 `/api/user/ledger`；② **`/api/user/points` 暂不注册** —— 前端现无消费方（现走 `/api/user/asset/:uID`），不造**无人消费的空路径**（本册 §1.2 补强的同一理由）；③ **装饰性切角与 legacy 硬阴影不并入本批**（审美面，需 Kevin 口径）；④ **本批不 `commit`/`push`**，由我验收后入库 —— **注意本仓推送即上线**。
 
 
+### 5.470 ★★ **Toast 双轨** = 普通/余额减少类**维持原样** ＋ **余额增加类走单一出口 `toastCredit`**（页面正中 · 18px · 5s · 专属类 · 层级 < 模态框）· 2026-10-24 · **v0.389** · 纯追加
+
+**A. 裁定（Kevin 2026-10-24）**：toast 分两类，不许混写。**①** 普通提示类 + **余额减少类** ⇒ **保持现状一字不改**（右上角、既有字号、`main.jsx` 的 `<Toaster position="top-right" />` 不动）；**②** **余额增加类** ⇒ **视觉强化**：位置到**页面正中央**（视觉重心、非贴顶）、**字号放大**、**更醒目**。**③** 强化档必须是**单一出口**（一处真源），不许在调用点各写一份 options。
+
+**B. 实现（本批 `frontend/**`）**
+- **新出口** `frontend/src/toast-credit.js`：`toastCredit(message, opts)` = `toast.success(message, { position:'top-center', duration:5000, className:'sf-toast-credit', style:{ marginTop:'32vh', fontSize:18, padding:'14px 22px', borderRadius:14, maxWidth:'min(90vw, 560px)' }, ...opts })`；导出 `TOAST_CREDIT_CLASS` / `TOAST_CREDIT_STYLE` 供单测与探针共用同一字面。`position` 用**单条 toast 覆盖**（`react-hot-toast` 2.6.0 支持 `ToastOptions.position`）⇒ 全局默认位不动 ⇒ 普通类零变化。
+- **样式** `frontend/src/styles.css` **顶层**（`@import` 段之后、`@theme` 之外）新增 `.sf-toast-credit`：`font-size:18px !important`（压过库写在内联 style 的默认值）· `font-weight:700` · 描边 `--sf-st-stroke-w-strong` + `--sf-page-fg` · 阴影 `0 0 26px rgba(0,0,0,.32)`（**只许零偏移** —— 本仓 `s22-decor-cleanup` ④ 判负「非 inset 且 x/y ≠ 0 的阴影层」，零偏移环 `0 0 0 Npx` 出现次数亦被冻结）· 外描边圈 `outline` · 入场 `sf-toast-credit-in`（`scale(.92→1)` + 淡入 220ms）· `prefers-reduced-motion: reduce` 下 `animation:none` · **深色档同一份规则**（颜色全取既有 token，自动翻成深底亮字）。**零新主题 token**。
+- **层级**：模态框实测 `.sf-project-modal` / `.sf-wage-modal` = **z-index 60**（数量弹层 20 / 市场下拉 30 / `.sf-fm` 6 / 底栏 4）。库把 `zIndex:9999` 写成 toast **容器内联值**且容器本身即叠加上下文 ⇒ 单条 toast 无法越出，只能压容器 ⇒ `[data-rht-toaster]:has(.sf-toast-credit) { z-index: 50 !important }`：**强化档在场 50 < 60**，**普通 toast 单独在场仍 9999**（`:has()` 定向 = 双轨互不借道的物理保证）。
+- **5 处调用点（6 个出口）改用 `toastCredit`，文案逐字不变**：`WagePage`（领工资，含连续奖励拼句）· `ClaimButton` **×2**（`campaign.claim.allOk` 一键全领 / `campaign.claim.ok` 单笔）· `WageMintEntry`（`bttcPanel.mintOk` 铸造）· `MyOrdersPanel`（`item.refundOk` 退款到账）· `MyOrdersPanel`（`listingOrders.receiveOk` + `statusLabel.*` **确认收货**，仅 `receive` 支）。后两处在现盘是**内联**成功文案 ⇒ 按 `T126`/`T139` 口径改为「**成功 Toast（强化）+ 失败内联**」，`data-sf-phase` 仍置 `ok`、卡内成功文案清空。
+- **其余一字不改**：分解/burn、购买、充金库、收藏、发布/编辑、保存设置、权限/角色、刷新、登录/注册、bio 保存、**我的邀请绑定成功（非余额）**、**发货成功（非余额，仍内联）**。
+
+**C. 断言与读数（本笔现取）**
+- **单测** `frontend/src/test/unit/toast-credit.test.jsx`（**17 例**）：出口参数逐键 · `opts` 不推翻出口定义 · `ClaimButton` 两变体真渲染 · `MyOrdersPanel` 退款/收货走强化档且卡内零成功文案 · **发货零 toast 仍内联** · 退款失败零 toast · **反向** = 收藏/bio/后台设置/我的邀请绑定逐字未动 + `toastCredit` 引用面 = 出口 + 4 文件 + `<Toaster position="top-right" />` 仍在 + CSS 块 18px/无新 token/层级 50<60。既有断言前推：`campaign-claim.test.jsx`（3）/`wage-page.test.jsx`（3）由 `toEqual({duration:5000})` ⇒ `objectContaining({ duration:5000, position:'top-center', className:'sf-toast-credit' })`。
+- **探针** `ops/toast-credit/probe-toast-credit.mjs`（playwright + `dist` 静态映射 + `context.route` 夹具；**生产库零写入**）⇒ **23 checks / 23 passed / pageerror 0 / console error 0**：强化档水平中心偏差 **0px**（1536 与 390 两档）、纵向中心 **37% / 37.7%**、computed **18px**；普通 toast `top=28` / 右距 36px / 字号 **16px**（仓内既有值）/ 容器 **z=9999**；夜档 `color rgb(232,234,237)` / `background rgb(16,17,20)` 且仍居中 18px。
+- **门**：unit **105 files / 1188 tests / 0 failed**（基线 **104 / 1171**）· a11y **1/16** · components **2/14** · `npm run build` **exit 0** ⇒ `index-BFyDo_Vn.js` **645,092 B** / `index-CA97N5ax.css` **193,425 B**（改前 `index-CFtJeqEX.js` 644,886 B / `index-B8_-5uN9.css` 192,737 B）。
+
+**D. 规范面**：`design-system.spec` **v1.39 §40（`T139`）**（形态 / 归类清单 / 层级 / 纪律）+ 本册本节。**零后端 / 零路由 / 零迁移 / 零 i18n 键 / 零新 token**；`route-layer.spec` / `data-layer.spec` / `ledger.spec` 本单未动。
 ### 5.469 ★★ **【我的邀请】上线** = 用户**自助绑定邀请人**（两端口 `GET /api/referral/me` + `POST /api/referral/bind` · 前端路由 `/profile/invite` · OTP 6 格输入形态 · 注册点 `116 → 118` · 零新错误码 · 零迁移/零 DDL）· 2026-10-24 · **v0.388** · 纯追加
 
 **A. 依据**：Kevin 2026-10-24 需求「我的邀请」—— 用户自行填写邀请人 6 位数字编号（不足补 0，如 `000100`）一次性绑定；**一人一次、不可改绑**（改绑无端点、无 UI）。
