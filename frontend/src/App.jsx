@@ -56,7 +56,7 @@ import ExchangeManagementPage from './pages/admin/ExchangeManagementPage'
 import FeeRatePage from './pages/admin/FeeRatePage'
 import ReferralWeightMatrixPage from './pages/admin/ReferralWeightMatrixPage'
 import CurrencyReviewPage from './pages/admin/CurrencyReviewPage'
-import SiteTextPage from './pages/admin/SiteTextPage'
+import PowerPage from './pages/admin/PowerPage'
 import AuditConsolePage from './pages/admin/AuditConsolePage'
 
 // 布局组件
@@ -411,8 +411,13 @@ function App() {
           <Route path="fee-rate" element={<Navigate to="/dashboard/exchange" replace />} />
           <Route path="currency-review" element={<Navigate to="/dashboard/exchange/currency-review" replace />} />
           <Route path="weight-matrix" element={<Navigate to="/dashboard/exchange/commission-levels" replace />} />
-          {/* P9①（spec §27.2/§26.6）：站点文案页（角色文案 + 站点标语 + 数值项），闸 = manage_settings */}
-          <Route path="site-text" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><SiteTextPage /></ProtectedRoute>} />
+          {/* P9①（spec §27.2/§26.6）：站点文案页已于 2026-10-24 批次 A **下线**
+              （四块搬家：邀请奖励→积分 / 评分→用户 / 铸造与销毁→`power` / 角色+站点文案→设置；
+              任务电量、签到两组随删）；旧地址 `site-text` 落后台内层 catch-all **之前**的 redirect
+              ⇒ 保书签，落 `/dashboard/settings`（`<Navigate replace>` · `route-layer.spec` v2.53 §49.26）。 */}
+          <Route path="site-text" element={<Navigate to="/dashboard/settings" replace />} />
+          {/* 电量（新页 · `mint_burn_policy` 现居此处）：闸 = manage_settings */}
+          <Route path="power" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><PowerPage /></ProtectedRoute>} />
           <Route path="audit-console" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_audit"><AuditConsolePage /></ProtectedRoute>} />
           {/* 后台内层兜底：已下线段（`arbitration-review` / `permissions` / `tasks` / `shards` 等）与任何未知后台子路径
               ⇒ 提示页（404 形态，非重定向）。

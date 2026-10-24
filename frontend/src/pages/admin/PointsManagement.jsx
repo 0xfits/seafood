@@ -6,6 +6,7 @@ import { Search, Plus, Minus, Users, TrendingUp, AlertCircle, RefreshCw } from '
 import toast from 'react-hot-toast'
 import { buildLocalizedPath, formatEvmAddress, getLanguageFromUrl } from '../../utils'
 import { fetchAdminAccess, fetchApiJson, getAuthHeaders, getStoredUser, hasAdminPermission, loadAdminUsersWithAssets } from '../../admin-utils'
+import PolicyGroupCard, { POLICY_INVITE } from './PolicyGroupCard'
 
 const formatDateTime = (value, t) => {
   if (!value) return t('adminPoints.neverUpdated')
@@ -86,6 +87,10 @@ const PointsManagement = () => {
   }, [])
 
   const canManagePoints = hasAdminPermission(access, 'manage_points')
+  // 邀请奖励组（`invite_reward_policy`）的写口 = `POST /api/admin/settings`（后端闸 `manage_settings`）
+  // ⇒ 卡内输入 / 保存控件的启用**跟写口同键**，不放宽成 `manage_points`
+  // （否则出现「可编辑但保存必 403」的假开）。页面可见性仍由路由层 `manage_points` 决定。
+  const canManageSettings = hasAdminPermission(access, 'manage_settings')
 
   const handleAdjustPoints = async () => {
     if (!selectedUser || !adjustAmount || !adjustReason) {
@@ -338,6 +343,12 @@ const PointsManagement = () => {
           )}
         </div>
       )}
+
+      {/* 邀请奖励（`invite_reward_policy`）—— Kevin 2026-10-24 批次 A：由已下线的
+          「站点文案」页搬入本页（闸 = `manage_points`）；写口 / 幂等键 / 字段名原样搬运。
+          写闸 = `manage_settings`（与 `POST /api/admin/settings` 同键，与用户页「评分」卡同型）；
+          无该权限 ⇒ 控件 `disabled` + 一行只读提示，**不隐藏卡片**。 */}
+      <PolicyGroupCard group={POLICY_INVITE} canManage={canManageSettings} readOnlyNotice />
 
       <Modal isOpen={showAdjustModal} onClose={() => !adjusting && setShowAdjustModal(false)}>
         <ModalHeader>

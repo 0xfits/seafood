@@ -7,6 +7,7 @@ import toast from 'react-hot-toast'
 import { fetchAdminAccess, fetchApiJson, getAuthHeaders, getStoredUser, hasAdminPermission } from '../../admin-utils'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import { adminOpsKey } from '../../idempotency'
+import { RoleNamesCard, SiteTextCard } from './AdminOverlayCards'
 
 /**
  * 基本设置（Kevin 2026-10-24 裁定 · 三轮中的第②轮：`/dashboard/settings` 重构为**单字段**面板）
@@ -142,7 +143,7 @@ const SystemSettings = () => {
           </div>
 
           <div className="grid gap-6">
-            <Card>
+            <Card data-sf-m="admin-basic-card">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Globe className="w-5 h-5" />
@@ -167,6 +168,12 @@ const SystemSettings = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Kevin 2026-10-24 批次 A（`route-layer.spec` v2.53 §49.26）：站点文案页下线
+                ⇒ 其中的「角色文案」（`role_names` 覆盖层）与「站点文案」（`site_text_overrides` 覆盖层）
+                两块**原样搬入**本页；写口 / 幂等键 / 四语键集一字不动，闸同本页 = `manage_settings`。 */}
+            <RoleNamesCard canManage={canManageSettings} />
+            <SiteTextCard canManage={canManageSettings} />
           </div>
         </>
       )}

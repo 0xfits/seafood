@@ -132,13 +132,14 @@ describe('P6-I18N-LIT-B4b · en 档渲染英文（后台剩余 5 个面）', () 
     wrap(<SystemSettings />)
 
     // 卡片只在 `initialLoading` 结束后出现 ⇒ 先等卡片内容（页头 h2 在 loading 期就在场，不能拿它当「加载完」信号）
-    expect(await screen.findByText('Site name')).toBeInTheDocument()
+    // ★ 2026-10-24 批次 A：站点名称标签出现 2 处（基本设置 siteName + 站点文案 siteTitle）⇒ 改计数断言
+    expect((await screen.findAllByText('Site name')).length).toBeGreaterThanOrEqual(2)
     // 页头 h2（`adminNav.settings`）与卡片标题（`adminSettings.cardBasic`）**同值** ⇒ 至少 2 处
     expect(screen.getAllByText('Basic settings').length).toBeGreaterThanOrEqual(2)
     expect(screen.getByText(/This page reads and saves site settings\./)).toBeInTheDocument()
     expect(screen.getByText('Current content matches the saved settings.')).toBeInTheDocument()
-    // 唯一字段 = 站点名称（复用 `adminSiteText.labelSiteTitle` 的 en 值）
-    expect(screen.getByText('Site name')).toBeInTheDocument()
+    // 站点名称标签走 en（复用 `adminSiteText.labelSiteTitle` 的 en 值；批次 A 后出现 2 处）
+    expect(screen.getAllByText('Site name').length).toBeGreaterThanOrEqual(2)
     expect(screen.getByText('Save settings')).toBeInTheDocument()
     // 必做②：原「（保存按 §2.4 S1/DL36 带 `ops:` 幂等键）…（§5.1 = `410`）」已改写
     expect(screen.queryByText(/§/)).toBeNull()

@@ -92,13 +92,22 @@ describe('A · 基本设置 = 单字段面板（siteName）', () => {
   it('① 只渲出 1 个设置控件，且值来自 `GET /api/admin/settings` 的 `siteName`', async () => {
     const { container } = wrap(<SystemSettings />)
 
-    const box = await screen.findByRole('textbox')
+    // ★ 2026-10-24 批次 A：「站点文案」页下线后，角色文案 / 站点文案两块覆盖层卡搬入本页
+    //   ⇒ 页面内表单控件不再唯一。锚点改到 siteName 输入本身（`#admin-setting-site-name` /
+    //   `data-sf-m`），「基本设置卡内恰 1 个控件」的判据**原样保留**（只是把范围收到该卡）。
+    // 卡片只在 `initialLoading` 结束后挂载 ⇒ 先等 siteName 输入出现（锚点 = `data-sf-m`）
+    await waitFor(() => expect(container.querySelector('[data-sf-m="admin-setting-site-name"]')).not.toBeNull())
+    const box = container.querySelector('[data-sf-m="admin-setting-site-name"]')
     await waitFor(() => expect(box.value).toBe('Seafood Club'))
-    // 页面级断言：表单控件（input/textarea/select）**恰 1 个**（原 8 字段已删）
-    expect(container.querySelectorAll('input, textarea, select').length).toBe(1)
+    expect(container.querySelectorAll('input, textarea, select').length).toBeGreaterThanOrEqual(1)
+    // 页面级断言：**基本设置卡**内表单控件（input/textarea/select）**恰 1 个**（原 8 字段已删）
+    const basicCard = container.querySelector('[data-sf-m="admin-basic-card"]')
+    expect(basicCard).not.toBeNull()
+    expect(basicCard.querySelectorAll('input, textarea, select').length).toBe(1)
     // 页头 / 卡片 / 字段标签 / 保存按钮（zh 档）；页头 h2 与卡片标题同值（`adminNav.settings` = `cardBasic`）
     expect(screen.getAllByText(zh.adminNav.settings).length).toBeGreaterThanOrEqual(2)
-    expect(screen.getByText(zh.adminSiteText.labelSiteTitle)).toBeInTheDocument()
+    // 「站点名称」标签现出现 2 处（基本设置卡的 siteName + 站点文案卡的 siteTitle 行）⇒ 计数断言
+    expect(screen.getAllByText(zh.adminSiteText.labelSiteTitle).length).toBeGreaterThanOrEqual(2)
     expect(screen.getByRole('button', { name: new RegExp(zh.adminSettings.saveButton) })).toBeInTheDocument()
     // 已删的 8 个字段标签一个都不渲染
     for (const key of ['labelSiteDescription', 'labelDefaultLanguage', 'labelPointsPerTask',
@@ -108,8 +117,9 @@ describe('A · 基本设置 = 单字段面板（siteName）', () => {
   })
 
   it('② 保存请求体键集**恰为** `["siteName"]`（含值），ops 幂等键走 `Idempotency-Key` 头', async () => {
-    wrap(<SystemSettings />)
-    const box = await screen.findByRole('textbox')
+    const { container } = wrap(<SystemSettings />)
+    await waitFor(() => expect(container.querySelector('[data-sf-m="admin-setting-site-name"]')).not.toBeNull())
+    const box = container.querySelector('[data-sf-m="admin-setting-site-name"]')
     await waitFor(() => expect(box.value).toBe('Seafood Club'))
 
     fireEvent.change(box, { target: { value: 'New Site' } })
@@ -137,8 +147,9 @@ describe('A · 基本设置 = 单字段面板（siteName）', () => {
 
   it('③ 闸仍 `manage_settings`：无权限者改值后保存按钮仍 disabled', async () => {
     adminUtils.hasAdminPermission.mockReturnValue(false)
-    wrap(<SystemSettings />)
-    const box = await screen.findByRole('textbox')
+    const { container } = wrap(<SystemSettings />)
+    await waitFor(() => expect(container.querySelector('[data-sf-m="admin-setting-site-name"]')).not.toBeNull())
+    const box = container.querySelector('[data-sf-m="admin-setting-site-name"]')
     await waitFor(() => expect(box.value).toBe('Seafood Club'))
 
     fireEvent.change(box, { target: { value: 'X' } })

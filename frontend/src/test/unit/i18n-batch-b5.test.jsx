@@ -21,7 +21,7 @@ import { execFileSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -173,9 +173,11 @@ describe('P6-I18N-LIT-B5 · 必做① `SystemSettings` 待保存值与界面语�
   const siteNameOf = async (lang) => {
     await i18n.changeLanguage(lang)
     cleanup()
-    wrap(<SystemSettings />)
-    const box = await screen.findByRole('textbox')
-    return box.value
+    // ★ 2026-10-24 批次 A：本页已扩成三块（基本设置 / 角色文案 / 站点文案）⇒ 文本框不再唯一，
+    //   锚点改到 siteName 输入本身（判据不变：待保存值必须与界面语言无关）。
+    const { container } = wrap(<SystemSettings />)
+    await waitFor(() => expect(container.querySelector('[data-sf-m="admin-setting-site-name"]')).not.toBeNull())
+    return container.querySelector('[data-sf-m="admin-setting-site-name"]').value
   }
 
   it('zh 档与 en 档的 `siteName`（唯一字段的待保存值）必须相同且为空串', async () => {

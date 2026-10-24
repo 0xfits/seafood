@@ -9,7 +9,7 @@ import {
   Percent,
   Menu,
   X,
-  Type,
+  Zap,
   ScrollText,
   LogOut
 } from 'lucide-react'
@@ -71,10 +71,14 @@ const AdminLayout = () => {
       requiredPermission: ['manage_settings', 'review_tasks'],
     },
     {
-      title: t('adminNav.siteText'),
-      icon: Type,
-      path: '/dashboard/site-text',
-      description: t('adminNav.siteTextDesc'),
+      // ★ Kevin 2026-10-24 批次 A：「站点文案」页下线 ⇒ 侧栏该项**原位**换成【电量】(`/dashboard/power`)：
+      //   铸造与销毁数值组（`mint_burn_policy`）新家；闸 = `manage_settings`。本轮**不做**侧栏重排
+      //   （改名与重排属批次 B），故位置与顺序保持不动。i18n 零新增键：标题复用 `battCard.title`（电量），
+      //   描述复用 `adminSiteText.policyMintBurn`（铸造与销毁）。
+      title: t('battCard.title'),
+      icon: Zap,
+      path: '/dashboard/power',
+      description: t('adminSiteText.policyMintBurn'),
       requiredPermission: 'manage_settings',
     },
     {
@@ -124,17 +128,27 @@ const AdminLayout = () => {
         {/* 侧边栏头部 */}
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <div className={`flex items-center space-x-3 ${!sidebarOpen && 'justify-center'}`}>
+            {/* 品牌行 = 指向首页的**文本链接**（Kevin 2026-10-24 批次 A）：`Seafood Admin`（本轮由旧硬编码品牌名改写）。整段（图标 + 标题 + 品牌名）由**一个** `<Link>` 包裹，href 走
+                `buildLocalizedPath(getLanguageFromUrl(location.pathname), '/')` ⇒ 带上当前语言前缀
+                （zh ⇒ `/`；en/hk/vn ⇒ `/<lang>`）。hover 按 T130 **第③类文本链接：只变色、不位移**
+                （`transition-colors` + `text-*` 变色；**无** translate/scale/shadow/背景位移）。
+                `aria-label` = 品牌名 + 返回首页（复用四语键 `notFound.backHome`，零新增键）。 */}
+            <Link
+              to={buildLocalizedPath(getLanguageFromUrl(location.pathname), '/')}
+              aria-label={`Seafood Admin — ${t('notFound.backHome')}`}
+              data-sf-m="admin-brand-link"
+              className={`group flex items-center space-x-3 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${!sidebarOpen && 'justify-center'}`}
+            >
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <LayoutDashboard className="w-5 h-5 text-white" />
               </div>
               {sidebarOpen && (
                 <div>
-                  <h1 className="text-lg font-bold text-gray-900">{t('adminLayout.panelTitle')}</h1>
-                  <p className="text-xs text-gray-500">Jinli Admin</p>
+                  <h1 className="text-lg font-bold text-gray-900 transition-colors group-hover:text-blue-600">{t('adminLayout.panelTitle')}</h1>
+                  <p className="text-xs text-gray-500 transition-colors group-hover:text-blue-500">Seafood Admin</p>
                 </div>
               )}
-            </div>
+            </Link>
             <Button
               variant="ghost"
               size="sm"

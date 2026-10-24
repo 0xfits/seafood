@@ -7,6 +7,7 @@ import toast from 'react-hot-toast'
 import { buildLocalizedPath, formatEvmAddress, getLanguageFromUrl } from '../../utils'
 import { fetchAdminAccess, fetchApiJson, getAuthHeaders, getStoredUser, hasAdminPermission, loadAdminUsersWithAssets } from '../../admin-utils'
 import { adminOpsKey } from '../../idempotency'
+import PolicyGroupCard, { POLICY_RATING } from './PolicyGroupCard'
 
 const formatDateTime = (value, t) => {
   if (!value) return t('common.unknown')
@@ -78,6 +79,9 @@ const UsersManagement = () => {
 
   const canManageUsers = hasAdminPermission(access, 'manage_users')
   const canManagePoints = hasAdminPermission(access, 'manage_points')
+  // 评分组写口 = `POST /api/admin/settings`（后端闸 `manage_settings`）⇒ 控件启用跟写口同键，
+  // 不放宽成 `manage_users`（否则会出现「可编辑但保存必 403」的假开）。
+  const canManageSettings = hasAdminPermission(access, 'manage_settings')
 
   const toggleAdminRole = async (user) => {
     const currentUser = getStoredUser()
@@ -323,6 +327,9 @@ const UsersManagement = () => {
           )}
         </div>
       )}
+      {/* 评分（`rating_policy`）—— Kevin 2026-10-24 批次 A：由已下线的「站点文案」页搬入本页；
+          写闸 = `manage_settings`（与 `POST /api/admin/settings` 同键）；字段名 / 默认值原样搬运。 */}
+      <PolicyGroupCard group={POLICY_RATING} canManage={canManageSettings} />
     </div>
   )
 }

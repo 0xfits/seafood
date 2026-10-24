@@ -130,7 +130,9 @@ describe('A 侧栏【交易所管理】闸 = manage_settings ∨ review_tasks', 
     await waitFor(() => expect(sidebarExchangeLink()).not.toBeNull())
     expect(sidebarExchangeLink().textContent.trim()).toBe(zh.adminNav.feeRate)
     // 该档下 manage_settings-only 的项仍不可见（闸没有被放宽成「谁都看」）
-    expect(document.querySelector('a[href="/dashboard/site-text"]')).toBeNull()
+    // ★ 2026-10-24 批次 A：负控由已下线的 `/dashboard/site-text` 改为 `/dashboard/settings`
+    //   （同为 manage_settings-only 项）—— 判据等价、不降强度。
+    expect(document.querySelector('a[href="/dashboard/settings"]')).toBeNull()
   })
 
   it('仅有 manage_settings 的管理员：侧栏同样能看到【交易所管理】', async () => {

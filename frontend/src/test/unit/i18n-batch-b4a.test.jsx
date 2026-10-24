@@ -56,7 +56,9 @@ describe('P6-I18N-LIT-B4a · en 档渲染英文（后台面两个页面；reward
     //  ⇒ 本清单同步改锚（`Exchange` = `adminNav.feeRate` 的 en 值；`Basic settings` = `adminNav.settings` 的新 en 值））
     for (const label of [
       'Dashboard',
-      'User Management', 'Exchange', 'Points Management', 'Basic settings', 'Site Copy', 'Audit console',
+      // ★ 2026-10-24 批次 A：「站点文案」项下线 ⇒ 侧栏该项原位换成【电量】(`/dashboard/power`)，
+      //   en 标签 = `battCard.title` 的 en 值 `Energy`（键名不动、键集不变）。
+      'User Management', 'Exchange', 'Points Management', 'Basic settings', 'Energy', 'Audit console',
     ]) {
       expect(await screen.findByText(label)).toBeInTheDocument()
     }
