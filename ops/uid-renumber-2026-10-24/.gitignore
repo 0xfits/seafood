@@ -1,0 +1,12 @@
+# 本目录只入库「脚本 + 读数 + 手册」；任何数据面导出**禁止入库**
+# （backup.sh 落在这里的 dump/ 是整库快照，含真实账号与账本，绝不进 git）
+/dump/
+*.csv
+*.tsv
+*.dump
+*.pgdump
+*.sql.gz
+
+# 根 .gitignore 的 `*.sql`（"Database backups" 段）会吞掉本目录的**只读预检脚本**（不含数据）
+# ⇒ 显式放行这一份；迁移文件本身已由根里的 `!**/migrations/*.sql` 放行
+!/preflight.sql

@@ -1,0 +1,880 @@
+{
+    "ledger": {
+        "rows": 928,
+        "by_cid": {
+            "1": 48043455,
+            "4": 10000,
+            "16": 10000,
+            "21": 99,
+            "35": 10000,
+            "36": 30,
+            "399": 25051
+        },
+        "sum_delta": 48098635,
+        "uid_lt_0_rows": 100,
+        "sum_frozen_delta": 16746
+    },
+    "account": {
+        "rows": 141,
+        "uid_le_0_rows": 5,
+        "drift_rows_all": 11,
+        "drift_detail_NM2": [
+            {
+                "cid": 399,
+                "uid": 971469,
+                "frozen": 0,
+                "balance": 40,
+                "ledger_rows": 0
+            },
+            {
+                "cid": 399,
+                "uid": 971591,
+                "frozen": 0,
+                "balance": 40,
+                "ledger_rows": 0
+            },
+            {
+                "cid": 399,
+                "uid": 976489,
+                "frozen": 0,
+                "balance": 40,
+                "ledger_rows": 0
+            },
+            {
+                "cid": 399,
+                "uid": 979689,
+                "frozen": 0,
+                "balance": 40,
+                "ledger_rows": 0
+            },
+            {
+                "cid": 399,
+                "uid": 981486,
+                "frozen": 0,
+                "balance": 40,
+                "ledger_rows": 0
+            },
+            {
+                "cid": 399,
+                "uid": 983264,
+                "frozen": 0,
+                "balance": 40,
+                "ledger_rows": 0
+            },
+            {
+                "cid": 399,
+                "uid": 987867,
+                "frozen": 0,
+                "balance": 40,
+                "ledger_rows": 0
+            },
+            {
+                "cid": 399,
+                "uid": 988363,
+                "frozen": 0,
+                "balance": 40,
+                "ledger_rows": 0
+            },
+            {
+                "cid": 399,
+                "uid": 988399,
+                "frozen": 0,
+                "balance": 40,
+                "ledger_rows": 0
+            }
+        ],
+        "drift_rows_migrated_NM2": 9
+    },
+    "database": "neondb",
+    "fk_users": [
+        {
+            "table": "admin_ops_audit_log",
+            "column": "actor_uid",
+            "deferred": false,
+            "constraint": "admin_ops_audit_log_actor_fk",
+            "deferrable": false
+        },
+        {
+            "table": "admin_ops_audit_log",
+            "column": "target_uid",
+            "deferred": false,
+            "constraint": "admin_ops_audit_log_target_fk",
+            "deferrable": false
+        },
+        {
+            "table": "admin_refund_audit_log",
+            "column": "actor_uid",
+            "deferred": false,
+            "constraint": "admin_refund_audit_log_actor_fk",
+            "deferrable": false
+        },
+        {
+            "table": "admin_refund_audit_log",
+            "column": "buyer_uid",
+            "deferred": false,
+            "constraint": "admin_refund_audit_log_buyer_fk",
+            "deferrable": false
+        },
+        {
+            "table": "admin_refund_audit_log",
+            "column": "seller_uid",
+            "deferred": false,
+            "constraint": "admin_refund_audit_log_seller_fk",
+            "deferrable": false
+        },
+        {
+            "table": "admin_user_role",
+            "column": "uid",
+            "deferred": false,
+            "constraint": "admin_user_role_uid_fk",
+            "deferrable": false
+        },
+        {
+            "table": "checkin_log",
+            "column": "uid",
+            "deferred": false,
+            "constraint": "checkin_log_uid_fk",
+            "deferrable": false
+        },
+        {
+            "table": "checkin_makeup_log",
+            "column": "uid",
+            "deferred": false,
+            "constraint": "checkin_makeup_log_uid_fk",
+            "deferrable": false
+        },
+        {
+            "table": "conversation",
+            "column": "buyer_uid",
+            "deferred": false,
+            "constraint": "conversation_buyer_fk",
+            "deferrable": false
+        },
+        {
+            "table": "conversation",
+            "column": "seller_uid",
+            "deferred": false,
+            "constraint": "conversation_seller_fk",
+            "deferrable": false
+        },
+        {
+            "table": "currency_review_log",
+            "column": "actor_uid",
+            "deferred": false,
+            "constraint": "currency_review_log_actor_fk",
+            "deferrable": false
+        },
+        {
+            "table": "currency_status_log",
+            "column": "actor_uid",
+            "deferred": false,
+            "constraint": "currency_status_log_actor_fk",
+            "deferrable": false
+        },
+        {
+            "table": "listing",
+            "column": "seller_uid",
+            "deferred": false,
+            "constraint": "listing_seller_fk",
+            "deferrable": false
+        },
+        {
+            "table": "listing_favorite",
+            "column": "fav_uid",
+            "deferred": false,
+            "constraint": "listing_favorite_uid_fk",
+            "deferrable": false
+        },
+        {
+            "table": "listing_order",
+            "column": "buyer_uid",
+            "deferred": false,
+            "constraint": "listing_order_buyer_fk",
+            "deferrable": false
+        },
+        {
+            "table": "listing_order",
+            "column": "seller_uid",
+            "deferred": false,
+            "constraint": "listing_order_seller_fk",
+            "deferrable": false
+        },
+        {
+            "table": "listing_order_event",
+            "column": "actor_uid",
+            "deferred": false,
+            "constraint": "listing_order_event_actor_fk",
+            "deferrable": false
+        },
+        {
+            "table": "listing_review_log",
+            "column": "actor_uid",
+            "deferred": false,
+            "constraint": "listing_review_log_actor_fk",
+            "deferrable": false
+        },
+        {
+            "table": "market_order",
+            "column": "owner_uid",
+            "deferred": false,
+            "constraint": "market_order_owner_fk",
+            "deferrable": false
+        },
+        {
+            "table": "market_trade",
+            "column": "taker_uid",
+            "deferred": false,
+            "constraint": "market_trade_taker_fk",
+            "deferrable": false
+        },
+        {
+            "table": "media",
+            "column": "owner_uid",
+            "deferred": false,
+            "constraint": "media_owner_uid_fkey",
+            "deferrable": false
+        },
+        {
+            "table": "message",
+            "column": "from_uid",
+            "deferred": false,
+            "constraint": "message_from_fk",
+            "deferrable": false
+        },
+        {
+            "table": "project",
+            "column": "owner_uid",
+            "deferred": false,
+            "constraint": "project_owner_fk",
+            "deferrable": false
+        },
+        {
+            "table": "project_wage_claim",
+            "column": "uid",
+            "deferred": false,
+            "constraint": "project_wage_claim_uid_fk",
+            "deferrable": false
+        },
+        {
+            "table": "project_worker",
+            "column": "uid",
+            "deferred": false,
+            "constraint": "project_worker_uid_fk",
+            "deferrable": false
+        },
+        {
+            "table": "rating",
+            "column": "ratee_uid",
+            "deferred": false,
+            "constraint": "rating_ratee_fk",
+            "deferrable": false
+        },
+        {
+            "table": "rating",
+            "column": "rater_uid",
+            "deferred": false,
+            "constraint": "rating_rater_fk",
+            "deferrable": false
+        },
+        {
+            "table": "referral",
+            "column": "child_uid",
+            "deferred": false,
+            "constraint": "referral_child_fk",
+            "deferrable": false
+        },
+        {
+            "table": "referral",
+            "column": "parent_uid",
+            "deferred": false,
+            "constraint": "referral_parent_fk",
+            "deferrable": false
+        },
+        {
+            "table": "subtask_proof",
+            "column": "uid",
+            "deferred": false,
+            "constraint": "subtask_proof_uid_fk",
+            "deferrable": false
+        },
+        {
+            "table": "user_activity_hour",
+            "column": "uid",
+            "deferred": false,
+            "constraint": "user_activity_hour_uid_fk",
+            "deferrable": false
+        }
+    ],
+    "triggers": [
+        {
+            "table": "account",
+            "trigger": "trg_account_guard",
+            "tgenabled": "O"
+        },
+        {
+            "table": "admin_ops_audit_log",
+            "trigger": "trg_admin_ops_audit_log_append_only",
+            "tgenabled": "O"
+        },
+        {
+            "table": "admin_refund_audit_log",
+            "trigger": "trg_admin_refund_audit_log_append_only",
+            "tgenabled": "O"
+        },
+        {
+            "table": "batt_account",
+            "trigger": "trg_batt_account_user_fk",
+            "tgenabled": "O"
+        },
+        {
+            "table": "batt_entry",
+            "trigger": "trg_batt_entry_append_only",
+            "tgenabled": "O"
+        },
+        {
+            "table": "checkin_log",
+            "trigger": "trg_checkin_log_append_only",
+            "tgenabled": "O"
+        },
+        {
+            "table": "checkin_makeup_log",
+            "trigger": "trg_checkin_makeup_log_append_only",
+            "tgenabled": "O"
+        },
+        {
+            "table": "commission_policy",
+            "trigger": "trg_commission_policy_append_only",
+            "tgenabled": "O"
+        },
+        {
+            "table": "currency_review_log",
+            "trigger": "trg_currency_review_log_append_only",
+            "tgenabled": "O"
+        },
+        {
+            "table": "currency_status_log",
+            "trigger": "trg_currency_status_log_append_only",
+            "tgenabled": "O"
+        },
+        {
+            "table": "ledger_entry",
+            "trigger": "trg_ledger_entry_append_only",
+            "tgenabled": "O"
+        },
+        {
+            "table": "ledger_entry",
+            "trigger": "trg_ledger_entry_commission_conservation",
+            "tgenabled": "O"
+        },
+        {
+            "table": "ledger_entry",
+            "trigger": "trg_ledger_entry_no_truncate",
+            "tgenabled": "O"
+        },
+        {
+            "table": "listing_edit_log",
+            "trigger": "trg_listing_edit_log_append_only",
+            "tgenabled": "O"
+        },
+        {
+            "table": "listing_order_event",
+            "trigger": "trg_listing_order_event_append_only",
+            "tgenabled": "O"
+        },
+        {
+            "table": "listing_review_log",
+            "trigger": "trg_listing_review_log_append_only",
+            "tgenabled": "O"
+        },
+        {
+            "table": "market_trade",
+            "trigger": "trg_market_trade_append_only",
+            "tgenabled": "O"
+        },
+        {
+            "table": "rating",
+            "trigger": "trg_rating_append_only",
+            "tgenabled": "O"
+        },
+        {
+            "table": "referral",
+            "trigger": "trg_referral_append_only",
+            "tgenabled": "O"
+        }
+    ],
+    "row_counts": {
+        "media": null,
+        "users": null,
+        "rating": null,
+        "account": null,
+        "listing": null,
+        "message": null,
+        "project": null,
+        "currency": null,
+        "referral": null,
+        "app_config": null,
+        "batt_entry": null,
+        "checkin_log": null,
+        "batt_account": null,
+        "conversation": null,
+        "ledger_entry": null,
+        "ledger_owner": null,
+        "market_order": null,
+        "market_trade": null,
+        "listing_order": null,
+        "subtask_proof": null,
+        "project_worker": null,
+        "admin_user_role": null,
+        "listing_edit_log": null,
+        "listing_favorite": null,
+        "schema_migration": null,
+        "checkin_makeup_log": null,
+        "listing_review_log": null,
+        "project_wage_claim": null,
+        "user_activity_hour": null,
+        "admin_ops_audit_log": null,
+        "currency_review_log": null,
+        "currency_status_log": null,
+        "listing_order_event": null,
+        "admin_refund_audit_log": null,
+        "campaign_task_reward_pending": null
+    },
+    "users_cols": [
+        {
+            "type": "bigint",
+            "column": "uid",
+            "identity": "YES"
+        },
+        {
+            "type": "text",
+            "column": "evm",
+            "identity": "NO"
+        },
+        {
+            "type": "text",
+            "column": "bio",
+            "identity": "NO"
+        },
+        {
+            "type": "boolean",
+            "column": "is_admin",
+            "identity": "NO"
+        },
+        {
+            "type": "timestamp with time zone",
+            "column": "time_reg",
+            "identity": "NO"
+        },
+        {
+            "type": "timestamp with time zone",
+            "column": "time_login_last",
+            "identity": "NO"
+        },
+        {
+            "type": "bigint",
+            "column": "tg_user_id",
+            "identity": "NO"
+        },
+        {
+            "type": "timestamp with time zone",
+            "column": "tg_linked_at",
+            "identity": "NO"
+        },
+        {
+            "type": "text",
+            "column": "avatar_url",
+            "identity": "NO"
+        }
+    ],
+    "orphans_NM3": {
+        "ledger_entry_distinct_uids": 22,
+        "account_rows_uid_not_in_users": 28,
+        "batt_entry_rows_uid_not_in_users": 21,
+        "ledger_entry_rows_uid_not_in_users": 58
+    },
+    "users_count": 194,
+    "generated_at": "2026-10-24T04:42:42.044348+00:00",
+    "real_account": {
+        "evm": "0x59f9f640d15ebb053c94a816232cf8ce91b209b0",
+        "uid": 970213,
+        "is_admin": false
+    },
+    "users_max_uid": 997295,
+    "users_min_uid": 1,
+    "users_uid_seq": {
+        "name": "users_uid_seq",
+        "is_called": true,
+        "last_value": 47
+    },
+    "server_version": "PostgreSQL 18.6 (fd34222) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit",
+    "schema_migration": [
+        {
+            "name": "0001_ledger_core.sql",
+            "version": "0001",
+            "applied_at": "2026-09-29T01:15:27.684706+00:00"
+        },
+        {
+            "name": "0002_user_identity.sql",
+            "version": "0002",
+            "applied_at": "2026-09-29T01:15:27.684706+00:00"
+        },
+        {
+            "name": "0003_kind_close_set_20.sql",
+            "version": "0003",
+            "applied_at": "2026-09-29T01:15:27.684706+00:00"
+        },
+        {
+            "name": "0004_ledger_post_event.sql",
+            "version": "0004",
+            "applied_at": "2026-09-29T01:15:27.684706+00:00"
+        },
+        {
+            "name": "0005_ledger_event_root_key.sql",
+            "version": "0005",
+            "applied_at": "2026-09-29T01:15:27.684706+00:00"
+        },
+        {
+            "name": "0006_user_to_users.sql",
+            "version": "0006",
+            "applied_at": "2026-09-29T01:15:27.684706+00:00"
+        },
+        {
+            "name": "0007_referral_and_commission_policy.sql",
+            "version": "0007",
+            "applied_at": "2026-09-29T01:15:27.684706+00:00"
+        },
+        {
+            "name": "0008_platform_revenue_job_fee.sql",
+            "version": "0008",
+            "applied_at": "2026-09-29T01:15:27.684706+00:00"
+        },
+        {
+            "name": "0009_ledger_error_reverse_map_complete.sql",
+            "version": "0009",
+            "applied_at": "2026-09-29T01:15:27.684706+00:00"
+        },
+        {
+            "name": "0010_referral_bind_protocol_guard.sql",
+            "version": "0010",
+            "applied_at": "2026-09-29T01:15:27.684706+00:00"
+        },
+        {
+            "name": "0011_commission_assert_closure_and_referral_depth_guard.sql",
+            "version": "0011",
+            "applied_at": "2026-09-29T01:15:27.684706+00:00"
+        },
+        {
+            "name": "0012_replay_pre_gate_before_balance_gate.sql",
+            "version": "0012",
+            "applied_at": "2026-09-29T01:15:27.684706+00:00"
+        },
+        {
+            "name": "0013_job.sql",
+            "version": "0013",
+            "applied_at": "2026-09-29T01:15:27.684706+00:00"
+        },
+        {
+            "name": "0014_job_flow.sql",
+            "version": "0014",
+            "applied_at": "2026-09-29T01:15:27.684706+00:00"
+        },
+        {
+            "name": "0015_listing.sql",
+            "version": "0015",
+            "applied_at": "2026-09-29T01:15:27.684706+00:00"
+        },
+        {
+            "name": "0016_market.sql",
+            "version": "0016",
+            "applied_at": "2026-09-29T01:15:27.684706+00:00"
+        },
+        {
+            "name": "0017_platform_config.sql",
+            "version": "0017",
+            "applied_at": "2026-09-29T01:15:27.684706+00:00"
+        },
+        {
+            "name": "0019_listing_deposit_platform_credit.sql",
+            "version": "0019",
+            "applied_at": "2026-09-29T17:43:01.760888+00:00"
+        },
+        {
+            "name": "0020_ledger_post_event_hold_family_drop_listing_deposit.sql",
+            "version": "0020",
+            "applied_at": "2026-09-29T17:53:03.540265+00:00"
+        },
+        {
+            "name": "0021_content_translation.sql",
+            "version": "0021",
+            "applied_at": "2026-10-01T01:35:47.511704+00:00"
+        },
+        {
+            "name": "0022_admin_permission_seed.sql",
+            "version": "0022",
+            "applied_at": "2026-10-02T00:41:05.838818+00:00"
+        },
+        {
+            "name": "0023_admin_points_audit_daily_cap.sql",
+            "version": "0023",
+            "applied_at": "2026-10-02T01:58:54.688793+00:00"
+        },
+        {
+            "name": "0024_admin_refund_audit.sql",
+            "version": "0024",
+            "applied_at": "2026-10-02T08:01:41.542308+00:00"
+        },
+        {
+            "name": "0025_currency_review_log.sql",
+            "version": "0025",
+            "applied_at": "2026-10-02T23:38:23.551505+00:00"
+        },
+        {
+            "name": "0026_listing_review_log.sql",
+            "version": "0026",
+            "applied_at": "2026-10-03T00:29:15.853343+00:00"
+        },
+        {
+            "name": "0027_job_arbitration_log.sql",
+            "version": "0027",
+            "applied_at": "2026-10-03T00:29:16.856174+00:00"
+        },
+        {
+            "name": "0028_kind_close_set_21.sql",
+            "version": "0028",
+            "applied_at": "2026-10-03T02:36:54.372819+00:00"
+        },
+        {
+            "name": "0029_batt_checkin.sql",
+            "version": "0029",
+            "applied_at": "2026-10-03T02:36:55.012441+00:00"
+        },
+        {
+            "name": "0030_listing_order_status_extend.sql",
+            "version": "0030",
+            "applied_at": "2026-10-03T03:59:36.410916+00:00"
+        },
+        {
+            "name": "0031_rating_and_order_event.sql",
+            "version": "0031",
+            "applied_at": "2026-10-03T03:59:37.30853+00:00"
+        },
+        {
+            "name": "0032_kind_close_set_23.sql",
+            "version": "0032",
+            "applied_at": "2026-10-03T06:25:25.230609+00:00"
+        },
+        {
+            "name": "0033_currency_platform_coin_flag.sql",
+            "version": "0033",
+            "applied_at": "2026-10-03T06:25:26.077958+00:00"
+        },
+        {
+            "name": "0034_ledger_op_burn_and_supply.sql",
+            "version": "0034",
+            "applied_at": "2026-10-03T06:25:27.021352+00:00"
+        },
+        {
+            "name": "0035_fee_rate_range_extend.sql",
+            "version": "0035",
+            "applied_at": "2026-10-03T08:23:12.947249+00:00"
+        },
+        {
+            "name": "0036_commission_policy_p9_5.sql",
+            "version": "0036",
+            "applied_at": "2026-10-03T08:23:14.022816+00:00"
+        },
+        {
+            "name": "0037_commission_conservation_m0.sql",
+            "version": "0037",
+            "applied_at": "2026-10-03T08:23:14.74223+00:00"
+        },
+        {
+            "name": "0038_kind_close_set_24.sql",
+            "version": "0038",
+            "applied_at": "2026-10-03T08:23:15.648043+00:00"
+        },
+        {
+            "name": "0039_admin_audit_console.sql",
+            "version": "0039",
+            "applied_at": "2026-10-03T09:50:08.210792+00:00"
+        },
+        {
+            "name": "0040_backfill_signup_batt.sql",
+            "version": "0040",
+            "applied_at": "2026-10-03T10:09:13.211708+00:00"
+        },
+        {
+            "name": "0041_job_headcount.sql",
+            "version": "0041",
+            "applied_at": "2026-10-03T14:06:14.46732+00:00"
+        },
+        {
+            "name": "0042_job_settle_per_submission.sql",
+            "version": "0042",
+            "applied_at": "2026-10-03T23:56:47.390782+00:00"
+        },
+        {
+            "name": "0043_truncate_guard.sql",
+            "version": "0043",
+            "applied_at": "2026-10-04T13:19:08.486134+00:00"
+        },
+        {
+            "name": "0044_restore_listing_deposit_leg.sql",
+            "version": "0044",
+            "applied_at": "2026-10-07T04:56:50.207805+00:00"
+        },
+        {
+            "name": "0045_message_conversation.sql",
+            "version": "0045",
+            "applied_at": "2026-10-12T10:25:27.10695+00:00"
+        },
+        {
+            "name": "0046_telegram_binding.sql",
+            "version": "0046",
+            "applied_at": "2026-10-12T10:25:28.625343+00:00"
+        },
+        {
+            "name": "0047_listing_favorite.sql",
+            "version": "0047",
+            "applied_at": "2026-10-14T02:41:11.118732+00:00"
+        },
+        {
+            "name": "0048_telegram_bind_request.sql",
+            "version": "0048",
+            "applied_at": "2026-10-14T06:47:06.25728+00:00"
+        },
+        {
+            "name": "0049_seed_bttc_currency.sql",
+            "version": "0049",
+            "applied_at": "2026-10-17T04:22:35.920445+00:00"
+        },
+        {
+            "name": "0050_media_store.sql",
+            "version": "0050",
+            "applied_at": "2026-10-19T03:43:15.193402+00:00"
+        },
+        {
+            "name": "0051_media_size_cap_1mb.sql",
+            "version": "0051",
+            "applied_at": "2026-10-19T04:28:56.26398+00:00"
+        },
+        {
+            "name": "0052_users_avatar_url.sql",
+            "version": "0052",
+            "applied_at": "2026-10-19T06:45:00.26158+00:00"
+        },
+        {
+            "name": "0053_listing_item_type.sql",
+            "version": "0053",
+            "applied_at": "2026-10-19T22:30:40.868129+00:00"
+        },
+        {
+            "name": "0054_item_type_delivery_split.sql",
+            "version": "0054",
+            "applied_at": "2026-10-19T23:07:43.943177+00:00"
+        },
+        {
+            "name": "0055_title_merge_into_description.sql",
+            "version": "0055",
+            "applied_at": "2026-10-20T01:18:07.788316+00:00"
+        },
+        {
+            "name": "0056_drop_listing_title.sql",
+            "version": "0056",
+            "applied_at": "2026-10-20T01:30:07.171182+00:00"
+        },
+        {
+            "name": "0057_listing_view_count.sql",
+            "version": "0057",
+            "applied_at": "2026-10-20T04:01:20.725459+00:00"
+        },
+        {
+            "name": "0058_view_dedup_switch.sql",
+            "version": "0058",
+            "applied_at": "2026-10-20T04:01:21.810616+00:00"
+        },
+        {
+            "name": "0059_listing_edit_log.sql",
+            "version": "0059",
+            "applied_at": "2026-10-20T05:13:37.548893+00:00"
+        },
+        {
+            "name": "0060_item_code_snowflake.sql",
+            "version": "0060",
+            "applied_at": "2026-10-20T05:55:18.63384+00:00"
+        },
+        {
+            "name": "0061_listing_allow_multi_buy.sql",
+            "version": "0061",
+            "applied_at": "2026-10-20T05:55:19.518154+00:00"
+        },
+        {
+            "name": "0063_project_domain.sql",
+            "version": "0063",
+            "applied_at": "2026-10-20T11:14:42.782161+00:00"
+        },
+        {
+            "name": "0064_seed_projects.sql",
+            "version": "0064",
+            "applied_at": "2026-10-20T11:14:43.586512+00:00"
+        },
+        {
+            "name": "0065_campaign_hierarchy.sql",
+            "version": "0065",
+            "applied_at": "2026-10-20T11:14:44.257234+00:00"
+        },
+        {
+            "name": "0066_bttc_symbol_rename.sql",
+            "version": "0066",
+            "applied_at": "2026-10-20T12:18:58.02085+00:00"
+        },
+        {
+            "name": "0067_wage_streak_bonus.sql",
+            "version": "0067",
+            "applied_at": "2026-10-21T04:11:11.067034+00:00"
+        },
+        {
+            "name": "0068_project_slug_campaign_link.sql",
+            "version": "0068",
+            "applied_at": "2026-10-21T04:11:11.78352+00:00"
+        },
+        {
+            "name": "0069_project_avatar.sql",
+            "version": "0069",
+            "applied_at": "2026-10-21T10:10:04.781358+00:00"
+        },
+        {
+            "name": "0070_drop_job_domain.sql",
+            "version": "0070",
+            "applied_at": "2026-10-21T11:31:24.053892+00:00"
+        },
+        {
+            "name": "0071_seed_demo_campaigns.sql",
+            "version": "0071",
+            "applied_at": "2026-10-21T12:07:37.965486+00:00"
+        },
+        {
+            "name": "0072_subtask_reward_and_quiz.sql",
+            "version": "0072",
+            "applied_at": "2026-10-21T23:06:03.082485+00:00"
+        },
+        {
+            "name": "0073_project_vault.sql",
+            "version": "0073",
+            "applied_at": "2026-10-23T05:02:07.571819+00:00"
+        },
+        {
+            "name": "0074_project_wage_amount_zero.sql",
+            "version": "0074",
+            "applied_at": "2026-10-23T05:13:01.184194+00:00"
+        },
+        {
+            "name": "0075_claim_pending.sql",
+            "version": "0075",
+            "applied_at": "2026-10-23T13:41:06.387741+00:00"
+        }
+    ],
+    "fk_users_count_live_NM1": 31,
+    "schema_migration_max_version": "0075",
+    "app_config_updated_by_hits_NM7": 1
+}

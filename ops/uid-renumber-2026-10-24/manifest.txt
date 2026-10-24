@@ -1,0 +1,46 @@
+# uid-renumber-2026-10-24 backup manifest
+# run_tag:   pre
+# generated: 2026-10-24T04:42:40Z
+# contract:  docs/data-layer.spec.md §40.17.6 UR6（备份不入库、dump/*.csv 不入 git）
+# columns:   table  rows(count(*))  csv_lines(wc -l, 含表头)  bytes  sha256
+users                                         194        195        23455  8e7974cebf63069dfdabdb512e832ea0d624674f4159bac0be0b3996ab2cd418
+ledger_entry                                  928        929       181282  7700207216ccbc1276c4e8621af4e7a90c08d8be4628a864aa332d72c38bc40a
+account                                       141        142        10823  86dc0ebb699f5fac5c1940223f3afc2276944bc7283da3bb583d06f97da17012
+ledger_owner                                    4          5          258  95c2978d248cbe2d7fb38b88841e06d4469d67700599a7d27e88525b797b1889
+currency                                       16         17         2402  2aaadb85357c5ab35b9d45a1745938faeb3f453ae1ac6aa6304bb228268370b2
+app_config                                      4          5          587  7ea95db74f8d330a3b8dc76d41f4b3e3e8bd929a4f1f648e4f0ba0cb530bfd05
+schema_migration                               73         74         9714  1a9ef0f6af560091339865a6a3a1f2d87c0c047ff60c8cd888c8d0a94cf97a54
+batt_entry                                    120        121        17499  4191cf0100897fa4dd66a26706bc90ac6c15d3458bc530fcbabd6109800e7b55
+batt_account                                  107        108         7411  f1c369a4b290dc44fb866cee855fc0ac4657e3a9fca556656036e5983f3dceec
+listing_edit_log                                0          1           77  5e24a4c9f5e1acbd70bd6cdde923331acca48329e542802294bd9a1a1615eae6
+campaign_task_reward_pending                    0          1           88  8ce0c968e00a68b7c6e634583cf407960f24b2dcec007a6295bce1657adeadbf
+admin_ops_audit_log                             5          6         1197  282fcdd2d73caece7b494947331002786563690f255a50edced731773a4be743
+admin_refund_audit_log                          7          8         1312  f4525dadd0adfe92411b2f5b37cdadb6313278e648231310a1b3c06b7134d90e
+admin_user_role                                 7          8          161  51f4cf29c4f6e8f20be075ab7cbc29832ec8f7666c365b7ee6fb08617dd803cd
+checkin_log                                     8          9          491  e49c023cb772fc3a02b46948347edb2097110c18fbb4af52c3a7d9c749bec1c7
+checkin_makeup_log                              6          7         1037  73c2d0bdcf18318aae9a682cf677680f7acd286943df160a46504cf73395ba08
+conversation                                    1          2          220  d56f5588c8f44c5f4b8ef6691be1cc1b724902168ea89ee1590271a575776dd1
+currency_review_log                             0          1           82  55cd3bd282dae7e4463f04b2654da421453e6bef56e18cb2c9e057198185596a
+currency_status_log                            16         17         2292  18c809a4f4f5d5665d3d6a6b8ec75487e955025f1a4b0ca4a6294d35182aff8f
+listing                                        26         27         5337  dec6fe663e87117f7b913f06493ce7c496308112c6b9d22e66ef1d06aec8965a
+listing_favorite                                0          1           39  17ee4e6bb759cdccfc2465672b880f81cb21783b7f5683787fb227b9e481eae7
+listing_order                                  18         19         2703  a7bc5ae302d51ff3e2a0460b1b2c0c7caba1e36176b751ac89f7c5950610df10
+listing_order_event                             0          1          136  802b662c627dadae52b31f240da9140d1c2af0ffb99167e68d7d4dd2f447497e
+listing_review_log                              0          1           94  ec0a276444ae62193d2b1d62b90db0a0da12f4c6d92c3f68e2d4b26c069e28eb
+market_order                                   63         64        12529  75f26bf4d5c2df6b7a82e9b6c851bb5ce0d5c71111ae4efbdff83edebc6c55f9
+market_trade                                   23         24         1504  213cb646a1e5d17523789cf31701519d2e12fa54002b979a0a4c55ef85df1785
+media                                           3          4       145906  16f6ec5860a1052244960621f20376b448142226806ff18c328a9610bcb7d02d
+message                                         7          8          505  2f4864e184eded659e7df77310eaeba46b4480cb6243bbc4e23351002b1f98a2
+project                                        28         29         5609  7607a182f1efe37f4660eeb5973cdee683ee55c23fa5f96c304113863b5e33a8
+project_wage_claim                              9         10          650  63d1cfafebe61c3f0245cd4e99c2087b0e739c8312d78ce63297f6ffb9d8bb53
+project_worker                                 12         13          662  0f949acb624edd3ac321c5e25cf17bb45b7b23dabded1f8558a7d8629d9c4649
+rating                                          0          1          122  d7f91d005692553b8dc31483146978d0bb2ee7ffab73613f6f1e5b4493da1696
+referral                                        2          3          108  1ebb029e34cd877030cf84be7548e5c1f0121a9d605aa1d0345ac0c872aef8b8
+subtask_proof                                   0          1          100  9f831a684344f88608a00ec30bfe83e5d437b399298909ff6442641d41cb53c9
+user_activity_hour                             22         23          503  9704113ee6360bd78f4b9dd5a40cd1ddbcb15dd02d68393d60d0aaac9aa18afa
+# ---- 自证结论（UR6 C）----
+# ① 逐表 db_rows 见上（csv_lines = db_rows + 1 时逐字相等）
+# ② manifest sha256 现算复核：PASS
+# ③ users 行 evm 对拍：PASS（uid=971233）
+# 体积合计：604 KB / 604K
+# dump/*.csv 不入 git（含 evm/bio/tg_user_id）
