@@ -255,11 +255,11 @@ describe('HomePage · 热门任务（campaign 体系 · 真数据）', () => {
     expect(toast.error).not.toHaveBeenCalled()
   })
 
-  // ★ 2026-10-24（Kevin）：【热门任务】右上入口 = 文案改值「全部悬赏」+ 变体 proceed → **ghost**（弱化）。
-  //   四条一起锤：① 文案取自真 zh 表（不是键名、也不是旧值）；② 命中 `btn-ghost` 且**不**命中
-  //   `btn-proceed`（共享 `.btn-proceed` CSS 本体未动，本页只是不再取用该变体）；③ 尺寸 md 不变；
-  //   ④ 包裹链接仍指 `/campaign`（zh 无语言前缀）。
-  it('「全部悬赏」入口：文案 = zh.common.viewAll ∧ ghost 弱化 ∧ 非 proceed ∧ href 仍 `/campaign`', async () => {
+  // ★ 2026-10-24（Kevin · T130）：【热门任务】右上入口改用**公共 chip 类 `.sf-chip`**
+  //   （透明底 + 1px 细边框 + 次要字色，hover 抬升 1px）；不再取 `Button` 的 ghost 变体
+  //   （`.btn` / `.btn-proceed` 本体未动，其它页仍在用）。四条一起锤：① 文案取自真 zh 表；
+  //   ② 命中 `sf-chip` 且**不**命中 `btn-ghost` / `btn-md`；③ 链接仍指 `/campaign`（zh 无语言前缀）。
+  it('「全部悬赏」入口：文案 = zh.common.viewAll ∧ `.sf-chip` ∧ 非 btn-ghost/btn-md ∧ href 仍 `/campaign`', async () => {
     wireFetch({ campaignRows: [] })
     const { container } = renderHomePage()
     const btn = await waitFor(() => {
@@ -273,18 +273,15 @@ describe('HomePage · 热门任务（campaign 体系 · 真数据）', () => {
     expect(btn.textContent.trim()).toBe('全部悬赏')
     expect(btn.textContent.trim()).not.toBe('查看全部')
 
-    // ② 弱化形态：ghost 命中 / proceed 不命中
-    expect(btn.className).toContain('btn')
-    expect(btn.className).toContain('btn-ghost')
+    // ② 形态 = 公共 chip（旧 Button 的变体/尺寸类必须全部退场）
+    expect(btn.className).toContain('sf-chip')
+    expect(btn.className).not.toContain('btn-ghost')
+    expect(btn.className).not.toContain('btn-md')
     expect(btn.className).not.toContain('btn-proceed')
 
-    // ③ 尺寸与内距不变（`size="md"` 保持）
-    expect(btn.className).toContain('btn-md')
-    expect(btn.className).toContain('px-4')
-    expect(btn.className).toContain('py-2')
-
-    // ④ 链接不变
-    expect(btn.closest('a').getAttribute('href')).toBe('/campaign')
+    // ③ 链接不变：入口本身就是 `<Link className="sf-chip">`
+    expect(btn.tagName).toBe('A')
+    expect(btn.getAttribute('href')).toBe('/campaign')
   })
 })
 

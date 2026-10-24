@@ -1448,4 +1448,53 @@ section[id^="section_"] .grid { gap: 1.25rem; }
   border: 0;
 }
 
+/* ===== T130（design-system.spec §32）· 公共可点 chip `.sf-chip`（2026-10-24 · Kevin 裁定）=====
+   用途：标签 / 胶囊 / tab / 弱化入口的**统一弱化形态**（本单落地 = 首页【推荐】【新发】两 tab
+        ＋【全部悬赏】入口）。几何 = text-sm（14px）/ px-3 py-1.5 / rounded-md（6px）；
+        底色透明 + 1px 细边框；hover 与 `.btn:hover` **逐字一致**（`translateY(-1px)`），
+        不变色 / 不变边 / 不加阴影；`:active` 归零。
+   落点 = 本文件**顶层**（最后一条规则之后，上方 @media 均已闭合）—— 不入 @media、不碰 shell.css、
+        不动 `.btn` / `.btn-proceed`。位移降级只在本类内做安全缺省（见文末独立 `prefers-reduced-motion` 块），
+        不新增全局动效策略。
+   颜色只引用**既有** token：`--border-color` / `--text-secondary`（日/夜两档各有值，见本文件 `:root`
+        与 `[data-theme="dark"]` 两块）⇒ **零新增主题 token**，`theme-tokens` 的 CSS↔JS 互校不受影响。
+   ★ 与 `shell/shell.css:330` 的既有 `.sf-chip`（主题预览页在用，配 `.is-on`）**同名**：本文件规则在
+     @import 之后 ⇒ 同具体性(0,1,0)下本类胜出；预览页形态由 `pages/theme-preview.css` 的
+     `.sf-preview-chips .sf-chip`（(0,2,0)）显式接住，视觉不变（详见该文件注释）。 */
+.sf-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.375rem 0.75rem;   /* px-3 py-1.5 */
+  font-size: 14px;             /* text-sm */
+  line-height: 1.4;
+  border-radius: 6px;          /* rounded-md */
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform .15s ease; /* 与 `.btn` 的 transform 时序同档（只为位移，不涉颜色） */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* hover：与 `.btn:hover { transform: translateY(-1px) }` 逐字一致 —— 不变色 / 不变边 / 不加阴影 */
+.sf-chip:hover { transform: translateY(-1px); }
+.sf-chip:active { transform: translateY(0); }
+
+/* 选中态修饰（整站统一）：现有黄底白字黄边，取值 = `styles/tailwind-compat.css:337/372/468`
+   的既有落点（border-yellow-500 / bg-yellow-500 / text-white），不另起口径。 */
+.sf-chip.is-active {
+  background: #eab308;
+  border-color: #eab308;
+  color: #ffffff;
+}
+
+/* 位移降级（本类自带安全缺省，不改全局策略）：偏好减弱动效 ⇒ 无位移、无过渡 */
+@media (prefers-reduced-motion: reduce) {
+  .sf-chip { transition: none; }
+  .sf-chip:hover,
+  .sf-chip:active { transform: none; }
+}
+
 

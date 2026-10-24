@@ -484,11 +484,13 @@ const HomePage = () => {
                 <h2 className="text-2xl font-bold text-gray-900">{t('homePage.hotTasks')}</h2>
                 <p className="text-gray-600">{t('homePage.hotTasksLead')}<span className="text-sm font-bold text-yellow-600 dark:text-yellow-400">$</span></p>
               </div>
-              <Link to={buildLocalizedPath(lang, '/campaign')}>
-                {/* ★ 2026-10-24（Kevin）：入口取**弱化 ghost**形态（半透明白底 / 灰字 / 无阴影），
-                    不再 proceed 蓝底 —— 与「热门任务」版块主位不抢视觉；`.btn-proceed` 本体未动
-                    （WalletAuthPanel 仍在用）。钩子 `home-viewall` 供探针/单测锤。 */}
-                <Button variant="ghost" data-sf-m="home-viewall">{t('common.viewAll')}</Button>
+              <Link className="sf-chip" data-sf-m="home-viewall" to={buildLocalizedPath(lang, '/campaign')}>
+                {/* ★ 2026-10-24（Kevin）二次收口：入口改用**公共 chip 类 `.sf-chip`**
+                    （透明底 + 1px 细边框 + 次要文字色，hover 抬升 1px），不再取 `Button` 的
+                    ghost 变体 —— 与首页两个 feed tab 同一套视觉语法，且弱于版块主位。
+                    钩子 `home-viewall` 不变（探针/单测锤）。`<Link>` 本体承载类名 ⇒ 探针仅需一次
+                    `querySelector('[data-sf-m="home-viewall"]')`。 */}
+                {t('common.viewAll')}
               </Link>
             </div>
 
@@ -534,7 +536,7 @@ const HomePage = () => {
                   type="button"
                   role="tab"
                   aria-selected={feedSort === sort.key}
-                  className={`px-3 py-1.5 rounded-md text-sm border ${feedSort === sort.key ? 'bg-yellow-500 text-white border-yellow-500' : 'bg-white text-gray-600 border-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600'}`}
+                  className={`sf-chip${feedSort === sort.key ? ' is-active' : ''}`}
                   data-sf-sort={sort.key}
                   data-sf-m={`feed-tab-${sort.key}`}
                   onClick={() => handleFeedSortChange(sort.key)}

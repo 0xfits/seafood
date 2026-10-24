@@ -199,6 +199,27 @@ describe('HomePage · 两标签客户端排序 + FLIP（推荐 / 新发）', () 
     expect(container.textContent).not.toContain('高价值')
   })
 
+  // ★ 2026-10-24（T130）：两标签改用公共 chip 类 `.sf-chip` —— 选中态是**修饰类 `is-active`**
+  //   （黄底白字黄边落 CSS，不在 JSX 拼 Tailwind）；几何/配色类一律撤销。
+  it('①b 两标签共用 `.sf-chip`：选中档带 `is-active`、未选档不带（切档后互换）', async () => {
+    wireFetch({ pages: { 0: ROWS_SMALL } })
+    renderHomePage()
+    await waitFor(() => expect(cardCount()).toBe(4))
+
+    for (const tab of tabsOf()) {
+      expect(tab.className).toContain('sf-chip')
+      expect(tab.className).not.toContain('bg-yellow-500')
+      expect(tab.className).not.toMatch(/(^|\s)px-3(\s|$)/)
+      expect(tab.className).not.toMatch(/(^|\s)rounded-md(\s|$)/)
+    }
+    expect(tabM('recommend').className).toMatch(/(^|\s)is-active(\s|$)/)
+    expect(tabM('new').className).not.toMatch(/(^|\s)is-active(\s|$)/)
+
+    await act(async () => { tabM('new').click() })
+    expect(tabM('new').className).toMatch(/(^|\s)is-active(\s|$)/)
+    expect(tabM('recommend').className).not.toMatch(/(^|\s)is-active(\s|$)/)
+  })
+
   it('② 切【新发】零请求：fetch 计数不变、DOM 顺序 = time_created 降序；来回切换仍零请求', async () => {
     wireFetch({ pages: { 0: ROWS_SMALL } })
     renderHomePage()

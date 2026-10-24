@@ -1,6 +1,6 @@
 {
-  "at": "2026-10-24T02:30:35.097Z",
-  "spec": "HOME-CAMP-v2 · 去 mock 四臂（旧 mock_cards / mock_not_clickable / exactly_five_cards 判据已删除）",
+  "at": "2026-10-24T02:55:04.450Z",
+  "spec": "HOME-CAMP-v2 · 去 mock 四臂 + T130 chip 臂（`.sf-chip` 形状/选中态/真 hover 抬升 1px）",
   "fixture": {
     "home_rows": 6,
     "home_visible": 5,
@@ -39,11 +39,14 @@
           "section_heading": "热门任务",
           "viewall": {
             "text": "全部悬赏",
-            "class": "btn btn-ghost btn-md px-4 py-2 text-base",
+            "class": "sf-chip",
             "href": "/campaign",
-            "bg": "rgba(255, 255, 255, 0.55)",
+            "bg": "rgba(0, 0, 0, 0)",
             "color": "rgb(75, 85, 99)",
-            "box_shadow": "none"
+            "box_shadow": "none",
+            "border_width": "1px",
+            "border_color": "rgb(229, 231, 235)",
+            "transform": "none"
           },
           "card_class_count": 5,
           "rows": [
@@ -134,11 +137,14 @@
           "section_heading": "热门任务",
           "viewall": {
             "text": "全部悬赏",
-            "class": "btn btn-ghost btn-md px-4 py-2 text-base",
+            "class": "sf-chip",
             "href": "/campaign",
-            "bg": "rgba(255, 255, 255, 0.55)",
+            "bg": "rgba(0, 0, 0, 0)",
             "color": "rgb(75, 85, 99)",
-            "box_shadow": "none"
+            "box_shadow": "none",
+            "border_width": "1px",
+            "border_color": "rgb(229, 231, 235)",
+            "transform": "none"
           },
           "card_class_count": 3,
           "rows": [
@@ -211,9 +217,11 @@
         "window_error_zero": true,
         "viewall_present": true,
         "viewall_text_is_all_bounties": true,
-        "viewall_wears_ghost": true,
+        "viewall_wears_chip": true,
+        "viewall_not_ghost": true,
         "viewall_not_proceed": true,
-        "viewall_bg_is_ghost_white": true,
+        "viewall_bg_transparent": true,
+        "viewall_border_1px": true,
         "viewall_bg_not_blue": true,
         "viewall_href_campaign": true
       }
@@ -231,11 +239,14 @@
         "section_heading": "热门任务",
         "viewall": {
           "text": "全部悬赏",
-          "class": "btn btn-ghost btn-md px-4 py-2 text-base",
+          "class": "sf-chip",
           "href": "/campaign",
-          "bg": "rgba(255, 255, 255, 0.55)",
+          "bg": "rgba(0, 0, 0, 0)",
           "color": "rgb(75, 85, 99)",
-          "box_shadow": "none"
+          "box_shadow": "none",
+          "border_width": "1px",
+          "border_color": "rgb(229, 231, 235)",
+          "transform": "none"
         },
         "card_class_count": 0,
         "rows": [],
@@ -378,6 +389,115 @@
         "console_error_zero_both": true,
         "window_error_zero_both": true
       }
+    },
+    {
+      "arm": "chip",
+      "viewport": "vp1536",
+      "reduced_motion": "no-preference",
+      "reading": {
+        "viewall": {
+          "tag": "A",
+          "class": "sf-chip",
+          "text": "全部悬赏",
+          "href": "/campaign",
+          "display": "flex",
+          "align_items": "center",
+          "gap": "4px",
+          "padding": "6px 12px 6px 12px",
+          "font_size": "14px",
+          "line_height": "19.6px",
+          "border_radius": "6px",
+          "bg": "rgba(0, 0, 0, 0)",
+          "border_width": "1px",
+          "border_color": "rgb(229, 231, 235)",
+          "color": "rgb(75, 85, 99)",
+          "transform": "none",
+          "box_shadow": "none"
+        },
+        "tabs": {
+          "recommend": {
+            "tag": "BUTTON",
+            "class": "sf-chip is-active",
+            "text": "推荐",
+            "href": null,
+            "display": "flex",
+            "align_items": "center",
+            "gap": "4px",
+            "padding": "6px 12px 6px 12px",
+            "font_size": "14px",
+            "line_height": "19.6px",
+            "border_radius": "6px",
+            "bg": "rgb(234, 179, 8)",
+            "border_width": "1px",
+            "border_color": "rgb(234, 179, 8)",
+            "color": "rgb(255, 255, 255)",
+            "transform": "none",
+            "box_shadow": "none"
+          },
+          "new": {
+            "tag": "BUTTON",
+            "class": "sf-chip",
+            "text": "新发",
+            "href": null,
+            "display": "flex",
+            "align_items": "center",
+            "gap": "4px",
+            "padding": "6px 12px 6px 12px",
+            "font_size": "14px",
+            "line_height": "19.6px",
+            "border_radius": "6px",
+            "bg": "rgba(0, 0, 0, 0)",
+            "border_width": "1px",
+            "border_color": "rgb(229, 231, 235)",
+            "color": "rgb(75, 85, 99)",
+            "transform": "none",
+            "box_shadow": "none"
+          }
+        },
+        "viewall_hover": {
+          "transform": "matrix(1, 0, 0, 1, 0, -1)",
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "rgb(75, 85, 99)",
+          "border_color": "rgb(229, 231, 235)",
+          "box_shadow": "none"
+        },
+        "tab_hover": {
+          "recommend": {
+            "transform": "matrix(1, 0, 0, 1, 0, -1)",
+            "bg": "rgb(234, 179, 8)",
+            "color": "rgb(255, 255, 255)",
+            "border_color": "rgb(234, 179, 8)",
+            "box_shadow": "none"
+          },
+          "new": {
+            "transform": "matrix(1, 0, 0, 1, 0, -1)",
+            "bg": "rgba(0, 0, 0, 0)",
+            "color": "rgb(75, 85, 99)",
+            "border_color": "rgb(229, 231, 235)",
+            "box_shadow": "none"
+          }
+        }
+      },
+      "pageerror": [],
+      "console_errors": [],
+      "judgement": {
+        "viewall_is_chip": true,
+        "viewall_href_campaign": true,
+        "viewall_text": true,
+        "viewall_geometry": true,
+        "viewall_bg_transparent": true,
+        "viewall_border_1px": true,
+        "viewall_no_shadow": true,
+        "viewall_hover_lift": true,
+        "viewall_hover_rest_unchanged": true,
+        "tabs_both_chip": true,
+        "tab_active_yellow": true,
+        "tab_inactive_transparent": true,
+        "tab_geometry_matches": true,
+        "tab_hover_lift_both": true,
+        "tab_hover_no_color_change": true,
+        "no_pageerror": true
+      }
     }
   ],
   "judgement_detail": {
@@ -396,9 +516,11 @@
       "window_error_zero": true,
       "viewall_present": true,
       "viewall_text_is_all_bounties": true,
-      "viewall_wears_ghost": true,
+      "viewall_wears_chip": true,
+      "viewall_not_ghost": true,
       "viewall_not_proceed": true,
-      "viewall_bg_is_ghost_white": true,
+      "viewall_bg_transparent": true,
+      "viewall_border_1px": true,
       "viewall_bg_not_blue": true,
       "viewall_href_campaign": true
     },
@@ -425,13 +547,32 @@
       "pageerror_zero_both": true,
       "console_error_zero_both": true,
       "window_error_zero_both": true
+    },
+    "chip": {
+      "viewall_is_chip": true,
+      "viewall_href_campaign": true,
+      "viewall_text": true,
+      "viewall_geometry": true,
+      "viewall_bg_transparent": true,
+      "viewall_border_1px": true,
+      "viewall_no_shadow": true,
+      "viewall_hover_lift": true,
+      "viewall_hover_rest_unchanged": true,
+      "tabs_both_chip": true,
+      "tab_active_yellow": true,
+      "tab_inactive_transparent": true,
+      "tab_geometry_matches": true,
+      "tab_hover_lift_both": true,
+      "tab_hover_no_color_change": true,
+      "no_pageerror": true
     }
   },
   "verdict": {
     "rowcount": true,
     "empty": true,
     "parity": true,
-    "viewports": true
+    "viewports": true,
+    "chip": true
   },
   "all_pass": true
 }

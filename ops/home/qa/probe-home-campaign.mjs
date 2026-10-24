@@ -188,10 +188,12 @@ async function routeFixtures(context, { homeRows, campaignAll = CAMPAIGN_ALL }) 
 }
 
 /** 开一臂：独立 context（viewport + 夹具）→ 访问 → 读数 → 收错误。 */
-async function withPage(browser, vp, fixtures, { path: visitPath, waitFor }, read) {
+async function withPage(browser, vp, fixtures, { path: visitPath, waitFor }, read, opts = {}) {
   const context = await browser.newContext({
     viewport: { width: vp.w, height: vp.h },
-    reducedMotion: 'reduce',
+    // ★ T130：默认 `reduce`（历史四臂口径不变）；chip hover 臂必须 `no-preference`，
+    //   否则 `.sf-chip` 的 reduced-motion 降级（transform:none）会把「抬升 1px」读成 none。
+    reducedMotion: opts.reducedMotion || 'reduce',
   })
   const apiRequests = []
   const oldApiHits = []
@@ -256,6 +258,9 @@ const readHome = (page) => page.evaluate(() => {
         bg: cs.backgroundColor,
         color: cs.color,
         box_shadow: cs.boxShadow,
+        border_width: cs.borderTopWidth,
+        border_color: cs.borderTopColor,
+        transform: cs.transform,
       }
     })(),
     card_class_count: document.querySelectorAll('.sf-home-camp-card').length,
@@ -308,6 +313,57 @@ const expectedOrderOf = (rows) => {
   return ordered.map((row) => String(row.task_id))
 }
 
+// ── T130 · 可点 chip（`.sf-chip`）读数 ──────────────────────────────────────
+/** 静态形状/配色（computed，日档默认；主题由页面 localStorage 决定） */
+const readChipStatic = (page, sel) => page.evaluate((s) => {
+  const el = document.querySelector(s)
+  if (!el) return null
+  const cs = getComputedStyle(el)
+  return {
+    tag: el.tagName,
+    class: el.className,
+    text: (el.textContent || '').trim(),
+    href: el.getAttribute('href'),
+    display: cs.display,
+    align_items: cs.alignItems,
+    gap: cs.gap,
+    padding: `${cs.paddingTop} ${cs.paddingRight} ${cs.paddingBottom} ${cs.paddingLeft}`,
+    font_size: cs.fontSize,
+    line_height: cs.lineHeight,
+    border_radius: cs.borderTopLeftRadius,
+    bg: cs.backgroundColor,
+    border_width: cs.borderTopWidth,
+    border_color: cs.borderTopColor,
+    color: cs.color,
+    transform: cs.transform,
+    box_shadow: cs.boxShadow,
+  }
+}, sel)
+
+/** 真 hover（`page.hover` = 真实鼠标事件，非 forcePseudoState）后读 computed；读完把鼠标移开 */
+const readChipHover = async (page, sel) => {
+  await page.hover(sel)
+  await page.waitForTimeout(260) // 过渡 .15s，留足落定时间
+  const v = await page.evaluate((s) => {
+    const el = document.querySelector(s)
+    if (!el) return null
+    const cs = getComputedStyle(el)
+    return {
+      transform: cs.transform,
+      bg: cs.backgroundColor,
+      color: cs.color,
+      border_color: cs.borderTopColor,
+      box_shadow: cs.boxShadow,
+    }
+  }, sel)
+  await page.mouse.move(0, 0)
+  await page.waitForTimeout(260)
+  return v
+}
+
+/** matrix(1, 0, 0, 1, 0, -1) ⇒ 抬升 1px（也不接受 none / 0） */
+const liftsOnePixel = (transform) => /matrix\(\s*1,\s*0,\s*0,\s*1,\s*0,\s*-1\s*\)/.test(String(transform))
+
 async function armRowcount(browser) {
   const expectedIds = expectedOrderOf(HOME_ROWS)
   const wide = await withPage(browser, VP_WIDE, { homeRows: HOME_ROWS },
@@ -343,14 +399,19 @@ async function armRowcount(browser) {
     old_jobs_api_hits_zero: wide.oldApiHits.length === 0 && three.oldApiHits.length === 0,
     pageerror_zero: wide.pageErrors.length === 0 && three.pageErrors.length === 0,
     window_error_zero: wide.winErrors.length === 0 && three.winErrors.length === 0,
-    // ⑤ ★ 2026-10-24（Kevin）：【热门任务】右上入口 = 文案「全部悬赏」+ 弱化 ghost（非 proceed 蓝底）+ 仍指 /campaign
+    // ⑤ ★ 2026-10-24（Kevin · T130 改锚）：【热门任务】右上入口 = 文案「全部悬赏」+ **公共 chip**
+    //   （`.sf-chip`：透明底 + 1px 细边框；旧 `btn-ghost` / 半透明白底判据随本单作废 ⇒ 改锚为 chip 口径，
+    //   强度不降：仍逐条断言类名在场/退场 + 计算底色 + 细边框 + 链接）
     viewall_present: Boolean(wide.reading.viewall),
     viewall_text_is_all_bounties: wide.reading.viewall?.text === '全部悬赏',
-    viewall_wears_ghost: Boolean(wide.reading.viewall?.class?.split(/\s+/).includes('btn-ghost')),
+    viewall_wears_chip: Boolean(wide.reading.viewall?.class?.split(/\s+/).includes('sf-chip')),
+    viewall_not_ghost: Boolean(wide.reading.viewall)
+      && !wide.reading.viewall.class.split(/\s+/).includes('btn-ghost'),
     viewall_not_proceed: Boolean(wide.reading.viewall)
       && !wide.reading.viewall.class.split(/\s+/).includes('btn-proceed'),
-    // 弱化「不再蓝底」的**计算值**取证（proceed 蓝 = --tone-blue #3b82f6 ⇒ rgb(59, 130, 246)）
-    viewall_bg_is_ghost_white: /^rgba\(255,\s*255,\s*255,\s*0\.55\)$/.test(wide.reading.viewall?.bg || ''),
+    // 「透明底 + 1px 细边框」的**计算值**取证（旧 ghost 白底 / proceed 蓝 rgb(59,130,246) 都不得再出现）
+    viewall_bg_transparent: /^rgba\(0,\s*0,\s*0,\s*0\)$/.test(wide.reading.viewall?.bg || ''),
+    viewall_border_1px: wide.reading.viewall?.border_width === '1px',
     viewall_bg_not_blue: !/59,\s*130,\s*246/.test(wide.reading.viewall?.bg || ''),
     viewall_href_campaign: wide.reading.viewall?.href === '/campaign',
   }
@@ -465,6 +526,85 @@ async function armViewports(browser) {
   return { arm: 'viewports', cases, judgement }
 }
 
+// T130 臂：首页两个 feed tab ＋【全部悬赏】入口都是公共 `.sf-chip` —— 形状/配色/选中态/**真 hover 抬升**。
+async function armChip(browser) {
+  const SEL_VIEWALL = '[data-sf-m="home-viewall"]'
+  const SEL_REC = '[data-sf-m="feed-tab-recommend"]'
+  const SEL_NEW = '[data-sf-m="feed-tab-new"]'
+
+  const run = await withPage(
+    browser, VP_WIDE, { homeRows: HOME_ROWS },
+    { path: '/', waitFor: SEL_VIEWALL },
+    async (page) => {
+      const viewall = await readChipStatic(page, SEL_VIEWALL)
+      const tabs = { recommend: await readChipStatic(page, SEL_REC), new: await readChipStatic(page, SEL_NEW) }
+      // 静态读数先取完再 hover（hover 会改 transform，不能污染静态读数）
+      const viewall_hover = await readChipHover(page, SEL_VIEWALL)
+      const tab_hover = {
+        recommend: await readChipHover(page, SEL_REC),
+        new: await readChipHover(page, SEL_NEW),
+      }
+      return { viewall, tabs, viewall_hover, tab_hover }
+    },
+    { reducedMotion: 'no-preference' },
+  )
+
+  const r = run.reading
+  const v = r.viewall
+  const rec = r.tabs.recommend
+  const nw = r.tabs.new
+  const isChip = (el) => Boolean(el) && String(el.class).split(/\s+/).includes('sf-chip')
+  const isActive = (el) => Boolean(el) && String(el.class).split(/\s+/).includes('is-active')
+  const transparent = (bg) => String(bg) === 'rgba(0, 0, 0, 0)' || String(bg) === 'transparent'
+  const YELLOW_500 = 'rgb(234, 179, 8)' // bg-yellow-500 既有落点（tailwind-compat.css:372）
+
+  const judgement = {
+    // ① 入口：`.sf-chip` 命中 ∧ 旧 Button 变体退场
+    viewall_is_chip: isChip(v) && !String(v?.class || '').includes('btn-ghost'),
+    viewall_href_campaign: v?.href === '/campaign',
+    viewall_text: (v?.text || '') === '全部悬赏',
+    // ② 形状：text-sm(14px) / px-3 py-1.5 / rounded-md(6px) / inline-flex + 居中
+    // display：源码为 `inline-flex`；作为 flex 子项时浏览器 blockify 成 `flex` ⇒ 两者皆合法（仍须 flex 系）
+    viewall_geometry: ['inline-flex', 'flex'].includes(v?.display) && v?.align_items === 'center'
+      && v?.font_size === '14px' && v?.padding === '6px 12px 6px 12px'
+      && v?.border_radius === '6px',
+    // ③ 透明底 + 1px 细边框 + 零阴影
+    viewall_bg_transparent: transparent(v?.bg),
+    viewall_border_1px: v?.border_width === '1px',
+    viewall_no_shadow: v?.box_shadow === 'none',
+    // ④ 真 hover：抬升 1px，且不变色 / 不变边 / 不加阴影（与 `.btn:hover` 逐字一致）
+    viewall_hover_lift: liftsOnePixel(r.viewall_hover?.transform),
+    viewall_hover_rest_unchanged: transparent(r.viewall_hover?.bg)
+      && r.viewall_hover?.color === v?.color
+      && r.viewall_hover?.border_color === v?.border_color
+      && r.viewall_hover?.box_shadow === 'none',
+    // ⑤ 两 tab：同 popup 形状 ∧ 选中档黄底白字黄边 ∧ 未选档透明
+    tabs_both_chip: isChip(rec) && isChip(nw),
+    tab_active_yellow: isActive(rec) && rec?.bg === YELLOW_500 && rec?.border_color === YELLOW_500
+      && rec?.color === 'rgb(255, 255, 255)',
+    tab_inactive_transparent: !isActive(nw) && transparent(nw?.bg) && nw?.border_width === '1px',
+    tab_geometry_matches: rec?.font_size === '14px' && nw?.font_size === '14px'
+      && rec?.padding === '6px 12px 6px 12px' && nw?.padding === '6px 12px 6px 12px'
+      && rec?.border_radius === '6px' && nw?.border_radius === '6px',
+    // ⑥ 两 tab 的 hover 也抬升 1px（选中档同样可点 ⇒ 同样反馈）
+    tab_hover_lift_both: liftsOnePixel(r.tab_hover?.recommend?.transform)
+      && liftsOnePixel(r.tab_hover?.new?.transform),
+    tab_hover_no_color_change: r.tab_hover?.recommend?.bg === rec?.bg
+      && r.tab_hover?.new?.bg === nw?.bg,
+    no_pageerror: run.pageErrors.length === 0 && run.winErrors.length === 0,
+  }
+
+  return {
+    arm: 'chip',
+    viewport: VP_WIDE.name,
+    reduced_motion: 'no-preference',
+    reading: r,
+    pageerror: run.pageErrors,
+    console_errors: run.consoleErrors,
+    judgement,
+  }
+}
+
 ;(async () => {
   if (!fs.existsSync(path.join(DIST, 'index.html'))) {
     throw new Error(`dist missing: ${DIST} (run cd frontend && npm run build first)`)
@@ -473,7 +613,7 @@ async function armViewports(browser) {
   const browser = await chromium.launch({ executablePath: CHROME, headless: true })
   const results = {
     at: new Date().toISOString(),
-    spec: 'HOME-CAMP-v2 · 去 mock 四臂（旧 mock_cards / mock_not_clickable / exactly_five_cards 判据已删除）',
+    spec: 'HOME-CAMP-v2 · 去 mock 四臂 + T130 chip 臂（`.sf-chip` 形状/选中态/真 hover 抬升 1px）',
     fixture: {
       home_rows: HOME_ROWS.length,
       home_visible: visibleOf(HOME_ROWS).length,
@@ -489,6 +629,7 @@ async function armViewports(browser) {
     results.arms.push(await armEmpty(browser))
     results.arms.push(await armParity(browser))
     results.arms.push(await armViewports(browser))
+    results.arms.push(await armChip(browser))
   } finally {
     await browser.close()
     await new Promise((resolve) => server.close(resolve))
