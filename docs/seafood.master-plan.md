@@ -6,6 +6,7 @@
 
 > ★ **版本行 = `v0.388`（2026-10-24）** —— **【我的邀请】上线**（用户自助绑定邀请人：两端口 `GET /api/referral/me` + `POST /api/referral/bind` ＋ 前端路由 `/profile/invite` ＋ OTP 6 格输入形态；一次性、不可改绑；`depth` 由 DB 触发器算、`create_key` 只校验不消费）；三段摘要见 **§5.469**，契约见 `route-layer.spec` **v2.55 §49.27** + `design-system.spec` **v1.38 §39（`T138`）**
 > ★ **版本行 = `v0.389`（2026-10-24）** —— **Toast 双轨**（Kevin 裁定）：普通提示类 + 余额减少类 toast **一字不改**（右上角 / `<Toaster position="top-right" />` 不动）；**余额增加类**成功反馈**统一走单一出口 `toastCredit`**（`frontend/src/toast-credit.js` ⇒ `position:'top-center'` · `duration:5000` · `className:'sf-toast-credit'` · `18px` · `marginTop:32vh`），归类**恰 5 处 / 6 个调用点** = 领工资 · 领奖（一键全领 / 单笔）· 铸造 · 退款到账 · 确认收货；层级 = 强化档在场时容器 **50 < 模态框 60**，普通档仍 9999（`:has()` 定向）；**零新 token / 零新 i18n 键 / 零后端**。三段摘要见 **§5.470**，形态契约见 `design-system.spec` **v1.39 §40（`T139`）**
+> ★ **版本行 = `v0.390`（2026-10-24）** —— **「币种管理」tab 实现落地**（交易所管理第④面接上前端路由 `/dashboard/exchange/currency-status`，闸 `manage_settings`；四态按钮矩阵以 `T135-b` 为准 —— **`draft` 行只渲「下架」**、不渲必 409 的「上市」并就地一句只读提示；`$` 行零可点控件；危险动作二次确认；成功默认 toast、失败内联）；三段摘要见 **§5.471**，契约见 `route-layer.spec` **v2.56 §49.28** + `design-system.spec` **§36.8**（就地追加实现落地段，不升版）
 
 ---
 
@@ -1418,6 +1419,25 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 **D. 我裁的口径（一句话可改）**：① **批 7 =「用户可见读口」线**，首单只做 `/api/user/ledger`；② **`/api/user/points` 暂不注册** —— 前端现无消费方（现走 `/api/user/asset/:uID`），不造**无人消费的空路径**（本册 §1.2 补强的同一理由）；③ **装饰性切角与 legacy 硬阴影不并入本批**（审美面，需 Kevin 口径）；④ **本批不 `commit`/`push`**，由我验收后入库 —— **注意本仓推送即上线**。
 
+
+### 5.471 ★★ **「币种管理」tab 实现落地** = 第④面接前端路由 `currency-status` ＋ **四态按钮矩阵以 `T135-b` 为准（`draft` 行仅「下架」）** · 2026-10-24 · **v0.390** · 纯追加
+
+**A. 裁定（Zang · 本单执行）**：**`draft` 行不渲【上市】按钮**。依据 = `design-system.spec` `T135-b`（不是派单里写的 `R27` 全矩阵）：后端 `draft → listed` 恒 `409 LISTING_REQUIRES_FEE_PATH`（上市带 `currency_create_fee` + `listing_fee` + `listing_deposit` 资金腿，唯一入口 = `POST /api/currency/:cid/list` + 审核通过）⇒ **渲一个必错的按钮 = 坏 UX**。改法 = `actionsForRow(draft) ⇒ ['delisted']` + 该行一句只读提示（**复用** `adminCurrencyStatus.reasonFeePath`，零新增键）。**其余三态（`listed` / `frozen` / `delisted`）与 `R27` / `CURRENCY_TRANSITIONS` 逐格不变**。
+
+**B. 实现（本批 `frontend/**` + `ops/**`）**
+- **页面** `pages/admin/CurrencyStatusPage.jsx`（新）：4 列表（`cid` / 符号 / 状态 / 上线时间）、状态列**直读** `status`、`$` 行零可点控件、危险动作 `window.confirm` 二次确认（取消 ⇒ 零 POST）、成功 toast + 就地重拉、失败内联（`role="alert"`，按 `code` 分支）。
+- **路由 / tab**：`App.jsx` 新增 `currency-status`（`manage_settings`）；`ExchangeManagementPage.jsx` `EXCHANGE_TABS` 追加第 4 项；**前三个 tab 零改动**。
+- **样式** `styles.css`：`.sf-curstatus-*`（表 / 状态徽 / 动作组 / 守卫标记 / **新增 `.sf-curstatus-hint`**（`draft` 只读提示）/ 内联错误条 / ≤767 卡行式），**零新 token**。
+- **i18n**：**零键增删**（按钮 / 状态 / 列头 / 确认 / 提示全复用现役键）。
+- **探针** `ops/currency-status/currency-status-tab-probe-20261024.mjs`（playwright + `context.route` 夹具，**生产库零写入**）：专用端口 **5297**（`vite preview --strictPort`，跑完 kill + `lsof` 复核）；四臂 A/B/C/D ⇒ **18 checks / 18 passed / pageerror 0**，读数落 `ops/currency-status/readings/`。
+
+**C. 读数（本笔现取）**
+- **单测**：`admin-exchange-currency-status.test.jsx` **22 例全绿**——`actionsForRow` 四态逐格（`draft ⇒ ['delisted']`）+ 运行时按钮集（第 7 行 = 恰 1 个 `-delisted` 按钮 + `draft-hint` 在场，非 draft 行无该提示）。
+- **门**：unit **106 files / 1211 tests / 0 failed** · a11y **1 / 16** · components **2 / 14** · build **exit 0** ⇒ `index-Co8a8Y0i.js` **654,764 B** / `index-pf_G9iq1.css` **195,601 B**。
+- **计数前推**：前端 `<Route` **`48 / 39 / 26` ⇒ `49 / 40 / 26`**（内层逐段不变：嵌套段不入该口径）；后端注册点 **`118` 不变**。
+- **诚实登记（壳层）**：`AdminLayout` 侧栏无响应式折叠，390 下 `main` 仅 36px（既有壳层行为）⇒ 探针 B 臂先按用户可见折叠键收侧栏再量本 tab 自身溢出，**未放宽判据**。
+
+**D. 规范面**：`route-layer.spec` **v2.56 §49.28**（新子路由 + 计数前推 + 按钮矩阵 + 门读数 + 判负）+ `design-system.spec` **§36.8**（就地追加「实现落地」段，**不升版**，`T135` 条文一字未动）+ 本册本节。**零后端 / 零迁移 / 零 i18n 键 / 零新 token**。
 
 ### 5.470 ★★ **Toast 双轨** = 普通/余额减少类**维持原样** ＋ **余额增加类走单一出口 `toastCredit`**（页面正中 · 18px · 5s · 专属类 · 层级 < 模态框）· 2026-10-24 · **v0.389** · 纯追加
 

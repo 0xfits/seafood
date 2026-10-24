@@ -5135,6 +5135,19 @@ showEdit     = isAuthenticated && (isOwner || canEditAny) && statusEditable
 - **未改写面**：`§1–§35` 一字未动；`backend-ts/**` / `frontend/**` **本笔零改动**；真源 `style-preview.html` 零改动。
 - **快照口径（诚实）**：本笔**未新建快照**（写面限 `docs/**`）；`docs/versions/design-system.spec.v1.34.md` **不存在**（`docs/versions/` 下仅到 `v1.33`）⇒ 本节同样**不新建**，现行口径以本册 live 正文为准。
 
+### 36.8 实现落地（**就地追加 · 2026-10-24 · 本笔现取** · 不升版：`T135`/`T135-a`/`T135-b`/`T135-c` 条文**一字未动**）
+
+- **落地面**：`frontend/src/pages/admin/CurrencyStatusPage.jsx`（新页）+ `ExchangeManagementPage.jsx`（`EXCHANGE_TABS` 第 4 项）+ `App.jsx`（`currency-status` 子路由，闸 `manage_settings`）+ `styles.css`（`.sf-curstatus-*`，**零新 token**）。
+- **① 4 tab 壳**：`T132` 形态原样 —— `.sf-chip` tab 条 + 逐子路由各自闸；第 4 项标签复用 `adminNav.currencyStatus`（「币种管理」），**前三个 tab 零改动**。
+- **② 列形状 = 4 列，状态列**直读** `status`**：`cid` / 符号 / 状态 / 上线时间（`listed_at`，`NULL` ⇒ `—`）；状态列 = 四态枚举值 → 既有词条 `adminCurrencyReview.status{Draft,Listed,Frozen,Delisted}` 的**一一映射，零派生**（`R10`）。**列头复用** `adminCurrencyReview.colId/colSymbol/colStatus` + `adminCurrencyStatus.colListedAt`（**4 键直读，零新增列头键**）。
+- **③ 四态按钮矩阵以 `T135-b` 为准（`draft` 行仅「作废/下架」）**：`actionsForRow()` 纯函数 = `draft → ['delisted']` · `listed → ['frozen','delisted']` · `frozen → ['listed','delisted']` · `delisted → []` · `cid = 1 → []`。**`draft` 行不渲「上市」** —— 该边后端恒 `409 LISTING_REQUIRES_FEE_PATH`（上市带 `currency_create_fee` + `listing_fee` + `listing_deposit` 资金腿，唯一入口 = 建币审核路径），**渲必错按钮 = 把状态机错误暴露成用户错误**（`T135-a` 同取向）。`draft` 行就地一句**只读提示**（`data-sf-m="currency-status-draft-hint"`，`font-size:12px` / `--text-secondary` / 非可点，挂 `title`），**文案复用** `adminCurrencyStatus.reasonFeePath`（**零新增 i18n 键**）。
+- **④ `$`（`cid = 1`）行禁操作**：按钮集空 + **零可点控件**（非 button / 非 a / 无 `role=button`），只渲不可点的守卫标记（`[data-sf-m="currency-status-locked"]`，`Lock` 14px + `adminCurrencyStatus.locked` 文案）。
+- **⑤ 二次确认（`T135-c`）**：`DANGEROUS_TARGETS = {frozen, delisted}` ⇒ `window.confirm`（含**符号** + **目标动作** + 「未成交挂单将被撤销；下架后不可恢复」），**拦在发请求之前**（取消 ⇒ 零 POST）；`frozen → listed`（解冻）**不套确认层**。
+- **⑥ 成功 / 失败口径**：成功 ⇒ **默认 toast**（`adminCurrencyStatus.done`，后台配置类**不经**余额增强出口）+ 就地重拉列表；失败 ⇒ **列表上方内联**（`role="alert"`，`.sf-curstatus-error`），按 `code` 分支、`details.reason` 只做**人话映射**（`SYSTEM_CURRENCY_IMMUTABLE` / `ACTIVE_ORDERS_REMAIN` / `LISTING_REQUIRES_FEE_PATH` / `LEDGER_CURRENCY_INVALID_TRANSITION` 四档），**不弹错误 toast、不拼机读码**。
+- **⑦ 读数（本笔现取）**：unit **106 / 1211 / 0 failed** · a11y **1 / 16** · components **2 / 14** · build **exit 0** ⇒ `index-Co8a8Y0i.js` **654,764 B** / `index-pf_G9iq1.css` **195,601 B** · 真浏览器探针 **18 / 18 PASS**（`ops/currency-status/readings/currency-status-tab-probe-20261024.json`）。
+- **⑧ 与 §36.5 的关系（诚实登记）**：§36.5 的 `exchange.currencyStatus.*` 15 键为**契约期建议形态**、当时标 `NOT_MEASURED`；**实现轮未采用该命名空间**，改为**全量复用现役键**（`adminCurrencyReview.*` + `adminCurrencyStatus.*` + `adminCommon.colActions`）⇒ **i18n 键集零增删**、`§36.5` 表逐字保留（历史口径，不改写）。`§36.4` 的 `data-sf-m` 钩子 `currency-status-action-{listed,frozen,delisted}` 按原约定落地，**新增** `currency-status-row/-status/-locked/-final/-draft-hint`。
+- **零变更**：零新 token / 零 `STRUCT` / 零几何契约 / 真源 `style-preview.html` 零改动；`T130` / `T131` / `T132` / `T133` / `T134` / `T135`（含 `a`~`c`）**条文一字未动**。
+
 ---
 
 ## §37 ★★ v1.36 · **后台「站点文案」页拆解到位**：一页拆四块（积分 / 用户 / **新页【电量】** / 设置）＋ 两组删除 ＋ 品牌行 `Seafood Admin` = 带语言前缀的首页链接 ＋ **积分页「邀请奖励」卡控件闸缺陷修正** —— 规则 **`T136` / `T136-a` / `T136-b` / `T136-c`**（2026-10-24 · Kevin 批次 A 裁定 · **状态改写式 · 只追加零删行** · 本节只写 `docs/**`，实现已在同批工作区落地）

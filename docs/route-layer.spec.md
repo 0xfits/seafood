@@ -458,6 +458,9 @@
 > **状态：v2.55（行为变更 · **【我的邀请】上线 = 用户自助绑定邀请人（两端口 ＋ 1 条前端路由）** —— 新增 **`GET /api/referral/me`**（读绑定态）与 **`POST /api/referral/bind`**（一次性绑定），闸 = `requireActor`（登录用户，**零新增权限码**）；前端新增 **`profile/invite`** 一条受闸路由（同一个 `ProfilePage`，左栏菜单位于「我的收藏」与「账户设置」**之间**）；**零新错误码**（一律借既有码，`details.reason` 六条见 §49.27.3）· **零迁移 / 零 DDL / 零新守卫**（防环 / 已绑 / 已有下级 / 父 depth 一律用 `0010` / `0011` 既有闸）· i18n 新增 8 键（四语齐步）· 正文 = **§49.27**
 > **v2.55 修订入口**：逐条 delta → 依据锚点 → 改动点 = **本册 §49.27**（**不建独立 delta 件**，承 v2.29–v2.54 先例）；姊妹册 = `seafood.master-plan` **§5.469 / 版本行 v0.388** + `docs/design/design-system.spec.md` **v1.38 §39（`T138`）**。**本笔含 2 行就地状态改写**（§44.5「前端路由（字面）」与「后端注册点」两行的现值格），**旧值均行内留痕、无一处整行删除**。
 > **★★ v2.55 本单要点（先说结论，不含糊）**：① **两端口** —— `GET /api/referral/me` ⇒ `data = {bound, parent_uid, bound_at, depth}`（未绑 ⇒ 后三项 `null`）；`POST /api/referral/bind` ⇒ body `{inviter_uid: number, create_key?: string}`，回执 `{parent_uid, depth, bound_at}`；② **注册点 `116` → `118`**（`grep -cE '^app\.(get|post|put|patch|delete)\(' backend-ts/src/index.ts` 现取 = `118`）；③ **错误码零新增**（33 码闭集不动）：`REFERRAL_ALREADY_BOUND` / `REFERRAL_SELF_BIND` / `REFERRAL_PARENT_NOT_FOUND` / `REFERRAL_BIND_REJECTED_BY_GUARD` / `NOT_A_POSITIVE_INTEGER` 五条机读 `reason` + `create_key` 形态四值，**全部挂既有码**（§49.27.3 逐条对照）；④ **`depth` 由 DB 触发器算**（`0011` §B⑦ `trg_referral_cycle_guard`：`NEW.depth := 1 + COALESCE(v_parent_stored_depth, 0)`）—— **应用层零参与**（不算、不传、不回写；`CR16` 不改）；⑤ **`create_key` 只做形态校验、不消费**（理由：`referral.child_uid` 主键已提供天然幂等，消费键会把「重复绑定」误判为「同键重放」而放宽 409）；⑥ **一人一次、不可改绑**（改绑无端点、无 UI）；⑦ **门读数（本笔现取）** = unit **104 files / 1171 tests / 0 failed** · a11y **1 / 16** · components **2 / 14** · build **exit 0** ⇒ `index-CFtJeqEX.js` **644,886 B** / `index-B8_-5uN9.css` **192,737 B** · 真浏览器探针 **59/59 PASS**（`ops/profile-invite/readings/probe-profile-invite.json`）。
+> **状态：v2.56（行为变更 · **「币种管理」tab 实现落地 = 交易所管理第④面接上前端路由** —— `/dashboard/exchange` 父段下新增 **`currency-status`** 一条受闸路由（`ProtectedRoute adminOnly` + `requiredPermission="manage_settings"`，与写口 §49.25.2 **同键**）；**四态按钮矩阵以 `design-system.spec` `T135-b` 为准**：`draft` 行**只渲「下架」**（`draft → listed` 带资金腿，唯一入口 = `POST /api/currency/:cid/list` + 审核通过 ⇒ 本页**不渲必 409 的按钮**），`listed` ⇒ [冻结][下架]、`frozen` ⇒ [上市][下架]、`delisted` ⇒ 无操作；**后端零改动 · 零新错误码 · 零迁移 · 零 i18n 键增删**（按钮/提示全复用既有键）· 正文 = **§49.28**）（**插于 v2.55 块之后（升序接放）** · 实现笔 = 同轮工作区）** · 作者角色 = **Zang（Specifier · 制度员）**
+> **v2.56 修订入口**：逐条 delta → 依据锚点 → 改动点 = **本册 §49.28**（**不建独立 delta 件**，承 v2.29–v2.55 先例）；姊妹册 = `seafood.master-plan` **§5.471 / 版本行 v0.390** + `docs/design/design-system.spec.md` **§36.8（就地追加「实现落地」段，不升版）**。**本笔含 2 行就地状态改写**（§44.5「前端路由（字面）」「前端路由（精确）」两行现值格 + 1 行复核注），**旧值均行内留痕、无一处整行删除**。
+> **★★ v2.56 本单要点（先说结论，不含糊）**：① **`draft` 行不渲「上市」**（Zang 裁定 · 依 `T135-b`）：后端该边恒 `409 LISTING_REQUIRES_FEE_PATH` ⇒ 渲必错按钮是坏 UX；改为**只读提示**（复用 `adminCurrencyStatus.reasonFeePath`，**零新增 i18n 键**）；② **其余三态矩阵与 `R27` / `CURRENCY_TRANSITIONS`（`ledger.ts:656-661`）逐格一致**（`listed → [frozen, delisted]` / `frozen → [listed, delisted]` / `delisted → []`；`frozen → listed` 解冻**不套确认层**）；③ **计数前推** `48 / 39 / 26` ⇒ **`49 / 40 / 26`**（前两数 +1 = 一条单行嵌套受闸路由；内层逐段 `26` 不变，承 v2.50 / v2.51 口径），**后端注册点 `118` 不变**；④ **真浏览器探针 18/18 PASS**（`ops/currency-status/readings/currency-status-tab-probe-20261024.json`，四臂 A/B/C/D 全绿、pageerror 0）。
 
 > **v2.19 修订入口**：逐条 delta → 依据锚点 → 改动点 = `docs/audit/route-layer-v2.19-delta.md`（**同批姊妹册** = `docs/audit/data-layer-v0.26-delta.md` + `docs/audit/commission-v0.4-delta.md`）。**凡与 Zang 裁定冲突处，一律以 Zang 裁定为准**（本单为 P9⑤ 契约冻结；**未改写任何裁定、未发明任何路径 / 数值 / 权限键 / 文案值**）。**★ 姊妹册（同批）**：`docs/commission.spec.md` **v0.4 §19** + `docs/data-layer.spec.md` **v0.26 §34**，**本册不重抄其条文、只指路**。
 > **★★ v2.19 本单要点（先说结论，不含糊）**：① **零新用户面口**（邀请奖励 = 结算腿，无独立读 / 动作口）；② **后台配置面复用**（费率 + 6 项权重矩阵）；③ **注册点 `87 → 87`（+0）**；④ **权限键 11 键内（零增删）**；⑤ **错误码零新增 + `R107`**；⑥ **真生效四段（①③④ 段）**；⑦ **连带门改版**（`p8-s2` 8 键 / 守卫常量 / 页字段面随 `R-9-1` ⇒ 归实现单）。
@@ -8548,9 +8551,9 @@ CONSTRAINT admin_refund_audit_log_idem_uniq   UNIQUE (idempotency_key, result)  
 
 | 口径 | 现取命令 | 现值 | 本单影响 |
 |---|---|---|---|
-| 前端路由（字面） | `grep -cE '<Route' frontend/src/App.jsx` | **`48`**（**现取 2026-10-24 · v2.55 前推** · 旧值 **`47`**〔v2.53〕/ `46`〔v2.51–v2.52，逐字留痕〕 · 旧值 `48`〔v2.50〕/ `44`〔v2.47–v2.49〕/ `42` 留痕） | **+1**（**v2.55：新增 `profile/invite` 一条受闸路由**；v2.53：删 `site-text` 一条受闸 `<Route>`、增 `site-text` redirect 一条 + 新增 `power` 一条 ⇒ 净 `+1`；旧 `−2`（v2.51 删两条 `<Route>`）与 `+4`〔v2.50 净增〕留痕；含 **2 行注释散文**含字面 `<Route`；承 §40.2 注释污染口径） ※ 相对旧值 **+6** = v2.47 −1 ＋ 其后各节新增累计 ＋ **v2.50 +4**（交易所管理壳内 index + 3 子路由）；明细见 **§49.20.3 / §49.23.6** |
-| 前端路由（精确） | `grep -oE '<Route[ >]' frontend/src/App.jsx \| wc -l` | **`39`**（**现取 2026-10-24 · v2.53 前推** · 旧值 **`38`**〔v2.51–v2.52，逐字留痕〕 · 旧值 `40`〔v2.50〕/ `36`〔v2.47–v2.49〕/ `34` 留痕） | **+1**（v2.53 同上：`site-text` 受闸行 −1、redirect 行 +1、`power` 行 +1；旧 `−2`（v2.51）与 `+4`〔v2.50〕留痕；**多行开写法系统性不计入** = §40.3 / §42.5 已登记盲点） ※ 相对旧值 **+6** = v2.47 −1 ＋ 增量累计 ＋ **v2.50 +4**；明细见 **§49.20.3 / §49.23.6** |
-| 前端内层逐段 | 内层 `<Routes>` 内逐段清点 | **`26`**（**现取 2026-10-24 · v2.53 复核仍 `26`** · **v2.53 的增删全在 `/dashboard` 父段内（嵌套段不入本口径）⇒ ±0**；旧记 `26` 见 v2.51 · 旧记 `20`〔16 单行 + 4 多行〕留痕；**v2.50 复核仍 `26`**；**v2.51 删的两条是 `/dashboard` 父段下的嵌套段 ⇒ 不入本口径、数值不变**） | **±0** ※ 相对旧值 **+6** = v2.47 −1 ＋ 增量累计（`exchange` 三条子路由是**嵌套段**、不计入内层逐段口径）；明细见 **§49.20.3 / §49.23.6** |
+| 前端路由（字面） | `grep -cE '<Route' frontend/src/App.jsx` | **`49`**（**现取 2026-10-24 · v2.56 前推** · 旧值 **`48`**〔v2.55〕/ `47`〔v2.53〕/ `46`〔v2.51–v2.52，逐字留痕〕 · 旧值 `48`〔v2.50〕/ `44`〔v2.47–v2.49〕/ `42` 留痕） | **+1**（**v2.56：新增 `currency-status` 一条受闸路由**（嵌套于 `/dashboard` 父段）；v2.55：新增 `profile/invite` 一条受闸路由；v2.53：删 `site-text` 一条受闸 `<Route>`、增 `site-text` redirect 一条 + 新增 `power` 一条 ⇒ 净 `+1`；旧 `−2`（v2.51 删两条 `<Route>`）与 `+4`〔v2.50 净增〕留痕；含 **2 行注释散文**含字面 `<Route`；承 §40.2 注释污染口径） ※ 相对旧值 **+6** = v2.47 −1 ＋ 其后各节新增累计 ＋ **v2.50 +4**（交易所管理壳内 index + 3 子路由）；明细见 **§49.20.3 / §49.23.6** |
+| 前端路由（精确） | `grep -oE '<Route[ >]' frontend/src/App.jsx \| wc -l` | **`40`**（**现取 2026-10-24 · v2.56 前推** · 旧值 **`39`**〔v2.55〕/ **`38`**〔v2.51–v2.52，逐字留痕〕 · 旧值 `40`〔v2.50〕/ `36`〔v2.47–v2.49〕/ `34` 留痕） | **+1**（**v2.56：`currency-status` 一条单行受闸路由 +1**；v2.53 同上：`site-text` 受闸行 −1、redirect 行 +1、`power` 行 +1；旧 `−2`（v2.51）与 `+4`〔v2.50〕留痕；**多行开写法系统性不计入** = §40.3 / §42.5 已登记盲点） ※ 相对旧值 **+6** = v2.47 −1 ＋ 增量累计 ＋ **v2.50 +4**；明细见 **§49.20.3 / §49.23.6** |
+| 前端内层逐段 | 内层 `<Routes>` 内逐段清点 | **`26`**（**现取 2026-10-24 · v2.56 复核仍 `26`；v2.53 复核 `26`** · **v2.53 的增删全在 `/dashboard` 父段内（嵌套段不入本口径）⇒ ±0**；旧记 `26` 见 v2.51 · 旧记 `20`〔16 单行 + 4 多行〕留痕；**v2.50 复核仍 `26`**；**v2.51 删的两条是 `/dashboard` 父段下的嵌套段 ⇒ 不入本口径、数值不变**） | **±0** ※ 相对旧值 **+6** = v2.47 −1 ＋ 增量累计（`exchange` 三条子路由是**嵌套段**、不计入内层逐段口径）；明细见 **§49.20.3 / §49.23.6** |
 | 后端注册点 | `grep -cE '^app\.(get\|post\|put\|delete\|patch)\(' backend-ts/src/index.ts` | **`118`**（**现取 2026-10-24 · v2.55 前推**；get 52 / post 59 / put 0 / delete 3 / patch 4 · 旧值 **`116`**〔v2.54〕/ **`105`**〔v2.53 时点读数 —— v2.50–v2.54 期间本行未同步，本笔**如实补登**〕留痕） | **+2**（v2.55：`GET /api/referral/me` + `POST /api/referral/bind`）；旧「**±0**（`AC10-2` 冻结面 `backend-ts/scripts/p7b-03-offline-gates.ts:145` 现取 = `regs === 105`，**已到位**）」为 v2.53 时点口径、逐字留痕 |
 
 - **判负**：任一计数发生变化（新增/删除 `<Route` 或注册行）⇒ 判负；**不得**以路由别名 / `app.use` 挂载 / 查询参数伪装成「零新增」绕过计数口径（§40.2 口径连续性）。
@@ -10947,3 +10950,73 @@ ORDER BY score DESC, l.time_created DESC, l.listing_id DESC
 - **`NOT_MEASURED`**：并发两请求同 child 的竞态实测未跑（机制 = `users` 两行 `FOR UPDATE` + `child_uid` PK，判据存在、压测未做）。
 - **诚实登记**：`i18n` 新增 **8 键**（`profileNav.invite` + `invite.{desc,label,bound,boundHint,submit,ok,err}`），四语齐步；现取 **top `136` / flat `1461` × 4 语**（逐文件相等）。
 - **本笔未动**：`referral` 表结构（零 DDL）、`0010` / `0011` 既有守卫、账本码表、权限码表；未启停任何服务。
+
+---
+
+### 49.28 「币种管理」tab 实现落地 = 前端路由 `currency-status` ＋ 四态按钮矩阵（`draft` 行**仅「下架」** · `T135-b`）· 2026-10-24 · **v2.56**（行为变更 ⇒ 升版；头注**追加** v2.56 状态块，接放于 v2.55 块之后）· 本笔**含 2 行就地状态改写**（§44.5 前两计数 + 1 行复核注；旧值行内留痕、无一处整行删除）· 实现笔 = 同轮工作区
+
+#### 49.28.1 新子路由（前端 · 现取）
+
+- **路由**：`frontend/src/App.jsx` 的 `/dashboard/exchange` 父段内新增一条
+  `<Route path="currency-status" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><CurrencyStatusPage /></ProtectedRoute>} />`
+  —— 闸 **`manage_settings`**，与写口 `POST /api/admin/currency/:cid/status`（§49.25.2）**同键**（不新增权限码 ⇒ 12 键闭集一字不动）。
+- **tab 条**：`ExchangeManagementPage.jsx` 的 `EXCHANGE_TABS` 追加第 4 项（`/dashboard/exchange/currency-status`），承 `T132` 形态（`.sf-chip` + 逐子路由各自设闸、外壳不设闸）；前三个 tab（`fee-rate` / `currency-review` / `commission-levels`）**零改动**。
+- **后端零改动**：端口、状态机、错误码、迁移一律按 §49.25 已冻结条文，本笔未触 `backend-ts/**`。
+- **旧地址**：无 redirect（该 tab 为新增，无历史地址）。
+
+#### 49.28.2 前端 `<Route` 三计数前推（**`48 / 39 / 26` ⇒ `49 / 40 / 26`** · 旧值留痕）
+
+| 口径 | 命令 | 旧值（v2.55） | 新值（本笔现取） | delta |
+|---|---|---|---|---|
+| 前端路由（字面） | `grep -cE '<Route' frontend/src/App.jsx` | `48` | **`49`** | **+1** |
+| 前端路由（精确） | `grep -oE '<Route[ >]' frontend/src/App.jsx \| wc -l` | `39` | **`40`** | **+1** |
+| 前端内层逐段 | 内层 `<Routes>` 逐段清点 | `26` | **`26`** | **±0** |
+| 后端注册点 | `grep -cE '^app\.(get\|post\|put\|delete\|patch)\(' backend-ts/src/index.ts` | `118` | **`118`** | **±0** |
+
+- **本笔贡献 = +1 条单行受闸路由**（字面与精确两口径同时 +1；**该行单行开写法**，不触发 §40.3 / §42.5 的多行盲点）。
+- **内层逐段 `26` 不变**：`currency-status` 属 `/dashboard` 父段下的**嵌套段**，承 v2.50（`exchange` 三条子路由）/ v2.51 同口径，**不入内层逐段计数**。
+- **§44.5 已同批就地前推**（两行现值格 + 1 行复核注；旧值 `48` / `39` / `26` 全部行内留痕）。
+- **判负**：上述四计数任一与本节表不符 ⇒ 判负；下一笔再增删 `<Route` 必须**同批**前推本节与 §44.5。
+
+#### 49.28.3 四态按钮矩阵（**以 `design-system.spec` `T135-b` 为准** · 逐行写死）
+
+| 行状态 | 渲染的按钮（恰此集合） | 提交目标 | 二次确认 |
+|---|---|---|---|
+| `draft` | **[下架]** ＋ 一行**只读提示**（「上市须经审核与上市费路径，请到「单位审核」页操作。」，复用 `adminCurrencyStatus.reasonFeePath`） | `{status:'delisted'}` | **要**（危险动作） |
+| `listed` | **[冻结]** · **[下架]** | `{status:'frozen'}` / `{status:'delisted'}` | **都要** |
+| `frozen` | **[上市]**（解冻）· **[下架]** | `{status:'listed'}` / `{status:'delisted'}` | 解冻**不要**；下架**要** |
+| `delisted` | **（无按钮）** | — | — |
+| `cid = 1`（`$`）任意态 | **（无按钮 / 零可点控件）** | — | — |
+
+- **与 §49.25 / `R27` 的唯一差**：`draft → listed` **不渲按钮**。依据 = `T135-b` + 本笔实测：该边在服务端恒 `409 LISTING_REQUIRES_FEE_PATH`（上市带 `currency_create_fee` + `listing_fee` + `listing_deposit` 资金腿，唯一入口 = `POST /api/currency/:cid/list` + 审核通过）。**§49.25 的六格状态机条文一字未改**（那是**服务端**可达集；本节记的是**UI 子集**，承 `T135-b`「UI 按钮集合 = 服务端状态机的子集」）。
+- **失败口径不变**：`409` 内联在列表上方并复用 `reason` → 人话映射（`LISTING_REQUIRES_FEE_PATH` 仍有映射：**兜底保留**，防旧入口/并发态漏网）。
+
+#### 49.28.4 门与探针读数（本笔现取 · 2026-10-24）
+
+| 门 | 读数 |
+|---|---|
+| unit（`vitest run src/test/unit`） | **106 files / 1211 tests / 0 failed**（含本单新增 `admin-exchange-currency-status.test.jsx`） |
+| a11y（`src/test/accessibility`） | **1 file / 16 tests / 0 failed** |
+| components（`src/test/components`） | **2 files / 14 tests / 0 failed** |
+| build（`npm run build`） | **exit 0** ⇒ `dist/assets/index-Co8a8Y0i.js` **654,764 B** / `dist/assets/index-pf_G9iq1.css` **195,601 B** |
+| 真浏览器探针（`ops/currency-status/currency-status-tab-probe-20261024.mjs`） | **18 checks / 18 passed / 0 failed · pageerror 0 · verdict PASS**；读数 = `ops/currency-status/readings/currency-status-tab-probe-20261024.json`；`vite preview` 专用端口 **5297**（`--strictPort`），跑完按 PID kill、`lsof` 复核端口已释放 |
+
+- **探针四臂**：A（1536）四 tab 顺序 · 点第 4 项落 `currency-status` · 5 行夹具 · **按钮矩阵逐行** · `$` 行零可点控件 · `draft` 行只读提示 · 零横向溢出；B（390）零横向溢出 + 表头隐藏（卡行式）；C 冻结弹确认层、取消 ⇒ **零 POST**、确认 ⇒ 体恰 `{status, create_key}`、成功后就地重拉；D 解冻**不弹确认层**。
+- **生产库零写入**：探针全程 `context.route` 夹具拦截（`/api/admin/me` / `/api/admin/currency/status` 读写均不触真实后端）。
+
+#### 49.28.5 判负（可证伪）
+
+1. `draft` 行出现「上市 / 上架」按钮（或渲成 `disabled` 占位）⇒ 判负（`T135-b` + `T135-a`）。
+2. `listed` / `frozen` / `delisted` 三态的按钮集与 §49.28.3 任一格不符 ⇒ 判负。
+3. `cid = 1` 行出现任何可点控件 ⇒ 判负（`R26`）。
+4. 下架 / 冻结**单击即执行**（无确认层），或**解冻**也套确认层 ⇒ 判负（`T135-c`；后者登记为噪音）。
+5. 状态列不是 `status` 原值映射（出现派生文案）⇒ 判负（`R10`）。
+6. 本路由的闸 ≠ `manage_settings` ⇒ 判负（与写口不同键 ⇒ 假开）。
+7. §44.5 四计数未同批前推，或现值 ≠ `49 / 40 / 26` / `118` ⇒ 判负。
+8. 前端把机读 `reason` 拼进可见文案 ⇒ 判负（§14.3 v0.7(A)）。
+
+#### 49.28.6 `NOT_MEASURED` / 诚实登记
+
+- **`NOT_MEASURED`**：真库端到端（真 `POST /api/admin/currency/:cid/status` + `currency_status_log` 落行 + 撤单解冻顺序）**本笔未跑** —— 本单纪律 = **生产库零写入**，探针用夹具、单测跑 jsdom；实现面证据 = 后端 §49.25 已冻结条文 + 既有 `ops` 探针口径。
+- **诚实登记（壳层前提）**：`AdminLayout` 侧栏 `w-64`（256px）**无响应式折叠**，390 宽下会把 `main` 挤到 **36px**（属后台壳层既有行为、**非本 tab**，本单禁改壳）⇒ 探针 B 臂**先按用户可见的折叠键收起侧栏**（`w-20` = 80px ⇒ `main` 212px）再量本 tab 自身横向溢出；读数内 `B_mobile.sidebarCollapsed=true` + `layout.mainWidth` 留痕，**未放宽判据**（doc 级 + 行级溢出仍各自硬断言）。
+- **本笔未动**：`backend-ts/**` / `tools/**` / `ctrl/**`；前三个 tab 的页面与断言；`ledger.spec` / `data-layer.spec`；未启停任何常驻服务（`vite preview` 5297 跑完即 kill）。
